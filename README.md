@@ -11,7 +11,7 @@ import com.twitter.finagle.{Filter, Service}
 import com.twitter.util.Future
 import com.twitter.finagle.http.Method
 
-object GetAllUsers extends ServiceOf[JsonResponse] {
+object GetAllUsers extends HttpServiceOf[JsonResponse] {
   def apply(request: HttpRequest): Future[JsonResponse] = {
     JsonArray(
       JsonObject("id" -> 10, "name" -> "Ivan"),
@@ -20,7 +20,7 @@ object GetAllUsers extends ServiceOf[JsonResponse] {
   }
 }
 
-class GetUserById(id: Long) extends ServiceOf[JsonResponse] {
+class GetUserById(id: Long) extends HttpServiceOf[JsonResponse] {
   def apply(request: HttpRequest): Future[JsonResponse] = {
     JsonObject("id" -> id, "name" -> "Simon").toFuture
   }
