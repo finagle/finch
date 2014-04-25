@@ -15,8 +15,10 @@ package object finch {
   type HttpRequest = Request
   type HttpResponse = Response
   type JsonResponse = JSONType
-  type HttpServiceOf[+Rep] = Service[HttpRequest, Rep]
-  type HttpService = HttpServiceOf[HttpResponse]
+
+  trait HttpServiceOf[+Rep] extends Service[HttpRequest, Rep]
+  trait HttpService extends HttpServiceOf[HttpResponse]
+  trait Facet[+RepIn, -RepOut] extends Filter[HttpRequest, RepOut, HttpRequest, RepIn]
 
   object JsonObject {
     def apply(args: (String, Any)*) = JSONObject(args.toMap)
@@ -25,8 +27,6 @@ package object finch {
   object JsonArray {
     def apply(args: JSONObject*) = JSONArray(args.toList)
   }
-
-  trait Facet[+RepIn, -RepOut] extends Filter[HttpRequest, RepOut, HttpRequest, RepIn]
 
   object TurnJsonToHttp extends Facet[JsonResponse, HttpResponse] {
     def apply(req: HttpRequest, service: Service[HttpRequest, JsonResponse]): Future[HttpResponse] =
@@ -39,23 +39,9 @@ package object finch {
       }
   }
 
-  class WrapJsonWithMetaAsTag(tag: String) extends Facet[JsonResponse, JsonResponse] {
-    def apply(req: HttpRequest, service: Service[HttpRequest, JsonResponse]): Future[JsonResponse] =
-      service(req) flatMap { json =>
-        val rep = JsonObject(
-          // TODO: status value
-          "status" -> 200,
-          tag -> json
-        )
-
-        Future.value(rep)
-      }
-  }
-
-  object WrapJsonWithMetaAsTag {
-    def apply(tag: String) = new WrapJsonWithMetaAsTag(tag)
-  }
-
+  /**
+   *
+   */
   trait Resource { self =>
 
     /**
@@ -76,26 +62,28 @@ package object finch {
 
     /**
      *
-     * @param f
+     * @param fn
      * @return
      */
-    def andThen(f: Service[HttpRequest, HttpResponse] => Service[HttpRequest, HttpResponse]) =
+    def andThen(fn: Service[HttpRequest, HttpResponse] => Service[HttpRequest, HttpResponse]) =
       new Resource {
-        def route = self.route andThen f
+        def route = self.route andThen fn
       }
 
-    implicit class AfterThatService[+RepIn](service: => Service[HttpRequest, RepIn]) {
+    implicit class AfterThatService[+RepIn](service: Service[HttpRequest, RepIn]) {
       def afterThat[A](thatFacet: Facet[RepIn, A]) =
         thatFacet andThen service
     }
 
-    implicit class AfterThatFacet[+RepIn, -RepOut](facet: => Facet[RepIn, RepOut]) {
+    implicit class AfterThatFacet[+RepIn, -RepOut](facet: Facet[RepIn, RepOut]) {
       def afterThat[A](thatFacet: Facet[RepOut, A]) =
         thatFacet andThen facet
     }
   }
 
-
+  /**
+   *
+   */
   class RestApi extends App {
 
     implicit class FilterAndThenResource(filter: Filter[HttpRequest, HttpResponse, HttpRequest, HttpResponse]) {
@@ -104,6 +92,12 @@ package object finch {
 
     def name = "FinchInstance-" + new Random().alphanumeric.take(20)
 
+    /**
+     *
+     * @param port
+     * @param resource
+     * @return
+     */
     def exposeAt(port: Int)(resource: => Resource): Unit = {
 
       val service = new RoutingService[HttpRequest](
