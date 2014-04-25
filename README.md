@@ -1,7 +1,7 @@
-finch
+Finch
 =====
 
-A lightweight RESTful HTTP API framework atop of Finagle.
+An experiminatal and lightweight RESTful HTTP API framework atop of Finagle.
 
 An example usage looks as follows:
 
@@ -28,21 +28,24 @@ class GetUserById(id: Long) extends Service[HttpRequest, JsonResponse] {
 
 object User extends Resource {
   def route = {
-    case Method.Get -> Root / "users" => GetAllUsers afterThat TurnJsonToHttp
-    case Method.Get -> Root / "users" / Long(id) => new GetUserById(id) afterThat TurnJsonToHttp
+    case Method.Get -> Root / "users" => 
+      GetAllUsers afterThat TurnJsonToHttp
+    case Method.Get -> Root / "users" / Long(id) => 
+      new GetUserById(id) afterThat TurnJsonToHttp
   }
 }
 
 object Echo extends Resource {
   def route = {
-    case Method.Get -> Root / "echo" / String(msg) => new Service[HttpRequest, HttpResponse] {
-      def apply(req: HttpRequest): Future[HttpResponse] = {
-        val rep = Response(Version.Http11, Status.Ok)
-        rep.setContentString(msg)
+    case Method.Get -> Root / "echo" / String(msg) => 
+      new Service[HttpRequest, HttpResponse] {
+        def apply(req: HttpRequest): Future[HttpResponse] = {
+          val rep = Response(Version.Http11, Status.Ok)
+          rep.setContentString(msg)
 
-        Future.value(rep)
+          Future.value(rep)
+        }
       }
-    }
   }
 }
 
