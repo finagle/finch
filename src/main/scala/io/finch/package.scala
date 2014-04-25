@@ -7,7 +7,7 @@ import com.twitter.finagle.http.path.Path
 import com.twitter.finagle.builder.ServerBuilder
 import scala.util.parsing.json.{JSONType, JSONArray, JSONObject}
 import java.net.InetSocketAddress
-import org.jboss.netty.handler.codec.http.HttpMethod
+import org.jboss.netty.handler.codec.http.{HttpResponseStatus, HttpMethod}
 import scala.util.Random
 import com.twitter.finagle.http.{Http, Status, Version, Response, Request, RichHttp}
 
@@ -29,9 +29,29 @@ package object finch {
   }
 
   object TurnJsonToHttp extends Facet[JsonResponse, HttpResponse] {
-    def apply(req: HttpRequest, service: Service[HttpRequest, JsonResponse]): Future[HttpResponse] =
+    def apply(req: HttpRequest, service: Service[HttpRequest, JsonResponse]) =
       service(req) flatMap { json =>
         val rep = Response(Version.Http11, Status.Ok)
+        rep.setContentTypeJson()
+        rep.setContentString(json.toString())
+
+        Future.value(rep)
+      }
+  }
+
+  class TurnJsonToHttpWithStatusFrom(statusTag: String) extends Facet[JsonResponse, HttpResponse] {
+    def apply(req: HttpRequest, service: Service[HttpRequest, JsonResponse]) =
+      service(req) flatMap { json =>
+        val status = json match {
+          case JSONObject(map) =>
+            map.get(statusTag) match {
+              case Some(code: Int) => HttpResponseStatus.valueOf(code)
+              case _ => Status.Ok
+            }
+          case _ => Status.Ok
+        }
+
+        val rep = Response(Version.Http11, status)
         rep.setContentTypeJson()
         rep.setContentString(json.toString())
 
