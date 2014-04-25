@@ -1,7 +1,7 @@
 Finch
 =====
 
-An experiminatal and lightweight RESTful HTTP API framework atop of Finagle.
+A lightweight RESTful HTTP API framework atop of Finagle.
 
 An example usage looks as follows:
 
@@ -51,7 +51,6 @@ object Echo extends Resource {
 
 
 object Main extends RestApi {
-
   // We do nothing for now.
   val authorize = Filter.identity[HttpRequest, HttpResponse]
 
