@@ -33,48 +33,48 @@ import org.jboss.netty.handler.codec.http.{HttpResponseStatus, HttpMethod}
 import scala.util.Random
 import com.twitter.finagle.http.{Http, Status, Version, Response, Request, RichHttp}
 
-/**
+/***
  * Hi! I'm Finch - a super-tiny library that makes the development of
  * RESTFul API services more pleasant with Twitter's Finagle.
  *
  * I'm built around three very simple building-blocks:
- *   1. 'HttpServiceOf[A]' that maps 'HttpRequest' to some response
- *      (both are just a special cases of Finagle's 'Service')
- *   2. 'Facet[+A, -B]' that transforms service's response 'A' to 'B'
+ *   1. ''HttpServiceOf[A]'' that maps ''HttpRequest'' to some response
+ *      (both are just a special cases of Finagle's ''Service'')
+ *   2. ''Facet[+A, -B]'' that transforms service's response ''A'' to ''B''
  *      (just a special case of Finagle's 'Filter')
- *   3. 'Resource' that provides route information about a particular resource
- *      (just a special case of 'PartialFunction' from route to 'HttpService')
+ *   3. ''Resource'' that provides route information about a particular resource
+ *      (just a special case of ''PartialFunction'' from route to ''HttpService'')
  *
  * I'm trying to follow the principles of my elder brother and keep the things
  * as composable as possible.
  *
  *   (a) In order to mark the difference between filters and facets and show the
- *       direction of a data-flow, the facets are composed with 'afterThat' operator
+ *       direction of a data-flow, the facets are composed with ''afterThat'' operator
  *       within reversed order:
  *
  *          val s = service afterThat facetA afterThat facetB
  *
  *   (b) Resources might be treated as partial functions, so they may be composed
- *       together with 'orElse' operator:
+ *       together with ''orElse'' operator:
  *
  *         val r = userResource orElse orderResource
  *
- *   (c) Another useful resource operator is 'andThen' that takes a function from
- *       'HttpService' to 'HttpService' and returns a new resource with function
+ *   (c) Another useful resource operator is ''andThen'' that takes a function from
+ *       ''HttpService'' to ''HttpService'' and returns a new resource with function
  *       applied to its every service.
  *
- *   (d) Resources may also be composed with filters by using the 'andThen' operator
+ *   (d) Resources may also be composed with filters by using the ''andThen'' operator
  *       in a familiar way:
  *
- *       val r = authorize andThen resource
+ *       '''val r = authorize andThen resource'''
  *
  * I support the only single format - JSON. There are also two predefined facets
  * available for JSON data-types.
  *
- *   1. 'TurnJsonToHttp' simply coverts the JSON data to HttpResponse
- *   2. 'TurnJsonToHttpWithStatus(statusTag)' checks whether the received json
- *      response contains the specified 'statusTag' and if so copies it to the
- *      'HttpResponse'. Otherwise status '200' (HTTP OK) is used.
+ *   1. ''TurnJsonToHttp'' simply coverts the JSON data to HttpResponse
+ *   2. ''TurnJsonToHttpWithStatus(statusTag)'' checks whether the received json
+ *      response contains the specified ''statusTag'' and if so copies it to the
+ *      ''HttpResponse''. Otherwise status ''200'' (HTTP OK) is used.
  *
  * Have fun writing a reusable and scalable code with me!
  *
@@ -86,13 +86,29 @@ package object finch {
   type HttpResponse = Response
   type JsonResponse = JSONType
 
+  /**
+   * An HttpService with specified response type.
+   *
+   * @tparam Rep the response type
+   */
   trait HttpServiceOf[+Rep] extends Service[HttpRequest, Rep] {
     implicit class AnyToFuture[A](any: A) {
       def toFuture: Future[A] = Future.value(any)
     }
   }
 
+  /**
+   * A pure HttpService.
+   */
   trait HttpService extends HttpServiceOf[HttpResponse]
+
+  /**
+   * Facet implements Filter interface but has a different meaning. Facets are
+   * converts services responses from ''RepIn'' to ''RepOut''.
+   *
+   * @tparam RepIn the input response type
+   * @tparam RepOut the output response type
+   */
   trait Facet[+RepIn, -RepOut] extends Filter[HttpRequest, RepOut, HttpRequest, RepIn]
 
   object JsonObject {
@@ -103,6 +119,9 @@ package object finch {
     def apply(args: JSONObject*) = JSONArray(args.toList)
   }
 
+  /**
+   * A facet that turns a ''JsonResponse'' to an ''HttpResponse''.
+   */
   object TurnJsonToHttp extends Facet[JsonResponse, HttpResponse] {
     def apply(req: HttpRequest, service: Service[HttpRequest, JsonResponse]) =
       service(req) flatMap { json =>
@@ -114,6 +133,12 @@ package object finch {
       }
   }
 
+  /**
+   * A facet that turns a ''JsonResponse'' to an ''HttpResponse'' with http-status
+   * copied with JSON's field tagged with ''statusTag''.
+   *
+   * @param statusTag the status tag identifier
+   */
   class TurnJsonToHttpWithStatusFrom(statusTag: String) extends Facet[JsonResponse, HttpResponse] {
     def apply(req: HttpRequest, service: Service[HttpRequest, JsonResponse]) =
       service(req) flatMap { json =>
@@ -135,30 +160,33 @@ package object finch {
   }
 
   /**
-   *
+   * A REST API resource that primary defines a ''route''.
    */
   trait Resource { self =>
 
     /**
-     * Returns a route itself.
-     *
-     * @return
+     * @return a route of this resource
      */
     def route: PartialFunction[(HttpMethod, Path), Service[HttpRequest, HttpResponse]]
 
     /**
+     * Combines ''this'' resource with ''that'' resource. A new resource
+     * contains routes of both ''this'' and ''that'' resources.
      *
-     * @param that
-     * @return
+     * @param that the resource to be combined with
+     *
+     * @return a new resource
      */
     def orElse(that: Resource) = new Resource {
       def route = self.route orElse that.route
     }
 
     /**
+     * Applies given function ''fn'' to every route's endpoints of this resource.
      *
-     * @param fn
-     * @return
+     * @param fn the function to be applied
+     *
+     * @return a new resource
      */
     def andThen(fn: Service[HttpRequest, HttpResponse] => Service[HttpRequest, HttpResponse]) =
       new Resource {
@@ -177,7 +205,7 @@ package object finch {
   }
 
   /**
-   *
+   * A base class for ''RestApi'' backend.
    */
   class RestApi extends App {
 
@@ -185,13 +213,18 @@ package object finch {
       def andThen(resource: => Resource) = resource andThen { filter andThen _ }
     }
 
+    /**
+     * @return a name of this Finch instance
+     */
     def name = "FinchInstance-" + new Random().alphanumeric.take(20)
 
     /**
+     * Exposes given ''resource'' at specified ''port'' and serves the requests.
      *
-     * @param port
-     * @param resource
-     * @return
+     * @param port the socket port number to listen
+     * @param resource the resource to expose
+     *
+     * @return nothing
      */
     def exposeAt(port: Int)(resource: => Resource): Unit = {
 
