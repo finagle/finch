@@ -29,9 +29,9 @@ class GetUserById(id: Long) extends HttpServiceOf[JsonResponse] {
 object User extends Resource {
   def route = {
     case Method.Get -> Root / "users" => 
-      GetAllUsers afterThat TurnJsonToHttp
+      GetAllUsers afterThat WrapWithMetaJsonAs("users") afterThat TurnJsonToHttp
     case Method.Get -> Root / "users" / Long(id) => 
-      new GetUserById(id) afterThat TurnJsonToHttp
+      new GetUserById(id) afterThat WrapWithMetaJson("user") afterThat TurnJsonToHttp
   }
 }
 
