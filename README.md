@@ -1,15 +1,13 @@
 Finch
 =====
 
-A lightweight RESTful HTTP API framework atop of Finagle.
+Finch is a tiny library atop of [Finagle](http://http://twitter.github.io/finagle/) that allows you to build scalable
+RESTful HTTP API backend.
 
 An example usage looks as follows:
 
 ```scala
-import com.twitter.finagle.http.path._
-import com.twitter.finagle.{Filter, Service}
-import com.twitter.util.Future
-import com.twitter.finagle.http.Method
+import io.finch._
 
 object GetAllUsers extends HttpServiceOf[JsonResponse] {
   def apply(request: HttpRequest): Future[JsonResponse] = {
@@ -29,9 +27,9 @@ class GetUserById(id: Long) extends HttpServiceOf[JsonResponse] {
 object User extends Resource {
   def route = {
     case Method.Get -> Root / "users" => 
-      GetAllUsers afterThat WrapWithMetaJsonAs("users") afterThat TurnJsonToHttp
+      GetAllUsers afterThat TurnJsonToHttp
     case Method.Get -> Root / "users" / Long(id) => 
-      new GetUserById(id) afterThat WrapWithMetaJson("user") afterThat TurnJsonToHttp
+      new GetUserById(id) afterThat TurnJsonToHttp
   }
 }
 
