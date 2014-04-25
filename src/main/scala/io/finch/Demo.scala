@@ -1,11 +1,5 @@
-finch
-=====
+package io.finch
 
-A lightweight RESTful HTTP API framework atop of Finagle.
-
-An example usage looks as follows:
-
-```scala
 import com.twitter.finagle.http.path._
 import com.twitter.finagle.{Filter, Service}
 import com.twitter.util.Future
@@ -27,37 +21,18 @@ class GetUserById(id: Long) extends Service[HttpRequest, JsonResponse] {
 }
 
 object User extends Resource {
+
   def route = {
     case Method.Get -> Root / "users" => GetAllUsers afterThat TurnJsonToHttp
     case Method.Get -> Root / "users" / Long(id) => new GetUserById(id) afterThat TurnJsonToHttp
   }
 }
 
-object Echo extends Resource {
-  def route = {
-    case Method.Get -> Root / "echo" / String(msg) => new Service[HttpRequest, HttpResponse] {
-      def apply(req: HttpRequest): Future[HttpResponse] = {
-        val rep = Response(Version.Http11, Status.Ok)
-        rep.setContentString(msg)
+object UserApi extends RestApi {
 
-        Future.value(rep)
-      }
-    }
-  }
-}
-
-
-object Main extends RestApi {
-
-  // We do nothing for now.
   val authorize = Filter.identity[HttpRequest, HttpResponse]
 
-  // Expose the API at :8080.
   exposeAt(8080) {
-    authorize andThen (User orElse Echo)
+    authorize andThen (User orElse User)
   }
 }
-
-```
-----
-By Vladimir Kostyukov, http://vkostyukov.ru
