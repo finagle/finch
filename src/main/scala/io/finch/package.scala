@@ -1,3 +1,25 @@
+/*
+ * Copyright 2014, by Vladimir Kostyukov and Contributors.
+ *
+ * This file is a part of Finch library that may be found at
+ *
+ *      https://github.com/vkostyukov/finch
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * You may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributor(s): -
+ */
+
 package io
 
 import com.twitter.util.Future
@@ -12,8 +34,52 @@ import scala.util.Random
 import com.twitter.finagle.http.{Http, Status, Version, Response, Request, RichHttp}
 
 /**
+ * Hi! I'm Finch - a super-tiny library that makes the development of
+ * RESTFul API services more pleasant with Twitter's Finagle.
  *
+ * I'm built around three very simple building-blocks:
+ *   1. 'HttpServiceOf[A]' that maps 'HttpRequest' to some response
+ *      (both are just a special cases of Finagle's 'Service')
+ *   2. 'Facet[+A, -B]' that transforms service's response 'A' to 'B'
+ *      (just a special case of Finagle's 'Filter')
+ *   3. 'Resource' that provides route information about a particular resource
+ *      (just a special case of 'PartialFunction' from route to 'HttpService')
  *
+ * I'm trying to follow the principles of my elder brother and keep the things
+ * as composable as possible.
+ *
+ *   (a) In order to mark the difference between filters and facets and show the
+ *       direction of a data-flow, the facets are composed with 'afterThat' operator
+ *       within reversed order:
+ *
+ *          val s = service afterThat facetA afterThat facetB
+ *
+ *   (b) Resources might be treated as partial functions, so they may be composed
+ *       together with 'orElse' operator:
+ *
+ *         val r = userResource orElse orderResource
+ *
+ *   (c) Another useful resource operator is 'andThen' that takes a function from
+ *       'HttpService' to 'HttpService' and returns a new resource with function
+ *       applied to its every service.
+ *
+ *   (d) Resources may also be composed with filters by using the 'andThen' operator
+ *       in a familiar way:
+ *
+ *       val r = authorize andThen resource
+ *
+ * I support the only single format - JSON. There are also two predefined facets
+ * available for JSON data-types.
+ *
+ *   1. 'TurnJsonToHttp' simply coverts the JSON data to HttpResponse
+ *   2. 'TurnJsonToHttpWithStatus(statusTag)' checks whether the received json
+ *      response contains the specified 'statusTag' and if so copies it to the
+ *      'HttpResponse'. Otherwise status '200' (HTTP OK) is used.
+ *
+ * Have fun writing a reusable and scalable code with me!
+ *
+ * - https://github.com/vkostyukov/finch
+ * - http://vkostyukov.ru
  */
 package object finch {
   type HttpRequest = Request
