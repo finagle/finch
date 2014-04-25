@@ -11,12 +11,21 @@ import org.jboss.netty.handler.codec.http.{HttpResponseStatus, HttpMethod}
 import scala.util.Random
 import com.twitter.finagle.http.{Http, Status, Version, Response, Request, RichHttp}
 
+/**
+ *
+ *
+ */
 package object finch {
   type HttpRequest = Request
   type HttpResponse = Response
   type JsonResponse = JSONType
 
-  trait HttpServiceOf[+Rep] extends Service[HttpRequest, Rep]
+  trait HttpServiceOf[+Rep] extends Service[HttpRequest, Rep] {
+    implicit class AnyToFuture[A](any: A) {
+      def toFuture: Future[A] = Future.value(any)
+    }
+  }
+
   trait HttpService extends HttpServiceOf[HttpResponse]
   trait Facet[+RepIn, -RepOut] extends Filter[HttpRequest, RepOut, HttpRequest, RepIn]
 

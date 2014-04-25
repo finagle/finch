@@ -12,28 +12,28 @@ object GetAllUsers extends HttpServiceOf[JsonResponse] {
       JsonObject("id" -> 10, "name" -> "Ivan"),
       JsonObject("id" -> 20, "name" -> "John")
     )
-    Future.value(JsonObject(
+
+    JsonObject(
       "status" -> Status.Ok.getCode,
       "users" -> rep
-    ))
+    ).toFuture
   }
 }
 
 class GetUserById(id: Long) extends HttpServiceOf[JsonResponse] {
   def apply(request: HttpRequest): Future[JsonResponse] = {
     val rep = JsonObject("id" -> id, "name" -> "Simon")
-    Future.value(JsonObject(
+
+    JsonObject(
       "status" -> Status.Ok.getCode,
       "user" -> rep
-    ))
+    ).toFuture
   }
 }
 
 object TurnJsonToHttpWithStatus extends TurnJsonToHttpWithStatusFrom("status")
 
 object User extends Resource {
-
-  implicit val statusTag = "status"
 
   def route = {
     case Method.Get -> Root / "users" =>
