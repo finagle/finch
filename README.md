@@ -1,10 +1,23 @@
 Finch
 =====
 
-Hi! I'm **Finch** - a super-tiny library (actually, just a single package-object
-[io.finch](https://github.com/vkostyukov/finch/blob/master/src/main/scala/io/finch/package.scala)
+Hi! I'm **Finch**, a super-tiny library (actually, just a single package-object
+[io.finch](https://github.com/vkostyukov/finch/blob/master/src/main/scala/io/finch/package.scala))
 atop of [Finagle](http://twitter.github.io/finagle) that makes the development of RESTFul
 API services more pleasant and slick.
+
+How to finagle your REST API with Finch?
+----------------------------------------
+
+**Step 1:** Update your SBT dependencies:
+
+```
+libraryDependencies ++= Seq(
+  "io" %% "finch" % "0.0.1"
+)
+```
+
+**Step 2:** Write your REST services:
 
 ```scala
 import io.finch._
@@ -23,7 +36,11 @@ class GetUserById(id: Long) extends HttpServiceOf[JsonResponse] {
     JsonObject("id" -> id, "name" -> "Simon").toFuture
   }
 }
+```
 
+**Step 3:** Define your resources:
+
+```scala
 object User extends Resource {
   def route = {
     case Method.Get -> Root / "users" => 
@@ -46,8 +63,11 @@ object Echo extends Resource {
       }
   }
 }
+```
 
+**Step 4:** Expose your resoucers with Finch instance:
 
+```scala
 object Main extends RestApi {
   // We do nothing for now.
   val authorize = Filter.identity[HttpRequest, HttpResponse]
