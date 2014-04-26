@@ -109,7 +109,7 @@ package object finch {
    * @tparam RepIn the input response type
    * @tparam RepOut the output response type
    */
-  trait Facet[+RepIn, -RepOut] extends Filter[HttpRequest, RepOut, HttpRequest, RepIn]
+  trait Facet[-RepIn, +RepOut] extends Filter[HttpRequest, RepOut, HttpRequest, RepIn]
 
   object JsonObject {
     def apply(args: (String, Any)*) = JSONObject(args.toMap)
@@ -193,12 +193,12 @@ package object finch {
         def route = self.route andThen fn
       }
 
-    implicit class AfterThatService[+RepIn](service: Service[HttpRequest, RepIn]) {
+    implicit class AfterThatService[RepIn](service: Service[HttpRequest, RepIn]) {
       def afterThat[A](thatFacet: Facet[RepIn, A]) =
         thatFacet andThen service
     }
 
-    implicit class AfterThatFacet[+RepIn, -RepOut](facet: Facet[RepIn, RepOut]) {
+    implicit class AfterThatFacet[RepIn, RepOut](facet: Facet[RepIn, RepOut]) {
       def afterThat[A](thatFacet: Facet[RepOut, A]) =
         thatFacet andThen facet
     }

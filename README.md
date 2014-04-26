@@ -9,7 +9,20 @@ API services more pleasant and slick.
 How to finagle your REST API with Finch?
 ----------------------------------------
 
-**Step 1:** Update your SBT dependencies:
+**Step 1:** Clone Finch:
+
+```
+git clone git@github.com:vkostyukov/finch.git
+```
+
+**Step 2:** Build Finch and publish it to your local repo:
+
+```
+sbt publishLocal
+```
+
+**Step 3:** Update your project dependencies:
+
 
 ```
 libraryDependencies ++= Seq(
@@ -17,7 +30,7 @@ libraryDependencies ++= Seq(
 )
 ```
 
-**Step 2:** Write your REST services:
+**Step 4:** Write your REST services:
 
 ```scala
 import io.finch._
@@ -47,7 +60,7 @@ class Echo(what: String) extends HttpService {
 }
 ```
 
-**Step 3:** Define your resources:
+**Step 5:** Define your resources:
 
 ```scala
 import io.finch._
@@ -69,7 +82,7 @@ object Echo extends Resource {
 }
 ```
 
-**Step 4:** Expose your resoucers with Finch instance:
+**Step 6:** Expose your resources with Finch instance:
 
 ```scala
 import io.finch._
@@ -86,7 +99,7 @@ object Main extends RestApi {
 
 ```
 
-**Step 5:** Drop the feedback to the author [@vkostyukov](http://twitter.com/vkostyukov).
+**Step 7:** Have fun and stay finagled!
 
 ----
 By Vladimir Kostyukov, http://vkostyukov.ru
