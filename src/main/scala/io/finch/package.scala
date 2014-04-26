@@ -193,12 +193,12 @@ package object finch {
         def route = self.route andThen fn
       }
 
-    implicit class AfterThatService[RepIn](service: Service[HttpRequest, RepIn]) {
+    private[this] implicit class AfterThatService[RepIn](service: Service[HttpRequest, RepIn]) {
       def afterThat[A](thatFacet: Facet[RepIn, A]) =
         thatFacet andThen service
     }
 
-    implicit class AfterThatFacet[RepIn, RepOut](facet: Facet[RepIn, RepOut]) {
+    private[this] implicit class AfterThatFacet[RepIn, RepOut](facet: Facet[RepIn, RepOut]) {
       def afterThat[A](thatFacet: Facet[RepOut, A]) =
         thatFacet andThen facet
     }
@@ -209,7 +209,7 @@ package object finch {
    */
   class RestApi extends App {
 
-    implicit class FilterAndThenResource(filter: Filter[HttpRequest, HttpResponse, HttpRequest, HttpResponse]) {
+    private[this] implicit class FilterAndThenResource(filter: Filter[HttpRequest, HttpResponse, HttpRequest, HttpResponse]) {
       def andThen(resource: => Resource) = resource andThen { filter andThen _ }
     }
 
