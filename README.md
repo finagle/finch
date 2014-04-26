@@ -85,5 +85,8 @@ object Main extends RestApi {
 }
 
 ```
+
+**Step 5:** Drop the feedback to the author [@vkostyukov](http://twitter.com/vkostyukov).
+
 ----
 By Vladimir Kostyukov, http://vkostyukov.ru
