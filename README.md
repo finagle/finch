@@ -23,7 +23,7 @@ libraryDependencies ++= Seq(
 import io.finch._
 
 object GetAllUsers extends HttpServiceOf[JsonResponse] {
-  def apply(request: HttpRequest): Future[JsonResponse] = {
+  def apply(request: HttpRequest) = {
     JsonArray(
       JsonObject("id" -> 10, "name" -> "Ivan"),
       JsonObject("id" -> 20, "name" -> "John")
@@ -32,8 +32,17 @@ object GetAllUsers extends HttpServiceOf[JsonResponse] {
 }
 
 class GetUserById(id: Long) extends HttpServiceOf[JsonResponse] {
-  def apply(request: HttpRequest): Future[JsonResponse] = {
+  def apply(request: HttpRequest) = {
     JsonObject("id" -> id, "name" -> "Simon").toFuture
+  }
+}
+
+class Echo(what: String) extends HttpService {
+  def apply(request: HttpRequest) = {
+    val rep = Response(Version.Http11, Status.Ok)
+    rep.setContentString(msg)
+
+    rep.toFuture
   }
 }
 ```
@@ -54,15 +63,8 @@ object User extends Resource {
 
 object Echo extends Resource {
   def route = {
-    case Method.Get -> Root / "echo" / String(msg) => 
-      new HttpService {
-        def apply(req: HttpRequest): Future[HttpResponse] = {
-          val rep = Response(Version.Http11, Status.Ok)
-          rep.setContentString(msg)
-
-          Future.value(rep)
-        }
-      }
+    case Method.Get -> Root / "echo" / String(what) =>
+      new Echo(what)
   }
 }
 ```
