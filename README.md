@@ -65,7 +65,7 @@ class Echo(what: String) extends HttpService {
 ```scala
 import io.finch._
 
-object User extends Resource {
+object User extends RestResource {
   def route = {
     case Method.Get -> Root / "users" => 
       GetAllUsers afterThat TurnJsonToHttp
@@ -74,7 +74,7 @@ object User extends Resource {
   }
 }
 
-object Echo extends Resource {
+object Echo extends RestResource {
   def route = {
     case Method.Get -> Root / "echo" / String(what) =>
       new Echo(what)

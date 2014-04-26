@@ -162,7 +162,7 @@ package object finch {
   /**
    * A REST API resource that primary defines a ''route''.
    */
-  trait Resource { self =>
+  trait RestResource { self =>
 
     /**
      * @return a route of this resource
@@ -177,7 +177,7 @@ package object finch {
      *
      * @return a new resource
      */
-    def orElse(that: Resource) = new Resource {
+    def orElse(that: RestResource) = new RestResource {
       def route = self.route orElse that.route
     }
 
@@ -189,7 +189,7 @@ package object finch {
      * @return a new resource
      */
     def andThen(fn: Service[HttpRequest, HttpResponse] => Service[HttpRequest, HttpResponse]) =
-      new Resource {
+      new RestResource {
         def route = self.route andThen fn
       }
 
@@ -210,7 +210,7 @@ package object finch {
   class RestApi extends App {
 
     private[this] implicit class FilterAndThenResource(filter: Filter[HttpRequest, HttpResponse, HttpRequest, HttpResponse]) {
-      def andThen(resource: => Resource) = resource andThen { filter andThen _ }
+      def andThen(resource: => RestResource) = resource andThen { filter andThen _ }
     }
 
     /**
@@ -226,7 +226,7 @@ package object finch {
      *
      * @return nothing
      */
-    def exposeAt(port: Int)(resource: => Resource): Unit = {
+    def exposeAt(port: Int)(resource: => RestResource): Unit = {
 
       val service = new RoutingService[HttpRequest](
         new PartialFunction[HttpRequest, Service[HttpRequest, HttpResponse]] {
