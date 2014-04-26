@@ -41,6 +41,8 @@ class GetUserById(id: Long) extends HttpServiceOf[JsonResponse] {
 **Step 3:** Define your resources:
 
 ```scala
+import io.finch._
+
 object User extends Resource {
   def route = {
     case Method.Get -> Root / "users" => 
@@ -68,6 +70,8 @@ object Echo extends Resource {
 **Step 4:** Expose your resoucers with Finch instance:
 
 ```scala
+import io.finch._
+
 object Main extends RestApi {
   // We do nothing for now.
   val authorize = Filter.identity[HttpRequest, HttpResponse]
