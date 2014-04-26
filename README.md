@@ -26,7 +26,7 @@ sbt publishLocal
 
 ```
 libraryDependencies ++= Seq(
-  "io" %% "finch" % "0.0.2"
+  "io" %% "finch" % "0.0.3"
 )
 ```
 

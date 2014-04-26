@@ -92,7 +92,7 @@ package object finch {
    * @tparam Rep the response type
    */
   trait HttpServiceOf[+Rep] extends Service[HttpRequest, Rep] {
-    implicit class AnyToFuture[A](any: A) {
+    protected[this] implicit class AnyToFuture[A](any: A) {
       def toFuture: Future[A] = Future.value(any)
     }
   }
@@ -193,12 +193,12 @@ package object finch {
         def route = self.route andThen fn
       }
 
-    private[this] implicit class AfterThatService[RepIn](service: Service[HttpRequest, RepIn]) {
+    protected[this] implicit class AfterThatService[RepIn](service: Service[HttpRequest, RepIn]) {
       def afterThat[A](thatFacet: Facet[RepIn, A]) =
         thatFacet andThen service
     }
 
-    private[this] implicit class AfterThatFacet[RepIn, RepOut](facet: Facet[RepIn, RepOut]) {
+    protected[this] implicit class AfterThatFacet[RepIn, RepOut](facet: Facet[RepIn, RepOut]) {
       def afterThat[A](thatFacet: Facet[RepOut, A]) =
         thatFacet andThen facet
     }
@@ -209,7 +209,7 @@ package object finch {
    */
   class RestApi extends App {
 
-    private[this] implicit class FilterAndThenResource(filter: Filter[HttpRequest, HttpResponse, HttpRequest, HttpResponse]) {
+    protected[this] implicit class FilterAndThenResource(filter: Filter[HttpRequest, HttpResponse, HttpRequest, HttpResponse]) {
       def andThen(resource: => RestResource) = resource andThen { filter andThen _ }
     }
 
