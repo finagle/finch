@@ -1,10 +1,10 @@
 Finch
 =====
 
-Finch is a tiny library atop of [Finagle](http://http://twitter.github.io/finagle/) that allows you to build scalable
-RESTful HTTP API backend.
-
-An example usage looks as follows:
+Hi! I'm **Finch** - a super-tiny library (actually, just a single package-object
+[io.finch](https://github.com/vkostyukov/finch/blob/master/src/main/scala/io/finch/package.scala)
+atop of [Finagle](http://twitter.github.io/finagle) that makes the development of RESTFul
+API services more pleasant and slick.
 
 ```scala
 import io.finch._

@@ -34,8 +34,8 @@ import scala.util.Random
 import com.twitter.finagle.http.{Http, Status, Version, Response, Request, RichHttp}
 
 /***
- * Hi! I'm Finch - a super-tiny library that makes the development of
- * RESTFul API services more pleasant with Twitter's Finagle.
+ * Hi! I'm Finch - a super-tiny library atop of Finagle that makes the
+ * development of RESTFul API services more pleasant and slick.
  *
  * I'm built around three very simple building-blocks:
  *   1. ''HttpServiceOf[A]'' that maps ''HttpRequest'' to some response
@@ -52,13 +52,13 @@ import com.twitter.finagle.http.{Http, Status, Version, Response, Request, RichH
  *       direction of a data-flow, the facets are composed with ''afterThat'' operator
  *       within reversed order:
  *
- *          val s = service afterThat facetA afterThat facetB
- *
+ *         '''val s = service afterThat facetA afterThat facetB'''
+
  *   (b) Resources might be treated as partial functions, so they may be composed
  *       together with ''orElse'' operator:
  *
- *         val r = userResource orElse orderResource
- *
+ *         '''val r = userResource orElse orderResource'''
+
  *   (c) Another useful resource operator is ''andThen'' that takes a function from
  *       ''HttpService'' to ''HttpService'' and returns a new resource with function
  *       applied to its every service.
@@ -66,7 +66,7 @@ import com.twitter.finagle.http.{Http, Status, Version, Response, Request, RichH
  *   (d) Resources may also be composed with filters by using the ''andThen'' operator
  *       in a familiar way:
  *
- *       '''val r = authorize andThen resource'''
+ *         '''val r = authorize andThen resource'''
  *
  * I support the only single format - JSON. There are also two predefined facets
  * available for JSON data-types.
