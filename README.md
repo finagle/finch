@@ -26,7 +26,7 @@ sbt publishLocal
 
 ```
 libraryDependencies ++= Seq(
-  "io" %% "finch" % "0.0.3"
+  "io" %% "finch" % "0.0.4"
 )
 ```
 
@@ -68,9 +68,9 @@ import io.finch._
 object User extends RestResource {
   def route = {
     case Method.Get -> Root / "users" => 
-      GetAllUsers afterThat TurnJsonToHttp
+      GetAllUsers afterThat TurnJsonIntoHttp
     case Method.Get -> Root / "users" / Long(id) => 
-      new GetUserById(id) afterThat TurnJsonToHttp
+      new GetUserById(id) afterThat TurnJsonIntoHttp
   }
 }
 

@@ -122,7 +122,7 @@ package object finch {
   /**
    * A facet that turns a ''JsonResponse'' to an ''HttpResponse''.
    */
-  object TurnJsonToHttp extends Facet[JsonResponse, HttpResponse] {
+  object TurnJsonIntoHttp extends Facet[JsonResponse, HttpResponse] {
     def apply(req: HttpRequest, service: Service[HttpRequest, JsonResponse]) =
       service(req) flatMap { json =>
         val rep = Response(Version.Http11, Status.Ok)
@@ -139,7 +139,7 @@ package object finch {
    *
    * @param statusTag the status tag identifier
    */
-  class TurnJsonToHttpWithStatusFrom(statusTag: String) extends Facet[JsonResponse, HttpResponse] {
+  class TurnJsonIntoHttpWithStatusFromTag(statusTag: String) extends Facet[JsonResponse, HttpResponse] {
     def apply(req: HttpRequest, service: Service[HttpRequest, JsonResponse]) =
       service(req) flatMap { json =>
         val status = json match {
