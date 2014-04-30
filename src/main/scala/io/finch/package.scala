@@ -87,22 +87,21 @@ package object finch {
   type JsonResponse = JSONType
 
   /**
+   * Alters any object with ''toFuture'' method.
+   *
+   * @param any an object to be altered
+   * @tparam A an object type
+   */
+  protected[this] implicit class AnyToFuture[A](any: A) {
+    def toFuture: Future[A] = Future.value(any)
+  }
+
+  /**
    * An HttpService with specified response type.
    *
    * @tparam Rep the response type
    */
-  trait HttpServiceOf[+Rep] extends Service[HttpRequest, Rep] {
-
-    /**
-     * Alters any object with ''toFuture'' method.
-     *
-     * @param any an object to be altered
-     * @tparam A an object type
-     */
-    protected[this] implicit class AnyToFuture[A](any: A) {
-      def toFuture: Future[A] = Future.value(any)
-    }
-  }
+  trait HttpServiceOf[+Rep] extends Service[HttpRequest, Rep]
 
   /**
    * A pure HttpService.
@@ -124,10 +123,10 @@ package object finch {
      * @param rep the response to convert
      * @return a converted response
      */
-    def apply(rep: RepIn): RepOut
+    def apply(rep: RepIn): Future[RepOut]
 
     def apply(req: HttpRequest, service: Service[HttpRequest, RepIn]) =
-      service(req) map apply
+      service(req) flatMap apply
   }
 
   object JsonObject {
@@ -147,7 +146,7 @@ package object finch {
       reply.setContentTypeJson()
       reply.setContentString(rep.toString())
 
-      reply
+      reply.toFuture
     }
   }
 
@@ -172,7 +171,7 @@ package object finch {
       reply.setContentTypeJson()
       reply.setContentString(rep.toString())
 
-      reply
+      reply.toFuture
     }
   }
 
