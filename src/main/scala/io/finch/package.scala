@@ -87,15 +87,21 @@ package object finch {
   type JsonResponse = JSONType
 
   /**
+   * Alters any object with ''toFuture'' method.
+   *
+   * @param any an object to be altered
+   * @tparam A an object type
+   */
+  implicit class AnyToFuture[A](any: A) {
+    def toFuture: Future[A] = Future.value(any)
+  }
+
+  /**
    * An HttpService with specified response type.
    *
    * @tparam Rep the response type
    */
-  trait HttpServiceOf[+Rep] extends Service[HttpRequest, Rep] {
-    protected[this] implicit class AnyToFuture[A](any: A) {
-      def toFuture: Future[A] = Future.value(any)
-    }
-  }
+  trait HttpServiceOf[+Rep] extends Service[HttpRequest, Rep]
 
   /**
    * A pure HttpService.
@@ -129,7 +135,7 @@ package object finch {
         rep.setContentTypeJson()
         rep.setContentString(json.toString())
 
-        Future.value(rep)
+        rep.toFuture
       }
   }
 
@@ -155,7 +161,7 @@ package object finch {
         rep.setContentTypeJson()
         rep.setContentString(json.toString())
 
-        Future.value(rep)
+        rep.toFuture
       }
   }
 
@@ -209,7 +215,9 @@ package object finch {
    */
   class RestApi extends App {
 
-    protected[this] implicit class FilterAndThenResource(filter: Filter[HttpRequest, HttpResponse, HttpRequest, HttpResponse]) {
+    protected[this] implicit class FilterAndThenResource(
+        filter: Filter[HttpRequest, HttpResponse, HttpRequest, HttpResponse]) {
+
       def andThen(resource: => RestResource) = resource andThen { filter andThen _ }
     }
 
