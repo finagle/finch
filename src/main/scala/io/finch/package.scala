@@ -87,21 +87,22 @@ package object finch {
   type JsonResponse = JSONType
 
   /**
-   * Alters any object with ''toFuture'' method.
-   *
-   * @param any an object to be altered
-   * @tparam A an object type
-   */
-  implicit class AnyToFuture[A](any: A) {
-    def toFuture: Future[A] = Future.value(any)
-  }
-
-  /**
    * An HttpService with specified response type.
    *
    * @tparam Rep the response type
    */
-  trait HttpServiceOf[+Rep] extends Service[HttpRequest, Rep]
+  trait HttpServiceOf[+Rep] extends Service[HttpRequest, Rep] {
+
+    /**
+     * Alters any object with ''toFuture'' method.
+     *
+     * @param any an object to be altered
+     * @tparam A an object type
+     */
+    protected[this] implicit class AnyToFuture[A](any: A) {
+      def toFuture: Future[A] = Future.value(any)
+    }
+  }
 
   /**
    * A pure HttpService.
@@ -115,7 +116,18 @@ package object finch {
    * @tparam RepIn the input response type
    * @tparam RepOut the output response type
    */
-  trait Facet[-RepIn, +RepOut] extends Filter[HttpRequest, RepOut, HttpRequest, RepIn]
+  trait Facet[-RepIn, +RepOut] extends Filter[HttpRequest, RepOut, HttpRequest, RepIn] {
+    /**
+     * Converts given ''rep'' from ''RepIn'' to ''RepOut'' type.
+     *
+     * @param rep the response to convert
+     * @return a converted response
+     */
+    def apply(rep: RepIn): RepOut
+
+    def apply(req: HttpRequest, service: Service[HttpRequest, RepIn]) =
+      service(req) map apply
+  }
 
   object JsonObject {
     def apply(args: (String, Any)*) = JSONObject(args.toMap)
@@ -129,14 +141,13 @@ package object finch {
    * A facet that turns a ''JsonResponse'' to an ''HttpResponse''.
    */
   object TurnJsonIntoHttp extends Facet[JsonResponse, HttpResponse] {
-    def apply(req: HttpRequest, service: Service[HttpRequest, JsonResponse]) =
-      service(req) flatMap { json =>
-        val rep = Response(Version.Http11, Status.Ok)
-        rep.setContentTypeJson()
-        rep.setContentString(json.toString())
+    def apply(rep: JsonResponse) = {
+      val reply = Response(Version.Http11, Status.Ok)
+      reply.setContentTypeJson()
+      reply.setContentString(rep.toString())
 
-        rep.toFuture
-      }
+      reply
+    }
   }
 
   /**
@@ -146,23 +157,22 @@ package object finch {
    * @param statusTag the status tag identifier
    */
   class TurnJsonIntoHttpWithStatusFromTag(statusTag: String) extends Facet[JsonResponse, HttpResponse] {
-    def apply(req: HttpRequest, service: Service[HttpRequest, JsonResponse]) =
-      service(req) flatMap { json =>
-        val status = json match {
-          case JSONObject(map) =>
-            map.get(statusTag) match {
-              case Some(code: Int) => HttpResponseStatus.valueOf(code)
-              case _ => Status.Ok
-            }
-          case _ => Status.Ok
-        }
-
-        val rep = Response(Version.Http11, status)
-        rep.setContentTypeJson()
-        rep.setContentString(json.toString())
-
-        rep.toFuture
+    def apply(rep: JsonResponse) = {
+      val status = rep match {
+        case JSONObject(map) =>
+          map.get(statusTag) match {
+            case Some(code: Int) => HttpResponseStatus.valueOf(code)
+            case _ => Status.Ok
+          }
+        case _ => Status.Ok
       }
+
+      val reply = Response(Version.Http11, status)
+      reply.setContentTypeJson()
+      reply.setContentString(rep.toString())
+
+      reply
+    }
   }
 
   /**
