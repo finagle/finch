@@ -117,6 +117,7 @@ package object finch {
    * @tparam RepOut the output response type
    */
   trait Facet[-RepIn, +RepOut] extends Filter[HttpRequest, RepOut, HttpRequest, RepIn] {
+
     /**
      * Converts given ''rep'' from ''RepIn'' to ''RepOut'' type.
      *
@@ -228,7 +229,10 @@ package object finch {
     protected[this] implicit class FilterAndThenResource(
         filter: Filter[HttpRequest, HttpResponse, HttpRequest, HttpResponse]) {
 
-      def andThen(resource: => RestResource) = resource andThen { filter andThen _ }
+      private[this] def addFilterTo(service: Service[HttpRequest, HttpResponse]) =
+        filter andThen service
+
+      def andThen(resource: => RestResource) = resource andThen addFilterTo
     }
 
     /**
