@@ -237,7 +237,7 @@ package object finch {
     /**
      * @return a name of this Finch instance
      */
-    def name = "FinchInstance-" + new Random().alphanumeric.take(20)
+    def name = "FinchInstance-" + new Random().alphanumeric.take(20).mkString
 
     /**
      * Exposes given ''resource'' at specified ''port'' and serves the requests.
