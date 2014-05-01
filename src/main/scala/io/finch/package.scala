@@ -129,6 +129,20 @@ package object finch {
       service(req) flatMap apply
   }
 
+  /**
+   * A Sieve that just filters the ''HttpRequest''-s.
+
+   * @tparam Rep the response type
+   */
+  trait Sieve[Rep] extends Filter[HttpRequest, Rep, HttpRequest, Rep]
+
+  object Sieve {
+    def identity[Rep] = new Sieve[Rep] {
+      def apply(req: HttpRequest, continue: Service[HttpRequest, Rep]) =
+        continue(req)
+    }
+  }
+
   object JsonObject {
     def apply(args: (String, Any)*) = JSONObject(args.toMap)
     def empty = JSONObject(Map.empty[String, Any])
