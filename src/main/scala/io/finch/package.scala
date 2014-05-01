@@ -92,7 +92,7 @@ package object finch {
    * @param any an object to be altered
    * @tparam A an object type
    */
-  protected[this] implicit class AnyToFuture[A](any: A) {
+  implicit class AnyToFuture[A](any: A) {
     def toFuture: Future[A] = Future.value(any)
   }
 
@@ -131,10 +131,12 @@ package object finch {
 
   object JsonObject {
     def apply(args: (String, Any)*) = JSONObject(args.toMap)
+    def empty = JSONObject(Map.empty[String, Any])
   }
 
   object JsonArray {
     def apply(args: JSONObject*) = JSONArray(args.toList)
+    def empty = JSONArray(List.empty[Any])
   }
 
   /**
@@ -178,12 +180,12 @@ package object finch {
   /**
    * A REST API resource that primary defines a ''route''.
    */
-  trait RestResource { self =>
+  trait RestResource[Rep] { self =>
 
     /**
      * @return a route of this resource
      */
-    def route: PartialFunction[(HttpMethod, Path), Service[HttpRequest, HttpResponse]]
+    def route: PartialFunction[(HttpMethod, Path), Service[HttpRequest, Rep]]
 
     /**
      * Combines ''this'' resource with ''that'' resource. A new resource
@@ -193,7 +195,7 @@ package object finch {
      *
      * @return a new resource
      */
-    def orElse(that: RestResource) = new RestResource {
+    def orElse(that: RestResource[Rep]) = new RestResource[Rep] {
       def route = self.route orElse that.route
     }
 
@@ -204,10 +206,21 @@ package object finch {
      *
      * @return a new resource
      */
-    def andThen(fn: Service[HttpRequest, HttpResponse] => Service[HttpRequest, HttpResponse]) =
-      new RestResource {
+    def andThen[A](fn: Service[HttpRequest, Rep] => Service[HttpRequest, A]) =
+      new RestResource[A] {
         def route = self.route andThen fn
       }
+
+    /**
+     * Applies given ''facet'' to this resource.
+     *
+     * @param facet a facet to apply
+     * @tparam A a response type of new resource
+     *
+     * @return a new resource
+     */
+    def afterThat[A](facet: Facet[Rep, A]) =
+      andThen { facet andThen _ }
 
     protected[this] implicit class AfterThatService[RepIn](service: Service[HttpRequest, RepIn]) {
       def afterThat[A](thatFacet: Facet[RepIn, A]) =
@@ -223,16 +236,27 @@ package object finch {
   /**
    * A base class for ''RestApi'' backend.
    */
-  class RestApi extends App {
+  abstract class RestApi[Rep] extends App {
 
     protected[this] implicit class FilterAndThenResource(
-        filter: Filter[HttpRequest, HttpResponse, HttpRequest, HttpResponse]) {
+        filter: Filter[HttpRequest, Rep, HttpRequest, Rep]) {
 
-      private[this] def addFilterTo(service: Service[HttpRequest, HttpResponse]) =
-        filter andThen service
-
-      def andThen(resource: => RestResource) = resource andThen addFilterTo
+      def andThen(resource: => RestResource[Rep]) = resource andThen { filter andThen _ }
     }
+
+    /**
+     * @return a resource of this API
+     */
+    def resource: RestResource[Rep]
+
+    /**
+     * Loopbacks given ''HttpRequest'' to a resource
+     *
+     * @param req the ''HttpRequest'' to loopback
+     * @return a response wrapped with ''Future''
+     */
+    def loopback(req: HttpRequest): Future[Rep] =
+      resource.route(req.method -> Path(req.path))(req)
 
     /**
      * @return a name of this Finch instance
@@ -243,16 +267,18 @@ package object finch {
      * Exposes given ''resource'' at specified ''port'' and serves the requests.
      *
      * @param port the socket port number to listen
-     * @param resource the resource to expose
+     * @param fn the function that transforms a resource type to ''HttpResponse''
      *
      * @return nothing
      */
-    def exposeAt(port: Int)(resource: => RestResource): Unit = {
+    def exposeAt(port: Int)(fn: RestResource[Rep] => RestResource[HttpResponse]): Unit = {
+
+      val httpResource = fn(resource)
 
       val service = new RoutingService[HttpRequest](
         new PartialFunction[HttpRequest, Service[HttpRequest, HttpResponse]] {
-          def apply(req: HttpRequest) = resource.route(req.method -> Path(req.path))
-          def isDefinedAt(req: HttpRequest) = resource.route.isDefinedAt(req.method -> Path(req.path))
+          def apply(req: HttpRequest) = httpResource.route(req.method -> Path(req.path))
+          def isDefinedAt(req: HttpRequest) = httpResource.route.isDefinedAt(req.method -> Path(req.path))
         })
 
       ServerBuilder()
