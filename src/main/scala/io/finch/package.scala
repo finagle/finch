@@ -23,7 +23,7 @@
 package io
 
 import com.twitter.util.Future
-import com.twitter.finagle.{Service, Filter}
+import com.twitter.finagle.{Filter, Service}
 import com.twitter.finagle.http.service.RoutingService
 import com.twitter.finagle.http.path.Path
 import com.twitter.finagle.builder.ServerBuilder
@@ -96,6 +96,16 @@ package object finch {
     def toFuture: Future[A] = Future.value(any)
   }
 
+  implicit class FilterAndThen[RepIn, RepOut](filter: Filter[HttpRequest, RepOut, HttpRequest, RepIn]) {
+    def andThen(thatResource: RestResourceOf[RepIn]) =
+      thatResource andThen { filter andThen _ }
+  }
+
+  implicit class ServiceAfterThat[RepIn](service: Service[HttpRequest, RepIn]) {
+    def afterThat[RepOut](thatFilter: Filter[HttpRequest, RepOut, HttpRequest, RepIn]) =
+      thatFilter andThen service
+  }
+
   /**
    * An HttpService with specified response type.
    *
@@ -130,18 +140,16 @@ package object finch {
   }
 
   /**
-   * A Sieve that just filters the ''HttpRequest''-s.
-
+   * An HTTP filter that just filters the ''HttpRequest''-s.
+   *
    * @tparam Rep the response type
    */
-  trait Sieve[Rep] extends Filter[HttpRequest, Rep, HttpRequest, Rep]
+  trait HttpFilterOf[Rep] extends Filter[HttpRequest, Rep, HttpRequest, Rep]
 
-  object Sieve {
-    def identity[Rep] = new Sieve[Rep] {
-      def apply(req: HttpRequest, continue: Service[HttpRequest, Rep]) =
-        continue(req)
-    }
-  }
+  /**
+   * An HTTP filter typed with ''HttpResponse''.
+   */
+  trait HttpFilter extends HttpFilterOf[HttpResponse]
 
   object JsonObject {
     def apply(args: (String, Any)*) = JSONObject(args.toMap)
@@ -194,7 +202,7 @@ package object finch {
   /**
    * A REST API resource that primary defines a ''route''.
    */
-  trait RestResource[Rep] { self =>
+  trait RestResourceOf[Rep] { self =>
 
     /**
      * @return a route of this resource
@@ -209,7 +217,7 @@ package object finch {
      *
      * @return a new resource
      */
-    def orElse(that: RestResource[Rep]) = new RestResource[Rep] {
+    def orElse(that: RestResourceOf[Rep]) = new RestResourceOf[Rep] {
       def route = self.route orElse that.route
     }
 
@@ -220,48 +228,32 @@ package object finch {
      *
      * @return a new resource
      */
-    def andThen[A](fn: Service[HttpRequest, Rep] => Service[HttpRequest, A]) =
-      new RestResource[A] {
+    def andThen[RepOut](fn: Service[HttpRequest, Rep] => Service[HttpRequest, RepOut]) =
+      new RestResourceOf[RepOut] {
         def route = self.route andThen fn
       }
 
     /**
-     * Applies given ''facet'' to this resource.
+     * Applies given ''filter'' to this resource.
      *
-     * @param facet a facet to apply
-     * @tparam A a response type of new resource
+     * @param filter a filter to apply
+     * @tparam RepOut a response type of new resource
      *
      * @return a new resource
      */
-    def afterThat[A](facet: Facet[Rep, A]) =
-      andThen { facet andThen _ }
-
-    protected[this] implicit class AfterThatService[RepIn](service: Service[HttpRequest, RepIn]) {
-      def afterThat[A](thatFacet: Facet[RepIn, A]) =
-        thatFacet andThen service
-    }
-
-    protected[this] implicit class AfterThatFacet[RepIn, RepOut](facet: Facet[RepIn, RepOut]) {
-      def afterThat[A](thatFacet: Facet[RepOut, A]) =
-        thatFacet andThen facet
-    }
+    def afterThat[RepOut](filter: Filter[HttpRequest, RepOut, HttpRequest, Rep]) =
+      andThen { filter andThen _ }
   }
 
   /**
    * A base class for ''RestApi'' backend.
    */
-  abstract class RestApi[Rep] extends App {
-
-    protected[this] implicit class FilterAndThenResource(
-        filter: Filter[HttpRequest, Rep, HttpRequest, Rep]) {
-
-      def andThen(resource: => RestResource[Rep]) = resource andThen { filter andThen _ }
-    }
+  abstract class RestApiOf[Rep] extends App {
 
     /**
      * @return a resource of this API
      */
-    def resource: RestResource[Rep]
+    def resource: RestResourceOf[Rep]
 
     /**
      * Loopbacks given ''HttpRequest'' to a resource
@@ -282,10 +274,8 @@ package object finch {
      *
      * @param port the socket port number to listen
      * @param fn the function that transforms a resource type to ''HttpResponse''
-     *
-     * @return nothing
      */
-    def exposeAt(port: Int)(fn: RestResource[Rep] => RestResource[HttpResponse]): Unit = {
+    def exposeAt(port: Int)(fn: RestResourceOf[Rep] => RestResourceOf[HttpResponse]): Unit = {
 
       val httpResource = fn(resource)
 
