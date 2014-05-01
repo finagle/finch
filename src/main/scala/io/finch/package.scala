@@ -246,6 +246,11 @@ package object finch {
   }
 
   /**
+   * A default REST resource.
+   */
+  trait RestResource extends RestResourceOf[HttpResponse]
+
+  /**
    * A base class for ''RestApi'' backend.
    */
   abstract class RestApiOf[Rep] extends App {
@@ -292,4 +297,9 @@ package object finch {
         .build(service)
     }
   }
+
+  /**
+   * A default REST API backend.
+   */
+  abstract class RestApi extends RestApiOf[HttpResponse]
 }

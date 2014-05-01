@@ -73,6 +73,20 @@ object User extends RestResourceOf[JsonResponse] {
       new GetUserById(id) afterThat TurnUserIntoJson
   }
 }
+
+object Echo extends RestResource {
+  def route = {
+    case Method.Get -> Root / "echo" / String(what) =>
+      new HttpService {
+        def apply(req: HttpRequest) = {
+          val rep = Response(Version.Http11, Status.Ok)
+          rep.setContentString(what)
+
+          rep.toFuture
+        }
+      }
+  }
+}
 ```
 
 **Step 6:** Expose your resources with Finch instance:
@@ -85,11 +99,13 @@ object Main extends RestApiOf[JsonResponse] {
   // We do nothing for now.
   val authorize = Filter.identity[HttpRequest, JsonResponse]
 
+  // Core resources.
   def resource = User // orElse ThisResource orElse ThatResource
 
   // Expose the API at :8080.
   exposeAt(8080) { respond =>
-    authorize andThen respond afterThat TurnJsonIntoHttp
+    val main = authorize andThen respond afterThat TurnJsonIntoHttp
+    main orElse Echo
   }
 }
 
