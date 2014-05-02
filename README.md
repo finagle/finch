@@ -30,88 +30,103 @@ libraryDependencies ++= Seq(
 )
 ```
 
-**Step 4:** Write your REST services:
+**Step 4:** Define your model (optional):
+```scala
+import io.finch._
+
+trait Jsonable {
+  def toJson: JsonResponse
+}
+
+case class User(id: Long, name: String) extends Jsonable {
+  def toJson = JsonObject("id" -> id, "name" -> name)
+}
+
+case class Car(id: Long, manufacturer: String) extends Jsonable {
+  def toJson = JsonObject("id" -> id, "manufacturer" -> manufacturer)
+}
+```
+
+**Step 5:** Write your REST services:
 
 ```scala
 import io.finch._
 
-case class User(id: Long, name: String)
-
-object GetAllUsers extends HttpServiceOf[List[User]] {
-  def apply(request: HttpRequest) =
+object GetAllUsers extends HttpServiceOf[Seq[User]] {
+  def apply(req: HttpRequest) =
     List(User(10, "Ivan"), User(20, "John")).toFuture
 }
 
 class GetUserById(id: Long) extends HttpServiceOf[User] {
-  def apply(request: HttpRequest) = User(id, "John").toFuture
+  def apply(req: HttpRequest) = User(id, "John").toFuture
+}
+
+class GetCarById(id: Long) extends HttpServiceOf[Car] {
+  def apply(req: HttpRequest) = Car(id, "Toyota").toFuture
 }
 ```
 
-**Step 5:** Define your resources:
+**Step 6:** Define your facets:
 
 ```scala
 import io.finch._
 
-object TurnUserIntoJson extends Facet[User, JsonResponse] {
-  def apply(rep: User) = rep match {
-    case User(id, name) => JsonObject("id" -> id, "name" -> name).toFuture
-  }
+object TurnObjectIntoJson extends Facet[Jsonable, JsonResponse] {
+  def apply(rep: Jsonable) = rep.toJson.toFuture
 }
 
-object TurnUsersIntoJson extends Facet[List[User], JsonResponse] {
-  def apply(rep: List[User]) =
-    Future.collect(rep map TurnUserIntoJson) flatMap { seq =>
-      JsonArray(seq:_*).toFuture
-    }
+object TurnCollectionIntoJson extends Facet[Seq[Jsonable], JsonResponse] {
+  def apply(rep: Seq[Jsonable]) =
+    JsonArray(rep map { _.toJson }:_*).toFuture
 }
+```
+
+**Step 7:** Define your resources using facets for data transformation:
+```scala
+import io.finch._
 
 object User extends RestResourceOf[JsonResponse] {
   def route = {
     case Method.Get -> Root / "users" =>
-      GetAllUsers afterThat TurnUsersIntoJson
+      GetAllUsers afterThat TurnCollectionIntoJson
     case Method.Get -> Root / "users" / Long(id) =>
-      new GetUserById(id) afterThat TurnUserIntoJson
+      new GetUserById(id) afterThat TurnObjectIntoJson
   }
 }
 
-object Echo extends RestResource {
+object Car extends  RestResourceOf[JsonResponse] {
   def route = {
-    case Method.Get -> Root / "echo" / String(what) =>
-      new HttpService {
-        def apply(req: HttpRequest) = {
-          val rep = Response(Version.Http11, Status.Ok)
-          rep.setContentString(what)
-
-          rep.toFuture
-        }
-      }
+    case Method.Get -> Root / "cars" / Long(id) =>
+      new GetCarById(id) afterThat TurnObjectIntoJson
   }
 }
 ```
 
-**Step 6:** Expose your resources with Finch instance:
+**Step 8:** Expose your resources with Finch instance:
 
 ```scala
 import io.finch._
 
 object Main extends RestApiOf[JsonResponse] {
-
   // We do nothing for now.
-  val authorize = Filter.identity[HttpRequest, JsonResponse]
+  val authorize = new HttpFilterOf[JsonResponse] {
+    def apply(req: HttpRequest, continue: Service[HttpRequest, JsonResponse]) =
+      continue(req)
+  }
 
-  // Core resources.
-  def resource = User // orElse ThisResource orElse ThatResource
+  def resource = User orElse Car
 
   // Expose the API at :8080.
   exposeAt(8080) { respond =>
-    val main = authorize andThen respond afterThat TurnJsonIntoHttp
-    main orElse Echo
+    // 1. The ''respond'' value is a resource of JsonResponse,
+    //    so we have to convert it to the resource of HttpResponse.
+    // 2. Our REST API should be authorized.
+    authorize andThen respond afterThat TurnJsonIntoHttp
   }
 }
-
 ```
 
-**Step 7:** Have fun and stay finagled!
+**Step 9:** Have fun and stay finagled!
 
 ----
 By Vladimir Kostyukov, http://vkostyukov.ru

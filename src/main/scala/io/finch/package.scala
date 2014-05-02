@@ -157,7 +157,7 @@ package object finch {
   }
 
   object JsonArray {
-    def apply(args: JSONObject*) = JSONArray(args.toList)
+    def apply(args: Any*) = JSONArray(args.toList)
     def empty = JSONArray(List.empty[Any])
   }
 
