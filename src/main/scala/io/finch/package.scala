@@ -154,11 +154,19 @@ package object finch {
   object JsonObject {
     def apply(args: (String, Any)*) = JSONObject(args.toMap)
     def empty = JSONObject(Map.empty[String, Any])
+    def unapply(json: JSONType): Option[Map[String, Any]] = json match {
+      case JSONObject(map) => Some(map)
+      case _ => None
+    }
   }
 
   object JsonArray {
     def apply(args: Any*) = JSONArray(args.toList)
     def empty = JSONArray(List.empty[Any])
+    def unapply(json: JSONType): Option[List[Any]] = json match {
+      case JSONArray(list) => Some(list)
+      case _ => None
+    }
   }
 
   /**
@@ -261,13 +269,27 @@ package object finch {
     def resource: RestResourceOf[Rep]
 
     /**
-     * Loopbacks given ''HttpRequest'' to a resource
+     * Loopbacks given ''HttpRequest'' to a resource.
      *
      * @param req the ''HttpRequest'' to loopback
      * @return a response wrapped with ''Future''
      */
     def loopback(req: HttpRequest): Future[Rep] =
       resource.route(req.method -> Path(req.path))(req)
+
+    /**
+     * Loopbacks given request (represented by a string) to a resource
+     *
+     * @param url the url to loopback
+     * @return a response wrapped with ''Future''
+     */
+    def loopback(url: String): Future[Rep] = {
+      // TODO: how to do it better?
+      val pattern = "^(.*:)//([a-z\\-.]+)(:[0-9]+)?(.*)$".r
+      val uri = (pattern split url)(4)
+
+      loopback(Request(uri))
+    }
 
     /**
      * @return a name of this Finch instance
