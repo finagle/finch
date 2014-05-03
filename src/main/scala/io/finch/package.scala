@@ -278,18 +278,13 @@ package object finch {
       resource.route(req.method -> Path(req.path))(req)
 
     /**
-     * Loopbacks given request (represented by a string) to a resource
+     * Loopbacks given request (represented by a URI string) to a resource
      *
-     * @param url the url to loopback
+     * @param uri the uri to loopback
      * @return a response wrapped with ''Future''
      */
-    def loopback(url: String): Future[Rep] = {
-      // TODO: how to do it better?
-      val pattern = "^(.*:)//([a-z\\-.]+)(:[0-9]+)?(.*)$".r
-      val uri = (pattern split url)(4)
-
+    def loopback(uri: String): Future[Rep] =
       loopback(Request(uri))
-    }
 
     /**
      * @return a name of this Finch instance
