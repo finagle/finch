@@ -119,24 +119,46 @@ package object finch {
   trait HttpService extends HttpServiceOf[HttpResponse]
 
   /**
+   * A Facet that has a ''req'' available.
+   *
+   * @tparam RepIn the input response type
+   * @tparam RepOut the output response type
+   */
+  trait FacetWithRequest[-RepIn, +RepOut] extends Filter[HttpRequest, RepOut, HttpRequest, RepIn] {
+
+    /**
+     * Converts given pair ''req'' and ''rep'' of type ''RepIn'' to type ''RepOut''.
+     *
+     * @param req the request
+     * @param rep the response to convert
+     *
+     * @return a converted response
+     */
+    def apply(req: HttpRequest)(rep: RepIn): Future[RepOut]
+
+    def apply(req: HttpRequest, service: Service[HttpRequest, RepIn]) =
+      service(req) flatMap apply(req)
+  }
+
+  /**
    * Facet implements Filter interface but has a different meaning. Facets are
    * converts services responses from ''RepIn'' to ''RepOut''.
    *
    * @tparam RepIn the input response type
    * @tparam RepOut the output response type
    */
-  trait Facet[-RepIn, +RepOut] extends Filter[HttpRequest, RepOut, HttpRequest, RepIn] {
+  trait Facet[-RepIn, +RepOut] extends FacetWithRequest[RepIn, RepOut] {
 
     /**
      * Converts given ''rep'' from ''RepIn'' to ''RepOut'' type.
      *
      * @param rep the response to convert
+     *
      * @return a converted response
      */
     def apply(rep: RepIn): Future[RepOut]
 
-    def apply(req: HttpRequest, service: Service[HttpRequest, RepIn]) =
-      service(req) flatMap apply
+    def apply(req: HttpRequest)(rep: RepIn) = apply(rep)
   }
 
   /**
@@ -274,7 +296,7 @@ package object finch {
      * @param req the ''HttpRequest'' to loopback
      * @return a response wrapped with ''Future''
      */
-    def loopback(req: HttpRequest): Future[Rep] =
+    def apply(req: HttpRequest): Future[Rep] =
       resource.route(req.method -> Path(req.path))(req)
 
     /**
@@ -283,8 +305,7 @@ package object finch {
      * @param uri the uri to loopback
      * @return a response wrapped with ''Future''
      */
-    def loopback(uri: String): Future[Rep] =
-      loopback(Request(uri))
+    def apply(uri: String): Future[Rep] = apply(Request(uri))
 
     /**
      * @return a name of this Finch instance
