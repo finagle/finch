@@ -92,16 +92,20 @@ package object finch {
    * @param any an object to be altered
    * @tparam A an object type
    */
-  implicit class AnyToFuture[A](any: A) {
+  implicit class AnyToFuture[A](val any: A) extends AnyVal {
     def toFuture: Future[A] = Future.value(any)
   }
 
-  implicit class FilterAndThen[RepIn, RepOut](filter: Filter[HttpRequest, RepOut, HttpRequest, RepIn]) {
+  implicit class FilterAndThen[RepIn, RepOut](
+      val filter: Filter[HttpRequest, RepOut, HttpRequest, RepIn]) extends AnyVal{
+
     def andThen(thatResource: RestResourceOf[RepIn]) =
       thatResource andThen { filter andThen _ }
   }
 
-  implicit class ServiceAfterThat[RepIn](service: Service[HttpRequest, RepIn]) {
+  implicit class ServiceAfterThat[RepIn](
+      val service: Service[HttpRequest, RepIn]) extends AnyVal {
+
     def afterThat[RepOut](thatFilter: Filter[HttpRequest, RepOut, HttpRequest, RepIn]) =
       thatFilter andThen service
   }
