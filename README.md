@@ -1,6 +1,8 @@
 Finch
 =====
 
+![logo](https://raw.github.com/vkostyukov/finch/master/finch-logo.png) 
+
 Hi! I'm **Finch**, a super-tiny library (actually, just a single package-object
 [io.finch](https://github.com/vkostyukov/finch/blob/master/src/main/scala/io/finch/package.scala))
 atop of [Finagle](http://twitter.github.io/finagle) that makes the development of RESTFul
