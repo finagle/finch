@@ -9,28 +9,17 @@ API services more pleasant and slick.
 How to finagle your REST API with Finch?
 ----------------------------------------
 
-**Step 1:** Clone Finch:
+**Step 1:** Add the dependency:
 
 ```
-git clone git@github.com:vkostyukov/finch.git
-```
+resolvers += "repo.konfettin.ru" at "http://repo.konfettin.ru"
 
-**Step 2:** Build Finch and publish it to your local repo:
-
-```
-sbt publishLocal
-```
-
-**Step 3:** Update your project dependencies:
-
-
-```
 libraryDependencies ++= Seq(
   "io" %% "finch" % "0.0.11"
 )
 ```
 
-**Step 4:** Define your model (optional):
+**Step 2:** Define your model (optional):
 ```scala
 import io.finch._
 
@@ -47,7 +36,7 @@ case class Car(id: Long, manufacturer: String) extends Jsonable {
 }
 ```
 
-**Step 5:** Write your REST services:
+**Step 3:** Write your REST services:
 
 ```scala
 import io.finch._
@@ -66,7 +55,7 @@ class GetCarById(id: Long) extends HttpServiceOf[Car] {
 }
 ```
 
-**Step 6:** Define your facets:
+**Step 4:** Define your facets:
 
 ```scala
 import io.finch._
@@ -81,7 +70,7 @@ object TurnCollectionIntoJson extends Facet[Seq[Jsonable], JsonResponse] {
 }
 ```
 
-**Step 7:** Define your resources using facets for data transformation:
+**Step 5:** Define your resources using facets for data transformation:
 ```scala
 import io.finch._
 
@@ -102,7 +91,7 @@ object Car extends  RestResourceOf[JsonResponse] {
 }
 ```
 
-**Step 8:** Expose your resources with Finch instance:
+**Step 6:** Expose your resources with Finch instance:
 
 ```scala
 import io.finch._
@@ -126,7 +115,7 @@ object Main extends RestApiOf[JsonResponse] {
 }
 ```
 
-**Step 9:** Have fun and stay finagled!
+**Step 7:** Have fun and stay finagled!
 
 ----
 By Vladimir Kostyukov, http://vkostyukov.ru
