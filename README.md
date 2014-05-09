@@ -1,6 +1,3 @@
-Finch
-=====
-
 ![logo](https://raw.github.com/vkostyukov/finch/master/finch-logo.png) 
 
 Hi! I'm **Finch**, a super-tiny library (actually, just a single package-object
