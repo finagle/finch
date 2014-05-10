@@ -92,22 +92,27 @@ package object finch {
    * @param any an object to be altered
    * @tparam A an object type
    */
-  implicit class AnyToFuture[A](val any: A) extends AnyVal {
+  implicit class _AnyToFuture[A](val any: A) extends AnyVal {
     def toFuture: Future[A] = Future.value(any)
   }
 
-  implicit class FilterAndThen[RepIn, RepOut](
+  implicit class _FilterAndThen[RepIn, RepOut](
       val filter: Filter[HttpRequest, RepOut, HttpRequest, RepIn]) extends AnyVal{
 
     def andThen(thatResource: RestResourceOf[RepIn]) =
       thatResource andThen { filter andThen _ }
   }
 
-  implicit class ServiceAfterThat[RepIn](
+  implicit class _ServiceAfterThat[RepIn](
       val service: Service[HttpRequest, RepIn]) extends AnyVal {
 
     def afterThat[RepOut](thatFilter: Filter[HttpRequest, RepOut, HttpRequest, RepIn]) =
       thatFilter andThen service
+  }
+
+  implicit class _JsonObjectMap(val json: JSONObject) extends AnyVal {
+    def map[A](tag: String)(fn: A => Any) =
+      JSONObject(json.obj + (tag -> fn(json.obj(tag).asInstanceOf[A])))
   }
 
   /**
@@ -178,7 +183,8 @@ package object finch {
   trait HttpFilter extends HttpFilterOf[HttpResponse]
 
   object JsonObject {
-    def apply(args: (String, Any)*) = JSONObject(args.toMap)
+    def apply(args: (String, Any)*) = apply(args.toMap)
+    def apply(map: Map[String, Any]) = JSONObject(map)
     def empty = JSONObject(Map.empty[String, Any])
     def unapply(json: JSONType): Option[Map[String, Any]] = json match {
       case JSONObject(map) => Some(map)
@@ -187,7 +193,8 @@ package object finch {
   }
 
   object JsonArray {
-    def apply(args: Any*) = JSONArray(args.toList)
+    def apply(args: Any*) = apply(args.toList)
+    def apply(list: List[Any]) = JSONArray(list)
     def empty = JSONArray(List.empty[Any])
     def unapply(json: JSONType): Option[List[Any]] = json match {
       case JSONArray(list) => Some(list)
