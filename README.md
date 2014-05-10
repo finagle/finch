@@ -11,7 +11,7 @@ How to finagle your REST API with Finch?
 **Step 1:** Add the dependency:
 
 ```
-resolvers += "repo.konfettin.ru" at "http://repo.konfettin.ru"
+resolvers += "Finch.io" at "http://repo.konfettin.ru"
 
 libraryDependencies ++= Seq(
   "io" %% "finch" % "0.0.13"
