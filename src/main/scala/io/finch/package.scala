@@ -183,7 +183,7 @@ package object finch {
   trait HttpFilter extends HttpFilterOf[HttpResponse]
 
   object JsonObject {
-    def apply(args: (String, Any)*) = apply(args.toMap)
+    def apply(args: (String, Any)*) = JSONObject(args.toMap)
     def apply(map: Map[String, Any]) = JSONObject(map)
     def empty = JSONObject(Map.empty[String, Any])
     def unapply(json: JSONType): Option[Map[String, Any]] = json match {
@@ -193,7 +193,7 @@ package object finch {
   }
 
   object JsonArray {
-    def apply(args: Any*) = apply(args.toList)
+    def apply(args: Any*) = JSONArray(args.toList)
     def apply(list: List[Any]) = JSONArray(list)
     def empty = JSONArray(List.empty[Any])
     def unapply(json: JSONType): Option[List[Any]] = json match {
