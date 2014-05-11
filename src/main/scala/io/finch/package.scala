@@ -110,9 +110,44 @@ package object finch {
       thatFilter andThen service
   }
 
-  implicit class _JsonObjectMap(val json: JSONObject) extends AnyVal {
-    def map[A](tag: String)(fn: A => Any) =
-      JSONObject(json.obj + (tag -> fn(json.obj(tag).asInstanceOf[A])))
+  implicit class _JsonObjectOps(val json: JSONObject) extends AnyVal {
+    def map[A](tag: String)(fn: A => Any) = json.obj.get(tag) match {
+      case Some(any) => json.copy(Map(tag -> fn(any.asInstanceOf[A])))
+      case None => json
+    }
+
+    def flatMap[A](tag: String)(fn: A => Any) = map[A](tag)(fn).toFuture
+
+    def mapObject(tag: String) = map[JSONObject](tag) _
+    def mapArray(tag: String) = map[JSONArray](tag) _
+
+    def flatMapObject(tag: String) = flatMap[JSONObject](tag) _
+    def flatMapArray(tag: String) = flatMap[JSONArray](tag) _
+
+    def apply[A](tag: String) = json.obj(tag).asInstanceOf[A]
+
+    def get[A](tag: String) = apply[A](tag)
+    def getOrElse[A](tag: String, default: => A) = json.obj.getOrElse(tag, default).asInstanceOf[A]
+  }
+
+  implicit class _JsonTypeOps(val json: JSONType) extends AnyVal {
+    def flatMapIfObject(fn: JSONObject => Future[JsonResponse]) = json match {
+      case JsonObject(o) => fn(o)
+      case _ => json.toFuture
+    }
+
+    def flatMapIfArray(fn: JSONArray => Future[JsonResponse]) = json match {
+      case JsonArray(a) => fn(a)
+      case _ => json.toFuture
+    }
+
+    def mapIfObject(fn: JSONObject => JsonResponse) = flatMapIfObject { o =>
+      fn(o).toFuture
+    }
+
+    def mapIfArray(fn: JSONArray => JsonResponse) = flatMapIfArray { a =>
+      fn(a).toFuture
+    }
   }
 
   /**
@@ -186,8 +221,8 @@ package object finch {
     def apply(args: (String, Any)*) = JSONObject(args.toMap)
     def apply(map: Map[String, Any]) = JSONObject(map)
     def empty = JSONObject(Map.empty[String, Any])
-    def unapply(json: JSONType): Option[Map[String, Any]] = json match {
-      case JSONObject(map) => Some(map)
+    def unapply(outer: JSONType): Option[JSONObject] = outer match {
+      case inner @ JSONObject(_) => Some(inner)
       case _ => None
     }
   }
@@ -196,8 +231,8 @@ package object finch {
     def apply(args: Any*) = JSONArray(args.toList)
     def apply(list: List[Any]) = JSONArray(list)
     def empty = JSONArray(List.empty[Any])
-    def unapply(json: JSONType): Option[List[Any]] = json match {
-      case JSONArray(list) => Some(list)
+    def unapply(outer: JSONType): Option[JSONArray] = outer match {
+      case inner @ JSONArray(_) => Some(inner)
       case _ => None
     }
   }
@@ -224,11 +259,8 @@ package object finch {
   class TurnJsonIntoHttpWithStatusFromTag(statusTag: String) extends Facet[JsonResponse, HttpResponse] {
     def apply(rep: JsonResponse) = {
       val status = rep match {
-        case JSONObject(map) =>
-          map.get(statusTag) match {
-            case Some(code: Int) => HttpResponseStatus.valueOf(code)
-            case _ => Status.Ok
-          }
+        case JsonObject(o) =>
+          HttpResponseStatus.valueOf(o.getOrElse[Int](statusTag, 200))
         case _ => Status.Ok
       }
 
