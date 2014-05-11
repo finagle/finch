@@ -111,12 +111,17 @@ package object finch {
   }
 
   implicit class _JsonObjectOps(val json: JSONObject) extends AnyVal {
+    def withInFuture[A](tag: String)(fn: A => Future[Any]) = json.obj.get(tag) match {
+      case Some(any) => fn(any.asInstanceOf[A]) flatMap { a =>
+        json.copy(Map(tag -> a)).toFuture
+      }
+      case None => json.toFuture
+    }
+
     def withIn[A](tag: String)(fn: A => Any) = json.obj.get(tag) match {
       case Some(any) => json.copy(Map(tag -> fn(any.asInstanceOf[A])))
       case None => json
     }
-
-    def withInFuture[A](tag: String)(fn: A => Any) = withIn[A](tag)(fn).toFuture
 
     def apply[A](tag: String) = json.obj(tag).asInstanceOf[A]
 
