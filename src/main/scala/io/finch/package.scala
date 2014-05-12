@@ -118,11 +118,7 @@ package object finch {
       case None => json.toFuture
     }
 
-    def mapTag[A](tag: String)(fn: A => Any) = flatMapTag[A](tag) { a =>
-      a.toFuture
-    }
-
-    def withTag[A](tag: String)(fn: A => Any) = json.obj.get(tag) match {
+    def mapTag[A](tag: String)(fn: A => Any) = json.obj.get(tag) match {
       case Some(any) => json.copy(Map(tag -> fn(any.asInstanceOf[A])))
       case None => json
     }
@@ -131,6 +127,16 @@ package object finch {
 
     def get[A](tag: String) = apply[A](tag)
     def getOrElse[A](tag: String, default: => A) = json.obj.getOrElse(tag, default).asInstanceOf[A]
+  }
+
+  implicit class _JsonArrayOps(val json: JSONArray) extends AnyVal {
+    def flatMap(fn: JSONObject => Future[Any]) = {
+      val fs = json.list map { a => fn(a.asInstanceOf[JSONObject]) }
+      Future.collect(fs) flatMap { seq => JsonArray(seq).toFuture }
+    }
+
+    def map(fn: JSONObject => Any) =
+      json.list map { a => fn(a.asInstanceOf[JSONObject]) }
   }
 
   implicit class _JsonTypeOps(val json: JSONType) extends AnyVal {
@@ -144,13 +150,11 @@ package object finch {
       case _ => json.toFuture
     }
 
-    def mapIfObject(fn: JSONObject => JsonResponse) = flatMapIfObject { o =>
-      fn(o).toFuture
-    }
+    def mapIfObject(fn: JSONObject => JsonResponse) =
+      flatMapIfObject { o => fn(o).toFuture }
 
-    def mapIfArray(fn: JSONArray => JsonResponse) = flatMapIfArray { a =>
-      fn(a).toFuture
-    }
+    def mapIfArray(fn: JSONArray => JsonResponse) =
+      flatMapIfArray { a => fn(a).toFuture }
   }
 
   /**
