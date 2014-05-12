@@ -111,12 +111,14 @@ package object finch {
   }
 
   implicit class _JsonObjectOps(val json: JSONObject) extends AnyVal {
-    def flatMapTag[A](tag: String)(fn: A => Future[Any]) = json.obj.get(tag) match {
+    def flatMapTagInFuture[A](tag: String)(fn: A => Future[Any]) = json.obj.get(tag) match {
       case Some(any) => fn(any.asInstanceOf[A]) flatMap { a =>
         json.copy(Map(tag -> a)).toFuture
       }
       case None => json.toFuture
     }
+
+    def mapTagInFuture[A](tag: String)(fn: A => Any) = mapTag[A](tag)(fn).toFuture
 
     def mapTag[A](tag: String)(fn: A => Any) = json.obj.get(tag) match {
       case Some(any) => json.copy(Map(tag -> fn(any.asInstanceOf[A])))
@@ -130,31 +132,15 @@ package object finch {
   }
 
   implicit class _JsonArrayOps(val json: JSONArray) extends AnyVal {
-    def flatMap(fn: JSONObject => Future[Any]) = {
+    def flatMapInFuture(fn: JSONObject => Future[Any]) = {
       val fs = json.list map { a => fn(a.asInstanceOf[JSONObject]) }
       Future.collect(fs) flatMap { seq => JsonArray(seq).toFuture }
     }
 
+    def mapInFuture(fn: JSONObject => Any) = map(fn).toFuture
+
     def map(fn: JSONObject => Any) =
       json.list map { a => fn(a.asInstanceOf[JSONObject]) }
-  }
-
-  implicit class _JsonTypeOps(val json: JSONType) extends AnyVal {
-    def flatMapIfObject(fn: JSONObject => Future[JsonResponse]) = json match {
-      case JsonObject(o) => fn(o)
-      case _ => json.toFuture
-    }
-
-    def flatMapIfArray(fn: JSONArray => Future[JsonResponse]) = json match {
-      case JsonArray(a) => fn(a)
-      case _ => json.toFuture
-    }
-
-    def mapIfObject(fn: JSONObject => JsonResponse) =
-      flatMapIfObject { o => fn(o).toFuture }
-
-    def mapIfArray(fn: JSONArray => JsonResponse) =
-      flatMapIfArray { a => fn(a).toFuture }
   }
 
   /**
