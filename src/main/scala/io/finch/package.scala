@@ -27,7 +27,7 @@ import com.twitter.finagle.{Filter, Service}
 import com.twitter.finagle.http.service.RoutingService
 import com.twitter.finagle.http.path.Path
 import com.twitter.finagle.builder.ServerBuilder
-import scala.util.parsing.json.{JSONType, JSONArray, JSONObject}
+import scala.util.parsing.json.{JSONFormat, JSONType, JSONArray, JSONObject}
 import java.net.InetSocketAddress
 import org.jboss.netty.handler.codec.http.{HttpResponseStatus, HttpMethod}
 import scala.util.Random
@@ -230,6 +230,36 @@ package object finch {
     }
   }
 
+  trait JsonFormatter extends JSONFormat.ValueFormatter { self =>
+    def apply(x: Any) = x match {
+      case s : String => "\"" + formatString(s) + "\""
+      case o: JSONObject => o.toString(self)
+      case a: JSONArray => a.toString(self)
+      case other => other.toString
+    }
+
+    def formatString(s: String) =
+      s flatMap { c => escapeOrSkip(c) }
+
+    def escapeOrSkip: PartialFunction[Char, String] = escapeChar orElse {
+      case c => c.toString
+    }
+
+    def escapeChar: PartialFunction[Char, String]
+  }
+
+  private[this] object DefaultJsonFormatter extends JsonFormatter {
+    def escapeChar = {
+      case '"'  => "\\\""
+      case '\\' => "\\\\"
+      case '\b' => "\\b"
+      case '\f' => "\\f"
+      case '\n' => "\\n"
+      case '\r' => "\\r"
+      case '\t' => "\\t"
+    }
+  }
+
   /**
    * A facet that turns a ''JsonResponse'' to an ''HttpResponse''.
    */
@@ -237,7 +267,7 @@ package object finch {
     def apply(rep: JsonResponse) = {
       val reply = Response(Version.Http11, Status.Ok)
       reply.setContentTypeJson()
-      reply.setContentString(rep.toString())
+      reply.setContentString(rep.toString(DefaultJsonFormatter))
 
       reply.toFuture
     }
@@ -259,7 +289,7 @@ package object finch {
 
       val reply = Response(Version.Http11, status)
       reply.setContentTypeJson()
-      reply.setContentString(rep.toString())
+      reply.setContentString(rep.toString(DefaultJsonFormatter))
 
       reply.toFuture
     }
