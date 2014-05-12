@@ -214,8 +214,8 @@ package object finch {
     def apply(args: (String, Any)*) = JSONObject(args.toMap)
     def apply(map: Map[String, Any]) = JSONObject(map)
     def empty = JSONObject(Map.empty[String, Any])
-    def unapply(outer: JSONType): Option[JSONObject] = outer match {
-      case inner @ JSONObject(_) => Some(inner)
+    def unapply(outer: Any): Option[JSONObject] = outer match {
+      case inner: JSONObject => Some(inner)
       case _ => None
     }
   }
@@ -224,15 +224,15 @@ package object finch {
     def apply(args: Any*) = JSONArray(args.toList)
     def apply(list: List[Any]) = JSONArray(list)
     def empty = JSONArray(List.empty[Any])
-    def unapply(outer: JSONType): Option[JSONArray] = outer match {
-      case inner @ JSONArray(_) => Some(inner)
+    def unapply(outer: Any): Option[JSONArray] = outer match {
+      case inner: JSONArray => Some(inner)
       case _ => None
     }
   }
 
   trait JsonFormatter extends JSONFormat.ValueFormatter { self =>
     def apply(x: Any) = x match {
-      case s : String => "\"" + formatString(s) + "\""
+      case s: String => "\"" + formatString(s) + "\""
       case o: JSONObject => o.toString(self)
       case a: JSONArray => a.toString(self)
       case other => other.toString
