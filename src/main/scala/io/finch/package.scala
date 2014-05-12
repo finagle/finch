@@ -132,15 +132,15 @@ package object finch {
   }
 
   implicit class _JsonArrayOps(val json: JSONArray) extends AnyVal {
-    def flatMapInFuture(fn: JSONObject => Future[Any]) = {
-      val fs = json.list map { a => fn(a.asInstanceOf[JSONObject]) }
+    def flatMapInFuture(fn: JsonResponse => Future[JsonResponse]) = {
+      val fs = json.list map { a => fn(a.asInstanceOf[JsonResponse]) }
       Future.collect(fs) flatMap { seq => JsonArray(seq).toFuture }
     }
 
-    def mapInFuture(fn: JSONObject => Any) = map(fn).toFuture
+    def mapInFuture(fn: JsonResponse => JsonResponse) = map(fn).toFuture
 
-    def map(fn: JSONObject => Any) =
-      json.list map { a => fn(a.asInstanceOf[JSONObject]) }
+    def map(fn: JsonResponse => JsonResponse) =
+      json.list map { a => fn(a.asInstanceOf[JsonResponse]) }
   }
 
   /**
@@ -212,7 +212,6 @@ package object finch {
 
   object JsonObject {
     def apply(args: (String, Any)*) = JSONObject(args.toMap)
-    def apply(map: Map[String, Any]) = JSONObject(map)
     def empty = JSONObject(Map.empty[String, Any])
     def unapply(outer: Any): Option[JSONObject] = outer match {
       case inner: JSONObject => Some(inner)
@@ -221,9 +220,8 @@ package object finch {
   }
 
   object JsonArray {
-    def apply(args: Any*) = JSONArray(args.toList)
-    def apply(list: List[Any]) = JSONArray(list)
-    def empty = JSONArray(List.empty[Any])
+    def apply(seq: Seq[JsonResponse]) = JSONArray(seq.toList)
+    def empty = JSONArray(List.empty[JsonResponse])
     def unapply(outer: Any): Option[JSONArray] = outer match {
       case inner: JSONArray => Some(inner)
       case _ => None
