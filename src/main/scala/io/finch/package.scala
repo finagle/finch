@@ -261,15 +261,22 @@ package object finch {
   /**
    * A facet that turns a ''JsonResponse'' to an ''HttpResponse''.
    */
-  object TurnJsonIntoHttp extends Facet[JsonResponse, HttpResponse] {
+  class TurnJsonIntoHttpWithFormatter(formatter: JsonFormatter = DefaultJsonFormatter)
+      extends Facet[JsonResponse, HttpResponse] {
+
     def apply(rep: JsonResponse) = {
       val reply = Response(Version.Http11, Status.Ok)
       reply.setContentTypeJson()
-      reply.setContentString(rep.toString(DefaultJsonFormatter))
+      reply.setContentString(rep.toString(formatter))
 
       reply.toFuture
     }
   }
+
+  /**
+   * A facet that turns a ''JsonResponse'' to an ''HttpResponse''.
+   */
+  object TurnJsonIntoHttp extends TurnJsonIntoHttpWithFormatter
 
   /**
    * A facet that turns a ''JsonResponse'' to an ''HttpResponse'' with http-status
@@ -277,7 +284,10 @@ package object finch {
    *
    * @param statusTag the status tag identifier
    */
-  class TurnJsonIntoHttpWithStatusFromTag(statusTag: String) extends Facet[JsonResponse, HttpResponse] {
+  class TurnJsonIntoHttpWithStatusFromTag(
+    statusTag: String = "status",
+    formatter: JsonFormatter = DefaultJsonFormatter) extends Facet[JsonResponse, HttpResponse] {
+
     def apply(rep: JsonResponse) = {
       val status = rep match {
         case JsonObject(o) =>
@@ -292,6 +302,13 @@ package object finch {
       reply.toFuture
     }
   }
+
+ /**
+  * A facet that turns a ''JsonResponse'' to an ''HttpResponse'' with http-status
+  * copied with JSON's field tagged with ''statusTag''.
+  *
+  */
+  object TurnJsonIntoHttpWithStatus extends TurnJsonIntoHttpWithStatusFromTag
 
   /**
    * A REST API resource that primary defines a ''route''.

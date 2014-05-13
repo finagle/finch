@@ -65,7 +65,7 @@ object TurnObjectIntoJson extends Facet[Jsonable, JsonResponse] {
 
 object TurnCollectionIntoJson extends Facet[Seq[Jsonable], JsonResponse] {
   def apply(rep: Seq[Jsonable]) =
-    JsonArray(rep map { _.toJson }:_*).toFuture
+    JsonArray(rep map { _.toJson }).toFuture
 }
 ```
 
