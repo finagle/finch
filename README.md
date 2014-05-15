@@ -116,5 +116,46 @@ object Main extends RestApiOf[JsonResponse] {
 
 **Step 7:** Have fun and stay finagled!
 
+Bonus Track: JSON on Steroids
+-----------------------------
+
+Finch.io provides a slight asynchronous API for working with standard classes `scala.util.parsing.json.JSONObject` and `scala.util.parsing.json.JSONArray` from Finagle. The core methods and practices are describe follow.
+
+**JsonObject & JsonArray**
+```scala
+val repA: JsonResponse = JsonObject("tagA" -> "valueA", "tagB" -> "valueB")
+val repB: JsonResponse = JsonObject("1" -> 1, "2" -> 2)
+val repC: JsonResponse = JsonArray(Seq(repA, repB)) 
+```
+
+**Patern Matching**
+```scala
+val repA: JsonResponse = JsonObject.empty
+val repB: JsonResponse = repA match {
+  case JsonObject(o) => o // 'o' is JSONObject
+  case JsonArray(a) => a  // 'a' is JSONArray
+}
+```
+
+**JsonObject Operations**
+```scala
+// Accesors
+val o = JsonObject("1" -> 1, "2" -> 2.0f)
+val oneA = o("1") // get value by tag as String
+val oneB = o.get[Int]("1") // get value by tag as Int
+val twoA = o.getOrElse[Float]("2", 3.14f) // get value by tag or else default value as Float
+val twoB = o.getOption[Float]("2") // get option of a value by tag as Float
+
+// Map & FlatMap
+// create new json object with tag updated
+val o1 = o mapTag[Int]("1") { _ * 2 }
+
+// create a future of json object with tag updated via pure function
+val o2 = o mapTagInFuture[Float] { _ / 2} 
+
+// create a future of json object with tag updated via asyn function
+val o3 = o flatMapTagInFuture[Int] { t => t.toFuture } 
+```
+
 ----
 By Vladimir Kostyukov, http://vkostyukov.ru
