@@ -119,7 +119,7 @@ object Main extends RestApiOf[JsonResponse] {
 Bonus Track: JSON on Steroids
 -----------------------------
 
-Finch.io provides a slight asynchronous API for working with standard classes `scala.util.parsing.json.JSONObject` and `scala.util.parsing.json.JSONArray` from Finagle. The core methods and practices are describe follow.
+**Finch.io** provides a slight asynchronous API for working with standard classes `scala.util.parsing.json.JSONObject` and `scala.util.parsing.json.JSONArray` from Finagle. The core methods and practices are described follow.
 
 **JsonObject & JsonArray**
 ```scala
@@ -128,7 +128,7 @@ val repB: JsonResponse = JsonObject("1" -> 1, "2" -> 2)
 val repC: JsonResponse = JsonArray(Seq(repA, repB)) 
 ```
 
-**Patern Matching**
+**Pattern Matching**
 ```scala
 val repA: JsonResponse = JsonObject.empty
 val repB: JsonResponse = repA match {
@@ -139,14 +139,14 @@ val repB: JsonResponse = repA match {
 
 **JsonObject Operations**
 ```scala
-// Accesors
 val o = JsonObject("1" -> 1, "2" -> 2.0f)
+
+// accesors
 val oneA = o("1") // get value by tag as String
 val oneB = o.get[Int]("1") // get value by tag as Int
 val twoA = o.getOrElse[Float]("2", 3.14f) // get value by tag or else default value as Float
 val twoB = o.getOption[Float]("2") // get option of a value by tag as Float
 
-// Map & FlatMap
 // create new json object with tag updated
 val o1 = o mapTag[Int]("1") { _ * 2 }
 
@@ -154,7 +154,24 @@ val o1 = o mapTag[Int]("1") { _ * 2 }
 val o2 = o mapTagInFuture[Float] { _ / 2} 
 
 // create a future of json object with tag updated via asyn function
-val o3 = o flatMapTagInFuture[Int] { t => t.toFuture } 
+val o3 = o flatMapTagInFuture[Int] { _.toFuture } 
+```
+
+**JsonArray Operations**
+```scala
+val a = JsonArray(Seq(JsonObject.empty, JsonObject.empty))
+
+// create a new json array with items mapped via pure function
+val a1 = a map {
+  case JsonOject(o) => o
+  case JsonArray(_) => JsonObject.empty
+}
+
+// create a future of json array with items mapped via pure function
+val a2 = a mapInFuture { _ }
+
+// create a future of json array with items mapped via asyn function
+val a3 = a flatMapInFuture { _.toFuture }
 ```
 
 ----
