@@ -41,9 +41,12 @@ import com.twitter.finagle.http.{Http, Status, Version, Response, Request, RichH
  *   1. ''HttpServiceOf[A]'' that maps ''HttpRequest'' to some response
  *      (both are just a special cases of Finagle's ''Service'')
  *   2. ''Facet[+A, -B]'' that transforms service's response ''A'' to ''B''
- *      (just a special case of Finagle's 'Filter')
- *   3. ''Resource'' that provides route information about a particular resource
+ *      (just a special case of Finagle's ''Filter'')
+ *   3. ''ResourceOf[A]'' that provides route information about a particular resource
  *      (just a special case of ''PartialFunction'' from route to ''HttpService'')
+ *   4. ''RestApiOf[A]'' that aggregates all the things together: resources and a set
+ *      of rules (exposed as a combination of facets and filters) that transform the
+ *      ''HttpResourceOf[A]'' to a ''HttpResource''.
  *
  * I'm trying to follow the principles of my elder brother and keep the things
  * as composable as possible.
@@ -87,30 +90,85 @@ package object finch {
   type JsonResponse = JSONType
 
   /**
-   * Alters any object with ''toFuture'' method.
+   * Alters any object within a ''toFuture'' method.
    *
    * @param any an object to be altered
+   *
    * @tparam A an object type
    */
   implicit class _AnyToFuture[A](val any: A) extends AnyVal {
+
+    /**
+     * Converts this ''any'' object into a ''Future''
+     *
+     * @return an object wrapped with ''Future''
+     */
     def toFuture: Future[A] = Future.value(any)
   }
 
+  /**
+   * Alters underlying filter within ''andThen'' method composing a filter
+   * with a given resource.
+   *
+   * @param filter a filter to be altered
+   *
+   * @tparam RepIn an input response type
+   * @tparam RepOut an output response type
+   */
   implicit class _FilterAndThen[RepIn, RepOut](
       val filter: Filter[HttpRequest, RepOut, HttpRequest, RepIn]) extends AnyVal{
 
+    /**
+     * Composes this filter within a given resource ''thatResource''.
+     *
+     * @param thatResource a resource to compose
+     *
+     * @return a resource composed with filter
+     */
     def andThen(thatResource: RestResourceOf[RepIn]) =
       thatResource andThen { filter andThen _ }
   }
 
+  /**
+   * Alters underlying service within ''afterThat'' method composing a service
+   * with a given filter.
+   *
+   * @param service a service to be altered
+   *
+   * @tparam RepIn a input response type
+   */
   implicit class _ServiceAfterThat[RepIn](
       val service: Service[HttpRequest, RepIn]) extends AnyVal {
 
+    /**
+     * Composes this service with a given filter ''thatFilter''.
+     *
+     * @param thatFilter a filter to compose
+     * @tparam RepOut an output response type
+     *
+     * @return a new service composed with a filter
+     */
     def afterThat[RepOut](thatFilter: Filter[HttpRequest, RepOut, HttpRequest, RepIn]) =
       thatFilter andThen service
   }
 
+  /**
+   * Alters underlying json object within a finagled methods.
+   *
+   * @param json a json object to be altered
+   */
   implicit class _JsonObjectOps(val json: JSONObject) extends AnyVal {
+
+    /**
+     * Copies this json object into a future with given ''tag'' updated
+     * via async function ''fn''.
+     *
+     * @param tag a tag to update
+     * @param fn an async function to transform the tag
+     * @tparam A a value type associated with a given tag
+     *
+     * @return a future of a new json object with tag updated
+     */
     def flatMapTagInFuture[A](tag: String)(fn: A => Future[Any]) = json.obj.get(tag) match {
       case Some(any) => fn(any.asInstanceOf[A]) flatMap { a =>
         JSONObject(json.obj + (tag -> a)).toFuture
@@ -118,18 +176,74 @@ package object finch {
       case None => json.toFuture
     }
 
+    /**
+     * Copies this json object into a future with given ''tag'' updated
+     * via pure function ''fn''.
+     *
+     * @param tag a tag to update
+     * @param fn a pure function to transform the tag
+     * @tparam A a value type associated with a given tag
+     *
+     * @return a future of a new json object with tag updated
+     */
     def mapTagInFuture[A](tag: String)(fn: A => Any) = mapTag[A](tag)(fn).toFuture
 
+    /**
+     * Copies this json object with given ''tag'' updated via pure function ''fn''.
+     *
+     * @param tag a tag to update
+     * @param fn a pure function to transform the tag
+     * @tparam A a value type associated with a given tag
+     *
+     * @return a json object with tag updated
+     */
     def mapTag[A](tag: String)(fn: A => Any) = json.obj.get(tag) match {
       case Some(any) => JSONObject(json.obj + (tag -> fn(any.asInstanceOf[A])))
       case None => json
     }
 
+    /**
+     * Retrieves the string value associated with a given ''tag'' in this json
+     * object.
+     *
+     * @param tag a tag
+     *
+     * @return a value associated with a tag
+     */
     def apply(tag: String) = get[String](tag)
 
+    /**
+     * Retrieves the typed ''A'' value associated with a given ''tag'' in this
+     * json object
+     *
+     * @param tag a tag
+     * @tparam A a value type
+     *
+     * @return a value associated with a tag
+     */
     def get[A](tag: String) = json.obj(tag).asInstanceOf[A]
+
+    /**
+     * Retrieves the typed ''A'' value associated with a given ''tag'' in this
+     * json object or ''default'' value if the tag doesn't exist.
+     *
+     * @param tag a tag
+     * @param default a default value
+     * @tparam A a value type
+     *
+     * @return a value associated with a tag or default value
+     */
     def getOrElse[A](tag: String, default: => A) = json.obj.getOrElse(tag, default).asInstanceOf[A]
 
+    /**
+     * Retrieves the typed ''A'' option of a value associated with a given ''tag''
+     * in this json object.
+     *
+     * @param tag a tag
+     * @tparam A a value type
+     *
+     * @return an option of a value associated with a tag
+     */
     def getOption[A](tag: String) = json.obj.get(tag) match {
       case Some(a) => Some(a.asInstanceOf[A])
       case None => None
