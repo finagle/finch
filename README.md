@@ -141,11 +141,17 @@ val repB: JsonResponse = repA match {
 ```scala
 val o = JsonObject("1" -> 1, "2" -> 2.0f)
 
-// accesors
-val oneA = o("1") // get value by tag as String
-val oneB = o.get[Int]("1") // get value by tag as Int
-val twoA = o.getOrElse[Float]("2", 3.14f) // get value by tag or else default value as Float
-val twoB = o.getOption[Float]("2") // get option of a value by tag as Float
+// get value by tag as String
+val oneA = o("1")
+
+// get value by tag as Int
+val oneB = o.get[Int]("1")
+
+// get value by tag or else default value as Float
+val twoA = o.getOrElse[Float]("2", 3.14f)
+
+// get option of a value by tag as Float
+val twoB = o.getOption[Float]("2")
 
 // create new json object with tag updated
 val o1 = o mapTag[Int]("1") { _ * 2 }
@@ -153,7 +159,7 @@ val o1 = o mapTag[Int]("1") { _ * 2 }
 // create a future of json object with tag updated via pure function
 val o2 = o mapTagInFuture[Float] { _ / 2} 
 
-// create a future of json object with tag updated via asyn function
+// create a future of json object with tag updated via async function
 val o3 = o flatMapTagInFuture[Int] { _.toFuture } 
 ```
 
@@ -163,14 +169,14 @@ val a = JsonArray(Seq(JsonObject.empty, JsonObject.empty))
 
 // create a new json array with items mapped via pure function
 val a1 = a map {
-  case JsonOject(o) => o
+  case JsonObject(o) => o
   case JsonArray(_) => JsonObject.empty
 }
 
 // create a future of json array with items mapped via pure function
 val a2 = a mapInFuture { _ }
 
-// create a future of json array with items mapped via asyn function
+// create a future of json array with items mapped via async function
 val a3 = a flatMapInFuture { _.toFuture }
 ```
 

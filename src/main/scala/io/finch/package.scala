@@ -241,8 +241,7 @@ package object finch {
       case other => other.toString
     }
 
-    def formatString(s: String) =
-      s flatMap { c => escapeOrSkip(c) }
+    def formatString(s: String) = s flatMap { escapeOrSkip(_) }
 
     def escapeOrSkip: PartialFunction[Char, String] = escapeChar orElse {
       case c => c.toString
