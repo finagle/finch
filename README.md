@@ -109,7 +109,7 @@ object Main extends RestApiOf[JsonResponse] {
     // 1. The ''respond'' value is a resource of JsonResponse,
     //    so we have to convert it to the resource of HttpResponse.
     // 2. Our REST API should be authorized.
-    authorize andThen respond afterThat TurnJsonIntoHttp
+    authorize afterThat respond afterThat TurnJsonIntoHttp
   }
 }
 ```

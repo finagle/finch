@@ -107,7 +107,7 @@ package object finch {
   }
 
   /**
-   * Alters underlying filter within ''andThen'' method composing a filter
+   * Alters underlying filter within ''afterThat'' method composing a filter
    * with a given resource.
    *
    * @param filter a filter to be altered
@@ -115,7 +115,7 @@ package object finch {
    * @tparam RepIn an input response type
    * @tparam RepOut an output response type
    */
-  implicit class _FilterAndThen[RepIn, RepOut](
+  implicit class _FilterAfterThat[RepIn, RepOut](
       val filter: Filter[HttpRequest, RepOut, HttpRequest, RepIn]) extends AnyVal{
 
     /**
@@ -125,8 +125,8 @@ package object finch {
      *
      * @return a resource composed with filter
      */
-    def andThen(thatResource: RestResourceOf[RepIn]) =
-      thatResource andThen { filter andThen _ }
+    def afterThat(thatResource: RestResourceOf[RepIn]) =
+      thatResource afterThat filter
   }
 
   /**
@@ -421,11 +421,11 @@ package object finch {
     }
   }
 
- /**
-  * A facet that turns a ''JsonResponse'' to an ''HttpResponse'' with http-status
-  * copied with JSON's field tagged with ''statusTag''.
-  *
-  */
+  /**
+   * A facet that turns a ''JsonResponse'' to an ''HttpResponse'' with http-status
+   * copied with JSON's field tagged with ''statusTag''.
+   *
+   */
   object TurnJsonIntoHttpWithStatus extends TurnJsonIntoHttpWithStatusFromTag
 
   /**
