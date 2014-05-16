@@ -52,32 +52,26 @@ import com.twitter.finagle.http.{Http, Status, Version, Response, Request, RichH
  * as composable as possible.
  *
  *   (a) In order to mark the difference between filters and facets and show the
- *       direction of a data-flow, the facets are composed with ''afterThat'' operator
- *       within reversed order:
+ *       direction of a data-flow, the facets are composed by ''afterThat'' operator
+ *       within a reversed order:
  *
  *         '''val s = service afterThat facetA afterThat facetB'''
 
  *   (b) Resources might be treated as partial functions, so they may be composed
  *       together with ''orElse'' operator:
  *
- *         '''val r = userResource orElse orderResource'''
+ *         '''val r = resourceA orElse resourceB'''
 
  *   (c) Another useful resource operator is ''andThen'' that takes a function from
- *       ''HttpService'' to ''HttpService'' and returns a new resource with function
- *       applied to its every service.
+ *       ''HttpService'' to ''HttpService'' and returns a new resource within function
+ *       applied to its every route endpoint.
  *
- *   (d) Resources may also be composed with filters by using the ''andThen'' operator
+ *        '''val r = resource andThen { filter andThen _ }'''
+ *
+ *   (d) Resources may also be composed with filters by using the ''afterThat'' operator
  *       in a familiar way:
  *
- *         '''val r = authorize andThen resource'''
- *
- * I support the only single format - JSON. There are also two predefined facets
- * available for JSON data-types.
- *
- *   1. ''TurnJsonToHttp'' simply coverts the JSON data to HttpResponse
- *   2. ''TurnJsonToHttpWithStatus(statusTag)'' checks whether the received json
- *      response contains the specified ''statusTag'' and if so copies it to the
- *      ''HttpResponse''. Otherwise status ''200'' (HTTP OK) is used.
+ *         '''val r = authorize afterThat resource'''
  *
  * Have fun writing a reusable and scalable code with me!
  *
