@@ -55,12 +55,12 @@ import com.twitter.finagle.http.{Http, Status, Version, Response, Request, RichH
  *       direction of a data-flow, the facets are composed by ''afterThat'' operator
  *       within a reversed order:
  *
- *         '''val s = service afterThat facetA afterThat facetB'''
+ *        '''val s = service afterThat facetA afterThat facetB'''
 
  *   (b) Resources might be treated as partial functions, so they may be composed
  *       together with ''orElse'' operator:
  *
- *         '''val r = resourceA orElse resourceB'''
+ *        '''val r = resourceA orElse resourceB'''
 
  *   (c) Another useful resource operator is ''andThen'' that takes a function from
  *       ''HttpService'' to ''HttpService'' and returns a new resource within function
@@ -71,7 +71,12 @@ import com.twitter.finagle.http.{Http, Status, Version, Response, Request, RichH
  *   (d) Resources may also be composed with filters by using the ''afterThat'' operator
  *       in a familiar way:
  *
- *         '''val r = authorize afterThat resource'''
+ *        '''val r = authorize afterThat resource'''
+ *
+ *   (e) Primitive filters (that don't change anything) are composed with the same
+ *       ''afterThat'' operator:
+ *
+ *        '''val f = filterA afterThat filterB afterThat filterC'''
  *
  * Have fun writing a reusable and scalable code with me!
  *
@@ -101,16 +106,18 @@ package object finch {
   }
 
   /**
-   * Alters underlying filter within ''afterThat'' method composing a filter
-   * with a given resource.
+   * Alters underlying filter within ''afterThat'' methods composing a filter
+   * with a given resource or withing a next filter.
+   *
+   * TODO: For now we don't support filters that change the request type.
+   *       https://github.com/vkostyukov/finch/issues/13
    *
    * @param filter a filter to be altered
    *
-   * @tparam RepIn an input response type
-   * @tparam RepOut an output response type
+   * @tparam Rep a response type
    */
-  implicit class _FilterAfterThat[RepIn, RepOut](
-      val filter: Filter[HttpRequest, RepOut, HttpRequest, RepIn]) extends AnyVal{
+  implicit class _FilterAfterThat[Rep](
+      val filter: Filter[HttpRequest, Rep, HttpRequest, Rep]) extends AnyVal {
 
     /**
      * Composes this filter within a given resource ''thatResource''.
@@ -119,8 +126,18 @@ package object finch {
      *
      * @return a resource composed with filter
      */
-    def afterThat(thatResource: RestResourceOf[RepIn]) =
+    def afterThat(thatResource: RestResourceOf[Rep]) =
       thatResource afterThat filter
+
+    /**
+     * Composes this filter within a given filter ''thatFilter''.
+     *
+     * @param thatFilter a next filter in a chain
+     *
+     * @return two filters composed together
+     */
+    def afterThat(thatFilter: Filter[HttpRequest, Rep, HttpRequest, Rep]) =
+      filter andThen thatFilter
   }
 
   /**
@@ -147,14 +164,14 @@ package object finch {
   }
 
   /**
-   * Alters underlying json object within a finagled methods.
+   * Alters underlying json object within finagled methods.
    *
    * @param json a json object to be altered
    */
   implicit class _JsonObjectOps(val json: JSONObject) extends AnyVal {
 
     /**
-     * Copies this json object into a future with given ''tag'' updated
+     * Maps this json object into a future with given ''tag'' updated
      * via async function ''fn''.
      *
      * @param tag a tag to update
@@ -171,7 +188,7 @@ package object finch {
     }
 
     /**
-     * Copies this json object into a future with given ''tag'' updated
+     * Maps this json object into a future with given ''tag'' updated
      * via pure function ''fn''.
      *
      * @param tag a tag to update
@@ -183,7 +200,7 @@ package object finch {
     def mapTagInFuture[A](tag: String)(fn: A => Any) = mapTag[A](tag)(fn).toFuture
 
     /**
-     * Copies this json object with given ''tag'' updated via pure function ''fn''.
+     * Maps this json object with given ''tag'' updated via pure function ''fn''.
      *
      * @param tag a tag to update
      * @param fn a pure function to transform the tag
@@ -244,32 +261,62 @@ package object finch {
     }
   }
 
+  /**
+   * Alters underlying json array within finagled methods.
+   *
+   * @param json a json array to alter
+   */
   implicit class _JsonArrayOps(val json: JSONArray) extends AnyVal {
+
+    /**
+     * Maps this json array into a future with all the items mapped via
+     * async function ''fn''.
+     *
+     * @param fn an async function to map items
+     *
+     * @return a future of json array with items mapped
+     */
     def flatMapInFuture(fn: JsonResponse => Future[JsonResponse]) = {
       val fs = json.list map { a => fn(a.asInstanceOf[JsonResponse]) }
       Future.collect(fs) flatMap { seq => JsonArray(seq).toFuture }
     }
 
+    /**
+     * Maps this json array into a future with all the items mapped
+     * via pure function ''fn''.
+     *
+     * @param fn a pure function to map items
+     *
+     * @return a future of json array with items mapped
+     */
     def mapInFuture(fn: JsonResponse => JsonResponse) = map(fn).toFuture
 
+    /**
+     * Maps this json array into a json array with all the items mapped
+     * via pure function ''fn''.
+     *
+     * @param fn a pure function to map items
+     *
+     * @return a json array with items mapped
+     */
     def map(fn: JsonResponse => JsonResponse) =
       json.list map { a => fn(a.asInstanceOf[JsonResponse]) }
   }
 
   /**
-   * An HttpService with specified response type.
+   * An ''HttpService'' with specified response type ''Rep''.
    *
    * @tparam Rep the response type
    */
   trait HttpServiceOf[+Rep] extends Service[HttpRequest, Rep]
 
   /**
-   * A pure HttpService.
+   * A pure ''HttpService''.
    */
   trait HttpService extends HttpServiceOf[HttpResponse]
 
   /**
-   * A Facet that has a ''req'' available.
+   * A ''Facet'' that has a request available.
    *
    * @tparam RepIn the input response type
    * @tparam RepOut the output response type
@@ -312,14 +359,15 @@ package object finch {
   }
 
   /**
-   * An HTTP filter that just filters the ''HttpRequest''-s.
+   * An ''HttpFilter'' that just filters the ''HttpRequest''-s and doesn't
+   * change anything.
    *
    * @tparam Rep the response type
    */
   trait HttpFilterOf[Rep] extends Filter[HttpRequest, Rep, HttpRequest, Rep]
 
   /**
-   * An HTTP filter typed with ''HttpResponse''.
+   * A pure ''HttpFilter''
    */
   trait HttpFilter extends HttpFilterOf[HttpResponse]
 
@@ -332,6 +380,9 @@ package object finch {
     }
   }
 
+  /**
+   * A companion object for ''JSONArray''.
+   */
   object JsonArray {
     def apply(seq: Seq[JsonResponse]) = JSONArray(seq.toList)
     def empty = JSONArray(List.empty[JsonResponse])
@@ -341,6 +392,9 @@ package object finch {
     }
   }
 
+  /**
+   * A json formatter that primary escape special chars.
+   */
   trait JsonFormatter extends JSONFormat.ValueFormatter { self =>
     def apply(x: Any) = x match {
       case s: String => "\"" + formatString(s) + "\""
@@ -355,6 +409,12 @@ package object finch {
       case c => c.toString
     }
 
+    /**
+     * A partial function that defines a set of rules on how to escape the
+     * special characters in a string.
+     *
+     * @return an escaped char represented as a string
+     */
     def escapeChar: PartialFunction[Char, String]
   }
 
@@ -371,7 +431,7 @@ package object finch {
   }
 
   /**
-   * A facet that turns a ''JsonResponse'' to an ''HttpResponse''.
+   * A facet that turns a ''JsonResponse'' into an ''HttpResponse''.
    */
   class TurnJsonIntoHttpWithFormatter(formatter: JsonFormatter = DefaultJsonFormatter)
       extends Facet[JsonResponse, HttpResponse] {
@@ -386,13 +446,12 @@ package object finch {
   }
 
   /**
-   * A facet that turns a ''JsonResponse'' to an ''HttpResponse''.
+   * A facet that turns a ''JsonResponse'' into an ''HttpResponse''.
    */
   object TurnJsonIntoHttp extends TurnJsonIntoHttpWithFormatter
 
   /**
-   * A facet that turns a ''JsonResponse'' to an ''HttpResponse'' with http-status
-   * copied with JSON's field tagged with ''statusTag''.
+   * A facet that turns a ''JsonResponse'' into an ''HttpResponse'' with http status.
    *
    * @param statusTag the status tag identifier
    */
@@ -416,14 +475,14 @@ package object finch {
   }
 
   /**
-   * A facet that turns a ''JsonResponse'' to an ''HttpResponse'' with http-status
-   * copied with JSON's field tagged with ''statusTag''.
-   *
+   * A facet that turns a ''JsonResponse'' to an ''HttpResponse'' with http status.
    */
   object TurnJsonIntoHttpWithStatus extends TurnJsonIntoHttpWithStatusFromTag
 
   /**
    * A REST API resource that primary defines a ''route''.
+   *
+   * @tparam Rep a response type
    */
   trait RestResourceOf[Rep] { self =>
 
