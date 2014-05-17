@@ -300,7 +300,7 @@ package object finch {
      * @return a json array with items mapped
      */
     def map(fn: JsonResponse => JsonResponse) =
-      json.list map { a => fn(a.asInstanceOf[JsonResponse]) }
+      JsonArray(json.list map { a => fn(a.asInstanceOf[JsonResponse]) })
   }
 
   /**
