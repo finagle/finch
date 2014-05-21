@@ -14,7 +14,7 @@ How to finagle your REST API with Finch?
 resolvers += "Finch.io" at "http://repo.konfettin.ru"
 
 libraryDependencies ++= Seq(
-  "io" %% "finch" % "0.0.16"
+  "io" %% "finch" % "0.0.17"
 )
 ```
 
@@ -97,7 +97,7 @@ import io.finch._
 
 object Main extends RestApiOf[JsonResponse] {
   // We do nothing for now.
-  val authorize = new HttpFilterOf[JsonResponse] {
+  val authorize = new SimpleFilter[HttpRequest, JsonResponse] {
     def apply(req: HttpRequest, continue: Service[HttpRequest, JsonResponse]) =
       continue(req)
   }

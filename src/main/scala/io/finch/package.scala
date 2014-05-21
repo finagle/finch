@@ -1,7 +1,7 @@
 /*
  * Copyright 2014, by Vladimir Kostyukov and Contributors.
  *
- * This file is a part of Finch library that may be found at
+ * This file is a part of a Finch library that may be found at
  *
  *      https://github.com/vkostyukov/finch
  *
@@ -116,8 +116,8 @@ package object finch {
    *
    * @tparam Rep a response type
    */
-  implicit class _FilterAfterThat[Rep](
-      val filter: Filter[HttpRequest, Rep, HttpRequest, Rep]) extends AnyVal {
+  implicit class _FilterAfterThat[ReqIn <: HttpRequest, ReqOut <: HttpRequest, Rep](
+      val filter: Filter[ReqIn, Rep, ReqOut, Rep]) extends AnyVal {
 
     /**
      * Composes this filter within a given resource ''thatResource''.
@@ -126,8 +126,8 @@ package object finch {
      *
      * @return a resource composed with filter
      */
-    def afterThat(thatResource: RestResourceOf[Rep]) =
-      thatResource afterThat filter
+    def afterThat(thatResource: RestResource[ReqOut, Rep]) =
+      thatResource andThen { filter andThen _ }
 
     /**
      * Composes this filter within a given filter ''thatFilter''.
@@ -136,7 +136,7 @@ package object finch {
      *
      * @return two filters composed together
      */
-    def afterThat(thatFilter: Filter[HttpRequest, Rep, HttpRequest, Rep]) =
+    def afterThat[Req](thatFilter: Filter[ReqOut, Rep, Req, Rep]) =
       filter andThen thatFilter
   }
 
@@ -148,8 +148,8 @@ package object finch {
    *
    * @tparam RepIn a input response type
    */
-  implicit class _ServiceAfterThat[RepIn](
-      val service: Service[HttpRequest, RepIn]) extends AnyVal {
+  implicit class _ServiceAfterThat[Req <: HttpRequest, RepIn](
+      val service: Service[Req, RepIn]) extends AnyVal {
 
     /**
      * Composes this service with a given filter ''thatFilter''.
@@ -159,7 +159,7 @@ package object finch {
      *
      * @return a new service composed with a filter
      */
-    def afterThat[RepOut](thatFilter: Filter[HttpRequest, RepOut, HttpRequest, RepIn]) =
+    def afterThat[RepOut](thatFilter: Filter[Req, RepOut, Req, RepIn]) =
       thatFilter andThen service
   }
 
@@ -318,10 +318,11 @@ package object finch {
   /**
    * A ''Facet'' that has a request available.
    *
+   * @tparam Req the request type
    * @tparam RepIn the input response type
    * @tparam RepOut the output response type
    */
-  trait FacetWithRequest[-RepIn, +RepOut] extends Filter[HttpRequest, RepOut, HttpRequest, RepIn] {
+  trait FacetWithRequest[Req <: HttpRequest, -RepIn, +RepOut] extends Filter[Req, RepOut, Req, RepIn] {
 
     /**
      * Converts given pair ''req'' and ''rep'' of type ''RepIn'' to type ''RepOut''.
@@ -331,9 +332,9 @@ package object finch {
      *
      * @return a converted response
      */
-    def apply(req: HttpRequest)(rep: RepIn): Future[RepOut]
+    def apply(req: Req)(rep: RepIn): Future[RepOut]
 
-    def apply(req: HttpRequest, service: Service[HttpRequest, RepIn]) =
+    def apply(req: Req, service: Service[Req, RepIn]) =
       service(req) flatMap apply(req)
   }
 
@@ -344,7 +345,7 @@ package object finch {
    * @tparam RepIn the input response type
    * @tparam RepOut the output response type
    */
-  trait Facet[-RepIn, +RepOut] extends FacetWithRequest[RepIn, RepOut] {
+  trait Facet[-RepIn, +RepOut] extends FacetWithRequest[HttpRequest, RepIn, RepOut] {
 
     /**
      * Converts given ''rep'' from ''RepIn'' to ''RepOut'' type.
@@ -357,19 +358,6 @@ package object finch {
 
     def apply(req: HttpRequest)(rep: RepIn) = apply(rep)
   }
-
-  /**
-   * An ''HttpFilter'' that just filters the ''HttpRequest''-s and doesn't
-   * change anything.
-   *
-   * @tparam Rep the response type
-   */
-  trait HttpFilterOf[Rep] extends Filter[HttpRequest, Rep, HttpRequest, Rep]
-
-  /**
-   * A pure ''HttpFilter''
-   */
-  trait HttpFilter extends HttpFilterOf[HttpResponse]
 
   object JsonObject {
     def apply(args: (String, Any)*) = JSONObject(args.toMap)
@@ -484,12 +472,12 @@ package object finch {
    *
    * @tparam Rep a response type
    */
-  trait RestResourceOf[Rep] { self =>
+  trait RestResource[Req <: HttpRequest, Rep] { self =>
 
     /**
      * @return a route of this resource
      */
-    def route: PartialFunction[(HttpMethod, Path), Service[HttpRequest, Rep]]
+    def route: PartialFunction[(HttpMethod, Path), Service[Req, Rep]]
 
     /**
      * Combines ''this'' resource with ''that'' resource. A new resource
@@ -499,7 +487,7 @@ package object finch {
      *
      * @return a new resource
      */
-    def orElse(that: RestResourceOf[Rep]) = new RestResourceOf[Rep] {
+    def orElse(that: RestResource[Req, Rep]) = new RestResource[Req, Rep] {
       def route = self.route orElse that.route
     }
 
@@ -510,8 +498,8 @@ package object finch {
      *
      * @return a new resource
      */
-    def andThen[RepOut](fn: Service[HttpRequest, Rep] => Service[HttpRequest, RepOut]) =
-      new RestResourceOf[RepOut] {
+    def andThen[ReqOut <: HttpRequest, RepOut](fn: Service[Req, Rep] => Service[ReqOut, RepOut]) =
+      new RestResource[ReqOut, RepOut] {
         def route = self.route andThen fn
       }
 
@@ -523,41 +511,33 @@ package object finch {
      *
      * @return a new resource
      */
-    def afterThat[RepOut](filter: Filter[HttpRequest, RepOut, HttpRequest, Rep]) =
+    def afterThat[RepOut](filter: Filter[Req, RepOut, Req, Rep]) =
       andThen { filter andThen _ }
   }
 
   /**
    * A default REST resource.
    */
-  trait RestResource extends RestResourceOf[HttpResponse]
+  trait RestResourceOf[Rep] extends RestResource[HttpRequest, Rep]
 
   /**
    * A base class for ''RestApi'' backend.
    */
-  abstract class RestApiOf[Rep] extends App {
+  abstract class RestApi[Req <: HttpRequest, Rep] extends App {
 
     /**
      * @return a resource of this API
      */
-    def resource: RestResourceOf[Rep]
+    def resource: RestResource[Req, Rep]
 
     /**
-     * Loopbacks given ''HttpRequest'' to a resource.
-     *
-     * @param req the ''HttpRequest'' to loopback
+     * Sends a request ''req'' to this API.
+
+     * @param req the request to send
      * @return a response wrapped with ''Future''
      */
-    def apply(req: HttpRequest): Future[Rep] =
+    def apply(req: Req): Future[Rep] =
       resource.route(req.method -> Path(req.path))(req)
-
-    /**
-     * Loopbacks given request (represented by a URI string) to a resource
-     *
-     * @param uri the uri to loopback
-     * @return a response wrapped with ''Future''
-     */
-    def apply(uri: String): Future[Rep] = apply(Request(uri))
 
     /**
      * @return a name of this Finch instance
@@ -570,7 +550,7 @@ package object finch {
      * @param port the socket port number to listen
      * @param fn the function that transforms a resource type to ''HttpResponse''
      */
-    def exposeAt(port: Int)(fn: RestResourceOf[Rep] => RestResourceOf[HttpResponse]): Unit = {
+    def exposeAt(port: Int)(fn: RestResource[Req, Rep] => RestResource[HttpRequest, HttpResponse]): Unit = {
 
       val httpResource = fn(resource)
 
@@ -591,5 +571,5 @@ package object finch {
   /**
    * A default REST API backend.
    */
-  abstract class RestApi extends RestApiOf[HttpResponse]
+  abstract class RestApiOf[Rep] extends RestApi[HttpRequest, Rep]
 }
