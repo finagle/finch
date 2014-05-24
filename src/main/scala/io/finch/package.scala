@@ -117,12 +117,12 @@ package object finch {
     /**
      * Composes this filter within a given resource ''thatResource''.
      *
-     * @param thatResource a resource to compose
+     * @param resource a resource to compose
      *
      * @return a resource composed with filter
      */
-    def andThen(thatResource: RestResource[ReqOut, RepIn]) =
-      thatResource andThen { service =>
+    def andThen(resource: RestResource[ReqOut, RepIn]) =
+      resource andThen { service =>
         filter andThen service
       }
   }
@@ -147,7 +147,7 @@ package object finch {
      */
     def afterThat[RepOut](facet: Facet[RepIn, RepOut]) =
       new Service[Req, RepOut] {
-        def apply(req: Req) = service(req) flatMap { rep => facet(rep) }
+        def apply(req: Req) = service(req) flatMap { facet(_) }
       }
   }
 
@@ -306,7 +306,7 @@ package object finch {
   /**
    * A ''Facet'' that has a request available.
    *
-   *  TODO: Suport this.
+   *  TODO: https://github.com/vkostyukov/finch/issues/16
    *
    * @tparam Req the request type
    * @tparam RepIn the input response type
@@ -332,7 +332,7 @@ package object finch {
    * @tparam RepIn the input response type
    * @tparam RepOut the output response type
    */
-  trait Facet[-RepIn, +RepOut] {
+  trait Facet[-RepIn, +RepOut] { self =>
 
     /**
      * Converts given ''rep'' from ''RepIn'' to ''RepOut'' type.
@@ -342,6 +342,19 @@ package object finch {
      * @return a converted response
      */
     def apply(rep: RepIn): Future[RepOut]
+
+    /**
+     * Composes this facet with given ''next'' facet.
+     *
+     * @param next the facet to compose with
+     * @tparam Rep the response type
+     *
+     * @return a composed facet
+     */
+    def afterThat[Rep](next: Facet[RepOut, Rep]) =
+      new Facet[RepIn, Rep] {
+        def apply(rep: RepIn) = self(rep) flatMap { next(_) }
+      }
   }
 
   object JsonObject {
@@ -498,7 +511,7 @@ package object finch {
      */
     def afterThat[RepOut](facet: Facet[Rep, RepOut]) = andThen { service =>
       new Service[Req, RepOut] {
-        def apply(req: Req) = service(req) flatMap { rep => facet(rep) }
+        def apply(req: Req) = service(req) flatMap { facet(_) }
       }
     }
   }
@@ -530,7 +543,7 @@ package object finch {
     /**
      * @return a name of this Finch instance
      */
-    def name = "FinchInstance-" + new Random().alphanumeric.take(20).mkString
+    def name = "Finch-" + new Random().alphanumeric.take(20).mkString
 
     /**
      * Exposes given ''resource'' at specified ''port'' and serves the requests.
