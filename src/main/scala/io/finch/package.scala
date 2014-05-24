@@ -138,19 +138,6 @@ package object finch {
   implicit class _ServiceAfterThat[Req <: HttpRequest, RepIn](service: Service[Req, RepIn]) {
 
     /**
-     * Composes this service with a given facet ''facet''.
-     *
-     * @param facet a facet to compose
-     * @tparam RepOut an output response type
-     *
-     * @return a new service composed with facet
-     */
-    def afterThat[RepOut](facet: Facet[RepIn, RepOut]) =
-      new Service[Req, RepOut] {
-        def apply(req: Req) = service(req) flatMap { facet(_) }
-      }
-
-    /**
      * Composes this service with a given facet-with-request ''facet''.
      *
      * @param facet a facet to compose
@@ -158,7 +145,7 @@ package object finch {
      *
      * @return a new service composed with facet.
      */
-    def afterThat[RepOut](facet: FacetWithRequest[Req, RepIn, RepOut]) =
+    def afterThat[ReqIn >: Req <: HttpRequest, RepOut](facet: FacetWithRequest[ReqIn, RepIn, RepOut]) =
       new Service[Req, RepOut] {
         def apply(req: Req) = service(req) flatMap { facet(req)(_) }
       }
@@ -319,8 +306,6 @@ package object finch {
   /**
    * A ''Facet'' that has a request available.
    *
-   *  TODO: https://github.com/vkostyukov/finch/issues/16
-   *
    * @tparam Req the request type
    * @tparam RepIn the input response type
    * @tparam RepOut the output response type
@@ -345,7 +330,7 @@ package object finch {
      *
      * @return a composed facet-with-request
      */
-    def afterThat[Rep](next: FacetWithRequest[Req, RepOut, Rep]) =
+    def afterThat[ReqIn >: Req <: HttpRequest, Rep](next: FacetWithRequest[ReqIn, RepOut, Rep]) =
       new FacetWithRequest[Req, RepIn, Rep] {
         def apply(req: Req)(rep: RepIn) = self(req)(rep) flatMap { next(req)(_) }
       }
@@ -358,7 +343,7 @@ package object finch {
    * @tparam RepIn the input response type
    * @tparam RepOut the output response type
    */
-  trait Facet[-RepIn, +RepOut] { self =>
+  trait Facet[-RepIn, +RepOut] extends FacetWithRequest[HttpRequest, RepIn, RepOut] {
 
     /**
      * Converts given ''rep'' from ''RepIn'' to ''RepOut'' type.
@@ -369,18 +354,7 @@ package object finch {
      */
     def apply(rep: RepIn): Future[RepOut]
 
-    /**
-     * Composes this facet with given ''next'' facet.
-     *
-     * @param next the facet to compose with
-     * @tparam Rep the response type
-     *
-     * @return a composed facet
-     */
-    def afterThat[Rep](next: Facet[RepOut, Rep]) =
-      new Facet[RepIn, Rep] {
-        def apply(rep: RepIn) = self(rep) flatMap { next(_) }
-      }
+    def apply(req: HttpRequest)(rep: RepIn) = apply(rep)
   }
 
   object JsonObject {
@@ -531,29 +505,16 @@ package object finch {
      * Applies given ''facet'' to this resource.
      *
      * @param facet a facet to apply
-     * @tparam RepOut a response type of new resource
-     *
-     * @return a new resource
-     */
-    def afterThat[RepOut](facet: Facet[Rep, RepOut]) = andThen { service =>
-      new Service[Req, RepOut] {
-        def apply(req: Req) = service(req) flatMap { facet(_) }
-      }
-    }
-
-    /**
-     * Applies given ''facet'' to this resource.
-     *
-     * @param facet a facet to apply
      * @tparam RepOut a response type of a new resource
      *
      * @return a new resource
      */
-    def afterThat[RepOut](facet: FacetWithRequest[Req, Rep, RepOut]) = andThen { service =>
-      new Service[Req, RepOut] {
-        def apply(req: Req) = service(req) flatMap { facet(req)(_) }
+    def afterThat[ReqIn >: Req <: HttpRequest, RepOut](facet: FacetWithRequest[ReqIn, Rep, RepOut]) =
+      andThen { service =>
+        new Service[Req, RepOut] {
+          def apply(req: Req) = service(req) flatMap { facet(req)(_) }
+        }
       }
-    }
   }
 
   /**
