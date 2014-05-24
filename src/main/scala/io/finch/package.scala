@@ -106,6 +106,21 @@ package object finch {
   }
 
   /**
+   * Alters any throwable with a ''toFutureException'' method.
+   *
+   * @param t a throwable to be altered
+   */
+  implicit class _ThrowableToFutureException(val t: Throwable) extends AnyVal {
+
+    /**
+     * Converts this throwable object into a ''Future'' exception.
+     *
+     * @return an exception wrapped with ''Future''
+     */
+    def toFutureException: Future[A] = Future.exception(t)
+  }
+
+  /**
    * Alters underlying filter within ''afterThat'' methods composing a filter
    * with a given resource or withing a next filter.
    *
