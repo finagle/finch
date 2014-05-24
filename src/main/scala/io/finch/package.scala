@@ -117,7 +117,7 @@ package object finch {
      *
      * @return an exception wrapped with ''Future''
      */
-    def toFutureException: Future[A] = Future.exception(t)
+    def toFutureException[A]: Future[A] = Future.exception(t)
   }
 
   /**
