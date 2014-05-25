@@ -493,16 +493,28 @@ package object finch {
     def route: PartialFunction[(HttpMethod, Path), Service[Req, Rep]]
 
     /**
-     * Combines ''this'' resource with ''that'' resource. A new resource
-     * contains routes of both ''this'' and ''that'' resources.
+     * Combines this resource with ''that'' resource. A new resource
+     * contains routes of both this and ''that'' resources.
      *
      * @param that the resource to be combined with
      *
      * @return a new resource
      */
-    def orElse(that: RestResource[Req, Rep]) = new RestResource[Req, Rep] {
-      def route = self.route orElse that.route
-    }
+    def orElse(that: RestResource[Req, Rep]): RestResource[Req, Rep] = orElse(that.route)
+
+    /**
+     * Combines this resource with ''that'' partial function that defines
+     * a route. A new resource contains routes of both this resource and ''that''
+     * partial function
+     *
+     * @param that the partial function to be combined with
+     *
+     * @return a new resource
+     */
+    def orElse(that: PartialFunction[(HttpMethod, Path), Service[Req, Rep]]): RestResource[Req, Rep] =
+      new RestResource[Req, Rep] {
+        def route = self.route orElse that
+      }
 
     /**
      * Applies given function ''fn'' to every route's endpoints of this resource.
