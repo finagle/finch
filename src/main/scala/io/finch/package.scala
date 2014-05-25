@@ -419,7 +419,7 @@ package object finch {
     def escapeChar: PartialFunction[Char, String]
   }
 
-  private[this] object DefaultJsonFormatter extends JsonFormatter {
+  object DefaultJsonFormatter extends JsonFormatter {
     def escapeChar = {
       case '"'  => "\\\""
       case '\\' => "\\\\"
