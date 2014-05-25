@@ -22,7 +22,7 @@
 
 package io
 
-import com.twitter.util.Future
+import com.twitter.util.{Throw, Return, Future}
 import com.twitter.finagle.{Filter, Service}
 import com.twitter.finagle.http.service.RoutingService
 import com.twitter.finagle.http.path.Path
@@ -32,6 +32,8 @@ import java.net.InetSocketAddress
 import org.jboss.netty.handler.codec.http.{HttpResponseStatus, HttpMethod}
 import scala.util.Random
 import com.twitter.finagle.http.{Http, Status, Version, Response, Request, RichHttp}
+import scala.util.matching.Regex
+import scala.reflect.ClassTag
 
 /***
  * Hi! I'm Finch - a super-tiny library atop of Finagle that makes the
@@ -601,4 +603,50 @@ package object finch {
    * A default REST API backend.
    */
   abstract class RestApiOf[Rep] extends RestApi[HttpRequest, Rep]
+
+  /**
+   * Param fetcher that implements Monad Reader pattern.
+   *
+   * @tparam A a param type
+   */
+  trait ParamFetcher[A] { self =>
+
+    def apply(req: HttpRequest): Future[A]
+
+    def flatMap[B](fn: A => ParamFetcher[B]) = new ParamFetcher[B] {
+      def apply(req: HttpRequest) = self(req) flatMap { fn(_)(req) }
+    }
+
+    def map[B](fn: A => B) = new ParamFetcher[B] {
+      def apply(req: HttpRequest) = self(req) map fn
+    }
+  }
+
+  abstract sealed class ParamFetchedWithError extends Exception("Param fetched with error.")
+  case class UnmatchedParam(param: String) extends ParamFetchedWithError
+  case class EmptyParam(param: String) extends ParamFetchedWithError
+
+  // TODO: type-parameters
+  object RequiredParam {
+    def apply(param: String, regex: String = ".*") = new ParamFetcher[String] {
+      def apply(req: HttpRequest) = req.params.get(param) match {
+        case Some(p) =>
+          if (p.matches(regex)) p.toFuture
+          else UnmatchedParam(param).toFutureException
+        case None => EmptyParam(param).toFutureException
+      }
+    }
+  }
+
+  // TODO: type-parameters
+  object OptionalParam {
+    def apply(param: String, regex: String = ".*") = new ParamFetcher[Option[String]] {
+      def apply(req: HttpRequest) = req.params.get(param) match {
+        case Some(p) =>
+          if (p.matches(regex)) Some(p).toFuture
+          else UnmatchedParam(param).toFutureException
+        case None => None.toFuture
+      }
+    }
+  }
 }
