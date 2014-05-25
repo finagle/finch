@@ -604,49 +604,67 @@ package object finch {
    */
   abstract class RestApiOf[Rep] extends RestApi[HttpRequest, Rep]
 
+  class ParamNotFound(param: String) extends Exception("Param \"" + param + "\" not found in the request.")
+
   /**
-   * Param fetcher that implements Monad Reader pattern.
+   * Param fetcher that fetches params into a future.
    *
    * @tparam A a param type
    */
-  trait ParamFetcher[A] { self =>
-
+  trait FutureParamFetcher[A] { self =>
     def apply(req: HttpRequest): Future[A]
 
-    def flatMap[B](fn: A => ParamFetcher[B]) = new ParamFetcher[B] {
+    def flatMap[B](fn: A => FutureParamFetcher[B]) = new FutureParamFetcher[B] {
       def apply(req: HttpRequest) = self(req) flatMap { fn(_)(req) }
     }
 
-    def map[B](fn: A => B) = new ParamFetcher[B] {
+    def map[B](fn: A => B) = new FutureParamFetcher[B] {
       def apply(req: HttpRequest) = self(req) map fn
     }
   }
 
-  abstract sealed class ParamFetchedWithError extends Exception("Param fetched with error.")
-  case class UnmatchedParam(param: String) extends ParamFetchedWithError
-  case class EmptyParam(param: String) extends ParamFetchedWithError
+  trait ParamFetcher[A] { self =>
+    def apply(req: HttpRequest): A
 
-  // TODO: type-parameters
-  object RequiredParam {
-    def apply(param: String, regex: String = ".*") = new ParamFetcher[String] {
-      def apply(req: HttpRequest) = req.params.get(param) match {
-        case Some(p) =>
-          if (p.matches(regex)) p.toFuture
-          else UnmatchedParam(param).toFutureException
-        case None => EmptyParam(param).toFutureException
-      }
+    def flatMap[B](fn: A => ParamFetcher[B]) = new ParamFetcher[B] {
+      def apply(req: HttpRequest) = fn(self(req))(req)
+    }
+
+    def map[B](fn: A => B) = new ParamFetcher[B] {
+      def apply(req: HttpRequest) = fn(self(req))
     }
   }
 
-  // TODO: type-parameters
+  object RequiredParam {
+    def optionToFuture[A](param: String, o: Option[A]) = o match {
+      case Some(v) => v.toFuture
+      case None => new ParamNotFound(param).toFutureException
+    }
+
+    def apply(param: String) = new FutureParamFetcher[String] {
+      def apply(req: HttpRequest) = optionToFuture(param, req.params.get(param))
+    }
+
+    def asInt(param: String) = new FutureParamFetcher[Int] {
+      def apply(req: HttpRequest) = optionToFuture(param, req.params.getInt(param))
+    }
+
+    def asLong(param: String) = new FutureParamFetcher[Long] {
+      def apply(req: HttpRequest) = optionToFuture(param, req.params.getLong(param))
+    }
+  }
+
   object OptionalParam {
-    def apply(param: String, regex: String = ".*") = new ParamFetcher[Option[String]] {
-      def apply(req: HttpRequest) = req.params.get(param) match {
-        case Some(p) =>
-          if (p.matches(regex)) Some(p).toFuture
-          else UnmatchedParam(param).toFutureException
-        case None => None.toFuture
-      }
+    def apply(param: String) = new ParamFetcher[Option[String]] {
+      def apply(req: HttpRequest) = req.params.get(param)
+    }
+
+    def asInt(param: String) = new ParamFetcher[Option[Int]] {
+      def apply(req: HttpRequest) = req.params.getInt(param)
+    }
+
+    def asLong(param: String) = new ParamFetcher[Option[Long]] {
+      def apply(req: HttpRequest) = req.params.getLong(param)
     }
   }
 }
