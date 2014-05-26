@@ -603,34 +603,30 @@ package object finch {
    */
   abstract class RestApiOf[Rep] extends RestApi[HttpRequest, Rep]
 
-  class ParamNotFound(param: String) extends Exception("Param \"" + param + "\" not found in the request.")
-  class ParamNotValidated(rule: String) extends Exception("Validation rule is broken: \"" + rule + "\".")
+  class RequestReaderError(m: String) extends Exception(m)
+  class ParamNotFound(param: String) extends RequestReaderError("Param \"" + param + "\" not found in the request.")
+  class ValidationFailed(rule: String) extends RequestReaderError("Request validation failed: \"" + rule + "\".")
 
-  /**
-   * Param fetcher that fetches params into a future.
-   *
-   * @tparam A a param type
-   */
-  trait FutureParamFetcher[A] { self =>
+  trait FutureRequestReader[A] { self =>
     def apply(req: HttpRequest): Future[A]
 
-    def flatMap[B](fn: A => FutureParamFetcher[B]) = new FutureParamFetcher[B] {
+    def flatMap[B](fn: A => FutureRequestReader[B]) = new FutureRequestReader[B] {
       def apply(req: HttpRequest) = self(req) flatMap { fn(_)(req) }
     }
 
-    def map[B](fn: A => B) = new FutureParamFetcher[B] {
+    def map[B](fn: A => B) = new FutureRequestReader[B] {
       def apply(req: HttpRequest) = self(req) map fn
     }
   }
 
-  trait ParamFetcher[A] { self =>
+  trait RequestReader[A] { self =>
     def apply(req: HttpRequest): A
 
-    def flatMap[B](fn: A => ParamFetcher[B]) = new ParamFetcher[B] {
+    def flatMap[B](fn: A => RequestReader[B]) = new RequestReader[B] {
       def apply(req: HttpRequest) = fn(self(req))(req)
     }
 
-    def map[B](fn: A => B) = new ParamFetcher[B] {
+    def map[B](fn: A => B) = new RequestReader[B] {
       def apply(req: HttpRequest) = fn(self(req))
     }
   }
@@ -641,82 +637,82 @@ package object finch {
   }
 
   object RequiredParam {
-    def apply(param: String) = new FutureParamFetcher[String] {
+    def apply(param: String) = new FutureRequestReader[String] {
       def apply(req: HttpRequest) = OptionToFuture(param, req.params.get(param))
     }
   }
 
   object RequiredIntParam {
-    def apply(param: String) = new FutureParamFetcher[Int] {
+    def apply(param: String) = new FutureRequestReader[Int] {
       def apply(req: HttpRequest) = OptionToFuture(param, req.params.getInt(param))
     }
   }
 
   object RequiredLongParam {
-    def apply(param: String) = new FutureParamFetcher[Long] {
+    def apply(param: String) = new FutureRequestReader[Long] {
       def apply(req: HttpRequest) = OptionToFuture(param, req.params.getLong(param))
     }
   }
 
   object RequiredBooleanParam {
-    def apply(param: String) = new FutureParamFetcher[Boolean] {
+    def apply(param: String) = new FutureRequestReader[Boolean] {
       def apply(req: HttpRequest) = OptionToFuture(param, req.params.getBoolean(param))
     }
   }
 
   object OptionalParam {
-    def apply(param: String) = new FutureParamFetcher[Option[String]] {
+    def apply(param: String) = new FutureRequestReader[Option[String]] {
       def apply(req: HttpRequest) = req.params.get(param).toFuture
     }
   }
 
   object OptionalIntParam {
-    def apply(param: String) = new FutureParamFetcher[Option[Int]] {
+    def apply(param: String) = new FutureRequestReader[Option[Int]] {
       def apply(req: HttpRequest) = req.params.getInt(param).toFuture
     }
   }
 
   object OptionalLongParam {
-    def apply(param: String) = new FutureParamFetcher[Option[Long]] {
+    def apply(param: String) = new FutureRequestReader[Option[Long]] {
       def apply(req: HttpRequest) = req.params.getLong(param).toFuture
     }
   }
 
   object OptionalBooleanParam {
-    def apply(param: String) = new FutureParamFetcher[Option[Boolean]] {
+    def apply(param: String) = new FutureRequestReader[Option[Boolean]] {
       def apply(req: HttpRequest) = req.params.getBoolean(param).toFuture
     }
   }
 
   object Param {
-    def apply(param: String) = new ParamFetcher[Option[String]] {
+    def apply(param: String) = new RequestReader[Option[String]] {
       def apply(req: HttpRequest) = req.params.get(param)
     }
   }
 
   object IntParam {
-    def apply(param: String) = new ParamFetcher[Option[Int]] {
+    def apply(param: String) = new RequestReader[Option[Int]] {
       def apply(req: HttpRequest) = req.params.getInt(param)
     }
   }
 
   object LongParam {
-    def apply(param: String) = new ParamFetcher[Option[Long]] {
+    def apply(param: String) = new RequestReader[Option[Long]] {
       def apply(req: HttpRequest) = req.params.getLong(param)
     }
   }
 
   object BooleanParam {
-    def apply(param: String) = new ParamFetcher[Option[Boolean]] {
+    def apply(param: String) = new RequestReader[Option[Boolean]] {
       def apply(req: HttpRequest) = req.params.getBoolean(param)
     }
   }
 
   object ValidationRule {
-    def apply(rule: String)(fn: => Boolean) = new FutureParamFetcher[Unit] {
+    def apply(rule: String)(predicate: => Boolean) = new FutureRequestReader[Unit] {
       def apply(req: HttpRequest) =
-       if (fn) Future.Done
-       else new ParamNotValidated(rule).toFutureException
+       if (predicate) Future.Done
+       else new ValidationFailed(rule).toFutureException
     }
   }
 }
