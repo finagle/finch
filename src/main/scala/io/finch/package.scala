@@ -32,6 +32,7 @@ import java.net.InetSocketAddress
 import org.jboss.netty.handler.codec.http.{HttpResponseStatus, HttpMethod}
 import scala.util.Random
 import com.twitter.finagle.http.{Http, Status, Version, Response, Request, RichHttp}
+import javax.annotation.ParametersAreNonnullByDefault
 
 /***
  * Hi! I'm Finch - a super-tiny library atop of Finagle that makes the
@@ -603,6 +604,7 @@ package object finch {
   abstract class RestApiOf[Rep] extends RestApi[HttpRequest, Rep]
 
   class ParamNotFound(param: String) extends Exception("Param \"" + param + "\" not found in the request.")
+  class ParamNotValidated(rule: String) extends Exception("Validation rule is broken: \"" + rule + "\".")
 
   /**
    * Param fetcher that fetches params into a future.
@@ -707,6 +709,14 @@ package object finch {
   object BooleanParam {
     def apply(param: String) = new ParamFetcher[Option[Boolean]] {
       def apply(req: HttpRequest) = req.params.getBoolean(param)
+    }
+  }
+
+  object ValidationRule {
+    def apply(rule: String)(fn: => Boolean) = new FutureParamFetcher[Unit] {
+      def apply(req: HttpRequest) =
+       if (fn) Future.Done
+       else new ParamNotValidated(rule).toFutureException
     }
   }
 }
