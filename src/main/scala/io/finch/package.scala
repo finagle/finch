@@ -22,7 +22,7 @@
 
 package io
 
-import com.twitter.util.{Throw, Return, Future}
+import com.twitter.util.Future
 import com.twitter.finagle.{Filter, Service}
 import com.twitter.finagle.http.service.RoutingService
 import com.twitter.finagle.http.path.Path
@@ -32,8 +32,6 @@ import java.net.InetSocketAddress
 import org.jboss.netty.handler.codec.http.{HttpResponseStatus, HttpMethod}
 import scala.util.Random
 import com.twitter.finagle.http.{Http, Status, Version, Response, Request, RichHttp}
-import scala.util.matching.Regex
-import scala.reflect.ClassTag
 
 /***
  * Hi! I'm Finch - a super-tiny library atop of Finagle that makes the
@@ -635,36 +633,80 @@ package object finch {
     }
   }
 
+  private[this] object OptionToFuture {
+    def apply[A](param: String, o: Option[A]) =
+      o map { _.toFuture } getOrElse new ParamNotFound(param).toFutureException
+  }
+
   object RequiredParam {
-    def optionToFuture[A](param: String, o: Option[A]) = o match {
-      case Some(v) => v.toFuture
-      case None => new ParamNotFound(param).toFutureException
-    }
-
     def apply(param: String) = new FutureParamFetcher[String] {
-      def apply(req: HttpRequest) = optionToFuture(param, req.params.get(param))
+      def apply(req: HttpRequest) = OptionToFuture(param, req.params.get(param))
     }
+  }
 
-    def asInt(param: String) = new FutureParamFetcher[Int] {
-      def apply(req: HttpRequest) = optionToFuture(param, req.params.getInt(param))
+  object RequiredIntParam {
+    def apply(param: String) = new FutureParamFetcher[Int] {
+      def apply(req: HttpRequest) = OptionToFuture(param, req.params.getInt(param))
     }
+  }
 
-    def asLong(param: String) = new FutureParamFetcher[Long] {
-      def apply(req: HttpRequest) = optionToFuture(param, req.params.getLong(param))
+  object RequiredLongParam {
+    def apply(param: String) = new FutureParamFetcher[Long] {
+      def apply(req: HttpRequest) = OptionToFuture(param, req.params.getLong(param))
+    }
+  }
+
+  object RequiredBooleanParam {
+    def apply(param: String) = new FutureParamFetcher[Boolean] {
+      def apply(req: HttpRequest) = OptionToFuture(param, req.params.getBoolean(param))
     }
   }
 
   object OptionalParam {
+    def apply(param: String) = new FutureParamFetcher[Option[String]] {
+      def apply(req: HttpRequest) = req.params.get(param).toFuture
+    }
+  }
+
+  object OptionalIntParam {
+    def apply(param: String) = new FutureParamFetcher[Option[Int]] {
+      def apply(req: HttpRequest) = req.params.getInt(param).toFuture
+    }
+  }
+
+  object OptionalLongParam {
+    def apply(param: String) = new FutureParamFetcher[Option[Long]] {
+      def apply(req: HttpRequest) = req.params.getLong(param).toFuture
+    }
+  }
+
+  object OptionalBooleanParam {
+    def apply(param: String) = new FutureParamFetcher[Option[Boolean]] {
+      def apply(req: HttpRequest) = req.params.getBoolean(param).toFuture
+    }
+  }
+
+  object Param {
     def apply(param: String) = new ParamFetcher[Option[String]] {
       def apply(req: HttpRequest) = req.params.get(param)
     }
+  }
 
-    def asInt(param: String) = new ParamFetcher[Option[Int]] {
+  object IntParam {
+    def apply(param: String) = new ParamFetcher[Option[Int]] {
       def apply(req: HttpRequest) = req.params.getInt(param)
     }
+  }
 
-    def asLong(param: String) = new ParamFetcher[Option[Long]] {
+  object LongParam {
+    def apply(param: String) = new ParamFetcher[Option[Long]] {
       def apply(req: HttpRequest) = req.params.getLong(param)
+    }
+  }
+
+  object BooleanParam {
+    def apply(param: String) = new ParamFetcher[Option[Boolean]] {
+      def apply(req: HttpRequest) = req.params.getBoolean(param)
     }
   }
 }
