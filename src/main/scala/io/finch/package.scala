@@ -604,8 +604,8 @@ package object finch {
   abstract class RestApiOf[Rep] extends RestApi[HttpRequest, Rep]
 
   class RequestReaderError(m: String) extends Exception(m)
-  class ParamNotFound(param: String) extends RequestReaderError("Param \"" + param + "\" not found in the request.")
-  class ValidationFailed(rule: String) extends RequestReaderError("Request validation failed: \"" + rule + "\".")
+  class ParamNotFound(param: String) extends RequestReaderError("Param '" + param + "' not found in the request.")
+  class ValidationFailed(rule: String) extends RequestReaderError("Request validation failed: '" + rule + "'.")
 
   trait FutureRequestReader[A] { self =>
     def apply(req: HttpRequest): Future[A]
@@ -631,33 +631,28 @@ package object finch {
     }
   }
 
-  private[this] object OptionToFuture {
-    def apply[A](param: String, o: Option[A]) =
-      o map { _.toFuture } getOrElse new ParamNotFound(param).toFutureException
-  }
-
   object RequiredParam {
     def apply(param: String) = new FutureRequestReader[String] {
-      def apply(req: HttpRequest) = OptionToFuture(param, req.params.get(param))
+      def apply(req: HttpRequest) = {
+        req.params.get(param) match {
+          case Some("") => new ValidationFailed(param + " should not be empty").toFutureException
+          case Some(value) => value.toFuture
+          case None => new ParamNotFound(param).toFutureException
+        }
+      }
     }
   }
 
   object RequiredIntParam {
-    def apply(param: String) = new FutureRequestReader[Int] {
-      def apply(req: HttpRequest) = OptionToFuture(param, req.params.getInt(param))
-    }
+    def apply(param: String) = RequiredParam(param) map { _.toInt }
   }
 
   object RequiredLongParam {
-    def apply(param: String) = new FutureRequestReader[Long] {
-      def apply(req: HttpRequest) = OptionToFuture(param, req.params.getLong(param))
-    }
+    def apply(param: String) = RequiredParam(param) map { _.toLong }
   }
 
   object RequiredBooleanParam {
-    def apply(param: String) = new FutureRequestReader[Boolean] {
-      def apply(req: HttpRequest) = OptionToFuture(param, req.params.getBoolean(param))
-    }
+    def apply(param: String) = RequiredParam(param) map { _.toBoolean }
   }
 
   object OptionalParam {
@@ -667,21 +662,15 @@ package object finch {
   }
 
   object OptionalIntParam {
-    def apply(param: String) = new FutureRequestReader[Option[Int]] {
-      def apply(req: HttpRequest) = req.params.getInt(param).toFuture
-    }
+    def apply(param: String) = OptionalParam(param) map { _.map { _.toInt } }
   }
 
   object OptionalLongParam {
-    def apply(param: String) = new FutureRequestReader[Option[Long]] {
-      def apply(req: HttpRequest) = req.params.getLong(param).toFuture
-    }
+    def apply(param: String) = OptionalParam(param) map { _.map { _.toLong } }
   }
 
   object OptionalBooleanParam {
-    def apply(param: String) = new FutureRequestReader[Option[Boolean]] {
-      def apply(req: HttpRequest) = req.params.getBoolean(param).toFuture
-    }
+    def apply(param: String) = OptionalParam(param) map { _.map { _.toBoolean } }
   }
 
   object Param {
@@ -691,21 +680,15 @@ package object finch {
   }
 
   object IntParam {
-    def apply(param: String) = new RequestReader[Option[Int]] {
-      def apply(req: HttpRequest) = req.params.getInt(param)
-    }
+    def apply(param: String) = Param(param) map { _.map { _.toInt } }
   }
 
   object LongParam {
-    def apply(param: String) = new RequestReader[Option[Long]] {
-      def apply(req: HttpRequest) = req.params.getLong(param)
-    }
+    def apply(param: String) = Param(param) map { _.map { _.toLong } }
   }
 
   object BooleanParam {
-    def apply(param: String) = new RequestReader[Option[Boolean]] {
-      def apply(req: HttpRequest) = req.params.getBoolean(param)
-    }
+    def apply(param: String) = Param(param) map { _.map { _.toBoolean } }
   }
 
   object ValidationRule {
