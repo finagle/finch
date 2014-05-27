@@ -195,12 +195,12 @@ package object finch {
      * @return an option of a value associated with a tag
      */
     def getOption[A](path: String) = {
-      def fetchByPath(path: List[String], j: JSONObject): Option[A] = path match {
+      def loop(path: List[String], j: JSONObject): Option[A] = path match {
         case tag :: Nil => j.obj.get(tag) map { _.asInstanceOf[A] }
-        case tag :: tail => fetchByPath(tail, j.obj(tag).asInstanceOf[JSONObject])
+        case tag :: tail => loop(tail, j.obj(tag).asInstanceOf[JSONObject])
       }
 
-      fetchByPath(path.split('.').toList, json)
+      loop(path.split('.').toList, json)
     }
   }
 
@@ -291,15 +291,16 @@ package object finch {
 
   object JsonObject {
     def apply(args: (String, Any)*) = {
-      def mapOfPath(path: List[String], value: Any): Map[String, Any] = path match {
+      def loop(path: List[String], value: Any): Map[String, Any] = path match {
         case tag :: Nil => Map(tag -> value)
-        case tag :: tail => Map(tag -> JSONObject(mapOfPath(tail, value)))
+        case tag :: tail => Map(tag -> JSONObject(loop(tail, value)))
       }
 
-      val seqOfJson = args.map {
-        case (path, value) => JSONObject(mapOfPath(path.split('.').toList, value))
+      val jsonSeq = args.map {
+        case (path, value) => JSONObject(loop(path.split('.').toList, value))
       }
-      seqOfJson.foldLeft(JsonObject.empty) { mergeLeft }
+
+      jsonSeq.foldLeft(JsonObject.empty) { mergeLeft }
     }
 
     def empty = JSONObject(Map.empty[String, Any])
@@ -579,12 +580,10 @@ package object finch {
 
   object RequiredParam {
     def apply(param: String) = new FutureRequestReader[String] {
-      def apply(req: HttpRequest) = {
-        req.params.get(param) match {
-          case Some("") => new ValidationFailed(param + " should not be empty").toFutureException
-          case Some(value) => value.toFuture
-          case None => new ParamNotFound(param).toFutureException
-        }
+      def apply(req: HttpRequest) = req.params.get(param) match {
+        case Some("") => new ValidationFailed(param + " should not be empty").toFutureException
+        case Some(value) => value.toFuture
+        case None => new ParamNotFound(param).toFutureException
       }
     }
   }
