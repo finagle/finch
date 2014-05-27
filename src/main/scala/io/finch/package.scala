@@ -175,93 +175,32 @@ package object finch {
   implicit class _JsonObjectOps(val json: JSONObject) extends AnyVal {
 
     /**
-     * Maps this json object into a future with given ''tag'' updated
-     * via async function ''fn''.
-     *
-     * @param tag a tag to update
-     * @param fn an async function to transform the tag
-     * @tparam A a value type associated with a given tag
-     *
-     * @return a future of a new json object with tag updated
-     */
-    def flatMapTagInFuture[A](tag: String)(fn: A => Future[Any]) = json.obj.get(tag) match {
-      case Some(any) => fn(any.asInstanceOf[A]) flatMap { a =>
-        JSONObject(json.obj + (tag -> a)).toFuture
-      }
-      case None => json.toFuture
-    }
-
-    /**
-     * Maps this json object into a future with given ''tag'' updated
-     * via pure function ''fn''.
-     *
-     * @param tag a tag to update
-     * @param fn a pure function to transform the tag
-     * @tparam A a value type associated with a given tag
-     *
-     * @return a future of a new json object with tag updated
-     */
-    def mapTagInFuture[A](tag: String)(fn: A => Any) = mapTag[A](tag)(fn).toFuture
-
-    /**
-     * Maps this json object with given ''tag'' updated via pure function ''fn''.
-     *
-     * @param tag a tag to update
-     * @param fn a pure function to transform the tag
-     * @tparam A a value type associated with a given tag
-     *
-     * @return a json object with tag updated
-     */
-    def mapTag[A](tag: String)(fn: A => Any) = json.obj.get(tag) match {
-      case Some(any) => JSONObject(json.obj + (tag -> fn(any.asInstanceOf[A])))
-      case None => json
-    }
-
-    /**
-     * Retrieves the string value associated with a given ''tag'' in this json
-     * object.
-     *
-     * @param tag a tag
-     *
-     * @return a value associated with a tag
-     */
-    def apply(tag: String) = get[String](tag)
-
-    /**
      * Retrieves the typed ''A'' value associated with a given ''tag'' in this
      * json object
      *
-     * @param tag a tag
+     * @param path a tag
      * @tparam A a value type
      *
      * @return a value associated with a tag
      */
-    def get[A](tag: String) = json.obj(tag).asInstanceOf[A]
-
-    /**
-     * Retrieves the typed ''A'' value associated with a given ''tag'' in this
-     * json object or ''default'' value if the tag doesn't exist.
-     *
-     * @param tag a tag
-     * @param default a default value
-     * @tparam A a value type
-     *
-     * @return a value associated with a tag or default value
-     */
-    def getOrElse[A](tag: String, default: => A) = json.obj.getOrElse(tag, default).asInstanceOf[A]
+    def get[A](path: String) = getOption[A](path).get
 
     /**
      * Retrieves the typed ''A'' option of a value associated with a given ''tag''
      * in this json object.
      *
-     * @param tag a tag
+     * @param path a path
      * @tparam A a value type
      *
      * @return an option of a value associated with a tag
      */
-    def getOption[A](tag: String) = json.obj.get(tag) match {
-      case Some(a) => Some(a.asInstanceOf[A])
-      case None => None
+    def getOption[A](path: String) = {
+      def fetchByPath(path: List[String], j: JSONObject): Option[A] = path match {
+        case tag :: Nil => j.obj.get(tag) map { _.asInstanceOf[A] }
+        case tag :: tail => fetchByPath(tail, j.obj(tag).asInstanceOf[JSONObject])
+      }
+
+      fetchByPath(path.split('.').toList, json)
     }
   }
 
@@ -273,29 +212,6 @@ package object finch {
   implicit class _JsonArrayOps(val json: JSONArray) extends AnyVal {
 
     /**
-     * Maps this json array into a future with all the items mapped via
-     * async function ''fn''.
-     *
-     * @param fn an async function to map items
-     *
-     * @return a future of json array with items mapped
-     */
-    def flatMapInFuture(fn: JsonResponse => Future[JsonResponse]) = {
-      val fs = json.list map { a => fn(a.asInstanceOf[JsonResponse]) }
-      Future.collect(fs) flatMap { seq => JsonArray(seq).toFuture }
-    }
-
-    /**
-     * Maps this json array into a future with all the items mapped
-     * via pure function ''fn''.
-     *
-     * @param fn a pure function to map items
-     *
-     * @return a future of json array with items mapped
-     */
-    def mapInFuture(fn: JsonResponse => JsonResponse) = map(fn).toFuture
-
-    /**
      * Maps this json array into a json array with all the items mapped
      * via pure function ''fn''.
      *
@@ -303,8 +219,8 @@ package object finch {
      *
      * @return a json array with items mapped
      */
-    def map(fn: JsonResponse => JsonResponse) =
-      JsonArray(json.list map { a => fn(a.asInstanceOf[JsonResponse]) })
+    def map[A](fn: JsonResponse => A) =
+      json.list map { a => fn(a.asInstanceOf[JsonResponse]) }
   }
 
   /**
@@ -374,11 +290,40 @@ package object finch {
   }
 
   object JsonObject {
-    def apply(args: (String, Any)*) = JSONObject(args.toMap)
+    def apply(args: (String, Any)*) = {
+      def mapOfPath(path: List[String], value: Any): Map[String, Any] = path match {
+        case tag :: Nil => Map(tag -> value)
+        case tag :: tail => Map(tag -> JSONObject(mapOfPath(tail, value)))
+      }
+
+      val seqOfJson = args.map {
+        case (path, value) => JSONObject(mapOfPath(path.split('.').toList, value))
+      }
+      seqOfJson.foldLeft(JsonObject.empty) { mergeLeft }
+    }
+
     def empty = JSONObject(Map.empty[String, Any])
     def unapply(outer: Any): Option[JSONObject] = outer match {
       case inner: JSONObject => Some(inner)
       case _ => None
+    }
+
+    def mergeRight(a: JSONObject, b: JSONObject) = mergeLeft(b, a)
+    def mergeLeft(a: JSONObject, b: JSONObject): JSONObject = {
+      def loop(aa: Map[String, Any], bb: Map[String, Any]): Map[String, Any] =
+        if (aa.isEmpty) bb
+        else if (bb.isEmpty) aa
+        else {
+          val (tag, value) = bb.head
+          if (!aa.contains(tag)) loop(aa + (tag -> value), bb.tail)
+          else (aa(tag), value) match {
+            case (ja: JSONObject, jb: JSONObject) =>
+              loop(aa + (tag -> JSONObject(loop(ja.obj, jb.obj))), bb.tail)
+            case (_, _) => aa
+          }
+        }
+
+      JSONObject(loop(a.obj, b.obj))
     }
   }
 
@@ -392,6 +337,7 @@ package object finch {
       case inner: JSONArray => Some(inner)
       case _ => None
     }
+    def collect(seq: Seq[Future[JsonResponse]]) = Future.collect(seq) map { seq => JsonArray(seq) }
   }
 
   /**
@@ -464,7 +410,7 @@ package object finch {
     def apply(rep: JsonResponse) = {
       val status = rep match {
         case JsonObject(o) =>
-          HttpResponseStatus.valueOf(o.getOrElse[Int](statusTag, 200))
+          HttpResponseStatus.valueOf(o.getOption[Int](statusTag).getOrElse(200))
         case _ => Status.Ok
       }
 
