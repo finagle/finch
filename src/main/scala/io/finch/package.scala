@@ -578,6 +578,21 @@ package object finch {
     }
   }
 
+  private[this] object StringToNumberOrFail {
+    def apply[A](rule: String)(number: => A) = new FutureRequestReader[A] {
+      def apply(req: HttpRequest) =
+        try number.toFuture
+        catch { case _: NumberFormatException => new ValidationFailed(rule).toFutureException }
+    }
+  }
+
+  private[this] object SomeStringToSomeNumber {
+    def apply[A](fn: String => A)(o: Option[String]) = o.flatMap { s =>
+      try Some(fn(s))
+      catch { case _: NumberFormatException => None }
+    }
+  }
+
   object RequiredParam {
     def apply(param: String) = new FutureRequestReader[String] {
       def apply(req: HttpRequest) = req.params.get(param) match {
@@ -589,15 +604,24 @@ package object finch {
   }
 
   object RequiredIntParam {
-    def apply(param: String) = RequiredParam(param) map { _.toInt }
+    def apply(param: String) = for {
+      s <- RequiredParam(param)
+      n <- StringToNumberOrFail(param + " should be integer")(s.toInt)
+    } yield n
   }
 
   object RequiredLongParam {
-    def apply(param: String) = RequiredParam(param) map { _.toLong }
+    def apply(param: String) = for {
+      s <- RequiredParam(param)
+      n <- StringToNumberOrFail(param + " should be long")(s.toLong)
+    } yield n
   }
 
   object RequiredBooleanParam {
-    def apply(param: String) = RequiredParam(param) map { _.toBoolean }
+    def apply(param: String) = for {
+      s <- RequiredParam(param)
+      n <- StringToNumberOrFail(param + " should be boolean")(s.toBoolean)
+    } yield n
   }
 
   object OptionalParam {
@@ -607,15 +631,21 @@ package object finch {
   }
 
   object OptionalIntParam {
-    def apply(param: String) = OptionalParam(param) map { _.map { _.toInt } }
+    def apply(param: String) = for {
+      o <- OptionalParam(param)
+    } yield SomeStringToSomeNumber(_.toInt)(o)
   }
 
   object OptionalLongParam {
-    def apply(param: String) = OptionalParam(param) map { _.map { _.toLong } }
+    def apply(param: String) = for {
+      o <- OptionalParam(param)
+    } yield SomeStringToSomeNumber(_.toLong)(o)
   }
 
   object OptionalBooleanParam {
-    def apply(param: String) = OptionalParam(param) map { _.map { _.toBoolean } }
+    def apply(param: String) = for {
+      o <- OptionalParam(param)
+    } yield SomeStringToSomeNumber(_.toBoolean)(o)
   }
 
   object Param {
@@ -625,15 +655,21 @@ package object finch {
   }
 
   object IntParam {
-    def apply(param: String) = Param(param) map { _.map { _.toInt } }
+    def apply(param: String) = for {
+      o <- Param(param)
+    } yield SomeStringToSomeNumber(_.toInt)(o)
   }
 
   object LongParam {
-    def apply(param: String) = Param(param) map { _.map { _.toLong } }
+    def apply(param: String) = for {
+      o <- Param(param)
+    } yield SomeStringToSomeNumber(_.toLong)(o)
   }
 
   object BooleanParam {
-    def apply(param: String) = Param(param) map { _.map { _.toBoolean } }
+    def apply(param: String) = for {
+      o <- Param(param)
+    } yield SomeStringToSomeNumber(_.toBoolean)(o)
   }
 
   object ValidationRule {
