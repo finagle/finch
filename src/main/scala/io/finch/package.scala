@@ -219,8 +219,7 @@ package object finch {
      *
      * @return a json array with items mapped
      */
-    def map[A](fn: JsonResponse => A) =
-      json.list map { a => fn(a.asInstanceOf[JsonResponse]) }
+    def map[B](fn: Any => B) = json.list map fn
   }
 
   /**
@@ -300,7 +299,7 @@ package object finch {
         case (path, value) => JSONObject(loop(path.split('.').toList, value))
       }
 
-      jsonSeq.foldLeft(JsonObject.empty) { mergeLeft }
+      jsonSeq.foldLeft(JsonObject.empty) { mergeRight }
     }
 
     def empty = JSONObject(Map.empty[String, Any])
@@ -315,16 +314,31 @@ package object finch {
         if (aa.isEmpty) bb
         else if (bb.isEmpty) aa
         else {
-          val (tag, value) = bb.head
-          if (!aa.contains(tag)) loop(aa + (tag -> value), bb.tail)
-          else (aa(tag), value) match {
+          val (tag, value) = aa.head
+          if (!bb.contains(tag)) loop(aa.tail, bb + (tag -> value))
+          else (value, bb(tag)) match {
             case (ja: JSONObject, jb: JSONObject) =>
-              loop(aa + (tag -> JSONObject(loop(ja.obj, jb.obj))), bb.tail)
-            case (_, _) => aa
+              loop(aa.tail, bb + (tag -> JSONObject(loop(ja.obj, jb.obj))))
+            case (_, _) => loop(aa.tail, bb + (tag -> value))
           }
         }
 
       JSONObject(loop(a.obj, b.obj))
+    }
+
+    def joinRight(path: String)(a: JSONObject, b: JSONObject) = joinLeft(path)(b, a)
+    def joinLeft(path: String)(a: JSONObject, b: JSONObject) = {
+      val (aa, bb) = (a.get[Any](path), b.get[Any](path)) match {
+        case (ja: JSONArray, jb: JSONArray) => (ja, jb)
+        case (ja: JSONArray, jb) => (ja, JSONArray(List(jb)))
+        case (ja, jb: JSONArray) => (JSONArray(List(ja)), jb)
+        case (ja, jb) => (JSONArray(List(ja)), JSONArray(List(jb)))
+      }
+
+      JsonObject.mergeLeft(
+        JsonObject(path -> JsonArray.concat(aa, bb)),
+        JsonObject.mergeLeft(a, b)
+      )
     }
   }
 
@@ -332,13 +346,13 @@ package object finch {
    * A companion object for ''JSONArray''.
    */
   object JsonArray {
-    def apply(seq: Seq[JsonResponse]) = JSONArray(seq.toList)
-    def empty = JSONArray(List.empty[JsonResponse])
+    def apply(seq: Seq[Any]) = JSONArray(seq.toList)
+    def empty = JSONArray(List.empty[Any])
     def unapply(outer: Any): Option[JSONArray] = outer match {
       case inner: JSONArray => Some(inner)
       case _ => None
     }
-    def collect(seq: Seq[Future[JsonResponse]]) = Future.collect(seq) map { seq => JsonArray(seq) }
+    def concat(a: JSONArray, b: JSONArray) = JSONArray(a.list ++ b.list)
   }
 
   /**
