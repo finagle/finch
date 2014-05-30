@@ -202,6 +202,14 @@ package object finch {
 
       loop(path.split('.').toList, json)
     }
+
+    /**
+     * Put scala doc here.
+     *
+     * @param fn
+     * @return
+     */
+    def within(fn: Map[String, Any] => Map[String, Any]) = JSONObject(fn(json.obj))
   }
 
   /**
