@@ -337,7 +337,7 @@ package object finch {
       case inner: JSONArray => Some(inner)
       case _ => None
     }
-    def concat(a: JSONArray, b: JSONArray) = JSONArray(a.list :: b.list)
+    def concat(a: JSONArray, b: JSONArray) = JSONArray(a.list ::: b.list)
   }
 
   /**
