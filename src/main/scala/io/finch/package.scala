@@ -219,7 +219,7 @@ package object finch {
      *
      * @return a json array with items mapped
      */
-    def map[B](fn: Any => B) = json.list map fn
+    def within(fn: List[Any] => List[Any]) = JSONArray(fn(json.list))
   }
 
   /**
@@ -325,34 +325,19 @@ package object finch {
 
       JSONObject(loop(a.obj, b.obj))
     }
-
-    def joinRight(path: String)(a: JSONObject, b: JSONObject) = joinLeft(path)(b, a)
-    def joinLeft(path: String)(a: JSONObject, b: JSONObject) = {
-      val (aa, bb) = (a.get[Any](path), b.get[Any](path)) match {
-        case (ja: JSONArray, jb: JSONArray) => (ja, jb)
-        case (ja: JSONArray, jb) => (ja, JSONArray(List(jb)))
-        case (ja, jb: JSONArray) => (JSONArray(List(ja)), jb)
-        case (ja, jb) => (JSONArray(List(ja)), JSONArray(List(jb)))
-      }
-
-      JsonObject.mergeLeft(
-        JsonObject(path -> JsonArray.concat(aa, bb)),
-        JsonObject.mergeLeft(a, b)
-      )
-    }
   }
 
   /**
    * A companion object for ''JSONArray''.
    */
   object JsonArray {
-    def apply(seq: Seq[Any]) = JSONArray(seq.toList)
+    def apply(args: Any*) = JSONArray(args.toList)
     def empty = JSONArray(List.empty[Any])
     def unapply(outer: Any): Option[JSONArray] = outer match {
       case inner: JSONArray => Some(inner)
       case _ => None
     }
-    def concat(a: JSONArray, b: JSONArray) = JSONArray(a.list ++ b.list)
+    def concat(a: JSONArray, b: JSONArray) = JSONArray(a.list :: b.list)
   }
 
   /**
