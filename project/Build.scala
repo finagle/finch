@@ -11,7 +11,7 @@ object Finch extends Build {
 
   lazy val buildSettings = Seq(
     organization := "io",
-    version := "0.0.28",
+    version := "0.0.29",
     scalaVersion := "2.10.3"
   )
 

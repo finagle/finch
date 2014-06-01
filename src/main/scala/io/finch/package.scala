@@ -299,7 +299,7 @@ package object finch {
   object JsonObject {
     def apply(args: (String, Any)*) = {
       def loop(path: List[String], value: Any): Map[String, Any] = path match {
-        case tag :: Nil => Map(tag -> value)
+        case tag :: Nil => Map(tag -> (if (value == null) JsonNull else value))
         case tag :: tail => Map(tag -> JSONObject(loop(tail, value)))
       }
 
@@ -346,6 +346,11 @@ package object finch {
       case _ => None
     }
     def concat(a: JSONArray, b: JSONArray) = JSONArray(a.list ::: b.list)
+  }
+
+  object JsonNull {
+    private[this] val underlying: String = null
+    override def toString = underlying
   }
 
   /**
