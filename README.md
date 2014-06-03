@@ -119,47 +119,76 @@ object Main extends RestApiOf[JsonResponse] {
 Bonus Track: JSON on Steroids
 -----------------------------
 
-**Finch.io** provides a slight asynchronous API for working with standard classes `scala.util.parsing.json.JSONObject` and `scala.util.parsing.json.JSONArray` from Finagle. The core methods and practices are described follow.
+**Finch.io** provides a slight API for working with standard classes `scala.util.parsing.json.JSONObject` and `scala.util.parsing.json.JSONArray`. The core methods and practices are described follow.
 
 **JsonObject & JsonArray**
 ```scala
-val repA: JsonResponse = JsonObject("tagA" -> "valueA", "tagB" -> "valueB")
-val repB: JsonResponse = JsonObject("1" -> 1, "2" -> 2)
-val repC: JsonResponse = JsonArray(Seq(repA, repB)) 
+val a: JsonResponse = JsonObject("tagA" -> "valueA", "tagB" -> "valueB")
+val b: JsonResponse = JsonObject("1" -> 1, "2" -> 2)
+val c: JsonResponse = JsonArray(a, b, "string", 10) 
 ```
 
 **Pattern Matching**
 ```scala
-val repA: JsonResponse = JsonObject.empty
-val repB: JsonResponse = repA match {
-  case JsonObject(o) => o // 'o' is JSONObject
-  case JsonArray(a) => a  // 'a' is JSONArray
+val a: JsonResponse = JsonObject.empty
+val b: JsonResponse = a match {
+  case JsonObject(oo) => oo // 'oo' is JSONObject
+  case JsonArray(aa) => aa  // 'aa' is JSONArray
 }
+```
+
+**Merging JSON objects**
+```scala
+// { a : { b : { c: { x : 10, y : 20, z : 30 } } }
+val a = JsonObject("a.b.c.x" -> 10, "a.b.c.y" -> 20, "a.b.c.z" -> 30)
+
+// { a : { a : 100, b : 200 } }
+val b = JsonObject("a.a" -> 100, "a.b" -> 200)
+
+// { a : { 
+//     b : { c: { x : 10, y : 20, z : 30 } } 
+//     a : 100
+//   }
+// }
+val c = JsonObject.mergeLeft(a, b) // 'left' exposes a priority in conflicts-resolving
+
+// { a : { 
+//     a : 100
+//     b : 200
+//   }
+// }
+val d = JsonObject.mergeRight(a, b) // 'right' exposes a priority in conflicts-resolving
+```
+
+**Merging JSON arrays**
+```scala
+val a = JsonArray(1, 2, 3)
+val b = JsonArray(4, 5, 6)
+
+// [ 1, 2, 3, 4, 5, 6 ]
+val c = JsonArray.concat(a, b)
 ```
 
 **JsonObject Operations**
 ```scala
-val o = JsonObject("1" -> 1, "2" -> 2.0f)
+val o = JsonObject("1.1" -> 1, "1.2" -> 2.0f)
 
-// get value by tag as String
-val oneA = o("1")
+// get value by tag/path as Int
+val oneB = o.get[Int]("1.1")
 
-// get value by tag as Int
-val oneB = o.get[Int]("1")
+// get option of a value by tag/path as Float
+val twoB = o.getOption[Float]("1.2")
 
-// get option of a value by tag as Float
-val twoB = o.getOption[Float]("2")
+// creates a new json object with function applied to its underlying map
+val oo = o.within { _.take(2).map { (k, v) => k -> v } }
 ```
 
 **JsonArray Operations**
 ```scala
-val a = JsonArray(Seq(JsonObject.empty, JsonObject.empty))
+val a = JsonArray(JsonObject.empty, JsonObject.empty)
 
-// create a new json array with items mapped via pure function
-val a1 = a map {
-  case JsonObject(o) => o
-  case JsonArray(_) => JsonObject.empty
-}
+// creates a new json array with function applied to its undelying list
+val aa = aa.within { _.take(5).distinct }
 ```
 
 ----
