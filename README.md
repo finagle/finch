@@ -145,14 +145,16 @@ val a = JsonObject("a.b.c.x" -> 10, "a.b.c.y" -> 20, "a.b.c.z" -> 30)
 // { a : { a : 100, b : 200 } }
 val b = JsonObject("a.a" -> 100, "a.b" -> 200)
 
-// { a : { 
+// { 
+//   a : { 
 //     b : { c: { x : 10, y : 20, z : 30 } } 
 //     a : 100
 //   }
 // }
 val c = JsonObject.mergeLeft(a, b) // 'left' exposes a priority in conflicts-resolving
 
-// { a : { 
+// { 
+//   a : { 
 //     a : 100
 //     b : 200
 //   }
@@ -171,13 +173,19 @@ val c = JsonArray.concat(a, b)
 
 **JsonObject Operations**
 ```scala
-val o = JsonObject("1.1" -> 1, "1.2" -> 2.0f)
+// { 
+//   a : { 
+//     x : 1,
+//     y : 2.0f
+//   }
+// }
+val o = JsonObject("a.x" -> 1, "a.y" -> 2.0f)
 
 // get value by tag/path as Int
-val oneB = o.get[Int]("1.1")
+val oneB = o.get[Int]("a.x")
 
 // get option of a value by tag/path as Float
-val twoB = o.getOption[Float]("1.2")
+val twoB = o.getOption[Float]("a.y")
 
 // creates a new json object with function applied to its underlying map
 val oo = o.within { _.take(2).map { (k, v) => k -> v } }
