@@ -116,6 +116,91 @@ object Main extends RestApiOf[JsonResponse] {
 
 **Step 7:** Have fun and stay finagled!
 
+Request Reader Monad
+--------------------
+**Finch.io** has two built-ins request readers: 
+* `FutureRequestReader` that exposes `RequiredParam`-s, `OptionalParam`-s and `ValidationRule`-s and also
+* `RequestReader` that exposes `Param`-s.
+
+A `FutureRequestReader` has return type `Future[A]` so it might be simply used just as additional monad-transformation in a for-comprehension statement. This is dramatically usfull when you need to fetch some params from a request before doin real job (and not doing it at all if some of the requests are not presented/not valid).
+
+```scala
+case class User(name: String, age: Int, city: String)
+
+// defines a new request reader composed from provided out-of-the-box readers
+val remoteUser = for {
+  name <- RequiredParam("name")
+  age <- RequiredIntParam("age") // will also make sure that "age" is Int
+  city <- OptionalParam("c")
+} yield User(name, age, city.getOrElse("Novosibirsk"))
+
+val service = new Service[HttpRequest, JsonResponse] {
+  def apply(req: HttpRequest) = for {
+    // reads the user from the reqest or fails when required params are not found
+    user <- remoteUser(req)
+  } yield JsonObject(
+    "name" -> user.name, 
+    "age" -> user.age, 
+    "city" -> user.city
+  )
+}
+
+val user = service(...) handle {
+  case e: ParamNotFound => JsonObject("status" -> 400) // bad request
+}
+```
+
+The most cool thing about monds is that they may be composed/reused as hell. Here is the example of _extending_ the existent readed with new fields/validation rules.
+
+```scala
+val restrictedUser = {
+  user <- remoteUser
+  _ <- ValidationRule("this an adults-only video") { user.age > 18 }
+} yield user
+```
+
+We also should handle the exceptions from request-reader like this:
+```scala
+val user = service(...) handle {
+  case e: ParamNotFound => JsonObject("status" -> 400, "error" -> e.getMessage)
+  case e: ValidationFailed => JsonObject("status" -> 400, error -> e.getMessage)
+}
+```
+
+If params are not required (and w/o validation rules) simple `Param` readers may be used.
+
+```scala
+val pagination = for {
+  offsetId <- IntParam("offsetId")
+  limit <- IntParam("limit")
+} yield (
+  offsetId.getOrElse(0),
+  math.min(limit.getOrElse(50), 50)
+)
+
+val service = new Service[HttpRequest, JsonResponse] {
+  def apply(req: HttpRequest) = {
+    val (offsetIt, limit) = pagination(req)
+    JsonObject.empty.toFuture
+  }
+}
+```
+
+Readers behaviour may be summarized as
+* `RequiredParam` returns `Future[A]` and makes sure that
+ * param is presented in the request (otherwise throws `ParamNotFound`)
+ * param is not empty (otherwise throws `ValidationFailed`)
+ * param may be converted to requested type (`RequiredIntParam`, `RequireLongParam`, `RequireBooleanParam`) otherwise throws `ValudationFailed`
+* `OptionalParam` returns `Future[Option[A]]` with
+ * `Some(value)` if param is presented in the request and may be converted to requested type
+ * `None` otherwise
+* `Param` returns `Option[A]` with
+ * `Some(value)` if param is presented in the request and may be converted to requested type
+ * `None` othervise
+* `ValidationRule(rule)(predicate)` returns 
+ * `Future.Done` when predicate is true and
+ * throws `ValidationFailed` exception with `rule` stored in the message field
+
 Bonus Track: JSON on Steroids
 -----------------------------
 
@@ -188,16 +273,15 @@ val oneB = o.get[Int]("a.x")
 val twoB = o.getOption[Float]("a.y")
 
 // creates a new json object with function applied to its underlying map
-val oo = o.within { _.take(2).map { (k, v) => k -> v } }
+val oo = o.within { _.take(2) }
 ```
 
 **JsonArray Operations**
 ```scala
 val a = JsonArray(JsonObject.empty, JsonObject.empty)
 
-// creates a new json array with function applied to its undelying list
+// creates a new json array with function applied to its underlying list
 val aa = aa.within { _.take(5).distinct }
 ```
-
 ----
 By Vladimir Kostyukov, http://vkostyukov.ru
