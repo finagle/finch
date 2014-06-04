@@ -65,7 +65,7 @@ object TurnObjectIntoJson extends Facet[Jsonable, JsonResponse] {
 
 object TurnCollectionIntoJson extends Facet[Seq[Jsonable], JsonResponse] {
   def apply(rep: Seq[Jsonable]) =
-    JsonArray(rep map { _.toJson }).toFuture
+    JsonArray(rep map { _.toJson }:_*).toFuture
 }
 ```
 
@@ -109,7 +109,7 @@ object Main extends RestApiOf[JsonResponse] {
     // 1. The ''respond'' value is a resource of JsonResponse,
     //    so we have to convert it to the resource of HttpResponse.
     // 2. Our REST API should be authorized.
-    authorize afterThat respond afterThat TurnJsonIntoHttp
+    authorize andThen respond afterThat TurnJsonIntoHttp
   }
 }
 ```
@@ -154,7 +154,7 @@ val user = service(...) handle {
 }
 ```
 
-The most cool thing about monds is that they may be composed/reused as hell. Here is the example of _extending_ an existent reader within new fields/validation rules.
+The most cool thing about monads is that they may be composed/reused as hell. Here is the example of _extending_ an existent reader within new fields/validation rules.
 
 ```scala
 val restrictedUser = {
@@ -197,15 +197,17 @@ val service = new Service[HttpRequest, JsonResponse] {
 * param is not empty (othervise it throws `ValidationFailed` exception)
 * param may be converted to a requested type `RequiredIntParam`, `RequiredLongParam` or `RequiredBooleanParam` (othervise it throws `ValidationFailed` exception).
 
-#### An `OptionalParam` returns `Future[Option[A]]` within
-`Some(value)` if param is presented in the request and may be converted to a requested type `OptionalIntParam`, `OptionalLongParam` or `OptionalBooleanParam`. Otherwise, `Future.None` is returned.
+#### An `OptionalParam` returns 
+* `Future[Some[A]]` if param is presented in the request and may be converted to a requested type `OptionalIntParam`, `OptionalLongParam` or `OptionalBooleanParam`
+* `Future.None` otherwise.
 
-#### A `Param` returns `Option[A]` within
-`Some(value)` if param is presented in the request and may be converted to a requested type `IntParam`, `LongParam` or `BooleanParam`. Otherwise, `None` is returned.
+#### A `Param` returns 
+* `Some[A]` if param is presented in the request and may be converted to a requested type `IntParam`, `LongParam` or `BooleanParam`. 
+* `None` otherwise.
 
 
 #### A `ValidationRule(rule)(predicate)` 
-* returns `Future.Done` when predicate is `true` or else
+* returns `Future.Done` when predicate is `true`
 * throws `ValidationFailed` exception with `rule` stored in the message field.
 
 Bonus Track: JSON on Steroids
