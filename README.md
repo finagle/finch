@@ -118,25 +118,29 @@ object Main extends RestApiOf[JsonResponse] {
 
 Request Reader Monad
 --------------------
-**Finch.io** has two built-ins request readers: 
-* `FutureRequestReader` that exposes `RequiredParam`-s, `OptionalParam`-s and `ValidationRule`-s and also
-* `RequestReader` that exposes `Param`-s.
+**Finch.io** has two builtin request readers, which implement Reader Monad functional design pattern: 
+* `FutureRequestReader` returning `Future[A]` and
+* `RequestReader` returning `Option[A]`.
 
-A `FutureRequestReader` has return type `Future[A]` so it might be simply used just as additional monad-transformation in a for-comprehension statement. This is dramatically usfull when you need to fetch some params from a request before doin real job (and not doing it at all if some of the requests are not presented/not valid).
+A `FutureRequestReader` has return type `Future[A]` so it might be simply used as an additional monad-transformation in a top-level for-comprehension statement. This is dramatically useful when service should fetch some params from a request before doing a real job (and not doing it at all if some of the params are not found/not valid).
+
+There are three common implementaions of a `FutureRequestReader`:
+* `RequiredParam` - fetches required params within specified type
+* `OptionalParam` - fetches optional params
+* `ValidationRule` - fails if given predicate is false
 
 ```scala
 case class User(name: String, age: Int, city: String)
 
-// defines a new request reader composed from provided out-of-the-box readers
+// Define a new request reader composed from provided out-of-the-box readers.
 val remoteUser = for {
   name <- RequiredParam("name")
-  age <- RequiredIntParam("age") // will also make sure that "age" is Int
+  age <- RequiredIntParam("age")
   city <- OptionalParam("c")
 } yield User(name, age, city.getOrElse("Novosibirsk"))
 
 val service = new Service[HttpRequest, JsonResponse] {
   def apply(req: HttpRequest) = for {
-    // reads the user from the reqest or fails when required params are not found
     user <- remoteUser(req)
   } yield JsonObject(
     "name" -> user.name, 
@@ -150,7 +154,7 @@ val user = service(...) handle {
 }
 ```
 
-The most cool thing about monds is that they may be composed/reused as hell. Here is the example of _extending_ the existent readed with new fields/validation rules.
+The most cool thing about monds is that they may be composed/reused as hell. Here is the example of _extending_ an existent reader within new fields/validation rules.
 
 ```scala
 val restrictedUser = {
@@ -159,15 +163,15 @@ val restrictedUser = {
 } yield user
 ```
 
-We also should handle the exceptions from request-reader like this:
+The exceptions from a request-reader might be handled just like other future exceptions in Finagle:
 ```scala
 val user = service(...) handle {
   case e: ParamNotFound => JsonObject("status" -> 400, "error" -> e.getMessage)
-  case e: ValidationFailed => JsonObject("status" -> 400, error -> e.getMessage)
+  case e: ValidationFailed => JsonObject("status" -> 400, "error" -> e.getMessage)
 }
 ```
 
-If params are not required (and w/o validation rules) simple `Param` readers may be used.
+There is also very simple reader `Param` that may be used for optional params, which are not required for the service's logic.
 
 ```scala
 val pagination = for {
@@ -186,20 +190,23 @@ val service = new Service[HttpRequest, JsonResponse] {
 }
 ```
 
-Readers behaviour may be summarized as
-* `RequiredParam` returns `Future[A]` and makes sure that
- * param is presented in the request (otherwise throws `ParamNotFound`)
- * param is not empty (otherwise throws `ValidationFailed`)
- * param may be converted to requested type (`RequiredIntParam`, `RequireLongParam`, `RequireBooleanParam`) otherwise throws `ValudationFailed`
-* `OptionalParam` returns `Future[Option[A]]` with
- * `Some(value)` if param is presented in the request and may be converted to requested type
- * `None` otherwise
-* `Param` returns `Option[A]` with
- * `Some(value)` if param is presented in the request and may be converted to requested type
- * `None` othervise
-* `ValidationRule(rule)(predicate)` returns 
- * `Future.Done` when predicate is true and
- * throws `ValidationFailed` exception with `rule` stored in the message field
+*Note* that `FutureRequestReader` and `RequestReader` may not be composed together (in the same chain of transformations). So, if at least one param is required the composition of `RequiredParam`-s and `OptionalParam`-s should be used.
+
+#### A `RequiredParam` reader makes sure that
+* param is presented in the request (othervise it throws `ParamNoFound` exception)
+* param is not empty (othervise it throws `ValidationFailed` exception)
+* param may be converted to a requested type `RequiredIntParam`, `RequiredLongParam` or `RequiredBooleanParam` (othervise it throws `ValidationFailed` exception).
+
+#### An `OptionalParam` returns `Future[Option[A]]` within
+`Some(value)` if param is presented in the request and may be converted to a requested type `OptionalIntParam`, `OptionalLongParam` or `OptionalBooleanParam`. Otherwise, `Future.None` is returned.
+
+#### A `Param` returns `Option[A]` within
+`Some(value)` if param is presented in the request and may be converted to a requested type `IntParam`, `LongParam` or `BooleanParam`. Otherwise, `None` is returned.
+
+
+#### A `ValidationRule(rule)(predicate)` 
+* returns `Future.Done` when predicate is `true` or else
+* throws `ValidationFailed` exception with `rule` stored in the message field.
 
 Bonus Track: JSON on Steroids
 -----------------------------
