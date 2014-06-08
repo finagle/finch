@@ -197,7 +197,10 @@ package object finch {
     def getOption[A](path: String) = {
       def loop(path: List[String], j: JSONObject): Option[A] = path match {
         case tag :: Nil => j.obj.get(tag) map { _.asInstanceOf[A] }
-        case tag :: tail => loop(tail, j.obj(tag).asInstanceOf[JSONObject])
+        case tag :: tail => j.obj.get(tag) match {
+          case Some(jj: JSONObject) => loop(tail, jj)
+          case _ => None
+        }
       }
 
       loop(path.split('.').toList, json)
