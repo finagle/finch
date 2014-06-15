@@ -608,6 +608,13 @@ package object finch {
     }
   }
 
+  private[this] object StringsToNumbers {
+    def apply[A](fn: String => A)(l: List[String]) = l.flatMap { s =>
+      try List(fn(s))
+      catch { case _: NumberFormatException => Nil }
+    }
+  }
+
   object RequiredParam {
     def apply(param: String) = new FutureRequestReader[String] {
       def apply(req: HttpRequest) = req.params.get(param) match {
@@ -693,5 +700,86 @@ package object finch {
        if (predicate) Future.Done
        else new ValidationFailed(rule).toFutureException
     }
+  }
+
+  object RequiredParams {
+    def apply(param: String) = new FutureRequestReader[List[String]] {
+      def apply(req: HttpRequest) = req.params.getAll(param).toList match {
+        case Nil => new ParamNotFound(param).toFutureException
+        case unfiltered => unfiltered.filter(_ != "") match {
+          case Nil => new ValidationFailed(param + " should not be empty").toFutureException
+          case filtered => filtered.toFuture
+        }
+      }
+    }
+  }
+
+  object RequiredIntParams {
+    def apply(param: String) = for {
+      ss <- RequiredParams(param)
+      ns <- StringToNumberOrFail(param + " should be integer")(ss.map { _.toInt })
+    } yield ns
+  }
+
+  object RequiredLongParams {
+    def apply(param: String) = for {
+      ss <- RequiredParams(param)
+      ns <- StringToNumberOrFail(param + " should be integer")(ss.map { _.toLong })
+    } yield ns
+  }
+
+  object RequiredBooleanParams {
+    def apply(param: String) = for {
+      ss <- RequiredParams(param)
+      ns <- StringToNumberOrFail(param + " should be integer")(ss.map { _.toBoolean })
+    } yield ns
+  }
+
+  object OptionalParams {
+    def apply(param: String) = new FutureRequestReader[List[String]] {
+      def apply(req: HttpRequest) = req.params.getAll(param).toList.toFuture
+    }
+  }
+
+  object OptionalIntParams {
+    def apply(param: String) = for {
+      l <- OptionalParams(param)
+    } yield StringsToNumbers(_.toInt)(l)
+  }
+
+  object OptionalLongParams {
+    def apply(param: String) = for {
+      l <- OptionalParams(param)
+    } yield StringsToNumbers(_.toLong)(l)
+  }
+
+  object OptionalBooleanParams {
+    def apply(param: String) = for {
+      l <- OptionalParams(param)
+    } yield StringsToNumbers(_.toBoolean)(l)
+  }
+
+  object Params {
+    def apply(param: String) = new RequestReader[List[String]] {
+      def apply(req: HttpRequest) = req.params.getAll(param).toList
+    }
+  }
+
+  object IntParams {
+    def apply(param: String) = for {
+      l <- Params(param)
+    } yield StringsToNumbers(_.toInt)(l)
+  }
+
+  object LongParams {
+    def apply(param: String) = for {
+      l <- Params(param)
+    } yield StringsToNumbers(_.toLong)(l)
+  }
+
+  object BooleanParams {
+    def apply(param: String) = for {
+      l <- Params(param)
+    } yield StringsToNumbers(_.toBoolean)(l)
   }
 }
