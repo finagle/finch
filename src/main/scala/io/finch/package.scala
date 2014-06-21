@@ -700,7 +700,7 @@ package object finch {
 
   object RequiredParams {
     def apply(param: String) = new FutureRequestReader[List[String]] {
-      def apply(req: HttpRequest) = req.params.getAll(param).toList match {
+      def apply(req: HttpRequest) = req.params.getAll(param).toList.flatMap(_.split(",")) match {
         case Nil => new ParamNotFound(param).toFutureException
         case unfiltered => unfiltered.filter(_ != "") match {
           case Nil => new ValidationFailed(param + " should not be empty").toFutureException
@@ -733,7 +733,7 @@ package object finch {
 
   object OptionalParams {
     def apply(param: String) = new FutureRequestReader[List[String]] {
-      def apply(req: HttpRequest) = req.params.getAll(param).toList.toFuture
+      def apply(req: HttpRequest) = req.params.getAll(param).toList.flatMap(_.split(",")).toFuture
     }
   }
 
@@ -757,7 +757,7 @@ package object finch {
 
   object Params {
     def apply(param: String) = new RequestReader[List[String]] {
-      def apply(req: HttpRequest) = req.params.getAll(param).toList
+      def apply(req: HttpRequest) = req.params.getAll(param).toList.flatMap(_.split(","))
     }
   }
 
