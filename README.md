@@ -210,6 +210,11 @@ val service = new Service[HttpRequest, JsonResponse] {
 * returns `Future.Done` when predicate is `true`
 * throws `ValidationFailed` exception with `rule` stored in the message field.
 
+
+### Multiple-value params
+All the readers have corresponding readers that can read multiple-value params `List[A]` instead of single-value params `A`. Multiple-value readers have `s` postfix in their names. So, `Param` has `Params`, `OptionalParam` has `OptipnalParam` has `OptionalParams` and finally `RequiredParam` has `RequiredParams` representatives. There are also typed versions for every reader, like `IntParams` or even `OptionalLongParams`.
+
+
 Bonus Track: JSON on Steroids
 -----------------------------
 
