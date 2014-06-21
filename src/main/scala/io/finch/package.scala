@@ -302,12 +302,13 @@ package object finch {
   object JsonObject {
     def apply(args: (String, Any)*) = {
       def loop(path: List[String], value: Any): Map[String, Any] = path match {
-        case tag :: Nil => Map(tag -> (if (value == null) JsonNull else value))
+        case tag :: Nil => Map(tag -> value)
         case tag :: tail => Map(tag -> JSONObject(loop(tail, value)))
       }
 
-      val jsonSeq = args.map {
-        case (path, value) => JSONObject(loop(path.split('.').toList, value))
+      val jsonSeq = args.flatMap {
+        case (_, null) => Seq.empty
+        case (path, value) => Seq(JSONObject(loop(path.split('.').toList, value)))
       }
 
       jsonSeq.foldLeft(JsonObject.empty) { mergeRight }
@@ -349,11 +350,6 @@ package object finch {
       case _ => None
     }
     def concat(a: JSONArray, b: JSONArray) = JSONArray(a.list ::: b.list)
-  }
-
-  object JsonNull {
-    private[this] val underlying: String = null
-    override def toString = underlying
   }
 
   /**
