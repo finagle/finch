@@ -211,8 +211,19 @@ val service = new Service[HttpRequest, JsonResponse] {
 * throws `ValidationFailed` exception with `rule` stored in the message field.
 
 
-### Multiple-value params
+### Multiple-Value Params
 All the readers have corresponding readers that can read multiple-value params `List[A]` instead of single-value params `A`. Multiple-value readers have `s` postfix in their names. So, `Param` has `Params`, `OptionalParam` has `OptipnalParam` has `OptionalParams` and finally `RequiredParam` has `RequiredParams` representatives. There are also typed versions for every reader, like `IntParams` or even `OptionalLongParams`.
+
+Thus, the URI `a=1,2,3&b=4&b=5` might be fetched with `IntParams` reader likes this:
+
+```scala
+val reader = for {
+ a <- IntParams(a)
+ b <- IntParams(b)
+} yield (a, b)
+
+val (a, b): (List[Int], List[Int]) = reader(request)
+```
 
 
 Bonus Track: JSON on Steroids
