@@ -212,9 +212,9 @@ val service = new Service[HttpRequest, JsonResponse] {
 
 
 ### Multiple-Value Params
-All the readers have corresponding readers that can read multiple-value params `List[A]` instead of single-value params `A`. Multiple-value readers have `s` postfix in their names. So, `Param` has `Params`, `OptionalParam` has `OptipnalParam` has `OptionalParams` and finally `RequiredParam` has `RequiredParams` representatives. There are also typed versions for every reader, like `IntParams` or even `OptionalLongParams`.
+All the readers have companion readers that can read multiple-value params `List[A]` instead of single-value params `A`. Multiple-value readers have `s` postfix in their names. So, `Param` has `Params`, `OptionalParam` has `OptipnalParams` and finally `RequiredParam` has `RequiredParams` companions. There are also typed versions for every reader, like `IntParams` or even `OptionalLongParams`.
 
-Thus, the URI `a=1,2,3&b=4&b=5` might be fetched with `IntParams` reader likes this:
+Thus, the following HTTP params `a=1,2,3&b=4&b=5` might be fetched with `IntParams` reader like this:
 
 ```scala
 val reader = for {
@@ -223,6 +223,8 @@ val reader = for {
 } yield (a, b)
 
 val (a, b): (List[Int], List[Int]) = reader(request)
+// a = List(1, 2, 3)
+// b = List(4, 5)
 ```
 
 
