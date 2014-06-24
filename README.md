@@ -218,8 +218,8 @@ Thus, the following HTTP params `a=1,2,3&b=4&b=5` might be fetched with `IntPara
 
 ```scala
 val reader = for {
- a <- IntParams(a)
- b <- IntParams(b)
+ a <- IntParams("a")
+ b <- IntParams("b")
 } yield (a, b)
 
 val (a, b): (List[Int], List[Int]) = reader(request)
