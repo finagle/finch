@@ -213,6 +213,24 @@ package object finch {
      * @return
      */
     def within(fn: Map[String, Any] => Map[String, Any]) = JSONObject(fn(json.obj))
+
+    /**
+     * Removes all null-value properties from this json object.
+     *
+     * @return a compacted json object
+     */
+    def compacted = {
+      def loop(obj: Map[String, Any]): Map[String, Any] = obj.flatMap {
+        case (t, JsonNull) => Map.empty[String, Any]
+        case (tag, j: JSONObject) =>
+          val o = loop(j.obj)
+          if (o.isEmpty) Map.empty[String, Any]
+          else Map(tag -> JSONObject(o))
+        case (tag, value) => Map(tag -> value)
+      }
+
+      JSONObject(loop(json.obj))
+    }
   }
 
   /**
