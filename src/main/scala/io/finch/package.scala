@@ -322,21 +322,19 @@ package object finch {
   }
 
   object JsonObject {
-    private[this] def pathify(path: List[String], value: Any): Map[String, Any] = path match {
-      case tag :: Nil => Map(tag -> value)
-      case tag :: tail => Map(tag -> JSONObject(pathify(tail, value)))
-    }
-
     def apply(args: (String, Any)*) = {
+      def loop(path: List[String], value: Any): Map[String, Any] = path match {
+        case tag :: Nil => Map(tag -> value)
+        case tag :: tail => Map(tag -> JSONObject(loop(tail, value)))
+      }
+
       val jsonSeq = args.flatMap {
         case (path, value) =>
-          Seq(JSONObject(pathify(path.split('.').toList, if (value == null) JsonNull else value)))
+          Seq(JSONObject(loop(path.split('.').toList, if (value == null) JsonNull else value)))
       }
 
       jsonSeq.foldLeft(JsonObject.empty) { mergeRight }
     }
-
-    def compact(args: (String, Any)*) = apply(args.filter { case (_, value) => value != null }:_*)
 
     def empty = JSONObject(Map.empty[String, Any])
     def unapply(outer: Any): Option[JSONObject] = outer match {
