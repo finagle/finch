@@ -240,6 +240,18 @@ val b: JsonResponse = JsonObject("1" -> 1, "2" -> 2)
 val c: JsonResponse = JsonArray(a, b, "string", 10) 
 ```
 
+By default, `JsonObject` creates a _full_ json object (an object with null-value parameters).
+
+```scala
+val o = JsonObject("a.b.c" -> null)
+```
+
+A _full_ json object might be converted to a _compact_ json object (an object with only significant properties) by calling `compated` method on json object instance:
+
+```scala
+val o = JsonObject("a.b.c" -> null).compacted
+```
+
 **Pattern Matching**
 ```scala
 val a: JsonResponse = JsonObject.empty
