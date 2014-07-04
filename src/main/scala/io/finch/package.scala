@@ -531,6 +531,22 @@ package object finch {
   trait EndpointOf[Rep] extends Endpoint[HttpRequest, Rep]
 
   /**
+   * A companion object for ''Endpoint''
+   */
+  object Endpoint {
+
+    /**
+     * Joins given sequence of endpoints by orElse-ing them.
+     *
+     * @param endpoints
+     * @tparam Req
+     * @tparam Rep
+     * @return
+     */
+    def join[Req <: HttpRequest, Rep](endpoints: Endpoint[Req, Rep]*) = endpoints.reduce(_ orElse _)
+  }
+
+  /**
    * A base class for ''RestApi'' backend.
    */
   abstract class Api[Req <: HttpRequest, Rep] extends App {
