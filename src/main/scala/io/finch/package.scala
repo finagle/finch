@@ -43,11 +43,11 @@ import javax.annotation.ParametersAreNonnullByDefault
  *      (both are just a special cases of Finagle's ''Service'')
  *   2. ''Facet[+A, -B]'' that transforms service's response ''A'' to ''B''
  *      (just a special case of Finagle's ''Filter'')
- *   3. ''ResourceOf[A]'' that provides route information about a particular resource
+ *   3. ''EndpointOf[A]'' that provides route information about a particular endpoint
  *      (just a special case of ''PartialFunction'' from route to ''HttpService'')
- *   4. ''RestApiOf[A]'' that aggregates all the things together: resources and a set
+ *   4. ''ApiOf[A]'' that aggregates all the things together: endpoints and a set
  *      of rules (exposed as a combination of facets and filters) that transform the
- *      ''HttpResourceOf[A]'' to a ''HttpResource''.
+ *      ''EndpointOf[A]'' to a ''Endpoint''.
  *
  * I'm trying to follow the principles of my elder brother and keep the things
  * as composable as possible.
@@ -58,21 +58,21 @@ import javax.annotation.ParametersAreNonnullByDefault
  *
  *        '''val s = service afterThat facetA afterThat facetB'''
 
- *   (b) Resources might be treated as partial functions, so they may be composed
+ *   (b) Endpoints might be treated as partial functions, so they may be composed
  *       together with ''orElse'' operator:
  *
- *        '''val r = resourceA orElse resourceB'''
+ *        '''val r = endpointA orElse endpointB'''
 
- *   (c) Another useful resource operator is ''andThen'' that takes a function from
- *       ''HttpService'' to ''HttpService'' and returns a new resource within function
+ *   (c) Another useful endpoint operator is ''andThen'' that takes a function from
+ *       ''HttpService'' to ''HttpService'' and returns a new endpoint within function
  *       applied to its every route endpoint.
  *
- *        '''val r = resource andThen { filter andThen _ }'''
+ *        '''val r = endpoint andThen { filter andThen _ }'''
  *
- *   (d) Resources may also be composed with filters by using the ''afterThat'' operator
+ *   (d) Endpoints may also be composed with filters by using the ''afterThat'' operator
  *       in a familiar way:
  *
- *        '''val r = authorize afterThat resource'''
+ *        '''val r = authorize afterThat endpoint'''
  *
  *   (e) Primitive filters (that don't change anything) are composed with the same
  *       ''afterThat'' operator:
@@ -123,7 +123,7 @@ package object finch {
 
   /**
    * Alters underlying filter within ''afterThat'' methods composing a filter
-   * with a given resource or withing a next filter.
+   * with a given endpoint or withing a next filter.
    *
    * @param filter a filter to be altered
    */
@@ -131,14 +131,14 @@ package object finch {
       val filter: Filter[ReqIn, RepOut, ReqOut, RepIn]) extends AnyVal {
 
     /**
-     * Composes this filter within a given resource ''thatResource''.
+     * Composes this filter within a given endpoint ''thatEndpoint''.
      *
-     * @param resource a resource to compose
+     * @param endpoint an endpoint to compose
      *
-     * @return a resource composed with filter
+     * @return an endpoint composed with filter
      */
-    def andThen(resource: Endpoint[ReqOut, RepIn]) =
-      resource andThen { service =>
+    def andThen(endpoint: Endpoint[ReqOut, RepIn]) =
+      endpoint andThen { service =>
         filter andThen service
       }
   }
@@ -462,35 +462,35 @@ package object finch {
   object TurnJsonIntoHttpWithStatus extends TurnJsonIntoHttpWithStatusFromTag
 
   /**
-   * A REST API resource that primary defines a ''route''.
+   * A REST API endpoint that primary defines a ''route''.
    *
    * @tparam Rep a response type
    */
   trait Endpoint[Req <: HttpRequest, Rep] { self =>
 
     /**
-     * @return a route of this resource
+     * @return a route of this endpoint
      */
     def route: PartialFunction[(HttpMethod, Path), Service[Req, Rep]]
 
     /**
-     * Combines this resource with ''that'' resource. A new resource
-     * contains routes of both this and ''that'' resources.
+     * Combines this endpoint with ''that'' endpoint. A new endpoint
+     * contains routes of both this and ''that'' endpoint.
      *
-     * @param that the resource to be combined with
+     * @param that the endpoint to be combined with
      *
-     * @return a new resource
+     * @return a new endpoint
      */
     def orElse(that: Endpoint[Req, Rep]): Endpoint[Req, Rep] = orElse(that.route)
 
     /**
-     * Combines this resource with ''that'' partial function that defines
-     * a route. A new resource contains routes of both this resource and ''that''
+     * Combines this endpoint with ''that'' partial function that defines
+     * a route. A new endpoint contains routes of both this endpoint and ''that''
      * partial function
      *
      * @param that the partial function to be combined with
      *
-     * @return a new resource
+     * @return a new endpoint
      */
     def orElse(that: PartialFunction[(HttpMethod, Path), Service[Req, Rep]]): Endpoint[Req, Rep] =
       new Endpoint[Req, Rep] {
@@ -498,11 +498,11 @@ package object finch {
       }
 
     /**
-     * Applies given function ''fn'' to every route's endpoints of this resource.
+     * Applies given function ''fn'' to every route's endpoints of this endpoint.
      *
      * @param fn the function to be applied
      *
-     * @return a new resource
+     * @return a new endpoint
      */
     def andThen[ReqOut <: HttpRequest, RepOut](fn: Service[Req, Rep] => Service[ReqOut, RepOut]) =
       new Endpoint[ReqOut, RepOut] {
@@ -510,12 +510,12 @@ package object finch {
       }
 
     /**
-     * Applies given ''facet'' to this resource.
+     * Applies given ''facet'' to this endpoint.
      *
      * @param facet a facet to apply
-     * @tparam RepOut a response type of a new resource
+     * @tparam RepOut a response type of a new endpoint
      *
-     * @return a new resource
+     * @return a new endpoint
      */
     def afterThat[ReqIn >: Req <: HttpRequest, RepOut](facet: FacetWithRequest[ReqIn, Rep, RepOut]) =
       andThen { service =>
@@ -526,7 +526,7 @@ package object finch {
   }
 
   /**
-   * A default REST resource.
+   * A default REST API endpoint.
    */
   trait EndpointOf[Rep] extends Endpoint[HttpRequest, Rep]
 
@@ -552,7 +552,7 @@ package object finch {
   abstract class Api[Req <: HttpRequest, Rep] extends App {
 
     /**
-     * @return a resource of this API
+     * @return an endpoint of this API
      */
     def endpoint: Endpoint[Req, Rep]
 
@@ -571,19 +571,19 @@ package object finch {
     def name = "Finch-" + new Random().alphanumeric.take(20).mkString
 
     /**
-     * Exposes given ''resource'' at specified ''port'' and serves the requests.
+     * Exposes given ''endpoint'' at specified ''port'' and serves the requests.
      *
      * @param port the socket port number to listen
-     * @param fn the function that transforms a resource type to ''HttpResponse''
+     * @param fn the function that transforms a endpoint's type to ''HttpResponse''
      */
     def exposeAt(port: Int)(fn: Endpoint[Req, Rep] => Endpoint[HttpRequest, HttpResponse]): Unit = {
 
-      val httpResource = fn(endpoint)
+      val httpEndpoint = fn(endpoint)
 
       val service = new RoutingService[HttpRequest](
         new PartialFunction[HttpRequest, Service[HttpRequest, HttpResponse]] {
-          def apply(req: HttpRequest) = httpResource.route(req.method -> Path(req.path))
-          def isDefinedAt(req: HttpRequest) = httpResource.route.isDefinedAt(req.method -> Path(req.path))
+          def apply(req: HttpRequest) = httpEndpoint.route(req.method -> Path(req.path))
+          def isDefinedAt(req: HttpRequest) = httpEndpoint.route.isDefinedAt(req.method -> Path(req.path))
         })
 
       ServerBuilder()
