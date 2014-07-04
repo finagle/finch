@@ -137,7 +137,7 @@ package object finch {
      *
      * @return a resource composed with filter
      */
-    def andThen(resource: RestResource[ReqOut, RepIn]) =
+    def andThen(resource: Endpoint[ReqOut, RepIn]) =
       resource andThen { service =>
         filter andThen service
       }
@@ -466,7 +466,7 @@ package object finch {
    *
    * @tparam Rep a response type
    */
-  trait RestResource[Req <: HttpRequest, Rep] { self =>
+  trait Endpoint[Req <: HttpRequest, Rep] { self =>
 
     /**
      * @return a route of this resource
@@ -481,7 +481,7 @@ package object finch {
      *
      * @return a new resource
      */
-    def orElse(that: RestResource[Req, Rep]): RestResource[Req, Rep] = orElse(that.route)
+    def orElse(that: Endpoint[Req, Rep]): Endpoint[Req, Rep] = orElse(that.route)
 
     /**
      * Combines this resource with ''that'' partial function that defines
@@ -492,8 +492,8 @@ package object finch {
      *
      * @return a new resource
      */
-    def orElse(that: PartialFunction[(HttpMethod, Path), Service[Req, Rep]]): RestResource[Req, Rep] =
-      new RestResource[Req, Rep] {
+    def orElse(that: PartialFunction[(HttpMethod, Path), Service[Req, Rep]]): Endpoint[Req, Rep] =
+      new Endpoint[Req, Rep] {
         def route = self.route orElse that
       }
 
@@ -505,7 +505,7 @@ package object finch {
      * @return a new resource
      */
     def andThen[ReqOut <: HttpRequest, RepOut](fn: Service[Req, Rep] => Service[ReqOut, RepOut]) =
-      new RestResource[ReqOut, RepOut] {
+      new Endpoint[ReqOut, RepOut] {
         def route = self.route andThen fn
       }
 
@@ -528,17 +528,17 @@ package object finch {
   /**
    * A default REST resource.
    */
-  trait RestResourceOf[Rep] extends RestResource[HttpRequest, Rep]
+  trait EndpointOf[Rep] extends Endpoint[HttpRequest, Rep]
 
   /**
    * A base class for ''RestApi'' backend.
    */
-  abstract class RestApi[Req <: HttpRequest, Rep] extends App {
+  abstract class Api[Req <: HttpRequest, Rep] extends App {
 
     /**
      * @return a resource of this API
      */
-    def resource: RestResource[Req, Rep]
+    def endpoint: Endpoint[Req, Rep]
 
     /**
      * Sends a request ''req'' to this API.
@@ -547,7 +547,7 @@ package object finch {
      * @return a response wrapped with ''Future''
      */
     def apply(req: Req): Future[Rep] =
-      resource.route(req.method -> Path(req.path))(req)
+      endpoint.route(req.method -> Path(req.path))(req)
 
     /**
      * @return a name of this Finch instance
@@ -560,9 +560,9 @@ package object finch {
      * @param port the socket port number to listen
      * @param fn the function that transforms a resource type to ''HttpResponse''
      */
-    def exposeAt(port: Int)(fn: RestResource[Req, Rep] => RestResource[HttpRequest, HttpResponse]): Unit = {
+    def exposeAt(port: Int)(fn: Endpoint[Req, Rep] => Endpoint[HttpRequest, HttpResponse]): Unit = {
 
-      val httpResource = fn(resource)
+      val httpResource = fn(endpoint)
 
       val service = new RoutingService[HttpRequest](
         new PartialFunction[HttpRequest, Service[HttpRequest, HttpResponse]] {
@@ -581,7 +581,7 @@ package object finch {
   /**
    * A default REST API backend.
    */
-  abstract class RestApiOf[Rep] extends RestApi[HttpRequest, Rep]
+  abstract class ApiOf[Rep] extends Api[HttpRequest, Rep]
 
   class RequestReaderError(m: String) extends Exception(m)
   class ParamNotFound(param: String) extends RequestReaderError("Param '" + param + "' not found in the request.")
