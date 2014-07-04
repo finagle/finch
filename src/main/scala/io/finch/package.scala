@@ -32,7 +32,6 @@ import java.net.InetSocketAddress
 import org.jboss.netty.handler.codec.http.{HttpResponseStatus, HttpMethod}
 import scala.util.Random
 import com.twitter.finagle.http.{Http, Status, Version, Response, Request, RichHttp}
-import javax.annotation.ParametersAreNonnullByDefault
 
 /***
  * Hi! I'm Finch - a super-tiny library atop of Finagle that makes the
