@@ -69,11 +69,11 @@ object TurnCollectionIntoJson extends Facet[Seq[Jsonable], JsonResponse] {
 }
 ```
 
-**Step 5:** Define your resources using facets for data transformation:
+**Step 5:** Define your endpoints using facets for data transformation:
 ```scala
 import io.finch._
 
-object User extends RestResourceOf[JsonResponse] {
+object User extends EndpointOf[JsonResponse] {
   def route = {
     case Method.Get -> Root / "users" =>
       GetAllUsers afterThat TurnCollectionIntoJson
@@ -82,7 +82,7 @@ object User extends RestResourceOf[JsonResponse] {
   }
 }
 
-object Car extends  RestResourceOf[JsonResponse] {
+object Car extends  EndpointOf[JsonResponse] {
   def route = {
     case Method.Get -> Root / "cars" / Long(id) =>
       new GetCarById(id) afterThat TurnObjectIntoJson
@@ -90,24 +90,24 @@ object Car extends  RestResourceOf[JsonResponse] {
 }
 ```
 
-**Step 6:** Expose your resources with Finch instance:
+**Step 6:** Expose your endpoints with Finch instance:
 
 ```scala
 import io.finch._
 
-object Main extends RestApiOf[JsonResponse] {
+object Main extends ApiOf[JsonResponse] {
   // We do nothing for now.
   val authorize = new SimpleFilter[HttpRequest, JsonResponse] {
     def apply(req: HttpRequest, continue: Service[HttpRequest, JsonResponse]) =
       continue(req)
   }
 
-  def resource = User orElse Car
+  def endpoint = User orElse Car // the same as Endpoint.join(User, Car)
 
   // Expose the API at :8080.
   exposeAt(8080) { respond =>
-    // 1. The ''respond'' value is a resource of JsonResponse,
-    //    so we have to convert it to the resource of HttpResponse.
+    // 1. The ''respond'' value is an endpoint of JsonResponse,
+    //    so we have to convert it to the endpoint of HttpResponse.
     // 2. Our REST API should be authorized.
     authorize andThen respond afterThat TurnJsonIntoHttp
   }
@@ -124,7 +124,7 @@ Request Reader Monad
 
 A `FutureRequestReader` has return type `Future[A]` so it might be simply used as an additional monad-transformation in a top-level for-comprehension statement. This is dramatically useful when service should fetch some params from a request before doing a real job (and not doing it at all if some of the params are not found/not valid).
 
-There are three common implementaions of a `FutureRequestReader`:
+There are three common implementations of a `FutureRequestReader`:
 * `RequiredParam` - fetches required params within specified type
 * `OptionalParam` - fetches optional params
 * `ValidationRule` - fails if given predicate is false
@@ -193,9 +193,9 @@ val service = new Service[HttpRequest, JsonResponse] {
 *Note* that `FutureRequestReader` and `RequestReader` may not be composed together (in the same chain of transformations). So, if at least one param is required the composition of `RequiredParam`-s and `OptionalParam`-s should be used.
 
 #### A `RequiredParam` reader makes sure that
-* param is presented in the request (othervise it throws `ParamNoFound` exception)
-* param is not empty (othervise it throws `ValidationFailed` exception)
-* param may be converted to a requested type `RequiredIntParam`, `RequiredLongParam` or `RequiredBooleanParam` (othervise it throws `ValidationFailed` exception).
+* param is presented in the request (otherwise it throws `ParamNoFound` exception)
+* param is not empty (otherwise it throws `ValidationFailed` exception)
+* param may be converted to a requested type `RequiredIntParam`, `RequiredLongParam` or `RequiredBooleanParam` (otherwise it throws `ValidationFailed` exception).
 
 #### An `OptionalParam` returns 
 * `Future[Some[A]]` if param is presented in the request and may be converted to a requested type `OptionalIntParam`, `OptionalLongParam` or `OptionalBooleanParam`
@@ -249,7 +249,7 @@ val o = JsonObject("a.b.c" -> null)
 A _full_ json object might be converted to a _compact_ json object (an object with only significant properties) by calling `compated` method on json object instance:
 
 ```scala
-val o = JsonObject("a.b.c" -> null).compacted
+val o = JsonObject("a.b.c" -> null).compacted // will return an empty json object
 ```
 
 **Pattern Matching**
