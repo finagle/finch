@@ -468,9 +468,22 @@ package object finch {
   trait Endpoint[Req <: HttpRequest, Rep] { self =>
 
     /**
+     * @return a name of this Finch endpoint
+     */
+    def name = "FinchEndpoint-" + new Random().alphanumeric.take(20).mkString
+
+    /**
      * @return a route of this endpoint
      */
     def route: PartialFunction[(HttpMethod, Path), Service[Req, Rep]]
+
+    /**
+     * Sends a request ''req'' to this Endpoint.
+
+     * @param req the request to send
+     * @return a response wrapped with ''Future''
+     */
+    def apply(req: Req): Future[Rep] = route(req.method -> Path(req.path))(req)
 
     /**
      * Combines this endpoint with ''that'' endpoint. A new endpoint
@@ -522,6 +535,29 @@ package object finch {
           def apply(req: Req) = service(req) flatMap { facet(req)(_) }
         }
       }
+
+    /**
+     * Exposes this ''endpoint'' at specified ''port'' and serves the requests.
+     *
+     * @param port the socket port number to listen
+     * @param fn the function that transforms a endpoint's type to ''HttpResponse''
+     */
+    def exposeAt(port: Int)(fn: Endpoint[Req, Rep] => Endpoint[HttpRequest, HttpResponse]): Unit = {
+
+      val httpEndpoint = fn(self)
+
+      val service = new RoutingService[HttpRequest](
+        new PartialFunction[HttpRequest, Service[HttpRequest, HttpResponse]] {
+          def apply(req: HttpRequest) = httpEndpoint.route(req.method -> Path(req.path))
+          def isDefinedAt(req: HttpRequest) = httpEndpoint.route.isDefinedAt(req.method -> Path(req.path))
+        })
+
+      ServerBuilder()
+        .codec(RichHttp[HttpRequest](Http()))
+        .bindTo(new InetSocketAddress(port))
+        .name(name)
+        .build(service)
+    }
   }
 
   /**
@@ -544,59 +580,6 @@ package object finch {
      */
     def join[Req <: HttpRequest, Rep](endpoints: Endpoint[Req, Rep]*) = endpoints.reduce(_ orElse _)
   }
-
-  /**
-   * A base class for ''RestApi'' backend.
-   */
-  abstract class Api[Req <: HttpRequest, Rep] extends App {
-
-    /**
-     * @return an endpoint of this API
-     */
-    def endpoint: Endpoint[Req, Rep]
-
-    /**
-     * Sends a request ''req'' to this API.
-
-     * @param req the request to send
-     * @return a response wrapped with ''Future''
-     */
-    def apply(req: Req): Future[Rep] =
-      endpoint.route(req.method -> Path(req.path))(req)
-
-    /**
-     * @return a name of this Finch instance
-     */
-    def name = "Finch-" + new Random().alphanumeric.take(20).mkString
-
-    /**
-     * Exposes given ''endpoint'' at specified ''port'' and serves the requests.
-     *
-     * @param port the socket port number to listen
-     * @param fn the function that transforms a endpoint's type to ''HttpResponse''
-     */
-    def exposeAt(port: Int)(fn: Endpoint[Req, Rep] => Endpoint[HttpRequest, HttpResponse]): Unit = {
-
-      val httpEndpoint = fn(endpoint)
-
-      val service = new RoutingService[HttpRequest](
-        new PartialFunction[HttpRequest, Service[HttpRequest, HttpResponse]] {
-          def apply(req: HttpRequest) = httpEndpoint.route(req.method -> Path(req.path))
-          def isDefinedAt(req: HttpRequest) = httpEndpoint.route.isDefinedAt(req.method -> Path(req.path))
-        })
-
-      ServerBuilder()
-        .codec(RichHttp[HttpRequest](Http()))
-        .bindTo(new InetSocketAddress(port))
-        .name(name)
-        .build(service)
-    }
-  }
-
-  /**
-   * A default REST API backend.
-   */
-  abstract class ApiOf[Rep] extends Api[HttpRequest, Rep]
 
   class RequestReaderError(m: String) extends Exception(m)
   class ParamNotFound(param: String) extends RequestReaderError("Param '" + param + "' not found in the request.")
