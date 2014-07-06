@@ -90,22 +90,22 @@ object Car extends  EndpointOf[JsonResponse] {
 }
 ```
 
-**Step 6:** Expose your endpoints with Finch instance:
+**Step 6:** Expose your endpoints:
 
 ```scala
 import io.finch._
 
-object Main extends ApiOf[JsonResponse] {
+object Main extends App {
   // We do nothing for now.
   val authorize = new SimpleFilter[HttpRequest, JsonResponse] {
     def apply(req: HttpRequest, continue: Service[HttpRequest, JsonResponse]) =
       continue(req)
   }
 
-  def endpoint = User orElse Car // the same as Endpoint.join(User, Car)
+  val endpoint = User orElse Car // the same as Endpoint.join(User, Car)
 
   // Expose the API at :8080.
-  exposeAt(8080) { respond =>
+  endpoint.exposeAt(8080) { respond =>
     // 1. The ''respond'' value is an endpoint of JsonResponse,
     //    so we have to convert it to the endpoint of HttpResponse.
     // 2. Our REST API should be authorized.
