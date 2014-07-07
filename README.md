@@ -18,7 +18,7 @@ libraryDependencies ++= Seq(
 )
 ```
 
-**Step 2:** Define your model (optional):
+**Step 2:** Define a model (optional):
 ```scala
 import io.finch._
 
@@ -35,26 +35,26 @@ case class Car(id: Long, manufacturer: String) extends Jsonable {
 }
 ```
 
-**Step 3:** Write your REST services:
+**Step 3:** Implement REST services:
 
 ```scala
 import io.finch._
 
-object GetAllUsers extends HttpServiceOf[Seq[User]] {
+object GetAllUsers extends Service[HttpRequest, Seq[User]] {
   def apply(req: HttpRequest) =
     List(User(10, "Ivan"), User(20, "John")).toFuture
 }
 
-class GetUserById(id: Long) extends HttpServiceOf[User] {
+class GetUserById(id: Long) extends Service[HttpRequest, User] {
   def apply(req: HttpRequest) = User(id, "John").toFuture
 }
 
-class GetCarById(id: Long) extends HttpServiceOf[Car] {
+class GetCarById(id: Long) extends Service[HttpRequest, Car] {
   def apply(req: HttpRequest) = Car(id, "Toyota").toFuture
 }
 ```
 
-**Step 4:** Define your facets:
+**Step 4:** Define facets (optional):
 
 ```scala
 import io.finch._
@@ -69,11 +69,11 @@ object TurnCollectionIntoJson extends Facet[Seq[Jsonable], JsonResponse] {
 }
 ```
 
-**Step 5:** Define your endpoints using facets for data transformation:
+**Step 5:** Define endpoints using facets for data transformation:
 ```scala
 import io.finch._
 
-object User extends EndpointOf[JsonResponse] {
+object User extends Endpoint[HttpRequest, JsonResponse] {
   def route = {
     case Method.Get -> Root / "users" =>
       GetAllUsers afterThat TurnCollectionIntoJson
@@ -82,7 +82,7 @@ object User extends EndpointOf[JsonResponse] {
   }
 }
 
-object Car extends  EndpointOf[JsonResponse] {
+object Car extends  Endpoint[HttpRequest, JsonResponse] {
   def route = {
     case Method.Get -> Root / "cars" / Long(id) =>
       new GetCarById(id) afterThat TurnObjectIntoJson
@@ -90,7 +90,7 @@ object Car extends  EndpointOf[JsonResponse] {
 }
 ```
 
-**Step 6:** Expose your endpoints:
+**Step 6:** Expose endpoints:
 
 ```scala
 import io.finch._
