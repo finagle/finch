@@ -251,18 +251,6 @@ package object finch {
   }
 
   /**
-   * An ''HttpService'' with specified response type ''Rep''.
-   *
-   * @tparam Rep the response type
-   */
-  trait HttpServiceOf[+Rep] extends Service[HttpRequest, Rep]
-
-  /**
-   * A pure ''HttpService''.
-   */
-  trait HttpService extends HttpServiceOf[HttpResponse]
-
-  /**
    * A ''Facet'' that has a request available.
    *
    * @tparam Req the request type
@@ -559,11 +547,6 @@ package object finch {
         .build(service)
     }
   }
-
-  /**
-   * A default REST API endpoint.
-   */
-  trait EndpointOf[Rep] extends Endpoint[HttpRequest, Rep]
 
   /**
    * A companion object for ''Endpoint''
