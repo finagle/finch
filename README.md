@@ -14,7 +14,7 @@ How to finagle your REST API with Finch?
 resolvers += "Finch.io" at "http://repo.konfettin.ru"
 
 libraryDependencies ++= Seq(
-  "io" %% "finch" % "0.0.36"
+  "io" %% "finch" % "0.0.37"
 )
 ```
 
