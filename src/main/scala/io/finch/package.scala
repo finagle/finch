@@ -530,7 +530,7 @@ package object finch {
      * @param port the socket port number to listen
      * @param fn the function that transforms a endpoint's type to ''HttpResponse''
      */
-    def exposeAt(port: Int)(fn: Endpoint[Req, Rep] => Endpoint[HttpRequest, HttpResponse]): Unit = {
+    def exposeAt(port: Int)(fn: Endpoint[Req, Rep] => Endpoint[HttpRequest, HttpResponse]) = {
 
       val httpEndpoint = fn(self)
 
