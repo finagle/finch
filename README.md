@@ -102,15 +102,19 @@ object Main extends App {
       continue(req)
   }
 
+  // A setup function for endpoint that converts it 
+  // to required form: 'Endpoint[HttpRequest, HttpResponse]'
+  implicit def setup(respond: Endpoint[HttRequest, JsonResponse]) =
+    authorize andThen respond afterThat TurnJsonIntoHttp
+
   val endpoint = User orElse Car // the same as Endpoint.join(User, Car)
 
   // Expose the API at :8080.
-  endpoint.exposeAt(8080) { respond =>
-    // 1. The ''respond'' value is an endpoint of JsonResponse,
-    //    so we have to convert it to the endpoint of HttpResponse.
-    // 2. Our REST API should be authorized.
-    authorize andThen respond afterThat TurnJsonIntoHttp
-  }
+  ServerBuilder()
+    .codec(RichHttp[HttpRequest](Http()))
+    .bindTo(new InetSocketAddress(8080))
+    .name("user-and-car")
+    .build(endpoint.toService)
 }
 ```
 
