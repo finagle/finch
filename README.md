@@ -14,7 +14,7 @@ How to finagle your REST API with Finch?
 resolvers += "Finch.io" at "http://repo.konfettin.ru"
 
 libraryDependencies ++= Seq(
-  "io" %% "finch" % "0.0.37"
+  "io" %% "finch" % "0.0.38"
 )
 ```
 
@@ -94,6 +94,7 @@ object Car extends  Endpoint[HttpRequest, JsonResponse] {
 
 ```scala
 import io.finch._
+import scala.language.implicitConversions
 
 object Main extends App {
   // We do nothing for now.
