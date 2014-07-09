@@ -26,12 +26,9 @@ import com.twitter.util.Future
 import com.twitter.finagle.{Filter, Service}
 import com.twitter.finagle.http.service.RoutingService
 import com.twitter.finagle.http.path.Path
-import com.twitter.finagle.builder.ServerBuilder
 import scala.util.parsing.json.{JSONFormat, JSONType, JSONArray, JSONObject}
-import java.net.InetSocketAddress
 import org.jboss.netty.handler.codec.http.{HttpResponseStatus, HttpMethod}
-import scala.util.Random
-import com.twitter.finagle.http.{Http, Status, Version, Response, Request, RichHttp}
+import com.twitter.finagle.http.{Status, Version, Response, Request}
 
 /***
  * Hi! I'm Finch - a super-tiny library atop of Finagle that makes the
@@ -206,10 +203,12 @@ package object finch {
     }
 
     /**
-     * Put scala doc here.
+     * Maps this json object into a json object with underlying map mapped
+     * via pure function ''fn''.
      *
-     * @param fn
-     * @return
+     * @param fn a pure function to map map
+     *
+     * @return a json object
      */
     def within(fn: Map[String, Any] => Map[String, Any]) = JSONObject(fn(json.obj))
 
@@ -240,12 +239,12 @@ package object finch {
   implicit class _JsonArrayOps(val json: JSONArray) extends AnyVal {
 
     /**
-     * Maps this json array into a json array with all the items mapped
+     * Maps this json array into a json array with underlying list mapped
      * via pure function ''fn''.
      *
-     * @param fn a pure function to map items
+     * @param fn a pure function to map list
      *
-     * @return a json array with items mapped
+     * @return a json array
      */
     def within(fn: List[Any] => List[Any]) = JSONArray(fn(json.list))
   }
@@ -456,11 +455,6 @@ package object finch {
   trait Endpoint[Req <: HttpRequest, Rep] { self =>
 
     /**
-     * @return a name of this Finch endpoint
-     */
-    def name = "FinchEndpoint-" + new Random().alphanumeric.take(20).mkString
-
-    /**
      * @return a route of this endpoint
      */
     def route: PartialFunction[(HttpMethod, Path), Service[Req, Rep]]
@@ -525,26 +519,19 @@ package object finch {
       }
 
     /**
-     * Exposes this ''endpoint'' at specified ''port'' and serves the requests.
+     * Converts this endpoint into a finagled service.
      *
-     * @param port the socket port number to listen
-     * @param fn the function that transforms a endpoint's type to ''HttpResponse''
+     * @param setup the function that transforms an endpoint's type to ''HttpResponse''
+     * @return a finagled service
      */
-    def exposeAt(port: Int)(fn: Endpoint[Req, Rep] => Endpoint[HttpRequest, HttpResponse]) = {
+    def toService(implicit setup: Endpoint[Req, Rep] => Endpoint[HttpRequest, HttpResponse]) = {
+      val httpEndpoint = setup(self)
 
-      val httpEndpoint = fn(self)
-
-      val service = new RoutingService[HttpRequest](
+      new RoutingService[HttpRequest](
         new PartialFunction[HttpRequest, Service[HttpRequest, HttpResponse]] {
           def apply(req: HttpRequest) = httpEndpoint.route(req.method -> Path(req.path))
           def isDefinedAt(req: HttpRequest) = httpEndpoint.route.isDefinedAt(req.method -> Path(req.path))
         })
-
-      ServerBuilder()
-        .codec(RichHttp[HttpRequest](Http()))
-        .bindTo(new InetSocketAddress(port))
-        .name(name)
-        .build(service)
     }
   }
 
@@ -556,10 +543,11 @@ package object finch {
     /**
      * Joins given sequence of endpoints by orElse-ing them.
      *
-     * @param endpoints
-     * @tparam Req
-     * @tparam Rep
-     * @return
+     * @param endpoints the sequence of endpoints to join
+     * @tparam Req a request type
+     * @tparam Rep a response type
+     *
+     * @return a joined endpoint
      */
     def join[Req <: HttpRequest, Rep](endpoints: Endpoint[Req, Rep]*) = endpoints.reduce(_ orElse _)
   }
