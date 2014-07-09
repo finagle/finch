@@ -5,7 +5,7 @@ object Finch extends Build {
 
   val baseSettings = Defaults.defaultSettings ++ Seq(
     libraryDependencies ++= Seq(
-      "com.twitter" %% "finagle-http" % "6.14.0"
+      "com.twitter" %% "finagle-http" % "6.18.0"
     )
   )
 
