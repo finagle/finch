@@ -94,7 +94,6 @@ object Car extends  Endpoint[HttpRequest, JsonResponse] {
 
 ```scala
 import io.finch._
-import scala.language.implicitConversions
 
 object Main extends App {
   // We do nothing for now.
@@ -105,8 +104,9 @@ object Main extends App {
 
   // A setup function for endpoint that converts it 
   // to required form: 'Endpoint[HttpRequest, HttpResponse]'
-  implicit def setup(respond: Endpoint[HttRequest, JsonResponse]) =
+  implicit val setup = { respond: Endpoint[HttRequest, JsonResponse]) =>
     authorize andThen respond afterThat TurnJsonIntoHttp
+  }
 
   val endpoint = User orElse Car // the same as Endpoint.join(User, Car)
 
