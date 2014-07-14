@@ -580,6 +580,14 @@ package object finch {
     }
   }
 
+  object NoFutureParams extends FutureRequestReader[Nothing] {
+    def apply(req: HttpRequest) = new NoSuchElementException("Empty reader.").toFutureException
+  }
+
+  object NoParams extends RequestReader[Nothing] {
+    def apply(req: HttpRequest) = throw new NoSuchElementException("Empty reader.")
+  }
+
   private[this] object StringToNumberOrFail {
     def apply[A](rule: String)(number: => A) = new FutureRequestReader[A] {
       def apply(req: HttpRequest) =
