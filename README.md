@@ -134,6 +134,10 @@ There are three common implementations of a `FutureRequestReader`:
 * `OptionalParam` - fetches optional params
 * `ValidationRule` - fails if given predicate is false
 
+There is also a couple of empty request readers that raises `NoSuchElementException` instead of reading:
+* `NoFutureParams` implementing `FutureRequestReader[Nothing]`
+* `NoParams` implementing `RequestReader[Nothing]`
+
 ```scala
 case class User(name: String, age: Int, city: String)
 
