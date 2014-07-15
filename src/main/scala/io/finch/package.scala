@@ -203,7 +203,7 @@ package object finch {
     }
 
     /**
-     * Maps this json object into a json object with underlying map mapped
+     * Maps this json object into a json object with underlying ''map'' mapped
      * via pure function ''fn''.
      *
      * @param fn a pure function to map map
@@ -234,12 +234,12 @@ package object finch {
   /**
    * Alters underlying json array within finagled methods.
    *
-   * @param json a json array to alter
+   * @param json a json array to be alter
    */
   implicit class JsonArrayOps(val json: JSONArray) extends AnyVal {
 
     /**
-     * Maps this json array into a json array with underlying list mapped
+     * Maps this json array into a json array with underlying ''list'' mapped
      * via pure function ''fn''.
      *
      * @param fn a pure function to map list
@@ -250,7 +250,7 @@ package object finch {
   }
 
   /**
-   * A ''Facet'' that has a request available.
+   * A ''Facet'' that has a request available in it.
    *
    * @tparam Req the request type
    * @tparam RepIn the input response type
@@ -283,8 +283,8 @@ package object finch {
   }
 
   /**
-   * Facet implements Filter interface but has a different meaning. Facets are
-   * converts services responses from ''RepIn'' to ''RepOut''.
+   * Facets are converts services responses from ''RepIn'' to ''RepOut''
+   * regarding what is the request type.
    *
    * @tparam RepIn the input response type
    * @tparam RepOut the output response type
@@ -303,11 +303,27 @@ package object finch {
     def apply(req: HttpRequest)(rep: RepIn) = apply(rep)
   }
 
+  /**
+   * Intrusive json null value.
+   */
   object JsonNull {
     override def toString = null
   }
 
+  /**
+   * A companion object for json object.
+   */
   object JsonObject {
+
+    /**
+     * Creates a json object of given sequence of properties ''args''. Every
+     * argument/property is a pair of ''tag'' and ''value'' associated with it.
+     * It's possible to pass a complete json path (separated by dot) as ''tag''.
+     *
+     * @param args a sequence of json properties
+     *
+     * @return a json object
+     */
     def apply(args: (String, Any)*) = {
       def loop(path: List[String], value: Any): Map[String, Any] = path match {
         case tag :: Nil => Map(tag -> value)
@@ -322,13 +338,38 @@ package object finch {
       jsonSeq.foldLeft(JsonObject.empty) { mergeRight }
     }
 
+    /**
+     * Creates an empty json object
+     *
+     * @return an empty json object
+     */
     def empty = JSONObject(Map.empty[String, Any])
+
     def unapply(outer: Any): Option[JSONObject] = outer match {
       case inner: JSONObject => Some(inner)
       case _ => None
     }
 
+    /**
+     * Deeply merges given json objects ''a'' and ''b'' into a single json object.
+     * In case of conflict tag the value of a right json object will be taken.
+     *
+     * @param a the left json object
+     * @param b the right json object
+     *
+     * @return a merged json object
+     */
     def mergeRight(a: JSONObject, b: JSONObject) = mergeLeft(b, a)
+
+    /**
+     * Deeply merges given json objects ''a'' and ''b'' into a single json object.
+     * In case of conflict tag the value of a left json object will be taken.
+     *
+     * @param a the left json object
+     * @param b the right json object
+     *
+     * @return a merged json object
+     */
     def mergeLeft(a: JSONObject, b: JSONObject): JSONObject = {
       def loop(aa: Map[String, Any], bb: Map[String, Any]): Map[String, Any] =
         if (aa.isEmpty) bb
@@ -348,15 +389,39 @@ package object finch {
   }
 
   /**
-   * A companion object for ''JSONArray''.
+   * A companion object for json array.
    */
   object JsonArray {
+
+    /**
+     * Creates a new json array of given sequence of items ''args''.
+     *
+     * @param args sequence of items in the array
+     *
+     * @return a new json object
+     */
     def apply(args: Any*) = JSONArray(args.toList)
+
+    /**
+     * Creates an empty json array.
+     *
+     * @return an empty json array.
+     */
     def empty = JSONArray(List.empty[Any])
+
     def unapply(outer: Any): Option[JSONArray] = outer match {
       case inner: JSONArray => Some(inner)
       case _ => None
     }
+
+    /**
+     * Concatenates two given arrays ''a'' and ''b''.
+     *
+     * @param a the left array
+     * @param b the right array
+     *
+     * @return a concatenated array
+     */
     def concat(a: JSONArray, b: JSONArray) = JSONArray(a.list ::: b.list)
   }
 
@@ -386,6 +451,9 @@ package object finch {
     def escapeChar: PartialFunction[Char, String]
   }
 
+  /**
+   * A default json formatter that doesn't escape forward slashes.
+   */
   object DefaultJsonFormatter extends JsonFormatter {
     def escapeChar = {
       case '"'  => "\\\""
@@ -448,20 +516,23 @@ package object finch {
   object TurnJsonIntoHttpWithStatus extends TurnJsonIntoHttpWithStatusFromTag
 
   /**
-   * A REST API endpoint that primary defines a ''route''.
+   * A REST API endpoint that primary defines a ''route'' and might be converted
+   * into a finagled service with ''toService'' method.
    *
    * @tparam Rep a response type
    */
   trait Endpoint[Req <: HttpRequest, Rep] { self =>
 
     /**
+     * A rich route of this endpoint.
+     *
      * @return a route of this endpoint
      */
     def route: PartialFunction[(HttpMethod, Path), Service[Req, Rep]]
 
     /**
      * Sends a request ''req'' to this Endpoint.
-
+     *
      * @param req the request to send
      * @return a response wrapped with ''Future''
      */
@@ -522,6 +593,7 @@ package object finch {
      * Converts this endpoint into a finagled service.
      *
      * @param setup the function that transforms an endpoint's type to ''HttpResponse''
+     *
      * @return a finagled service
      */
     def toService(implicit setup: Endpoint[Req, Rep] => Endpoint[HttpRequest, HttpResponse]) = {
