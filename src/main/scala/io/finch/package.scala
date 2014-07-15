@@ -747,7 +747,8 @@ package object finch {
 
     /**
      * Creates a ''FutureRequestReader'' that reads a required integer ''param''
-     * from the request or raises an exception when the param is missing or empty.
+     * from the request or raises an exception when the param is missing or empty
+     * or doesn't correspond to an expected type.
      *
      * @param param the param to read
      *
@@ -766,7 +767,8 @@ package object finch {
 
     /**
      * Creates a ''FutureRequestReader'' that reads a required long ''param''
-     * from the request or raises an exception when the param is missing or empty.
+     * from the request or raises an exception when the param is missing or empty
+     * or doesn't correspond to an expected type.
      *
      * @param param the param to read
      *
@@ -785,7 +787,8 @@ package object finch {
 
     /**
      * Creates a ''FutureRequestReader'' that reads a required boolean ''param''
-     * from the request or raises an exception when the param is missing or empty.
+     * from the request or raises an exception when the param is missing or empty
+     * or doesn't correspond to an expected type.
      *
      * @param param the param to read
      *
@@ -970,7 +973,20 @@ package object finch {
     }
   }
 
+  /**
+   * A required multi-value string param.
+   */
   object RequiredParams {
+
+    /**
+     * Creates a ''FutureRequestReader'' that reads a required multi-value string
+     * ''param'' from the request into an ''List'' or raises an exception when the
+     * param is missing or empty.
+     *
+     * @param param the param to read
+     *
+     * @return a ''List'' that contains all the values of multi-value param
+     */
     def apply(param: String) = new FutureRequestReader[List[String]] {
       def apply(req: HttpRequest) = req.params.getAll(param).toList.flatMap(_.split(",")) match {
         case Nil => new ParamNotFound(param).toFutureException
@@ -982,70 +998,219 @@ package object finch {
     }
   }
 
+  /**
+   * A required multi-value integer param.
+   */
   object RequiredIntParams {
+
+    /**
+     * Creates a ''FutureRequestReader'' that reads a required multi-value integer
+     * ''param'' from the request into an ''List'' or raises an exception when the
+     * param is missing or empty or doesn't correspond to an expected type.
+     *
+     * @param param the param to read
+     *
+     * @return a ''List'' that contains all the values of multi-value param
+     */
     def apply(param: String) = for {
       ss <- RequiredParams(param)
       ns <- StringToNumberOrFail(param + " should be integer")(ss.map { _.toInt })
     } yield ns
   }
 
+  /**
+   * A required multi-value long param.
+   */
   object RequiredLongParams {
+
+    /**
+     * Creates a ''FutureRequestReader'' that reads a required multi-value long
+     * ''param'' from the request into an ''List'' or raises an exception when the
+     * param is missing or empty or doesn't correspond to an expected type.
+     *
+     * @param param the param to read
+     *
+     * @return a ''List'' that contains all the values of multi-value param
+     */
     def apply(param: String) = for {
       ss <- RequiredParams(param)
       ns <- StringToNumberOrFail(param + " should be integer")(ss.map { _.toLong })
     } yield ns
   }
 
+  /**
+   * A required multi-value boolean param.
+   */
   object RequiredBooleanParams {
+
+    /**
+     * Creates a ''FutureRequestReader'' that reads a required multi-value boolean
+     * ''param'' from the request into an ''List'' or raises an exception when the
+     * param is missing or empty or doesn't correspond to an expected type.
+     *
+     * @param param the param to read
+     *
+     * @return a ''List'' that contains all the values of multi-value param
+     */
     def apply(param: String) = for {
       ss <- RequiredParams(param)
       ns <- StringToNumberOrFail(param + " should be integer")(ss.map { _.toBoolean })
     } yield ns
   }
 
+  /**
+   * An optional multi-value string param.
+   */
   object OptionalParams {
+
+    /**
+     * Creates a ''FutureRequestReader'' that reads an optional multi-value
+     * string ''param'' from the request into an ''List''.
+     *
+     * @param param the param to read
+     *
+     * @return a ''List'' that contains all the values of multi-value param or
+     *         en empty list ''Nil'' if the param is missing or empty.
+     */
     def apply(param: String) = new FutureRequestReader[List[String]] {
       def apply(req: HttpRequest) = req.params.getAll(param).toList.flatMap(_.split(",")).toFuture
     }
   }
 
+  /**
+   * An optional multi-value integer param.
+   */
   object OptionalIntParams {
+
+    /**
+     * Creates a ''FutureRequestReader'' that reads an optional multi-value
+     * integer ''param'' from the request into an ''List''.
+     *
+     * @param param the param to read
+     *
+     * @return a ''List'' that contains all the values of multi-value param or
+     *         en empty list ''Nil'' if the param is missing or empty or doesn't
+     *         correspond to a requested type.
+     */
     def apply(param: String) = for {
       l <- OptionalParams(param)
     } yield StringsToNumbers(_.toInt)(l)
   }
 
+  /**
+   * An optional multi-value long param.
+   */
   object OptionalLongParams {
+
+    /**
+     * Creates a ''FutureRequestReader'' that reads an optional multi-value
+     * integer ''param'' from the request into an ''List''.
+     *
+     * @param param the param to read
+     *
+     * @return a ''List'' that contains all the values of multi-value param or
+     *         en empty list ''Nil'' if the param is missing or empty or doesn't
+     *         correspond to a requested type.
+     */
     def apply(param: String) = for {
       l <- OptionalParams(param)
     } yield StringsToNumbers(_.toLong)(l)
   }
 
+  /**
+   * An optional multi-value boolean param.
+   */
   object OptionalBooleanParams {
+
+    /**
+     * Creates a ''FutureRequestReader'' that reads an optional multi-value
+     * boolean ''param'' from the request into an ''List''.
+     *
+     * @param param the param to read
+     *
+     * @return a ''List'' that contains all the values of multi-value param or
+     *         en empty list ''Nil'' if the param is missing or empty or doesn't
+     *         correspond to a requested type.
+     */
     def apply(param: String) = for {
       l <- OptionalParams(param)
     } yield StringsToNumbers(_.toBoolean)(l)
   }
 
+  /**
+   * A multi-value string param.
+   */
   object Params {
+
+    /**
+     * Creates a ''RequestReader'' that reads a multi-value string ''param''
+     * from the request into an ''List''.
+     *
+     * @param param the param to read
+     *
+     * @return a ''List'' that contains all the values of multi-value param or
+     *         en empty list ''Nil'' if the param is missing or empty.
+     */
     def apply(param: String) = new RequestReader[List[String]] {
       def apply(req: HttpRequest) = req.params.getAll(param).toList.flatMap(_.split(","))
     }
   }
 
+  /**
+   * A multi-value integer param.
+   */
   object IntParams {
+
+    /**
+     * Creates a ''RequestReader'' that reads a multi-value integer ''param''
+     * from the request into an ''List''.
+     *
+     * @param param the param to read
+     *
+     * @return a ''List'' that contains all the values of multi-value param or
+     *         en empty list ''Nil'' if the param is missing or empty or doesn't
+     *         correspond to a expected type.
+     */
     def apply(param: String) = for {
       l <- Params(param)
     } yield StringsToNumbers(_.toInt)(l)
   }
 
+  /**
+   * A multi-value long param.
+   */
   object LongParams {
+
+    /**
+     * Creates a ''RequestReader'' that reads a multi-value long ''param''
+     * from the request into an ''List''.
+     *
+     * @param param the param to read
+     *
+     * @return a ''List'' that contains all the values of multi-value param or
+     *         en empty list ''Nil'' if the param is missing or empty or doesn't
+     *         correspond to a expected type.
+     */
     def apply(param: String) = for {
       l <- Params(param)
     } yield StringsToNumbers(_.toLong)(l)
   }
 
+  /**
+   * A multi-value boolean param.
+   */
   object BooleanParams {
+
+    /**
+     * Creates a ''RequestReader'' that reads a multi-value boolean ''param''
+     * from the request into an ''List''.
+     *
+     * @param param the param to read
+     *
+     * @return a ''List'' that contains all the values of multi-value param or
+     *         en empty list ''Nil'' if the param is missing or empty or doesn't
+     *         correspond to a expected type.
+     */
     def apply(param: String) = for {
       l <- Params(param)
     } yield StringsToNumbers(_.toBoolean)(l)
