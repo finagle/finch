@@ -92,7 +92,7 @@ package object finch {
    *
    * @tparam A an object type
    */
-  implicit class _AnyToFuture[A](val any: A) extends AnyVal {
+  implicit class AnyOps[A](val any: A) extends AnyVal {
 
     /**
      * Converts this ''any'' object into a ''Future''
@@ -107,7 +107,7 @@ package object finch {
    *
    * @param t a throwable to be altered
    */
-  implicit class _ThrowableToFutureException(val t: Throwable) extends AnyVal {
+  implicit class ThrowableOps(val t: Throwable) extends AnyVal {
 
     /**
      * Converts this throwable object into a ''Future'' exception.
@@ -123,7 +123,7 @@ package object finch {
    *
    * @param filter a filter to be altered
    */
-  implicit class _FilterAndThen[ReqIn <: HttpRequest, ReqOut <: HttpRequest, RepIn, RepOut](
+  implicit class FilterOps[ReqIn <: HttpRequest, ReqOut <: HttpRequest, RepIn, RepOut](
       val filter: Filter[ReqIn, RepOut, ReqOut, RepIn]) extends AnyVal {
 
     /**
@@ -147,7 +147,7 @@ package object finch {
    *
    * @tparam RepIn a input response type
    */
-  implicit class _ServiceAfterThat[Req <: HttpRequest, RepIn](service: Service[Req, RepIn]) {
+  implicit class ServiceOps[Req <: HttpRequest, RepIn](service: Service[Req, RepIn]) {
 
     /**
      * Composes this service with a given facet-with-request ''facet''.
@@ -168,7 +168,7 @@ package object finch {
    *
    * @param json a json object to be altered
    */
-  implicit class _JsonObjectOps(val json: JSONObject) extends AnyVal {
+  implicit class JsonObjectOps(val json: JSONObject) extends AnyVal {
 
     /**
      * Retrieves the typed ''A'' value associated with a given ''tag'' in this
@@ -236,7 +236,7 @@ package object finch {
    *
    * @param json a json array to alter
    */
-  implicit class _JsonArrayOps(val json: JSONArray) extends AnyVal {
+  implicit class JsonArrayOps(val json: JSONArray) extends AnyVal {
 
     /**
      * Maps this json array into a json array with underlying list mapped
