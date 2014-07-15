@@ -34,17 +34,6 @@ import com.twitter.finagle.http.{Status, Version, Response, Request}
  * Hi! I'm Finch - a super-tiny library atop of Finagle that makes the
  * development of RESTFul API services more pleasant and slick.
  *
- * I'm built around three very simple building-blocks:
- *   1. ''HttpServiceOf[A]'' that maps ''HttpRequest'' to some response
- *      (both are just a special cases of Finagle's ''Service'')
- *   2. ''Facet[+A, -B]'' that transforms service's response ''A'' to ''B''
- *      (just a special case of Finagle's ''Filter'')
- *   3. ''EndpointOf[A]'' that provides route information about a particular endpoint
- *      (just a special case of ''PartialFunction'' from route to ''HttpService'')
- *   4. ''ApiOf[A]'' that aggregates all the things together: endpoints and a set
- *      of rules (exposed as a combination of facets and filters) that transform the
- *      ''EndpointOf[A]'' to a ''Endpoint''.
- *
  * I'm trying to follow the principles of my elder brother and keep the things
  * as composable as possible.
  *
@@ -53,12 +42,12 @@ import com.twitter.finagle.http.{Status, Version, Response, Request}
  *       within a reversed order:
  *
  *        '''val s = service afterThat facetA afterThat facetB'''
-
- *   (b) Endpoints might be treated as partial functions, so they may be composed
- *       together with ''orElse'' operator:
+ *
+ *   (b) Endpoints might be treated as partial functions over the routes, so they
+ *       may be composed together with ''orElse'' operator:
  *
  *        '''val r = endpointA orElse endpointB'''
-
+ *
  *   (c) Another useful endpoint operator is ''andThen'' that takes a function from
  *       ''HttpService'' to ''HttpService'' and returns a new endpoint within function
  *       applied to its every route endpoint.
