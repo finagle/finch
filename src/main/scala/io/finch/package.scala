@@ -624,11 +624,40 @@ package object finch {
     def join[Req <: HttpRequest, Rep](endpoints: Endpoint[Req, Rep]*) = endpoints.reduce(_ orElse _)
   }
 
+  /**
+   * A base exception of request reader.
+   *
+   * @param m the message
+   */
   class RequestReaderError(m: String) extends Exception(m)
+
+  /**
+   * An exception that indicates missed parameter in the request.
+   *
+   * @param param the missed parameter name
+   */
   class ParamNotFound(param: String) extends RequestReaderError("Param '" + param + "' not found in the request.")
+
+  /**
+   * An exception that indicates a broken validation rule on the request.
+   *
+   * @param rule the rule description
+   */
   class ValidationFailed(rule: String) extends RequestReaderError("Request validation failed: '" + rule + "'.")
 
+  /**
+   * A request reader (implementing reader monad pattern) that reads something
+   * of type ''A'' from the ''HttpRequest'' into a ''Future''.
+   *
+   * @tparam A the result type
+   */
   trait FutureRequestReader[A] { self =>
+
+    /**
+     * Reads the data from given ''req''.
+     *
+     * @param req the request to read
+     */
     def apply(req: HttpRequest): Future[A]
 
     def flatMap[B](fn: A => FutureRequestReader[B]) = new FutureRequestReader[B] {
@@ -640,7 +669,19 @@ package object finch {
     }
   }
 
+  /**
+   * A request reader (implementing reader monad patter) that reads something
+   * of type ''A'' for the ''HttpRequest''.
+   *
+   * @tparam A the result type
+   */
   trait RequestReader[A] { self =>
+
+    /**
+     * Reads the data from given ''req''.
+     *
+     * @param req the request to read
+     */
     def apply(req: HttpRequest): A
 
     def flatMap[B](fn: A => RequestReader[B]) = new RequestReader[B] {
@@ -652,10 +693,16 @@ package object finch {
     }
   }
 
+  /**
+   * An empty ''FutureRequestReader''.
+   */
   object NoFutureParams extends FutureRequestReader[Nothing] {
     def apply(req: HttpRequest) = new NoSuchElementException("Empty reader.").toFutureException
   }
 
+  /**
+   * An empty ''RequestReader''.
+   */
   object NoParams extends RequestReader[Nothing] {
     def apply(req: HttpRequest) = throw new NoSuchElementException("Empty reader.")
   }
@@ -682,7 +729,19 @@ package object finch {
     }
   }
 
+  /**
+   * A required string param.
+   */
   object RequiredParam {
+
+    /**
+     * Creates a ''FutureRequestReader'' that reads a required string ''param''
+     * from the request or raises an exception when the param is missing or empty.
+     *
+     * @param param the param to read
+     *
+     * @return a param value
+     */
     def apply(param: String) = new FutureRequestReader[String] {
       def apply(req: HttpRequest) = req.params.get(param) match {
         case Some("") => new ValidationFailed(param + " should not be empty").toFutureException
@@ -692,76 +751,229 @@ package object finch {
     }
   }
 
+  /**
+   * A required integer param.
+   */
   object RequiredIntParam {
+
+    /**
+     * Creates a ''FutureRequestReader'' that reads a required integer ''param''
+     * from the request or raises an exception when the param is missing or empty.
+     *
+     * @param param the param to read
+     *
+     * @return a param value
+     */
     def apply(param: String) = for {
       s <- RequiredParam(param)
       n <- StringToNumberOrFail(param + " should be integer")(s.toInt)
     } yield n
   }
 
+  /**
+   * A required long param.
+   */
   object RequiredLongParam {
+
+    /**
+     * Creates a ''FutureRequestReader'' that reads a required long ''param''
+     * from the request or raises an exception when the param is missing or empty.
+     *
+     * @param param the param to read
+     *
+     * @return a param value
+     */
     def apply(param: String) = for {
       s <- RequiredParam(param)
       n <- StringToNumberOrFail(param + " should be long")(s.toLong)
     } yield n
   }
 
+  /**
+   * A required boolean param.
+   */
   object RequiredBooleanParam {
+
+    /**
+     * Creates a ''FutureRequestReader'' that reads a required boolean ''param''
+     * from the request or raises an exception when the param is missing or empty.
+     *
+     * @param param the param to read
+     *
+     * @return a param value
+     */
     def apply(param: String) = for {
       s <- RequiredParam(param)
       n <- StringToNumberOrFail(param + " should be boolean")(s.toBoolean)
     } yield n
   }
 
+  /**
+   * An optional string param.
+   */
   object OptionalParam {
+
+    /**
+     * Creates a ''FutureRequestReader'' that reads an optional string ''param''
+     * from the request into an ''Option''.
+     *
+     * @param param the param to read
+     *
+     * @return an option that contains a param value or ''None'' if the param
+     *         is empty or it doesn't correspond to the expected type
+     */
     def apply(param: String) = new FutureRequestReader[Option[String]] {
       def apply(req: HttpRequest) = req.params.get(param).toFuture
     }
   }
 
+  /**
+   * An optional int param.
+   */
   object OptionalIntParam {
+
+    /**
+     * Creates a ''FutureRequestReader'' that reads an optional integer ''param''
+     * from the request into an ''Option''.
+     *
+     * @param param the param to read
+     *
+     * @return an option that contains a param value or ''None'' if the param
+     *         is empty or it doesn't correspond to the expected type
+     */
     def apply(param: String) = for {
       o <- OptionalParam(param)
     } yield SomeStringToSomeNumber(_.toInt)(o)
   }
 
+  /**
+   * An optional long param.
+   */
   object OptionalLongParam {
+
+    /**
+     * Creates a ''FutureRequestReader'' that reads an optional long ''param''
+     * from the request into an ''Option''.
+     *
+     * @param param the param to read
+     *
+     * @return an option that contains a param value or ''None'' if the param
+     *         is empty or it doesn't correspond to the expected type
+     */
     def apply(param: String) = for {
       o <- OptionalParam(param)
     } yield SomeStringToSomeNumber(_.toLong)(o)
   }
 
+  /**
+   * An optional boolean param.
+   */
   object OptionalBooleanParam {
+
+    /**
+     * Creates a ''FutureRequestReader'' that reads an optional boolean ''param''
+     * from the request into an ''Option''.
+     *
+     * @param param the param to read
+     *
+     * @return an option that contains a param value or ''None'' if the param
+     *         is empty or it doesn't correspond to the expected type
+     */
     def apply(param: String) = for {
       o <- OptionalParam(param)
     } yield SomeStringToSomeNumber(_.toBoolean)(o)
   }
 
+  /**
+   * A string param.
+   */
   object Param {
+
+    /**
+     * Creates a ''RequestReader'' that reads an optional string ''param''
+     * from the request into an ''Option''.
+     *
+     * @param param the param to read
+     *
+     * @return an option that contains a param value or ''None'' if the param
+     *         is empty or it doesn't correspond to the expected type
+     */
     def apply(param: String) = new RequestReader[Option[String]] {
       def apply(req: HttpRequest) = req.params.get(param)
     }
   }
 
+  /**
+   * An integer param.
+   */
   object IntParam {
+
+    /**
+     * Creates a ''RequestReader'' that reads an optional integer ''param''
+     * from the request into an ''Option''.
+     *
+     * @param param the param to read
+     *
+     * @return an option that contains a param value or ''None'' if the param
+     *         is empty or it doesn't correspond to the expected type
+     */
     def apply(param: String) = for {
       o <- Param(param)
     } yield SomeStringToSomeNumber(_.toInt)(o)
   }
 
+  /**
+   * A long param.
+   */
   object LongParam {
+
+    /**
+     * Creates a ''RequestReader'' that reads an optional long ''param''
+     * from the request into an ''Option''.
+     *
+     * @param param the param to read
+     *
+     * @return an option that contains a param value or ''None'' if the param
+     *         is empty or it doesn't correspond to the expected type
+     */
     def apply(param: String) = for {
       o <- Param(param)
     } yield SomeStringToSomeNumber(_.toLong)(o)
   }
 
+  /**
+   * A boolean param.
+   */
   object BooleanParam {
+
+    /**
+     * Creates a ''RequestReader'' that reads an optional boolean ''param''
+     * from the request into an ''Option''.
+     *
+     * @param param the param to read
+     *
+     * @return an option that contains a param value or ''None'' if the param
+     *         is empty or it doesn't correspond to the expected type
+     */
     def apply(param: String) = for {
       o <- Param(param)
     } yield SomeStringToSomeNumber(_.toBoolean)(o)
   }
 
+  /**
+   * A validation rule.
+   */
   object ValidationRule {
+
+    /**
+     * Creates a ''FutureRequestReader'' that raises a ''ValidationFailed'' exception
+     * with message ''rule'' when the given ''predicated'' is evaluated as ''false''.
+     *
+     * @param rule the exception message
+     * @param predicate the predicate to test
+     *
+     * @return nothing or exception
+     */
     def apply(rule: String)(predicate: => Boolean) = new FutureRequestReader[Unit] {
       def apply(req: HttpRequest) =
        if (predicate) Future.Done
