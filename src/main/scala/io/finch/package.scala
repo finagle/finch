@@ -75,6 +75,65 @@ package object finch {
   type JsonResponse = JSONType
 
   /**
+   * A companion factory object for ''HttpResponse''.
+   *
+   * @param status the http response status
+   */
+  case class Reply(status: HttpResponseStatus) {
+
+    /**
+     * Creates a ''text/plain'' http response.
+     *
+     * @param plain the response body
+     *
+     * @return a plain text http response
+     */
+    def apply(plain: String) = {
+      val rep = Response(status)
+      rep.setContentString(plain)
+
+      rep
+    }
+
+    /**
+     * Creates an ''application/json'' http response.
+     *
+     * @param json the response body
+     * @param formatter the json formatter
+     *
+     * @return a json http response
+     */
+    def apply(json: JsonResponse, formatter: JsonFormatter = DefaultJsonFormatter) = {
+      val rep = Response(status)
+      rep.setContentTypeJson()
+      rep.setContentString(json.toString(formatter))
+
+      rep
+    }
+
+    /**
+     * Creates an empty http response.
+     *
+     * @return an empty http response
+     */
+    def apply() = Response(status)
+  }
+
+  //
+  // Top-10 HTTP response statuses
+  //
+  object Ok extends Reply(Status.Ok)
+  object Created extends Reply(Status.Created)
+  object NoContent extends Reply(Status.NoContent)
+  object NotModified extends Reply(Status.NotModified)
+  object BadRequest extends Reply(Status.BadRequest)
+  object Unauthorized extends Reply(Status.Unauthorized)
+  object Forbidden extends Reply(Status.Forbidden)
+  object NotFound extends Reply(Status.NotFound)
+  object Conflict extends Reply(Status.Conflict)
+  object InternalServerError extends Reply(Status.InternalServerError)
+
+  /**
    * Alters any object within a ''toFuture'' method.
    *
    * @param any an object to be altered
