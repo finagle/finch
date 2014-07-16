@@ -38,6 +38,7 @@ case class Car(id: Long, manufacturer: String) extends Jsonable {
 **Step 3:** Implement REST services:
 
 ```scala
+import com.twitter.finagle.Service
 import io.finch._
 
 object GetAllUsers extends Service[HttpRequest, Seq[User]] {
@@ -71,6 +72,8 @@ object TurnCollectionIntoJson extends Facet[Seq[Jsonable], JsonResponse] {
 
 **Step 5:** Define endpoints using facets for data transformation:
 ```scala
+import com.twitter.finagle.http.Method
+import com.twitter.finagle.http.path._
 import io.finch._
 
 object User extends Endpoint[HttpRequest, JsonResponse] {
@@ -93,7 +96,11 @@ object Car extends Endpoint[HttpRequest, JsonResponse] {
 **Step 6:** Expose endpoints:
 
 ```scala
+import com.twitter.finagle.SimpleFilter
+import com.twitter.finagle.builder.ServerBuilder
+import com.twitter.finagle.http.{Http, RichHttp}
 import io.finch._
+import java.net.InetSocketAddress
 
 object Main extends App {
   // We do nothing for now.
@@ -104,7 +111,7 @@ object Main extends App {
 
   // A setup function for endpoint that converts it 
   // to required form: 'Endpoint[HttpRequest, HttpResponse]'
-  implicit val setup = { respond: Endpoint[HttRequest, JsonResponse]) =>
+  implicit val setup = { (respond: Endpoint[HttpRequest, JsonResponse]) =>
     authorize andThen respond afterThat TurnJsonIntoHttp
   }
 
@@ -123,11 +130,11 @@ object Main extends App {
 
 Request Reader Monad
 --------------------
-**Finch.io** has two builtin request readers, which implement Reader Monad functional design pattern: 
+**Finch.io** has two built-in request readers, which implement the Reader Monad functional design pattern: 
 * `FutureRequestReader` reading `Future[A]` and
 * `RequestReader` reading just `A`.
 
-A `FutureRequestReader` has return type `Future[A]` so it might be simply used as an additional monad-transformation in a top-level for-comprehension statement. This is dramatically useful when service should fetch some params from a request before doing a real job (and not doing it at all if some of the params are not found/not valid).
+A `FutureRequestReader` has return type `Future[A]` so it might be simply used as an additional monad-transformation in a top-level for-comprehension statement. This is dramatically useful when a service should fetch some params from a request before doing a real job (and not doing it at all if some of the params are not found/not valid).
 
 There are three common implementations of a `FutureRequestReader`:
 * `RequiredParam` - fetches required params within specified type
@@ -159,7 +166,7 @@ val user = service(...) handle {
 }
 ```
 
-The most cool thing about monads is that they may be composed/reused as hell. Here is the example of _extending_ an existent reader within new fields/validation rules.
+The most cool thing about monads is that they may be composed/reused as hell. Here is an example of _extending_ an existing reader with new fields/validation rules.
 
 ```scala
 val restrictedUser = {
@@ -240,7 +247,7 @@ val (a, b): (List[Int], List[Int]) = reader(request)
 Building HTTP responses
 -----------------------
 
-An entry point into construction of HTTP responses in **Finch.io** is `Reply` class. It supports building of three types of responses: 
+An entry point into the construction of HTTP responses in **Finch.io** is the `Reply` class. It supports building of three types of responses: 
 * `application/json` within JSON object in the response body
 * `plain/text` within string in the response body
 * empty response of given HTTP status
