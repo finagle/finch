@@ -1,6 +1,6 @@
 ![logo](https://raw.github.com/vkostyukov/finch/master/finch-logo.png) 
 
-Hi! I'm **Finch**, a super-tiny library (actually, just a single package-object
+Hi! I'm **Finch.io**, a super-tiny library (actually, just a single package-object
 [io.finch](https://github.com/vkostyukov/finch/blob/master/src/main/scala/io/finch/package.scala))
 atop of [Finagle](http://twitter.github.io/finagle) that makes the development of purely functional REST
 API services more pleasant and slick.
@@ -141,7 +141,7 @@ case class User(name: String, age: Int, city: String)
 val remoteUser = for {
   name <- RequiredParam("name")
   age <- RequiredIntParam("age")
-  city <- OptionalParam("c")
+  city <- OptionalParam("city")
 } yield User(name, age, city.getOrElse("Novosibirsk"))
 
 val service = new Service[HttpRequest, JsonResponse] {
@@ -237,6 +237,44 @@ val (a, b): (List[Int], List[Int]) = reader(request)
 // b = List(4, 5)
 ```
 
+Building HTTP responses
+-----------------------
+
+An entry point into construction of HTTP responses in **Finch.io** is `Reply` class. It supports building of three types of responses: 
+* `application/json` within JSON object in the response body
+* `plain/text` within string in the response body
+* empty response of given HTTP status
+
+The common practise of using the `Reply` class is following:
+
+```scala
+val a = Reply(Status.Ok)() // an empty response with status 200
+val b = Reply(Status.NotFound)("body") // 'plain/text' response with status 404
+val c = Reply(Status.Created)(JsonObject("id" -> 42)) // 'application/json' response with status 201
+```
+
+There are also ten predefined factory objects for [Top-10 HTTP statuses](http://www.restapitutorial.com/httpstatuscodes.html):
+
+* `Ok`
+* `Created`
+* `NoContent`
+* `NotModified`
+* `BadRequest`
+* `Unauthorized`
+* `Forbidden`
+* `NotFound`
+* `Conflict`
+* `InternalServerError`
+
+Thay may be ussed as follows:
+
+```scala
+object Hello extends Service[HttpRequest, HttpResponse] {
+  def apply(req: HttpRequest) = for {
+    name <- RequiredParam("name")(req)
+  } yield Ok(s"Hello, $name!")
+}
+```
 
 Bonus Track: JSON on Steroids
 -----------------------------
