@@ -169,7 +169,7 @@ val user = service(...) handle {
 The most cool thing about monads is that they may be composed/reused as hell. Here is an example of _extending_ an existing reader with new fields/validation rules.
 
 ```scala
-val restrictedUser = {
+val restrictedUser = for {
   user <- remoteUser
   _ <- ValidationRule("this an adults-only video") { user.age > 18 }
 } yield user
