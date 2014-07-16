@@ -2,7 +2,7 @@
 
 Hi! I'm **Finch**, a super-tiny library (actually, just a single package-object
 [io.finch](https://github.com/vkostyukov/finch/blob/master/src/main/scala/io/finch/package.scala))
-atop of [Finagle](http://twitter.github.io/finagle) that makes the development of RESTFul
+atop of [Finagle](http://twitter.github.io/finagle) that makes the development of purely functional REST
 API services more pleasant and slick.
 
 How to finagle your REST API with Finch?
@@ -82,7 +82,7 @@ object User extends Endpoint[HttpRequest, JsonResponse] {
   }
 }
 
-object Car extends  Endpoint[HttpRequest, JsonResponse] {
+object Car extends Endpoint[HttpRequest, JsonResponse] {
   def route = {
     case Method.Get -> Root / "cars" / Long(id) =>
       new GetCarById(id) afterThat TurnObjectIntoJson
