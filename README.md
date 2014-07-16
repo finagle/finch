@@ -38,6 +38,7 @@ case class Car(id: Long, manufacturer: String) extends Jsonable {
 **Step 3:** Implement REST services:
 
 ```scala
+import com.twitter.finagle.Service
 import io.finch._
 
 object GetAllUsers extends Service[HttpRequest, Seq[User]] {
@@ -71,6 +72,8 @@ object TurnCollectionIntoJson extends Facet[Seq[Jsonable], JsonResponse] {
 
 **Step 5:** Define endpoints using facets for data transformation:
 ```scala
+import com.twitter.finagle.http.Method
+import com.twitter.finagle.http.path._
 import io.finch._
 
 object User extends Endpoint[HttpRequest, JsonResponse] {
@@ -93,7 +96,11 @@ object Car extends Endpoint[HttpRequest, JsonResponse] {
 **Step 6:** Expose endpoints:
 
 ```scala
+import com.twitter.finagle.SimpleFilter
+import com.twitter.finagle.builder.ServerBuilder
+import com.twitter.finagle.http.{Http, RichHttp}
 import io.finch._
+import java.net.InetSocketAddress
 
 object Main extends App {
   // We do nothing for now.
@@ -104,7 +111,7 @@ object Main extends App {
 
   // A setup function for endpoint that converts it 
   // to required form: 'Endpoint[HttpRequest, HttpResponse]'
-  implicit val setup = { respond: Endpoint[HttRequest, JsonResponse]) =>
+  implicit val setup = { (respond: Endpoint[HttpRequest, JsonResponse]) =>
     authorize andThen respond afterThat TurnJsonIntoHttp
   }
 
