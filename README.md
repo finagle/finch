@@ -10,7 +10,7 @@ How to finagle your REST API with Finch?
 
 **Step 1:** Add the dependency:
 
-```
+```scala
 resolvers += "Finch.io" at "http://repo.konfettin.ru"
 
 libraryDependencies ++= Seq(
@@ -124,8 +124,8 @@ object Main extends App {
 Request Reader Monad
 --------------------
 **Finch.io** has two builtin request readers, which implement Reader Monad functional design pattern: 
-* `FutureRequestReader` returning `Future[A]` and
-* `RequestReader` returning `Option[A]`.
+* `FutureRequestReader` reading `Future[A]` and
+* `RequestReader` reading just `A`.
 
 A `FutureRequestReader` has return type `Future[A]` so it might be simply used as an additional monad-transformation in a top-level for-comprehension statement. This is dramatically useful when service should fetch some params from a request before doing a real job (and not doing it at all if some of the params are not found/not valid).
 
@@ -133,10 +133,6 @@ There are three common implementations of a `FutureRequestReader`:
 * `RequiredParam` - fetches required params within specified type
 * `OptionalParam` - fetches optional params
 * `ValidationRule` - fails if given predicate is false
-
-There is also a couple of empty request readers that raises `NoSuchElementException` instead of reading:
-* `NoFutureParams` implementing `FutureRequestReader[Nothing]`
-* `NoParams` implementing `RequestReader[Nothing]`
 
 ```scala
 case class User(name: String, age: Int, city: String)
@@ -219,6 +215,11 @@ val service = new Service[HttpRequest, JsonResponse] {
 * returns `Future.Done` when predicate is `true`
 * throws `ValidationFailed` exception with `rule` stored in the message field.
 
+#### Empty readers
+
+There is also a couple of empty request readers that raises `NoSuchElementException` instead of reading:
+* `NoFutureParams` implementing `FutureRequestReader[Nothing]`
+* `NoParams` implementing `RequestReader[Nothing]`
 
 ### Multiple-Value Params
 All the readers have companion readers that can read multiple-value params `List[A]` instead of single-value params `A`. Multiple-value readers have `s` postfix in their names. So, `Param` has `Params`, `OptionalParam` has `OptipnalParams` and finally `RequiredParam` has `RequiredParams` companions. There are also typed versions for every reader, like `IntParams` or even `OptionalLongParams`.
