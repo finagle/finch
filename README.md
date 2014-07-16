@@ -245,7 +245,7 @@ An entry point into construction of HTTP responses in **Finch.io** is `Reply` cl
 * `plain/text` within string in the response body
 * empty response of given HTTP status
 
-The common practise of using the `Reply` class is following:
+The common practice of using the `Reply` class is following:
 
 ```scala
 val a = Reply(Status.Ok)() // an empty response with status 200
@@ -266,7 +266,7 @@ There are also ten predefined factory objects for [Top-10 HTTP statuses](http://
 * `Conflict`
 * `InternalServerError`
 
-Thay may be ussed as follows:
+They may be used as follows:
 
 ```scala
 object Hello extends Service[HttpRequest, HttpResponse] {
