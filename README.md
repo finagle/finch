@@ -377,5 +377,11 @@ val a = JsonArray(JsonObject.empty, JsonObject.empty)
 // creates a new json array with function applied to its underlying list
 val aa = aa.within { _.take(5).distinct }
 ```
+
+Licensing
+---------
+
+The licensing details may be found at `LICENSE` file in the root directory.
+
 ----
 By Vladimir Kostyukov, http://vkostyukov.ru
