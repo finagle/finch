@@ -378,6 +378,11 @@ val a = JsonArray(JsonObject.empty, JsonObject.empty)
 val aa = aa.within { _.take(5).distinct }
 ```
 
+Authorization with OAuth2
+-------------------------
+
+There is [finagle-oauth2](https://github.com/finagle/finagle-oauth2) server-side provider that is 100% compatible with **Finch.io**.
+
 Licensing
 ---------
 
