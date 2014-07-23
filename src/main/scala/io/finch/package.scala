@@ -245,13 +245,7 @@ package object finch {
   case class TurnJsonIntoHttpWithFormatter(formatter: JsonFormatter = DefaultJsonFormatter)
       extends Facet[JsonResponse, HttpResponse] {
 
-    def apply(rep: JsonResponse) = {
-      val reply = Response(Version.Http11, Status.Ok)
-      reply.setContentTypeJson()
-      reply.setContentString(rep.toString(formatter))
-
-      reply.toFuture
-    }
+    def apply(rep: JsonResponse) = Ok(rep, formatter).toFuture
   }
 
   /**
@@ -275,11 +269,7 @@ package object finch {
         case _ => Status.Ok
       }
 
-      val reply = Response(Version.Http11, status)
-      reply.setContentTypeJson()
-      reply.setContentString(rep.toString(DefaultJsonFormatter))
-
-      reply.toFuture
+      Reply(status)(rep, formatter).toFuture
     }
   }
 
