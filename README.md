@@ -101,13 +101,13 @@ import io.finch._
 import java.net.InetSocketAddress
 
 object Main extends App {
-  // We do nothing for now.
-  val authorize = Filter.identity[HttpResponse, JsonResponse]
-
   // A setup function for endpoint that converts it 
   // to a required form: 'Endpoint[HttpRequest, HttpResponse]'.
   implicit val setup = { (respond: Endpoint[HttpRequest, JsonResponse]) =>
-    authorize andThen respond afterThat TurnJsonIntoHttp
+    val respondHttp = respond afterThat TurnJsonIntoHttp
+
+    // We use Basic HTTP Auth. 
+    BasicallyAuthorize("user", "password") andThen respondHttp  
   }
 
   val endpoint = User orElse Car // the same as Endpoint.join(User, Car)
@@ -387,7 +387,7 @@ as `BasicAuth` filter.
 ```scala
 object ProtectedEndpoint extends Endpoint[HttpRequest, HttpResponse] {
   def route = {
-    case Method.Get -> Root / "users" => BasicAuth("user", "password") andThen GetUsers
+    case Method.Get -> Root / "users" => BasicallyAuthorize("user", "password") andThen GetUsers
   }
 }
 

@@ -273,14 +273,15 @@ package object finch {
     }
   }
 
-  case class BasicAuth(user: String, password: String) extends SimpleFilter[HttpRequest, HttpResponse] {
+  case class BasicallyAuthorize(user: String, password: String) extends SimpleFilter[HttpRequest, HttpResponse] {
     def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]) = {
       val userInfo = s"$user:$password"
       val expected = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
-      val actual = req.headerMap.getOrElse(HttpHeaders.Names.AUTHORIZATION, "")
 
-      if (actual == expected) service(req)
-      else Unauthorized().toFuture
+      req.headerMap.get(HttpHeaders.Names.AUTHORIZATION) match {
+        case Some(actual) if actual == expected => service(req)
+        case _ => Unauthorized().toFuture
+      }
     }
   }
 
