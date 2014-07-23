@@ -23,7 +23,7 @@
 package io
 
 import com.twitter.util.{Base64StringEncoder, Future}
-import com.twitter.finagle.{Filter, Service}
+import com.twitter.finagle.{SimpleFilter, Filter, Service}
 import scala.util.parsing.json.JSONType
 import org.jboss.netty.handler.codec.http.{HttpHeaders, HttpResponseStatus}
 import com.twitter.finagle.http._
@@ -274,14 +274,14 @@ package object finch {
   }
 
   case class BasicAuth(user: String, password: String)
-      extends Filter[HttpRequest, HttpResponse, HttpRequest, HttpResponse] {
+      extends SimpleFilter[HttpRequest, HttpResponse] {
 
     def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]) = {
       val userInfo = s"$user:$password"
-      val auth = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
-      val header = req.headerMap.getOrElse(HttpHeaders.Names.AUTHORIZATION, "")
+      val expected = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
+      val actual = req.headerMap.getOrElse(HttpHeaders.Names.AUTHORIZATION, "")
 
-      if (auth == header) service(req)
+      if (actual == expected) service(req)
       else Unauthorized().toFuture
     }
   }
