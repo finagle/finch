@@ -20,11 +20,11 @@ object Finch extends Build {
     publishArtifact := true,
     publishTo := Some(Resolver.file("localDirectory", file(Path.userHome.absolutePath + "/repo"))),
     licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-    homepage := Some(url("https://github.com/vkostyukov/finch")),
+    homepage := Some(url("https://github.com/finagle/finch")),
     pomExtra := (
       <scm>
         <url>git://github.com/vkostyukov/finch.git</url>
-        <connection>scm:git://github.com/vkostyukov/finch.git</connection>
+        <connection>scm:git://github.com/finagle/finch.git</connection>
       </scm>
       <developers>
         <developer>

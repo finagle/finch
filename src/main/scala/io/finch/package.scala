@@ -66,7 +66,7 @@ import com.twitter.finagle.http.{Status, Version, Response, Request}
  *
  * Have fun writing a reusable and scalable code with me!
  *
- * - https://github.com/vkostyukov/finch
+ * - https://github.com/finagle/finch
  * - http://vkostyukov.ru
  */
 package object finch {
