@@ -104,13 +104,10 @@ import java.net.InetSocketAddress
 
 object Main extends App {
   // We do nothing for now.
-  val authorize = new SimpleFilter[HttpRequest, JsonResponse] {
-    def apply(req: HttpRequest, continue: Service[HttpRequest, JsonResponse]) =
-      continue(req)
-  }
+  val authorize = Filter.identity[HttpResponse, JsonResponse]
 
   // A setup function for endpoint that converts it 
-  // to required form: 'Endpoint[HttpRequest, HttpResponse]'
+  // to a required form: 'Endpoint[HttpRequest, HttpResponse]'.
   implicit val setup = { (respond: Endpoint[HttpRequest, JsonResponse]) =>
     authorize andThen respond afterThat TurnJsonIntoHttp
   }
