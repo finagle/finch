@@ -378,6 +378,21 @@ Authorization with OAuth2
 
 There is [finagle-oauth2](https://github.com/finagle/finagle-oauth2) server-side provider that is 100% compatible with **Finch.io**.
 
+Basic HTTP Auth
+---------------
+
+[Basic HTTP Auth](http://en.wikipedia.org/wiki/Basic_access_authentication) is supported out-of-the-box and implemented 
+as `BasicAuth` filter.
+
+```scala
+object ProtectedEndpoint extends Endpoint[HttpRequest, HttpResponse] {
+  def route = {
+    case Method.Get -> Root / "users" => BasicAuth("user", "password") andThen GetUsers
+  }
+}
+
+```
+
 Licensing
 ---------
 
