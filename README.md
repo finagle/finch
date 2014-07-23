@@ -96,7 +96,7 @@ object Car extends Endpoint[HttpRequest, JsonResponse] {
 **Step 6:** Expose endpoints:
 
 ```scala
-import com.twitter.finagle.SimpleFilter
+import com.twitter.finagle.Filter
 import com.twitter.finagle.builder.ServerBuilder
 import com.twitter.finagle.http.{Http, RichHttp}
 import io.finch._
