@@ -22,13 +22,13 @@
 
 package io
 
-import com.twitter.util.Future
+import com.twitter.util.{Base64StringEncoder, Future}
 import com.twitter.finagle.{Filter, Service}
-import com.twitter.finagle.http.service.RoutingService
-import com.twitter.finagle.http.path.Path
-import scala.util.parsing.json.{JSONFormat, JSONType, JSONArray, JSONObject}
-import org.jboss.netty.handler.codec.http.{HttpResponseStatus, HttpMethod}
-import com.twitter.finagle.http.{Status, Version, Response, Request}
+import scala.util.parsing.json.JSONType
+import org.jboss.netty.handler.codec.http.{HttpHeaders, HttpResponseStatus}
+import com.twitter.finagle.http._
+import scala.util.parsing.json.JSONArray
+import scala.util.parsing.json.JSONObject
 
 /***
  * Hi! I'm Finch - a super-tiny library atop of Finagle that makes the
@@ -242,7 +242,7 @@ package object finch {
   /**
    * A facet that turns a ''JsonResponse'' into an ''HttpResponse''.
    */
-  class TurnJsonIntoHttpWithFormatter(formatter: JsonFormatter = DefaultJsonFormatter)
+  case class TurnJsonIntoHttpWithFormatter(formatter: JsonFormatter = DefaultJsonFormatter)
       extends Facet[JsonResponse, HttpResponse] {
 
     def apply(rep: JsonResponse) = {
@@ -264,7 +264,7 @@ package object finch {
    *
    * @param statusTag the status tag identifier
    */
-  class TurnJsonIntoHttpWithStatusFromTag(
+  case class TurnJsonIntoHttpWithStatusFromTag(
     statusTag: String = "status",
     formatter: JsonFormatter = DefaultJsonFormatter) extends Facet[JsonResponse, HttpResponse] {
 
@@ -280,6 +280,19 @@ package object finch {
       reply.setContentString(rep.toString(DefaultJsonFormatter))
 
       reply.toFuture
+    }
+  }
+
+  case class BasicAuth(user: String, password: String)
+      extends Filter[HttpRequest, HttpResponse, HttpRequest, HttpResponse] {
+
+    def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]) = {
+      val userInfo = s"$user:$password"
+      val auth = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
+      val header = req.headerMap.getOrElse(HttpHeaders.Names.AUTHORIZATION, "")
+
+      if (auth == header) service(req)
+      else Unauthorized().toFuture
     }
   }
 
