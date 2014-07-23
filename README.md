@@ -1,9 +1,7 @@
 ![logo](https://raw.github.com/vkostyukov/finch/master/finch-logo.png) 
 
-Hi! I'm **Finch.io**, a super-tiny library (actually, just a single package-object
-[io.finch](https://github.com/finagle/finch/blob/master/src/main/scala/io/finch/package.scala))
-atop of [Finagle](http://twitter.github.io/finagle) that makes the development of purely functional REST
-API services more pleasant and slick.
+Hi! I'm **Finch.io**, a super-tiny library atop of [Finagle](http://twitter.github.io/finagle) that makes 
+the development of purely functional REST API services more pleasant and slick.
 
 How to finagle your REST API with Finch?
 ----------------------------------------
