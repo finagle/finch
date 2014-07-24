@@ -1,7 +1,6 @@
 ![logo](https://raw.github.com/vkostyukov/finch/master/finch-logo.png) 
 
-Hi! I'm **Finch.io**, a super-tiny library atop of [Finagle](http://twitter.github.io/finagle) that makes 
-the development of purely functional REST API services more pleasant and slick.
+Hi! I'm **Finch.io**, a thin layer of purely functional basic blocks atop of  [Finagle](http://twitter.github.io/finagle) for building robust and composable REST APIs.
 
 How to finagle your REST API with Finch?
 ----------------------------------------
@@ -382,7 +381,7 @@ Basic HTTP Auth
 ---------------
 
 [Basic HTTP Auth](http://en.wikipedia.org/wiki/Basic_access_authentication) is supported out-of-the-box and implemented 
-as `BasicAuth` filter.
+as `BasicallyAuthorize` filter.
 
 ```scala
 object ProtectedEndpoint extends Endpoint[HttpRequest, HttpResponse] {
