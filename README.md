@@ -223,35 +223,52 @@ val (a, b): (List[Int], List[Int]) = reader(request)
 Building HTTP responses
 -----------------------
 
-An entry point into the construction of HTTP responses in **Finch.io** is the `Reply` class. It supports building of three types of responses: 
+An entry point into the construction of HTTP responses in **Finch.io** is the `io.finch.response.Respond` class. It supports building of three types of responses: 
 * `application/json` within JSON object in the response body
 * `plain/text` within string in the response body
 * empty response of given HTTP status
 
-The common practice of using the `Reply` class is following:
+The common practice of using the `Respond` class is following:
 
 ```scala
-val a = Reply(Status.Ok)() // an empty response with status 200
-val b = Reply(Status.NotFound)("body") // 'plain/text' response with status 404
-val c = Reply(Status.Created)(JsonObject("id" -> 42)) // 'application/json' response with status 201
+import io.finch.json._
+import io.finch.response._
+
+val a = Respond(Status.Ok)() // an empty response with status 200
+val b = Respond(Status.NotFound)("body") // 'plain/text' response with status 404
+val c = Respond(Status.Created)(JsonObject("id" -> 42)) // 'application/json' response with status 201
 ```
 
-There are also ten predefined factory objects for [Top-10 HTTP statuses](http://www.restapitutorial.com/httpstatuscodes.html):
+There are also ten predefined factory objects for the [most popular HTTP statuses](http://www.restapitutorial.com/httpstatuscodes.html):
 
 * `Ok`
 * `Created`
 * `NoContent`
+* `MovedPermanently`
+* `SeeOther`
 * `NotModified`
+* `TemporaryRedirect`
 * `BadRequest`
 * `Unauthorized`
+* `PaymentRequired`
 * `Forbidden`
 * `NotFound`
+* `MethodNotAllowed`
+* `NotAcceptable`
+* `RequestTimeOut`
 * `Conflict`
+* `PreconditionFailed`
+* `TooManyRequests`
 * `InternalServerError`
+* `NotImplemented`
 
 They may be used as follows:
 
 ```scala
+import io.finch._
+import io.finch.request._
+import io.finch.response._
+
 object Hello extends Service[HttpRequest, HttpResponse] {
   def apply(req: HttpRequest) = for {
     name <- RequiredParam("name")(req)
@@ -368,7 +385,7 @@ as `BasicallyAuthorize` filter.
 ```scala
 object ProtectedEndpoint extends Endpoint[HttpRequest, HttpResponse] {
   def route = {
-    case Method.Get -> Root / "users" => BasicallyAuthorize("user", "password") andThen GetUsers
+    case Method.Get -> Root / "users" => BasicallyAuthorize("user", "password") ! GetUsers
   }
 }
 
