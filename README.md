@@ -1,4 +1,4 @@
-![logo](https://raw.github.com/vkostyukov/finch/master/finch-logo.png) 
+![logo](https://raw.github.com/finagle/finch/master/finch-logo.png) 
 
 Hi! I'm **Finch.io**, a thin layer of purely functional basic blocks atop of  [Finagle](http://twitter.github.io/finagle) for building robust and composable REST APIs.
 
@@ -11,7 +11,7 @@ How to finagle your REST API with Finch?
 resolvers += "Finch.io" at "http://repo.konfettin.ru"
 
 libraryDependencies ++= Seq(
-  "io" %% "finch" % "0.1.1"
+  "io" %% "finch" % "0.1.2"
 )
 ```
 
