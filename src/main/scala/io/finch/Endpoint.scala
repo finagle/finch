@@ -24,9 +24,7 @@ package io.finch
 
 import org.jboss.netty.handler.codec.http.HttpMethod
 import com.twitter.finagle.http.path.Path
-import com.twitter.finagle.Service
-import com.twitter.util.Future
-import com.twitter.finagle.http.service.RoutingService
+import com.twitter.finagle.{Filter, Service}
 
 /**
  * A REST API endpoint that primary defines a ''route'' and might be converted
@@ -49,7 +47,7 @@ trait Endpoint[Req <: HttpRequest, Rep] { self =>
    * @param req the request to send
    * @return a response wrapped with ''Future''
    */
-  def apply(req: Req): Future[Rep] = route(req.method -> Path(req.path))(req)
+  def apply(req: Req) = route(req.method -> Path(req.path))(req)
 
   /**
    * Combines this endpoint with ''that'' endpoint. A new endpoint
@@ -88,35 +86,22 @@ trait Endpoint[Req <: HttpRequest, Rep] { self =>
     }
 
   /**
-   * Applies given ''facet'' to this endpoint.
+   * Composes this endpoint with given ''filter''.
    *
-   * @param facet a facet to apply
-   * @tparam RepOut a response type of a new endpoint
+   * @param filter the filter to compose
+   * @tparam RepOut the response type
    *
-   * @return a new endpoint
+   * @return an endpoint composed with filter
    */
-  def afterThat[ReqIn >: Req <: HttpRequest, RepOut](facet: FacetWithRequest[ReqIn, Rep, RepOut]) =
-    andThen { service =>
-      new Service[Req, RepOut] {
-        def apply(req: Req) = service(req) flatMap { facet(req)(_) }
-      }
-    }
+  def ![RepOut](filter: Filter[Req, RepOut, Req, Rep]) = filter ! self
 
   /**
    * Converts this endpoint into a finagled service.
    *
-   * @param setup the function that transforms an endpoint's type to ''HttpResponse''
-   *
    * @return a finagled service
    */
-  def toService(implicit setup: Endpoint[Req, Rep] => Endpoint[HttpRequest, HttpResponse]) = {
-    val httpEndpoint = setup(self)
-
-    new RoutingService[HttpRequest](
-      new PartialFunction[HttpRequest, Service[HttpRequest, HttpResponse]] {
-        def apply(req: HttpRequest) = httpEndpoint.route(req.method -> Path(req.path))
-        def isDefinedAt(req: HttpRequest) = httpEndpoint.route.isDefinedAt(req.method -> Path(req.path))
-      })
+  def toService = new Service[Req, Rep] {
+    def apply(req: Req) = self(req)
   }
 }
 
@@ -136,4 +121,3 @@ object Endpoint {
    */
   def join[Req <: HttpRequest, Rep](endpoints: Endpoint[Req, Rep]*) = endpoints.reduce(_ orElse _)
 }
-
