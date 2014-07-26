@@ -31,38 +31,35 @@ import scala.util.parsing.json.JSONArray
 import scala.util.parsing.json.JSONObject
 
 /***
- * Hi! I'm Finch - a super-tiny library atop of Finagle that makes the
+ * Hi! I'm Finch.io - a super-tiny library atop of Finagle that makes the
  * development of RESTFul API services more pleasant and slick.
  *
  * I'm trying to follow the principles of my elder brother and keep the things
  * as composable as possible.
  *
  *   (a) In order to mark the difference between filters and facets and show the
- *       direction of a data-flow, the facets are composed by ''afterThat'' operator
+ *       direction of a data-flow, the facets are composed by ''!'' operator
  *       within a reversed order:
  *
- *        '''val s = service afterThat facetA afterThat facetB'''
+ *        '''val s = service ! facetA ! facetB'''
+ *
+ *       Note: facets don't change the request type.
  *
  *   (b) Endpoints might be treated as partial functions over the routes, so they
  *       may be composed together with ''orElse'' operator:
  *
  *        '''val r = endpointA orElse endpointB'''
  *
- *   (c) Another useful endpoint operator is ''andThen'' that takes a function from
- *       ''HttpService'' to ''HttpService'' and returns a new endpoint within function
- *       applied to its every route endpoint.
- *
- *        '''val r = endpoint andThen { filter andThen _ }'''
- *
- *   (d) Endpoints may also be composed with filters by using the ''afterThat'' operator
+ *   (d) Endpoints may also be composed with filters by using the ''!'' operator
  *       in a familiar way:
  *
- *        '''val r = authorize afterThat endpoint'''
+ *        '''val r = authorize ! endpoint'''
  *
- *   (e) Primitive filters (that don't change anything) are composed with the same
- *       ''afterThat'' operator:
+ *       Note: ''authorize'' changes the request type.
  *
- *        '''val f = filterA afterThat filterB afterThat filterC'''
+ *   (e) Finagle filters may also be composed with ''!'' operator:
+ *
+ *        '''val f = filterA ! filterB ! filterC'''
  *
  * Have fun writing a reusable and scalable code with me!
  *
@@ -117,16 +114,36 @@ package object finch {
       val filter: Filter[ReqIn, RepOut, ReqOut, RepIn]) extends AnyVal {
 
     /**
-     * Composes this filter within a given endpoint ''thatEndpoint''.
+     * Composes this filter within given endpoint ''thatEndpoint''.
      *
      * @param endpoint an endpoint to compose
      *
      * @return an endpoint composed with filter
      */
-    def andThen(endpoint: Endpoint[ReqOut, RepIn]) =
+    def !(endpoint: Endpoint[ReqOut, RepIn]) =
       endpoint andThen { service =>
         filter andThen service
       }
+
+    /**
+     * Composes this filter within given ''next'' filter.
+     *
+     * @param next the next filter in the chain
+     * @tparam Req the request type
+     * @tparam Rep the response type
+     *
+     * @return a filter composed within next filter
+     */
+    def ![Req, Rep](next: Filter[ReqOut, RepIn, Req, Rep]) = filter andThen next
+
+    /**
+     * Composes this filter within given ''service''.
+     *
+     * @param service the service to compose
+     *
+     * @return a service composed with filter
+     */
+    def !(service: Service[ReqOut, RepIn]) = filter andThen service
   }
 
   /**
@@ -140,17 +157,14 @@ package object finch {
   implicit class ServiceOps[Req <: HttpRequest, RepIn](service: Service[Req, RepIn]) {
 
     /**
-     * Composes this service with a given facet-with-request ''facet''.
+     * Composes this service with a given ''filter''.
      *
-     * @param facet a facet to compose
+     * @param filter a filter to compose
      * @tparam RepOut an output response type
      *
      * @return a new service composed with facet.
      */
-    def afterThat[ReqIn >: Req <: HttpRequest, RepOut](facet: FacetWithRequest[ReqIn, RepIn, RepOut]) =
-      new Service[Req, RepOut] {
-        def apply(req: Req) = service(req) flatMap { facet(req)(_) }
-      }
+    def ![RepOut](filter: Filter[Req, RepOut, Req, RepIn]) = filter andThen service
   }
 
   /**
@@ -239,40 +253,6 @@ package object finch {
     def within(fn: List[Any] => List[Any]) = JSONArray(fn(json.list))
   }
 
-  /**
-   * A facet that turns a ''JsonResponse'' into an ''HttpResponse''.
-   */
-  case class TurnJsonIntoHttpWithFormatter(formatter: JsonFormatter = DefaultJsonFormatter)
-      extends Facet[JsonResponse, HttpResponse] {
-
-    def apply(rep: JsonResponse) = Ok(rep, formatter).toFuture
-  }
-
-  /**
-   * A facet that turns a ''JsonResponse'' into an ''HttpResponse''.
-   */
-  object TurnJsonIntoHttp extends TurnJsonIntoHttpWithFormatter
-
-  /**
-   * A facet that turns a ''JsonResponse'' into an ''HttpResponse'' with http status.
-   *
-   * @param statusTag the status tag identifier
-   */
-  case class TurnJsonIntoHttpWithStatusFromTag(
-    statusTag: String = "status",
-    formatter: JsonFormatter = DefaultJsonFormatter) extends Facet[JsonResponse, HttpResponse] {
-
-    def apply(rep: JsonResponse) = {
-      val status = rep match {
-        case JsonObject(o) =>
-          HttpResponseStatus.valueOf(o.getOption[Int](statusTag).getOrElse(200))
-        case _ => Status.Ok
-      }
-
-      Reply(status)(rep, formatter).toFuture
-    }
-  }
-
   case class BasicallyAuthorize(user: String, password: String) extends SimpleFilter[HttpRequest, HttpResponse] {
     def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]) = {
       val userInfo = s"$user:$password"
@@ -284,11 +264,6 @@ package object finch {
       }
     }
   }
-
-  /**
-   * A facet that turns a ''JsonResponse'' to an ''HttpResponse'' with http status.
-   */
-  object TurnJsonIntoHttpWithStatus extends TurnJsonIntoHttpWithStatusFromTag
 
   /**
    * A base exception of request reader.
