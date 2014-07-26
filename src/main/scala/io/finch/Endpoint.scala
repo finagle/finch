@@ -25,6 +25,7 @@ package io.finch
 import org.jboss.netty.handler.codec.http.HttpMethod
 import com.twitter.finagle.http.path.Path
 import com.twitter.finagle.{Filter, Service}
+import com.twitter.finagle.http.service.NotFoundService
 
 /**
  * A REST API endpoint that primary defines a ''route'' and might be converted
@@ -120,4 +121,12 @@ object Endpoint {
    * @return a joined endpoint
    */
   def join[Req <: HttpRequest, Rep](endpoints: Endpoint[Req, Rep]*) = endpoints.reduce(_ orElse _)
+
+  /**
+   * A robust 404 respond for missing endpoints.
+   */
+  val NotFound = new Endpoint[HttpRequest, HttpResponse] {
+    val underlying = new NotFoundService[HttpRequest]
+    def route = { case _ => underlying }
+  }
 }
