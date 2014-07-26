@@ -17,75 +17,66 @@ libraryDependencies ++= Seq(
 
 **Step 2:** Define a model (optional):
 ```scala
-import io.finch._
-
-trait Jsonable {
-  def toJson: JsonResponse
-}
-
-case class User(id: Long, name: String) extends Jsonable {
-  def toJson = JsonObject("id" -> id, "name" -> name)
-}
-
-case class Car(id: Long, manufacturer: String) extends Jsonable {
-  def toJson = JsonObject("id" -> id, "manufacturer" -> manufacturer)
-}
+case class User(id: Long, name: String)
+case class Ticket(id: Long)
 ```
 
 **Step 3:** Implement REST services:
 
 ```scala
-import com.twitter.finagle.Service
 import io.finch._
+import com.twitter.finagle.Service
 
-object GetAllUsers extends Service[HttpRequest, Seq[User]] {
-  def apply(req: HttpRequest) =
-    List(User(10, "Ivan"), User(20, "John")).toFuture
+case class GetUser(userId: Long) extends Service[HttpRequest, User] {
+  def apply(req: HttpRequest) = User(userId, "John").toFuture
 }
 
-class GetUserById(id: Long) extends Service[HttpRequest, User] {
-  def apply(req: HttpRequest) = User(id, "John").toFuture
+case class GetTicket(ticketId: Long) extends Service[HttpRequest, Ticket] {
+  def apply(req: HttpRequest) = Ticket(ticketId).toFuture
 }
 
-class GetCarById(id: Long) extends Service[HttpRequest, Car] {
-  def apply(req: HttpRequest) = Car(id, "Toyota").toFuture
+case class GetUserTickets(userId: Long) extends Service[HttpRequest, Seq[Ticket]] {
+  def apply(req: HttpRequest) = Seq(Ticket(1), Ticket(2), Ticket(3)).toFuture
 }
 ```
 
-**Step 4:** Define facets (optional):
-
+**Step 4:** Define filters (optional):
 ```scala
 import io.finch._
+import io.finch.json._
 
-object TurnObjectIntoJson extends Facet[Jsonable, JsonResponse] {
-  def apply(rep: Jsonable) = rep.toJson.toFuture
-}
+object TurnModelIntoJson extends Facet[HttpRequest, Any, JsonResponse] {
+  def apply(req: HttpRequest)(rep: Any) = {
+    def turn(any: Any): JsonResponse = any match {
+      case User(id, name) => JsonObject("id" -> id, "name" -> name)
+      case Ticket(id) => JsonObject("id" -> id)
+      case seq: Seq[Any] => JsonArray(seq map turn :_*)
+    }
 
-object TurnCollectionIntoJson extends Facet[Seq[Jsonable], JsonResponse] {
-  def apply(rep: Seq[Jsonable]) =
-    JsonArray(rep map { _.toJson }:_*).toFuture
+    turn(rep).toFuture
+  }
 }
 ```
 
 **Step 5:** Define endpoints using facets for data transformation:
 ```scala
+import io.finch._
 import com.twitter.finagle.http.Method
 import com.twitter.finagle.http.path._
-import io.finch._
 
 object User extends Endpoint[HttpRequest, JsonResponse] {
   def route = {
-    case Method.Get -> Root / "users" =>
-      GetAllUsers afterThat TurnCollectionIntoJson
-    case Method.Get -> Root / "users" / Long(id) =>
-      new GetUserById(id) afterThat TurnObjectIntoJson
+    case Method.Get -> Root / "users" / Long(id) => 
+      GetUser(id) ! TurnModelIntoJson
   }
 }
 
-object Car extends Endpoint[HttpRequest, JsonResponse] {
+object Ticket extends Endpoint[HttpRequest, JsonResponse] {
   def route = {
-    case Method.Get -> Root / "cars" / Long(id) =>
-      new GetCarById(id) afterThat TurnObjectIntoJson
+    case Method.Get -> Root / "tickets" / Long(id) =>
+      GetTicket(id) ! TurnModelIntoJson
+    case Method.Get -> Root / "users" / Long(id) / "tickets" =>
+      GetUserTickets(id) ! TurnModelIntoJson
   }
 }
 ```
@@ -93,30 +84,21 @@ object Car extends Endpoint[HttpRequest, JsonResponse] {
 **Step 6:** Expose endpoints:
 
 ```scala
-import com.twitter.finagle.Filter
+import io.finch._
+import io.finch.filter._
 import com.twitter.finagle.builder.ServerBuilder
 import com.twitter.finagle.http.{Http, RichHttp}
-import io.finch._
 import java.net.InetSocketAddress
 
 object Main extends App {
-  // A setup function for endpoint that converts it 
-  // to a required form: 'Endpoint[HttpRequest, HttpResponse]'.
-  implicit val setup = { (respond: Endpoint[HttpRequest, JsonResponse]) =>
-    val respondHttp = respond afterThat TurnJsonIntoHttp
+  val endpoint = Endpoint.join(User, Ticket) ! TurnJsonIntoHttp[HttpRequest]
+  val backend = BasicallyAuthorize("user", "password") ! (endpoint orElse Endpoint.NotFound)
 
-    // We use Basic HTTP Auth. 
-    BasicallyAuthorize("user", "password") andThen respondHttp  
-  }
-
-  val endpoint = User orElse Car // the same as Endpoint.join(User, Car)
-
-  // Expose the API at :8080.
   ServerBuilder()
     .codec(RichHttp[HttpRequest](Http()))
     .bindTo(new InetSocketAddress(8080))
-    .name("user-and-car")
-    .build(endpoint.toService)
+    .name("user-and-ticket")
+    .build(backend.toService)
 }
 ```
 
