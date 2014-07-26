@@ -104,18 +104,34 @@ object Main extends App {
 
 **Step 7:** Have fun and stay finagled!
 
+Piping the Requests/Responses
+-----------------------------
+
+The core operation in Finch.io is _pipe_ `!`. Both requests and responses may be piped via chain of filters, services or endpoints: the data flows in a natural direction - from left to right.
+
+In the following example
+
+- the request flows to `Auth` filter and then
+- the request is converted to response by `respond` endpoint and then
+- the response flows to `TurnJsonIntoHttp` facet (filter that doesn't change request type but changes the reponse type)
+
+```scala
+val respond: Endpopoint[HttpRequest, HttpResponse] = ???
+val endpoint = Auth ! respond ! TurnJsonIntoHttp[HttpRequest]
+```
+
 Request Reader Monad
 --------------------
 **Finch.io** has two built-in request readers, which implement the Reader Monad functional design pattern: 
-* `FutureRequestReader` reading `Future[A]` and
-* `RequestReader` reading just `A`.
+* `io.finch.request.FutureRequestReader` reading `Future[A]` and
+* `io.finch.request.RequestReader` reading just `A`.
 
 A `FutureRequestReader` has return type `Future[A]` so it might be simply used as an additional monad-transformation in a top-level for-comprehension statement. This is dramatically useful when a service should fetch some params from a request before doing a real job (and not doing it at all if some of the params are not found/not valid).
 
 There are three common implementations of a `FutureRequestReader`:
-* `RequiredParam` - fetches required params within specified type
-* `OptionalParam` - fetches optional params
-* `ValidationRule` - fails if given predicate is false
+* `io.finch.request.RequiredParam` - fetches required params within specified type
+* `io.finch.request.OptionalParam` - fetches optional params
+* `io.finch.request.ValidationRule` - fails if given predicate is false
 
 ```scala
 case class User(name: String, age: Int, city: String)
@@ -159,7 +175,7 @@ val user = service(...) handle {
 }
 ```
 
-There is also very simple reader `Param` that may be used for optional params, which are not required for the service's logic.
+There is also very simple reader `io.finch.request.Param` that may be used for optional params, which are not required for the service's logic.
 
 ```scala
 val pagination = for {
@@ -180,29 +196,29 @@ val service = new Service[HttpRequest, JsonResponse] {
 
 *Note* that `FutureRequestReader` and `RequestReader` may not be composed together (in the same chain of transformations). So, if at least one param is required the composition of `RequiredParam`-s and `OptionalParam`-s should be used.
 
-#### A `RequiredParam` reader makes sure that
+#### A `io.finch.requests.RequiredParam` reader makes sure that
 * param is presented in the request (otherwise it throws `ParamNoFound` exception)
 * param is not empty (otherwise it throws `ValidationFailed` exception)
 * param may be converted to a requested type `RequiredIntParam`, `RequiredLongParam` or `RequiredBooleanParam` (otherwise it throws `ValidationFailed` exception).
 
-#### An `OptionalParam` returns 
+#### An `io.finch.request.OptionalParam` returns 
 * `Future[Some[A]]` if param is presented in the request and may be converted to a requested type `OptionalIntParam`, `OptionalLongParam` or `OptionalBooleanParam`
 * `Future.None` otherwise.
 
-#### A `Param` returns 
+#### A `io.finch.request.Param` returns 
 * `Some[A]` if param is presented in the request and may be converted to a requested type `IntParam`, `LongParam` or `BooleanParam`. 
 * `None` otherwise.
 
 
-#### A `ValidationRule(rule)(predicate)` 
+#### A `io.finch.request.ValidationRule(rule)(predicate)` 
 * returns `Future.Done` when predicate is `true`
 * throws `ValidationFailed` exception with `rule` stored in the message field.
 
 #### Empty readers
 
 There is also a couple of empty request readers that raises `NoSuchElementException` instead of reading:
-* `NoFutureParams` implementing `FutureRequestReader[Nothing]`
-* `NoParams` implementing `RequestReader[Nothing]`
+* `io.finch.request.NoFutureParams` implementing `FutureRequestReader[Nothing]`
+* `io.finch.request.NoParams` implementing `RequestReader[Nothing]`
 
 ### Multiple-Value Params
 All the readers have companion readers that can read multiple-value params `List[A]` instead of single-value params `A`. Multiple-value readers have `s` postfix in their names. So, `Param` has `Params`, `OptionalParam` has `OptipnalParams` and finally `RequiredParam` has `RequiredParams` companions. There are also typed versions for every reader, like `IntParams` or even `OptionalLongParams`.
@@ -279,7 +295,7 @@ object Hello extends Service[HttpRequest, HttpResponse] {
 Bonus Track: JSON on Steroids
 -----------------------------
 
-**Finch.io** provides a slight API for working with standard classes `scala.util.parsing.json.JSONObject` and `scala.util.parsing.json.JSONArray`. The core methods and practices are described follow.
+**Finch.io** provides a slight API for working with standard classes `scala.util.parsing.json.JSONObject` and `scala.util.parsing.json.JSONArray`. The API is consolidated in two classes `io.finch.json.JsonObject` and `io.finch.json.JsonArray`. The core methods and practices are described follow.
 
 **JsonObject & JsonArray**
 ```scala
@@ -380,7 +396,7 @@ Basic HTTP Auth
 ---------------
 
 [Basic HTTP Auth](http://en.wikipedia.org/wiki/Basic_access_authentication) is supported out-of-the-box and implemented 
-as `BasicallyAuthorize` filter.
+as `finch.io.filter.BasicallyAuthorize` filter.
 
 ```scala
 object ProtectedEndpoint extends Endpoint[HttpRequest, HttpResponse] {
