@@ -22,11 +22,11 @@
 
 package io
 
-import com.twitter.util.{Base64StringEncoder, Future}
-import com.twitter.finagle.{SimpleFilter, Filter, Service}
-import scala.util.parsing.json.JSONType
-import org.jboss.netty.handler.codec.http.{HttpHeaders, HttpResponseStatus}
+import io.finch.json._
 import com.twitter.finagle.http._
+import com.twitter.util.Future
+import com.twitter.finagle.{Filter, Service}
+import scala.util.parsing.json.JSONType
 import scala.util.parsing.json.JSONArray
 import scala.util.parsing.json.JSONObject
 
@@ -253,36 +253,24 @@ package object finch {
     def within(fn: List[Any] => List[Any]) = JSONArray(fn(json.list))
   }
 
-  case class BasicallyAuthorize(user: String, password: String) extends SimpleFilter[HttpRequest, HttpResponse] {
-    def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]) = {
-      val userInfo = s"$user:$password"
-      val expected = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
+  /**
+   * A ''Facet'' is just a special kind of filter that doesn't change the request type.
+   *
+   * @tparam Req the request type
+   * @tparam RepIn the input response type
+   * @tparam RepOut the output response type
+   */
+  abstract class Facet[Req, -RepIn, +RepOut] extends Filter[Req, RepOut, Req, RepIn] {
 
-      req.headerMap.get(HttpHeaders.Names.AUTHORIZATION) match {
-        case Some(actual) if actual == expected => service(req)
-        case _ => Unauthorized().toFuture
-      }
-    }
+    /**
+     * Converts given ''rep'' from ''RepIn'' to ''RepOut'' type.
+     *
+     * @param rep the response to convert
+     *
+     * @return a converted response
+     */
+    def apply(req: Req)(rep: RepIn): Future[RepOut]
+
+    def apply(req: Req, service: Service[Req, RepIn]) = service(req) flatMap apply(req)
   }
-
-  /**
-   * A base exception of request reader.
-   *
-   * @param m the message
-   */
-  class RequestReaderError(m: String) extends Exception(m)
-
-  /**
-   * An exception that indicates missed parameter in the request.
-   *
-   * @param param the missed parameter name
-   */
-  class ParamNotFound(param: String) extends RequestReaderError("Param '" + param + "' not found in the request.")
-
-  /**
-   * An exception that indicates a broken validation rule on the request.
-   *
-   * @param rule the rule description
-   */
-  class ValidationFailed(rule: String) extends RequestReaderError("Request validation failed: '" + rule + "'.")
 }
