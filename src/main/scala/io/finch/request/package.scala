@@ -86,14 +86,14 @@ package object request {
    *
    * @param param the missed parameter name
    */
-  class ParamNotFound(param: String) extends RequestReaderError(s"Param '$param' not found in the request.")
+  class ParamNotFound(val param: String) extends RequestReaderError(s"Param '$param' not found in the request.")
 
   /**
    * An exception that indicates a broken validation rule on the request.
    *
    * @param rule the rule description
    */
-  class ValidationFailed(param: String, rule: String)
+  class ValidationFailed(val param: String, val rule: String)
     extends RequestReaderError(s"Request validation failed: param '$param' $rule.")
 
   /**
