@@ -11,7 +11,7 @@ How to finagle your REST API with Finch?
 resolvers += "Finch.io" at "http://repo.konfettin.ru"
 
 libraryDependencies ++= Seq(
-  "io" %% "finch" % "0.1.2"
+  "io" %% "finch" % "0.1.3"
 )
 ```
 
@@ -163,15 +163,15 @@ The most cool thing about monads is that they may be composed/reused as hell. He
 ```scala
 val restrictedUser = for {
   user <- remoteUser
-  _ <- ValidationRule("this an adults-only video") { user.age > 18 }
+  _ <- ValidationRule("age", "should be greater then 18") { user.age > 18 }
 } yield user
 ```
 
 The exceptions from a request-reader might be handled just like other future exceptions in Finagle:
 ```scala
 val user = service(...) handle {
-  case e: ParamNotFound => JsonObject("status" -> 400, "error" -> e.getMessage)
-  case e: ValidationFailed => JsonObject("status" -> 400, "error" -> e.getMessage)
+  case e: ParamNotFound => JsonObject("status" -> 400, "error" -> e.getMessage, "param" -> e.param)
+  case e: ValidationFailed => JsonObject("status" -> 400, "error" -> e.getMessage, "param" -> e.param)
 }
 ```
 
@@ -210,9 +210,9 @@ val service = new Service[HttpRequest, JsonResponse] {
 * `None` otherwise.
 
 
-#### A `io.finch.request.ValidationRule(rule)(predicate)` 
+#### A `io.finch.request.ValidationRule(param, rule)(predicate)` 
 * returns `Future.Done` when predicate is `true`
-* throws `ValidationFailed` exception with `rule` stored in the message field.
+* throws `ValidationFailed` exception with `rule` and `param` fields
 
 #### Empty readers
 

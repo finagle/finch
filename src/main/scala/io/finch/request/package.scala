@@ -86,14 +86,15 @@ package object request {
    *
    * @param param the missed parameter name
    */
-  class ParamNotFound(param: String) extends RequestReaderError("Param '" + param + "' not found in the request.")
+  class ParamNotFound(param: String) extends RequestReaderError(s"Param '$param' not found in the request.")
 
   /**
    * An exception that indicates a broken validation rule on the request.
    *
    * @param rule the rule description
    */
-  class ValidationFailed(rule: String) extends RequestReaderError("Request validation failed: '" + rule + "'.")
+  class ValidationFailed(param: String, rule: String)
+    extends RequestReaderError(s"Request validation failed: param '$param' $rule.")
 
   /**
    * An empty ''FutureRequestReader''.
@@ -110,10 +111,10 @@ package object request {
   }
 
   private[this] object StringToNumberOrFail {
-    def apply[A](rule: String)(number: => A) = new FutureRequestReader[A] {
+    def apply[A](param: String, rule: String)(number: => A) = new FutureRequestReader[A] {
       def apply(req: HttpRequest) =
         try number.toFuture
-        catch { case _: NumberFormatException => new ValidationFailed(rule).toFutureException }
+        catch { case _: NumberFormatException => new ValidationFailed(param, rule).toFutureException }
     }
   }
 
@@ -146,7 +147,7 @@ package object request {
      */
     def apply(param: String) = new FutureRequestReader[String] {
       def apply(req: HttpRequest) = req.params.get(param) match {
-        case Some("") => new ValidationFailed(param + " should not be empty").toFutureException
+        case Some("") => new ValidationFailed(param, "should not be empty").toFutureException
         case Some(value) => value.toFuture
         case None => new ParamNotFound(param).toFutureException
       }
@@ -169,7 +170,7 @@ package object request {
      */
     def apply(param: String) = for {
       s <- RequiredParam(param)
-      n <- StringToNumberOrFail(param + " should be integer")(s.toInt)
+      n <- StringToNumberOrFail(param, "should be integer")(s.toInt)
     } yield n
   }
 
@@ -189,7 +190,7 @@ package object request {
      */
     def apply(param: String) = for {
       s <- RequiredParam(param)
-      n <- StringToNumberOrFail(param + " should be long")(s.toLong)
+      n <- StringToNumberOrFail(param, "should be long")(s.toLong)
     } yield n
   }
 
@@ -209,7 +210,7 @@ package object request {
      */
     def apply(param: String) = for {
       s <- RequiredParam(param)
-      n <- StringToNumberOrFail(param + " should be boolean")(s.toBoolean)
+      n <- StringToNumberOrFail(param, "should be boolean")(s.toBoolean)
     } yield n
   }
 
@@ -374,15 +375,16 @@ package object request {
      * Creates a ''FutureRequestReader'' that raises a ''ValidationFailed'' exception
      * with message ''rule'' when the given ''predicated'' is evaluated as ''false''.
      *
+     * @param param the param name to validate
      * @param rule the exception message
      * @param predicate the predicate to test
      *
      * @return nothing or exception
      */
-    def apply(rule: String)(predicate: => Boolean) = new FutureRequestReader[Unit] {
+    def apply(param: String, rule: String)(predicate: => Boolean) = new FutureRequestReader[Unit] {
       def apply(req: HttpRequest) =
         if (predicate) Future.Done
-        else new ValidationFailed(rule).toFutureException
+        else new ValidationFailed(param, rule).toFutureException
     }
   }
 
@@ -404,7 +406,7 @@ package object request {
       def apply(req: HttpRequest) = req.params.getAll(param).toList.flatMap(_.split(",")) match {
         case Nil => new ParamNotFound(param).toFutureException
         case unfiltered => unfiltered.filter(_ != "") match {
-          case Nil => new ValidationFailed(param + " should not be empty").toFutureException
+          case Nil => new ValidationFailed(param, "should not be empty").toFutureException
           case filtered => filtered.toFuture
         }
       }
@@ -427,7 +429,7 @@ package object request {
      */
     def apply(param: String) = for {
       ss <- RequiredParams(param)
-      ns <- StringToNumberOrFail(param + " should be integer")(ss.map { _.toInt })
+      ns <- StringToNumberOrFail(param, "should be integer")(ss.map { _.toInt })
     } yield ns
   }
 
@@ -447,7 +449,7 @@ package object request {
      */
     def apply(param: String) = for {
       ss <- RequiredParams(param)
-      ns <- StringToNumberOrFail(param + " should be integer")(ss.map { _.toLong })
+      ns <- StringToNumberOrFail(param, "should be integer")(ss.map { _.toLong })
     } yield ns
   }
 
@@ -467,7 +469,7 @@ package object request {
      */
     def apply(param: String) = for {
       ss <- RequiredParams(param)
-      ns <- StringToNumberOrFail(param + " should be integer")(ss.map { _.toBoolean })
+      ns <- StringToNumberOrFail(param, "should be integer")(ss.map { _.toBoolean })
     } yield ns
   }
 
