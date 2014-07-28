@@ -32,8 +32,18 @@ package object response {
    * A companion factory object for ''HttpResponse''.
    *
    * @param status the http response status
+   * @param headers the HTTP headers map
    */
-  case class Respond(status: HttpResponseStatus) {
+  case class Respond(status: HttpResponseStatus, headers: Map[String, String] = Map.empty) {
+
+    /**
+     * Creates a new respond with given ''headers''.
+     *
+     * @param headers the HTTP headers map
+     *
+     * @return a respond with headers
+     */
+    def withHeaders(headers: (String, String)*) = copy(headers = this.headers ++ headers)
 
     /**
      * Creates a ''text/plain'' http response.
@@ -45,6 +55,7 @@ package object response {
     def apply(plain: String) = {
       val rep = Response(status)
       rep.setContentString(plain)
+      headers.foreach { case (k, v) => rep.headers().add(k, v) }
 
       rep
     }
@@ -61,6 +72,7 @@ package object response {
       val rep = Response(status)
       rep.setContentTypeJson()
       rep.setContentString(json.toString(formatter))
+      headers.foreach { case (k, v) => rep.headers().add(k, v) }
 
       rep
     }
@@ -70,7 +82,12 @@ package object response {
      *
      * @return an empty http response
      */
-    def apply() = Response(status)
+    def apply() = {
+      val rep = Response(status)
+      headers.foreach { case (k, v) => rep.headers().add(k, v) }
+
+      rep
+    }
   }
 
   //
