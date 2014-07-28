@@ -255,6 +255,13 @@ val b = Respond(Status.NotFound)("body") // 'plain/text' response with status 40
 val c = Respond(Status.Created)(JsonObject("id" -> 42)) // 'application/json' response with status 201
 ```
 
+HTTP headers may be added to respond instance with `withHeaders()` method:
+
+```scala
+val ok: Respond = Ok.withHeaders("Some-Header-A" -> "a", "Some-Header-B", "b")
+val rep: HttpResponse = ok(JsonObject("a" -> 10))
+```
+
 There are also ten predefined factory objects for the [most popular HTTP statuses](http://www.restapitutorial.com/httpstatuscodes.html):
 
 * `Ok`
