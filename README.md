@@ -58,7 +58,7 @@ object TurnModelIntoJson extends Facet[HttpRequest, Any, JsonResponse] {
 }
 ```
 
-**Step 5:** Define endpoints using facets for data transformation:
+**Step 5:** Define endpoints using filters/facets for data transformation:
 ```scala
 import io.finch._
 import com.twitter.finagle.http.Method
@@ -258,7 +258,7 @@ val c = Respond(Status.Created)(JsonObject("id" -> 42)) // 'application/json' re
 HTTP headers may be added to respond instance with `withHeaders()` method:
 
 ```scala
-val ok: Respond = Ok.withHeaders("Some-Header-A" -> "a", "Some-Header-B", "b")
+val ok: Respond = Ok.withHeaders("Some-Header-A" -> "a", "Some-Header-B" -> "b")
 val rep: HttpResponse = ok(JsonObject("a" -> 10))
 ```
 
