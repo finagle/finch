@@ -157,16 +157,6 @@ package object finch {
   implicit class ServiceOps[Req <: HttpRequest, RepIn](service: Service[Req, RepIn]) {
 
     /**
-     * Composes this service with a given ''next'' filter.
-     *
-     * @param next a filter to compose
-     * @tparam RepOut an output response type
-     *
-     * @return a new service composed with facet.
-     */
-    def ![RepOut](next: Filter[Req, RepOut, Req, RepIn]) = next andThen service
-
-    /**
      * Composes this service with given ''next'' service.
      *
      * @param next a service to compose
