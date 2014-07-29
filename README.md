@@ -40,20 +40,20 @@ case class GetUserTickets(userId: Long) extends Service[HttpRequest, Seq[Ticket]
 }
 ```
 
-**Step 4:** Define filters (optional):
+**Step 4:** Define filters/services for data transformation (optional):
 ```scala
 import io.finch._
 import io.finch.json._
 
-object TurnModelIntoJson extends Facet[HttpRequest, Any, JsonResponse] {
-  def apply(req: HttpRequest)(rep: Any) = {
+object TurnModelIntoJson extends Service[Any, JsonResponse] {
+  def apply(req: Any) = {
     def turn(any: Any): JsonResponse = any match {
       case User(id, name) => JsonObject("id" -> id, "name" -> name)
       case Ticket(id) => JsonObject("id" -> id)
       case seq: Seq[Any] => JsonArray(seq map turn :_*)
     }
 
-    turn(rep).toFuture
+    turn(req).toFuture
   }
 }
 ```
@@ -113,12 +113,18 @@ In the following example
 
 - the request flows to `Auth` filter and then
 - the request is converted to response by `respond` endpoint and then
-- the response flows to `TurnJsonIntoHttp` facet (filter that doesn't change request type but changes the reponse type)
+- the response flows to `TurnJsonIntoHttp` service
 
 ```scala
 val respond: Endpopoint[HttpRequest, HttpResponse] = ???
-val endpoint = Auth ! respond ! TurnJsonIntoHttp[HttpRequest]
+val endpoint = Auth ! respond ! TurnJsonIntoHttp
 ```
+
+The best practices on what to choose for data transformation are following
+
+* Services should be used when the request is not required for the transformation.
+* Facets should be used when the request is required but it's type kept unchanged.
+* Otherwise, pure filters should be used.
 
 Request Reader Monad
 --------------------
