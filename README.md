@@ -76,7 +76,7 @@ object TurnModelIntoJson extends Service[Any, JsonResponse] {
 }
 ```
 
-**Step 5:** Define endpoints using filters/facets for data transformation:
+**Step 5:** Define endpoints using services/filters for data transformation:
 ```scala
 import io.finch._
 import com.twitter.finagle.http.Method
@@ -103,13 +103,13 @@ object Ticket extends Endpoint[HttpRequest, JsonResponse] {
 
 ```scala
 import io.finch._
-import io.finch.filter._
+import io.finch.json._
 import com.twitter.finagle.builder.ServerBuilder
 import com.twitter.finagle.http.{Http, RichHttp}
 import java.net.InetSocketAddress
 
 object Main extends App {
-  val endpoint = Endpoint.join(User, Ticket) ! TurnJsonIntoHttp[HttpRequest]
+  val endpoint = Endpoint.join(User, Ticket) ! TurnJsonIntoHttp
   val backend = BasicallyAuthorize("user", "password") ! (endpoint orElse Endpoint.NotFound)
 
   ServerBuilder()
@@ -134,14 +134,13 @@ In the following example
 - the response flows to `TurnJsonIntoHttp` service
 
 ```scala
-val respond: Endpopoint[HttpRequest, HttpResponse] = ???
+val respond: Endpoint[HttpRequest, HttpResponse] = ???
 val endpoint = Auth ! respond ! TurnJsonIntoHttp
 ```
 
 The best practices on what to choose for data transformation are following
 
 * Services should be used when the request is not required for the transformation.
-* Facets should be used when the request is required but it's type kept unchanged.
 * Otherwise, pure filters should be used.
 
 Request Reader Monad
