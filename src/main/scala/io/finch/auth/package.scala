@@ -27,7 +27,7 @@ import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Base64StringEncoder
 import org.jboss.netty.handler.codec.http.HttpHeaders
 
-package object filter {
+package object auth {
 
   case class BasicallyAuthorize(user: String, password: String) extends SimpleFilter[HttpRequest, HttpResponse] {
     def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]) = {
