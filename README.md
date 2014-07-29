@@ -2,6 +2,25 @@
 
 Hi! I'm **Finch.io**, a thin layer of purely functional basic blocks atop of  [Finagle](http://twitter.github.io/finagle) for building robust and composable REST APIs.
 
+Quickstart
+----------
+
+```scala
+def hello(name: String) = new Service[HttpRequest, HttpResponse] = {
+  def apply(req: HttpRequest) = for {
+    title <- OptionalParam("title")
+  } yield Ok(s"Hello, ${title.getOrElse("")} $name!").toFuture
+}
+
+val endpoint = new Endpoint[HttpRequest, HttpResponse] {
+  def route = {
+    // routes requests like '/hello/Bob?title=Mr.'
+    case Method.Get -> Root / "hello" / name => hello(name)
+  }
+}
+
+```
+
 How to finagle your REST API with Finch?
 ----------------------------------------
 
