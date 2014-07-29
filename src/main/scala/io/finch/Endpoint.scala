@@ -87,14 +87,29 @@ trait Endpoint[Req <: HttpRequest, Rep] { self =>
     }
 
   /**
-   * Composes this endpoint with given ''filter''.
+   * Composes this endpoint with given ''next'' filter.
    *
-   * @param filter the filter to compose
+   * @param next the filter to compose
    * @tparam RepOut the response type
    *
    * @return an endpoint composed with filter
    */
-  def ![RepOut](filter: Filter[Req, RepOut, Req, Rep]) = filter ! self
+  def ![RepOut](next: Filter[Req, RepOut, Req, Rep]) = next ! self
+
+  /**
+   * Composes this endpoint with given ''next'' service.
+   *
+   * @param next the service to compose
+   * @tparam RepOut the response type
+   *
+   * @return an endpoint composed with filter
+   */
+  def ![RepOut](next: Service[Rep, RepOut]) =
+    andThen { service =>
+      new Service[Req, RepOut] {
+        def apply(req: Req) = service(req) flatMap next
+      }
+    }
 
   /**
    * Converts this endpoint into a finagled service.

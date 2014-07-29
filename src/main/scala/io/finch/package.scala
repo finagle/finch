@@ -114,14 +114,14 @@ package object finch {
       val filter: Filter[ReqIn, RepOut, ReqOut, RepIn]) extends AnyVal {
 
     /**
-     * Composes this filter within given endpoint ''thatEndpoint''.
+     * Composes this filter within given endpoint ''next'' endpoint.
      *
-     * @param endpoint an endpoint to compose
+     * @param next an endpoint to compose
      *
      * @return an endpoint composed with filter
      */
-    def !(endpoint: Endpoint[ReqOut, RepIn]) =
-      endpoint andThen { service =>
+    def !(next: Endpoint[ReqOut, RepIn]) =
+      next andThen { service =>
         filter andThen service
       }
 
@@ -137,13 +137,13 @@ package object finch {
     def ![Req, Rep](next: Filter[ReqOut, RepIn, Req, Rep]) = filter andThen next
 
     /**
-     * Composes this filter within given ''service''.
+     * Composes this filter within given ''next'' service.
      *
-     * @param service the service to compose
+     * @param next the service to compose
      *
      * @return a service composed with filter
      */
-    def !(service: Service[ReqOut, RepIn]) = filter andThen service
+    def !(next: Service[ReqOut, RepIn]) = filter andThen next
   }
 
   /**
@@ -157,14 +157,27 @@ package object finch {
   implicit class ServiceOps[Req <: HttpRequest, RepIn](service: Service[Req, RepIn]) {
 
     /**
-     * Composes this service with a given ''filter''.
+     * Composes this service with a given ''next'' filter.
      *
-     * @param filter a filter to compose
+     * @param next a filter to compose
      * @tparam RepOut an output response type
      *
      * @return a new service composed with facet.
      */
-    def ![RepOut](filter: Filter[Req, RepOut, Req, RepIn]) = filter andThen service
+    def ![RepOut](next: Filter[Req, RepOut, Req, RepIn]) = next andThen service
+
+    /**
+     * Composes this service with given ''next'' service.
+     *
+     * @param next a service to compose
+     * @tparam RepOut an output response type
+     *
+     * @return a new service compose with other service.
+     */
+    def ![RepOut](next: Service[RepIn, RepOut]) =
+      new Service[Req, RepOut] {
+        def apply(req: Req) = service(req) flatMap next
+      }
   }
 
   /**
