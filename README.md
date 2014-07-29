@@ -418,6 +418,18 @@ val a = JsonArray(JsonObject.empty, JsonObject.empty)
 val aa = aa.within { _.take(5).distinct }
 ```
 
+**Converting JSON into HTTP**
+There is a magic service `io.finch.json.TurnJsonIntoHttp` that takes `JsonResponse` and converts it into an `HttpResponse`.
+
+```scala
+import io.finch.json._
+
+val a: Service[HttpRequest, JsonResponse] = ???
+val b: Service[HttpRequest, HttpResponse] = a ! TurnJsonIntoHttp
+```
+
+This also may be used with `Endpoint`.
+
 Authorization with OAuth2
 -------------------------
 
@@ -427,7 +439,7 @@ Basic HTTP Auth
 ---------------
 
 [Basic HTTP Auth](http://en.wikipedia.org/wiki/Basic_access_authentication) is supported out-of-the-box and implemented 
-as `finch.io.filter.BasicallyAuthorize` filter.
+as `finch.io.auth.BasicallyAuthorize` filter.
 
 ```scala
 object ProtectedEndpoint extends Endpoint[HttpRequest, HttpResponse] {
@@ -435,7 +447,6 @@ object ProtectedEndpoint extends Endpoint[HttpRequest, HttpResponse] {
     case Method.Get -> Root / "users" => BasicallyAuthorize("user", "password") ! GetUsers
   }
 }
-
 ```
 
 Licensing
