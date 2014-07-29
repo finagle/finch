@@ -22,7 +22,11 @@
 
 package io.finch
 
-import scala.util.parsing.json.{JSONFormat, JSONArray, JSONObject}
+import io.finch.response._
+import scala.util.parsing.json.JSONFormat
+import scala.util.parsing.json.JSONArray
+import scala.util.parsing.json.JSONObject
+import com.twitter.finagle.Service
 
 package object json {
 
@@ -188,4 +192,20 @@ package object json {
       case '\t' => "\\t"
     }
   }
+
+  /**
+   * A service that converts JSON into HTTP response with status ''OK''.
+   *
+   * @param formatter a json formatter
+   */
+  case class TurnJsonIntoHttpWithFormatter(formatter: JsonFormatter = DefaultJsonFormatter)
+      extends Service[JsonResponse, HttpResponse] {
+
+    def apply(req: JsonResponse) = Ok(req, formatter).toFuture
+  }
+
+  /**
+   * A default instance of ''TurnJsonIntoHttpWithFormatter''.
+   */
+  object TurnJsonIntoHttp extends TurnJsonIntoHttpWithFormatter
 }
