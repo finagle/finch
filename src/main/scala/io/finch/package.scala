@@ -265,25 +265,4 @@ package object finch {
      */
     def within(fn: List[Any] => List[Any]) = JSONArray(fn(json.list))
   }
-
-  /**
-   * A ''Facet'' is just a special kind of filter that doesn't change the request type.
-   *
-   * @tparam Req the request type
-   * @tparam RepIn the input response type
-   * @tparam RepOut the output response type
-   */
-  abstract class Facet[Req, -RepIn, +RepOut] extends Filter[Req, RepOut, Req, RepIn] {
-
-    /**
-     * Converts given ''rep'' from ''RepIn'' to ''RepOut'' type.
-     *
-     * @param rep the response to convert
-     *
-     * @return a converted response
-     */
-    def apply(req: Req)(rep: RepIn): Future[RepOut]
-
-    def apply(req: Req, service: Service[Req, RepIn]) = service(req) flatMap apply(req)
-  }
 }
