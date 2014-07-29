@@ -9,7 +9,7 @@ Quickstart
 def hello(name: String) = new Service[HttpRequest, HttpResponse] = {
   def apply(req: HttpRequest) = for {
     title <- OptionalParam("title")
-  } yield Ok(s"Hello, ${title.getOrElse("")} $name!").toFuture
+  } yield Ok(s"Hello, ${title.getOrElse("")} $name!")
 }
 
 val endpoint = new Endpoint[HttpRequest, HttpResponse] {
@@ -18,11 +18,10 @@ val endpoint = new Endpoint[HttpRequest, HttpResponse] {
     case Method.Get -> Root / "hello" / name => hello(name)
   }
 }
-
 ```
 
-How to finagle your REST API with Finch?
-----------------------------------------
+A Hacker's Guide to Purely Functional HTTP/REST API
+---------------------------------------------------
 
 **Step 1:** Add the dependency:
 
