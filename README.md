@@ -418,7 +418,8 @@ val aa = aa.within { _.take(5).distinct }
 ```
 
 **Converting JSON into HTTP**
-There is a magic service `io.finch.json.TurnJsonIntoHttp` that takes `JsonResponse` and converts it into an `HttpResponse`.
+
+There is a magic service `io.finch.json.TurnJsonIntoHttp` that takes a `JsonResponse` and converts it into an `HttpResponse`. This applicable for both `Service` and `Endpoint`.
 
 ```scala
 import io.finch.json._
@@ -426,8 +427,6 @@ import io.finch.json._
 val a: Service[HttpRequest, JsonResponse] = ???
 val b: Service[HttpRequest, HttpResponse] = a ! TurnJsonIntoHttp
 ```
-
-This also may be used with `Endpoint`.
 
 Authorization with OAuth2
 -------------------------
