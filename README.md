@@ -8,7 +8,7 @@ Quickstart
 ```scala
 def hello(name: String) = new Service[HttpRequest, HttpResponse] = {
   def apply(req: HttpRequest) = for {
-    title <- OptionalParam("title")
+    title <- OptionalParam("title")(req)
   } yield Ok(s"Hello, ${title.getOrElse("")} $name!")
 }
 
@@ -20,8 +20,8 @@ val endpoint = new Endpoint[HttpRequest, HttpResponse] {
 }
 ```
 
-A Hacker's Guide to Purely Functional HTTP/REST API
----------------------------------------------------
+A Hacker's Guide to Purely Functional API
+-----------------------------------------
 
 **Step 1:** Add the dependency:
 
