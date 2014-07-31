@@ -145,23 +145,25 @@ The best practices on what to choose for data transformation are following
 
 Request Reader Monad
 --------------------
-**Finch.io** has two built-in request readers, which implement the Reader Monad functional design pattern: 
-* `io.finch.request.FutureRequestReader` reading `Future[A]` and
-* `io.finch.request.RequestReader` reading just `A`.
+**Finch.io** has built-in request reader that implement the [Reader Monad](http://www.haskell.org/haskellwiki/All_About_Monads#The_Reader_monad) functional design pattern: 
+* `io.finch.request.RequestReader` reading `Future[A]`
 
-A `FutureRequestReader` has return type `Future[A]` so it might be simply used as an additional monad-transformation in a top-level for-comprehension statement. This is dramatically useful when a service should fetch some params from a request before doing a real job (and not doing it at all if some of the params are not found/not valid).
+A `RequestReader` has return type `Future[A]` so it might be simply used as an additional monad-transformation in a top-level for-comprehension statement. This is dramatically useful when a service should fetch some params from a request before doing a real job (and not doing it at all if some of the params are not found/not valid).
 
-There are four common implementations of a `FutureRequestReader`:
-* `io.finch.request.ConstFutureParam` - fetches a const param
+There are  common implementations of a `RequestReader`:
+* `io.finch.request.NoParams` - throws an exception instead of reading 
+* `io.finch.request.ConstParam` - fetches a const param
 * `io.finch.request.RequiredParam` - fetches required params within specified type
-* `io.finch.request.OptionalParam` - fetches optional params
+* `io.finch.request.OptionalParam` - fetches optional params within specified type
+* `io.finch.request.RequiredParams` - fetches required multi-value params into the list
+* `io.finch.request.OptionalParams` - fetches optional multi-value params into the list
 * `io.finch.request.ValidationRule` - fails if given predicate is false
 
 ```scala
 case class User(name: String, age: Int, city: String)
 
 // Define a new request reader composed from provided out-of-the-box readers.
-val remoteUser = for {
+val user = for {
   name <- RequiredParam("name")
   age <- RequiredIntParam("age")
   city <- OptionalParam("city")
@@ -169,11 +171,11 @@ val remoteUser = for {
 
 val service = new Service[HttpRequest, JsonResponse] {
   def apply(req: HttpRequest) = for {
-    user <- remoteUser(req)
+    u <- user(req)
   } yield JsonObject(
-    "name" -> user.name, 
-    "age" -> user.age, 
-    "city" -> user.city
+    "name" -> u.name, 
+    "age" -> u.age, 
+    "city" -> u.city
   )
 }
 
@@ -186,7 +188,7 @@ The most cool thing about monads is that they may be composed/reused as hell. He
 
 ```scala
 val restrictedUser = for {
-  user <- remoteUser
+  u <- user
   _ <- ValidationRule("age", "should be greater then 18") { user.age > 18 }
 } yield user
 ```
@@ -199,27 +201,19 @@ val user = service(...) handle {
 }
 ```
 
-There is also very simple reader `io.finch.request.Param` that may be used for optional params, which are not required for the service's logic.
-
+Optional params are quite often used for fetching pagination details.
 ```scala
 val pagination = for {
-  offsetId <- IntParam("offsetId")
-  limit <- IntParam("limit")
-} yield (
-  offsetId.getOrElse(0),
-  math.min(limit.getOrElse(50), 50)
-)
+  offset <- OptionalIntParam("offset")
+  limit <- OptionalIntParam("limit")
+} yield (offsetId.getOrElse(0), math.min(limit.getOrElse(50), 50))
 
-val service = new Service[HttpRequest, JsonResponse] {
-  def apply(req: HttpRequest) = {
-    val (offsetIt, limit) = pagination(req)
-    JsonObject.empty.toFuture
-  }
+val service = new Service[HttpRequest, HttpResponse] {
+  def apply(req: HttpRequest) = for {
+    (offsetIt, limit) <- pagination(req)
+  } yield Ok(s"Fetching items $offset..${offset+limit}")
 }
 ```
-
-*Note* that `FutureRequestReader` and `RequestReader` may not be composed together (in the same chain of transformations). So, if at least one param is required the composition of `RequiredParam`-s and `OptionalParam`-s should be used.
-
 #### A `io.finch.requests.RequiredParam` reader makes sure that
 * param is presented in the request (otherwise it throws `ParamNoFound` exception)
 * param is not empty (otherwise it throws `ValidationFailed` exception)
@@ -229,32 +223,19 @@ val service = new Service[HttpRequest, JsonResponse] {
 * `Future[Some[A]]` if param is presented in the request and may be converted to a requested type `OptionalIntParam`, `OptionalLongParam` or `OptionalBooleanParam`
 * `Future.None` otherwise.
 
-#### A `io.finch.request.Param` returns 
-* `Some[A]` if param is presented in the request and may be converted to a requested type `IntParam`, `LongParam` or `BooleanParam`. 
-* `None` otherwise.
-
 #### A `io.finch.request.ValidationRule(param, rule)(predicate)` 
 * returns `Future.Done` when predicate is `true`
 * throws `ValidationFailed` exception with `rule` and `param` fields
 
-#### Empty readers
-
-There is also a couple of empty request readers that raises `NoSuchElementException` instead of reading:
-* `io.finch.request.NoFutureParams` implementing `FutureRequestReader[Nothing]`
-* `io.finch.request.NoParams` implementing `RequestReader[Nothing]`
-
-#### Const readers
-Readers that read const params are also available: `io.finch.request.ConstFutureParam` and `io.finch.request.ConstParam`.
-
 ### Multiple-Value Params
 All the readers have companion readers that can read multiple-value params `List[A]` instead of single-value params `A`. Multiple-value readers have `s` postfix in their names. So, `Param` has `Params`, `OptionalParam` has `OptipnalParams` and finally `RequiredParam` has `RequiredParams` companions. There are also typed versions for every reader, like `IntParams` or even `OptionalLongParams`.
 
-Thus, the following HTTP params `a=1,2,3&b=4&b=5` might be fetched with `IntParams` reader like this:
+Thus, the following HTTP params `a=1,2,3&b=4&b=5` might be fetched with `RequiredIntParams` reader like this:
 
 ```scala
 val reader = for {
- a <- IntParams("a")
- b <- IntParams("b")
+ a <- RequiredIntParams("a")
+ b <- RequiredIntParams("b")
 } yield (a, b)
 
 val (a, b): (List[Int], List[Int]) = reader(request)
