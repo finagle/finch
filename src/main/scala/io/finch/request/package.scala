@@ -65,12 +65,20 @@ package object request {
   class ParamNotFound(val param: String) extends RequestReaderError(s"Param '$param' not found in the request.")
 
   /**
-   * An exception that indicates a broken validation rule on the request.
+   * An exception that indicates a broken validation rule on the param.
    *
+   * @param param the param name
    * @param rule the rule description
    */
   class ValidationFailed(val param: String, val rule: String)
     extends RequestReaderError(s"Request validation failed: param '$param' $rule.")
+
+  /**
+   * An exception that indicates missed header in the request.
+   *
+   * @param header the missed header name
+   */
+  class HeaderNotFound(val header: String) extends RequestReaderError(s"Header '$header' not found in the request.")
 
   /**
    * An empty ''RequestReader''.
@@ -275,12 +283,12 @@ package object request {
   }
 
   /**
-   * A validation rule.
+   * A param validation rule.
    */
   object ValidationRule {
 
     /**
-     * Creates a ''RequestReader'' that raises a ''ValidationFailed'' exception
+     * Creates a ''RequestReader'' that raises a ''ParamValidationFailed'' exception
      * with message ''rule'' when the given ''predicated'' is evaluated as ''false''.
      *
      * @param param the param name to validate
@@ -458,5 +466,45 @@ package object request {
     def apply(param: String) = for {
       l <- OptionalParams(param)
     } yield StringsToNumbers(_.toBoolean)(l)
+  }
+
+  /**
+   * A required header.
+   */
+  object RequiredHeader {
+
+    /**
+     * Creates a ''RequestReader'' that reads a required string ''header''
+     * from the request or raises an exception when the param is missing or empty.
+     *
+     * @param header the header to read
+     *
+     * @return a header
+     */
+    def apply(header: String) = new RequestReader[String] {
+      def apply(req: HttpRequest) = req.headerMap.get(header) match {
+        case Some(value) => value.toFuture
+        case None => new HeaderNotFound(header).toFutureException
+      }
+    }
+  }
+
+  /**
+   * An optional header.
+   */
+  object OptionalHeader {
+
+    /**
+     * Creates a ''RequestReader'' that reads an optional string ''header''
+     * from the request into an ''Option''.
+     *
+     * @param header the header to read
+     *
+     * @return an option that contains a header value or ''None'' if the header
+     *         is not exist in the request
+     */
+    def apply(header: String) = new RequestReader[Option[String]] {
+      def apply(req: HttpRequest) = req.headerMap.get(header).toFuture
+    }
   }
 }
