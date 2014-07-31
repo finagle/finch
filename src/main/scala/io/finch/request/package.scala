@@ -110,6 +110,38 @@ package object request {
     def apply(req: HttpRequest) = throw new NoSuchElementException("Empty reader.")
   }
 
+  /**
+   * A const param.
+   */
+  object ConstFutureParam {
+
+    /**
+     * Creates a ''FutureRequestReader'' that reads given ''const'' param from
+     * the request.
+     *
+     * @return a const param value
+     */
+    def apply[A](const: A) = new FutureRequestReader[A] {
+      def apply(req: HttpRequest) = const.toFuture
+    }
+  }
+
+  /**
+   * A const param.
+   */
+  object ConstParam {
+
+    /**
+     * Creates a ''RequestReader'' that reads given ''const'' param from
+     * the request.
+     *
+     * @return a const param value
+     */
+    def apply[A](const: A) = new RequestReader[A] {
+      def apply(req: HttpRequest) = const
+    }
+  }
+
   private[this] object StringToNumberOrFail {
     def apply[A](param: String, rule: String)(number: => A) = new FutureRequestReader[A] {
       def apply(req: HttpRequest) =

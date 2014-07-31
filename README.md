@@ -151,7 +151,8 @@ Request Reader Monad
 
 A `FutureRequestReader` has return type `Future[A]` so it might be simply used as an additional monad-transformation in a top-level for-comprehension statement. This is dramatically useful when a service should fetch some params from a request before doing a real job (and not doing it at all if some of the params are not found/not valid).
 
-There are three common implementations of a `FutureRequestReader`:
+There are four common implementations of a `FutureRequestReader`:
+* `io.finch.request.ConstFutureParam` - fetches a const param
 * `io.finch.request.RequiredParam` - fetches required params within specified type
 * `io.finch.request.OptionalParam` - fetches optional params
 * `io.finch.request.ValidationRule` - fails if given predicate is false
@@ -232,7 +233,6 @@ val service = new Service[HttpRequest, JsonResponse] {
 * `Some[A]` if param is presented in the request and may be converted to a requested type `IntParam`, `LongParam` or `BooleanParam`. 
 * `None` otherwise.
 
-
 #### A `io.finch.request.ValidationRule(param, rule)(predicate)` 
 * returns `Future.Done` when predicate is `true`
 * throws `ValidationFailed` exception with `rule` and `param` fields
@@ -242,6 +242,9 @@ val service = new Service[HttpRequest, JsonResponse] {
 There is also a couple of empty request readers that raises `NoSuchElementException` instead of reading:
 * `io.finch.request.NoFutureParams` implementing `FutureRequestReader[Nothing]`
 * `io.finch.request.NoParams` implementing `RequestReader[Nothing]`
+
+#### Const readers
+Readers that read const params are also available: `io.finch.request.ConstFutureParam` and `io.finch.request.ConstParam`.
 
 ### Multiple-Value Params
 All the readers have companion readers that can read multiple-value params `List[A]` instead of single-value params `A`. Multiple-value readers have `s` postfix in their names. So, `Param` has `Params`, `OptionalParam` has `OptipnalParams` and finally `RequiredParam` has `RequiredParams` companions. There are also typed versions for every reader, like `IntParams` or even `OptionalLongParams`.
