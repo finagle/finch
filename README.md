@@ -29,7 +29,7 @@ A Hacker's Guide to Purely Functional API
 resolvers += "Finch.io" at "http://repo.konfettin.ru"
 
 libraryDependencies ++= Seq(
-  "io" %% "finch" % "0.1.3"
+  "io" %% "finch" % "0.1.4"
 )
 ```
 
