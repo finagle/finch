@@ -6,12 +6,13 @@ object Finch extends Build {
   val baseSettings = Defaults.defaultSettings ++ Seq(
     libraryDependencies ++= Seq(
       "com.twitter" %% "finagle-http" % "6.18.0"
-    )
+    ),
+    scalacOptions ++= Seq( "-unchecked", "-deprecation", "-feature")
   )
 
   lazy val buildSettings = Seq(
     organization := "io",
-    version := "0.1.4",
+    version := "0.1.5",
     scalaVersion := "2.10.3"
   )
 

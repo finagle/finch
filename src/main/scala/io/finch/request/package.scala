@@ -48,6 +48,9 @@ package object request {
     def map[B](fn: A => B) = new RequestReader[B] {
       def apply(req: HttpRequest) = self(req) map fn
     }
+
+    // A workaround for https://issues.scala-lang.org/browse/SI-1336
+    def withFilter(p: A => Boolean) = self
   }
 
   /**
