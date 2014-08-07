@@ -151,8 +151,8 @@ Request Reader Monad
 A `RequestReader` has return type `Future[A]` so it might be simply used as an additional monad-transformation in a top-level for-comprehension statement. This is dramatically useful when a service should fetch some params from a request before doing a real job (and not doing it at all if some of the params are not found/not valid).
 
 The following readers are available in Finch.io:
-* `io.finch.request.NoParams` - throws an exception instead of reading 
-* `io.finch.request.ConstParam` - fetches a const param
+* `io.finch.request.EmptyReader` - throws an exception instead of reading 
+* `io.finch.request.ConstReader` - fetches a const value from the request
 * `io.finch.request.RequiredParam` - fetches required params within specified type
 * `io.finch.request.OptionalParam` - fetches optional params within specified type
 * `io.finch.request.RequiredParams` - fetches required multi-value params into the list

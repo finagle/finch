@@ -86,14 +86,14 @@ package object request {
   /**
    * An empty ''RequestReader''.
    */
-  object NoParams extends RequestReader[Nothing] {
+  object EmptyReader extends RequestReader[Nothing] {
     def apply(req: HttpRequest) = new NoSuchElementException("Empty reader.").toFutureException
   }
 
   /**
    * A const param.
    */
-  object ConstParam {
+  object ConstReader {
 
     /**
      * Creates a ''RequestReader'' that reads given ''const'' param from the request.
