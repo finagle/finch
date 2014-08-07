@@ -210,6 +210,46 @@ package object request {
   }
 
   /**
+   * A required float param.
+   */
+  object RequiredFloatParam {
+
+    /**
+     * Creates a ''RequestReader'' that reads a required float ''param''
+     * from the request or raises an exception when the param is missing or empty
+     * or doesn't correspond to an expected type.
+     *
+     * @param param the param to read
+     *
+     * @return a param value
+     */
+    def apply(param: String) = for {
+      s <- RequiredParam(param)
+      n <- StringToNumberOrFail(param, "should be float")(s.toFloat)
+    } yield n
+  }
+
+  /**
+   * A required double param.
+   */
+  object RequiredDoubleParam {
+
+    /**
+     * Creates a ''RequestReader'' that reads a required double ''param''
+     * from the request or raises an exception when the param is missing or empty
+     * or doesn't correspond to an expected type.
+     *
+     * @param param the param to read
+     *
+     * @return a param value
+     */
+    def apply(param: String) = for {
+      s <- RequiredParam(param)
+      n <- StringToNumberOrFail(param, "should be double")(s.toDouble)
+    } yield n
+  }
+
+  /**
    * An optional string param.
    */
   object OptionalParam {
@@ -283,6 +323,44 @@ package object request {
     def apply(param: String) = for {
       o <- OptionalParam(param)
     } yield SomeStringToSomeNumber(_.toBoolean)(o)
+  }
+
+  /**
+   * An optional float param.
+   */
+  object OptionalFloatParam {
+
+    /**
+     * Creates a ''RequestReader'' that reads an optional float ''param''
+     * from the request into an ''Option''.
+     *
+     * @param param the param to read
+     *
+     * @return an option that contains a param value or ''None'' if the param
+     *         is empty or it doesn't correspond to the expected type
+     */
+    def apply(param: String) = for {
+      o <- OptionalParam(param)
+    } yield SomeStringToSomeNumber(_.toFloat)(o)
+  }
+
+  /**
+   * An optional double param.
+   */
+  object OptionalDoubleParam {
+
+    /**
+     * Creates a ''RequestReader'' that reads an optional double ''param''
+     * from the request into an ''Option''.
+     *
+     * @param param the param to read
+     *
+     * @return an option that contains a param value or ''None'' if the param
+     *         is empty or it doesn't correspond to the expected type
+     */
+    def apply(param: String) = for {
+      o <- OptionalParam(param)
+    } yield SomeStringToSomeNumber(_.toDouble)(o)
   }
 
   /**
@@ -368,7 +446,7 @@ package object request {
      */
     def apply(param: String) = for {
       ss <- RequiredParams(param)
-      ns <- StringToNumberOrFail(param, "should be integer")(ss.map { _.toLong })
+      ns <- StringToNumberOrFail(param, "should be long")(ss.map { _.toLong })
     } yield ns
   }
 
@@ -388,7 +466,47 @@ package object request {
      */
     def apply(param: String) = for {
       ss <- RequiredParams(param)
-      ns <- StringToNumberOrFail(param, "should be integer")(ss.map { _.toBoolean })
+      ns <- StringToNumberOrFail(param, "should be boolean")(ss.map { _.toBoolean })
+    } yield ns
+  }
+
+  /**
+   * A required multi-value float param.
+   */
+  object RequiredFloatParams {
+
+    /**
+     * Creates a ''RequestReader'' that reads a required multi-value float
+     * ''param'' from the request into an ''List'' or raises an exception when the
+     * param is missing or empty or doesn't correspond to an expected type.
+     *
+     * @param param the param to read
+     *
+     * @return a ''List'' that contains all the values of multi-value param
+     */
+    def apply(param: String) = for {
+      ss <- RequiredParams(param)
+      ns <- StringToNumberOrFail(param, "should be float")(ss.map { _.toFloat })
+    } yield ns
+  }
+
+  /**
+   * A required multi-value double param.
+   */
+  object RequiredDoubleParams {
+
+    /**
+     * Creates a ''RequestReader'' that reads a required multi-value double
+     * ''param'' from the request into an ''List'' or raises an exception when the
+     * param is missing or empty or doesn't correspond to an expected type.
+     *
+     * @param param the param to read
+     *
+     * @return a ''List'' that contains all the values of multi-value param
+     */
+    def apply(param: String) = for {
+      ss <- RequiredParams(param)
+      ns <- StringToNumberOrFail(param, "should be double")(ss.map { _.toDouble })
     } yield ns
   }
 
@@ -469,6 +587,46 @@ package object request {
     def apply(param: String) = for {
       l <- OptionalParams(param)
     } yield StringsToNumbers(_.toBoolean)(l)
+  }
+
+  /**
+   * An optional multi-value float param.
+   */
+  object OptionalFloatParams {
+
+    /**
+     * Creates a ''RequestReader'' that reads an optional multi-value
+     * float ''param'' from the request into an ''List''.
+     *
+     * @param param the param to read
+     *
+     * @return a ''List'' that contains all the values of multi-value param or
+     *         en empty list ''Nil'' if the param is missing or empty or doesn't
+     *         correspond to a requested type.
+     */
+    def apply(param: String) = for {
+      l <- OptionalParams(param)
+    } yield StringsToNumbers(_.toFloat)(l)
+  }
+
+  /**
+   * An optional multi-value double param.
+   */
+  object OptionalDoubleParams {
+
+    /**
+     * Creates a ''RequestReader'' that reads an optional multi-value
+     * double ''param'' from the request into an ''List''.
+     *
+     * @param param the param to read
+     *
+     * @return a ''List'' that contains all the values of multi-value param or
+     *         en empty list ''Nil'' if the param is missing or empty or doesn't
+     *         correspond to a requested type.
+     */
+    def apply(param: String) = for {
+      l <- OptionalParams(param)
+    } yield StringsToNumbers(_.toDouble)(l)
   }
 
   /**
