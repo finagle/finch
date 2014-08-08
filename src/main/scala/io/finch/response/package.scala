@@ -27,6 +27,7 @@ import io.finch.json._
 import org.jboss.netty.handler.codec.http.HttpResponseStatus
 import com.twitter.finagle.http.{Status, Response}
 import com.twitter.finagle.http.path.Path
+import com.twitter.finagle.Service
 
 package object response {
 
@@ -122,63 +123,25 @@ package object response {
   object Redirect {
 
     /**
-     * Redirect to the given url.
+     * Create a Service to generate redirects to the given url.
      *
      * @param url The url to redirect to
      *
-     * @return An empty http Response with the Location header set to be the url
+     * @return A Service that generates a redirect to the given url
      */
-    def apply(url: String): Response = SeeOther.withHeaders(("Location", url))()
+    def apply(url: String): Service[HttpRequest, HttpResponse] = {
+      new Service[HttpRequest, HttpResponse] {
+        override def apply(request: HttpRequest) = SeeOther.withHeaders(("Location", url))().toFuture
+      }
+    }
 
     /**
-     * Redirect to the given url.
-     *
-     * @param url The url to redirect to
-     * @param plain the message to be sent in the response string
-     *
-     * @return An empty http Response with the Location header set to be the url
-     */
-    def apply(url: String, plain: String): Response = this(url, plain, SeeOther)
-
-    /**
-     * Redirect to the given url.
-     *
-     * @param url The url to redirect to
-     * @param plain the message to be sent in the response string
-     * @param status The Respond to use as the status code
-     *               
-     * @return An empty http Response with the Location header set to be the url
-     */
-    def apply(url: String, plain: String, status: Respond): Response = status.withHeaders(("Location", url))(plain)
-
-    /**
-     * Redirect to the given route.
+     * Create a Service to generate redirects to the given Path.
      *
      * @param path The Finagle Path to redirect to
      *
-     * @return An empty http Response with the Location header set to be the given path
+     * @return A Service that generates a redirect to the given path
      */
-    def apply(path: Path): Response = this(path.toString)
-
-    /**
-     * Redirect to the given route and include a message to be sent in the response string
-     *
-     * @param path The Finagle Path to redirect to
-     * @param plain the message to be sent in the response string
-     *
-     * @return An empty http Response with the Location header set to be the given path
-     */
-    def apply(path: Path, plain: String): Response = this(path.toString, plain)
-
-    /**
-     * Redirect to the given route and include a message to be sent in the response string
-     *
-     * @param path The Finagle Path to redirect to
-     * @param plain the message to be sent in the response string
-     * @param status The Respond to use as the status code
-     *
-     * @return An empty http Response with the Location header set to be the given path
-     */
-    def apply(path: Path, plain: String, status: Respond): Response = this(path.toString, plain, status)
+    def apply(path: Path): Service[HttpRequest, HttpResponse] = this(path.toString)
   }
 }
