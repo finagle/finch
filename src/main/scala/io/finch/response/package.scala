@@ -129,10 +129,8 @@ package object response {
      *
      * @return A Service that generates a redirect to the given url
      */
-    def apply(url: String): Service[HttpRequest, HttpResponse] = {
-      new Service[HttpRequest, HttpResponse] {
-        override def apply(request: HttpRequest) = SeeOther.withHeaders(("Location", url))().toFuture
-      }
+    def apply(url: String) = new Service[HttpRequest, HttpResponse] {
+      def apply(req: HttpRequest) = SeeOther.withHeaders(("Location", url))().toFuture
     }
 
     /**
@@ -142,6 +140,6 @@ package object response {
      *
      * @return A Service that generates a redirect to the given path
      */
-    def apply(path: Path): Service[HttpRequest, HttpResponse] = this(path.toString)
+    def apply(path: Path) = this(path.toString)
   }
 }

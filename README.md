@@ -311,6 +311,20 @@ object Hello extends Service[HttpRequest, HttpResponse] {
 }
 ```
 
+### Redirects
+
+There is a tiny factory object `io.finch.response.Redirect` that may be used for generation redirect services. 
+Here is the example:
+ 
+```scala
+val e = new Endpoint[HttpRequest, HttpResponse] = {
+  def route = {
+    case Method.Get -> Root / "users" / name => GetUser(name)
+    case Method.Get -> Root / "Bob" => Redirect("/users/Bob") // or with path object
+  }
+}
+```
+
 Bonus Track: JSON on Steroids
 -----------------------------
 
