@@ -12,7 +12,7 @@ object Finch extends Build {
 
   lazy val buildSettings = Seq(
     organization := "io",
-    version := "0.1.5",
+    version := "0.1.6",
     scalaVersion := "2.10.3"
   )
 
@@ -24,7 +24,7 @@ object Finch extends Build {
     homepage := Some(url("https://github.com/finagle/finch")),
     pomExtra := (
       <scm>
-        <url>git://github.com/vkostyukov/finch.git</url>
+        <url>git://github.com/finagle/finch.git</url>
         <connection>scm:git://github.com/finagle/finch.git</connection>
       </scm>
       <developers>
