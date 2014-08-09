@@ -17,7 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Contributor(s): -
+ * Contributor(s):
+ * Ryan Plessner
  */
 
 package io.finch
@@ -25,6 +26,8 @@ package io.finch
 import io.finch.json._
 import org.jboss.netty.handler.codec.http.HttpResponseStatus
 import com.twitter.finagle.http.{Status, Response}
+import com.twitter.finagle.http.path.Path
+import com.twitter.finagle.Service
 
 package object response {
 
@@ -113,4 +116,32 @@ package object response {
   object TooManyRequests extends Respond(Status.TooManyRequests)         // 429
   object InternalServerError extends Respond(Status.InternalServerError) // 500
   object NotImplemented extends Respond(Status.NotImplemented)           // 501
+
+  /**
+   * A factory for Redirecting to other URLs.
+   */
+  object Redirect {
+
+    /**
+     * Create a Service to generate redirects to the given url.
+     *
+     * @param url The url to redirect to
+     *
+     * @return A Service that generates a redirect to the given url
+     */
+    def apply(url: String): Service[HttpRequest, HttpResponse] = {
+      new Service[HttpRequest, HttpResponse] {
+        override def apply(request: HttpRequest) = SeeOther.withHeaders(("Location", url))().toFuture
+      }
+    }
+
+    /**
+     * Create a Service to generate redirects to the given Path.
+     *
+     * @param path The Finagle Path to redirect to
+     *
+     * @return A Service that generates a redirect to the given path
+     */
+    def apply(path: Path): Service[HttpRequest, HttpResponse] = this(path.toString)
+  }
 }
