@@ -53,6 +53,20 @@ class RequiredParamSpec extends FlatSpec {
     }
   }
 
+  "A RequiredBooleanParam" should "be parsed as a boolean" in {
+    val request: HttpRequest = Request.apply(("foo", "true"))
+    val futureResult: Future[Boolean] = RequiredBooleanParam("foo")(request)
+    Await.result(futureResult) shouldBe true
+  }
+
+  it should "produce an error if the param is not a boolean" in {
+    val request: HttpRequest = Request.apply(("foo", "5"))
+    val futureResult: Future[Boolean] = RequiredBooleanParam("foo")(request)
+    intercept[ValidationFailed] {
+      Await.result(futureResult)
+    }
+  }
+
 
   "A RequiredIntParam" should "be parsed as an integer" in {
     val request: HttpRequest = Request.apply(("foo", "5"))
@@ -63,6 +77,50 @@ class RequiredParamSpec extends FlatSpec {
   it should "produce an error if the param is not a number" in {
     val request: HttpRequest = Request.apply(("foo", "non-number"))
     val futureResult: Future[Int] = RequiredIntParam("foo")(request)
+    intercept[ValidationFailed] {
+      Await.result(futureResult)
+    }
+  }
+
+
+  "A RequiredLongParam" should "be parsed as a long" in {
+    val request: HttpRequest = Request.apply(("foo", "9000000000000000"))
+    val futureResult: Future[Long] = RequiredLongParam("foo")(request)
+    Await.result(futureResult) should equal(9000000000000000L)
+  }
+
+  it should "produce an error if the param is not a number" in {
+    val request: HttpRequest = Request.apply(("foo", "non-number"))
+    val futureResult: Future[Long] = RequiredLongParam("foo")(request)
+    intercept[ValidationFailed] {
+      Await.result(futureResult)
+    }
+  }
+
+  "A RequiredFloatParam" should "be parsed as a double" in {
+    val request: HttpRequest = Request.apply(("foo", "5.123"))
+    val futureResult: Future[Float] = RequiredFloatParam("foo")(request)
+    Await.result(futureResult) should equal(5.123f)
+  }
+
+  it should "produce an error if the param is not a number" in {
+    val request: HttpRequest = Request.apply(("foo", "non-number"))
+    val futureResult: Future[Float] = RequiredFloatParam("foo")(request)
+    intercept[ValidationFailed] {
+      Await.result(futureResult)
+    }
+  }
+
+
+  "A RequiredDoubleParam" should "be parsed as a float" in {
+    val request: HttpRequest = Request.apply(("foo", "100.0"))
+    val futureResult: Future[Double] = RequiredDoubleParam("foo")(request)
+    Await.result(futureResult) should equal(100.0)
+  }
+
+  it should "produce an error if the param is not a number" in {
+    val request: HttpRequest = Request.apply(("foo", "non-number"))
+    val futureResult: Future[Double] = RequiredDoubleParam("foo")(request)
     intercept[ValidationFailed] {
       Await.result(futureResult)
     }

@@ -105,25 +105,25 @@ package object request {
     }
   }
 
-  private[this] object StringToNumberOrFail {
+  private[this] object StringToValueOrFail {
     def apply[A](param: String, rule: String)(number: => A) = new RequestReader[A] {
       def apply(req: HttpRequest) =
         try number.toFuture
-        catch { case _: NumberFormatException => new ValidationFailed(param, rule).toFutureException }
+        catch { case _: IllegalArgumentException => new ValidationFailed(param, rule).toFutureException }
     }
   }
 
-  private[this] object SomeStringToSomeNumber {
+  private[this] object SomeStringToSomeValue {
     def apply[A](fn: String => A)(o: Option[String]) = o.flatMap { s =>
       try Some(fn(s))
-      catch { case _: NumberFormatException => None }
+      catch { case _: IllegalArgumentException => None }
     }
   }
 
-  private[this] object StringsToNumbers {
+  private[this] object StringsToValues {
     def apply[A](fn: String => A)(l: List[String]) = l.flatMap { s =>
       try List(fn(s))
-      catch { case _: NumberFormatException => Nil }
+      catch { case _: IllegalArgumentException => Nil }
     }
   }
 
@@ -165,7 +165,7 @@ package object request {
      */
     def apply(param: String) = for {
       s <- RequiredParam(param)
-      n <- StringToNumberOrFail(param, "should be integer")(s.toInt)
+      n <- StringToValueOrFail(param, "should be integer")(s.toInt)
     } yield n
   }
 
@@ -185,7 +185,7 @@ package object request {
      */
     def apply(param: String) = for {
       s <- RequiredParam(param)
-      n <- StringToNumberOrFail(param, "should be long")(s.toLong)
+      n <- StringToValueOrFail(param, "should be long")(s.toLong)
     } yield n
   }
 
@@ -205,7 +205,7 @@ package object request {
      */
     def apply(param: String) = for {
       s <- RequiredParam(param)
-      n <- StringToNumberOrFail(param, "should be boolean")(s.toBoolean)
+      n <- StringToValueOrFail(param, "should be boolean")(s.toBoolean)
     } yield n
   }
 
@@ -225,7 +225,7 @@ package object request {
      */
     def apply(param: String) = for {
       s <- RequiredParam(param)
-      n <- StringToNumberOrFail(param, "should be float")(s.toFloat)
+      n <- StringToValueOrFail(param, "should be float")(s.toFloat)
     } yield n
   }
 
@@ -245,7 +245,7 @@ package object request {
      */
     def apply(param: String) = for {
       s <- RequiredParam(param)
-      n <- StringToNumberOrFail(param, "should be double")(s.toDouble)
+      n <- StringToValueOrFail(param, "should be double")(s.toDouble)
     } yield n
   }
 
@@ -284,7 +284,7 @@ package object request {
      */
     def apply(param: String) = for {
       o <- OptionalParam(param)
-    } yield SomeStringToSomeNumber(_.toInt)(o)
+    } yield SomeStringToSomeValue(_.toInt)(o)
   }
 
   /**
@@ -303,7 +303,7 @@ package object request {
      */
     def apply(param: String) = for {
       o <- OptionalParam(param)
-    } yield SomeStringToSomeNumber(_.toLong)(o)
+    } yield SomeStringToSomeValue(_.toLong)(o)
   }
 
   /**
@@ -322,7 +322,7 @@ package object request {
      */
     def apply(param: String) = for {
       o <- OptionalParam(param)
-    } yield SomeStringToSomeNumber(_.toBoolean)(o)
+    } yield SomeStringToSomeValue(_.toBoolean)(o)
   }
 
   /**
@@ -341,7 +341,7 @@ package object request {
      */
     def apply(param: String) = for {
       o <- OptionalParam(param)
-    } yield SomeStringToSomeNumber(_.toFloat)(o)
+    } yield SomeStringToSomeValue(_.toFloat)(o)
   }
 
   /**
@@ -360,7 +360,7 @@ package object request {
      */
     def apply(param: String) = for {
       o <- OptionalParam(param)
-    } yield SomeStringToSomeNumber(_.toDouble)(o)
+    } yield SomeStringToSomeValue(_.toDouble)(o)
   }
 
   /**
@@ -426,7 +426,7 @@ package object request {
      */
     def apply(param: String) = for {
       ss <- RequiredParams(param)
-      ns <- StringToNumberOrFail(param, "should be integer")(ss.map { _.toInt })
+      ns <- StringToValueOrFail(param, "should be integer")(ss.map { _.toInt })
     } yield ns
   }
 
@@ -446,7 +446,7 @@ package object request {
      */
     def apply(param: String) = for {
       ss <- RequiredParams(param)
-      ns <- StringToNumberOrFail(param, "should be long")(ss.map { _.toLong })
+      ns <- StringToValueOrFail(param, "should be long")(ss.map { _.toLong })
     } yield ns
   }
 
@@ -466,7 +466,7 @@ package object request {
      */
     def apply(param: String) = for {
       ss <- RequiredParams(param)
-      ns <- StringToNumberOrFail(param, "should be boolean")(ss.map { _.toBoolean })
+      ns <- StringToValueOrFail(param, "should be boolean")(ss.map { _.toBoolean })
     } yield ns
   }
 
@@ -486,7 +486,7 @@ package object request {
      */
     def apply(param: String) = for {
       ss <- RequiredParams(param)
-      ns <- StringToNumberOrFail(param, "should be float")(ss.map { _.toFloat })
+      ns <- StringToValueOrFail(param, "should be float")(ss.map { _.toFloat })
     } yield ns
   }
 
@@ -506,7 +506,7 @@ package object request {
      */
     def apply(param: String) = for {
       ss <- RequiredParams(param)
-      ns <- StringToNumberOrFail(param, "should be double")(ss.map { _.toDouble })
+      ns <- StringToValueOrFail(param, "should be double")(ss.map { _.toDouble })
     } yield ns
   }
 
@@ -546,7 +546,7 @@ package object request {
      */
     def apply(param: String) = for {
       l <- OptionalParams(param)
-    } yield StringsToNumbers(_.toInt)(l)
+    } yield StringsToValues(_.toInt)(l)
   }
 
   /**
@@ -566,7 +566,7 @@ package object request {
      */
     def apply(param: String) = for {
       l <- OptionalParams(param)
-    } yield StringsToNumbers(_.toLong)(l)
+    } yield StringsToValues(_.toLong)(l)
   }
 
   /**
@@ -586,7 +586,7 @@ package object request {
      */
     def apply(param: String) = for {
       l <- OptionalParams(param)
-    } yield StringsToNumbers(_.toBoolean)(l)
+    } yield StringsToValues(_.toBoolean)(l)
   }
 
   /**
@@ -606,7 +606,7 @@ package object request {
      */
     def apply(param: String) = for {
       l <- OptionalParams(param)
-    } yield StringsToNumbers(_.toFloat)(l)
+    } yield StringsToValues(_.toFloat)(l)
   }
 
   /**
@@ -626,7 +626,7 @@ package object request {
      */
     def apply(param: String) = for {
       l <- OptionalParams(param)
-    } yield StringsToNumbers(_.toDouble)(l)
+    } yield StringsToValues(_.toDouble)(l)
   }
 
   /**
