@@ -52,4 +52,19 @@ class RequiredParamSpec extends FlatSpec {
       Await.result(futureResult)
     }
   }
+
+
+  "A RequiredIntParam" should "be parsed as an integer" in {
+    val request: HttpRequest = Request.apply(("foo", "5"))
+    val futureResult: Future[Int] = RequiredIntParam("foo")(request)
+    Await.result(futureResult) should equal(5)
+  }
+
+  it should "produce an error if the param is not a number" in {
+    val request: HttpRequest = Request.apply(("foo", "non-number"))
+    val futureResult: Future[Int] = RequiredIntParam("foo")(request)
+    intercept[ValidationFailed] {
+      Await.result(futureResult)
+    }
+  }
 }
