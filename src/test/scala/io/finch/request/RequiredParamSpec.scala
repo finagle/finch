@@ -74,7 +74,7 @@ class RequiredParamSpec extends FlatSpec {
     Await.result(futureResult) should equal(5)
   }
 
-  it should "produce an error if the param is not a number" in {
+  it should "produce an error if the param is not an integer" in {
     val request: HttpRequest = Request.apply(("foo", "non-number"))
     val futureResult: Future[Int] = RequiredIntParam("foo")(request)
     intercept[ValidationFailed] {
@@ -89,7 +89,7 @@ class RequiredParamSpec extends FlatSpec {
     Await.result(futureResult) should equal(9000000000000000L)
   }
 
-  it should "produce an error if the param is not a number" in {
+  it should "produce an error if the param is not a long" in {
     val request: HttpRequest = Request.apply(("foo", "non-number"))
     val futureResult: Future[Long] = RequiredLongParam("foo")(request)
     intercept[ValidationFailed] {
@@ -97,13 +97,13 @@ class RequiredParamSpec extends FlatSpec {
     }
   }
 
-  "A RequiredFloatParam" should "be parsed as a double" in {
+  "A RequiredFloatParam" should "be parsed as a float" in {
     val request: HttpRequest = Request.apply(("foo", "5.123"))
     val futureResult: Future[Float] = RequiredFloatParam("foo")(request)
     Await.result(futureResult) should equal(5.123f)
   }
 
-  it should "produce an error if the param is not a number" in {
+  it should "produce an error if the param is not a float" in {
     val request: HttpRequest = Request.apply(("foo", "non-number"))
     val futureResult: Future[Float] = RequiredFloatParam("foo")(request)
     intercept[ValidationFailed] {
@@ -112,13 +112,13 @@ class RequiredParamSpec extends FlatSpec {
   }
 
 
-  "A RequiredDoubleParam" should "be parsed as a float" in {
+  "A RequiredDoubleParam" should "be parsed as a double" in {
     val request: HttpRequest = Request.apply(("foo", "100.0"))
     val futureResult: Future[Double] = RequiredDoubleParam("foo")(request)
     Await.result(futureResult) should equal(100.0)
   }
 
-  it should "produce an error if the param is not a number" in {
+  it should "produce an error if the param is not a double" in {
     val request: HttpRequest = Request.apply(("foo", "non-number"))
     val futureResult: Future[Double] = RequiredDoubleParam("foo")(request)
     intercept[ValidationFailed] {
