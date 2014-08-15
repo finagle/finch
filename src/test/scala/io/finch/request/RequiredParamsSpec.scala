@@ -33,6 +33,14 @@ class RequiredParamsSpec extends FlatSpec {
     }
   }
 
+  it should "throw a Validation Exception if all of the parameter values are empty" in {
+    val request: HttpRequest = Request.apply(("foo", ""), ("bar", "6"), ("foo", ""))
+    val futureResult: Future[List[String]] = RequiredParams("foo")(request)
+    intercept[ValidationFailed] {
+      Await.result(futureResult)
+    }
+  }
+
 
   "A RequiredBooleanParams" should "be parsed as a list of booleans" in {
     val request: HttpRequest = Request.apply(("foo", "true"), ("foo", "false"))
@@ -106,7 +114,7 @@ class RequiredParamsSpec extends FlatSpec {
   }
 
 
-  "A RequiredDoubleParam" should "be parsed as a list of doubles" in {
+  "A RequiredDoubleParams" should "be parsed as a list of doubles" in {
     val request: HttpRequest = Request.apply(("foo", "100.0"), ("foo", "66566.45243"))
     val futureResult: Future[List[Double]] = RequiredDoubleParams("foo")(request)
     val result: List[Double] = Await.result(futureResult)
