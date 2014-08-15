@@ -525,7 +525,7 @@ package object request {
      *         en empty list ''Nil'' if the param is missing or empty.
      */
     def apply(param: String) = new RequestReader[List[String]] {
-      def apply(req: HttpRequest) = req.params.getAll(param).toList.flatMap(_.split(",")).toFuture
+      def apply(req: HttpRequest) = req.params.getAll(param).toList.flatMap(_.split(",")).filter(_ != "").toFuture
     }
   }
 
