@@ -456,4 +456,4 @@ Licensing
 The licensing details may be found at `LICENSE` file in the root directory.
 
 ----
-By Vladimir Kostyukov, http://vkostyukov.ru
+[![Build Status](https://secure.travis-ci.org/finagle/finch.png)](http://travis-ci.org/finagle/finch)
