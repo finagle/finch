@@ -102,3 +102,5 @@ val (a, b): (List[Int], List[Int]) = reader(request)
 The HTTP headers may also be read with `RequestReader`. The following pre-defined readers should be used:
 * `io.finch.request.RequiredHeader` - fetches header or throws `HeaderNotFound` exception
 * `io.finch.request.OptionalHeader` - fetches header into an `Option`
+
+###### Read Next: [Responses](response.md)

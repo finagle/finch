@@ -16,3 +16,5 @@ object ProtectedEndpoint extends Endpoint[HttpRequest, HttpResponse] {
   }
 }
 ```
+
+###### Read Next: [JSON](json.md)

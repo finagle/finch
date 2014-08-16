@@ -74,3 +74,5 @@ val e = new Endpoint[HttpRequest, HttpResponse] = {
   }
 }
 ```
+
+###### Read Next: [Authentication](auth.md)

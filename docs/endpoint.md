@@ -18,3 +18,5 @@ The best practices on what to choose for data transformation are following
 
 * Services should be used when the request is not required for the transformation.
 * Otherwise, pure filters should be used.
+
+###### Read Next: [Requests](request.md)

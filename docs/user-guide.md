@@ -88,3 +88,4 @@ object Main extends App {
 }
 ```
 
+###### Read Next: [Endpoints](endpoint.md)
