@@ -1,5 +1,7 @@
 import sbt._
 import sbt.Keys._
+import scoverage.ScoverageSbtPlugin.instrumentSettings
+import CoverallsPlugin.coverallsSettings
 
 object Finch extends Build {
 
@@ -40,5 +42,5 @@ object Finch extends Build {
 
   lazy val root = Project(id = "finch",
     base = file("."),
-    settings = baseSettings ++ buildSettings ++ publishSettings)
+    settings = baseSettings ++ buildSettings ++ publishSettings ++ instrumentSettings ++ coverallsSettings)
 }
