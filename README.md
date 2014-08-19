@@ -9,7 +9,7 @@ Quickstart
 resolvers += "Finch.io" at "http://repo.konfettin.ru"
 
 libraryDependencies ++= Seq(
-  "io" %% "finch" % "0.1.5"
+  "io" %% "finch" % "0.1.6"
 )
 ```
 
