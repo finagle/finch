@@ -34,7 +34,8 @@ Documentation may be found at [`docs`](docs/index.md) folder of the repository.
 
 Adopters
 --------
-* [Konfettin](http://konfettin.ru) - marketplace for event-vendors.
+* [Konfettin](http://konfettin.ru)
+* [JusBrasil](http://www.jusbrasil.com.br/)
 * *Submit a pull-request to include your company/project into the list*
 
 License
