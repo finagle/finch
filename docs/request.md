@@ -61,7 +61,7 @@ Optional params are quite often used for fetching pagination details.
 val pagination = for {
   offset <- OptionalIntParam("offset")
   limit <- OptionalIntParam("limit")
-} yield (offsetId.getOrElse(0), math.min(limit.getOrElse(50), 50))
+} yield (offset.getOrElse(0), math.min(limit.getOrElse(50), 50))
 
 val service = new Service[HttpRequest, HttpResponse] {
   def apply(req: HttpRequest) = for {
@@ -69,6 +69,21 @@ val service = new Service[HttpRequest, HttpResponse] {
   } yield Ok(s"Fetching items $offset..${offset+limit}")
 }
 ```
+
+Optional params may be validated by using `Option.forAll(p)` function, which does exactly what's needed. If the option is `Some(value)` it checks whether or not the given predicate `p` is true for `value`. Otherwise (if the option is `None`) it just returns `true`.
+
+```scala
+val pagination = for {
+  offset <- OptionalIntParam("offset")
+  limit <- OptionalIntParam("limit")
+  _ <- ValidationRule("offset", "should be positive") { offset.forAll(_ >= 0) }
+  _ <- ValidationRule("limit", "should be positive") { limit.forAll(_ >= 0) }
+  _ <- ValidationRule("limit", "should be greater then offset") { 
+   (for { o <- offset; l <- limit} yield (l > o)).getOrElse(true)
+  }
+} yield (offset.getOrElse(0), math.min(limit.getOrElse(50), 50))
+```
+
 #### A `io.finch.requests.RequiredParam` reader makes sure that
 * param is presented in the request (otherwise it throws `ParamNoFound` exception)
 * param is not empty (otherwise it throws `ValidationFailed` exception)
