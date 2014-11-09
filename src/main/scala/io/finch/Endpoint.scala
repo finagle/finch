@@ -24,7 +24,7 @@ package io.finch
 
 import org.jboss.netty.handler.codec.http.HttpMethod
 import com.twitter.finagle.http.path.Path
-import com.twitter.finagle.{Filter, Service}
+import com.twitter.finagle.Service
 import com.twitter.finagle.http.service.NotFoundService
 
 /**

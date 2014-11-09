@@ -30,7 +30,7 @@ val endpoint = new Endpoint[HttpRequest, HttpResponse] {
 
 Documentation
 -------------
-Documentation may be found at [`docs`](docs/index.md) folder of the repository.
+Documentation may be found in the [`docs.md`](docs.md) file in the root directory.
 
 Adopters
 --------
