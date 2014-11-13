@@ -73,7 +73,7 @@ package object response {
     def apply(json: Json) = {
       val rep = Response(status)
       rep.setContentTypeJson()
-      rep.setContentString(json.toString())
+      rep.setContentString(json.toString)
       headers.foreach { case (k, v) => rep.headers().add(k, v) }
 
       rep

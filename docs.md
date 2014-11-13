@@ -70,7 +70,7 @@ import scala.util.parsing.json.{JSONArray, JSONObject}
 
 object JsonHelpers {
   implicit def asJson(x: JSONType): Json = new Json {
-    override def toString(): String = x.toString()
+    override def toString(): String = x.toString
   }
 }
 
