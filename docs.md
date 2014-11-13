@@ -66,30 +66,7 @@ object TurnModelIntoJson extends Service[Any, JSONType] {
 import io.finch._
 import com.twitter.finagle.http.Method
 import com.twitter.finagle.http.path._
-import scala.util.parsing.json.JSONType
-
-object User extends Endpoint[HttpRequest, JSONType] {
-  def route = {
-    case Method.Get -> Root / "users" / Long(id) =>
-      GetUser(id) ! TurnModelIntoJson
-  }
-}
-
-object Ticket extends Endpoint[HttpRequest, JSONType] {
-  def route = {
-    case Method.Get -> Root / "tickets" / Long(id) =>
-      GetTicket(id) ! TurnModelIntoJson
-    case Method.Get -> Root / "users" / Long(id) / "tickets" =>
-      GetUserTickets(id) ! TurnModelIntoJson
-  }
-}
-```
-
-**Step 5:** Define a service for converting `JSONType` to a `JsonResponse` (optional):
-```scala
-import io.finch._
-import io.finch.json.Json
-import scala.util.parsing.json.JSONType
+import scala.util.parsing.json.{JSONArray, JSONObject}
 
 object JsonHelpers {
   implicit def asJson(x: JSONType): Json = new Json {
@@ -97,13 +74,23 @@ object JsonHelpers {
   }
 }
 
-object JsonResponseConverter extends Service[JSONType, JsonResponse] {
+import scala.util.parsing.json.{JSONArray, JSONObject}
+
+object TurnModelIntoJson extends Service[Any, JsonResponse] {
   import JsonHelpers._
-  def apply(req: JSONType) = (req: Json).toFuture
+  def apply(req: Any) = {
+    def turn(any: Any): JsonResponse = any match {
+      case User(id, name) => JSONObject(Map("id" -> id, "name" -> name))
+      case Ticket(id) => JSONObject(Map("id" -> id))
+      case seq: Seq[Any] => JSONArray(seq.toList)
+    }
+
+    turn(req).toFuture
+  }
 }
 ```
 
-**Step 6:** Expose endpoints:
+**Step 5:** Expose endpoints:
 
 ```scala
 import io.finch._
