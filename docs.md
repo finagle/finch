@@ -76,10 +76,10 @@ object JsonHelpers {
 
 import scala.util.parsing.json.{JSONArray, JSONObject}
 
-object TurnModelIntoJson extends Service[Any, JsonResponse] {
+object TurnModelIntoJson extends Service[Any, Json] {
   import JsonHelpers._
   def apply(req: Any) = {
-    def turn(any: Any): JsonResponse = any match {
+    def turn(any: Any): Json = any match {
       case User(id, name) => JSONObject(Map("id" -> id, "name" -> name))
       case Ticket(id) => JSONObject(Map("id" -> id))
       case seq: Seq[Any] => JSONArray(seq.toList)
