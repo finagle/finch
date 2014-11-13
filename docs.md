@@ -100,7 +100,7 @@ import com.twitter.finagle.http.{Http, RichHttp}
 import java.net.InetSocketAddress
 
 object Main extends App {
-  val endpoint = Endpoint.join(User, Ticket) ! JsonResponseConverter ! TurnJsonIntoHttp
+  val endpoint = Endpoint.join(User, Ticket) ! TurnJsonIntoHttp
   val backend = endpoint orElse Endpoint.NotFound
 
   ServerBuilder()
