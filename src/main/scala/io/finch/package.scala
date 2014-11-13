@@ -67,7 +67,6 @@ package object finch {
 
   type HttpRequest = Request
   type HttpResponse = Response
-  type JsonResponse = Json
 
   /**
    * Alters any object within a ''toFuture'' method.

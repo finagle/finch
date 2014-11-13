@@ -159,7 +159,7 @@ val user = for {
   city <- OptionalParam("city")
 } yield User(name, age, city.getOrElse("Novosibirsk"))
 
-val service = new Service[HttpRequest, JsonResponse] {
+val service = new Service[HttpRequest, Json] {
   def apply(req: HttpRequest) = for {
     u <- user(req)
   } yield JsonObject(
@@ -359,11 +359,11 @@ The example from above does just that with the Scala JSON library.
 
 **Converting JSON into HTTP**
 
-There is a magic service `io.finch.json.TurnJsonIntoHttp` that takes a `JsonResponse` and converts it into an `HttpResponse`. This applicable for both `Service` and `Endpoint`.
+There is a magic service `io.finch.json.TurnJsonIntoHttp` that takes a `Json` and converts it into an `HttpResponse`. This applicable for both `Service` and `Endpoint`.
 
 ```scala
 import io.finch.json._
 
-val a: Service[HttpRequest, JsonResponse] = ???
+val a: Service[HttpRequest, Json] = ???
 val b: Service[HttpRequest, HttpResponse] = a ! TurnJsonIntoHttp
 ```

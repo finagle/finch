@@ -40,8 +40,8 @@ package object json {
    * A service that converts JSON into HTTP response with status ''OK''.
    *
    */
-  object TurnJsonIntoHttp extends Service[JsonResponse, HttpResponse] {
+  object TurnJsonIntoHttp extends Service[Json, HttpResponse] {
 
-    def apply(req: JsonResponse) = Ok(req).toFuture
+    def apply(req: Json) = Ok(req).toFuture
   }
 }
