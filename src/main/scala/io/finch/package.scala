@@ -26,9 +26,6 @@ import io.finch.json._
 import com.twitter.finagle.http._
 import com.twitter.util.Future
 import com.twitter.finagle.{Filter, Service}
-import scala.util.parsing.json.JSONType
-import scala.util.parsing.json.JSONArray
-import scala.util.parsing.json.JSONObject
 
 /***
  * Hi! I'm Finch.io - a super-tiny library atop of Finagle that makes the
@@ -70,7 +67,6 @@ package object finch {
 
   type HttpRequest = Request
   type HttpResponse = Response
-  type JsonResponse = JSONType
 
   /**
    * Alters any object within a ''toFuture'' method.
@@ -168,91 +164,5 @@ package object finch {
       new Service[Req, RepOut] {
         def apply(req: Req) = service(req) flatMap next
       }
-  }
-
-  /**
-   * Alters underlying json object within finagled methods.
-   *
-   * @param json a json object to be altered
-   */
-  implicit class JsonObjectOps(val json: JSONObject) extends AnyVal {
-
-    /**
-     * Retrieves the typed ''A'' value associated with a given ''tag'' in this
-     * json object
-     *
-     * @param path a tag
-     * @tparam A a value type
-     *
-     * @return a value associated with a tag
-     */
-    def get[A](path: String) = getOption[A](path).get
-
-    /**
-     * Retrieves the typed ''A'' option of a value associated with a given ''tag''
-     * in this json object.
-     *
-     * @param path a path
-     * @tparam A a value type
-     *
-     * @return an option of a value associated with a tag
-     */
-    def getOption[A](path: String) = {
-      def loop(path: List[String], j: JSONObject): Option[A] = path match {
-        case tag :: Nil => j.obj.get(tag) map { _.asInstanceOf[A] }
-        case tag :: tail => j.obj.get(tag) match {
-          case Some(jj: JSONObject) => loop(tail, jj)
-          case _ => None
-        }
-      }
-
-      loop(path.split('.').toList, json)
-    }
-
-    /**
-     * Maps this json object into a json object with underlying ''map'' mapped
-     * via pure function ''fn''.
-     *
-     * @param fn a pure function to map map
-     *
-     * @return a json object
-     */
-    def within(fn: Map[String, Any] => Map[String, Any]) = JSONObject(fn(json.obj))
-
-    /**
-     * Removes all null-value properties from this json object.
-     *
-     * @return a compacted json object
-     */
-    def compacted = {
-      def loop(obj: Map[String, Any]): Map[String, Any] = obj.flatMap {
-        case (t, JsonNull) => Map.empty[String, Any]
-        case (tag, j: JSONObject) =>
-          val o = loop(j.obj)
-          if (o.isEmpty) Map.empty[String, Any]
-          else Map(tag -> JSONObject(o))
-        case (tag, value) => Map(tag -> value)
-      }
-
-      JSONObject(loop(json.obj))
-    }
-  }
-
-  /**
-   * Alters underlying json array within finagled methods.
-   *
-   * @param json a json array to be alter
-   */
-  implicit class JsonArrayOps(val json: JSONArray) extends AnyVal {
-
-    /**
-     * Maps this json array into a json array with underlying ''list'' mapped
-     * via pure function ''fn''.
-     *
-     * @param fn a pure function to map list
-     *
-     * @return a json array
-     */
-    def within(fn: List[Any] => List[Any]) = JSONArray(fn(json.list))
   }
 }

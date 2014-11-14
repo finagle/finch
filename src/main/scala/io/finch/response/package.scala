@@ -23,7 +23,7 @@
 
 package io.finch
 
-import io.finch.json._
+import io.finch.json.Json
 import org.jboss.netty.handler.codec.http.HttpResponseStatus
 import com.twitter.finagle.http.{Status, Response}
 import com.twitter.finagle.http.path.Path
@@ -67,14 +67,13 @@ package object response {
      * Creates an ''application/json'' http response.
      *
      * @param json the response body
-     * @param formatter the json formatter
      *
      * @return a json http response
      */
-    def apply(json: JsonResponse, formatter: JsonFormatter = DefaultJsonFormatter) = {
+    def apply(json: Json) = {
       val rep = Response(status)
       rep.setContentTypeJson()
-      rep.setContentString(json.toString(formatter))
+      rep.setContentString(json.toString)
       headers.foreach { case (k, v) => rep.headers().add(k, v) }
 
       rep
