@@ -48,26 +48,6 @@ case class GetUserTickets(userId: Long) extends Service[HttpRequest, Seq[Ticket]
 import io.finch._
 import scala.util.parsing.json.{JSONArray, JSONType, JSONObject}
 
-object TurnModelIntoJson extends Service[Any, JSONType] {
-  def apply(req: Any) = {
-    def turn(any: Any): JSONType = any match {
-      case User(id, name) => JSONObject(Map("id" -> id, "name" -> name))
-      case Ticket(id) => JSONObject(Map("id" -> id))
-      case seq: Seq[Any] => JSONArray(seq.toList)
-    }
-
-    turn(req).toFuture
-  }
-}
-```
-
-**Step 4:** Define endpoints using services/filters for data transformation (optional):
-```scala
-import io.finch._
-import com.twitter.finagle.http.Method
-import com.twitter.finagle.http.path._
-import scala.util.parsing.json.{JSONArray, JSONObject}
-
 object JsonHelpers {
   implicit def asJson(x: JSONType): Json = new Json {
     override def toString(): String = x.toString
@@ -86,6 +66,30 @@ object TurnModelIntoJson extends Service[Any, Json] {
     }
 
     turn(req).toFuture
+  }
+}
+```
+
+**Step 4:** Define endpoints using services/filters for data transformation (optional):
+```scala
+import io.finch._
+import io.finch.json._
+import com.twitter.finagle.http.Method
+import com.twitter.finagle.http.path._
+
+object User extends Endpoint[HttpRequest, Json] {
+  def route = {
+    case Method.Get -> Root / "users" / Long(id) =>
+      GetUser(id) ! TurnModelIntoJson
+  }
+}
+
+object Ticket extends Endpoint[HttpRequest, Json] {
+  def route = {
+    case Method.Get -> Root / "tickets" / Long(id) =>
+      GetTicket(id) ! TurnModelIntoJson
+    case Method.Get -> Root / "users" / Long(id) / "tickets" =>
+      GetUserTickets(id) ! TurnModelIntoJson
   }
 }
 ```
