@@ -27,21 +27,26 @@ import com.twitter.finagle.Service
 
 package object json {
 
-  trait Json {
+  /**
+   * An abstraction that is responsible for JSON to string encoding.
+   */
+  trait EncodeJson[A] {
+    def apply(json: A): String
+  }
 
-    /**
-     *
-     * @return A ''Json'' object must return valid json from its ''toString'' method.
-     */
-    def toString: String
+  /**
+   * An abstraction that is responsible for string to JSON decoding.
+   */
+  trait DecodeJson[A] {
+    def apply(json: String): A
   }
 
   /**
    * A service that converts JSON into HTTP response with status ''OK''.
    *
+   * TODO: figure out how to be able to use `TurnJsonIntoHttp` instead of `TurnJsonIntoHttp()`
    */
-  object TurnJsonIntoHttp extends Service[Json, HttpResponse] {
-
-    def apply(req: Json) = Ok(req).toFuture
+  case class TurnJsonIntoHttp[A](implicit encode: EncodeJson[A]) extends Service[A, HttpResponse] {
+    def apply(req: A) = Ok(req).toFuture
   }
 }
