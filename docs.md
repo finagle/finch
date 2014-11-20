@@ -135,7 +135,7 @@ val respond: Endpoint[HttpRequest, HttpResponse] = ???
 val endpoint = Auth ! respond ! TurnJsonIntoHttp
 ```
 
-The best practices on what to choose for data transformation are following
+The best practices on what to choose for data transformation are following:
 
 * Services should be used when the request is not required for the transformation.
 * Otherwise, pure Finagle filters should be used.
@@ -146,6 +146,16 @@ The best practices on what to choose for data transformation are following
 
 **Finch.io** has built-in request reader that implements the [Reader Monad][1] functional design pattern: 
 * `io.finch.request.RequestReader` reads `Future[A]`
+
+The simplified signature of the `RequestReader` abstraction is similar to `Service` but with monadic API methods `map` 
+and `flatMap`:
+ 
+```scala
+trait RequestReader[A] {
+  def apply(req: HttpRequest): Future[A]
+  def map[B](fn: A => B): RequestReader[B] = ???
+  def flatMap(fn: A => RequestReader[B]): RequestReader[B]  = ??? }
+```
 
 Since the request readers read futures they might be chained together with regular Finagle services in a single 
 for-comprehension. Thus, reading the request params is an additional monad-transformation in the program's data flow. 
@@ -192,7 +202,7 @@ an example of _composing_ an existing reader `user` within a validation rule, wh
 `Future.Done` if the given `predicate` is true or future of `ValidationFailed` exception otherwise.
 
 ```scala
-val adult = for {
+val adult: RequestReader[User] = for {
   u <- user
   _ <- ValidationRule("age", "should be greater then 18") { user.age > 18 }
 } yield u
@@ -200,7 +210,7 @@ val adult = for {
 
 The exceptions from a request-reader might be handled just like other future exceptions in Finagle:
 ```scala
-val user = service(...) handle {
+val user: Future[Json] = service(...) handle {
   case e: ParamNotFound => JsonObject("status" -> 400, "error" -> e.getMessage, "param" -> e.param)
   case e: ValidationFailed => JsonObject("status" -> 400, "error" -> e.getMessage, "param" -> e.param)
 }
@@ -208,7 +218,7 @@ val user = service(...) handle {
 
 Optional params are quite often used for fetching pagination details.
 ```scala
-val pagination = for {
+val pagination: RequestReader[(Int, Int)] = for {
   offset <- OptionalIntParam("offset")
   limit <- OptionalIntParam("limit")
 } yield (offset.getOrElse(0), math.min(limit.getOrElse(50), 50))
@@ -225,7 +235,7 @@ is `Some(value)` it checks whether or not the given predicate `p` is true for `v
 it just returns `true`.
 
 ```scala
-val pagination = for {
+val pagination: RequestReader[(Int, Int)] = for {
   offset <- OptionalIntParam("offset")
   limit <- OptionalIntParam("limit")
   _ <- ValidationRule("offset", "should be positive") { offset.forAll(_ >= 0) }
@@ -236,7 +246,7 @@ val pagination = for {
 } yield (offset.getOrElse(0), math.min(limit.getOrElse(50), 50))
 ```
 
-#### A `io.finch.requests.RequiredParam` reader makes sure that
+#### A `io.finch.request.RequiredParam` reader makes sure that
 * param is presented in the request (otherwise it throws `ParamNoFound` exception)
 * param is not empty (otherwise it throws `ValidationFailed` exception)
 * param may be converted to a requested type `RequiredIntParam`, `RequiredLongParam` or `RequiredBooleanParam` 
@@ -261,7 +271,7 @@ and finally `RequiredParam` has `RequiredParams` companions. There are also type
 Thus, the following HTTP params `a=1,2,3&b=4&b=5` might be fetched with `RequiredIntParams` reader like this:
 
 ```scala
-val reader = for {
+val reader: RequestReader[(Int, Int)] = for {
  a <- RequiredIntParams("a")
  b <- RequiredIntParams("b")
 } yield (a, b)
