@@ -154,7 +154,8 @@ and `flatMap`:
 trait RequestReader[A] {
   def apply(req: HttpRequest): Future[A]
   def map[B](fn: A => B): RequestReader[B] = ???
-  def flatMap(fn: A => RequestReader[B]): RequestReader[B]  = ??? }
+  def flatMap(fn: A => RequestReader[B]): RequestReader[B] = ???
+}
 ```
 
 Since the request readers read futures they might be chained together with regular Finagle services in a single 
