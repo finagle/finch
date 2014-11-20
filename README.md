@@ -1,6 +1,8 @@
 ![logo](https://raw.github.com/finagle/finch/master/finch-logo.png) 
 
-Hi! I'm **Finch.io**, a thin layer of purely functional basic blocks atop of  [Finagle](http://twitter.github.io/finagle) for building robust and composable REST APIs.
+**Finch.io** is a thin layer of purely functional basic blocks atop of [Finagle](http://twitter.github.io/finagle) for 
+building composable REST APIs. Finch's mission is to provide the developers simple and robust REST API building blocks 
+being as close as possible to the Finagle bare metal API.
 
 Quickstart
 ----------
