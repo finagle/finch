@@ -385,6 +385,8 @@ the Scala JSON library.
 
 **Converting JSON into HTTP**
 
+<This section need to be updated>
+
 There is a magic service `io.finch.json.TurnJsonIntoHttp` that takes a `Json` and converts it into an `HttpResponse`. This 
 applicable for both `Service` and `Endpoint`.
 
