@@ -40,7 +40,23 @@ object Finch extends Build {
     )
   )
 
-  lazy val root = Project(id = "finch",
+  lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings ++ instrumentSettings ++ coverallsSettings
+
+  lazy val root = Project(
+    id = "finch",
     base = file("."),
-    settings = baseSettings ++ buildSettings ++ publishSettings ++ instrumentSettings ++ coverallsSettings)
+    settings = allSettings
+  ) aggregate(core, scalaJson)
+
+  lazy val core = Project(
+    id = "finch-core",
+    base = file("finch-core"),
+    settings = allSettings
+  )
+
+  lazy val scalaJson = Project(
+    id = "finch-scalajson",
+    base = file("finch-scalajson"),
+    settings = allSettings
+  ) dependsOn(core)
 }
