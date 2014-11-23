@@ -97,6 +97,7 @@ package object response {
   //
   object Ok extends Respond(Status.Ok)                                   // 200
   object Created extends Respond(Status.Created)                         // 201
+  object Accepted extends Respond(Status.Accepted)                       // 202
   object NoContent extends Respond(Status.NoContent)                     // 204
   object MovedPermanently extends Respond(Status.MovedPermanently)       // 301
   object SeeOther extends Respond(Status.SeeOther)                       // 303
@@ -115,6 +116,8 @@ package object response {
   object TooManyRequests extends Respond(Status.TooManyRequests)         // 429
   object InternalServerError extends Respond(Status.InternalServerError) // 500
   object NotImplemented extends Respond(Status.NotImplemented)           // 501
+  object BadGateway extends Respond(Status.BadGateway)                   // 502
+  object ServiceUnavailable extends Respond(Status.ServiceUnavailable)   // 503
 
   /**
    * A factory for Redirecting to other URLs.
