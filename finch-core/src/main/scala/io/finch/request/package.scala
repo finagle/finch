@@ -668,4 +668,111 @@ package object request {
       def apply(req: HttpRequest) = req.headerMap.get(header).toFuture
     }
   }
+
+  /**
+   * A required request body that is interpreted as an ''Array[Byte]''
+   */
+  object RequiredBody {
+
+    /**
+     * Creates a ''RequestReader'' that reads the required required body
+     * from the request or raises an exception when the body is missing or empty.
+     *
+     * @return an ''Array[Byte]'' representing the request body
+     */
+    def apply() = new RequestReader[Array[Byte]] {
+      def apply(req: HttpRequest): Future[Array[Byte]] = {
+        req.contentLength match {
+          case Some(length) if length > 0 => getRequestBody(req).toFuture
+          case _                          => new ValidationFailed("body", "Request body not found in the request.").toFutureException
+        }
+      }
+    }
+  }
+
+  /**
+   * An optional request body that is interpreted as an ''Array[Byte]''
+   */
+  object OptionalBody {
+
+    /**
+     * Creates a ''RequestReader'' that reads the required required body
+     * from the request into an ''Option''.
+     *
+     * @return an ''Option[Array[Byte]]'' representing the request body
+     *         if present or ''None'' if there was no request body
+     */
+    def apply() = new RequestReader[Option[Array[Byte]]] {
+      def apply(req: HttpRequest): Future[Option[Array[Byte]]] = {
+        req.contentLength match {
+          case Some(length) if length > 0 => Some(getRequestBody(req)).toFuture
+          case _                          => None.toFuture
+        }
+      }
+    }
+  }
+
+  /**
+   * A required request body that is interpreted as a ''String''
+   */
+  object RequiredStringBody {
+
+    /**
+     * Creates a ''RequestReader'' that reads the required required body
+     * from the request or raises an exception when the body is missing or empty.
+     *
+     * @return a ''String'' representing the request body
+     */
+    def apply() = for {
+      body <- RequiredBody()
+    } yield { new String(body, "UTF-8") }
+  }
+
+  /**
+   * An optional request body that is interpreted as a ''String''
+   */
+  object OptionalStringBody {
+
+    /**
+     * Creates a ''RequestReader'' that reads the required required body
+     * from the request into an ''Option''.
+     *
+     * @return an ''Option[String]'' representing the request body
+     *         if present or ''None'' if there was no request body
+     */
+    def apply() = for {
+      optBody <- OptionalBody()
+    } yield {
+      optBody match {
+        case Some(body) => Some(new String(body, "UTF-8"))
+        case None => None
+      }
+    }
+  }
+
+  /**
+   * A helper function that encapsulates the logic necessary to turn the ''ChannelBuffer''
+   * of ''req'' into an ''Array[Byte]''
+   * @param req The request to read from
+   * @return The ''Array[Byte]'' representing the contents of the request body
+   */
+  private def getRequestBody(req: HttpRequest): Array[Byte] = {
+    val channelBuffer = req.content
+    //Check if channelBuffer  can be handled with array method
+    if (channelBuffer.hasArray) {
+      val array = channelBuffer.array
+
+      //the index of the first byte in the backing byte array of this ChannelBuffer.
+      //if there isn't a backing byte array, then this throws
+      val arrayOffset = channelBuffer.arrayOffset
+      //the index of the first readable byte in this ChannelBuffer
+      val readerIndex = channelBuffer.readerIndex()
+
+      //return a copy of the backing array, starting at the effective beginning of the HTTP response body
+      array.slice(arrayOffset + readerIndex, array.length)
+    } else {
+      val byteBuffer = channelBuffer.toByteBuffer
+      byteBuffer.array
+    }
+  }
 }
