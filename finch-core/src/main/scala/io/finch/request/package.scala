@@ -28,8 +28,7 @@ import com.twitter.util.Future
 package object request {
 
   /**
-   * A request reader (implementing reader monad pattern) that reads something
-   * of type ''A'' from the ''HttpRequest'' into a ''Future''.
+   * A request reader (a Reader Monad) reads a ''Future'' of ''A'' from the ''HttpRequest''.
    *
    * @tparam A the result type
    */
@@ -57,9 +56,9 @@ package object request {
   /**
    * A base exception of request reader.
    *
-   * @param m the message
+   * @param message the message
    */
-  class RequestReaderError(m: String) extends Exception(m)
+  class RequestReaderError(val message: String) extends Exception(message)
 
   /**
    * An exception that indicates missed parameter in the request.
@@ -693,7 +692,7 @@ package object request {
   object OptionalBody extends RequestReader[Option[Array[Byte]]]{
     def apply(req: HttpRequest): Future[Option[Array[Byte]]] = req.contentLength match {
       case Some(length) if length > 0 => Some(getRequestBody(req)).toFuture
-      case _                          => None.toFuture
+      case _ => Future.None
     }
   }
 
@@ -703,8 +702,8 @@ package object request {
    */
   object RequiredStringBody extends RequestReader[String] {
     def apply(req: HttpRequest): Future[String] = for {
-      body <- RequiredBody(req)
-    } yield new String(body, "UTF-8")
+      b <- RequiredBody(req)
+    } yield new String(b, "UTF-8")
   }
 
   /**
@@ -713,11 +712,11 @@ package object request {
    */
   object OptionalStringBody extends RequestReader[Option[String]] {
     def apply(req: HttpRequest): Future[Option[String]] = for {
-      body <- OptionalBody(req)
-    } yield body match {
-        case Some(b) => Some(new String(b, "UTF-8"))
-        case None => None
-      }
+      b <- OptionalBody(req)
+    } yield b match {
+      case Some(body) => Some(new String(body, "UTF-8"))
+      case None => None
+    }
   }
 
   /**
