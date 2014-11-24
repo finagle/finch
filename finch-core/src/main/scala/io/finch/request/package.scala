@@ -17,7 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Contributor(s): -
+ * Contributor(s):
+ * Ben Whitehead
  */
 
 package io.finch
@@ -82,6 +83,11 @@ package object request {
    * @param header the missed header name
    */
   class HeaderNotFound(val header: String) extends RequestReaderError(s"Header '$header' not found in the request.")
+
+  /**
+   * An exception that indicated a missing body in the request.
+   */
+  class BodyNotFound extends RequestReaderError("Body not found in the request.")
 
   /**
    * An empty ''RequestReader''.
@@ -667,5 +673,73 @@ package object request {
     def apply(header: String) = new RequestReader[Option[String]] {
       def apply(req: HttpRequest) = req.headerMap.get(header).toFuture
     }
+  }
+
+  /**
+   * A ''RequestReader'' that reads the request body, interpreted as a ''Array[Byte]'',
+   * or throws a ''BodyNotFound'' exception.
+   */
+  object RequiredBody extends RequestReader[Array[Byte]] {
+    def apply(req: HttpRequest): Future[Array[Byte]] = OptionalBody(req).flatMap {
+      case Some(body) => body.toFuture
+      case None => new BodyNotFound().toFutureException
+    }
+  }
+
+  /**
+   * A ''RequestReader'' that reads the request body, interpreted as a ''Array[Byte]'',
+   * into an ''Option''.
+   */
+  object OptionalBody extends RequestReader[Option[Array[Byte]]]{
+    def apply(req: HttpRequest): Future[Option[Array[Byte]]] = req.contentLength match {
+      case Some(length) if length > 0 => Some(getRequestBody(req)).toFuture
+      case _                          => None.toFuture
+    }
+  }
+
+  /**
+   * A ''RequestReader'' that reads the request body, interpreted as a ''String'',
+   * or throws a ''BodyNotFound'' exception.
+   */
+  object RequiredStringBody extends RequestReader[String] {
+    def apply(req: HttpRequest): Future[String] = for {
+      body <- RequiredBody(req)
+    } yield new String(body, "UTF-8")
+  }
+
+  /**
+   * A ''RequestReader'' that reads the request body, interpreted as a ''String'',
+   * into an ''Option''.
+   */
+  object OptionalStringBody extends RequestReader[Option[String]] {
+    def apply(req: HttpRequest): Future[Option[String]] = for {
+      body <- OptionalBody(req)
+    } yield body match {
+        case Some(b) => Some(new String(b, "UTF-8"))
+        case None => None
+      }
+  }
+
+  /**
+   * A helper function that encapsulates the logic necessary to turn the ''ChannelBuffer''
+   * of ''req'' into an ''Array[Byte]''
+   * @param req The request to read from
+   * @return The ''Array[Byte]'' representing the contents of the request body
+   */
+  private[this] def getRequestBody(req: HttpRequest): Array[Byte] = {
+    val channelBuffer = req.content
+    //Check if channelBuffer  can be handled with array method
+    if (channelBuffer.hasArray) {
+      val array = channelBuffer.array
+
+      //the index of the first byte in the backing byte array of this ChannelBuffer.
+      //if there isn't a backing byte array, then this throws
+      val arrayOffset = channelBuffer.arrayOffset
+      //the index of the first readable byte in this ChannelBuffer
+      val readerIndex = channelBuffer.readerIndex()
+
+      //return a copy of the backing array, starting at the effective beginning of the HTTP response body
+      array.slice(arrayOffset + readerIndex, array.length)
+    } else channelBuffer.toByteBuffer.array
   }
 }
