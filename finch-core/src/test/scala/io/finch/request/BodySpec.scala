@@ -18,7 +18,7 @@
  * limitations under the License.
  *
  * Contributor(s):
- * Ryan Plessner
+ * Ben Whitehead
  */
 package io.finch.request
 
