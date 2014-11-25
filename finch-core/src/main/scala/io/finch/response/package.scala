@@ -162,13 +162,21 @@ package object response {
   object NotExtended extends ResponseBuilder(Status.NotExtended)                 // 510
 
   /**
+   * An old version of `ResponseBuilder`.
+   */
+  @deprecated("Use predefined response builders like `Ok` or `SeeOther` instead.", "0.1.8")
+  class Respond(status: HttpResponseStatus, headers: Map[String, String] = Map.empty)
+    extends ResponseBuilder(status, headers)
+
+  /**
    * Creates a new `ResponseBuilder` from given `status` and `headers` map.
    */
   @deprecated("Use predefined response builders like `Ok` or `SeeOther` instead.", "0.1.8")
   object Respond {
     def apply(status: HttpResponseStatus, headers: Map[String, String] = Map.empty) =
-      ResponseBuilder(status, headers)
+      new Respond(status, headers)
   }
+
 
   /**
    * A factory for Redirecting to other URLs.
