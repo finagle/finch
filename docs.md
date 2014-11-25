@@ -7,6 +7,7 @@
   * [Multiple-Value Params](docs.md#multiple-value-params)
   * [HTTP Headers](docs.md#http-headers)
 * [Responses](docs.md#responses)
+  * [HTTP Redirects](docs.md#response-builderg)
   * [HTTP Redirects](docs.md#redirects)
 * [Authentication](docs.md#authentication)
   * [OAuth2](docs.md#authorization-with-oauth2)
@@ -290,6 +291,8 @@ The HTTP headers may also be read with `RequestReader`. The following pre-define
 
 ## Responses
 
+### Response Builder
+
 An entry point into the construction of HTTP responses in **Finch.io** is the `io.finch.response.ResponseBuilder` class.  
 It supports building of three types of responses: 
 * `application/json` within JSON object in the response body
@@ -311,8 +314,8 @@ val c = Created(JsonObject("id" -> 42)) // 'application/json' response with stat
 HTTP headers may be added to respond instance with `withHeaders()` method:
 
 ```scala
-val ok: Respond = SeeOther.withHeaders("Some-Header-A" -> "a", "Some-Header-B" -> "b")
-val rep: HttpResponse = ok(JsonObject("a" -> 10))
+val seeOther: ResponseBuilder = SeeOther.withHeaders("Some-Header-A" -> "a", "Some-Header-B" -> "b")
+val rep: HttpResponse = seeOther(JsonObject("a" -> 10))
 ```
 
 You might be surprised but **Finch.io** has response builders for _all_ the HTTP statuses: just import 
@@ -327,7 +330,7 @@ object Hello extends Service[HttpRequest, HttpResponse] {
   def apply(req: HttpRequest) = for {
     name <- RequiredParam("name")(req)
   } yield Ok(s"Hello, $name!")
-}g
+}
 ```
 
 ### Redirects
