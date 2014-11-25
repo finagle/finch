@@ -7,7 +7,7 @@
   * [Multiple-Value Params](docs.md#multiple-value-params)
   * [HTTP Headers](docs.md#http-headers)
 * [Responses](docs.md#responses)
-  * [HTTP Redirects](docs.md#response-builder)
+  * [Response Builder](docs.md#response-builder)
   * [HTTP Redirects](docs.md#redirects)
 * [Authentication](docs.md#authentication)
   * [OAuth2](docs.md#authorization-with-oauth2)
