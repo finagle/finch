@@ -42,7 +42,7 @@ package object json {
       // for now we don't query arrays
       this match {
         case JsonObject(map) => loop(path.split('.').toList, map)
-        case JsonArray(_) => None
+        case _ => None
       }
     }
   }
@@ -60,14 +60,14 @@ package object json {
      *
      * @return an empty json object
      */
-    def emptyObject = JsonObject(Map.empty[String, Any])
+    def emptyObject: Json = JsonObject(Map.empty[String, Any])
 
     /**
      * Creates an empty json array.
      *
      * @return an empty json array.
      */
-    def emptyArray = JsonArray(List.empty[Any])
+    def emptyArray: Json = JsonArray(List.empty[Any])
 
     /**
      * Creates a new json array of given sequence of items ''args''.
@@ -76,7 +76,7 @@ package object json {
      *
      * @return a new json array
      */
-    def arr(args: Any*) = JsonArray(args.toList)
+    def arr(args: Any*): Json = JsonArray(args.toList)
 
     /**
      * Creates a json object of given sequence of properties ''args''. Every
@@ -87,7 +87,7 @@ package object json {
      *
      * @return a json object
      */
-    def obj(args: (String, Any)*) = {
+    def obj(args: (String, Any)*): Json = {
       def loop(path: List[String], value: Any): Map[String, Any] = path match {
         case tag :: Nil => Map(tag -> value)
         case tag :: tail => Map(tag -> JsonObject(loop(tail, value)))
@@ -98,11 +98,11 @@ package object json {
           Seq(JsonObject(loop(path.split('.').toList, if (value == null) JsonNull else value)))
       }
 
-      jsonSeq.foldLeft(Json.emptyObject) { Json.mergeRight }
+      jsonSeq.foldLeft(Json.emptyObject) { Json.mergeRight(_, _) }
     }
 
 
-    def decode(s: String): Json = Json.emptyObject
+    def decode(s: String): Json = JsonNull
 
     def encode(j: Json): String = {
       def escape(s: String) = s flatMap {
@@ -162,6 +162,7 @@ package object json {
 
       (a, b) match {
         case (JsonObject(aa), JsonObject(bb)) => JsonObject(loop(aa, bb))
+        case _ => JsonNull
         // TODO: How to merge arrays?
         // TODO: How to merge array with object
       }
@@ -185,6 +186,7 @@ package object json {
       case (JsonArray(aa), JsonArray(bb)) => JsonArray(aa ::: bb)
       case (JsonArray(aa), bb: JsonObject) => JsonArray(aa :+ bb)
       case (aa: JsonObject, JsonArray(bb)) => JsonArray(aa :: bb) // TODO: This is not clear
+      case _ => JsonNull
     }
 
     /**
@@ -203,6 +205,7 @@ package object json {
       }
 
       j match {
+        case JsonNull => JsonNull
         case JsonObject(map) => JsonObject(loop(map))
         case JsonArray(list) => JsonArray(list.map {
           case jj: Json => Json.compress(jj)
