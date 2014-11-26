@@ -5,7 +5,47 @@ package object json {
   /**
    *
    */
-  sealed trait Json
+  sealed trait Json {
+
+    /**
+     *
+     */
+    override def toString: String = Json.encode(this)
+
+    /**
+     *
+     */
+    def merge(that: Json): Json = Json.mergeLeft(this, that)
+
+    /**
+     *
+     */
+    def concat(that: Json): Json = Json.concatLeft(this, that)
+
+    /**
+     *
+     */
+    def compressed: Json = Json.compress(this)
+
+    /**
+     *
+     */
+    def query[A](path: String): Option[A] = {
+      def loop(path: List[String], outer: Map[String, Any]): Option[A] = path match {
+        case tag :: Nil => outer.get(tag) map { _.asInstanceOf[A] }
+        case tag :: tail => outer.get(tag) match {
+          case Some(JsonObject(inner)) => loop(tail, inner)
+          case _ => None
+        }
+      }
+
+      // for now we don't query arrays
+      this match {
+        case JsonObject(map) => loop(path.split('.').toList, map)
+        case JsonArray(_) => None
+      }
+    }
+  }
 
   case class JsonObject(map: Map[String, Any]) extends Json
 
@@ -95,7 +135,7 @@ package object json {
      *
      * @return a merged json object
      */
-    def mergeRight(a: JsonObject, b: JsonObject) = mergeLeft(b, a)
+    def mergeRight(a: Json, b: Json): Json = mergeLeft(b, a)
 
     /**
      * Deeply merges given json objects ''a'' and ''b'' into a single json object.
@@ -106,7 +146,7 @@ package object json {
      *
      * @return a merged json object
      */
-    def mergeLeft(a: JsonObject, b: JsonObject): JsonObject = {
+    def mergeLeft(a: Json, b: Json): Json = {
       def loop(aa: Map[String, Any], bb: Map[String, Any]): Map[String, Any] =
         if (aa.isEmpty) bb
         else if (bb.isEmpty) aa
@@ -120,25 +160,39 @@ package object json {
           }
         }
 
-      JsonObject(loop(a.map, b.map))
+      (a, b) match {
+        case (JsonObject(aa), JsonObject(bb)) => JsonObject(loop(aa, bb))
+        // TODO: How to merge arrays?
+        // TODO: How to merge array with object
+      }
     }
 
     /**
-     * Concatenates two given arrays ''a'' and ''b''.
      *
-     * @param a the left array
-     * @param b the right array
+     */
+    def concatRight(a: Json, b: Json): Json = concatLeft(b, a)
+
+    /**
+     * Concatenates two given json object ''a'' and ''b''.
+     *
+     * @param a the left object
+     * @param b the right object
      *
      * @return a concatenated array
      */
-    def concat(a: JsonArray, b: JsonArray) = JsonArray(a.list ::: b.list)
+    def concatLeft(a: Json, b: Json): Json = (a, b) match {
+      case (JsonObject(aa), JsonObject(bb)) => JsonObject(aa ++ bb)
+      case (JsonArray(aa), JsonArray(bb)) => JsonArray(aa ::: bb)
+      case (JsonArray(aa), bb: JsonObject) => JsonArray(aa :+ bb)
+      case (aa: JsonObject, JsonArray(bb)) => JsonArray(aa :: bb) // TODO: This is not clear
+    }
 
     /**
      * Removes all null-value properties from this json object.
      *
      * @return a compressed json object
      */
-    def compress(j: JsonObject) = {
+    def compress(j: Json): Json = {
       def loop(obj: Map[String, Any]): Map[String, Any] = obj.flatMap {
         case (t, JsonNull) => Map.empty[String, Any]
         case (tag, JsonObject(map)) =>
@@ -148,10 +202,14 @@ package object json {
         case (tag, value) => Map(tag -> value)
       }
 
-      JsonObject(loop(j.map))
+      j match {
+        case JsonObject(map) => JsonObject(loop(map))
+        case JsonArray(list) => JsonArray(list.map {
+          case jj: Json => Json.compress(jj)
+          case ii => ii
+        })
+      }
     }
-
-    def query[A](path: String)(json: Json): A = ???
   }
 
   implicit object EncodeDeprecatedJson extends EncodeJson[Json] {
