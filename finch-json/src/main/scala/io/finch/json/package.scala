@@ -152,7 +152,7 @@ package object json {
      *
      * @return a decoded json object
      */
-    def decode(s: String): Json = JsonNull
+    def decode(s: String): Json = JsonNull // TODO: implement it
 
     /**
      * Encodes the given json object `j` into its string representation.
@@ -219,9 +219,9 @@ package object json {
 
       (a, b) match {
         case (JsonObject(aa), JsonObject(bb)) => JsonObject(loop(aa, bb))
-        case _ => JsonNull
-        // TODO: How to merge arrays?
-        // TODO: How to merge array with object
+        case (aa, JsonNull) => aa
+        case (JsonNull, bb) => bb
+        case _ => throw new IllegalArgumentException("Can not merge json arrays with anything.")
       }
     }
 
@@ -246,9 +246,9 @@ package object json {
     def concatLeft(a: Json, b: Json): Json = (a, b) match {
       case (JsonObject(aa), JsonObject(bb)) => JsonObject(aa ++ bb)
       case (JsonArray(aa), JsonArray(bb)) => JsonArray(aa ::: bb)
-      case (JsonArray(aa), bb: JsonObject) => JsonArray(aa :+ bb)
-      case (aa: JsonObject, JsonArray(bb)) => JsonArray(aa :: bb) // TODO: This is not clear
-      case _ => JsonNull
+      case (aa, JsonNull) => aa
+      case (JsonNull, bb) => bb
+      case _ => throw new IllegalArgumentException("Can not concat json arrays with json objects.")
     }
 
     /**
