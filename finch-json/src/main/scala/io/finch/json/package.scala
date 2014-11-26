@@ -132,6 +132,26 @@ package object json {
      * @return a concatenated array
      */
     def concat(a: JsonArray, b: JsonArray) = JsonArray(a.list ::: b.list)
+
+    /**
+     * Removes all null-value properties from this json object.
+     *
+     * @return a compressed json object
+     */
+    def compress(j: JsonObject) = {
+      def loop(obj: Map[String, Any]): Map[String, Any] = obj.flatMap {
+        case (t, JsonNull) => Map.empty[String, Any]
+        case (tag, JsonObject(map)) =>
+          val o = loop(map)
+          if (o.isEmpty) Map.empty[String, Any]
+          else Map(tag -> JsonObject(o))
+        case (tag, value) => Map(tag -> value)
+      }
+
+      JsonObject(loop(j.map))
+    }
+
+    def query[A](path: String)(json: Json): A = ???
   }
 
   implicit object EncodeDeprecatedJson extends EncodeJson[Json] {
