@@ -28,32 +28,39 @@ package io.finch
 package object json {
 
   /**
-   *
+   * An immutable Json API.
    */
   sealed trait Json {
 
     /**
-     *
+     * The string representation of this json object.
      */
     override def toString: String = Json.encode(this)
 
     /**
-     *
+     * Merges this json object with given `that` one.
+     * See [[Json.mergeLeft]] for details.
      */
     def merge(that: Json): Json = Json.mergeLeft(this, that)
 
     /**
-     *
+     * Concatenates this json object with given `that` one.
+     * See [[Json.concatLeft]] for details.
      */
     def concat(that: Json): Json = Json.concatLeft(this, that)
 
     /**
-     *
+     * A compressed version of this json object.
+     * See [[Json.compress]] for details.
      */
     def compressed: Json = Json.compress(this)
 
     /**
+     * Queries this json object by the given `path`.
      *
+     * @param path a path to json value
+     *
+     * @return an option of json value
      */
     def query[A](path: String): Option[A] = {
       def loop(path: List[String], outer: Map[String, Any]): Option[A] = path match {
@@ -72,12 +79,24 @@ package object json {
     }
   }
 
+  /**
+   *  A json object with underlying `map`.
+   */
   case class JsonObject(map: Map[String, Any]) extends Json
 
+  /**
+   * A json array with underlying `list`.
+   */
   case class JsonArray(list: List[Any]) extends Json
 
+  /**
+   * A json null value.
+   */
   object JsonNull extends Json
 
+  /**
+   * A json companion object, which in an entry point into JSON API.
+   */
   object Json {
 
     /**
@@ -126,9 +145,22 @@ package object json {
       jsonSeq.foldLeft(Json.emptyObject) { Json.mergeRight(_, _) }
     }
 
-
+    /**
+     * Decodes a json object from the given string `s`.
+     *
+     * @param s a string representation of a json object
+     *
+     * @return a decoded json object
+     */
     def decode(s: String): Json = JsonNull
 
+    /**
+     * Encodes the given json object `j` into its string representation.
+     *
+     * @param j a json object to encode
+     *
+     * @return a string representation of a json object
+     */
     def encode(j: Json): String = {
       def escape(s: String) = s flatMap {
         case '"'  => "\\\""
@@ -194,12 +226,17 @@ package object json {
     }
 
     /**
+     * Concatenates two given json object ''a'' and ''b'' with ''b'' object priority.
      *
+     * @param a the left object
+     * @param b the right object
+     *
+     * @return a concatenated array
      */
     def concatRight(a: Json, b: Json): Json = concatLeft(b, a)
 
     /**
-     * Concatenates two given json object ''a'' and ''b''.
+     * Concatenates two given json object ''a'' and ''b'' with ''a'' object in priority.
      *
      * @param a the left object
      * @param b the right object
