@@ -1,49 +1,54 @@
 package io.finch
 
-import scala.util.parsing.json.{JSONType, JSONArray, JSONObject, JSONFormat}
-
 package object json {
-  /**
-   * A default json formatter that doesn't escape forward slashes.
-   */
-  object JsonFormatter extends JSONFormat.ValueFormatter {
 
-    def apply(x: Any) = x match {
-      case s: String => "\"" + formatString(s) + "\""
-      case o: JSONObject => o.toString(this)
-      case a: JSONArray => a.toString(this)
-      case other => other.toString
+  sealed trait Json
+
+  object Json {
+
+    def decode(s: String): Json = Json.emptyObject
+
+    def encode(j: Json): String = {
+      def escape(s: String) = s flatMap {
+        case '"'  => "\\\""
+        case '\\' => "\\\\"
+        case '\b' => "\\b"
+        case '\f' => "\\f"
+        case '\n' => "\\n"
+        case '\r' => "\\r"
+        case '\t' => "\\t"
+        case c => c.toString
+      }
+
+      def wire(any: Any): String = any match {
+        case s: String => escape(s)
+        case JsonObject(map) => "{" + map.map({ case (k,v) => wire(k.toString) + " : " + wire(v) }) + "}"
+        case JsonArray(list) => "[" + list.map(wire).mkString(",") + "]"
+        case other => other.toString
+      }
+
+      wire(j)
     }
 
-    def formatString(s: String) = s flatMap { escapeOrSkip(_) }
-
-    def escapeOrSkip: PartialFunction[Char, String] = escapeChar orElse {
-      case c => c.toString
-    }
-
-    /**
-     * A partial function that defines a set of rules on how to escape the
-     * special characters in a string.
-     *
-     * @return an escaped char represented as a string
-     */
-    def escapeChar: PartialFunction[Char, String] = {
-      case '"'  => "\\\""
-      case '\\' => "\\\\"
-      case '\b' => "\\b"
-      case '\f' => "\\f"
-      case '\n' => "\\n"
-      case '\r' => "\\r"
-      case '\t' => "\\t"
-    }
+    def emptyObject = JsonObject()
+    def emptyArray = JsonArray()
   }
 
-  implicit object EncodeDeprecatedJson extends EncodeJson[JSONType] {
-    def apply(json: JSONType): String = json.toString(JsonFormatter)
+  case class JsonObject(map: Map[String, Any] = Map.empty[String, Any]) extends Json {
+    def this(args: (String, Any)*) = this(args.toMap)
   }
 
-  implicit object DecodeDeprecatedJson extends DecodeJson[JSONType] {
-    // TODO: figure out how to do the parsing
-    def apply(json: String): JSONType = JSONObject(Map.empty)
+  case class JsonArray(list: List[Any] = List.empty[Any]) extends Json {
+    def this(args: Any*) = this(args.toList)
+  }
+
+  object JsonNull extends Json
+
+  implicit object EncodeDeprecatedJson extends EncodeJson[Json] {
+    def apply(json: Json): String = Json.encode(json)
+  }
+
+  implicit object DecodeDeprecatedJson extends DecodeJson[Json] {
+    def apply(json: String): Json = Json.decode(json)
   }
 }
