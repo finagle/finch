@@ -49,6 +49,6 @@ package object json {
   }
 
   object TurnJsonIntoHttp {
-    def apply[A](req: A)(implicit encode: EncodeJson[A]) = (new TurnJsonIntoHttp[A](encode))(req)
+    def apply[A](implicit encode: EncodeJson[A]) = new TurnJsonIntoHttp[A](encode)
   }
 }
