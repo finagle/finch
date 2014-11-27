@@ -64,7 +64,7 @@ package object json {
      *
      * @return an option of json value
      */
-    def query[A](path: String): Option[A] = {
+    def apply[A](path: String): Option[A] = {
       def loop(path: List[String], outer: Map[String, Any]): Option[A] = path match {
         case tag :: Nil => outer.get(tag) map { _.asInstanceOf[A] }
         case tag :: tail => outer.get(tag) match {
@@ -152,9 +152,9 @@ package object json {
      *
      * @param s a string representation of a json object
      *
-     * @return a decoded json object
+     * @return a decoded json object wrapping in option
      */
-    def decode(s: String): Json = {
+    def decode(s: String): Option[Json] = {
       def wrap(a: Any): Any = a match {
         case list: List[_] => JsonArray(list map wrap)
         case map: Map[_, _] => JsonObject(map map {
@@ -164,8 +164,8 @@ package object json {
       }
 
       JSON.parseFull(s) match {
-        case Some(json) => wrap(json).asInstanceOf[Json]
-        case None => throw new IllegalArgumentException("Can not parse JSON from string.")
+        case Some(json) => Some(wrap(json).asInstanceOf[Json])
+        case None => None
       }
     }
 
@@ -298,6 +298,6 @@ package object json {
   }
 
   implicit object DecodeFinchJson extends DecodeJson[Json] {
-    def apply(json: String): Json = Json.decode(json)
+    def apply(json: String): Option[Json] = Json.decode(json)
   }
 }

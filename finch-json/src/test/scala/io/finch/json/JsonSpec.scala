@@ -46,8 +46,8 @@ class JsonSpec extends FlatSpec with Matchers {
   }
 
   it should "support JSON from string decoding" in {
-    Json.decode("{\"a\":1,\"b\":[1,2,3]}") shouldBe Json.obj("a" -> 1, "b" -> Json.arr(1, 2, 3))
-    Json.decode("[\"a\",\"b\",{\"c\":1}]") shouldBe Json.arr("a", "b", Json.obj("c" -> 1))
+    Json.decode("{\"a\":1,\"b\":[1,2,3]}") shouldBe Some(Json.obj("a" -> 1, "b" -> Json.arr(1, 2, 3)))
+    Json.decode("[\"a\",\"b\",{\"c\":1}]") shouldBe Some(Json.arr("a", "b", Json.obj("c" -> 1)))
   }
 
   it should "compress objects" in {
@@ -123,8 +123,8 @@ class JsonSpec extends FlatSpec with Matchers {
   it should "query properties" in {
     val a = Json.obj("a.b.c" -> 10, "a.d" -> Json.arr(1, 2, 3))
 
-    a.query[Json]("a.b").map(unwrapObject) shouldBe Some(Map("c" -> 10))
-    a.query[Int]("a.b.c") shouldBe Some(10)
-    a.query[Json]("a.d").map(unwrapArray) shouldBe Some(List(1, 2, 3))
+    a[Json]("a.b").map(unwrapObject) shouldBe Some(Map("c" -> 10))
+    a[Int]("a.b.c") shouldBe Some(10)
+    a[Json]("a.d").map(unwrapArray) shouldBe Some(List(1, 2, 3))
   }
 }

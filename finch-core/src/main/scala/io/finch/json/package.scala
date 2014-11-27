@@ -38,7 +38,7 @@ package object json {
    * An abstraction that is responsible for string to JSON decoding.
    */
   trait DecodeJson[A] {
-    def apply(json: String): A
+    def apply(json: String): Option[A]
   }
 
   /**
