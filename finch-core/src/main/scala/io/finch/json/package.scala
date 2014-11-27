@@ -44,7 +44,7 @@ package object json {
   /**
    * A service that converts JSON into HTTP response with status ''OK''.
    */
-  class TurnJsonIntoHttp[A](val encode:gi EncodeJson[A]) extends Service[A, HttpResponse] {
+  class TurnJsonIntoHttp[A](val encode: EncodeJson[A]) extends Service[A, HttpResponse] {
     def apply(req: A) = Ok(req)(encode).toFuture
   }
 
