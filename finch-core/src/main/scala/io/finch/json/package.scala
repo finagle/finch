@@ -43,10 +43,12 @@ package object json {
 
   /**
    * A service that converts JSON into HTTP response with status ''OK''.
-   *
-   * TODO: figure out how to be able to use `TurnJsonIntoHttp` instead of `TurnJsonIntoHttp()`
    */
-  case class TurnJsonIntoHttp[A](implicit encode: EncodeJson[A]) extends Service[A, HttpResponse] {
-    def apply(req: A) = Ok(req).toFuture
+  class TurnJsonIntoHttp[A](val encode:gi EncodeJson[A]) extends Service[A, HttpResponse] {
+    def apply(req: A) = Ok(req)(encode).toFuture
+  }
+
+  object TurnJsonIntoHttp {
+    def apply[A](req: A)(implicit encode: EncodeJson[A]) = (new TurnJsonIntoHttp[A](encode))(req)
   }
 }

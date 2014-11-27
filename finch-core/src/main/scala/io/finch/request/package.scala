@@ -24,6 +24,7 @@
 package io.finch
 
 import com.twitter.util.Future
+import io.finch.json.DecodeJson
 
 package object request {
 
@@ -717,6 +718,39 @@ package object request {
       case Some(body) => Some(new String(body, "UTF-8"))
       case None => None
     }
+  }
+
+  /**
+   * A ''RequestReader'' that reads an optional json object serialized in request body into
+   * an ''Option''.
+   */
+  class OptionalJsonBody[A](val decode: DecodeJson[A]) extends RequestReader[Option[A]] {
+    def apply(req: HttpRequest): Future[Option[A]] = for {
+      b <- OptionalStringBody(req)
+    } yield b match {
+      case Some(body) => decode(body)
+      case None => None
+    }
+  }
+
+  object OptionalJsonBody {
+    def apply[A](implicit decode: DecodeJson[A]) = new OptionalJsonBody[A](decode)
+    def apply[A](req: HttpRequest)(implicit decode: DecodeJson[A]) = (new OptionalJsonBody[A](decode))(req)
+  }
+
+  /**
+   * A ''RequestReader'' that read a json object serialized ni request body.
+   */
+  class RequiredJsonBody[A](val decode: DecodeJson[A]) extends RequestReader[A] {
+    def apply(req: HttpRequest): Future[A] = OptionalJsonBody(req)(decode) flatMap {
+      case Some(json) => json.toFuture
+      case None => new ValidationFailed("a", "a").toFutureException
+    }
+  }
+
+  object RequiredJsonBody {
+    def apply[A](implicit decode: DecodeJson[A]) = new RequiredJsonBody[A](decode)
+    def apply[A](req: HttpRequest)(implicit decode: DecodeJson[A]) = (new RequiredJsonBody[A](decode))(req)
   }
 
   /**
