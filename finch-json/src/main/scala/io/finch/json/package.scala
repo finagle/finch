@@ -211,8 +211,8 @@ package object json {
           val (tag, value) = aa.head
           if (!bb.contains(tag)) loop(aa.tail, bb + (tag -> value))
           else (value, bb(tag)) match {
-            case (ja: JsonObject, jb: JsonObject) =>
-              loop(aa.tail, bb + (tag -> JsonObject(loop(ja.map, jb.map))))
+            case (JsonObject(aaa), JsonObject(bbb)) =>
+              loop(aa.tail, bb + (tag -> JsonObject(loop(aaa, bbb))))
             case (_, _) => loop(aa.tail, bb + (tag -> value))
           }
         }
