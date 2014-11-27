@@ -293,11 +293,11 @@ package object json {
     }
   }
 
-  implicit object EncodeDeprecatedJson extends EncodeJson[Json] {
+  implicit object EncodeFinchJson extends EncodeJson[Json] {
     def apply(json: Json): String = Json.encode(json)
   }
 
-  implicit object DecodeDeprecatedJson extends DecodeJson[Json] {
+  implicit object DecodeFinchJson extends DecodeJson[Json] {
     def apply(json: String): Json = Json.decode(json)
   }
 }
