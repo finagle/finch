@@ -37,10 +37,17 @@ class JsonSpec extends FlatSpec with Matchers {
     val a = Json.obj("a.b" -> 1, "a.c" -> 2, "a.d.e" -> 3)
     val b = Json.obj("a" -> 1)
     val c = Json.arr("1", 2, Json.obj("3" -> 3))
+    val d = JsonNull
 
     Json.encode(a) shouldBe "{a:{b:1,c:2,d:{e:3}}}"
     Json.encode(b) shouldBe "{a:1}"
     Json.encode(c) shouldBe "[1,2,{3:3}]"
+    Json.encode(d) shouldBe "null"
+  }
+
+  it should "support JSON from string decoding" in {
+    Json.decode("{\"a\":1,\"b\":[1,2,3]}") shouldBe Json.obj("a" -> 1, "b" -> Json.arr(1, 2, 3))
+    Json.decode("[\"a\",\"b\",{\"c\":1}]") shouldBe Json.arr("a", "b", Json.obj("c" -> 1))
   }
 
   it should "compress objects" in {

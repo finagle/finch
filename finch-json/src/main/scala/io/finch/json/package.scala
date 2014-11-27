@@ -22,6 +22,8 @@
 
 package io.finch
 
+import scala.util.parsing.json.JSON
+
 /**
  * This package contains the default JSON implementation for the Finch.io library.
  */
@@ -152,7 +154,20 @@ package object json {
      *
      * @return a decoded json object
      */
-    def decode(s: String): Json = JsonNull // TODO: implement it
+    def decode(s: String): Json = {
+      def wrap(a: Any): Any = a match {
+        case list: List[_] => JsonArray(list map wrap)
+        case map: Map[_, _] => JsonObject(map map {
+          case (k, v) => k.toString -> wrap(v)
+        })
+        case other => other
+      }
+
+      JSON.parseFull(s) match {
+        case Some(json) => wrap(json).asInstanceOf[Json]
+        case None => throw new IllegalArgumentException("Can not parse JSON from string.")
+      }
+    }
 
     /**
      * Encodes the given json object `j` into its string representation.
@@ -177,6 +192,7 @@ package object json {
         case s: String => escape(s)
         case JsonObject(map) => "{" + map.map({ case (k, v) => wire(k.toString) + ":" + wire(v) }).mkString(",") + "}"
         case JsonArray(list) => "[" + list.map(wire).mkString(",") + "]"
+        case JsonNull => "null"
         case other => other.toString
       }
 
