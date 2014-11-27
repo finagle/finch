@@ -5,5 +5,5 @@
 /.idea/
 /.idea_modules/
 /finch-core/target/
-/finch-scalajson/target/
+/finch-json/target/
 Demo.scala
