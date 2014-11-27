@@ -90,6 +90,11 @@ package object request {
   class BodyNotFound extends RequestReaderError("Body not found in the request.")
 
   /**
+   * An exception that indicates an error in JSON format.
+   */
+  class JsonNotParsed extends RequestReaderError("A JSON serialized in a request boody can not be parsed.")
+
+  /**
    * An empty ''RequestReader''.
    */
   object EmptyReader extends RequestReader[Nothing] {
@@ -132,6 +137,31 @@ package object request {
       catch { case _: IllegalArgumentException => Nil }
     }
   }
+
+  /**
+   * A helper function that encapsulates the logic necessary to turn the ''ChannelBuffer''
+   * of ''req'' into an ''Array[Byte]''
+   * @return The ''Array[Byte]'' representing the contents of the request body
+   */
+  private[this] object RequestBody {
+    def apply(req: HttpRequest): Array[Byte] = {
+      val channelBuffer = req.content
+      //Check if channelBuffer  can be handled with array method
+      if (channelBuffer.hasArray) {
+        val array = channelBuffer.array
+
+        //the index of the first byte in the backing byte array of this ChannelBuffer.
+        //if there isn't a backing byte array, then this throws
+        val arrayOffset = channelBuffer.arrayOffset
+        //the index of the first readable byte in this ChannelBuffer
+        val readerIndex = channelBuffer.readerIndex()
+
+        //return a copy of the backing array, starting at the effective beginning of the HTTP response body
+        array.slice(arrayOffset + readerIndex, array.length)
+      } else channelBuffer.toByteBuffer.array
+    }
+  }
+
 
   /**
    * A required string param.
@@ -692,7 +722,7 @@ package object request {
    */
   object OptionalBody extends RequestReader[Option[Array[Byte]]]{
     def apply(req: HttpRequest): Future[Option[Array[Byte]]] = req.contentLength match {
-      case Some(length) if length > 0 => Some(getRequestBody(req)).toFuture
+      case Some(length) if length > 0 => Some(RequestBody(req)).toFuture
       case _ => Future.None
     }
   }
@@ -744,35 +774,12 @@ package object request {
   class RequiredJsonBody[A](val decode: DecodeJson[A]) extends RequestReader[A] {
     def apply(req: HttpRequest): Future[A] = OptionalJsonBody(req)(decode) flatMap {
       case Some(json) => json.toFuture
-      case None => new ValidationFailed("a", "a").toFutureException
+      case None => new JsonNotParsed().toFutureException
     }
   }
 
   object RequiredJsonBody {
     def apply[A](implicit decode: DecodeJson[A]) = new RequiredJsonBody[A](decode)
     def apply[A](req: HttpRequest)(implicit decode: DecodeJson[A]) = (new RequiredJsonBody[A](decode))(req)
-  }
-
-  /**
-   * A helper function that encapsulates the logic necessary to turn the ''ChannelBuffer''
-   * of ''req'' into an ''Array[Byte]''
-   * @param req The request to read from
-   * @return The ''Array[Byte]'' representing the contents of the request body
-   */
-  private[this] def getRequestBody(req: HttpRequest): Array[Byte] = {
-    val channelBuffer = req.content
-    //Check if channelBuffer  can be handled with array method
-    if (channelBuffer.hasArray) {
-      val array = channelBuffer.array
-
-      //the index of the first byte in the backing byte array of this ChannelBuffer.
-      //if there isn't a backing byte array, then this throws
-      val arrayOffset = channelBuffer.arrayOffset
-      //the index of the first readable byte in this ChannelBuffer
-      val readerIndex = channelBuffer.readerIndex()
-
-      //return a copy of the backing array, starting at the effective beginning of the HTTP response body
-      array.slice(arrayOffset + readerIndex, array.length)
-    } else channelBuffer.toByteBuffer.array
   }
 }
