@@ -23,7 +23,6 @@
 
 package io.finch
 
-import io.finch.json.EncodeJson
 import org.jboss.netty.handler.codec.http.HttpResponseStatus
 import com.twitter.finagle.http.{Status, Response}
 import com.twitter.finagle.http.path.Path

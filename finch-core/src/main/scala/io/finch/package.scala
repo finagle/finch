@@ -22,7 +22,6 @@
 
 package io
 
-import io.finch.json._
 import com.twitter.finagle.http._
 import com.twitter.util.Future
 import com.twitter.finagle.{Filter, Service}

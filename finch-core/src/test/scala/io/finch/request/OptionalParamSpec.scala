@@ -26,10 +26,9 @@ package io.finch.request
 import com.twitter.finagle.http.Request
 import com.twitter.util.{Await, Future}
 import io.finch._
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers._
+import org.scalatest.{Matchers, FlatSpec}
 
-class OptionalParamSpec extends FlatSpec {
+class OptionalParamSpec extends FlatSpec with Matchers {
 
   "An OptionalParam" should "be properly parsed when it exists" in {
     val request: HttpRequest = Request.apply(("foo", "5"))

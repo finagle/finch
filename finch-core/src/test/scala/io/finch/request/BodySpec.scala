@@ -20,6 +20,7 @@
  * Contributor(s):
  * Ben Whitehead
  */
+
 package io.finch.request
 
 import com.twitter.finagle.http.Request
@@ -27,11 +28,9 @@ import com.twitter.util.{Await, Future}
 import io.finch.HttpRequest
 import org.jboss.netty.buffer.ChannelBuffers
 import org.jboss.netty.handler.codec.http.HttpHeaders
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers._
+import org.scalatest.{Matchers, FlatSpec}
 
-
-class BodySpec extends FlatSpec {
+class BodySpec extends FlatSpec with Matchers {
   val foo = "foo"
   val fooBytes = foo.getBytes("UTF-8")
 
