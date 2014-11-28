@@ -1,9 +1,5 @@
 *.iml
-/target/
-/project/target/
-/project/project/target/
-/.idea/
-/.idea_modules/
-/finch-core/target/
-/finch-json/target/
+target/
+.idea/
+.idea_modules/
 Demo.scala
