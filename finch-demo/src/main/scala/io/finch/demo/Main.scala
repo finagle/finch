@@ -22,8 +22,11 @@
 
 package io.finch.demo
 
-import com.twitter.finagle.Service
-import com.twitter.finagle.http.Method
+import java.net.InetSocketAddress
+
+import com.twitter.finagle.builder.ServerBuilder
+import com.twitter.finagle.{SimpleFilter, Service}
+import com.twitter.finagle.http.{RichHttp, Http, Method}
 import com.twitter.finagle.http.path._
 
 import scala.collection.mutable
@@ -35,6 +38,8 @@ import io.finch._
 import io.finch.json._
 import io.finch.json.finch._
 import io.finch.request._
+import io.finch.response._
+import io.finch.auth._
 
 import scala.util.Random
 
@@ -54,7 +59,7 @@ case class User(id: Long, name: String, tickets: Seq[Ticket]) extends ToJson {
   )
 }
 
-object UserNotFound extends Exception("User not found.")
+case class UserNotFound(userId: Long) extends Exception(s"User $userId is not found.")
 
 object WithGeneratedId {
   private[this] val random = new Random()
@@ -64,13 +69,14 @@ object WithGeneratedId {
 case class GetUser(userId: Long, db: Main.Db) extends Service[HttpRequest, User] {
   def apply(req: HttpRequest) = db.get(userId) match {
     case Some(user) => user.toFuture
-    case None => UserNotFound.toFutureException
+    case None => UserNotFound(userId).toFutureException
   }
 }
 
 case class PostUser(userId: Long, db: Main.Db) extends Service[HttpRequest, User] {
   val user = for {
     name <- RequiredParam("name")
+    _ <- ValidationRule("name", "should be greater then 5 symbols") { name.length > 5 }
   } yield User(userId, name, Seq.empty[Ticket])
 
   def apply(req: HttpRequest) = for {
@@ -118,14 +124,35 @@ object TicketEndpoint extends Endpoint[HttpRequest, ToJson] {
   }
 }
 
+object HandleExceptions extends SimpleFilter[HttpRequest, HttpResponse] {
+  def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]) =
+    service(req) handle {
+      case UserNotFound(id) => BadRequest(Json.obj("error" -> "user_not_found", "id" -> id))
+      case ParamNotFound(param) => BadRequest(Json.obj("error" -> "param_not_found", "param" -> param))
+      case ValidationFailed(param, rule) => BadRequest(Json.obj("error" -> "bad_param", "param" -> param, "rule" -> rule))
+      case BodyNotFound => BadRequest(Json.obj("error" -> "body_not_found"))
+      case JsonNotParsed => BadRequest(Json.obj("error" -> "json_not_parsed"))
+    }
+}
+
 /**
  * To run the demo from console use:
  *
  * > sbt 'project finch-demo' 'run io.finch.demo.Main'
  */
 object Main extends App {
+
   type Db = mutable.Map[Long, User]
+
   val Db = new ConcurrentHashMap[Long, User]().asScala
 
   val httpBackend = (UserEndpoint orElse TicketEndpoint) ! TurnModelIntoJson ! TurnJsonIntoHttp[Json]
+
+  val backend = BasicallyAuthorize("user", "password") ! HandleExceptions ! httpBackend
+
+  ServerBuilder()
+    .codec(RichHttp[HttpRequest](new Http()))
+    .bindTo(new InetSocketAddress(8080))
+    .name("finch-demo")
+    .build(backend.toService)
 }

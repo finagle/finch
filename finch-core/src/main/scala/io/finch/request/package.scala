@@ -66,7 +66,7 @@ package object request {
    *
    * @param param the missed parameter name
    */
-  class ParamNotFound(val param: String) extends RequestReaderError(s"Param '$param' not found in the request.")
+  case class ParamNotFound(param: String) extends RequestReaderError(s"Param '$param' not found in the request.")
 
   /**
    * An exception that indicates a broken validation rule on the param.
@@ -74,7 +74,7 @@ package object request {
    * @param param the param name
    * @param rule the rule description
    */
-  class ValidationFailed(val param: String, val rule: String)
+  case class ValidationFailed(param: String, rule: String)
     extends RequestReaderError(s"Request validation failed: param '$param' $rule.")
 
   /**
@@ -82,17 +82,17 @@ package object request {
    *
    * @param header the missed header name
    */
-  class HeaderNotFound(val header: String) extends RequestReaderError(s"Header '$header' not found in the request.")
+  case class HeaderNotFound(header: String) extends RequestReaderError(s"Header '$header' not found in the request.")
 
   /**
    * An exception that indicated a missing body in the request.
    */
-  class BodyNotFound extends RequestReaderError("Body not found in the request.")
+  object BodyNotFound extends RequestReaderError("Body not found in the request.")
 
   /**
    * An exception that indicates an error in JSON format.
    */
-  class JsonNotParsed extends RequestReaderError("A JSON serialized in a request boody can not be parsed.")
+  object JsonNotParsed extends RequestReaderError("A JSON serialized in a request boody can not be parsed.")
 
   /**
    * An empty ''RequestReader''.
@@ -120,7 +120,7 @@ package object request {
     def apply[A](param: String, rule: String)(number: => A) = new RequestReader[A] {
       def apply(req: HttpRequest) =
         try number.toFuture
-        catch { case _: IllegalArgumentException => new ValidationFailed(param, rule).toFutureException }
+        catch { case _: IllegalArgumentException => ValidationFailed(param, rule).toFutureException }
     }
   }
 
@@ -178,9 +178,9 @@ package object request {
      */
     def apply(param: String) = new RequestReader[String] {
       def apply(req: HttpRequest) = req.params.get(param) match {
-        case Some("") => new ValidationFailed(param, "should not be empty").toFutureException
+        case Some("") => ValidationFailed(param, "should not be empty").toFutureException
         case Some(value) => value.toFuture
-        case None => new ParamNotFound(param).toFutureException
+        case None => ParamNotFound(param).toFutureException
       }
     }
   }
@@ -417,7 +417,7 @@ package object request {
     def apply(param: String, rule: String)(predicate: => Boolean) = new RequestReader[Unit] {
       def apply(req: HttpRequest) =
         if (predicate) Future.Done
-        else new ValidationFailed(param, rule).toFutureException
+        else ValidationFailed(param, rule).toFutureException
     }
   }
 
@@ -437,9 +437,9 @@ package object request {
      */
     def apply(param: String) = new RequestReader[List[String]] {
       def apply(req: HttpRequest) = req.params.getAll(param).toList.flatMap(_.split(",")) match {
-        case Nil => new ParamNotFound(param).toFutureException
+        case Nil => ParamNotFound(param).toFutureException
         case unfiltered => unfiltered.filter(_ != "") match {
-          case Nil => new ValidationFailed(param, "should not be empty").toFutureException
+          case Nil => ValidationFailed(param, "should not be empty").toFutureException
           case filtered => filtered.toFuture
         }
       }
@@ -681,7 +681,7 @@ package object request {
     def apply(header: String) = new RequestReader[String] {
       def apply(req: HttpRequest) = req.headerMap.get(header) match {
         case Some(value) => value.toFuture
-        case None => new HeaderNotFound(header).toFutureException
+        case None => HeaderNotFound(header).toFutureException
       }
     }
   }
@@ -712,7 +712,7 @@ package object request {
   object RequiredBody extends RequestReader[Array[Byte]] {
     def apply(req: HttpRequest): Future[Array[Byte]] = OptionalBody(req).flatMap {
       case Some(body) => body.toFuture
-      case None => new BodyNotFound().toFutureException
+      case None => BodyNotFound.toFutureException
     }
   }
 
@@ -774,7 +774,7 @@ package object request {
   class RequiredJsonBody[A](val decode: DecodeJson[A]) extends RequestReader[A] {
     def apply(req: HttpRequest): Future[A] = OptionalJsonBody(req)(decode) flatMap {
       case Some(json) => json.toFuture
-      case None => new JsonNotParsed().toFutureException
+      case None => JsonNotParsed.toFutureException
     }
   }
 
