@@ -6,4 +6,4 @@
 /.idea_modules/
 /finch-core/target/
 /finch-json/target/
-Demo.scala
+/finch-demo/target/
