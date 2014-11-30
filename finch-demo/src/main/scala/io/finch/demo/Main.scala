@@ -74,7 +74,7 @@ case class GetUser(userId: Long, db: Main.Db) extends Service[HttpRequest, User]
 }
 
 case class PostUser(userId: Long, db: Main.Db) extends Service[HttpRequest, User] {
-  val user = for {
+  val user: RequestReader[User] = for {
     name <- RequiredParam("name")
     _ <- ValidationRule("name", "should be greater then 5 symbols") { name.length > 5 }
   } yield User(userId, name, Seq.empty[Ticket])
@@ -92,7 +92,7 @@ object TurnModelIntoJson extends Service[ToJson, Json] {
 }
 
 case class PostUserTicket(userId: Long, ticketId: Long, db: Main.Db) extends Service[HttpRequest, Ticket] {
-  val ticket = for {
+  val ticket: RequestReader[Ticket] = for {
     json <- RequiredJsonBody[Json]
   } yield Ticket(ticketId, json[String]("label").getOrElse("N/A"))
 
@@ -146,9 +146,11 @@ object Main extends App {
 
   val Db = new ConcurrentHashMap[Long, User]().asScala
 
-  val httpBackend = (UserEndpoint orElse TicketEndpoint) ! TurnModelIntoJson ! TurnJsonIntoHttp[Json]
+  val httpBackend: Endpoint[HttpRequest, HttpResponse] =
+    (UserEndpoint orElse TicketEndpoint) ! TurnModelIntoJson ! TurnJsonIntoHttp[Json]
 
-  val backend = BasicallyAuthorize("user", "password") ! HandleExceptions ! httpBackend
+  val backend: Endpoint[HttpRequest, HttpResponse] =
+    BasicallyAuthorize("user", "password") ! HandleExceptions ! httpBackend
 
   ServerBuilder()
     .codec(RichHttp[HttpRequest](new Http()))
