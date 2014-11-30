@@ -132,6 +132,7 @@ object HandleExceptions extends SimpleFilter[HttpRequest, HttpResponse] {
       case ValidationFailed(param, rule) => BadRequest(Json.obj("error" -> "bad_param", "param" -> param, "rule" -> rule))
       case BodyNotFound => BadRequest(Json.obj("error" -> "body_not_found"))
       case JsonNotParsed => BadRequest(Json.obj("error" -> "json_not_parsed"))
+      case _ => InternalServerError()
     }
 }
 
