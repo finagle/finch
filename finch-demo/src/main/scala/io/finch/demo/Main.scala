@@ -22,16 +22,16 @@
 
 package io.finch.demo
 
-import java.net.InetSocketAddress
-
 import com.twitter.finagle.builder.ServerBuilder
 import com.twitter.finagle.{SimpleFilter, Service}
 import com.twitter.finagle.http.{RichHttp, Http, Method}
 import com.twitter.finagle.http.path._
 
+import scala.util.Random
 import scala.collection.mutable
 import scala.collection.JavaConverters._
 
+import java.net.InetSocketAddress
 import java.util.concurrent.ConcurrentHashMap
 
 import io.finch._
@@ -41,16 +41,18 @@ import io.finch.request._
 import io.finch.response._
 import io.finch.auth._
 
-import scala.util.Random
-
+// A simple base class for data classes.
 trait ToJson { def toJson: Json }
 
+// A ticket object with two fields: ''id'' and ''label''.
 case class Ticket(id: Long, label: String) extends ToJson {
   def toJson = Json.obj(
     "id" -> id,
     "label" -> label
   )
 }
+
+// A user object with three fields: ''id'', ''name'' and a collection of ''tickets''.
 case class User(id: Long, name: String, tickets: Seq[Ticket]) extends ToJson {
   def toJson = Json.obj(
     "id" -> id,
@@ -59,13 +61,16 @@ case class User(id: Long, name: String, tickets: Seq[Ticket]) extends ToJson {
   )
 }
 
+// An exception that indicates missing user with id ''userId''.
 case class UserNotFound(userId: Long) extends Exception(s"User $userId is not found.")
 
+// A helper class that generates unique long ids.
 object WithGeneratedId {
   private[this] val random = new Random()
   def apply[A](fn: Long => A): A = fn(random.nextLong())
 }
 
+// A REST service that fetches a user with ''userId'' from the database ''db''.
 case class GetUser(userId: Long, db: Main.Db) extends Service[HttpRequest, User] {
   def apply(req: HttpRequest) = db.get(userId) match {
     case Some(user) => user.toFuture
@@ -73,7 +78,10 @@ case class GetUser(userId: Long, db: Main.Db) extends Service[HttpRequest, User]
   }
 }
 
+// A REST service that inserts a new user with ''userId'' into the database ''db''.
 case class PostUser(userId: Long, db: Main.Db) extends Service[HttpRequest, User] {
+  // A requests reader that reads user objects from the http request.
+  // A user is represented by url-encoded param ''name''.
   val user: RequestReader[User] = for {
     name <- RequiredParam("name")
     _ <- ValidationRule("name", "should be greater then 5 symbols") { name.length > 5 }
@@ -82,30 +90,35 @@ case class PostUser(userId: Long, db: Main.Db) extends Service[HttpRequest, User
   def apply(req: HttpRequest) = for {
     u <- user(req)
   } yield {
-    db += (userId -> u)
+    db += (userId -> u) // add new user into a mutable map
     u
   }
 }
 
+// A helper service that turns a model object into json.
 object TurnModelIntoJson extends Service[ToJson, Json] {
   def apply(model: ToJson) = model.toJson.toFuture
 }
 
+// A REST service that add a ticket to a given user ''userId''.
 case class PostUserTicket(userId: Long, ticketId: Long, db: Main.Db) extends Service[HttpRequest, Ticket] {
+  // A request reader that reads ticket object from the http request.
+  // A ticket object is represented by json object serialized in request body.
   val ticket: RequestReader[Ticket] = for {
     json <- RequiredJsonBody[Json]
   } yield Ticket(ticketId, json[String]("label").getOrElse("N/A"))
 
   def apply(req: HttpRequest) = for {
     t <- ticket(req)
-    u <- GetUser(userId, db)(req)
-    updatedU = u.copy(tickets = u.tickets :+ t)
+    u <- GetUser(userId, db)(req) // fetch exist user
+    updatedU = u.copy(tickets = u.tickets :+ t) // modify its tickets
   } yield {
-    db += (userId -> updatedU)
+    db += (userId -> updatedU) // add new user into a mutable map
     t
   }
 }
 
+// A REST endpoint that routes user-specific requests.
 object UserEndpoint extends Endpoint[HttpRequest, ToJson] {
   def route = {
     case Method.Get -> Root / "users" / Long(id) =>
@@ -116,6 +129,7 @@ object UserEndpoint extends Endpoint[HttpRequest, ToJson] {
   }
 }
 
+// A REST endpoint that routes ticket-specific requests.
 object TicketEndpoint extends Endpoint[HttpRequest, ToJson] {
   def route = {
     case Method.Post -> Root / "users" / Long(userId) / "tickets" => WithGeneratedId { id =>
@@ -124,6 +138,8 @@ object TicketEndpoint extends Endpoint[HttpRequest, ToJson] {
   }
 }
 
+// A simple Finagle filter that handles all the exceptions, which might be thrown by
+// a request reader of one of the REST services.
 object HandleExceptions extends SimpleFilter[HttpRequest, HttpResponse] {
   def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]) =
     service(req) handle {
@@ -143,16 +159,21 @@ object HandleExceptions extends SimpleFilter[HttpRequest, HttpResponse] {
  */
 object Main extends App {
 
+  // A type that represents the database.
   type Db = mutable.Map[Long, User]
 
+  // A database instance.
   val Db = new ConcurrentHashMap[Long, User]().asScala
 
+  // An http endpoint that is composed of user and ticket endpoints.
   val httpBackend: Endpoint[HttpRequest, HttpResponse] =
     (UserEndpoint orElse TicketEndpoint) ! TurnModelIntoJson ! TurnJsonIntoHttp[Json]
 
+  // A backend endpoint with exception handler and Basic HTTP Auth filter.
   val backend: Endpoint[HttpRequest, HttpResponse] =
     BasicallyAuthorize("user", "password") ! HandleExceptions ! httpBackend
 
+  // A default Fanalge service builder that runs the backend.
   ServerBuilder()
     .codec(RichHttp[HttpRequest](new Http()))
     .bindTo(new InetSocketAddress(8080))
