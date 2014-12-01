@@ -1,6 +1,6 @@
 # Finch.io Documentation
 
-* [Demo](docs.md#Demo)
+* [Demo](docs.md#demo)
 * [Endpoints](docs.md#endpoints)
 * [Requests](docs.md#requests)
   * [Request Reader](docs.md#request-reader-monad)
@@ -14,6 +14,7 @@
   * [Basic Auth](docs.md#basic-http-auth)
 * [JSON](docs.md#json)
   * [Finch-Json](docs.md#finch-json)
+
 ----
 
 ## Demo
