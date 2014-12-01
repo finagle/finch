@@ -34,12 +34,12 @@ import scala.collection.JavaConverters._
 import java.net.InetSocketAddress
 import java.util.concurrent.ConcurrentHashMap
 
-import io.finch._
-import io.finch.json._
-import io.finch.json.finch._
-import io.finch.request._
-import io.finch.response._
-import io.finch.auth._
+import io.finch._            // import ''Endpoint'' and pipe ''!'' operator
+import io.finch.json._       // import finch-json classes such as ''Json''
+import io.finch.json.finch._ // import implicit classes ''EncodeFinchJson'' & ''DecodeFinchJson''
+import io.finch.request._    // import request readers such as ''RequiredParam''
+import io.finch.response._   // import response builders such as ''BadRequest''
+import io.finch.auth._       // import ''BasicallyAuthorize'' filter
 
 // A simple base class for data classes.
 trait ToJson { def toJson: Json }
@@ -173,7 +173,7 @@ object Main extends App {
   val backend: Endpoint[HttpRequest, HttpResponse] =
     BasicallyAuthorize("user", "password") ! HandleExceptions ! httpBackend
 
-  // A default Fanalge service builder that runs the backend.
+  // A default Finagle service builder that runs the backend.
   ServerBuilder()
     .codec(RichHttp[HttpRequest](new Http()))
     .bindTo(new InetSocketAddress(8080))
