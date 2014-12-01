@@ -43,7 +43,7 @@ class BodySpec extends FlatSpec with Matchers {
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody(Array[Byte]())
     val futureResult: Future[Array[Byte]] = RequiredBody(request)
-    intercept[BodyNotFound] {
+    intercept[BodyNotFound.type] {
       Await.result(futureResult)
     }
   }
@@ -69,7 +69,7 @@ class BodySpec extends FlatSpec with Matchers {
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody("")
     val futureResult: Future[String] = RequiredStringBody(request)
-    intercept[BodyNotFound] {
+    intercept[BodyNotFound.type] {
       Await.result(futureResult)
     }
   }

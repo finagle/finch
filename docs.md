@@ -1,6 +1,6 @@
 # Finch.io Documentation
 
-* [User Guide](docs.md#user-guide)
+* [Demo](docs.md#demo)
 * [Endpoints](docs.md#endpoints)
 * [Requests](docs.md#requests)
   * [Request Reader](docs.md#request-reader-monad)
@@ -13,106 +13,21 @@
   * [OAuth2](docs.md#authorization-with-oauth2)
   * [Basic Auth](docs.md#basic-http-auth)
 * [JSON](docs.md#json)
+  * [Finch-Json](docs.md#finch-json)
 
 ----
 
-## User Guide
+## Demo
 
-**Step 1:** Define a model (optional):
-```scala
-case class User(id: Long, name: String)
-case class Ticket(id: Long)
-```
+There is a single-file _demo_ project `finch-demo`, which is a complete REST API backend written with `finch-core` and 
+`finch-json` modules. The source code of the demo project is altered with useful comments that explain how to use its 
+building blocks such as `Endpoint`, `RequestReader`, `ResponseBuilder`, etc. The `finch-demo` module is just a single 
+Scala file [Main.scala][1] that is worth reading.
 
-**Step 2:** Implement REST services:
+The following command may be used to run the demo:
 
-```scala
-import io.finch._
-import com.twitter.finagle.Service
-
-case class GetUser(userId: Long) extends Service[HttpRequest, User] {
-  def apply(req: HttpRequest) = User(userId, "John").toFuture
-}
-
-case class GetTicket(ticketId: Long) extends Service[HttpRequest, Ticket] {
-  def apply(req: HttpRequest) = Ticket(ticketId).toFuture
-}
-
-case class GetUserTickets(userId: Long) extends Service[HttpRequest, Seq[Ticket]] {
-  def apply(req: HttpRequest) = Seq(Ticket(1), Ticket(2), Ticket(3)).toFuture
-}
-```
-
-**Step 3:** Define filters/services for data transformation (optional):
-```scala
-import io.finch._
-import scala.util.parsing.json.{JSONArray, JSONType, JSONObject}
-
-object JsonHelpers {
-  implicit def asJson(x: JSONType): Json = new Json {
-    override def toString(): String = x.toString
-  }
-}
-
-import scala.util.parsing.json.{JSONArray, JSONObject}
-
-object TurnModelIntoJson extends Service[Any, Json] {
-  import JsonHelpers._
-  def apply(req: Any) = {
-    def turn(any: Any): Json = any match {
-      case User(id, name) => JSONObject(Map("id" -> id, "name" -> name))
-      case Ticket(id) => JSONObject(Map("id" -> id))
-      case seq: Seq[Any] => JSONArray(seq.toList)
-    }
-
-    turn(req).toFuture
-  }
-}
-```
-
-**Step 4:** Define endpoints using services/filters for data transformation (optional):
-```scala
-import io.finch._
-import io.finch.json._
-import com.twitter.finagle.http.Method
-import com.twitter.finagle.http.path._
-
-object User extends Endpoint[HttpRequest, Json] {
-  def route = {
-    case Method.Get -> Root / "users" / Long(id) =>
-      GetUser(id) ! TurnModelIntoJson
-  }
-}
-
-object Ticket extends Endpoint[HttpRequest, Json] {
-  def route = {
-    case Method.Get -> Root / "tickets" / Long(id) =>
-      GetTicket(id) ! TurnModelIntoJson
-    case Method.Get -> Root / "users" / Long(id) / "tickets" =>
-      GetUserTickets(id) ! TurnModelIntoJson
-  }
-}
-```
-
-**Step 5:** Expose endpoints:
-
-```scala
-import io.finch._
-import io.finch.json._
-import com.twitter.finagle.builder.ServerBuilder
-import com.twitter.finagle.http.{Http, RichHttp}
-import java.net.InetSocketAddress
-
-object Main extends App {
-  val endpoint = Endpoint.join(User, Ticket) ! TurnJsonIntoHttp
-  val backend = endpoint orElse Endpoint.NotFound
-
-  ServerBuilder()
-    .codec(RichHttp[HttpRequest](Http()))
-    .bindTo(new InetSocketAddress(8080))
-    .name("user-and-ticket")
-    .build(backend.toService)
-}
+```bash
+sbt 'project finch-demo' 'run io.finch.demo.Main'
 ```
 
 ## Endpoints
@@ -145,7 +60,7 @@ The best practices on what to choose for data transformation are following:
 
 ### Request Reader Monad
 
-**Finch.io** has built-in request reader that implements the [Reader Monad][1] functional design pattern: 
+**Finch.io** has built-in request reader that implements the [Reader Monad][2] functional design pattern: 
 * `io.finch.request.RequestReader` reads `Future[A]`
 
 The simplified signature of the `RequestReader` abstraction is similar to `Service` but with monadic API methods `map` 
@@ -369,25 +284,30 @@ object ProtectedEndpoint extends Endpoint[HttpRequest, HttpResponse] {
 
 ## JSON
 
-<This section need to be updated>
-
-**Finch.io** provides a single `trait` for interacting with json called `Json`. Any object that extends this `trait` must 
-ensure that its `toString` method returns string of valid json representing the object it wraps. As a result you can use 
-any JSON serialization library you like and then plug it into **Finch.io**. The example from above does just that with 
-the Scala JSON library.
-
-**Converting JSON into HTTP**
-
-<This section need to be updated>
-
-There is a magic service `io.finch.json.TurnJsonIntoHttp` that takes a `Json` and converts it into an `HttpResponse`. This 
-applicable for both `Service` and `Endpoint`.
+**Finch.io** provides simple traits `io.finch.json.DecodeJson` and `io.finch.json.EncodeJson` to support plugable JSON 
+libraries. An example of implementation those traits might be found in default JSON backend `finch-json`. All the methods 
+in Finch API that deals with JSON objects takes `implicit` decode or encode trait. So, the encode/decode implementations  
+should be `implicit` in order to make its usage transparent. For example, the `finch-json` library might be plugged it by 
+the following imports:
 
 ```scala
-import io.finch.json._
-
-val a: Service[HttpRequest, Json] = ???
-val b: Service[HttpRequest, HttpResponse] = a ! TurnJsonIntoHttp
+import io.finch.json._        // imports immutable Json API
+import io.finch.json.finch._  // imports implicit DecodeFinchJson and EncodeFinchJson
 ```
 
-[1]: http://www.haskell.org/haskellwiki/All_About_Monads#The_Reader_monad
+The naming convention for JSON libraries is the `io.finch.json.library-name._`.
+
+There are bunch of API functions in **Finch.io** that implicitly take JSON encoder or decoder:
+* `io.finch.response.ResponseBuilder#apply[A](json: A)(implicit encode: EncodeJson[A])`
+* `io.finch.request.RequiredJsonBody#apply[A](implicit decode: DecodeJson[A])`
+* `io.finch.request.OptionalJsonBody#apply[A](implicit decode: DecodeJson[A])`
+* `io.finch.json.TurnJsonIntoHttp#apply[A](implicit encode: EncodeJson[A])`
+
+### Finch-JSON
+
+A **Finch.io** library is shipped with an immutable JSON API: `finch-json`, an extremely lightweight and simple 
+implementation of JSON: [Json.scala][3].
+
+[1]: https://github.com/finagle/finch/blob/master/finch-demo/src/main/scala/io/finch/demo/Main.scala
+[2]: http://www.haskell.org/haskellwiki/All_About_Monads#The_Reader_monad
+[3]: https://github.com/finagle/finch/blob/master/finch-json/src/main/scala/io/finch/json/Json.scala

@@ -46,7 +46,7 @@ object Finch extends Build {
     id = "finch",
     base = file("."),
     settings = allSettings
-  ) aggregate(core, json)
+  ) aggregate(core, json, demo)
 
   lazy val core = Project(
     id = "finch-core",
@@ -58,5 +58,11 @@ object Finch extends Build {
     id = "finch-json",
     base = file("finch-json"),
     settings = allSettings
-  ) dependsOn(core)
+  ) dependsOn core
+
+  lazy val demo = Project(
+    id = "finch-demo",
+    base = file("finch-demo"),
+    settings = allSettings
+  ) dependsOn(core, json)
 }
