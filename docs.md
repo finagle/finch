@@ -283,22 +283,30 @@ object ProtectedEndpoint extends Endpoint[HttpRequest, HttpResponse] {
 
 ## JSON
 
-**Finch.io** provides a single `trait` for interacting with json called `Json`. Any object that extends this `trait` must 
-ensure that its `toString` method returns string of valid json representing the object it wraps. As a result you can use 
-any JSON serialization library you like and then plug it into **Finch.io**. The example from above does just that with 
-the Scala JSON library.
-
-There is a magic service `io.finch.json.TurnJsonIntoHttp` that takes a `Json` and converts it into an `HttpResponse`. This 
-applicable for both `Service` and `Endpoint`.
+**Finch.io** provides simple traits `io.finch.json.DecodeJson` and `io.finch.json.EncodeJson` to support plugable JSON 
+libraries. An example of implementation those traits might be found in default JSON backend `finch-json`. All the methods 
+in Finch API that deals with JSON objects takes `implicit` decode or encode trait. So, the encode/decode implementations  
+should be `implicit` in order to make its usage transparent. For example, the `finch-json` library might be plugged it by 
+the following imports:
 
 ```scala
-import io.finch.json._
-
-val a: Service[HttpRequest, Json] = ???
-val b: Service[HttpRequest, HttpResponse] = a ! TurnJsonIntoHttp
+import io.finch.json._        // imports immutable Json API
+import io.finch.json.finch._  // imports implicit DecodeFinchJson and EncodeFinchJson
 ```
+
+The naming convention for JSON libraries is the `io.finch.json.library-name._`.
+
+There are bunch of API functions in **Finch.io** that implicitly take JSON encoder or decoder:
+* `io.finch.response.ResponseBuilder#apply[A](json: A)(implicit encode: EncodeJson[A])`
+* `io.finch.request.RequiredJsonBody#apply[A](implicit decode: DecodeJson[A])`
+* `io.finch.request.OptionalJsonBody#apply[A](implicit decode: DecodeJson[A])`
+* `io.finch.json.TurnJsonIntoHttp#apply[A](implicit encode: EncodeJson[A])`
 
 ### Finch-JSON
 
+A **Finch.io** library is shipped with an immutable JSON API: `finch-json`, an extremely lightweight and simple 
+implementation of JSON: [Json.scala][3].
+
 [1]: https://github.com/finagle/finch/blob/master/finch-demo/src/main/scala/io/finch/demo/Main.scala
 [2]: http://www.haskell.org/haskellwiki/All_About_Monads#The_Reader_monad
+[3]: https://github.com/finagle/finch/blob/master/finch-json/src/main/scala/io/finch/json/Json.scala
