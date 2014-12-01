@@ -1,6 +1,6 @@
 # Finch.io Documentation
 
-* [User Guide](docs.md#user-guide)
+* [Demo](docs.md#Demo)
 * [Endpoints](docs.md#endpoints)
 * [Requests](docs.md#requests)
   * [Request Reader](docs.md#request-reader-monad)
@@ -16,103 +16,17 @@
 
 ----
 
-## User Guide
+## Demo
 
-**Step 1:** Define a model (optional):
-```scala
-case class User(id: Long, name: String)
-case class Ticket(id: Long)
-```
+There is a single-file _demo_ project `finch-demo`, which is a complete REST API backend written with `finch-core` and 
+`finch-json` modules. The source code of the demo project is altered with useful comments that explain how to use its 
+building blocks such as `Endpoint`, `RequestReader`, `ResponseBuilder`, etc. The `finch-demo` module is just a single 
+Scala file [Main.scala][1] that is worth reading.
 
-**Step 2:** Implement REST services:
+The following command may be used to run the demo:
 
-```scala
-import io.finch._
-import com.twitter.finagle.Service
-
-case class GetUser(userId: Long) extends Service[HttpRequest, User] {
-  def apply(req: HttpRequest) = User(userId, "John").toFuture
-}
-
-case class GetTicket(ticketId: Long) extends Service[HttpRequest, Ticket] {
-  def apply(req: HttpRequest) = Ticket(ticketId).toFuture
-}
-
-case class GetUserTickets(userId: Long) extends Service[HttpRequest, Seq[Ticket]] {
-  def apply(req: HttpRequest) = Seq(Ticket(1), Ticket(2), Ticket(3)).toFuture
-}
-```
-
-**Step 3:** Define filters/services for data transformation (optional):
-```scala
-import io.finch._
-import scala.util.parsing.json.{JSONArray, JSONType, JSONObject}
-
-object JsonHelpers {
-  implicit def asJson(x: JSONType): Json = new Json {
-    override def toString(): String = x.toString
-  }
-}
-
-import scala.util.parsing.json.{JSONArray, JSONObject}
-
-object TurnModelIntoJson extends Service[Any, Json] {
-  import JsonHelpers._
-  def apply(req: Any) = {
-    def turn(any: Any): Json = any match {
-      case User(id, name) => JSONObject(Map("id" -> id, "name" -> name))
-      case Ticket(id) => JSONObject(Map("id" -> id))
-      case seq: Seq[Any] => JSONArray(seq.toList)
-    }
-
-    turn(req).toFuture
-  }
-}
-```
-
-**Step 4:** Define endpoints using services/filters for data transformation (optional):
-```scala
-import io.finch._
-import io.finch.json._
-import com.twitter.finagle.http.Method
-import com.twitter.finagle.http.path._
-
-object User extends Endpoint[HttpRequest, Json] {
-  def route = {
-    case Method.Get -> Root / "users" / Long(id) =>
-      GetUser(id) ! TurnModelIntoJson
-  }
-}
-
-object Ticket extends Endpoint[HttpRequest, Json] {
-  def route = {
-    case Method.Get -> Root / "tickets" / Long(id) =>
-      GetTicket(id) ! TurnModelIntoJson
-    case Method.Get -> Root / "users" / Long(id) / "tickets" =>
-      GetUserTickets(id) ! TurnModelIntoJson
-  }
-}
-```
-
-**Step 5:** Expose endpoints:
-
-```scala
-import io.finch._
-import io.finch.json._
-import com.twitter.finagle.builder.ServerBuilder
-import com.twitter.finagle.http.{Http, RichHttp}
-import java.net.InetSocketAddress
-
-object Main extends App {
-  val endpoint = Endpoint.join(User, Ticket) ! TurnJsonIntoHttp
-  val backend = endpoint orElse Endpoint.NotFound
-
-  ServerBuilder()
-    .codec(RichHttp[HttpRequest](Http()))
-    .bindTo(new InetSocketAddress(8080))
-    .name("user-and-ticket")
-    .build(backend.toService)
-}
+```bash
+sbt 'project finch-demo' 'run io.finch.demo.Main'
 ```
 
 ## Endpoints
@@ -145,7 +59,7 @@ The best practices on what to choose for data transformation are following:
 
 ### Request Reader Monad
 
-**Finch.io** has built-in request reader that implements the [Reader Monad][1] functional design pattern: 
+**Finch.io** has built-in request reader that implements the [Reader Monad][2] functional design pattern: 
 * `io.finch.request.RequestReader` reads `Future[A]`
 
 The simplified signature of the `RequestReader` abstraction is similar to `Service` but with monadic API methods `map` 
@@ -390,4 +304,5 @@ val a: Service[HttpRequest, Json] = ???
 val b: Service[HttpRequest, HttpResponse] = a ! TurnJsonIntoHttp
 ```
 
-[1]: http://www.haskell.org/haskellwiki/All_About_Monads#The_Reader_monad
+[1]: https://github.com/finagle/finch/blob/master/finch-demo/src/main/scala/io/finch/demo/Main.scala
+[2]: http://www.haskell.org/haskellwiki/All_About_Monads#The_Reader_monad
