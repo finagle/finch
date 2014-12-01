@@ -13,7 +13,7 @@
   * [OAuth2](docs.md#authorization-with-oauth2)
   * [Basic Auth](docs.md#basic-http-auth)
 * [JSON](docs.md#json)
-
+  * [Finch-Json](docs.md#finch-json)
 ----
 
 ## Demo
@@ -283,16 +283,10 @@ object ProtectedEndpoint extends Endpoint[HttpRequest, HttpResponse] {
 
 ## JSON
 
-<This section need to be updated>
-
 **Finch.io** provides a single `trait` for interacting with json called `Json`. Any object that extends this `trait` must 
 ensure that its `toString` method returns string of valid json representing the object it wraps. As a result you can use 
 any JSON serialization library you like and then plug it into **Finch.io**. The example from above does just that with 
 the Scala JSON library.
-
-**Converting JSON into HTTP**
-
-<This section need to be updated>
 
 There is a magic service `io.finch.json.TurnJsonIntoHttp` that takes a `Json` and converts it into an `HttpResponse`. This 
 applicable for both `Service` and `Endpoint`.
@@ -303,6 +297,8 @@ import io.finch.json._
 val a: Service[HttpRequest, Json] = ???
 val b: Service[HttpRequest, HttpResponse] = a ! TurnJsonIntoHttp
 ```
+
+### Finch-JSON
 
 [1]: https://github.com/finagle/finch/blob/master/finch-demo/src/main/scala/io/finch/demo/Main.scala
 [2]: http://www.haskell.org/haskellwiki/All_About_Monads#The_Reader_monad
