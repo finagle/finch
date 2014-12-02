@@ -38,9 +38,7 @@ class HeaderSpec extends FlatSpec with Matchers {
   it should "error if it does not exist" in {
     val request = Request()
     val futureResult = RequiredHeader("Location")(request)
-    intercept[HeaderNotFound] {
-      Await.result(futureResult)
-    }
+    a [HeaderNotFound] should be thrownBy Await.result(futureResult)
   }
 
 

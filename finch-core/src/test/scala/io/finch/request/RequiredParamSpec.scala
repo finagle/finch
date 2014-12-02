@@ -38,17 +38,13 @@ class RequiredParamSpec extends FlatSpec with Matchers {
   it should "produce an error if the param is empty" in {
     val request: HttpRequest = Request.apply(("foo", ""))
     val futureResult: Future[String] = RequiredParam("foo")(request)
-    intercept[ValidationFailed] {
-      Await.result(futureResult)
-    }
+    a [ValidationFailed] should be thrownBy Await.result(futureResult)
   }
 
   it should "produce an error if the param does not exist" in {
     val request: HttpRequest = Request.apply(("bar", "foo"))
     val futureResult: Future[String] = RequiredParam("foo")(request)
-    intercept[ParamNotFound] {
-      Await.result(futureResult)
-    }
+    a [ParamNotFound] should be thrownBy Await.result(futureResult)
   }
 
   "A RequiredBooleanParam" should "be parsed as a boolean" in {
@@ -60,9 +56,7 @@ class RequiredParamSpec extends FlatSpec with Matchers {
   it should "produce an error if the param is not a boolean" in {
     val request: HttpRequest = Request.apply(("foo", "5"))
     val futureResult: Future[Boolean] = RequiredBooleanParam("foo")(request)
-    intercept[ValidationFailed] {
-      Await.result(futureResult)
-    }
+    a [ValidationFailed] should be thrownBy Await.result(futureResult)
   }
 
 
@@ -75,9 +69,7 @@ class RequiredParamSpec extends FlatSpec with Matchers {
   it should "produce an error if the param is not an integer" in {
     val request: HttpRequest = Request.apply(("foo", "non-number"))
     val futureResult: Future[Int] = RequiredIntParam("foo")(request)
-    intercept[ValidationFailed] {
-      Await.result(futureResult)
-    }
+    a [ValidationFailed] should be thrownBy Await.result(futureResult)
   }
 
 
@@ -90,9 +82,7 @@ class RequiredParamSpec extends FlatSpec with Matchers {
   it should "produce an error if the param is not a long" in {
     val request: HttpRequest = Request.apply(("foo", "non-number"))
     val futureResult: Future[Long] = RequiredLongParam("foo")(request)
-    intercept[ValidationFailed] {
-      Await.result(futureResult)
-    }
+    a [ValidationFailed] should be thrownBy Await.result(futureResult)
   }
 
   "A RequiredFloatParam" should "be parsed as a float" in {
@@ -104,9 +94,7 @@ class RequiredParamSpec extends FlatSpec with Matchers {
   it should "produce an error if the param is not a float" in {
     val request: HttpRequest = Request.apply(("foo", "non-number"))
     val futureResult: Future[Float] = RequiredFloatParam("foo")(request)
-    intercept[ValidationFailed] {
-      Await.result(futureResult)
-    }
+    a [ValidationFailed] should be thrownBy Await.result(futureResult)
   }
 
 
@@ -119,8 +107,6 @@ class RequiredParamSpec extends FlatSpec with Matchers {
   it should "produce an error if the param is not a double" in {
     val request: HttpRequest = Request.apply(("foo", "non-number"))
     val futureResult: Future[Double] = RequiredDoubleParam("foo")(request)
-    intercept[ValidationFailed] {
-      Await.result(futureResult)
-    }
+    a [ValidationFailed] should be thrownBy Await.result(futureResult)
   }
 }

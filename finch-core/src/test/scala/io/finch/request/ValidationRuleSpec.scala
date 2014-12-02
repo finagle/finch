@@ -43,8 +43,6 @@ class ValidationRuleSpec extends FlatSpec with Matchers {
       u <- RequiredParam("user")
       _ <- ValidationRule("user", "user should not be empty") { u == "bob" }
     } yield u
-    intercept[ValidationFailed] {
-      Await.result(user(request)) should be("bob")
-    }
+    a [ValidationFailed] should be thrownBy Await.result(user(request))
   }
 }
