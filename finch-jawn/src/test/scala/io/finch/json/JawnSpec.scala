@@ -23,7 +23,7 @@
 
 package io.finch.json
 
-import io.finch.finchjawn.{EncodeJawn, DecodeJawn}
+import io.finch.jawn.{EncodeJawn, DecodeJawn}
 import jawn.ast.{JawnFacade, JString, JObject}
 
 import scala.collection.mutable

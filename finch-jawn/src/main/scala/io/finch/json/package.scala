@@ -24,13 +24,13 @@
 package io.finch
 
 import io.finch.json.{DecodeJson, EncodeJson}
-import jawn.ast.{CanonicalRenderer, JValue}
-import jawn.{Facade, Parser}
+import _root_.jawn.ast.{CanonicalRenderer, JValue}
+import _root_.jawn.{Facade, Parser}
 
 /**
  * This package provides support for use of the Jawn json parsing library in Finch.io.
  */
-package object finchjawn {
+package object jawn {
 
   /**
    * The ''DecodeJawn'' object takes a jawn ''Facade'' and creates a ''DecodeJson''
