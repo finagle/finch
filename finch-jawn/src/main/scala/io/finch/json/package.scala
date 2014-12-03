@@ -53,7 +53,7 @@ package object jawn {
    * The ''EncodeJawn'' object takes a ''JValue'' (part of Jawn's ast package) and
    * returns the string representation of that value.
    */
-  object EncodeJawn extends EncodeJson[JValue] {
+  implicit object EncodeJawn extends EncodeJson[JValue] {
     def apply(json: JValue): String = CanonicalRenderer.render(json)
   }
 }
