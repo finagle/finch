@@ -21,9 +21,8 @@
  * Ryan Plessner
  */
 
-package io.finch
+package io.finch.json
 
-import io.finch.json.{DecodeJson, EncodeJson}
 import _root_.jawn.ast.{CanonicalRenderer, JValue}
 import _root_.jawn.{Facade, Parser}
 

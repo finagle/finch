@@ -23,8 +23,8 @@
 
 package io.finch.json
 
-import io.finch.jawn.{EncodeJawn, DecodeJawn}
-import jawn.ast.{JawnFacade, JString, JObject}
+import io.finch.json.jawn.{EncodeJawn, DecodeJawn}
+import _root_.jawn.ast.{JawnFacade, JString, JObject}
 
 import scala.collection.mutable
 import org.scalatest.{Matchers, FlatSpec}
