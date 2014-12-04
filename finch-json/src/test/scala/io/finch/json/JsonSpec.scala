@@ -22,6 +22,12 @@
 
 package io.finch.json
 
+import com.twitter.finagle.Service
+import com.twitter.finagle.http.Request
+import com.twitter.util.{Await, Future}
+import org.jboss.netty.buffer.ChannelBuffers
+import org.jboss.netty.handler.codec.http.HttpHeaders
+
 import org.scalatest.{Matchers, FlatSpec}
 
 class JsonSpec extends FlatSpec with Matchers {
@@ -61,15 +67,21 @@ class JsonSpec extends FlatSpec with Matchers {
     val c = Json.arr("1", 2, Json.obj("3" -> 3))
     val d = JsonNull
 
-    Json.encode(a) shouldBe "{a:{b:1,c:2,d:{e:3}}}"
-    Json.encode(b) shouldBe "{a:1}"
-    Json.encode(c) shouldBe "[1,2,{3:3}]"
+    Json.encode(a) shouldBe "{\"a\":{\"b\":1,\"c\":2,\"d\":{\"e\":3}}}"
+    Json.encode(b) shouldBe "{\"a\":1}"
+    Json.encode(c) shouldBe "[\"1\",2,{\"3\":3}]"
     Json.encode(d) shouldBe "null"
   }
 
   it should "support JSON from string decoding" in {
     Json.decode("{\"a\":1,\"b\":[1,2,3]}") shouldBe Some(Json.obj("a" -> 1, "b" -> Json.arr(1, 2, 3)))
     Json.decode("[\"a\",\"b\",{\"c\":1}]") shouldBe Some(Json.arr("a", "b", Json.obj("c" -> 1)))
+  }
+
+  it should "be able to read what it has wired" in  {
+    val json = Json.obj("a.b" -> 10, "c.d" -> Json.arr("a", "b"))
+    println(json.toString)
+    Json.decode(json.toString) shouldBe Some(json)
   }
 
   it should "compress objects" in {
@@ -148,5 +160,28 @@ class JsonSpec extends FlatSpec with Matchers {
     a[Json]("a.b").map(unwrapObject) shouldBe Some(Map("c" -> 10))
     a[Int]("a.b.c") shouldBe Some(10)
     a[Json]("a.d").map(unwrapArray) shouldBe Some(List(1, 2, 3))
+  }
+
+  it should "be compatible with finch-core" in {
+    import io.finch._
+    import io.finch.json.finch._
+    import io.finch.response._
+    import io.finch.request._
+
+    val json = Json.obj("a" -> 1)
+    val jsonBody = json.toString.getBytes("UTF-8")
+    val req = Request()
+    req.setContent(ChannelBuffers.wrappedBuffer(jsonBody))
+    req.headers().set(HttpHeaders.Names.CONTENT_LENGTH, jsonBody.length)
+
+    val ok: HttpResponse = Ok(json)
+    val j: RequestReader[Json] = RequiredJsonBody[Json]
+    val o: Future[Option[Json]] = OptionalJsonBody[Json](req)
+    val s: Service[Json, HttpResponse] = TurnJsonIntoHttp[Json]
+
+    ok.getContentString() shouldBe Json.encode(json)
+    Await.result(j(req)) shouldBe json
+    Await.result(o) shouldBe Some(json)
+    Await.result(s(json)).getContentString() shouldBe json.toString
   }
 }

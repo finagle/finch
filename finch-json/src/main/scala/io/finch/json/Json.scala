@@ -184,7 +184,7 @@ object Json {
     }
 
     def wire(any: Any): String = any match {
-      case s: String => escape(s)
+      case s: String => "\"" + escape(s) + "\""
       case JsonObject(map) => "{" + map.map({ case (k, v) => wire(k.toString) + ":" + wire(v) }).mkString(",") + "}"
       case JsonArray(list) => "[" + list.map(wire).mkString(",") + "]"
       case JsonNull => "null"
