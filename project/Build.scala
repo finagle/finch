@@ -1,5 +1,6 @@
 import sbt._
 import sbt.Keys._
+import com.typesafe.sbt.pgp.PgpKeys._
 import scoverage.ScoverageSbtPlugin.instrumentSettings
 import CoverallsPlugin.coverallsSettings
 
@@ -14,7 +15,7 @@ object Finch extends Build {
   )
 
   lazy val buildSettings = Seq(
-    organization := "io",
+    organization := "com.github.finagle",
     version := "0.2.0",
     scalaVersion := "2.10.4"
   )
@@ -22,7 +23,15 @@ object Finch extends Build {
   lazy val publishSettings = Seq(
     publishMavenStyle := true,
     publishArtifact := true,
-    publishTo := Some(Resolver.file("localDirectory", file(Path.userHome.absolutePath + "/repo"))),
+    useGpg := true,
+    publishTo := {
+      val nexus = "https://oss.sonatype.org/"
+      if (isSnapshot.value)
+        Some("snapshots" at nexus + "content/repositories/snapshots")
+      else
+        Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+    },
+    publishArtifact in Test := false,
     licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
     homepage := Some(url("https://github.com/finagle/finch")),
     pomExtra := (
@@ -77,5 +86,5 @@ object Finch extends Build {
     id = "finch-jawn",
     base = file("finch-jawn"),
     settings = jawnSettings
-  ) dependsOn(core)
+  ) dependsOn core
 }

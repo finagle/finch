@@ -4,14 +4,34 @@
 building composable REST APIs. Its mission is to provide the developers simple and robust REST API building blocks 
 being as close as possible to the Finagle bare metal API.
 
+Modules
+-------
+
+**Finch.io** uses multi-project structure and contains of the following _modules_:
+
+* `finch-core` - the core classes/functions
+* `finch-json` - the lightweight and  immutable JSON API
+* `finch-demo` - the demo project
+* `finch-jawn` - the [Jawn](https://github.com/non/jawn) library binding
+
+Installation 
+------------
+Every **Finch.io** module is published at Maven Central. Use the following _sbt_ snippet:
+ 
+```scala
+libraryDependencies ++= Seq(
+  "com.github.finagle" %% "finch-module" % "0.2.0"
+)
+
+```
+
 Quickstart
 ----------
 
 ```scala
-resolvers += "Finch.io" at "http://repo.konfettin.ru"
-
 libraryDependencies ++= Seq(
-  "io" %% "finch" % "0.1.6"
+  "com.github.finagle" %% "finch-core" % "0.2.0",
+  "com.github.finagle" %% "finch-json" % "0.2.0"
 )
 ```
 
@@ -19,7 +39,7 @@ libraryDependencies ++= Seq(
 def hello(name: String) = new Service[HttpRequest, HttpResponse] = {
   def apply(req: HttpRequest) = for {
     title <- OptionalParam("title")(req)
-  } yield Ok(s"Hello, ${title.getOrElse("")} $name!")
+  } yield Ok(Json.obj("greetings" -> s"Hello, ${title.getOrElse("")} $name!"))
 }
 
 val endpoint = new Endpoint[HttpRequest, HttpResponse] {
