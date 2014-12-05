@@ -92,7 +92,7 @@ package object request {
   /**
    * An exception that indicates an error in JSON format.
    */
-  class JsonNotParsed extends RequestReaderError("A JSON serialized in a request boody can not be parsed.")
+  class JsonNotParsed extends RequestReaderError("A JSON serialized in a request body can not be parsed.")
 
   /**
    * An empty ''RequestReader''.
