@@ -46,7 +46,7 @@ object Finch extends Build {
     id = "finch",
     base = file("."),
     settings = allSettings
-  ) aggregate(core, json, demo)
+  ) aggregate(core, json, demo, jawn)
 
   lazy val core = Project(
     id = "finch-core",
@@ -65,4 +65,17 @@ object Finch extends Build {
     base = file("finch-demo"),
     settings = allSettings
   ) dependsOn(core, json)
+
+  lazy val jawnSettings = allSettings ++ Seq(
+    libraryDependencies ++= Seq(
+      "org.spire-math" %% "jawn-parser" % "0.7.0",
+      "org.spire-math" %% "jawn-ast" % "0.7.0"
+    )
+  )
+
+  lazy val jawn = Project(
+    id = "finch-jawn",
+    base = file("finch-jawn"),
+    settings = jawnSettings
+  ) dependsOn(core)
 }
