@@ -32,27 +32,20 @@ import _root_.jawn.{Facade, Parser}
 package object jawn {
 
   /**
-   * The ''DecodeJawn'' object takes a jawn ''Facade'' and creates a ''DecodeJson''
-   * from it. the ''Facade'' can be provided implicitly.
+   * @param facade The ''Facade'' that represents how jawn should parse json
+   * @tparam J The type of data returned by the ''Facade''
+   * @return Converts a jawn ''Facade'' into a ''DecodeJson''
+   *
    */
-  object DecodeJawn {
-    def apply[J](implicit facade: Facade[J]) = new DecodeJson[J] {
-
-      /**
-       * @param json a string that represents json
-       * @return Takes a string that represents json and attempts to parse it using
-       *         the Jawn parser and the given ''Facade''. It will return whatever
-       *         format the Facade produces.
-       */
-      def apply(json: String): Option[J] = Parser.parseFromString(json).toOption
-    }
+  implicit def toJawnDecode[J](implicit facade: Facade[J]): DecodeJson[J] = new DecodeJson[J] {
+    def apply(json: String): Option[J] = Parser.parseFromString(json).toOption
   }
 
   /**
    * The ''EncodeJawn'' object takes a ''JValue'' (part of Jawn's ast package) and
    * returns the string representation of that value.
    */
-  implicit object EncodeJawn extends EncodeJson[JValue] {
+  implicit val EncodeJawn: EncodeJson[JValue] = new EncodeJson[JValue] {
     def apply(json: JValue): String = CanonicalRenderer.render(json)
   }
 }

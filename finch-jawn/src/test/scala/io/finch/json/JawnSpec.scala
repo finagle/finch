@@ -23,19 +23,19 @@
 
 package io.finch.json
 
-import io.finch.json.jawn.{EncodeJawn, DecodeJawn}
+import io.finch.json.jawn._
 import _root_.jawn.ast.{JawnFacade, JString, JObject}
 
 import scala.collection.mutable
 import org.scalatest.{Matchers, FlatSpec}
 
 class JawnSpec extends FlatSpec with Matchers {
-
+  implicit val facade = JawnFacade
   val str = "{\"name\": \"bob\" }"
   val jsVal = JObject(mutable.Map("name" -> JString("bob")))
 
   "A DecodeJawn" should "parse valid json into its ast" in {
-    DecodeJawn(JawnFacade)(str).foreach(_ shouldBe jsVal)
+    toJawnDecode(facade)(str).foreach(v => v.shouldBe(jsVal))
   }
 
   "An EncodeJawn" should "render a valid JValue as a string" in {
