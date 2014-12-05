@@ -80,7 +80,6 @@ class JsonSpec extends FlatSpec with Matchers {
 
   it should "be able to read what it has wired" in  {
     val json = Json.obj("a.b" -> 10, "c.d" -> Json.arr("a", "b"))
-    println(json.toString)
     Json.decode(json.toString) shouldBe Some(json)
   }
 
