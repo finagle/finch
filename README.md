@@ -1,4 +1,6 @@
-<img src="https://raw.githubusercontent.com/finagle/finch/master/finch-logo.png" width="360px" />
+<p align="center">
+  <img src="https://raw.githubusercontent.com/finagle/finch/master/finch-logo.png" width="360px" />
+</p>
 
 Finch is a thin layer of purely functional basic blocks atop of [Finagle](http://twitter.github.io/finagle) for 
 building composable REST APIs. Its mission is to provide the developers simple and robust REST API building blocks 
