@@ -22,7 +22,7 @@
 
 package io
 
-import com.twitter.finagle.http._
+import com.twitter.finagle.httpx._
 import com.twitter.util.Future
 import com.twitter.finagle.{Filter, Service}
 

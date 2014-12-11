@@ -22,10 +22,10 @@
 
 package io.finch.json
 
+import com.twitter.io.Buf.Utf8
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.Request
+import com.twitter.finagle.httpx.Request
 import com.twitter.util.{Await, Future}
-import org.jboss.netty.buffer.ChannelBuffers
 import org.jboss.netty.handler.codec.http.HttpHeaders
 
 import org.scalatest.{Matchers, FlatSpec}
@@ -168,10 +168,10 @@ class JsonSpec extends FlatSpec with Matchers {
     import io.finch.request._
 
     val json = Json.obj("a" -> 1)
-    val jsonBody = json.toString.getBytes("UTF-8")
+    val jsonBody = Utf8(json.toString)
     val req = Request()
-    req.setContent(ChannelBuffers.wrappedBuffer(jsonBody))
-    req.headers().set(HttpHeaders.Names.CONTENT_LENGTH, jsonBody.length)
+    req.content = jsonBody
+    req.headerMap.update(HttpHeaders.Names.CONTENT_LENGTH, jsonBody.length.toString)
 
     val ok: HttpResponse = Ok(json)
     val j: RequestReader[Json] = RequiredJsonBody[Json]

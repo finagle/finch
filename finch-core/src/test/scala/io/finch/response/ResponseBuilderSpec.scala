@@ -22,7 +22,7 @@
 
 package io.finch.response
 
-import com.twitter.finagle.http.Status
+import com.twitter.finagle.httpx.Status
 import org.scalatest.{Matchers, FlatSpec}
 
 class ResponseBuilderSpec extends FlatSpec with Matchers {
@@ -47,6 +47,6 @@ class ResponseBuilderSpec extends FlatSpec with Matchers {
   it should "build empty responses with status" in {
     val rep = SeeOther()
     rep.getContentString() shouldBe ""
-    rep.getStatus() shouldBe Status.SeeOther
+    rep.status shouldBe Status.SeeOther
   }
 }

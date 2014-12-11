@@ -22,7 +22,7 @@
 
 package io.finch.request
 
-import com.twitter.finagle.http.Request
+import com.twitter.finagle.httpx.Request
 import com.twitter.util.Await
 import org.scalatest.{Matchers, FlatSpec}
 

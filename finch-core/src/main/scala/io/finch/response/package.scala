@@ -25,8 +25,8 @@ package io.finch
 
 import io.finch.json.EncodeJson
 import org.jboss.netty.handler.codec.http.HttpResponseStatus
-import com.twitter.finagle.http.{Status, Response}
-import com.twitter.finagle.http.path.Path
+import com.twitter.finagle.httpx.{Status, Response}
+import com.twitter.finagle.httpx.path.Path
 import com.twitter.finagle.Service
 
 package object response {
@@ -37,7 +37,7 @@ package object response {
    * @param status the http response status
    * @param headers the HTTP headers map
    */
-  case class ResponseBuilder(status: HttpResponseStatus, headers: Map[String, String] = Map.empty) {
+  case class ResponseBuilder(status: Status, headers: Map[String, String] = Map.empty) {
 
     /**
      * Creates a new respond with given ''headers''.
@@ -58,7 +58,7 @@ package object response {
     def apply(plain: String) = {
       val rep = Response(status)
       rep.setContentString(plain)
-      headers.foreach { case (k, v) => rep.headers().add(k, v) }
+      headers.foreach { case (k, v) => rep.headerMap.add(k, v) }
 
       rep
     }
@@ -74,7 +74,7 @@ package object response {
       val rep = Response(status)
       rep.setContentTypeJson()
       rep.setContentString(encode(json))
-      headers.foreach { case (k, v) => rep.headers().add(k, v) }
+      headers.foreach { case (k, v) => rep.headerMap.add(k, v) }
 
       rep
     }
@@ -86,7 +86,7 @@ package object response {
      */
     def apply() = {
       val rep = Response(status)
-      headers.foreach { case (k, v) => rep.headers().add(k, v) }
+      headers.foreach { case (k, v) => rep.headerMap.add(k, v) }
 
       rep
     }
@@ -133,7 +133,7 @@ package object response {
   object PreconditionFailed extends ResponseBuilder(Status.PreconditionFailed)   // 412
   object RequestEntityTooLarge
     extends ResponseBuilder(Status.RequestEntityTooLarge)                        // 413
-  object RequestUriTooLong extends ResponseBuilder(Status.RequestUriTooLong)     // 414
+  object RequestUriTooLong extends ResponseBuilder(Status.RequestURITooLong)     // 414
   object UnsupportedMediaType
     extends ResponseBuilder(Status.UnsupportedMediaType)                         // 415
   object RequestedRangeNotSatisfiable
@@ -144,9 +144,8 @@ package object response {
   object FailedDependency extends ResponseBuilder(Status.FailedDependency)       // 424
   object UnorderedCollection extends ResponseBuilder(Status.UnorderedCollection) // 425
   object UpgradeRequired extends ResponseBuilder(Status.UpgradeRequired)         // 426
-  object PreconditionRequired
-    extends ResponseBuilder(HttpResponseStatus.PRECONDITION_REQUIRED)            // 428
-  object TooManyRequests extends ResponseBuilder(Status.TooManyRequests)         // 429
+  object PreconditionRequired extends ResponseBuilder(Status(428))               // 428
+  object TooManyRequests extends ResponseBuilder(Status(429))                    // 429
 
   // 5xx
   object InternalServerError extends ResponseBuilder(Status.InternalServerError) // 500
@@ -165,7 +164,7 @@ package object response {
    * An old version of `ResponseBuilder`.
    */
   @deprecated("Use predefined response builders like `Ok` or `SeeOther` instead.", "0.1.8")
-  class Respond(status: HttpResponseStatus, headers: Map[String, String] = Map.empty)
+  class Respond(status: Status, headers: Map[String, String] = Map.empty)
     extends ResponseBuilder(status, headers)
 
   /**
@@ -173,7 +172,7 @@ package object response {
    */
   @deprecated("Use predefined response builders like `Ok` or `SeeOther` instead.", "0.1.8")
   object Respond {
-    def apply(status: HttpResponseStatus, headers: Map[String, String] = Map.empty) =
+    def apply(status: Status, headers: Map[String, String] = Map.empty) =
       new Respond(status, headers)
   }
 

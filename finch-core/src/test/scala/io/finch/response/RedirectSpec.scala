@@ -22,8 +22,8 @@
 
 package io.finch.response
 
-import com.twitter.finagle.http.path.Root
-import com.twitter.finagle.http.{Request, Status}
+import com.twitter.finagle.httpx.{Request, Status}
+import com.twitter.finagle.httpx.path.Root
 import com.twitter.util.Await
 import org.scalatest.{Matchers, FlatSpec}
 
