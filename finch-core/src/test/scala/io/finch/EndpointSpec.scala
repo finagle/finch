@@ -23,8 +23,8 @@
 package io.finch
 
 import com.twitter.finagle.{Filter, Service}
-import com.twitter.finagle.http.{Request, Method, Status}
-import com.twitter.finagle.http.path._
+import com.twitter.finagle.httpx.{Request, Method, Status}
+import com.twitter.finagle.httpx.path._
 import com.twitter.util.Await
 import org.scalatest.{Matchers, FlatSpec}
 

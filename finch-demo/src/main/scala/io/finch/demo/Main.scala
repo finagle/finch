@@ -22,10 +22,11 @@
 
 package io.finch.demo
 
-import com.twitter.finagle.builder.ServerBuilder
 import com.twitter.finagle.{SimpleFilter, Service}
-import com.twitter.finagle.http.{RichHttp, Http, Method}
-import com.twitter.finagle.http.path._
+import com.twitter.finagle.Httpx
+import com.twitter.finagle.httpx.Method
+import com.twitter.finagle.httpx.path._
+import com.twitter.util.Await
 
 import scala.util.Random
 import scala.collection.mutable
@@ -174,9 +175,7 @@ object Main extends App {
     BasicallyAuthorize("user", "password") ! HandleExceptions ! httpBackend
 
   // A default Finagle service builder that runs the backend.
-  ServerBuilder()
-    .codec(RichHttp[HttpRequest](new Http()))
-    .bindTo(new InetSocketAddress(8080))
-    .name("finch-demo")
-    .build(backend.toService)
+  val socket = new InetSocketAddress(8080)
+  val server = Httpx.serve(socket, backend.toService)
+  Await.ready(server)
 }

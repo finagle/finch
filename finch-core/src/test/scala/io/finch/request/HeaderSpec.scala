@@ -22,7 +22,7 @@
 
 package io.finch.request
 
-import com.twitter.finagle.http.Request
+import com.twitter.finagle.httpx.Request
 import com.twitter.util.Await
 import org.scalatest.{Matchers, FlatSpec}
 
@@ -30,7 +30,7 @@ class HeaderSpec extends FlatSpec with Matchers {
 
   "A RequiredHeader" should "properly read the header field" in {
     val request = Request()
-    request.headers().set("Location", "some header")
+    request.headerMap.update("Location", "some header")
     val futureResult = RequiredHeader("Location")(request)
     Await.result(futureResult) should equal("some header")
   }
@@ -44,7 +44,7 @@ class HeaderSpec extends FlatSpec with Matchers {
 
   "An OptionalHeader" should "properly read an existing header field" in {
     val request = Request()
-    request.headers().set("Location", "some header")
+    request.headerMap.update("Location", "some header")
     val futureResult = OptionalHeader("Location")(request)
     Await.result(futureResult) should equal(Some("some header"))
   }

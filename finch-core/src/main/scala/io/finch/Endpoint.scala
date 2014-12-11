@@ -22,10 +22,10 @@
 
 package io.finch
 
-import org.jboss.netty.handler.codec.http.HttpMethod
-import com.twitter.finagle.http.path.Path
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.service.NotFoundService
+import com.twitter.finagle.httpx.Method
+import com.twitter.finagle.httpx.path.Path
+import com.twitter.finagle.httpx.service.NotFoundService
 
 /**
  * A REST API endpoint that primary defines a ''route'' and might be converted
@@ -40,7 +40,7 @@ trait Endpoint[Req <: HttpRequest, Rep] { self =>
    *
    * @return a route of this endpoint
    */
-  def route: PartialFunction[(HttpMethod, Path), Service[Req, Rep]]
+  def route: PartialFunction[(Method, Path), Service[Req, Rep]]
 
   /**
    * Sends a request ''req'' to this Endpoint.
@@ -69,7 +69,7 @@ trait Endpoint[Req <: HttpRequest, Rep] { self =>
    *
    * @return a new endpoint
    */
-  def orElse(that: PartialFunction[(HttpMethod, Path), Service[Req, Rep]]): Endpoint[Req, Rep] =
+  def orElse(that: PartialFunction[(Method, Path), Service[Req, Rep]]): Endpoint[Req, Rep] =
     new Endpoint[Req, Rep] {
       def route = self.route orElse that
     }

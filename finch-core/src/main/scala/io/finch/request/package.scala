@@ -145,20 +145,10 @@ package object request {
    */
   private[this] object RequestBody {
     def apply(req: HttpRequest): Array[Byte] = {
-      val channelBuffer = req.content
-      //Check if channelBuffer  can be handled with array method
-      if (channelBuffer.hasArray) {
-        val array = channelBuffer.array
-
-        //the index of the first byte in the backing byte array of this ChannelBuffer.
-        //if there isn't a backing byte array, then this throws
-        val arrayOffset = channelBuffer.arrayOffset
-        //the index of the first readable byte in this ChannelBuffer
-        val readerIndex = channelBuffer.readerIndex()
-
-        //return a copy of the backing array, starting at the effective beginning of the HTTP response body
-        array.slice(arrayOffset + readerIndex, array.length)
-      } else channelBuffer.toByteBuffer.array
+      val buf = req.content
+      val out = Array.ofDim[Byte](buf.length)
+      buf.write(out, 0)
+      out
     }
   }
 

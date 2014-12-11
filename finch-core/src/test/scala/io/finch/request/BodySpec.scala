@@ -23,7 +23,9 @@
 
 package io.finch.request
 
-import com.twitter.finagle.http.Request
+import com.twitter.finagle.httpx.Request
+import com.twitter.io.Buf
+import com.twitter.io.Buf.ByteArray
 import com.twitter.util.{Await, Future}
 import io.finch.HttpRequest
 import org.jboss.netty.buffer.ChannelBuffers
@@ -97,8 +99,8 @@ class BodySpec extends FlatSpec with Matchers {
 
   private[this] def requestWithBody(body: Array[Byte]): HttpRequest = {
     val r = Request()
-    r.setContent(ChannelBuffers.wrappedBuffer(body))
-    r.headers().set(HttpHeaders.Names.CONTENT_LENGTH, body.length)
+    r.content = ByteArray.Owned(body)
+    r.headerMap.update(HttpHeaders.Names.CONTENT_LENGTH, body.length.toString)
     r
   }
 }

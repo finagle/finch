@@ -23,7 +23,7 @@
 package io.finch.auth
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Request, Status}
+import com.twitter.finagle.httpx.{Request, Status}
 import com.twitter.util.{Await, Base64StringEncoder, Future}
 import io.finch.response.Ok
 import io.finch.{HttpRequest, HttpResponse, _}
@@ -34,7 +34,7 @@ class BasicallyAuthorizeSpec extends FlatSpec with Matchers {
   "A BasicallyAuthorize" should "produce an Unauthorized response if given the wrong credentials" in {
     val auth = BasicallyAuthorize("admin", "password")
     val request = Request()
-    request.headers().set("Authorization", encode("wrong", "login"))
+    request.headerMap.update("Authorization", encode("wrong", "login"))
     val futureResult = auth(request, okService())
     val result = Await.result(futureResult)
 
@@ -44,7 +44,7 @@ class BasicallyAuthorizeSpec extends FlatSpec with Matchers {
   it should "pass the user through to the given service if the correct credentials" in {
     val auth = BasicallyAuthorize("admin", "password")
     val request = Request()
-    request.headers().set("Authorization", encode("admin", "password"))
+    request.headerMap.update("Authorization", encode("admin", "password"))
     val futureResult = auth(request, okService())
     val result = Await.result(futureResult)
 
