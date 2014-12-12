@@ -1,4 +1,5 @@
 import org.scoverage.coveralls.CoverallsPlugin
+import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages
 import sbt._
 import sbt.Keys._
 import com.typesafe.sbt.pgp.PgpKeys._
@@ -10,7 +11,8 @@ object Finch extends Build {
       "com.twitter" %% "finagle-httpx" % "6.22.1-MONOCACHE",
       "org.scalatest" % "scalatest_2.10" % "2.2.1" % "test"
     ),
-    scalacOptions ++= Seq( "-unchecked", "-deprecation", "-feature")
+    scalacOptions ++= Seq( "-unchecked", "-deprecation", "-feature"),
+    coverageExcludedPackages := ".*demo.*"
   )
 
   lazy val buildSettings = Seq(
