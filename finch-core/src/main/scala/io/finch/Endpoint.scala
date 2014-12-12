@@ -134,4 +134,13 @@ object Endpoint {
     val underlying = new NotFoundService[HttpRequest]
     def route = { case _ => underlying }
   }
+
+  /**
+   * Creates a new ''Endpoint'' using the given ''r'' function.
+   *
+   * @param r The route for the new Endpoint
+   */
+  def apply[Req <: HttpRequest, Rep](r: PartialFunction[(Method, Path), Service[Req, Rep]]): Endpoint[Req, Rep] = {
+    new Endpoint[Req, Rep] { def route = r }
+  }
 }

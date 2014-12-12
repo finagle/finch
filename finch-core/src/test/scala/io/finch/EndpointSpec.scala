@@ -36,9 +36,10 @@ class EndpointSpec extends FlatSpec with Matchers {
 
   def mockRequest(uri: String) = Request(uri)
 
-  def mockEndpoint(fromTo: (String, String)) = new Endpoint[HttpRequest, String] {
+  def mockEndpoint(fromTo: (String, String)) = {
     val (from, to) = fromTo
-    def route = {
+
+    Endpoint {
       case Method.Get -> Root / `from` => mockService(to)
     }
   }
