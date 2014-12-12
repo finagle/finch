@@ -3,4 +3,4 @@ scala:
   - 2.10.3
 jdk:
   - openjdk7
-script: "sbt coveralls"
+script: "sbt -sbt-version 0.13.7 clean coverage test coveralls"

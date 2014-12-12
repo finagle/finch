@@ -1,8 +1,7 @@
+import org.scoverage.coveralls.CoverallsPlugin
 import sbt._
 import sbt.Keys._
 import com.typesafe.sbt.pgp.PgpKeys._
-import scoverage.ScoverageSbtPlugin.instrumentSettings
-import CoverallsPlugin.coverallsSettings
 
 object Finch extends Build {
 
@@ -49,7 +48,15 @@ object Finch extends Build {
     )
   )
 
-  lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings ++ instrumentSettings ++ coverallsSettings
+  lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
+
+  def DefaultFinchProject(id: String, path: String, settings: Seq[sbt.Def.Setting[_]] = allSettings): Project = {
+    Project(
+      id = id,
+      base = file(path),
+      settings = settings
+    ) disablePlugins CoverallsPlugin
+  }
 
   lazy val root = Project(
     id = "finch",
@@ -57,23 +64,11 @@ object Finch extends Build {
     settings = allSettings
   ) aggregate(core, json, demo, jawn)
 
-  lazy val core = Project(
-    id = "finch-core",
-    base = file("finch-core"),
-    settings = allSettings
-  )
+  lazy val core = DefaultFinchProject(id = "finch-core", path = "finch-core")
 
-  lazy val json = Project(
-    id = "finch-json",
-    base = file("finch-json"),
-    settings = allSettings
-  ) dependsOn core
+  lazy val json = DefaultFinchProject(id = "finch-json", path = "finch-json") dependsOn core
 
-  lazy val demo = Project(
-    id = "finch-demo",
-    base = file("finch-demo"),
-    settings = allSettings
-  ) dependsOn(core, json)
+  lazy val demo = DefaultFinchProject(id = "finch-demo", path = "finch-demo") dependsOn(core, json)
 
   lazy val jawnSettings = allSettings ++ Seq(
     libraryDependencies ++= Seq(
@@ -82,9 +77,9 @@ object Finch extends Build {
     )
   )
 
-  lazy val jawn = Project(
+  lazy val jawn = DefaultFinchProject(
     id = "finch-jawn",
-    base = file("finch-jawn"),
+    path = "finch-jawn",
     settings = jawnSettings
   ) dependsOn core
 }
