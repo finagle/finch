@@ -18,12 +18,14 @@
  * limitations under the License.
  *
  * Contributor(s): -
+ * Rodrigo Ribeiro
  */
 
 package io.finch
 
 import io.finch.response._
 import com.twitter.finagle.Service
+import scala.language.implicitConversions
 
 package object json {
 
@@ -50,5 +52,24 @@ package object json {
 
   object TurnJsonIntoHttp {
     def apply[A](implicit encode: EncodeJson[A]) = new TurnJsonIntoHttp[A](encode)
+  }
+
+
+  /**
+   * Used to convert a ''Service[Req, Resp]'' to a ''Service[Req, HttpResponse]'' when an ''Encoder[Resp]'' is provided.
+   *
+   * @param service the Service to convert from
+   * @param enc the EncodeJson used to convert type ''Resp'' to ''HttpResponse''
+   **/
+  implicit class JsonToHttp[Req, Resp](service: Service[Req, Resp])
+                                      (implicit enc: EncodeJson[Resp]) extends Service[Req, HttpResponse] {
+
+    def apply(req: Req) = service(req) flatMap TurnJsonIntoHttp[Resp]
+
+    /**
+     * This function should be used when there isn't enough type information
+     * for the compiler decide to use JsonToHttp directly.
+     */
+    def asJson: Service[Req, HttpResponse] = this
   }
 }
