@@ -23,7 +23,6 @@
 
 package io.finch.json
 
-import io.finch.json.{EncodeJson, DecodeJson}
 import org.scalatest.{Matchers, FlatSpec}
 import scala.math._
 
