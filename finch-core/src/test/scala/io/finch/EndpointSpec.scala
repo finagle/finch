@@ -99,4 +99,12 @@ class EndpointSpec extends FlatSpec with Matchers {
 
     Await.result(service(mockRequest("a"))) shouldBe "a"
   }
+
+  it should "allow for endpoint creation from futures" in {
+    val endpoint: Endpoint[HttpRequest, String] =
+      Endpoint { case Method.Get -> Root / "a" => "a".toFuture }
+    val service = endpoint.toService
+
+    Await.result(service(mockRequest("a"))) shouldBe "a"
+  }
 }
