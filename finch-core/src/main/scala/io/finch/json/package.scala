@@ -25,6 +25,7 @@ package io.finch
 
 import io.finch.response._
 import com.twitter.finagle.Service
+import com.twitter.util.Future
 import scala.language.implicitConversions
 
 package object json {
@@ -71,5 +72,23 @@ package object json {
      * for the compiler decide to use JsonToHttp directly.
      */
     def asJson: Service[Req, HttpResponse] = this
+  }
+
+/**
+   * Allow for the creation of Http Service from a simple future
+   *
+   * @param future The future to implicitly convert.
+   * @param enc the EncodeJson used to convert type ''Resp'' to ''HttpResponse''
+   */
+  implicit class FutureToHttp[Resp](future: Future[Resp])
+                                   (implicit enc: EncodeJson[Resp]) extends Service[HttpRequest, HttpResponse] {
+
+    def apply(req: HttpRequest) = future flatMap TurnJsonIntoHttp[Resp]
+
+    /**
+     * This function should be used when there isn't enough type information
+     * for the compiler decide to use JsonToHttp directly.
+     */
+    def asJson: Service[HttpRequest, HttpResponse] = this
   }
 }
