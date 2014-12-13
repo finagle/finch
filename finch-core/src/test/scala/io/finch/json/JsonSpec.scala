@@ -23,10 +23,22 @@
 
 package io.finch.json
 
+import io.finch._
+import com.twitter.finagle.httpx.{Request, Method}
+import com.twitter.finagle.httpx.path._
+import com.twitter.finagle.Service
+import com.twitter.util.{Await, Future}
 import org.scalatest.{Matchers, FlatSpec}
 import scala.math._
 
 class JsonSpec extends FlatSpec with Matchers {
+  val mockService = new Service[HttpRequest, Int] {
+    def apply(req: HttpRequest) = 42.toFuture
+  }
+
+  implicit val intEncodeJson = new EncodeJson[Int] {
+    def apply(n: Int): String = n.toString
+  }
 
   private def encode[A](obj: A)(implicit e: EncodeJson[A]): String = e(obj)
   private def decode[A](json: String)(implicit d: DecodeJson[A]): Option[A] = d(json)
@@ -53,5 +65,42 @@ class JsonSpec extends FlatSpec with Matchers {
     }
 
     decode[ScalaNumber]("12345.25") shouldBe Some(BigDecimal(12345.25))
+  }
+
+  "JsonToHttp" should "convert service output to HttpResponse when encoder is provided" in {
+    val endpoint: Endpoint[HttpRequest, HttpResponse] = Endpoint {
+      case Method.Get -> Root => mockService
+    }
+    val service = endpoint.toService
+
+    Await.result(service(Request())).getContentString shouldBe "42"
+  }
+
+  it should "convert services output to HttpResponse even without type information" in {
+    val endpoint = Endpoint {
+      case Method.Get -> Root => mockService.asJson
+    }
+    val service = endpoint.toService
+
+    Await.result(service(Request())).getContentString shouldBe "42"
+  }
+
+  it should "convert future to a HttpResponse service" in {
+    val endpoint: Endpoint[HttpRequest, HttpResponse] = Endpoint {
+      case Method.Get -> Root => 42.toFuture
+    }
+    val service = endpoint.toService
+
+    Await.result(service(Request())).getContentString shouldBe "42"
+  }
+
+  it should "convert future to a HttpResponse service  even without type information" in {
+    def expensiveComputation: Future[Int] = 42.toFuture
+    val endpoint = Endpoint {
+      case Method.Get -> Root => expensiveComputation.asJson
+    }
+    val service = endpoint.toService
+
+    Await.result(service(Request())).getContentString shouldBe "42"
   }
 }
