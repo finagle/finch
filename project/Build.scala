@@ -8,8 +8,8 @@ object Finch extends Build {
 
   val baseSettings = Defaults.defaultSettings ++ Seq(
     libraryDependencies ++= Seq(
-      "com.twitter" %% "finagle-httpx" % "6.22.1-MONOCACHE",
-      "org.scalatest" % "scalatest_2.10" % "2.2.1" % "test"
+      "com.twitter" %% "finagle-httpx" % "6.24.0",
+      "org.scalatest" %% "scalatest" % "2.2.1" % "test"
     ),
     scalacOptions ++= Seq( "-unchecked", "-deprecation", "-feature"),
     coverageExcludedPackages := ".*demo.*"
@@ -18,7 +18,8 @@ object Finch extends Build {
   lazy val buildSettings = Seq(
     organization := "com.github.finagle",
     version := "0.3.0-SNAPSHOT",
-    scalaVersion := "2.10.4"
+    scalaVersion := "2.11.4",
+    crossScalaVersions := Seq("2.10.4", "2.11.4")
   )
 
   lazy val publishSettings = Seq(
@@ -52,13 +53,12 @@ object Finch extends Build {
 
   lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
 
-  def DefaultFinchProject(id: String, path: String, settings: Seq[sbt.Def.Setting[_]] = allSettings): Project = {
+  def defaultFinchProject(id: String, path: String, settings: Seq[sbt.Def.Setting[_]] = allSettings): Project =
     Project(
       id = id,
       base = file(path),
       settings = settings
     ) disablePlugins CoverallsPlugin
-  }
 
   lazy val root = Project(
     id = "finch",
@@ -66,11 +66,11 @@ object Finch extends Build {
     settings = allSettings
   ) aggregate(core, json, demo, jawn)
 
-  lazy val core = DefaultFinchProject(id = "finch-core", path = "finch-core")
+  lazy val core = defaultFinchProject(id = "finch-core", path = "finch-core")
 
-  lazy val json = DefaultFinchProject(id = "finch-json", path = "finch-json") dependsOn core
+  lazy val json = defaultFinchProject(id = "finch-json", path = "finch-json") dependsOn core
 
-  lazy val demo = DefaultFinchProject(id = "finch-demo", path = "finch-demo") dependsOn(core, json)
+  lazy val demo = defaultFinchProject(id = "finch-demo", path = "finch-demo") dependsOn(core, json)
 
   lazy val jawnSettings = allSettings ++ Seq(
     libraryDependencies ++= Seq(
@@ -79,7 +79,7 @@ object Finch extends Build {
     )
   )
 
-  lazy val jawn = DefaultFinchProject(
+  lazy val jawn = defaultFinchProject(
     id = "finch-jawn",
     path = "finch-jawn",
     settings = jawnSettings
