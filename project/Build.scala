@@ -64,7 +64,7 @@ object Finch extends Build {
     id = "finch",
     base = file("."),
     settings = allSettings
-  ) aggregate(core, json, demo, jawn)
+  ) aggregate(core, json, demo, jawn, argonaut)
 
   lazy val core = defaultFinchProject(id = "finch-core", path = "finch-core")
 
@@ -83,5 +83,13 @@ object Finch extends Build {
     id = "finch-jawn",
     path = "finch-jawn",
     settings = jawnSettings
+  ) dependsOn core
+
+  lazy val argonaut = defaultFinchProject(
+    id = "finch-argonaut",
+    path = "finch-argonaut",
+    settings = allSettings ++ Seq(
+      libraryDependencies += "io.argonaut" %% "argonaut" % "6.0.4"
+    )
   ) dependsOn core
 }
