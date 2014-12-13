@@ -6,19 +6,19 @@ import com.typesafe.sbt.pgp.PgpKeys._
 
 object Finch extends Build {
 
-  val baseSettings = Defaults.defaultSettings ++ Seq(
+  val baseSettings = Defaults.coreDefaultSettings ++ Seq(
     libraryDependencies ++= Seq(
-      "com.twitter" %% "finagle-httpx" % "6.22.1-MONOCACHE",
-      "org.scalatest" % "scalatest_2.10" % "2.2.1" % "test"
+      "com.twitter" %% "finagle-httpx" % "6.24.0",
+      "org.scalatest" %% "scalatest" % "2.2.1" % "test"
     ),
-    scalacOptions ++= Seq( "-unchecked", "-deprecation", "-feature"),
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
     coverageExcludedPackages := ".*demo.*"
   )
 
   lazy val buildSettings = Seq(
     organization := "com.github.finagle",
     version := "0.3.0-SNAPSHOT",
-    scalaVersion := "2.10.4"
+    crossScalaVersions := Seq("2.10.4", "2.11.4")
   )
 
   lazy val publishSettings = Seq(
