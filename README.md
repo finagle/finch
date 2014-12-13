@@ -9,7 +9,7 @@ being as close as possible to the Finagle bare metal API.
 Modules
 -------
 
-**Finch.io** uses multi-project structure and contains of the following _modules_:
+Finch uses multi-project structure and contains of the following _modules_:
 
 * `finch-core` - the core classes/functions
 * `finch-json` - the lightweight and  immutable JSON API
@@ -19,12 +19,26 @@ Modules
 Installation 
 ------------
 Every Finch module is published at Maven Central. Use the following _sbt_ snippet:
+
+* For _stable_ release:
  
 ```scala
 libraryDependencies ++= Seq(
   "com.github.finagle" %% "finch-module" % "0.2.0"
 )
 
+```
+
+* For `SNAPSHOT` version:
+
+```scala
+resolvers ++= Seq(
+  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+)
+
+libraryDependencies ++= Seq(
+  "com.github.finagle" %% "finch" % "0.3.0-SNAPSHOT" changing()
+)
 ```
 
 Quickstart
