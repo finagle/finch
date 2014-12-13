@@ -37,7 +37,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "finch" % "0.3.0-SNAPSHOT" changing()
+  "com.github.finagle" %% "finch-module" % "0.3.0-SNAPSHOT" changing()
 )
 ```
 
