@@ -58,11 +58,9 @@ def hello(name: String) = new Service[HttpRequest, HttpResponse] {
   } yield Ok(Json.obj("greetings" -> s"Hello, ${title.getOrElse("")} $name!"))
 }
 
-val endpoint = new Endpoint[HttpRequest, HttpResponse] {
-  def route = {
-    // routes requests like '/hello/Bob?title=Mr.'
-    case Method.Get -> Root / "hello" / name => hello(name)
-  }
+val endpoint = Endpoint[HttpRequest, HttpResponse] {
+  // routes requests like '/hello/Bob?title=Mr.'
+  case Method.Get -> Root / "hello" / name => hello(name)
 }
 ```
 
