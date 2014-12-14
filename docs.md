@@ -19,9 +19,9 @@
 
 ## Demo
 
-There is a single-file _demo_ project `finch-demo`, which is a complete REST API backend written with `finch-core` and 
-`finch-json` modules. The source code of the demo project is altered with useful comments that explain how to use its 
-building blocks such as `Endpoint`, `RequestReader`, `ResponseBuilder`, etc. The `finch-demo` module is just a single 
+There is a single-file _demo_ project `finch-demo`, which is a complete REST API backend written with `finch-core` and
+`finch-json` modules. The source code of the demo project is altered with useful comments that explain how to use its
+building blocks such as `Endpoint`, `RequestReader`, `ResponseBuilder`, etc. The `finch-demo` module is just a single
 Scala file [Main.scala][1] that is worth reading.
 
 The following command may be used to run the demo:
@@ -32,12 +32,12 @@ sbt 'project finch-demo' 'run io.finch.demo.Main'
 
 ## Endpoints
 
-One of the most powerful abstractions in **Finch.io** is an `Endpoint`, which is a composable router. At the high level 
-it might be treated as a usual `PartialFunction` from request to service. Endpoints may be converted to Finagle services. 
+One of the most powerful abstractions in **Finch.io** is an `Endpoint`, which is a composable router. At the high level
+it might be treated as a usual `PartialFunction` from request to service. Endpoints may be converted to Finagle services.
 And more importantly they can be composed with other building blocks like filters, services or endpoints itself.
 
-The core operator in **Finch.io** is _pipe_ (bang) `!` operator, which is like a Linux pipe exposes the data flow. Both 
-requests and responses may be piped via chain building blocks (filters, services or endpoints) in exact way it has been 
+The core operator in **Finch.io** is _pipe_ (bang) `!` operator, which is like a Linux pipe exposes the data flow. Both
+requests and responses may be piped via chain building blocks (filters, services or endpoints) in exact way it has been
 written.
 
 In the following example
@@ -48,7 +48,7 @@ In the following example
 
 ```scala
 val respond: Endpoint[HttpRequest, HttpResponse] = ???
-val endpoint = Auth ! respond ! TurnJsonIntoHttp
+val endpoint = Auth ! respond ! TurnJsonIntoHttp[Json]
 ```
 
 The best practices on what to choose for data transformation are following:
@@ -60,12 +60,12 @@ The best practices on what to choose for data transformation are following:
 
 ### Request Reader Monad
 
-**Finch.io** has built-in request reader that implements the [Reader Monad][2] functional design pattern: 
+**Finch.io** has built-in request reader that implements the [Reader Monad][2] functional design pattern:
 * `io.finch.request.RequestReader` reads `Future[A]`
 
-The simplified signature of the `RequestReader` abstraction is similar to `Service` but with monadic API methods `map` 
+The simplified signature of the `RequestReader` abstraction is similar to `Service` but with monadic API methods `map`
 and `flatMap`:
- 
+
 ```scala
 trait RequestReader[A] {
   def apply(req: HttpRequest): Future[A]
@@ -74,14 +74,14 @@ trait RequestReader[A] {
 }
 ```
 
-Since the request readers read futures they might be chained together with regular Finagle services in a single 
-for-comprehension. Thus, reading the request params is an additional monad-transformation in the program's data flow. 
-This is an extremely useful when a service should fetch and validate the request params before doing a real job and not 
-doing the job at all if the params are not valid. Request reader might throw a future exception and none of further 
+Since the request readers read futures they might be chained together with regular Finagle services in a single
+for-comprehension. Thus, reading the request params is an additional monad-transformation in the program's data flow.
+This is an extremely useful when a service should fetch and validate the request params before doing a real job and not
+doing the job at all if the params are not valid. Request reader might throw a future exception and none of further
 transformations will be performed. Reader Monad is sort of famous abstraction that is heavily used in **Finch.io**.
 
 The following readers are available in Finch.io:
-* `io.finch.request.EmptyReader` - throws an exception instead of reading 
+* `io.finch.request.EmptyReader` - throws an exception instead of reading
 * `io.finch.request.ConstReader` - fetches a const value from the request
 * `io.finch.request.RequiredParam` - fetches required params within specified type
 * `io.finch.request.OptionalParam` - fetches optional params within specified type
@@ -102,19 +102,19 @@ val user: RequestReader[User] = for {
 val service = new Service[HttpRequest, Json] {
   def apply(req: HttpRequest) = for {
     u <- user(req)
-  } yield JsonObject(
-    "name" -> u.name, 
-    "age" -> u.age, 
+  } yield Json.obj(
+    "name" -> u.name,
+    "age" -> u.age,
     "city" -> u.city
   )
 }
 
 val user: Json = service(req) handle {
-  case e: ParamNotFound => JsonObject("status" -> 400) // bad request
+  case e: ParamNotFound => Json.obj("status" -> 400) // bad request
 }
 ```
 
-Since the request reader has monadic API, a for-comprehension might be used to compose request readers together. Here is 
+Since the request reader has monadic API, a for-comprehension might be used to compose request readers together. Here is
 an example of _composing_ an existing reader `user` within a validation rule, which is a primitive request that returns  
 `Future.Done` if the given `predicate` is true or future of `ValidationFailed` exception otherwise.
 
@@ -128,8 +128,8 @@ val adult: RequestReader[User] = for {
 The exceptions from a request-reader might be handled just like other future exceptions in Finagle:
 ```scala
 val user: Future[Json] = service(...) handle {
-  case e: ParamNotFound => JsonObject("status" -> 400, "error" -> e.getMessage, "param" -> e.param)
-  case e: ValidationFailed => JsonObject("status" -> 400, "error" -> e.getMessage, "param" -> e.param)
+  case e: ParamNotFound => Json.obj("status" -> 400, "error" -> e.getMessage, "param" -> e.param)
+  case e: ValidationFailed => Json.obj("status" -> 400, "error" -> e.getMessage, "param" -> e.param)
 }
 ```
 
@@ -147,8 +147,8 @@ val service = new Service[HttpRequest, HttpResponse] {
 }
 ```
 
-Optional params may be validated by using `Option.forAll(p)` function, which does exactly what's needed. If the option 
-is `Some(value)` it checks whether or not the given predicate `p` is true for `value`. Otherwise (if the option is `None`) 
+Optional params may be validated by using `Option.forAll(p)` function, which does exactly what's needed. If the option
+is `Some(value)` it checks whether or not the given predicate `p` is true for `value`. Otherwise (if the option is `None`)
 it just returns `true`.
 
 ```scala
@@ -157,7 +157,7 @@ val pagination: RequestReader[(Int, Int)] = for {
   limit <- OptionalIntParam("limit")
   _ <- ValidationRule("offset", "should be positive") { offset.forAll(_ >= 0) }
   _ <- ValidationRule("limit", "should be positive") { limit.forAll(_ >= 0) }
-  _ <- ValidationRule("limit", "should be greater then offset") { 
+  _ <- ValidationRule("limit", "should be greater then offset") {
    (for { o <- offset; l <- limit} yield (l > o)).getOrElse(true)
   }
 } yield (offset.getOrElse(0), math.min(limit.getOrElse(50), 50))
@@ -166,23 +166,23 @@ val pagination: RequestReader[(Int, Int)] = for {
 #### A `io.finch.request.RequiredParam` reader makes sure that
 * param is presented in the request (otherwise it throws `ParamNoFound` exception)
 * param is not empty (otherwise it throws `ValidationFailed` exception)
-* param may be converted to a requested type `RequiredIntParam`, `RequiredLongParam` or `RequiredBooleanParam` 
+* param may be converted to a requested type `RequiredIntParam`, `RequiredLongParam` or `RequiredBooleanParam`
 (otherwise it throws `ValidationFailed` exception).
 
-#### An `io.finch.request.OptionalParam` returns 
-* `Future[Some[A]]` if param is presented in the request and may be converted to a requested type `OptionalIntParam`, 
+#### An `io.finch.request.OptionalParam` returns
+* `Future[Some[A]]` if param is presented in the request and may be converted to a requested type `OptionalIntParam`,
 `OptionalLongParam` or `OptionalBooleanParam`
 * `Future.None` otherwise.
 
-#### A `io.finch.request.ValidationRule(param, rule)(predicate)` 
+#### A `io.finch.request.ValidationRule(param, rule)(predicate)`
 * returns `Future.Done` when predicate is `true`
 * throws `ValidationFailed` exception with `rule` and `param` fields
 
 ### Multiple-Value Params
 
-All the readers have companion readers that can read multiple-value params `List[A]` instead of single-value params `A`. 
-Multiple-value readers have `s` postfix in their names. So, `Param` has `Params`, `OptionalParam` has `OptionalParams` 
-and finally `RequiredParam` has `RequiredParams` companions. There are also typed versions for every reader, like 
+All the readers have companion readers that can read multiple-value params `List[A]` instead of single-value params `A`.
+Multiple-value readers have `s` postfix in their names. So, `Param` has `Params`, `OptionalParam` has `OptionalParams`
+and finally `RequiredParam` has `RequiredParams` companions. There are also typed versions for every reader, like
 `IntParams` or even `OptionalLongParams`.
 
 Thus, the following HTTP params `a=1,2,3&b=4&b=5` might be fetched with `RequiredIntParams` reader like this:
@@ -209,12 +209,12 @@ The HTTP headers may also be read with `RequestReader`. The following pre-define
 ### Response Builder
 
 An entry point into the construction of HTTP responses in **Finch.io** is the `io.finch.response.ResponseBuilder` class.  
-It supports building of three types of responses: 
+It supports building of three types of responses:
 * `application/json` within JSON object in the response body
 * `plain/text` within string in the response body
 * empty response of given HTTP status
 
-The common practice is to not use the `ResponseBuilder` class directly but use the predefined response builders like 
+The common practice is to not use the `ResponseBuilder` class directly but use the predefined response builders like
 `Ok`, `SeeOther`, `NotFound` and so on.
 
 ```scala
@@ -223,17 +223,17 @@ import io.finch.response._
 
 val a = Ok() // an empty response with status 200
 val b = NotFound("body") // 'plain/text' response with status 404
-val c = Created(JsonObject("id" -> 42)) // 'application/json' response with status 201
+val c = Created(Json.obj("id" -> 42)) // 'application/json' response with status 201
 ```
 
 HTTP headers may be added to respond instance with `withHeaders()` method:
 
 ```scala
 val seeOther: ResponseBuilder = SeeOther.withHeaders("Some-Header-A" -> "a", "Some-Header-B" -> "b")
-val rep: HttpResponse = seeOther(JsonObject("a" -> 10))
+val rep: HttpResponse = seeOther(Json.obj("a" -> 10))
 ```
 
-You might be surprised but **Finch.io** has response builders for _all_ the HTTP statuses: just import 
+You might be surprised but **Finch.io** has response builders for _all_ the HTTP statuses: just import
 `io.finch.response._` and start typing.
 
 ```scala
@@ -250,9 +250,9 @@ object Hello extends Service[HttpRequest, HttpResponse] {
 
 ### Redirects
 
-There is a tiny factory object `io.finch.response.Redirect` that may be used for generation redirect services. 
+There is a tiny factory object `io.finch.response.Redirect` that may be used for generation redirect services.
 Here is the example:
- 
+
 ```scala
 val e = new Endpoint[HttpRequest, HttpResponse] = {
   def route = {
@@ -266,12 +266,12 @@ val e = new Endpoint[HttpRequest, HttpResponse] = {
 
 ### Authorization with OAuth2
 
-There is [finagle-oauth2](https://github.com/finagle/finagle-oauth2) server-side provider that is 100% compatible with 
+There is [finagle-oauth2](https://github.com/finagle/finagle-oauth2) server-side provider that is 100% compatible with
 **Finch.io**.
 
 ### Basic HTTP Auth
 
-[Basic HTTP Auth](http://en.wikipedia.org/wiki/Basic_access_authentication) is supported out-of-the-box and implemented 
+[Basic HTTP Auth](http://en.wikipedia.org/wiki/Basic_access_authentication) is supported out-of-the-box and implemented
 as `finch.io.auth.BasicallyAuthorize` filter.
 
 ```scala
@@ -284,10 +284,10 @@ object ProtectedEndpoint extends Endpoint[HttpRequest, HttpResponse] {
 
 ## JSON
 
-**Finch.io** provides simple traits `io.finch.json.DecodeJson` and `io.finch.json.EncodeJson` to support plugable JSON 
-libraries. An example of implementation those traits might be found in default JSON backend `finch-json`. All the methods 
+**Finch.io** provides simple traits `io.finch.json.DecodeJson` and `io.finch.json.EncodeJson` to support pluggable JSON
+libraries. An example of implementation those traits might be found in default JSON backend `finch-json`. All the methods
 in Finch API that deals with JSON objects takes `implicit` decode or encode trait. So, the encode/decode implementations  
-should be `implicit` in order to make its usage transparent. For example, the `finch-json` library might be plugged it by 
+should be `implicit` in order to make its usage transparent. For example, the `finch-json` library might be plugged it by
 the following imports:
 
 ```scala
@@ -305,7 +305,7 @@ There are bunch of API functions in **Finch.io** that implicitly take JSON encod
 
 ### Finch-JSON
 
-A **Finch.io** library is shipped with an immutable JSON API: `finch-json`, an extremely lightweight and simple 
+A **Finch.io** library is shipped with an immutable JSON API: `finch-json`, an extremely lightweight and simple
 implementation of JSON: [Json.scala][3].
 
 [1]: https://github.com/finagle/finch/blob/master/finch-demo/src/main/scala/io/finch/demo/Main.scala
