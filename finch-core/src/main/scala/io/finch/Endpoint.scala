@@ -40,7 +40,7 @@ trait Endpoint[Req <: HttpRequest, Rep] { self =>
    *
    * @return a route of this endpoint
    */
-  def route: PartialFunction[(Method, Path), Service[Req, Rep]]
+  def route: Route[Req, Rep]
 
   /**
    * Sends a request ''req'' to this Endpoint.

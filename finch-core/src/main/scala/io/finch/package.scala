@@ -25,6 +25,7 @@ package io
 import scala.language.implicitConversions
 
 import com.twitter.finagle.httpx._
+import com.twitter.finagle.httpx.path.Path
 import com.twitter.util.Future
 import com.twitter.finagle.{Filter, Service}
 
@@ -68,6 +69,7 @@ package object finch {
 
   type HttpRequest = Request
   type HttpResponse = Response
+  type Route[Req <: HttpRequest, Rep] = PartialFunction[(Method, Path), Service[Req, Rep]]
 
   /**
    * Alters any object within a ''toFuture'' method.
