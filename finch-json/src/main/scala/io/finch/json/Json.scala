@@ -18,6 +18,7 @@
  * limitations under the License.
  *
  * Contributor(s):
+ * Ryan Plessner
  */
 
 package io.finch.json
@@ -61,6 +62,7 @@ sealed trait Json {
    */
   def apply[A](path: String): Option[A] = {
     def loop(path: List[String], outer: Map[String, Any]): Option[A] = path match {
+      case Nil => outer.get("") map { _.asInstanceOf[A] }
       case tag :: Nil => outer.get(tag) map { _.asInstanceOf[A] }
       case tag :: tail => outer.get(tag) match {
         case Some(JsonObject(inner)) => loop(tail, inner)
@@ -130,6 +132,7 @@ object Json {
    */
   def obj(args: (String, Any)*): Json = {
     def loop(path: List[String], value: Any): Map[String, Any] = path match {
+      case Nil => Map("" -> value)
       case tag :: Nil => Map(tag -> value)
       case tag :: tail => Map(tag -> JsonObject(loop(tail, value)))
     }

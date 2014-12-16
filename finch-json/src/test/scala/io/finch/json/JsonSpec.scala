@@ -18,6 +18,7 @@
  * limitations under the License.
  *
  * Contributor(s):
+ * Ryan Plessner
  */
 
 package io.finch.json
@@ -46,10 +47,10 @@ class JsonSpec extends FlatSpec with Matchers {
   }
 
   "A JSON API" should "support JSON AST construction" in {
-    val map = unwrapObject(Json.obj("a.b.c" -> 1, "a.b.d" -> 2))
+    val map = unwrapObject(Json.obj("a.b.c" -> 1, "a.b.d" -> 2, "" -> 3))
     val list = unwrapArray(Json.arr("a", "b", "c"))
 
-    map shouldBe Map("a" -> Map("b" -> Map("c" -> 1, "d" -> 2)))
+    map shouldBe Map("a" -> Map("b" -> Map("c" -> 1, "d" -> 2)), "" -> 3)
     list shouldBe List("a", "b", "c")
   }
 
@@ -159,6 +160,21 @@ class JsonSpec extends FlatSpec with Matchers {
     a[Json]("a.b").map(unwrapObject) shouldBe Some(Map("c" -> 10))
     a[Int]("a.b.c") shouldBe Some(10)
     a[Json]("a.d").map(unwrapArray) shouldBe Some(List(1, 2, 3))
+  }
+
+  it should "not return a result for a tag that does not exist" in {
+    val a = Json.obj("a.b.c" -> 10, "a.d" -> Json.arr(1, 2, 3))
+    a("d") shouldBe None
+  }
+
+  it should "not query an empty string, if the empty string is not a tag" in {
+    val a = Json.obj("a.b.c" -> 10, "a.d" -> Json.arr(1, 2, 3))
+    a("") shouldBe None
+  }
+
+  it should "query an empty string, if the empty string is a tag" in {
+    val a = Json.obj("a.b.c" -> 10, "a.d" -> Json.arr(1, 2, 3), "" -> 1)
+    a[Int]("") shouldBe Some(1)
   }
 
   it should "be compatible with finch-core" in {
