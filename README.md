@@ -53,16 +53,15 @@ libraryDependencies ++= Seq(
 ```
 
 ```scala
-def hello(name: String) = new Service[HttpRequest, HttpResponse] = {
+def hello(name: String) = new Service[HttpRequest, HttpResponse] {
   def apply(req: HttpRequest) = for {
     title <- OptionalParam("title")(req)
   } yield Ok(Json.obj("greetings" -> s"Hello, ${title.getOrElse("")} $name!"))
 }
 
 val endpoint = Endpoint[HttpRequest, HttpResponse] {
-    // routes requests like '/hello/Bob?title=Mr.'
-    case Method.Get -> Root / "hello" / name => hello(name)
-  }
+  // routes requests like '/hello/Bob?title=Mr.'
+  case Method.Get -> Root / "hello" / name => hello(name)
 }
 ```
 
