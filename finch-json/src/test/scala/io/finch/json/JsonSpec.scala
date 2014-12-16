@@ -56,7 +56,7 @@ class JsonSpec extends FlatSpec with Matchers {
 
   it should "create empty object/array" in {
     val map = unwrapObject(Json.emptyObject)
-    val list = unwrapArray(Json.emptyObject)
+    val list = unwrapArray(Json.emptyArray)
 
     map shouldBe empty
     list shouldBe empty
@@ -175,6 +175,15 @@ class JsonSpec extends FlatSpec with Matchers {
   it should "query an empty string, if the empty string is a tag" in {
     val a = Json.obj("a.b.c" -> 10, "a.d" -> Json.arr(1, 2, 3), "" -> 1)
     a[Int]("") shouldBe Some(1)
+  }
+
+  it should "delegate routines to static methods in Json" in {
+    val a = Json.obj("a.b" -> 10, "a.c" -> 20)
+    val b = Json.obj("a.d" -> 30, "a.e" -> 40)
+
+    a.merge(b) shouldBe Json.mergeLeft(a, b)
+    a.concat(b) shouldBe Json.concatLeft(a, b)
+    a.compressed shouldBe Json.compress(a)
   }
 
   it should "be compatible with finch-core" in {

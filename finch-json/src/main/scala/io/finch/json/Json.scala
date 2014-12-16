@@ -23,6 +23,7 @@
 
 package io.finch.json
 
+import scala.annotation.tailrec
 import scala.util.parsing.json.JSON
 
 /**
@@ -61,6 +62,7 @@ sealed trait Json {
    * @return an option of json value
    */
   def apply[A](path: String): Option[A] = {
+    @tailrec
     def loop(path: List[String], outer: Map[String, Any]): Option[A] = path match {
       case Nil => outer.get("") map { _.asInstanceOf[A] }
       case tag :: Nil => outer.get(tag) map { _.asInstanceOf[A] }
