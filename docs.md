@@ -15,7 +15,7 @@
 * [JSON](docs.md#json)
   * [Finch Json](docs.md#finch-json)
   * [Argonaut](docs.md#argonaut)
-  * [Jawn](docs.md#Jawn)
+  * [Jawn](docs.md#jawn)
 
 ----
 

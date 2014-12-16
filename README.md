@@ -11,11 +11,11 @@ Modules
 
 Finch uses multi-project structure and contains of the following _modules_:
 
-* `finch-core` - the core classes/functions
-* `finch-json` - the lightweight and  immutable JSON API
-* `finch-demo` - the demo project
-* `finch-jawn` - the JSON API support for the [Jawn](https://github.com/non/jawn) library
-* `finch-argonaut` - the JSON API support for the [Argonaut](http://argonaut.io/) library
+* [`finch-core`](finch-core) - the core classes/functions
+* [`finch-json`](finch-json) - the lightweight and  immutable JSON API
+* [`finch-demo`](finch-demo) - the demo project
+* [`finch-jawn`](finch-jawn) - the JSON API support for the [Jawn](https://github.com/non/jawn) library
+* [`finch-argonaut`](finch-argonaut) - the JSON API support for the [Argonaut](http://argonaut.io/) library
 
 Installation 
 ------------
