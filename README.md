@@ -19,18 +19,17 @@ Finch uses multi-project structure and contains of the following _modules_:
 
 Installation 
 ------------
-Every Finch module is published at Maven Central. Use the following _sbt_ snippet:
+Every Finch module is published at Maven Central. Use the following _sbt_ snippet ...
 
-* For _stable_ release:
+* for the _stable_ release:
  
 ```scala
 libraryDependencies ++= Seq(
   "com.github.finagle" %% "finch-module" % "0.2.0"
 )
-
 ```
 
-* For `SNAPSHOT` version:
+* for the `SNAPSHOT` version:
 
 ```scala
 resolvers ++= Seq(
@@ -44,16 +43,10 @@ libraryDependencies ++= Seq(
 
 Quickstart
 ----------
+This quick start example is built with the `0.3.0-SNAPSHOT` versions of both `finch-core` and `finch-json`.
 
 ```scala
-libraryDependencies ++= Seq(
-  "com.github.finagle" %% "finch-core" % "0.2.0",
-  "com.github.finagle" %% "finch-json" % "0.2.0"
-)
-```
-
-```scala
-def hello(name: String) = new Service[HttpRequest, HttpResponse] = {
+def hello(name: String) = new Service[HttpRequest, HttpResponse] {
   def apply(req: HttpRequest) = for {
     title <- OptionalParam("title")(req)
   } yield Ok(Json.obj("greetings" -> s"Hello, ${title.getOrElse("")} $name!"))

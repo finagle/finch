@@ -13,7 +13,9 @@
   * [OAuth2](docs.md#authorization-with-oauth2)
   * [Basic Auth](docs.md#basic-http-auth)
 * [JSON](docs.md#json)
-  * [Finch-Json](docs.md#finch-json)
+  * [Finch Json](docs.md#finch-json)
+  * [Argonaut](docs.md#argonaut)
+  * [Jawn](docs.md#Jawn)
 
 ----
 
@@ -32,11 +34,11 @@ sbt 'project finch-demo' 'run io.finch.demo.Main'
 
 ## Endpoints
 
-One of the most powerful abstractions in **Finch.io** is an `Endpoint`, which is a composable router. At the high level
+One of the most powerful abstractions in Finch is an `Endpoint`, which is a composable router. At the high level
 it might be treated as a usual `PartialFunction` from request to service. Endpoints may be converted to Finagle services.
 And more importantly they can be composed with other building blocks like filters, services or endpoints itself.
 
-The core operator in **Finch.io** is _pipe_ (bang) `!` operator, which is like a Linux pipe exposes the data flow. Both
+The core operator in Finch is _pipe_ (bang) `!` operator, which is like a Linux pipe exposes the data flow. Both
 requests and responses may be piped via chain building blocks (filters, services or endpoints) in exact way it has been
 written.
 
@@ -60,7 +62,7 @@ The best practices on what to choose for data transformation are following:
 
 ### Request Reader Monad
 
-**Finch.io** has built-in request reader that implements the [Reader Monad][2] functional design pattern:
+Finch has built-in request reader that implements the [Reader Monad][2] functional design pattern:
 * `io.finch.request.RequestReader` reads `Future[A]`
 
 The simplified signature of the `RequestReader` abstraction is similar to `Service` but with monadic API methods `map`
@@ -78,9 +80,9 @@ Since the request readers read futures they might be chained together with regul
 for-comprehension. Thus, reading the request params is an additional monad-transformation in the program's data flow.
 This is an extremely useful when a service should fetch and validate the request params before doing a real job and not
 doing the job at all if the params are not valid. Request reader might throw a future exception and none of further
-transformations will be performed. Reader Monad is sort of famous abstraction that is heavily used in **Finch.io**.
+transformations will be performed. Reader Monad is sort of famous abstraction that is heavily used in Finch.
 
-The following readers are available in Finch.io:
+The following readers are available in Finch:
 * `io.finch.request.EmptyReader` - throws an exception instead of reading
 * `io.finch.request.ConstReader` - fetches a const value from the request
 * `io.finch.request.RequiredParam` - fetches required params within specified type
@@ -208,7 +210,7 @@ The HTTP headers may also be read with `RequestReader`. The following pre-define
 
 ### Response Builder
 
-An entry point into the construction of HTTP responses in **Finch.io** is the `io.finch.response.ResponseBuilder` class.  
+An entry point into the construction of HTTP responses in Finch is the `io.finch.response.ResponseBuilder` class.  
 It supports building of three types of responses:
 * `application/json` within JSON object in the response body
 * `plain/text` within string in the response body
@@ -233,7 +235,7 @@ val seeOther: ResponseBuilder = SeeOther.withHeaders("Some-Header-A" -> "a", "So
 val rep: HttpResponse = seeOther(Json.obj("a" -> 10))
 ```
 
-You might be surprised but **Finch.io** has response builders for _all_ the HTTP statuses: just import
+You might be surprised but Finch has response builders for _all_ the HTTP statuses: just import
 `io.finch.response._` and start typing.
 
 ```scala
@@ -267,7 +269,7 @@ val e = new Endpoint[HttpRequest, HttpResponse] = {
 ### Authorization with OAuth2
 
 There is [finagle-oauth2](https://github.com/finagle/finagle-oauth2) server-side provider that is 100% compatible with
-**Finch.io**.
+Finch.
 
 ### Basic HTTP Auth
 
@@ -284,7 +286,7 @@ object ProtectedEndpoint extends Endpoint[HttpRequest, HttpResponse] {
 
 ## JSON
 
-**Finch.io** provides simple traits `io.finch.json.DecodeJson` and `io.finch.json.EncodeJson` to support pluggable JSON
+Finch provides simple traits `io.finch.json.DecodeJson` and `io.finch.json.EncodeJson` to support pluggable JSON
 libraries. An example of implementation those traits might be found in default JSON backend `finch-json`. All the methods
 in Finch API that deals with JSON objects takes `implicit` decode or encode trait. So, the encode/decode implementations  
 should be `implicit` in order to make its usage transparent. For example, the `finch-json` library might be plugged it by
@@ -297,7 +299,7 @@ import io.finch.json.finch._  // imports implicit DecodeFinchJson and EncodeFinc
 
 The naming convention for JSON libraries is the `io.finch.json.library-name._`.
 
-There are bunch of API functions in **Finch.io** that implicitly take JSON encoder or decoder:
+There are bunch of API functions in Finch.io that implicitly take JSON encoder or decoder:
 * `io.finch.response.ResponseBuilder#apply[A](json: A)(implicit encode: EncodeJson[A])`
 * `io.finch.request.RequiredJsonBody#apply[A](implicit decode: DecodeJson[A])`
 * `io.finch.request.OptionalJsonBody#apply[A](implicit decode: DecodeJson[A])`
@@ -305,9 +307,30 @@ There are bunch of API functions in **Finch.io** that implicitly take JSON encod
 
 ### Finch-JSON
 
-A **Finch.io** library is shipped with an immutable JSON API: `finch-json`, an extremely lightweight and simple
+The Finch library is shipped with an immutable JSON API: `finch-json`, an extremely lightweight and simple
 implementation of JSON: [Json.scala][3].
+
+### Argonaut
+
+The `finch-argonaut` module provides the support for the [Argonaut][4] JSON library.
+
+*Note*, there is name conflict between Finch and Argonaut. Both of the projects use class names `EncodeJson` and 
+`DecodeJson`. To avoid the naming conflicts, instead of importing the whole package `io.finch.json._` import only 
+`io.finch.json.TurnJsonIntoHttp`. 
+
+### Jawn
+
+The `finch-jawn` module prpvides the support for [Jawn][5].
+
+To decode a string with Jawn, you need to import `io.finch.json.jawn._` and define any Jawn `Facade` as an `implicit val`.
+Using either `RequiredJsonBody` or `OptionalJsonBody` will take care of the rest.
+
+To encode a value from the Jawn AST (specifically a `JValue`), you need only import `io.finch.json.jawn._` and
+the `Encoder` will be imported implicitly.
 
 [1]: https://github.com/finagle/finch/blob/master/finch-demo/src/main/scala/io/finch/demo/Main.scala
 [2]: http://www.haskell.org/haskellwiki/All_About_Monads#The_Reader_monad
 [3]: https://github.com/finagle/finch/blob/master/finch-json/src/main/scala/io/finch/json/Json.scala
+[4]: http://argonaut.io
+[5]: https://github.com/non/jawn
+
