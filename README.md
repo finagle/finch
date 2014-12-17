@@ -9,6 +9,8 @@ being as close as possible to the Finagle bare metal API.
 Modules
 -------
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/finagle/finch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Finch uses multi-project structure and contains of the following _modules_:
 
 * [`finch-core`](finch-core) - the core classes/functions
