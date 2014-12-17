@@ -63,6 +63,11 @@ Documentation
 -------------
 Documentation may be found in the [`docs.md`](docs.md) file in the root directory.
 
+Contacts
+--------
+
+* A Gitter room for questions like _"How do I ..."_ [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/finagle/finch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Adopters
 --------
 * [Konfettin](http://konfettin.ru)
