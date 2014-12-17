@@ -3,8 +3,7 @@
 </p>
 
 Finch is a thin layer of purely functional basic blocks atop of [Finagle](http://twitter.github.io/finagle) for 
-building composable REST APIs. Its mission is to provide the developers simple and robust REST API building blocks 
-being as close as possible to the Finagle bare metal API.
+building composable REST APIs. Its mission is to provide the developers simple and robust REST API primitives being as close as possible to the bare metal Finagle API.
 
 Modules
 -------
@@ -66,7 +65,7 @@ Documentation may be found in the [`docs.md`](docs.md) file in the root director
 Contacts
 --------
 
-* A Gitter room for questions like _"How do I ..."_ [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/finagle/finch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+* Use a Gitter room for questions like _"How do I ..."_ [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/finagle/finch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Adopters
 --------
