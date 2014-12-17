@@ -4,8 +4,11 @@
 * [Endpoints](docs.md#endpoints)
 * [Requests](docs.md#requests)
   * [Request Reader](docs.md#request-reader-monad)
+  * [Query String Params](docs.md#query-string-params)
+  * [Param Validation](docs.md#param-validation)
   * [Multiple-Value Params](docs.md#multiple-value-params)
   * [HTTP Headers](docs.md#http-headers)
+  * [HTTP Bodies](docs.md#http-bodies)
 * [Responses](docs.md#responses)
   * [Response Builder](docs.md#response-builder)
   * [HTTP Redirects](docs.md#redirects)
@@ -82,6 +85,8 @@ This is an extremely useful when a service should fetch and validate the request
 doing the job at all if the params are not valid. Request reader might throw a future exception and none of further
 transformations will be performed. Reader Monad is sort of famous abstraction that is heavily used in Finch.
 
+### Query String Params
+
 The following readers are available in Finch:
 * `io.finch.request.EmptyReader` - throws an exception instead of reading
 * `io.finch.request.ConstReader` - fetches a const value from the request
@@ -89,7 +94,6 @@ The following readers are available in Finch:
 * `io.finch.request.OptionalParam` - fetches optional params within specified type
 * `io.finch.request.RequiredParams` - fetches required multi-value params into the list
 * `io.finch.request.OptionalParams` - fetches optional multi-value params into the list
-* `io.finch.request.ValidationRule` - fails if given predicate is false
 
 ```scala
 case class User(name: String, age: Int, city: String)
@@ -116,26 +120,8 @@ val user: Json = service(req) handle {
 }
 ```
 
-Since the request reader has monadic API, a for-comprehension might be used to compose request readers together. Here is
-an example of _composing_ an existing reader `user` within a validation rule, which is a primitive request that returns  
-`Future.Done` if the given `predicate` is true or future of `ValidationFailed` exception otherwise.
+Optional request readers such as `OptionalIntParam` are quite often used for fetching pagination details.
 
-```scala
-val adult: RequestReader[User] = for {
-  u <- user
-  _ <- ValidationRule("age", "should be greater then 18") { user.age > 18 }
-} yield u
-```
-
-The exceptions from a request-reader might be handled just like other future exceptions in Finagle:
-```scala
-val user: Future[Json] = service(...) handle {
-  case e: ParamNotFound => Json.obj("status" -> 400, "error" -> e.getMessage, "param" -> e.param)
-  case e: ValidationFailed => Json.obj("status" -> 400, "error" -> e.getMessage, "param" -> e.param)
-}
-```
-
-Optional params are quite often used for fetching pagination details.
 ```scala
 val pagination: RequestReader[(Int, Int)] = for {
   offset <- OptionalIntParam("offset")
@@ -149,9 +135,39 @@ val service = new Service[HttpRequest, HttpResponse] {
 }
 ```
 
-Optional params may be validated by using `Option.forAll(p)` function, which does exactly what's needed. If the option
-is `Some(value)` it checks whether or not the given predicate `p` is true for `value`. Otherwise (if the option is `None`)
-it just returns `true`.
+#### A `io.finch.request.RequiredParam` reader makes sure that
+* param is presented in the request (otherwise it throws `ParamNoFound(param)` exception)
+* param is not empty (otherwise it throws `ValidationFailed(param, rule)` exception)
+* param may be converted to a requested type `RequiredIntParam`, `RequiredLongParam` or `RequiredBooleanParam`
+(otherwise it throws `ValidationFailed(param, rule)` exception).
+
+#### An `io.finch.request.OptionalParam` returns
+* `Future[Some[A]]` if param is presented in the request and may be converted to a requested type `OptionalIntParam`,
+`OptionalLongParam` or `OptionalBooleanParam`
+* `Future.None` otherwise.
+
+### Param Validation
+
+There is a request reader `ValidationRule` that exposes the validation logic. Since the request reader has monadic API, a for-comprehension might be used to compose request readers together. Here is an example of _composing_ an existing reader `user` within a `ValidationRule`, which is a primitive request that returns `Future.Done` if the given `predicate` is true or future of `ValidationFailed(param, rule)` exception otherwise.
+
+```scala
+val adult: RequestReader[User] = for {
+  u <- user
+  _ <- ValidationRule("age", "should be greater then 18") { user.age > 18 }
+} yield u
+```
+
+The exceptions from a request-reader might be handled just like other future exceptions in Finagle:
+```scala
+val user: Future[Json] = service(...) handle {
+  case ParamNotFound(param) => Json.obj("error" -> "param_not_found", "param" -> param)
+  case ValidationFailed(param, rule) => Json.obj("error" -> "valudation_failed", "param" -> param, "rule" -> rule)
+}
+```
+
+Note, that all the exception throw by `RequestReader` are case classes. So, the pattern matching my be used to handle them.
+
+Optional params may be validated by using `Option.forAll(p)` function, which does exactly what's needed. If the option is `Some(value)` it checks whether or not the given predicate `p` is true for `value`. Otherwise (if the option is `None`) it just returns `true`.
 
 ```scala
 val pagination: RequestReader[(Int, Int)] = for {
@@ -165,20 +181,9 @@ val pagination: RequestReader[(Int, Int)] = for {
 } yield (offset.getOrElse(0), math.min(limit.getOrElse(50), 50))
 ```
 
-#### A `io.finch.request.RequiredParam` reader makes sure that
-* param is presented in the request (otherwise it throws `ParamNoFound` exception)
-* param is not empty (otherwise it throws `ValidationFailed` exception)
-* param may be converted to a requested type `RequiredIntParam`, `RequiredLongParam` or `RequiredBooleanParam`
-(otherwise it throws `ValidationFailed` exception).
-
-#### An `io.finch.request.OptionalParam` returns
-* `Future[Some[A]]` if param is presented in the request and may be converted to a requested type `OptionalIntParam`,
-`OptionalLongParam` or `OptionalBooleanParam`
-* `Future.None` otherwise.
-
 #### A `io.finch.request.ValidationRule(param, rule)(predicate)`
 * returns `Future.Done` when predicate is `true`
-* throws `ValidationFailed` exception with `rule` and `param` fields
+* throws `ValidationFailed(param, rule)` exception
 
 ### Multiple-Value Params
 
@@ -203,8 +208,18 @@ val (a, b): (List[Int], List[Int]) = reader(request)
 ### HTTP Headers
 
 The HTTP headers may also be read with `RequestReader`. The following pre-defined readers should be used:
-* `io.finch.request.RequiredHeader` - fetches header or throws `HeaderNotFound` exception
+* `io.finch.request.RequiredHeader` - fetches header or throws a `HeaderNotFound(header)` exception
 * `io.finch.request.OptionalHeader` - fetches header into an `Option`
+
+### HTTP Bodies
+
+An HTTP body may be fetched from the HTTP request using the following readers:
+* `io.finch.request.RequiredBody` - fetches the HTTP body as `Array[Byte]` of throws a `BodyNotFound` exception
+* `io.finch.request.OptionalBody` - fetches the HTTP body as `Option[Array[Byte]]`
+* `io.finch.request.RequiredStringBody` - fetches the HTTP body as `String` of throws a `BodyNotFound` exception
+* `io.finch.request.OptionalStringBody` - fetches the HTTP body as `Option[String]`
+* `io.finch.request.RequiredJsonBody` - fetches the HTTP body as JSON type provided by implicit instance of `DecodeJson`
+* `io.finch.request.OptionalJsonBody` - fetches the HTTP body as an `Option` of JSON type provided by implicit instance of `DecodeJson`
 
 ## Responses
 
