@@ -1,4 +1,4 @@
-# Finch.io Documentation
+# Finch Documentation
 
 * [Demo](docs.md#demo)
 * [Endpoints](docs.md#endpoints)

@@ -24,7 +24,6 @@
 package io.finch
 
 import io.finch.json.EncodeJson
-import org.jboss.netty.handler.codec.http.HttpResponseStatus
 import com.twitter.finagle.httpx.{Status, Response}
 import com.twitter.finagle.httpx.path.Path
 import com.twitter.finagle.Service
@@ -159,23 +158,6 @@ package object response {
     extends ResponseBuilder(Status.VariantAlsoNegotiates)                        // 506
   object InsufficientStorage extends ResponseBuilder(Status.InsufficientStorage) // 507
   object NotExtended extends ResponseBuilder(Status.NotExtended)                 // 510
-
-  /**
-   * An old version of `ResponseBuilder`.
-   */
-  @deprecated("Use predefined response builders like `Ok` or `SeeOther` instead.", "0.1.8")
-  class Respond(status: Status, headers: Map[String, String] = Map.empty)
-    extends ResponseBuilder(status, headers)
-
-  /**
-   * Creates a new `ResponseBuilder` from given `status` and `headers` map.
-   */
-  @deprecated("Use predefined response builders like `Ok` or `SeeOther` instead.", "0.1.8")
-  object Respond {
-    def apply(status: Status, headers: Map[String, String] = Map.empty) =
-      new Respond(status, headers)
-  }
-
 
   /**
    * A factory for Redirecting to other URLs.
