@@ -18,11 +18,12 @@
  * limitations under the License.
  *
  * Contributor(s):
+ * Ryan Plessner
  */
 
 package io.finch.response
 
-import com.twitter.finagle.httpx.Status
+import com.twitter.finagle.httpx.{Status, Cookie}
 import org.scalatest.{Matchers, FlatSpec}
 
 class ResponseBuilderSpec extends FlatSpec with Matchers {
@@ -48,5 +49,14 @@ class ResponseBuilderSpec extends FlatSpec with Matchers {
     val rep = SeeOther()
     rep.getContentString() shouldBe ""
     rep.status shouldBe Status.SeeOther
+  }
+
+  it should "include cookies that are set on it" in {
+    val cookie = new Cookie("session", "random-string")
+    val rep = Ok.withCookie(cookie)
+    val response = rep()
+
+    rep.cookies should equal(Seq(cookie))
+    response.cookies.get("session") should equal(Some(cookie))
   }
 }
