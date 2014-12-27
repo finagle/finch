@@ -19,10 +19,12 @@
  *
  * Contributor(s):
  * Ben Whitehead
+ * Ryan Plessner
  */
 
 package io.finch
 
+import com.twitter.finagle.httpx.Cookie
 import com.twitter.util.Future
 import io.finch.json.DecodeJson
 
@@ -83,6 +85,13 @@ package object request {
    * @param header the missed header name
    */
   case class HeaderNotFound(header: String) extends RequestReaderError(s"Header '$header' not found in the request.")
+
+  /**
+   * An exception that indicates a missing cookie in the request.
+   *
+   * @param cookie the missing cookie's name
+   */
+  case class CookieNotFound(cookie: String) extends RequestReaderError(s"Cookie '$cookie' not found in the request.")
 
   /**
    * An exception that indicated a missing body in the request.
@@ -771,5 +780,41 @@ package object request {
   object RequiredJsonBody {
     def apply[A](implicit decode: DecodeJson[A]) = new RequiredJsonBody[A](decode)
     def apply[A](req: HttpRequest)(implicit decode: DecodeJson[A]) = (new RequiredJsonBody[A](decode))(req)
+  }
+
+  /**
+   * An optional cookie
+   */
+  object OptionalCookie {
+    /**
+     * Creates a ''RequestReader'' that reads an optional cookie from the request
+     *
+     * @param cookieName the name of the cookie to read
+     *
+     * @return An option that contains a cookie or None if the cookie does not exist on the request.
+     */
+    def apply(cookieName: String) = new RequestReader[Option[Cookie]] {
+      def apply(req: HttpRequest): Future[Option[Cookie]] = req.cookies.get(cookieName).toFuture
+    }
+  }
+
+  /**
+   * A Required Cookie
+   */
+  object RequiredCookie {
+    /**
+     * Creates a ''RequestReader'' that reads a required cookie from the request
+     * or raises an exception when the cookie is missing.
+     *
+     * @param cookieName the name of the cookie to read
+     *
+     * @return the cookie
+     */
+    def apply(cookieName: String) = new RequestReader[Cookie] {
+      def apply(req: HttpRequest): Future[Cookie] = OptionalCookie(cookieName)(req) flatMap {
+        case None => CookieNotFound(cookieName).toFutureException
+        case Some(cookie: Cookie) => cookie.toFuture
+      }
+    }
   }
 }

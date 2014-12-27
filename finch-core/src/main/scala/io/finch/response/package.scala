@@ -24,7 +24,7 @@
 package io.finch
 
 import io.finch.json.EncodeJson
-import com.twitter.finagle.httpx.{Status, Response}
+import com.twitter.finagle.httpx.{Cookie, Status, Response}
 import com.twitter.finagle.httpx.path.Path
 import com.twitter.finagle.Service
 
@@ -36,7 +36,10 @@ package object response {
    * @param status the http response status
    * @param headers the HTTP headers map
    */
-  case class ResponseBuilder(status: Status, headers: Map[String, String] = Map.empty) {
+  case class ResponseBuilder(
+      status: Status,
+      headers: Map[String, String] = Map.empty,
+      cookies: Seq[Cookie] = Seq.empty) {
 
     /**
      * Creates a new respond with given ''headers''.
@@ -46,6 +49,13 @@ package object response {
      * @return a respond with headers
      */
     def withHeaders(headers: (String, String)*) = copy(headers = this.headers ++ headers)
+
+    /**
+     * Create a new ResponseBuilder with the given ''cookies''.
+     * @param cookies The ''Cookie''s to add to the response
+     * @return a ResponseBuilder with the cookies
+     */
+    def withCookies(cookies: Cookie*) = copy(cookies = this.cookies ++ cookies)
 
     /**
      * Creates a ''text/plain'' http response.
@@ -58,6 +68,7 @@ package object response {
       val rep = Response(status)
       rep.setContentString(plain)
       headers.foreach { case (k, v) => rep.headerMap.add(k, v) }
+      cookies.foreach { rep.addCookie }
 
       rep
     }
@@ -74,6 +85,7 @@ package object response {
       rep.setContentTypeJson()
       rep.setContentString(encode(json))
       headers.foreach { case (k, v) => rep.headerMap.add(k, v) }
+      cookies.foreach { rep.addCookie }
 
       rep
     }
@@ -86,6 +98,7 @@ package object response {
     def apply() = {
       val rep = Response(status)
       headers.foreach { case (k, v) => rep.headerMap.add(k, v) }
+      cookies.foreach { rep.addCookie }
 
       rep
     }
