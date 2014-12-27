@@ -783,26 +783,6 @@ package object request {
   }
 
   /**
-   * A Required Cookie
-   */
-  object RequiredCookie {
-    /**
-     * Creates a ''RequestReader'' that reads a required cookie from the request
-     * or raises an exception when the cookie is missing.
-     *
-     * @param cookieName the name of the cookie to read
-     *
-     * @return the cookie
-     */
-    def apply(cookieName: String) = new RequestReader[Cookie] {
-      def apply(req: HttpRequest): Future[Cookie] = req.cookies.get(cookieName) match {
-        case None => CookieNotFound(cookieName).toFutureException
-        case Some(cookie: Cookie) => cookie.toFuture
-      }
-    }
-  }
-
-  /**
    * An optional cookie
    */
   object OptionalCookie {
@@ -815,6 +795,26 @@ package object request {
      */
     def apply(cookieName: String) = new RequestReader[Option[Cookie]] {
       def apply(req: HttpRequest): Future[Option[Cookie]] = req.cookies.get(cookieName).toFuture
+    }
+  }
+
+  /**
+   * A Required Cookie
+   */
+  object RequiredCookie {
+    /**
+     * Creates a ''RequestReader'' that reads a required cookie from the request
+     * or raises an exception when the cookie is missing.
+     *
+     * @param cookieName the name of the cookie to read
+     *
+     * @return the cookie
+     */
+    def apply(cookieName: String) = new RequestReader[Cookie] {
+      def apply(req: HttpRequest): Future[Cookie] = OptionalCookie(cookieName)(req) flatMap {
+        case None => CookieNotFound(cookieName).toFutureException
+        case Some(cookie: Cookie) => cookie.toFuture
+      }
     }
   }
 }

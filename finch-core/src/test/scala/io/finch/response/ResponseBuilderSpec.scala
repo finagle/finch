@@ -53,7 +53,7 @@ class ResponseBuilderSpec extends FlatSpec with Matchers {
 
   it should "include cookies that are set on it" in {
     val cookie = new Cookie("session", "random-string")
-    val rep = Ok.withCookie(cookie)
+    val rep = Ok.withCookies(cookie)
     val response = rep()
 
     rep.cookies should equal(Seq(cookie))

@@ -51,11 +51,11 @@ package object response {
     def withHeaders(headers: (String, String)*) = copy(headers = this.headers ++ headers)
 
     /**
-     * Create a new ResponseBuilder with the given ''cookie''.
-     * @param cookie The ''Cookie'' to add to the response
-     * @return a ResponseBuilder with the cookie
+     * Create a new ResponseBuilder with the given ''cookies''.
+     * @param cookies The ''Cookie''s to add to the response
+     * @return a ResponseBuilder with the cookies
      */
-    def withCookie(cookie: Cookie) = copy(cookies = this.cookies :+ cookie)
+    def withCookies(cookies: Cookie*) = copy(cookies = this.cookies ++ cookies)
 
     /**
      * Creates a ''text/plain'' http response.
