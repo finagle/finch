@@ -199,13 +199,6 @@ package object response {
   }
 
   /**
-   * An abstraction that is responsible for JSON to string encoding.
-   */
-  trait EncodeJson[-A] extends EncodeResponse[A] {
-    def contentType = "application/json"
-  }
-
-  /**
    * A service that converts an encoded object into HTTP response with status ''OK''
    * given an implicit encoder.
    */

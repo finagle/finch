@@ -21,13 +21,12 @@
  * Ryan Plessner
  */
 
-package io.finch.json
+package io.finch.jawn
 
-import io.finch.json.jawn._
-import _root_.jawn.ast.{JawnFacade, JString, JObject}
+import _root_.jawn.ast.{JObject, JString, JawnFacade}
+import org.scalatest.{FlatSpec, Matchers}
 
 import scala.collection.mutable
-import org.scalatest.{Matchers, FlatSpec}
 
 class JawnSpec extends FlatSpec with Matchers {
   implicit val facade = JawnFacade

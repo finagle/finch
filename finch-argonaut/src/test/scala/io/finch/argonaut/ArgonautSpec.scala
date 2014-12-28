@@ -1,4 +1,4 @@
-package io.finch.json.argonaut
+package io.finch.argonaut
 
 import argonaut.Argonaut._
 import argonaut._
@@ -28,7 +28,7 @@ object ArgonautSpec {
 }
 
 class ArgonautSpec extends FlatSpec with Matchers {
-  import io.finch.json.argonaut.ArgonautSpec._
+  import io.finch.argonaut.ArgonautSpec._
 
   val str = "{\"id\":42,\"name\":\"bob\"}"
   val badJson = "{\"id\":42"

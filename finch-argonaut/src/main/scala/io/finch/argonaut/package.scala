@@ -21,11 +21,9 @@
  * Ryan Plessner
  */
 
-package io.finch.json
+package io.finch
 
-import _root_.argonaut.{DecodeJson => DecodeCodec, EncodeJson => EncodeCodec, Json, Parse}
-import io.finch.request.DecodeJson
-import io.finch.response.EncodeJson
+import _root_.argonaut.{EncodeJson, Json, Parse, DecodeJson}
 
 package object argonaut {
 
@@ -34,7 +32,7 @@ package object argonaut {
    * @tparam A The type of data that the ''DecodeJson'' will decode into
    * @return Create a Finch ''DecodeJson'' from an argonaut ''DecodeJson''
    */
-  implicit def toArgonautDecode[A](implicit decode: DecodeCodec[A]): DecodeJson[A] = new DecodeJson[A] {
+  implicit def toArgonautDecode[A](implicit decode: DecodeJson[A]): DecodeRequest[A] = new DecodeRequest[A] {
     override def apply(json: String): Option[A] = Parse.parseOption(json) match {
       case None => None
       case Some(blob: Json) => decode.decodeJson(blob).toOption
@@ -46,7 +44,9 @@ package object argonaut {
    * @tparam A The type of data that the ''EncodeJson'' will encode use to create the json string
    * @return Create a Finch ''EncodeJson'' from an argonaut ''EncodeJson''
    */
-  implicit def toArgonautEncode[A](implicit encode: EncodeCodec[A]): EncodeJson[A] = new EncodeJson[A] {
+  implicit def toArgonautEncode[A](implicit encode: EncodeJson[A]): EncodeResponse[A] = new EncodeResponse[A] {
     override def apply(data: A): String = encode.encode(data).nospaces
+
+    override def contentType: String = "application/json"
   }
 }

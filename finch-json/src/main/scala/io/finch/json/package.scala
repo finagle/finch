@@ -18,22 +18,19 @@
  * limitations under the License.
  *
  * Contributor(s):
- * Rodrigo Ribeiro
+ * Ryan Plessner
  */
-package io.finch.request
 
-import io.finch.DecodeRequest
-import org.scalatest.{Matchers, FlatSpec}
-import scala.math._
+package io.finch
 
-class DecodeSpec extends FlatSpec with Matchers {
+package object json {
+  implicit val encodeFinchJson = new EncodeResponse[Json] {
+    def apply(json: Json): String = Json.encode(json)
 
-  private def decode[A](json: String)(implicit d: DecodeRequest[A]): Option[A] = d(json)
-  "A DecodeJson" should "be accepted as implicit instance of superclass" in {
-    implicit object BigDecimalJson extends DecodeRequest[BigDecimal] {
-      def apply(s: String): Option[BigDecimal] = Some(BigDecimal(s))
-    }
+    override def contentType: String = "application/json"
+  }
 
-    decode[ScalaNumber]("12345.25") shouldBe Some(BigDecimal(12345.25))
+  implicit val decodeFinchJson = new DecodeRequest[Json] {
+    def apply(json: String): Option[Json] = Json.decode(json)
   }
 }

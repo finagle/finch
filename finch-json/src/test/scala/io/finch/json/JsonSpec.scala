@@ -188,7 +188,6 @@ class JsonSpec extends FlatSpec with Matchers {
 
   it should "be compatible with finch-core" in {
     import io.finch._
-    import io.finch.json.finch._
     import io.finch.response._
     import io.finch.request._
 

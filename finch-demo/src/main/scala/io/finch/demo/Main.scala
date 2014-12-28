@@ -37,7 +37,6 @@ import java.util.concurrent.ConcurrentHashMap
 
 import io.finch._            // import ''Endpoint'' and pipe ''!'' operator
 import io.finch.json._       // import finch-json classes such as ''Json''
-import io.finch.json.finch._ // import implicit classes ''EncodeFinchJson'' & ''DecodeFinchJson''
 import io.finch.request._    // import request readers such as ''RequiredParam''
 import io.finch.response._   // import response builders such as ''BadRequest''
 import io.finch.auth._       // import ''BasicallyAuthorize'' filter
@@ -148,7 +147,7 @@ object HandleExceptions extends SimpleFilter[HttpRequest, HttpResponse] {
       case ParamNotFound(param) => BadRequest(Json.obj("error" -> "param_not_found", "param" -> param))
       case ValidationFailed(param, rule) => BadRequest(Json.obj("error" -> "bad_param", "param" -> param, "rule" -> rule))
       case BodyNotFound => BadRequest(Json.obj("error" -> "body_not_found"))
-      case BodyNotParsed => BadRequest(Json.obj("error" -> "json_not_parsed"))
+      case BodyNotParsed => BadRequest(Json.obj("error" -> "body_not_parsed"))
       case _ => InternalServerError()
     }
 }

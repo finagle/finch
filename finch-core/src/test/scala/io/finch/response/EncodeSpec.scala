@@ -22,22 +22,27 @@ package io.finch.response
  * Rodrigo Ribeiro
  */
 
+import io.finch.EncodeResponse
 import org.scalatest.{Matchers, FlatSpec}
 import scala.language.implicitConversions
 import scala.math._
 
 class EncodeSpec extends FlatSpec with Matchers {
 
-  private def encode[A](obj: A)(implicit e: EncodeJson[A]): String = e(obj)
+  private def encode[A](obj: A)(implicit e: EncodeResponse[A]): String = e(obj)
   "A EncodeJson" should "be accepted as implicit instance of subclass" in {
-    implicit def seqEncodeJson[A](implicit vEnc: EncodeJson[A]) = new EncodeJson[Seq[A]] {
+    implicit def seqEncodeJson[A](implicit vEnc: EncodeResponse[A]) = new EncodeResponse[Seq[A]] {
       def apply(seq: Seq[A]): String = {
         seq.map(vEnc(_)).mkString("[", ", ", "]")
       }
+
+      override def contentType: String = "application/json"
     }
 
-    implicit val scalaNumberEncodeJson = new EncodeJson[ScalaNumber] {
+    implicit val scalaNumberEncodeJson = new EncodeResponse[ScalaNumber] {
       def apply(n: ScalaNumber): String = n.toString
+
+      override def contentType: String = "application/json"
     }
 
     encode(Seq(BigDecimal(123l), BigDecimal(0l))) shouldBe "[123, 0]"

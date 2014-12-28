@@ -818,11 +818,4 @@ package object request {
       }
     }
   }
-
-  /**
-   * An abstraction that is responsible for string to JSON decoding.
-   */
-  trait DecodeJson[+A] extends DecodeRequest[A] {
-    def apply(json: String): Option[A]
-  }
 }
