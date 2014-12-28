@@ -26,7 +26,6 @@ package io.finch
 
 import com.twitter.finagle.httpx.Cookie
 import com.twitter.util.Future
-import io.finch.json.DecodeJson
 
 package object request {
 
@@ -708,8 +707,8 @@ package object request {
    * A ''RequestReader'' that reads the request body, interpreted as a ''Array[Byte]'',
    * or throws a ''BodyNotFound'' exception.
    */
-  object RequiredBody extends RequestReader[Array[Byte]] {
-    def apply(req: HttpRequest): Future[Array[Byte]] = OptionalBody(req).flatMap {
+  object RequiredArrayBody extends RequestReader[Array[Byte]] {
+    def apply(req: HttpRequest): Future[Array[Byte]] = OptionalArrayBody(req).flatMap {
       case Some(body) => body.toFuture
       case None => BodyNotFound.toFutureException
     }
@@ -719,7 +718,7 @@ package object request {
    * A ''RequestReader'' that reads the request body, interpreted as a ''Array[Byte]'',
    * into an ''Option''.
    */
-  object OptionalBody extends RequestReader[Option[Array[Byte]]]{
+  object OptionalArrayBody extends RequestReader[Option[Array[Byte]]]{
     def apply(req: HttpRequest): Future[Option[Array[Byte]]] = req.contentLength match {
       case Some(length) if length > 0 => Some(RequestBody(req)).toFuture
       case _ => Future.None
@@ -750,10 +749,10 @@ package object request {
   }
 
   /**
-   * A ''RequestReader'' that reads an optional json object serialized in request body into
-   * an ''Option''.
+   * A ''RequestReader'' that reads an optional encoded object serialized in request body
+   * and decodes it, according to an implicit decoder, into an ''Option''.
    */
-  class OptionalJsonBody[A](val decode: DecodeJson[A]) extends RequestReader[Option[A]] {
+  class OptionalBody[A](val decode: DecodeRequest[A]) extends RequestReader[Option[A]] {
     def apply(req: HttpRequest): Future[Option[A]] = for {
       b <- OptionalStringBody(req)
     } yield b match {
@@ -762,24 +761,25 @@ package object request {
     }
   }
 
-  object OptionalJsonBody {
-    def apply[A](implicit decode: DecodeJson[A]) = new OptionalJsonBody[A](decode)
-    def apply[A](req: HttpRequest)(implicit decode: DecodeJson[A]) = (new OptionalJsonBody[A](decode))(req)
+  object OptionalBody {
+    def apply[A](implicit decode: DecodeRequest[A]) = new OptionalBody[A](decode)
+    def apply[A](req: HttpRequest)(implicit decode: DecodeRequest[A]) = (new OptionalBody[A](decode))(req)
   }
 
   /**
-   * A ''RequestReader'' that read a json object serialized ni request body.
+   * A ''RequestReader'' that reads an encoded object serialized in request body
+   * and decodes it according to an implicit decoder.
    */
-  class RequiredJsonBody[A](val decode: DecodeJson[A]) extends RequestReader[A] {
-    def apply(req: HttpRequest): Future[A] = OptionalJsonBody(req)(decode) flatMap {
+  class RequiredBody[A](val decode: DecodeRequest[A]) extends RequestReader[A] {
+    def apply(req: HttpRequest): Future[A] = OptionalBody(req)(decode) flatMap {
       case Some(json) => json.toFuture
       case None => JsonNotParsed.toFutureException
     }
   }
 
-  object RequiredJsonBody {
-    def apply[A](implicit decode: DecodeJson[A]) = new RequiredJsonBody[A](decode)
-    def apply[A](req: HttpRequest)(implicit decode: DecodeJson[A]) = (new RequiredJsonBody[A](decode))(req)
+  object RequiredBody {
+    def apply[A](implicit decode: DecodeRequest[A]) = new RequiredBody[A](decode)
+    def apply[A](req: HttpRequest)(implicit decode: DecodeRequest[A]) = (new RequiredBody[A](decode))(req)
   }
 
   /**
@@ -816,5 +816,12 @@ package object request {
         case Some(cookie: Cookie) => cookie.toFuture
       }
     }
+  }
+
+  /**
+   * An abstraction that is responsible for decoding the request format.
+   */
+  trait DecodeRequest[+A] {
+    def apply(req: String): Option[A]
   }
 }

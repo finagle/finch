@@ -22,22 +22,23 @@
 
 package io.finch
 
-import io.finch.response._
 import com.twitter.finagle.Service
+import io.finch.request.DecodeRequest
+import io.finch.response._
 
 package object json {
 
   /**
    * An abstraction that is responsible for JSON to string encoding.
    */
-  trait EncodeJson[-A] {
-    def apply(json: A): String
+  trait EncodeJson[-A] extends EncodeResponse[A] {
+    def contentType = "application/json"
   }
 
   /**
    * An abstraction that is responsible for string to JSON decoding.
    */
-  trait DecodeJson[+A] {
+  trait DecodeJson[+A] extends DecodeRequest[A] {
     def apply(json: String): Option[A]
   }
 
