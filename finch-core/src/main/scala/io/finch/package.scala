@@ -17,16 +17,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Contributor(s): -
+ * Contributor(s):
+ * Pedro Viegas
  */
 
 package io
 
-import scala.language.implicitConversions
-
 import com.twitter.finagle.httpx._
-import com.twitter.util.Future
 import com.twitter.finagle.{Filter, Service}
+import com.twitter.util.Future
+
+import scala.language.implicitConversions
 
 /**
  * The root package of the Finch library.
@@ -153,5 +154,20 @@ package object finch {
    */
   implicit def futureToService[Req, Rep](future: Future[Rep]): Service[Req, Rep] = new Service[Req, Rep] {
     def apply(req: Req) = future
+  }
+
+  /**
+   * An abstraction that is responsible for encoding the response format.
+   */
+  trait EncodeResponse[-A] {
+    def apply(rep: A): String
+    def contentType: String
+  }
+
+  /**
+   * An abstraction that is responsible for decoding the request format.
+   */
+  trait DecodeRequest[+A] {
+    def apply(req: String): Option[A]
   }
 }

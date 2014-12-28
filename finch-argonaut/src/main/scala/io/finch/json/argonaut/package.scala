@@ -24,6 +24,8 @@
 package io.finch.json
 
 import _root_.argonaut.{DecodeJson => DecodeCodec, EncodeJson => EncodeCodec, Json, Parse}
+import io.finch.request.DecodeJson
+import io.finch.response.EncodeJson
 
 package object argonaut {
 

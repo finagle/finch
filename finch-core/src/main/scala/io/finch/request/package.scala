@@ -20,6 +20,7 @@
  * Contributor(s):
  * Ben Whitehead
  * Ryan Plessner
+ * Pedro Viegas
  */
 
 package io.finch
@@ -100,7 +101,7 @@ package object request {
   /**
    * An exception that indicates an error in JSON format.
    */
-  object JsonNotParsed extends RequestReaderError("A JSON serialized in a request body can not be parsed.")
+  object BodyNotParsed extends RequestReaderError("A serialized object in a request body can not be parsed.")
 
   /**
    * An empty ''RequestReader''.
@@ -731,7 +732,7 @@ package object request {
    */
   object RequiredStringBody extends RequestReader[String] {
     def apply(req: HttpRequest): Future[String] = for {
-      b <- RequiredBody(req)
+      b <- RequiredArrayBody(req)
     } yield new String(b, "UTF-8")
   }
 
@@ -741,7 +742,7 @@ package object request {
    */
   object OptionalStringBody extends RequestReader[Option[String]] {
     def apply(req: HttpRequest): Future[Option[String]] = for {
-      b <- OptionalBody(req)
+      b <- OptionalArrayBody(req)
     } yield b match {
       case Some(body) => Some(new String(body, "UTF-8"))
       case None => None
@@ -772,8 +773,8 @@ package object request {
    */
   class RequiredBody[A](val decode: DecodeRequest[A]) extends RequestReader[A] {
     def apply(req: HttpRequest): Future[A] = OptionalBody(req)(decode) flatMap {
-      case Some(json) => json.toFuture
-      case None => JsonNotParsed.toFutureException
+      case Some(body) => body.toFuture
+      case None => BodyNotParsed.toFutureException
     }
   }
 
@@ -819,9 +820,9 @@ package object request {
   }
 
   /**
-   * An abstraction that is responsible for decoding the request format.
+   * An abstraction that is responsible for string to JSON decoding.
    */
-  trait DecodeRequest[+A] {
-    def apply(req: String): Option[A]
+  trait DecodeJson[+A] extends DecodeRequest[A] {
+    def apply(json: String): Option[A]
   }
 }

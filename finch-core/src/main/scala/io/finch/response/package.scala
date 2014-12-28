@@ -19,6 +19,7 @@
  *
  * Contributor(s):
  * Ryan Plessner
+ * Pedro Viegas
  */
 
 package io.finch
@@ -198,10 +199,21 @@ package object response {
   }
 
   /**
-   * An abstraction that is responsible for encoding the response format.
+   * An abstraction that is responsible for JSON to string encoding.
    */
-  trait EncodeResponse[-A] {
-    def apply(rep: A): String
-    def contentType: String
+  trait EncodeJson[-A] extends EncodeResponse[A] {
+    def contentType = "application/json"
+  }
+
+  /**
+   * A service that converts an encoded object into HTTP response with status ''OK''
+   * given an implicit encoder.
+   */
+  class TurnIntoHttp[A](val encode: EncodeResponse[A]) extends Service[A, HttpResponse] {
+    def apply(req: A) = Ok(req)(encode).toFuture
+  }
+
+  object TurnIntoHttp {
+    def apply[A](implicit encode: EncodeResponse[A]) = new TurnIntoHttp[A](encode)
   }
 }
