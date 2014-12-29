@@ -19,14 +19,14 @@
  *
  * Contributor(s):
  * Ryan Plessner
+ * Pedro Viegas
  */
 
 package io.finch
 
-import io.finch.json.EncodeJson
-import com.twitter.finagle.httpx.{Cookie, Status, Response}
-import com.twitter.finagle.httpx.path.Path
 import com.twitter.finagle.Service
+import com.twitter.finagle.httpx.path.Path
+import com.twitter.finagle.httpx.{Cookie, Response, Status}
 
 package object response {
 
@@ -74,16 +74,16 @@ package object response {
     }
 
     /**
-     * Creates an ''application/json'' http response.
+     * Creates an http response with content-type according to the implicit encode.
      *
-     * @param json the response body
+     * @param body the response body
      *
      * @return a json http response
      */
-    def apply[A](json: A)(implicit encode: EncodeJson[A]) = {
+    def apply[A](body: A)(implicit encode: EncodeResponse[A]) = {
       val rep = Response(status)
-      rep.setContentTypeJson()
-      rep.setContentString(encode(json))
+      rep.setContentType(encode.contentType)
+      rep.setContentString(encode(body))
       headers.foreach { case (k, v) => rep.headerMap.add(k, v) }
       cookies.foreach { rep.addCookie }
 
@@ -196,5 +196,25 @@ package object response {
      * @return A Service that generates a redirect to the given path
      */
     def apply(path: Path): Service[HttpRequest, HttpResponse] = this(path.toString)
+  }
+
+  /**
+   * An abstraction that is responsible for encoding the response format.
+   */
+  trait EncodeResponse[-A] {
+    def apply(rep: A): String
+    def contentType: String
+  }
+
+  /**
+   * A service that converts an encoded object into HTTP response with status ''OK''
+   * given an implicit encoder.
+   */
+  class TurnIntoHttp[A](val encode: EncodeResponse[A]) extends Service[A, HttpResponse] {
+    def apply(req: A) = Ok(req)(encode).toFuture
+  }
+
+  object TurnIntoHttp {
+    def apply[A](implicit encode: EncodeResponse[A]) = new TurnIntoHttp[A](encode)
   }
 }

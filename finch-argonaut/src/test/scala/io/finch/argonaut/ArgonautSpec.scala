@@ -1,13 +1,13 @@
-package io.finch.json.argonaut
+package io.finch.argonaut
 
 import argonaut.Argonaut._
 import argonaut._
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.Request
-import com.twitter.util.{Future, Await}
+import com.twitter.util.Await
 import io.finch._
-import io.finch.json.TurnJsonIntoHttp
-import io.finch.request.RequiredJsonBody
+import io.finch.request.RequiredBody
+import io.finch.response.TurnIntoHttp
 import org.jboss.netty.handler.codec.http.HttpHeaders
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -28,7 +28,7 @@ object ArgonautSpec {
 }
 
 class ArgonautSpec extends FlatSpec with Matchers {
-  import io.finch.json.argonaut.ArgonautSpec._
+  import io.finch.argonaut.ArgonautSpec._
 
   val str = "{\"id\":42,\"name\":\"bob\"}"
   val badJson = "{\"id\":42"
@@ -53,7 +53,7 @@ class ArgonautSpec extends FlatSpec with Matchers {
     req.setContentTypeJson()
     req.headerMap.update(HttpHeaders.Names.CONTENT_LENGTH, str.length.toString)
 
-    val user: TestUser = Await.result(RequiredJsonBody(req))
+    val user: TestUser = Await.result(RequiredBody(req))
     user shouldEqual exampleUser
   }
 
@@ -62,7 +62,7 @@ class ArgonautSpec extends FlatSpec with Matchers {
   }
 
   it should "be compatible with finch-core's responses" in {
-    val service: Service[TestUser, HttpResponse] = TurnJsonIntoHttp[TestUser]
+    val service: Service[TestUser, HttpResponse] = TurnIntoHttp[TestUser]
     val result = Await.result(service(exampleUser))
     result.getContentString() shouldEqual str
   }

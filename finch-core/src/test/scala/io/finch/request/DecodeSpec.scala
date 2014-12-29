@@ -18,27 +18,21 @@
  * limitations under the License.
  *
  * Contributor(s):
- * Ryan Plessner
+ * Rodrigo Ribeiro
  */
+package io.finch.request
 
-package io.finch.json
-
-import io.finch.json.jawn._
-import _root_.jawn.ast.{JawnFacade, JString, JObject}
-
-import scala.collection.mutable
 import org.scalatest.{Matchers, FlatSpec}
+import scala.math._
 
-class JawnSpec extends FlatSpec with Matchers {
-  implicit val facade = JawnFacade
-  val str = "{\"name\": \"bob\" }"
-  val jsVal = JObject(mutable.Map("name" -> JString("bob")))
+class DecodeSpec extends FlatSpec with Matchers {
 
-  "A DecodeJawn" should "parse valid json into its ast" in {
-    toJawnDecode(facade)(str).foreach(v => v.shouldBe(jsVal))
-  }
+  private def decode[A](json: String)(implicit d: DecodeRequest[A]): Option[A] = d(json)
+  "A DecodeJson" should "be accepted as implicit instance of superclass" in {
+    implicit object BigDecimalJson extends DecodeRequest[BigDecimal] {
+      def apply(s: String): Option[BigDecimal] = Some(BigDecimal(s))
+    }
 
-  "An EncodeJawn" should "render a valid JValue as a string" in {
-    EncodeJawn(jsVal) == str
+    decode[ScalaNumber]("12345.25") shouldBe Some(BigDecimal(12345.25))
   }
 }
