@@ -17,16 +17,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Contributor(s): -
+ * Contributor(s):
+ * Pedro Viegas
  */
 
 package io
 
-import scala.language.implicitConversions
-
 import com.twitter.finagle.httpx._
-import com.twitter.util.Future
 import com.twitter.finagle.{Filter, Service}
+import com.twitter.util.Future
+
+import scala.language.implicitConversions
 
 /**
  * The root package of the Finch library.

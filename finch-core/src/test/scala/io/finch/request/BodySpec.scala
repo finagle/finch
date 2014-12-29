@@ -24,39 +24,37 @@
 package io.finch.request
 
 import com.twitter.finagle.httpx.Request
-import com.twitter.io.Buf
 import com.twitter.io.Buf.ByteArray
 import com.twitter.util.{Await, Future}
 import io.finch.HttpRequest
-import org.jboss.netty.buffer.ChannelBuffers
 import org.jboss.netty.handler.codec.http.HttpHeaders
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.{FlatSpec, Matchers}
 
 class BodySpec extends FlatSpec with Matchers {
   val foo = "foo"
   val fooBytes = foo.getBytes("UTF-8")
 
-  "A RequiredBody" should "be properly read if it exists" in {
+  "A RequiredArrayBody" should "be properly read if it exists" in {
     val request: HttpRequest = requestWithBody(fooBytes)
-    val futureResult: Future[Array[Byte]] = RequiredBody(request)
+    val futureResult: Future[Array[Byte]] = RequiredArrayBody(request)
     Await.result(futureResult) should equal(fooBytes)
   }
 
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody(Array[Byte]())
-    val futureResult: Future[Array[Byte]] = RequiredBody(request)
+    val futureResult: Future[Array[Byte]] = RequiredArrayBody(request)
     a [BodyNotFound.type] should be thrownBy Await.result(futureResult)
   }
 
-  "An OptionalBody" should "be properly read if it exists" in {
+  "An OptionalArrayBody" should "be properly read if it exists" in {
     val request: HttpRequest = requestWithBody(fooBytes)
-    val futureResult: Future[Option[Array[Byte]]] = OptionalBody(request)
+    val futureResult: Future[Option[Array[Byte]]] = OptionalArrayBody(request)
     Await.result(futureResult).get should equal(fooBytes)
   }
 
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody(Array[Byte]())
-    val futureResult: Future[Option[Array[Byte]]] = OptionalBody(request)
+    val futureResult: Future[Option[Array[Byte]]] = OptionalArrayBody(request)
     Await.result(futureResult) should equal(None)
   }
 
@@ -84,9 +82,9 @@ class BodySpec extends FlatSpec with Matchers {
     Await.result(futureResult) should equal(None)
   }
 
-  "RequiredBody Reader" should "work without parentheses at call site" in {
+  "RequiredArrayBody Reader" should "work without parentheses at call site" in {
     val reader = for {
-      body <- RequiredBody
+      body <- RequiredArrayBody
     } yield body
 
     val request: HttpRequest = requestWithBody(fooBytes)

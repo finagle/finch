@@ -17,38 +17,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Contributor(s): -
+ * Contributor(s):
+ * Ryan Plessner
  */
 
-package io.finch
+package io.finch.jawn
 
-import io.finch.response._
-import com.twitter.finagle.Service
+import _root_.jawn.ast.{JObject, JString, JawnFacade}
+import org.scalatest.{FlatSpec, Matchers}
 
-package object json {
+import scala.collection.mutable
 
-  /**
-   * An abstraction that is responsible for JSON to string encoding.
-   */
-  trait EncodeJson[-A] {
-    def apply(json: A): String
+class JawnSpec extends FlatSpec with Matchers {
+  implicit val facade = JawnFacade
+  val str = "{\"name\": \"bob\" }"
+  val jsVal = JObject(mutable.Map("name" -> JString("bob")))
+
+  "A DecodeJawn" should "parse valid json into its ast" in {
+    toJawnDecode(facade)(str).foreach(v => v.shouldBe(jsVal))
   }
 
-  /**
-   * An abstraction that is responsible for string to JSON decoding.
-   */
-  trait DecodeJson[+A] {
-    def apply(json: String): Option[A]
-  }
-
-  /**
-   * A service that converts JSON into HTTP response with status ''OK''.
-   */
-  class TurnJsonIntoHttp[A](val encode: EncodeJson[A]) extends Service[A, HttpResponse] {
-    def apply(req: A) = Ok(req)(encode).toFuture
-  }
-
-  object TurnJsonIntoHttp {
-    def apply[A](implicit encode: EncodeJson[A]) = new TurnJsonIntoHttp[A](encode)
+  "An EncodeJawn" should "render a valid JValue as a string" in {
+    EncodeJawn(jsVal) == str
   }
 }

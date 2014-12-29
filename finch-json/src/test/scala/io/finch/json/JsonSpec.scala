@@ -188,7 +188,6 @@ class JsonSpec extends FlatSpec with Matchers {
 
   it should "be compatible with finch-core" in {
     import io.finch._
-    import io.finch.json.finch._
     import io.finch.response._
     import io.finch.request._
 
@@ -199,9 +198,9 @@ class JsonSpec extends FlatSpec with Matchers {
     req.headerMap.update(HttpHeaders.Names.CONTENT_LENGTH, jsonBody.length.toString)
 
     val ok: HttpResponse = Ok(json)
-    val j: RequestReader[Json] = RequiredJsonBody[Json]
-    val o: Future[Option[Json]] = OptionalJsonBody[Json](req)
-    val s: Service[Json, HttpResponse] = TurnJsonIntoHttp[Json]
+    val j: RequestReader[Json] = RequiredBody[Json]
+    val o: Future[Option[Json]] = OptionalBody[Json](req)
+    val s: Service[Json, HttpResponse] = TurnIntoHttp[Json]
 
     ok.getContentString() shouldBe Json.encode(json)
     Await.result(j(req)) shouldBe json

@@ -21,10 +21,12 @@
  * Ryan Plessner
  */
 
-package io.finch.json
+package io.finch
 
 import _root_.jawn.ast.{CanonicalRenderer, JValue}
 import _root_.jawn.{Facade, Parser}
+import io.finch.request.DecodeRequest
+import io.finch.response.EncodeResponse
 
 /**
  * This package provides support for use of the Jawn json parsing library in Finch.io.
@@ -37,7 +39,7 @@ package object jawn {
    * @return Converts a jawn ''Facade'' into a ''DecodeJson''
    *
    */
-  implicit def toJawnDecode[J](implicit facade: Facade[J]): DecodeJson[J] = new DecodeJson[J] {
+  implicit def toJawnDecode[J](implicit facade: Facade[J]): DecodeRequest[J] = new DecodeRequest[J] {
     def apply(json: String): Option[J] = Parser.parseFromString(json).toOption
   }
 
@@ -45,7 +47,9 @@ package object jawn {
    * The ''EncodeJawn'' object takes a ''JValue'' (part of Jawn's ast package) and
    * returns the string representation of that value.
    */
-  implicit val EncodeJawn: EncodeJson[JValue] = new EncodeJson[JValue] {
+  implicit val EncodeJawn: EncodeResponse[JValue] = new EncodeResponse[JValue] {
     def apply(json: JValue): String = CanonicalRenderer.render(json)
+
+    override def contentType: String = "application/json"
   }
 }
