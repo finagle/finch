@@ -25,6 +25,8 @@ package io.finch
 
 import _root_.jawn.ast.{CanonicalRenderer, JValue}
 import _root_.jawn.{Facade, Parser}
+import io.finch.request.DecodeRequest
+import io.finch.response.EncodeResponse
 
 /**
  * This package provides support for use of the Jawn json parsing library in Finch.io.

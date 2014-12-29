@@ -22,8 +22,8 @@ package io.finch.response
  * Rodrigo Ribeiro
  */
 
-import io.finch.EncodeResponse
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.{FlatSpec, Matchers}
+
 import scala.language.implicitConversions
 import scala.math._
 

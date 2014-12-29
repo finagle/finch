@@ -22,7 +22,6 @@
  */
 package io.finch.request
 
-import io.finch.DecodeRequest
 import org.scalatest.{Matchers, FlatSpec}
 import scala.math._
 

@@ -23,6 +23,9 @@
 
 package io.finch
 
+import io.finch.request.DecodeRequest
+import io.finch.response.EncodeResponse
+
 package object json {
   implicit val encodeFinchJson = new EncodeResponse[Json] {
     def apply(json: Json): String = Json.encode(json)

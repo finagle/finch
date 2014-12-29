@@ -155,19 +155,4 @@ package object finch {
   implicit def futureToService[Req, Rep](future: Future[Rep]): Service[Req, Rep] = new Service[Req, Rep] {
     def apply(req: Req) = future
   }
-
-  /**
-   * An abstraction that is responsible for encoding the response format.
-   */
-  trait EncodeResponse[-A] {
-    def apply(rep: A): String
-    def contentType: String
-  }
-
-  /**
-   * An abstraction that is responsible for decoding the request format.
-   */
-  trait DecodeRequest[+A] {
-    def apply(req: String): Option[A]
-  }
 }

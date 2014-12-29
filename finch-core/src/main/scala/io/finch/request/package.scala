@@ -818,4 +818,11 @@ package object request {
       }
     }
   }
+
+  /**
+   * An abstraction that is responsible for decoding the request format.
+   */
+  trait DecodeRequest[+A] {
+    def apply(req: String): Option[A]
+  }
 }

@@ -199,6 +199,14 @@ package object response {
   }
 
   /**
+   * An abstraction that is responsible for encoding the response format.
+   */
+  trait EncodeResponse[-A] {
+    def apply(rep: A): String
+    def contentType: String
+  }
+
+  /**
    * A service that converts an encoded object into HTTP response with status ''OK''
    * given an implicit encoder.
    */
