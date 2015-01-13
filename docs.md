@@ -335,7 +335,7 @@ The `finch-argonaut` module provides the support for the [Argonaut][4] JSON libr
 
 ### Jawn
 
-The `finch-jawn` module prpvides the support for [Jawn][5].
+The `finch-jawn` module provides the support for [Jawn][5].
 
 To decode a string with Jawn, you need to import `io.finch.json.jawn._` and define any Jawn `Facade` as an `implicit val`.
 Using either `RequiredJsonBody` or `OptionalJsonBody` will take care of the rest.
