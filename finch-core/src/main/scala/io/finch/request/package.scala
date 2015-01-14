@@ -38,18 +38,19 @@ package object request {
   trait RequestReader[A] { self =>
 
     /**
-     * Reads the data from given ''req''.
+     * Reads the data from given request ''req''.
      *
+     * @tparam Req the request type
      * @param req the request to read
      */
-    def apply(req: HttpRequest): Future[A]
+    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[A]
 
     def flatMap[B](fn: A => RequestReader[B]) = new RequestReader[B] {
-      def apply(req: HttpRequest) = self(req) flatMap { fn(_)(req) }
+      def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = self(req) flatMap { fn(_)(req) }
     }
 
     def map[B](fn: A => B) = new RequestReader[B] {
-      def apply(req: HttpRequest) = self(req) map fn
+      def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = self(req) map fn
     }
 
     // A workaround for https://issues.scala-lang.org/browse/SI-1336
@@ -107,7 +108,8 @@ package object request {
    * An empty ''RequestReader''.
    */
   object EmptyReader extends RequestReader[Nothing] {
-    def apply(req: HttpRequest) = new NoSuchElementException("Empty reader.").toFutureException
+    def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
+      new NoSuchElementException("Empty reader.").toFutureException
   }
 
   /**
@@ -121,13 +123,13 @@ package object request {
      * @return a const param value
      */
     def apply[A](const: A) = new RequestReader[A] {
-      def apply(req: HttpRequest) = const.toFuture
+      def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = const.toFuture
     }
   }
 
   private[this] object StringToValueOrFail {
     def apply[A](param: String, rule: String)(number: => A) = new RequestReader[A] {
-      def apply(req: HttpRequest) =
+      def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
         try number.toFuture
         catch { case _: IllegalArgumentException => ValidationFailed(param, rule).toFutureException }
     }
@@ -176,11 +178,12 @@ package object request {
      * @return a param value
      */
     def apply(param: String) = new RequestReader[String] {
-      def apply(req: HttpRequest) = req.params.get(param) match {
-        case Some("") => ValidationFailed(param, "should not be empty").toFutureException
-        case Some(value) => value.toFuture
-        case None => ParamNotFound(param).toFutureException
-      }
+      def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[String] =
+        req.params.get(param) match {
+          case Some("") => ValidationFailed(param, "should not be empty").toFutureException
+          case Some(value) => value.toFuture
+          case None => ParamNotFound(param).toFutureException
+        }
     }
   }
 
@@ -198,7 +201,7 @@ package object request {
      *
      * @return a param value
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[Int] = for {
       s <- RequiredParam(param)
       n <- StringToValueOrFail(param, "should be integer")(s.toInt)
     } yield n
@@ -218,7 +221,7 @@ package object request {
      *
      * @return a param value
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[Long] = for {
       s <- RequiredParam(param)
       n <- StringToValueOrFail(param, "should be long")(s.toLong)
     } yield n
@@ -238,7 +241,7 @@ package object request {
      *
      * @return a param value
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[Boolean] = for {
       s <- RequiredParam(param)
       n <- StringToValueOrFail(param, "should be boolean")(s.toBoolean)
     } yield n
@@ -258,7 +261,7 @@ package object request {
      *
      * @return a param value
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[Float] = for {
       s <- RequiredParam(param)
       n <- StringToValueOrFail(param, "should be float")(s.toFloat)
     } yield n
@@ -278,7 +281,7 @@ package object request {
      *
      * @return a param value
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[Double] = for {
       s <- RequiredParam(param)
       n <- StringToValueOrFail(param, "should be double")(s.toDouble)
     } yield n
@@ -298,9 +301,11 @@ package object request {
      * @return an option that contains a param value or ''None'' if the param
      *         is empty or it doesn't correspond to the expected type
      */
-    def apply(param: String) = new RequestReader[Option[String]] {
-      def apply(req: HttpRequest) = req.params.get(param).toFuture
-    }
+    def apply(param: String): RequestReader[Option[String]] =
+      new RequestReader[Option[String]] {
+        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
+          req.params.get(param).toFuture
+      }
   }
 
   /**
@@ -317,7 +322,7 @@ package object request {
      * @return an option that contains a param value or ''None'' if the param
      *         is empty or it doesn't correspond to the expected type
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[Option[Int]] = for {
       o <- OptionalParam(param)
     } yield SomeStringToSomeValue(_.toInt)(o)
   }
@@ -336,7 +341,7 @@ package object request {
      * @return an option that contains a param value or ''None'' if the param
      *         is empty or it doesn't correspond to the expected type
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[Option[Long]] = for {
       o <- OptionalParam(param)
     } yield SomeStringToSomeValue(_.toLong)(o)
   }
@@ -355,7 +360,7 @@ package object request {
      * @return an option that contains a param value or ''None'' if the param
      *         is empty or it doesn't correspond to the expected type
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[Option[Boolean]] = for {
       o <- OptionalParam(param)
     } yield SomeStringToSomeValue(_.toBoolean)(o)
   }
@@ -374,7 +379,7 @@ package object request {
      * @return an option that contains a param value or ''None'' if the param
      *         is empty or it doesn't correspond to the expected type
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[Option[Float]] = for {
       o <- OptionalParam(param)
     } yield SomeStringToSomeValue(_.toFloat)(o)
   }
@@ -393,7 +398,7 @@ package object request {
      * @return an option that contains a param value or ''None'' if the param
      *         is empty or it doesn't correspond to the expected type
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[Option[Double]] = for {
       o <- OptionalParam(param)
     } yield SomeStringToSomeValue(_.toDouble)(o)
   }
@@ -413,11 +418,12 @@ package object request {
      *
      * @return nothing or exception
      */
-    def apply(param: String, rule: String)(predicate: => Boolean) = new RequestReader[Unit] {
-      def apply(req: HttpRequest) =
-        if (predicate) Future.Done
-        else ValidationFailed(param, rule).toFutureException
-    }
+    def apply(param: String, rule: String)(predicate: => Boolean): RequestReader[Unit] =
+      new RequestReader[Unit] {
+        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
+          if (predicate) Future.Done
+          else ValidationFailed(param, rule).toFutureException
+      }
   }
 
   /**
@@ -434,15 +440,17 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String) = new RequestReader[List[String]] {
-      def apply(req: HttpRequest) = req.params.getAll(param).toList.flatMap(_.split(",")) match {
-        case Nil => ParamNotFound(param).toFutureException
-        case unfiltered => unfiltered.filter(_ != "") match {
-          case Nil => ValidationFailed(param, "should not be empty").toFutureException
-          case filtered => filtered.toFuture
-        }
+    def apply(param: String): RequestReader[List[String]] =
+      new RequestReader[List[String]] {
+        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
+          req.params.getAll(param).toList.flatMap(_.split(",")) match {
+            case Nil => ParamNotFound(param).toFutureException
+            case unfiltered => unfiltered.filter(_ != "") match {
+              case Nil => ValidationFailed(param, "should not be empty").toFutureException
+              case filtered => filtered.toFuture
+            }
+          }
       }
-    }
   }
 
   /**
@@ -459,7 +467,7 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[List[Int]] = for {
       ss <- RequiredParams(param)
       ns <- StringToValueOrFail(param, "should be integer")(ss.map { _.toInt })
     } yield ns
@@ -479,7 +487,7 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[List[Long]] = for {
       ss <- RequiredParams(param)
       ns <- StringToValueOrFail(param, "should be long")(ss.map { _.toLong })
     } yield ns
@@ -499,7 +507,7 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[List[Boolean]] = for {
       ss <- RequiredParams(param)
       ns <- StringToValueOrFail(param, "should be boolean")(ss.map { _.toBoolean })
     } yield ns
@@ -519,7 +527,7 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[List[Float]] = for {
       ss <- RequiredParams(param)
       ns <- StringToValueOrFail(param, "should be float")(ss.map { _.toFloat })
     } yield ns
@@ -539,7 +547,7 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[List[Double]] = for {
       ss <- RequiredParams(param)
       ns <- StringToValueOrFail(param, "should be double")(ss.map { _.toDouble })
     } yield ns
@@ -559,9 +567,11 @@ package object request {
      * @return a ''List'' that contains all the values of multi-value param or
      *         en empty list ''Nil'' if the param is missing or empty.
      */
-    def apply(param: String) = new RequestReader[List[String]] {
-      def apply(req: HttpRequest) = req.params.getAll(param).toList.flatMap(_.split(",")).filter(_ != "").toFuture
-    }
+    def apply(param: String): RequestReader[List[String]] =
+      new RequestReader[List[String]] {
+        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
+          req.params.getAll(param).toList.flatMap(_.split(",")).filter(_ != "").toFuture
+      }
   }
 
   /**
@@ -579,7 +589,7 @@ package object request {
      *         en empty list ''Nil'' if the param is missing or empty or doesn't
      *         correspond to a requested type.
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[List[Int]] = for {
       l <- OptionalParams(param)
     } yield StringsToValues(_.toInt)(l)
   }
@@ -599,7 +609,7 @@ package object request {
      *         en empty list ''Nil'' if the param is missing or empty or doesn't
      *         correspond to a requested type.
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[List[Long]] = for {
       l <- OptionalParams(param)
     } yield StringsToValues(_.toLong)(l)
   }
@@ -619,7 +629,7 @@ package object request {
      *         en empty list ''Nil'' if the param is missing or empty or doesn't
      *         correspond to a requested type.
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[List[Boolean]] = for {
       l <- OptionalParams(param)
     } yield StringsToValues(_.toBoolean)(l)
   }
@@ -639,7 +649,7 @@ package object request {
      *         en empty list ''Nil'' if the param is missing or empty or doesn't
      *         correspond to a requested type.
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[List[Float]] = for {
       l <- OptionalParams(param)
     } yield StringsToValues(_.toFloat)(l)
   }
@@ -659,7 +669,7 @@ package object request {
      *         en empty list ''Nil'' if the param is missing or empty or doesn't
      *         correspond to a requested type.
      */
-    def apply(param: String) = for {
+    def apply(param: String): RequestReader[List[Double]] = for {
       l <- OptionalParams(param)
     } yield StringsToValues(_.toDouble)(l)
   }
@@ -677,11 +687,12 @@ package object request {
      *
      * @return a header
      */
-    def apply(header: String) = new RequestReader[String] {
-      def apply(req: HttpRequest) = req.headerMap.get(header) match {
-        case Some(value) => value.toFuture
-        case None => HeaderNotFound(header).toFutureException
-      }
+    def apply(header: String): RequestReader[String] = new RequestReader[String] {
+      def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
+        req.headerMap.get(header) match {
+          case Some(value) => value.toFuture
+          case None => HeaderNotFound(header).toFutureException
+        }
     }
   }
 
@@ -699,9 +710,11 @@ package object request {
      * @return an option that contains a header value or ''None'' if the header
      *         is not exist in the request
      */
-    def apply(header: String) = new RequestReader[Option[String]] {
-      def apply(req: HttpRequest) = req.headerMap.get(header).toFuture
-    }
+    def apply(header: String): RequestReader[Option[String]] =
+      new RequestReader[Option[String]] {
+        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
+          req.headerMap.get(header).toFuture
+      }
   }
 
   /**
@@ -709,10 +722,11 @@ package object request {
    * or throws a ''BodyNotFound'' exception.
    */
   object RequiredArrayBody extends RequestReader[Array[Byte]] {
-    def apply(req: HttpRequest): Future[Array[Byte]] = OptionalArrayBody(req).flatMap {
-      case Some(body) => body.toFuture
-      case None => BodyNotFound.toFutureException
-    }
+    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Array[Byte]] =
+      OptionalArrayBody(req).flatMap {
+        case Some(body) => body.toFuture
+        case None => BodyNotFound.toFutureException
+      }
   }
 
   /**
@@ -720,10 +734,11 @@ package object request {
    * into an ''Option''.
    */
   object OptionalArrayBody extends RequestReader[Option[Array[Byte]]]{
-    def apply(req: HttpRequest): Future[Option[Array[Byte]]] = req.contentLength match {
-      case Some(length) if length > 0 => Some(RequestBody(req)).toFuture
-      case _ => Future.None
-    }
+    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Option[Array[Byte]]] =
+      req.contentLength match {
+        case Some(length) if length > 0 => Some(RequestBody(req)).toFuture
+        case _ => Future.None
+      }
   }
 
   /**
@@ -731,7 +746,7 @@ package object request {
    * or throws a ''BodyNotFound'' exception.
    */
   object RequiredStringBody extends RequestReader[String] {
-    def apply(req: HttpRequest): Future[String] = for {
+    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[String] = for {
       b <- RequiredArrayBody(req)
     } yield new String(b, "UTF-8")
   }
@@ -741,7 +756,7 @@ package object request {
    * into an ''Option''.
    */
   object OptionalStringBody extends RequestReader[Option[String]] {
-    def apply(req: HttpRequest): Future[Option[String]] = for {
+    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Option[String]] = for {
       b <- OptionalArrayBody(req)
     } yield b match {
       case Some(body) => Some(new String(body, "UTF-8"))
@@ -754,7 +769,7 @@ package object request {
    * and decodes it, according to an implicit decoder, into an ''Option''.
    */
   class OptionalBody[A](val decode: DecodeRequest[A]) extends RequestReader[Option[A]] {
-    def apply(req: HttpRequest): Future[Option[A]] = for {
+    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Option[A]] = for {
       b <- OptionalStringBody(req)
     } yield b match {
       case Some(body) => decode(body)
@@ -763,8 +778,11 @@ package object request {
   }
 
   object OptionalBody {
-    def apply[A](implicit decode: DecodeRequest[A]) = new OptionalBody[A](decode)
-    def apply[A](req: HttpRequest)(implicit decode: DecodeRequest[A]) = (new OptionalBody[A](decode))(req)
+    def apply[A](implicit decode: DecodeRequest[A]): RequestReader[Option[A]] =
+      new OptionalBody[A](decode)
+    // TODO: Make it accept `Req` instead
+    def apply[A](req: HttpRequest)(implicit decode: DecodeRequest[A]): Future[Option[A]] =
+      (new OptionalBody[A](decode))(req)
   }
 
   /**
@@ -772,15 +790,19 @@ package object request {
    * and decodes it according to an implicit decoder.
    */
   class RequiredBody[A](val decode: DecodeRequest[A]) extends RequestReader[A] {
-    def apply(req: HttpRequest): Future[A] = OptionalBody(req)(decode) flatMap {
-      case Some(body) => body.toFuture
-      case None => BodyNotParsed.toFutureException
-    }
+    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[A] =
+      OptionalBody(decode)(req) flatMap {
+        case Some(body) => body.toFuture
+        case None => BodyNotParsed.toFutureException
+      }
   }
 
   object RequiredBody {
-    def apply[A](implicit decode: DecodeRequest[A]) = new RequiredBody[A](decode)
-    def apply[A](req: HttpRequest)(implicit decode: DecodeRequest[A]) = (new RequiredBody[A](decode))(req)
+    def apply[A](implicit decode: DecodeRequest[A]): RequestReader[A] =
+      new RequiredBody[A](decode)
+    // TODO: Make it accept `Req` instead
+    def apply[A](req: HttpRequest)(implicit decode: DecodeRequest[A]): Future[A] =
+      (new RequiredBody[A](decode))(req)
   }
 
   /**
@@ -795,7 +817,8 @@ package object request {
      * @return An option that contains a cookie or None if the cookie does not exist on the request.
      */
     def apply(cookieName: String) = new RequestReader[Option[Cookie]] {
-      def apply(req: HttpRequest): Future[Option[Cookie]] = req.cookies.get(cookieName).toFuture
+      def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Option[Cookie]] =
+        req.cookies.get(cookieName).toFuture
     }
   }
 
@@ -811,11 +834,12 @@ package object request {
      *
      * @return the cookie
      */
-    def apply(cookieName: String) = new RequestReader[Cookie] {
-      def apply(req: HttpRequest): Future[Cookie] = OptionalCookie(cookieName)(req) flatMap {
-        case None => CookieNotFound(cookieName).toFutureException
-        case Some(cookie: Cookie) => cookie.toFuture
-      }
+    def apply(cookieName: String): RequestReader[Cookie] = new RequestReader[Cookie] {
+      def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Cookie] =
+        OptionalCookie(cookieName)(req) flatMap {
+          case None => CookieNotFound(cookieName).toFutureException
+          case Some(cookie: Cookie) => cookie.toFuture
+        }
     }
   }
 

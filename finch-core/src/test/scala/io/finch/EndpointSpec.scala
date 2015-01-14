@@ -46,7 +46,6 @@ class EndpointSpec extends FlatSpec with Matchers {
 
   "An Endpoint" should "route the requests" in {
     val endpoint = mockEndpoint("a" -> "a") orElse mockEndpoint("b" -> "b")
-
     Await.result(endpoint(mockRequest("a"))) shouldBe "a"
     Await.result(endpoint(mockRequest("b"))) shouldBe "b"
   }
@@ -61,7 +60,6 @@ class EndpointSpec extends FlatSpec with Matchers {
       mockEndpoint("a" -> "a"),
       mockEndpoint("b" -> "b")
     )
-
     Await.result(endpoint(mockRequest("a"))) shouldBe "a"
     Await.result(endpoint(mockRequest("b"))) shouldBe "b"
   }
@@ -95,16 +93,25 @@ class EndpointSpec extends FlatSpec with Matchers {
 
   it should "be convertible to Service" in {
     val endpoint = mockEndpoint("a" -> "a")
-    val service = endpoint.toService
-
-    Await.result(service(mockRequest("a"))) shouldBe "a"
+    Await.result(endpoint(mockRequest("a"))) shouldBe "a"
   }
 
   it should "allow for endpoint creation from futures" in {
-    val endpoint: Endpoint[HttpRequest, String] =
-      Endpoint { case Method.Get -> Root / "a" => "a".toFuture }
-    val service = endpoint.toService
-
+    val endpoint: Endpoint[HttpRequest, String] = Endpoint {
+      case Method.Get -> Root / "a" => "a".toFuture
+    }
+    val service: Service[HttpRequest, String] = endpoint
     Await.result(service(mockRequest("a"))) shouldBe "a"
+  }
+
+  it should "convert to service using the implicits" in {
+    case class Req(r: HttpRequest)
+    implicit val reqEv = (req: Req) => req.r
+    val endpoint = Endpoint[Req, String] {
+      case Method.Get -> Root / "a" => "a".toFuture
+    }
+
+    val service: Service[Req, String] = endpoint
+    Await.result(service(Req(mockRequest("a")))) shouldBe "a"
   }
 }

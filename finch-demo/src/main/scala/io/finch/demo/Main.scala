@@ -175,6 +175,6 @@ object Main extends App {
 
   // A default Finagle service builder that runs the backend.
   val socket = new InetSocketAddress(8080)
-  val server = Httpx.serve(socket, backend.toService)
+  val server = Httpx.serve(socket, backend)
   Await.ready(server)
 }
