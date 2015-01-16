@@ -60,7 +60,8 @@ val endpoint = Endpoint[HttpRequest, HttpResponse] {
 
 Documentation
 -------------
-Documentation may be found in the [`docs.md`](docs.md) file in the root directory.
+ * A comprehensive documentation may be found in the [`docs.md`](docs.md) file in the root directory
+ * The latest Scaladoc is [here](http://finagle.github.io/finch/latest/api/#io.finch.package)
 
 Contacts
 --------
