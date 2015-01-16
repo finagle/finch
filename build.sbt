@@ -8,25 +8,29 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.10.4", "2.11.5")
 )
 
+lazy val compilerOptions = scalacOptions ++= Seq(
+  "-deprecation",
+  "-encoding", "UTF-8",
+  "-feature",
+  "-language:existentials",
+  "-language:higherKinds",
+  "-language:implicitConversions",
+  "-unchecked",
+  "-Yno-adapted-args",
+  "-Ywarn-dead-code",
+  "-Ywarn-numeric-widen",
+  "-Xfuture"
+) ++ (CrossVersion.partialVersion(scalaVersion.value) match {
+  case Some((2, 11)) => Seq("-Ywarn-unused-import")
+  case _ => Seq.empty
+})
+
 val baseSettings = Defaults.defaultSettings ++ Seq(
   libraryDependencies ++= Seq(
     "com.twitter" %% "finagle-httpx" % "6.24.0",
     "org.scalatest" %% "scalatest" % "2.2.3" % "test"
   ),
-  scalacOptions ++= Seq(
-    "-deprecation",
-    "-encoding", "UTF-8",
-    "-feature",
-    "-language:existentials",
-    "-language:higherKinds",
-    "-language:implicitConversions",
-    "-unchecked",
-    "-Yno-adapted-args",
-    "-Ywarn-dead-code",
-    "-Ywarn-numeric-widen",
-    "-Xfuture",
-    "-Ywarn-unused-import"
-  ),
+  compilerOptions,
   coverageExcludedPackages := ".*demo.*"
 )
 
