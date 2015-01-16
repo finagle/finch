@@ -26,7 +26,6 @@ import com.twitter.finagle.httpx.Request
 import com.twitter.util.{Await, Future}
 import io.finch._
 import org.scalatest.{Matchers, FlatSpec}
-import org.scalatest.Matchers._
 
 class OptionalParamsSpec extends FlatSpec with Matchers {
 
