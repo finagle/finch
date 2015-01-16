@@ -45,15 +45,21 @@ The core operator in Finch is _pipe_ (bang) `!` operator, which is like a Linux 
 requests and responses may be piped via chain building blocks (filters, services or endpoints) in exact way it has been
 written.
 
-In the following example
+The common sense of using the Finch library is to have an `Endpoint` representing the domain. For example, the typical
+use case would be to have an `Endpoint` from `OAuth2Request` (see [OAuth2 section](docs.md#authorization-with-oauth2))
+to `Json` (see [Json section](docs.md#finch-json)). Since, all the endpoints have the same type (i.e.,
+`Endpoint[OAuth2Request, Json]`) they may be composed together into a single entry point with either `Endpoint.join()`
+or `orElse` operators. The following example shows the discussed example in details:
 
-- the request flows to `Auth` filter and then
-- the request is converted to response by `respond` endpoint and then
-- the response flows to `TurnJsonIntoHttp` service
 
 ```scala
-val respond: Endpoint[HttpRequest, HttpResponse] = ???
-val endpoint = Auth ! respond ! TurnJsonIntoHttp[Json]
+val auth: Filter[HttpRequest, HttpResponse, OAuth2Request, HttpResponse] = ???
+val users: Endpoint[OAuth2Request, Json] = ???
+val groups: Endpoint[OAuth2Request, Json] = ???
+val endpoint: Endpoint[OAuth2Request, HttpResponse] = (users orElse groups) ! TurnIntoHttp[Json]
+
+// An HTTP endpoint that may be served with `Httpx`
+val httpEndpoint: Endpoint[HttpRequest, HttpResponse] = auth ! endpoint
 ```
 
 The best practices on what to choose for data transformation are following:
@@ -343,7 +349,7 @@ Using either `RequiredJsonBody` or `OptionalJsonBody` will take care of the rest
 To encode a value from the Jawn AST (specifically a `JValue`), you need only import `io.finch.json.jawn._` and
 the `Encoder` will be imported implicitly.
 
-[1]: https://github.com/finagle/finch/blob/master/finch-demo/src/main/scala/io/finch/demo/Main.scala
+[1]: https://github.com/finagle/finch/blob/master/demo/src/main/scala/io/finch/demo/Main.scala
 [2]: http://www.haskell.org/haskellwiki/All_About_Monads#The_Reader_monad
 [3]: https://github.com/finagle/finch/blob/master/finch-json/src/main/scala/io/finch/json/Json.scala
 [4]: http://argonaut.io
