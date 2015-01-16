@@ -77,17 +77,15 @@ lazy val demo = project
   .dependsOn(core, json)
   .disablePlugins(CoverallsPlugin)
 
-lazy val jawnSettings = allSettings ++ Seq(
-  libraryDependencies ++= Seq(
-    "org.spire-math" %% "jawn-parser" % "0.7.2",
-    "org.spire-math" %% "jawn-ast" % "0.7.2"
-  )
-)
-
 lazy val jawn = project
   .settings(moduleName := "finch-jawn")
   .settings(allSettings: _*)
-  .settings(jawnSettings: _*)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.spire-math" %% "jawn-parser" % "0.7.2",
+      "org.spire-math" %% "jawn-ast" % "0.7.2"
+    )
+  )
   .dependsOn(core)
   .disablePlugins(CoverallsPlugin)
 
