@@ -13,7 +13,20 @@ val baseSettings = Defaults.defaultSettings ++ Seq(
     "com.twitter" %% "finagle-httpx" % "6.24.0",
     "org.scalatest" %% "scalatest" % "2.2.3" % "test"
   ),
-  scalacOptions ++= Seq( "-unchecked", "-deprecation", "-feature"),
+  scalacOptions ++= Seq(
+    "-deprecation",
+    "-encoding", "UTF-8",
+    "-feature",
+    "-language:existentials",
+    "-language:higherKinds",
+    "-language:implicitConversions",
+    "-unchecked",
+    "-Yno-adapted-args",
+    "-Ywarn-dead-code",
+    "-Ywarn-numeric-widen",
+    "-Xfuture",
+    "-Ywarn-unused-import"
+  ),
   coverageExcludedPackages := ".*demo.*"
 )
 
