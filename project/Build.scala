@@ -5,6 +5,7 @@ import sbt.Keys._
 import com.typesafe.sbt.pgp.PgpKeys._
 import com.typesafe.sbt.SbtGit._
 import sbtunidoc.Plugin.ScalaUnidoc
+import sbtunidoc.Plugin.UnidocKeys._
 import sbtunidoc.Plugin.unidocSettings
 import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.SbtGhPages.ghpages
@@ -60,7 +61,8 @@ object Finch extends Build {
 
   lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Seq(
     site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "latest/api"),
-    git.remoteRepo := s"git@github.com:finagle/finch.git"
+    git.remoteRepo := s"git@github.com:finagle/finch.git",
+    unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(demo)
   )
 
   def defaultFinchProject(id: String, path: String, settings: Seq[sbt.Def.Setting[_]] = allSettings): Project =
