@@ -1,0 +1,369 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>finch - io.finch</title>
+          <meta name="description" content="finch - io.finch" />
+          <meta name="keywords" content="finch io.finch" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'io.finch.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../lib/package_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="io">io</a></p>
+        <h1>finch</h1> <span class="permalink">
+      <a href="../../index.html#io.finch.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finch</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>The root package of the Finch library.</p><p>See details at https://github.com/finagle/finch.
+</p></div><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="io.finch"><span>finch</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="io.finch.AnyOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="AnyOps[A]extendsAnyVal"></a>
+      <a id="AnyOps[A]:AnyOps[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$AnyOps.html"><span class="name">AnyOps</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@AnyOps[A]extendsAnyVal" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Alters any object within a <i>toFuture</i> method.</p><div class="fullcomment"><div class="comment cmt"><p>Alters any object within a <i>toFuture</i> method.
+</p></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>an object type
+</p></dd></dl></div>
+    </li><li name="io.finch.Endpoint" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="Endpoint[Req&lt;:io.finch.HttpRequest,Rep]extendsAnyRef"></a>
+      <a id="Endpoint[Req&lt;:finch.HttpRequest,Rep]:Endpoint[Req,Rep]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoint.html"><span class="name">Endpoint</span></a><span class="tparams">[<span name="Req">Req &lt;: <span class="extype" name="io.finch.HttpRequest">finch.HttpRequest</span></span>, <span name="Rep">Rep</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@Endpoint[Req&lt;:io.finch.HttpRequest,Rep]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A REST API endpoint that primary defines a <i>route</i> and might be converted
+into a finagled service with <i>toService</i> method.</p><div class="fullcomment"><div class="comment cmt"><p>A REST API endpoint that primary defines a <i>route</i> and might be converted
+into a finagled service with <i>toService</i> method.
+</p></div><dl class="paramcmts block"><dt class="tparam">Rep</dt><dd class="cmt"><p>a response type
+</p></dd></dl></div>
+    </li><li name="io.finch.FilterOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="FilterOps[ReqIn&lt;:io.finch.package.HttpRequest,ReqOut&lt;:io.finch.package.HttpRequest,RepIn,RepOut]extendsAnyVal"></a>
+      <a id="FilterOps[ReqIn&lt;:HttpRequest,ReqOut&lt;:HttpRequest,RepIn,RepOut]:FilterOps[ReqIn,ReqOut,RepIn,RepOut]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$FilterOps.html"><span class="name">FilterOps</span></a><span class="tparams">[<span name="ReqIn">ReqIn &lt;: <a href="#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a></span>, <span name="ReqOut">ReqOut &lt;: <a href="#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a></span>, <span name="RepIn">RepIn</span>, <span name="RepOut">RepOut</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@FilterOps[ReqIn&lt;:io.finch.package.HttpRequest,ReqOut&lt;:io.finch.package.HttpRequest,RepIn,RepOut]extendsAnyVal" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Alters underlying filter within <i>afterThat</i> methods composing a filter
+with a given endpoint or withing a next filter.</p>
+    </li><li name="io.finch.HttpRequest" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HttpRequest=com.twitter.finagle.httpx.Request"></a>
+      <a id="HttpRequest:HttpRequest"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">HttpRequest</span><span class="result"> = <span class="extype" name="com.twitter.finagle.httpx.Request">Request</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@HttpRequest=com.twitter.finagle.httpx.Request" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.HttpResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HttpResponse=com.twitter.finagle.httpx.Response"></a>
+      <a id="HttpResponse:HttpResponse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">HttpResponse</span><span class="result"> = <span class="extype" name="com.twitter.finagle.httpx.Response">Response</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@HttpResponse=com.twitter.finagle.httpx.Response" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.ServiceOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ServiceOps[Req&lt;:io.finch.package.HttpRequest,RepIn]extendsAnyRef"></a>
+      <a id="ServiceOps[Req&lt;:HttpRequest,RepIn]:ServiceOps[Req,RepIn]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$ServiceOps.html"><span class="name">ServiceOps</span></a><span class="tparams">[<span name="Req">Req &lt;: <a href="#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a></span>, <span name="RepIn">RepIn</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@ServiceOps[Req&lt;:io.finch.package.HttpRequest,RepIn]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Alters underlying service within <i>afterThat</i> method composing a service
+with a given filter.</p><div class="fullcomment"><div class="comment cmt"><p>Alters underlying service within <i>afterThat</i> method composing a service
+with a given filter.
+</p></div><dl class="paramcmts block"><dt class="tparam">RepIn</dt><dd class="cmt"><p>a input response type
+</p></dd></dl></div>
+    </li><li name="io.finch.ThrowableOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ThrowableOpsextendsAnyVal"></a>
+      <a id="ThrowableOps:ThrowableOps"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$ThrowableOps.html"><span class="name">ThrowableOps</span></a><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@ThrowableOpsextendsAnyVal" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Alters any throwable with a <i>toFutureException</i> method.</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="io.finch.Endpoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Endpoint"></a>
+      <a id="Endpoint:Endpoint"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoint$.html"><span class="name">Endpoint</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@Endpoint" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A companion object for <i>Endpoint</i>
+</p>
+    </li><li name="io.finch.auth" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="auth"></a>
+      <a id="auth:auth"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="auth/package.html"><span class="name">auth</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@auth" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch#futureToService" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="futureToService[Req,Rep](future:com.twitter.util.Future[Rep]):com.twitter.finagle.Service[Req,Rep]"></a>
+      <a id="futureToService[Req,Rep](Future[Rep]):Service[Req,Rep]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">futureToService</span><span class="tparams">[<span name="Req">Req</span>, <span name="Rep">Rep</span>]</span><span class="params">(<span name="future">future: <span class="extype" name="com.twitter.util.Future">Future</span>[<span class="extype" name="io.finch.futureToService.Rep">Rep</span>]</span>)</span><span class="result">: <span class="extype" name="com.twitter.finagle.Service">Service</span>[<span class="extype" name="io.finch.futureToService.Req">Req</span>, <span class="extype" name="io.finch.futureToService.Rep">Rep</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@futureToService[Req,Rep](future:com.twitter.util.Future[Rep]):com.twitter.finagle.Service[Req,Rep]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Allows for the creation of <i>Endpoints</i> without an explicit service.</p><div class="fullcomment"><div class="comment cmt"><p>Allows for the creation of <i>Endpoints</i> without an explicit service.</p><pre>Endpoint {
+  Get -&gt; Root / <span class="lit">"hello"</span> <span class="kw">=&gt;</span> Ok(<span class="lit">"world"</span>).toFuture
+}</pre></div><dl class="paramcmts block"><dt class="param">future</dt><dd class="cmt"><p>a future to implicitly convert
+</p></dd><dt>returns</dt><dd class="cmt"><p>a service generated by ignoring the <i>Req</i> and returning the <i>Future[Rep]</i>
+</p></dd></dl></div>
+    </li><li name="io.finch.json" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="json"></a>
+      <a id="json:json"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="json/package.html"><span class="name">json</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@json" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.request" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="request"></a>
+      <a id="request:request"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="request/package.html"><span class="name">request</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@request" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="response"></a>
+      <a id="response:response"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="response/package.html"><span class="name">response</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@response" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

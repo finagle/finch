@@ -1,0 +1,250 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>json - io.finch.json</title>
+          <meta name="description" content="json - io.finch.json" />
+          <meta name="keywords" content="json io.finch.json" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../index.html';
+            var hash = 'io.finch.json.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../lib/package_big.png" />
+        <p id="owner"><a href="../../package.html" class="extype" name="io">io</a>.<a href="../package.html" class="extype" name="io.finch">finch</a></p>
+        <h1>json</h1> <span class="permalink">
+      <a href="../../../index.html#io.finch.json.package" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">json</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="io.finch.json"><span>json</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="io.finch.json.Json" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="JsonextendsAnyRef"></a>
+      <a id="Json:Json"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Json.html"><span class="name">Json</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.json.package@JsonextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An immutable Json API.</p>
+    </li><li name="io.finch.json.JsonArray" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="JsonArrayextendsJsonwithProductwithSerializable"></a>
+      <a id="JsonArray:JsonArray"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="JsonArray.html"><span class="name">JsonArray</span></a><span class="params">(<span name="list">list: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Any">Any</span>]</span>)</span><span class="result"> extends <a href="Json.html" class="extype" name="io.finch.json.Json">Json</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.json.package@JsonArrayextendsJsonwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A json array with underlying <code>list</code>.</p>
+    </li><li name="io.finch.json.JsonObject" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="JsonObjectextendsJsonwithProductwithSerializable"></a>
+      <a id="JsonObject:JsonObject"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="JsonObject.html"><span class="name">JsonObject</span></a><span class="params">(<span name="map">map: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>]</span>)</span><span class="result"> extends <a href="Json.html" class="extype" name="io.finch.json.Json">Json</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.json.package@JsonObjectextendsJsonwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt"> A json object with underlying <code>map</code>.</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="io.finch.json.Json" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Json"></a>
+      <a id="Json:Json"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Json$.html"><span class="name">Json</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.json.package@Json" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A json companion object, which in an entry point into JSON API.</p>
+    </li><li name="io.finch.json.JsonNull" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="JsonNull"></a>
+      <a id="JsonNull:JsonNull"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="JsonNull$.html"><span class="name">JsonNull</span></a><span class="result"> extends <a href="Json.html" class="extype" name="io.finch.json.Json">Json</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.json.package@JsonNull" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A json null value.</p>
+    </li><li name="io.finch.json#decodeFinchJson" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="decodeFinchJson:io.finch.request.DecodeRequest[io.finch.json.Json]"></a>
+      <a id="decodeFinchJson:DecodeRequest[Json]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">decodeFinchJson</span><span class="result">: <a href="../request/package$$DecodeRequest.html" class="extype" name="io.finch.request.DecodeRequest">DecodeRequest</a>[<a href="Json.html" class="extype" name="io.finch.json.Json">Json</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.json.package@decodeFinchJson:io.finch.request.DecodeRequest[io.finch.json.Json]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.json#encodeFinchJson" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="encodeFinchJson:io.finch.response.EncodeResponse[io.finch.json.Json]"></a>
+      <a id="encodeFinchJson:EncodeResponse[Json]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">encodeFinchJson</span><span class="result">: <a href="../response/package$$EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>[<a href="Json.html" class="extype" name="io.finch.json.Json">Json</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.json.package@encodeFinchJson:io.finch.response.EncodeResponse[io.finch.json.Json]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
