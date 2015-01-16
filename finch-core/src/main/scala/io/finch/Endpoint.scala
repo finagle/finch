@@ -28,12 +28,14 @@ import com.twitter.finagle.httpx.path.Path
 import com.twitter.finagle.httpx.service.NotFoundService
 
 /**
- * A REST API endpoint that primary defines a ''route'' and might be converted
- * into a finagled service with ''toService'' method.
+ * A REST API endpoint that primary defines a ''route'' and might be implicitly
+ * converted into Finagle service ''Service[Req, Rep]'' if there is an implicit
+ * view from ''Req'' to ''HttpRequest'' available in the scope.
  *
- * @tparam Rep a response type
+ * @tparam Req the request type
+ * @tparam Rep the response type
  */
-trait Endpoint[Req <: HttpRequest, Rep] { self =>
+trait Endpoint[Req, Rep] { self =>
 
   /**
    * A rich route of this endpoint.
@@ -41,14 +43,6 @@ trait Endpoint[Req <: HttpRequest, Rep] { self =>
    * @return a route of this endpoint
    */
   def route: PartialFunction[(Method, Path), Service[Req, Rep]]
-
-  /**
-   * Sends a request ''req'' to this Endpoint.
-   *
-   * @param req the request to send
-   * @return a response wrapped with ''Future''
-   */
-  def apply(req: Req) = route(req.method -> Path(req.path))(req)
 
   /**
    * Combines this endpoint with ''that'' endpoint. A new endpoint
@@ -81,7 +75,7 @@ trait Endpoint[Req <: HttpRequest, Rep] { self =>
    *
    * @return a new endpoint
    */
-  def andThen[ReqOut <: HttpRequest, RepOut](fn: Service[Req, Rep] => Service[ReqOut, RepOut]) =
+  def andThen[ReqOut, RepOut](fn: Service[Req, Rep] => Service[ReqOut, RepOut]) =
     new Endpoint[ReqOut, RepOut] {
       def route = self.route andThen fn
     }
@@ -100,15 +94,6 @@ trait Endpoint[Req <: HttpRequest, Rep] { self =>
         def apply(req: Req) = service(req) flatMap next
       }
     }
-
-  /**
-   * Converts this endpoint into a finagled service.
-   *
-   * @return a finagled service
-   */
-  def toService = new Service[Req, Rep] {
-    def apply(req: Req) = self(req)
-  }
 }
 
 /**
@@ -125,7 +110,7 @@ object Endpoint {
    *
    * @return a joined endpoint
    */
-  def join[Req <: HttpRequest, Rep](endpoints: Endpoint[Req, Rep]*) = endpoints.reduce(_ orElse _)
+  def join[Req, Rep](endpoints: Endpoint[Req, Rep]*) = endpoints.reduce(_ orElse _)
 
   /**
    * A robust 404 respond for missing endpoints.
@@ -140,7 +125,7 @@ object Endpoint {
    *
    * @param r The route for the new Endpoint
    */
-  def apply[Req <: HttpRequest, Rep](r: PartialFunction[(Method, Path), Service[Req, Rep]]): Endpoint[Req, Rep] = {
+  def apply[Req, Rep](r: PartialFunction[(Method, Path), Service[Req, Rep]]): Endpoint[Req, Rep] = {
     new Endpoint[Req, Rep] { def route = r }
   }
 }

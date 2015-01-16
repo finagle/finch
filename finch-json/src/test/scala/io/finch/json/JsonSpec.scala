@@ -199,11 +199,13 @@ class JsonSpec extends FlatSpec with Matchers {
 
     val ok: HttpResponse = Ok(json)
     val j: RequestReader[Json] = RequiredBody[Json]
-    val o: Future[Option[Json]] = OptionalBody[Json](req)
+    val k: Future[Json] = RequiredBody[Json](req)
+    val o = OptionalBody[Json](req)
     val s: Service[Json, HttpResponse] = TurnIntoHttp[Json]
 
     ok.getContentString() shouldBe Json.encode(json)
     Await.result(j(req)) shouldBe json
+    Await.result(k) shouldBe json
     Await.result(o) shouldBe Some(json)
     Await.result(s(json)).getContentString() shouldBe json.toString
   }

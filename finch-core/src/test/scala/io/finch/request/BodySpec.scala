@@ -91,6 +91,43 @@ class BodySpec extends FlatSpec with Matchers {
     Await.result(reader(request)) should equal(fooBytes)
   }
 
+  "RequiredBody and OptionalBody" should "work with no request type available" in {
+    implicit val decodeInt = new DecodeRequest[Int] {
+       def apply(req: String): Option[Int] =
+         try Some(req.toInt) catch { case _: NumberFormatException => None }
+    }
+    val req = requestWithBody("123")
+    val ri: RequestReader[Int] = RequiredBody[Int]
+    val i: Future[Int] = RequiredBody(req)
+    val oi: RequestReader[Option[Int]] = OptionalBody[Int]
+    val o = OptionalBody(req)
+
+    Await.result(ri(req)) shouldBe 123
+    Await.result(i) shouldBe 123
+    Await.result(oi(req)) shouldBe Some(123)
+    Await.result(o) shouldBe Some(123)
+  }
+
+  it should "work with custom request and its implicit view to HttpRequest" in {
+    implicit val decodeDouble = new DecodeRequest[Double] { // custom encoder
+      def apply(req: String): Option[Double] =
+        try Some(req.toDouble) catch { case _: NumberFormatException => None }
+    }
+    case class CReq(http: HttpRequest) // custom request
+    implicit val cReqEv = (req: CReq) => req.http // implicit view
+
+    val req = CReq(requestWithBody("42.0"))
+    val rd: RequestReader[Double] = RequiredBody[Double]
+    val d = RequiredBody[Double](req)
+    val od: RequestReader[Option[Double]] = OptionalBody[Double]
+    val o: Future[Option[Double]] = OptionalBody[Double](req)
+
+    Await.result(rd(req)) shouldBe 42.0
+    Await.result(d) shouldBe 42.0
+    Await.result(od(req)) shouldBe Some(42.0)
+    Await.result(o) shouldBe Some(42.0)
+  }
+
   private[this] def requestWithBody(body: String): HttpRequest = {
     requestWithBody(body.getBytes("UTF-8"))
   }
