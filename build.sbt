@@ -75,7 +75,7 @@ lazy val root = project.in(file("."))
   .settings(moduleName := "finch")
   .settings(allSettings: _*)
   .settings(docSettings: _*)
-  .aggregate(core, json, demo, jawn, argonaut)
+  .aggregate(core, json, demo, jawn, argonaut, jackson)
 
 lazy val core = project
   .settings(moduleName := "finch-core")
@@ -110,5 +110,12 @@ lazy val argonaut = project
   .settings(moduleName := "finch-argonaut")
   .settings(allSettings: _*)
   .settings(libraryDependencies += "io.argonaut" %% "argonaut" % "6.0.4")
+  .dependsOn(core)
+  .disablePlugins(CoverallsPlugin)
+
+lazy val jackson = project
+  .settings(moduleName := "finch-jackson")
+  .settings(allSettings: _*)
+  .settings(libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.4.4")
   .dependsOn(core)
   .disablePlugins(CoverallsPlugin)

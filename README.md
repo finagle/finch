@@ -15,6 +15,7 @@ Finch uses multi-project structure and contains of the following _modules_:
 * [`finch-demo`](demo) - the demo project
 * [`finch-jawn`](jawn) - the JSON API support for the [Jawn](https://github.com/non/jawn) library
 * [`finch-argonaut`](argonaut) - the JSON API support for the [Argonaut](http://argonaut.io/) library
+* [`finch-jackson`](jackson) - the JSON API support for the [Jackson](http://jackson.codehaus.org/) library
 
 Installation 
 ------------
@@ -24,7 +25,7 @@ Every Finch module is published at Maven Central. Use the following _sbt_ snippe
  
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "finch-module" % "0.3.0"
+  "com.github.finagle" %% "[finch-module]" % "0.3.0"
 )
 ```
 

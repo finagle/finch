@@ -77,8 +77,7 @@ package object response {
      * Creates an http response with content-type according to the implicit encode.
      *
      * @param body the response body
-     *
-     * @return a json http response
+     * @return an http response
      */
     def apply[A](body: A)(implicit encode: EncodeResponse[A]) = {
       val rep = Response(status)
@@ -199,7 +198,7 @@ package object response {
   }
 
   /**
-   * An abstraction that is responsible for encoding the response format.
+   * An abstraction that is responsible for encoding the response of type ''A''.
    */
   trait EncodeResponse[-A] {
     def apply(rep: A): String
@@ -207,14 +206,31 @@ package object response {
   }
 
   /**
+   * An abstraction that is responsible for encoding the response of a generic type.
+   */
+  trait EncodeAnyResponse {
+    def apply[A](rep: A): String
+    def contentType: String
+  }
+
+  /**
+   * Converts ''EncodeAnyResponse'' into ''EncodeResponse''.
+   */
+  implicit def anyToConcreteEncode[A](implicit e: EncodeAnyResponse): EncodeResponse[A] =
+    new EncodeResponse[A] {
+      def apply(rep: A) = e(rep)
+      def contentType = e.contentType
+    }
+
+  class TurnIntoHttp[A](val e: EncodeResponse[A]) extends Service[A, HttpResponse] {
+    def apply(req: A) = Ok(req)(e).toFuture
+  }
+
+  /**
    * A service that converts an encoded object into HTTP response with status ''OK''
    * given an implicit encoder.
    */
-  class TurnIntoHttp[A](val encode: EncodeResponse[A]) extends Service[A, HttpResponse] {
-    def apply(req: A) = Ok(req)(encode).toFuture
-  }
-
   object TurnIntoHttp {
-    def apply[A](implicit encode: EncodeResponse[A]) = new TurnIntoHttp[A](encode)
+    def apply[A](implicit e: EncodeResponse[A]) = new TurnIntoHttp[A](e)
   }
 }
