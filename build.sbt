@@ -25,7 +25,7 @@ lazy val compilerOptions = scalacOptions ++= Seq(
   case _ => Seq.empty
 })
 
-val baseSettings = Defaults.defaultSettings ++ Seq(
+val baseSettings = Seq(
   libraryDependencies ++= Seq(
     "com.twitter" %% "finagle-httpx" % "6.24.0",
     "org.scalatest" %% "scalatest" % "2.2.3" % "test"
