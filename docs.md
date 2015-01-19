@@ -32,7 +32,7 @@ Scala file [Main.scala][1] that is worth reading.
 The following command may be used to run the demo:
 
 ```bash
-sbt 'project finch-demo' 'run io.finch.demo.Main'
+sbt 'project demo' 'run io.finch.demo.Main'
 ```
 
 ## Endpoints
