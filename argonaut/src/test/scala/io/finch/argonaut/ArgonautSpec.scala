@@ -53,7 +53,7 @@ class ArgonautSpec extends FlatSpec with Matchers {
     req.setContentTypeJson()
     req.headerMap.update(HttpHeaders.Names.CONTENT_LENGTH, str.length.toString)
 
-    val user: TestUser = Await.result(RequiredBody(req))
+    val user: TestUser = Await.result(RequiredBody[TestUser](req))
     user shouldEqual exampleUser
   }
 

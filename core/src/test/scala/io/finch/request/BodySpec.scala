@@ -98,9 +98,9 @@ class BodySpec extends FlatSpec with Matchers {
     }
     val req = requestWithBody("123")
     val ri: RequestReader[Int] = RequiredBody[Int]
-    val i: Future[Int] = RequiredBody(req)
+    val i: Future[Int] = RequiredBody[Int](req)
     val oi: RequestReader[Option[Int]] = OptionalBody[Int]
-    val o = OptionalBody(req)
+    val o = OptionalBody[Int](req)
 
     Await.result(ri(req)) shouldBe 123
     Await.result(i) shouldBe 123

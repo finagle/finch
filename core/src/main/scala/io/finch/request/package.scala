@@ -28,6 +28,8 @@ package io.finch
 import com.twitter.finagle.httpx.Cookie
 import com.twitter.util.Future
 
+import scala.reflect.ClassTag
+
 package object request {
 
   /**
@@ -122,8 +124,8 @@ package object request {
      *
      * @return a const param value
      */
-    def apply[A](const: A) = new RequestReader[A] {
-      def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = const.toFuture
+    def apply[A](const: Future[A]) = new RequestReader[A] {
+      def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = const
     }
   }
 
@@ -768,45 +770,31 @@ package object request {
    * A ''RequestReader'' that reads an optional encoded object serialized in request body
    * and decodes it, according to an implicit decoder, into an ''Option''.
    */
-  class OptionalBody[A](val decode: DecodeRequest[A]) extends RequestReader[Option[A]] {
-    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Option[A]] = for {
-      b <- OptionalStringBody(req)
-    } yield b match {
-      case Some(body) => decode(body)
-      case None => None
-    }
-  }
-
   object OptionalBody {
-    def apply[A](implicit decode: DecodeRequest[A]): RequestReader[Option[A]] =
-      new OptionalBody[A](decode)
+    def apply[A](implicit m: DecodeMagnet[A]): RequestReader[Option[A]] = for {
+      b <- OptionalStringBody
+    } yield b flatMap { m()(_) }
+
     // TODO: Make it accept `Req` instead
-    def apply[A](req: HttpRequest)(implicit decode: DecodeRequest[A]): Future[Option[A]] =
-      (new OptionalBody[A](decode))(req)
+    def apply[A](req: HttpRequest)(implicit m: DecodeMagnet[A]): Future[Option[A]] =
+      OptionalBody[A](m)(req)
   }
 
   /**
    * A ''RequestReader'' that reads an encoded object serialized in request body
    * and decodes it according to an implicit decoder.
    */
-  class RequiredBody[A](val decode: DecodeRequest[A]) extends RequestReader[A] {
-    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[A] =
-      OptionalBody(decode)(req) flatMap {
-        case Some(body) => body.toFuture
-        case None => BodyNotParsed.toFutureException
-      }
-  }
-
   object RequiredBody {
-    def apply[A](implicit decode: DecodeRequest[A]): RequestReader[A] =
-      new RequiredBody[A](decode)
+    def apply[A](implicit m: DecodeMagnet[A]): RequestReader[A] = OptionalBody[A].flatMap {
+      case Some(body) => ConstReader(body.toFuture)
+      case None => ConstReader(BodyNotParsed.toFutureException)
+    }
     // TODO: Make it accept `Req` instead
-    def apply[A](req: HttpRequest)(implicit decode: DecodeRequest[A]): Future[A] =
-      (new RequiredBody[A](decode))(req)
+    def apply[A](req: HttpRequest)(implicit m: DecodeMagnet[A]): Future[A] = RequiredBody[A](m)(req)
   }
 
   /**
-   * An optional cookie
+   * An optional cookie reader.
    */
   object OptionalCookie {
     /**
@@ -844,9 +832,41 @@ package object request {
   }
 
   /**
-   * An abstraction that is responsible for decoding the request format.
+   * An abstraction that is responsible for decoding the request of type ''A''.
    */
   trait DecodeRequest[+A] {
     def apply(req: String): Option[A]
   }
+
+  /**
+   * An abstraction that is responsible for decoding the request of general type.
+   */
+  trait DecodeAnyRequest {
+    def apply[A: ClassTag](req: String): Option[A]
+  }
+
+  /**
+   * A magnet that wraps a ''DecodeRequest''.
+   */
+  trait DecodeMagnet[A] {
+    def apply(): DecodeRequest[A]
+  }
+
+  /**
+   * Creates a ''DecodeMagnet'' from ''DecodeRequest''.
+   */
+  implicit def magnetFromDecode[A](implicit d: DecodeRequest[A]): DecodeMagnet[A] =
+    new DecodeMagnet[A] {
+      def apply(): DecodeRequest[A] = d
+    }
+
+  /**
+   * Creates a ''DecodeMagnet'' from ''DecodeAnyRequest''.
+   */
+  implicit def magnetFromAnyDecode[A](implicit d: DecodeAnyRequest, tag: ClassTag[A]): DecodeMagnet[A] =
+    new DecodeMagnet[A] {
+      def apply(): DecodeRequest[A] = new DecodeRequest[A] {
+        def apply(req: String): Option[A] = d(req)(tag)
+      }
+    }
 }
