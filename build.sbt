@@ -25,7 +25,7 @@ lazy val compilerOptions = scalacOptions ++= Seq(
   case _ => Seq.empty
 })
 
-val baseSettings = Defaults.defaultSettings ++ Seq(
+val baseSettings = Seq(
   libraryDependencies ++= Seq(
     "com.twitter" %% "finagle-httpx" % "6.24.0",
     "org.scalatest" %% "scalatest" % "2.2.3" % "test"
@@ -67,29 +67,34 @@ lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
 lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Seq(
   site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "docs"),
   git.remoteRepo := s"git@github.com:finagle/finch.git",
-  unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(`finch-demo`)
+  unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(demo)
 )
 
-lazy val finch = project.in(file("."))
+lazy val root = project.in(file("."))
+  .settings(moduleName := "finch")
   .settings(allSettings: _*)
   .settings(docSettings: _*)
-  .aggregate(`finch-core`, `finch-json`, `finch-demo`, `finch-jawn`, `finch-argonaut`, `finch-jackson`)
+  .aggregate(core, json, demo, jawn, argonaut, jackson)
 
-lazy val `finch-core` = project.in(file("core"))
+lazy val core = project
+  .settings(moduleName := "finch-core")
   .settings(allSettings: _*)
   .disablePlugins(CoverallsPlugin)
 
-lazy val `finch-json` = project.in(file("json"))
+lazy val json = project
+  .settings(moduleName := "finch-json")
   .settings(allSettings: _*)
-  .dependsOn(`finch-core`)
+  .dependsOn(core)
   .disablePlugins(CoverallsPlugin)
 
-lazy val `finch-demo` = project.in(file("demo"))
+lazy val demo = project
+  .settings(moduleName := "finch-demo")
   .settings(allSettings: _*)
-  .dependsOn(`finch-core`, `finch-json`)
+  .dependsOn(core, json)
   .disablePlugins(CoverallsPlugin)
 
-lazy val `finch-jawn` = project.in(file("jawn"))
+lazy val jawn = project
+  .settings(moduleName := "finch-jawn")
   .settings(allSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
@@ -97,17 +102,19 @@ lazy val `finch-jawn` = project.in(file("jawn"))
       "org.spire-math" %% "jawn-ast" % "0.7.2"
     )
   )
-  .dependsOn(`finch-core`)
+  .dependsOn(core)
   .disablePlugins(CoverallsPlugin)
 
-lazy val `finch-argonaut` = project.in(file("argonaut"))
+lazy val argonaut = project
+  .settings(moduleName := "finch-argonaut")
   .settings(allSettings: _*)
   .settings(libraryDependencies += "io.argonaut" %% "argonaut" % "6.0.4")
-  .dependsOn(`finch-core`)
+  .dependsOn(core)
   .disablePlugins(CoverallsPlugin)
 
-lazy val `finch-jackson` = project.in(file("jackson"))
+lazy val jackson = project
+  .settings(moduleName := "finch-jackson")
   .settings(allSettings: _*)
   .settings(libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.4.4")
-  .dependsOn(`finch-core`)
+  .dependsOn(core)
   .disablePlugins(CoverallsPlugin)
