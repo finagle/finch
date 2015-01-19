@@ -37,7 +37,6 @@ val baseSettings = Defaults.defaultSettings ++ Seq(
 lazy val publishSettings = Seq(
   publishMavenStyle := true,
   publishArtifact := true,
-  useGpg := true,
   publishTo := {
     val nexus = "https://oss.sonatype.org/"
     if (isSnapshot.value)
