@@ -12,4 +12,4 @@ libraryDependencies ++= Seq(
 
 Documentation
 -------------
-See section [Finch JSON](/docs.md#jackson) in the [docs.md](/docs.md) file.
+See section [Jackson](/docs.md#jackson) in the [docs.md](/docs.md) file.
