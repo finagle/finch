@@ -1,0 +1,1120 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>response - io.finch.response</title>
+          <meta name="description" content="response - io.finch.response" />
+          <meta name="keywords" content="response io.finch.response" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../index.html';
+            var hash = 'io.finch.response.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../lib/package_big.png" />
+        <p id="owner"><a href="../../package.html" class="extype" name="io">io</a>.<a href="../package.html" class="extype" name="io.finch">finch</a></p>
+        <h1>response</h1><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">response</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="io.finch.response"><span>response</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="io.finch.response.EncodeAnyResponse" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="EncodeAnyResponseextendsAnyRef"></a>
+      <a id="EncodeAnyResponse:EncodeAnyResponse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$EncodeAnyResponse.html"><span class="name">EncodeAnyResponse</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@EncodeAnyResponseextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An abstraction that is responsible for encoding the response of a generic type.</p>
+    </li><li name="io.finch.response.EncodeResponse" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="EncodeResponse[-A]extendsAnyRef"></a>
+      <a id="EncodeResponse[-A]:EncodeResponse[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$EncodeResponse.html"><span class="name">EncodeResponse</span></a><span class="tparams">[<span name="A">-A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@EncodeResponse[-A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An abstraction that is responsible for encoding the response of type <i>A</i>.</p>
+    </li><li name="io.finch.response.ResponseBuilder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ResponseBuilderextendsProductwithSerializable"></a>
+      <a id="ResponseBuilder:ResponseBuilder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$ResponseBuilder.html"><span class="name">ResponseBuilder</span></a><span class="params">(<span name="status">status: <span class="extype" name="com.twitter.finagle.httpx.Status">Status</span></span>, <span name="headers">headers: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Map.empty</span></span>, <span name="cookies">cookies: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="com.twitter.finagle.httpx.Cookie">Cookie</span>] = <span class="symbol">Seq.empty</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@ResponseBuilderextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A companion factory object for <i>HttpResponse</i>.</p><div class="fullcomment"><div class="comment cmt"><p>A companion factory object for <i>HttpResponse</i>.
+</p></div><dl class="paramcmts block"><dt class="param">status</dt><dd class="cmt"><p>the http response status</p></dd><dt class="param">headers</dt><dd class="cmt"><p>the HTTP headers map
+</p></dd></dl></div>
+    </li><li name="io.finch.response.TurnIntoHttp" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TurnIntoHttp[A]extendsService[A,io.finch.HttpResponse]"></a>
+      <a id="TurnIntoHttp[A]:TurnIntoHttp[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$TurnIntoHttp.html"><span class="name">TurnIntoHttp</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="com.twitter.finagle.Service">Service</span>[<span class="extype" name="io.finch.response.TurnIntoHttp.A">A</span>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@TurnIntoHttp[A]extendsService[A,io.finch.HttpResponse]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="io.finch.response.Accepted" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Accepted"></a>
+      <a id="Accepted:Accepted"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Accepted$.html"><span class="name">Accepted</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@Accepted" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.BadGateway" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BadGateway"></a>
+      <a id="BadGateway:BadGateway"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$BadGateway$.html"><span class="name">BadGateway</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@BadGateway" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.BadRequest" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BadRequest"></a>
+      <a id="BadRequest:BadRequest"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$BadRequest$.html"><span class="name">BadRequest</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@BadRequest" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.Conflict" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Conflict"></a>
+      <a id="Conflict:Conflict"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Conflict$.html"><span class="name">Conflict</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@Conflict" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.Continue" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Continue"></a>
+      <a id="Continue:Continue"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Continue$.html"><span class="name">Continue</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@Continue" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.Created" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Created"></a>
+      <a id="Created:Created"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Created$.html"><span class="name">Created</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@Created" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.ExpectationFailed" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ExpectationFailed"></a>
+      <a id="ExpectationFailed:ExpectationFailed"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$ExpectationFailed$.html"><span class="name">ExpectationFailed</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@ExpectationFailed" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.FailedDependency" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="FailedDependency"></a>
+      <a id="FailedDependency:FailedDependency"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$FailedDependency$.html"><span class="name">FailedDependency</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@FailedDependency" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.Forbidden" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Forbidden"></a>
+      <a id="Forbidden:Forbidden"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Forbidden$.html"><span class="name">Forbidden</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@Forbidden" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.Found" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Found"></a>
+      <a id="Found:Found"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Found$.html"><span class="name">Found</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@Found" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.GatewayTimeout" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GatewayTimeout"></a>
+      <a id="GatewayTimeout:GatewayTimeout"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$GatewayTimeout$.html"><span class="name">GatewayTimeout</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@GatewayTimeout" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.Gone" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Gone"></a>
+      <a id="Gone:Gone"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Gone$.html"><span class="name">Gone</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@Gone" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.HttpVersionNotSupported" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HttpVersionNotSupported"></a>
+      <a id="HttpVersionNotSupported:HttpVersionNotSupported"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$HttpVersionNotSupported$.html"><span class="name">HttpVersionNotSupported</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@HttpVersionNotSupported" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.InsufficientStorage" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="InsufficientStorage"></a>
+      <a id="InsufficientStorage:InsufficientStorage"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$InsufficientStorage$.html"><span class="name">InsufficientStorage</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@InsufficientStorage" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.InternalServerError" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="InternalServerError"></a>
+      <a id="InternalServerError:InternalServerError"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$InternalServerError$.html"><span class="name">InternalServerError</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@InternalServerError" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.LengthRequired" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LengthRequired"></a>
+      <a id="LengthRequired:LengthRequired"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$LengthRequired$.html"><span class="name">LengthRequired</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@LengthRequired" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.Locked" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Locked"></a>
+      <a id="Locked:Locked"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Locked$.html"><span class="name">Locked</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@Locked" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.MethodNotAllowed" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MethodNotAllowed"></a>
+      <a id="MethodNotAllowed:MethodNotAllowed"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$MethodNotAllowed$.html"><span class="name">MethodNotAllowed</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@MethodNotAllowed" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.MovedPermanently" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MovedPermanently"></a>
+      <a id="MovedPermanently:MovedPermanently"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$MovedPermanently$.html"><span class="name">MovedPermanently</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@MovedPermanently" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.MultiStatus" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MultiStatus"></a>
+      <a id="MultiStatus:MultiStatus"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$MultiStatus$.html"><span class="name">MultiStatus</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@MultiStatus" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.MultipleChoices" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MultipleChoices"></a>
+      <a id="MultipleChoices:MultipleChoices"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$MultipleChoices$.html"><span class="name">MultipleChoices</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@MultipleChoices" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.NoContent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NoContent"></a>
+      <a id="NoContent:NoContent"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$NoContent$.html"><span class="name">NoContent</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@NoContent" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.NonAuthoritativeInformation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NonAuthoritativeInformation"></a>
+      <a id="NonAuthoritativeInformation:NonAuthoritativeInformation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$NonAuthoritativeInformation$.html"><span class="name">NonAuthoritativeInformation</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@NonAuthoritativeInformation" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.NotAcceptable" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NotAcceptable"></a>
+      <a id="NotAcceptable:NotAcceptable"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$NotAcceptable$.html"><span class="name">NotAcceptable</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@NotAcceptable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.NotExtended" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NotExtended"></a>
+      <a id="NotExtended:NotExtended"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$NotExtended$.html"><span class="name">NotExtended</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@NotExtended" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.NotFound" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NotFound"></a>
+      <a id="NotFound:NotFound"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$NotFound$.html"><span class="name">NotFound</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@NotFound" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.NotImplemented" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NotImplemented"></a>
+      <a id="NotImplemented:NotImplemented"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$NotImplemented$.html"><span class="name">NotImplemented</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@NotImplemented" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.NotModified" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NotModified"></a>
+      <a id="NotModified:NotModified"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$NotModified$.html"><span class="name">NotModified</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@NotModified" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.Ok" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Ok"></a>
+      <a id="Ok:Ok"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Ok$.html"><span class="name">Ok</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@Ok" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.PartialContent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PartialContent"></a>
+      <a id="PartialContent:PartialContent"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$PartialContent$.html"><span class="name">PartialContent</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@PartialContent" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.PaymentRequired" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PaymentRequired"></a>
+      <a id="PaymentRequired:PaymentRequired"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$PaymentRequired$.html"><span class="name">PaymentRequired</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@PaymentRequired" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.PreconditionFailed" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PreconditionFailed"></a>
+      <a id="PreconditionFailed:PreconditionFailed"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$PreconditionFailed$.html"><span class="name">PreconditionFailed</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@PreconditionFailed" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.PreconditionRequired" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PreconditionRequired"></a>
+      <a id="PreconditionRequired:PreconditionRequired"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$PreconditionRequired$.html"><span class="name">PreconditionRequired</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@PreconditionRequired" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.Processing" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Processing"></a>
+      <a id="Processing:Processing"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Processing$.html"><span class="name">Processing</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@Processing" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.ProxyAuthenticationRequired" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ProxyAuthenticationRequired"></a>
+      <a id="ProxyAuthenticationRequired:ProxyAuthenticationRequired"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$ProxyAuthenticationRequired$.html"><span class="name">ProxyAuthenticationRequired</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@ProxyAuthenticationRequired" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.Redirect" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Redirect"></a>
+      <a id="Redirect:Redirect"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Redirect$.html"><span class="name">Redirect</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@Redirect" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A factory for Redirecting to other URLs.</p>
+    </li><li name="io.finch.response.RequestEntityTooLarge" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RequestEntityTooLarge"></a>
+      <a id="RequestEntityTooLarge:RequestEntityTooLarge"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RequestEntityTooLarge$.html"><span class="name">RequestEntityTooLarge</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@RequestEntityTooLarge" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.RequestTimeOut" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RequestTimeOut"></a>
+      <a id="RequestTimeOut:RequestTimeOut"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RequestTimeOut$.html"><span class="name">RequestTimeOut</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@RequestTimeOut" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.RequestUriTooLong" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RequestUriTooLong"></a>
+      <a id="RequestUriTooLong:RequestUriTooLong"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RequestUriTooLong$.html"><span class="name">RequestUriTooLong</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@RequestUriTooLong" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.RequestedRangeNotSatisfiable" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RequestedRangeNotSatisfiable"></a>
+      <a id="RequestedRangeNotSatisfiable:RequestedRangeNotSatisfiable"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RequestedRangeNotSatisfiable$.html"><span class="name">RequestedRangeNotSatisfiable</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@RequestedRangeNotSatisfiable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.ResetContent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ResetContent"></a>
+      <a id="ResetContent:ResetContent"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$ResetContent$.html"><span class="name">ResetContent</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@ResetContent" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.SeeOther" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SeeOther"></a>
+      <a id="SeeOther:SeeOther"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$SeeOther$.html"><span class="name">SeeOther</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@SeeOther" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.ServiceUnavailable" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ServiceUnavailable"></a>
+      <a id="ServiceUnavailable:ServiceUnavailable"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$ServiceUnavailable$.html"><span class="name">ServiceUnavailable</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@ServiceUnavailable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.TemporaryRedirect" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TemporaryRedirect"></a>
+      <a id="TemporaryRedirect:TemporaryRedirect"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$TemporaryRedirect$.html"><span class="name">TemporaryRedirect</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@TemporaryRedirect" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.TooManyRequests" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TooManyRequests"></a>
+      <a id="TooManyRequests:TooManyRequests"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$TooManyRequests$.html"><span class="name">TooManyRequests</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@TooManyRequests" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.TurnIntoHttp" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TurnIntoHttp"></a>
+      <a id="TurnIntoHttp:TurnIntoHttp"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$TurnIntoHttp$.html"><span class="name">TurnIntoHttp</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@TurnIntoHttp" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A service that converts an encoded object into HTTP response with status <i>OK</i>
+given an implicit encoder.</p>
+    </li><li name="io.finch.response.Unauthorized" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Unauthorized"></a>
+      <a id="Unauthorized:Unauthorized"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Unauthorized$.html"><span class="name">Unauthorized</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@Unauthorized" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.UnorderedCollection" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UnorderedCollection"></a>
+      <a id="UnorderedCollection:UnorderedCollection"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$UnorderedCollection$.html"><span class="name">UnorderedCollection</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@UnorderedCollection" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.UnprocessableEntity" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UnprocessableEntity"></a>
+      <a id="UnprocessableEntity:UnprocessableEntity"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$UnprocessableEntity$.html"><span class="name">UnprocessableEntity</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@UnprocessableEntity" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.UnsupportedMediaType" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UnsupportedMediaType"></a>
+      <a id="UnsupportedMediaType:UnsupportedMediaType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$UnsupportedMediaType$.html"><span class="name">UnsupportedMediaType</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@UnsupportedMediaType" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.UpgradeRequired" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UpgradeRequired"></a>
+      <a id="UpgradeRequired:UpgradeRequired"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$UpgradeRequired$.html"><span class="name">UpgradeRequired</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@UpgradeRequired" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.UseProxy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UseProxy"></a>
+      <a id="UseProxy:UseProxy"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$UseProxy$.html"><span class="name">UseProxy</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@UseProxy" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response.VariantAlsoNegotiates" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="VariantAlsoNegotiates"></a>
+      <a id="VariantAlsoNegotiates:VariantAlsoNegotiates"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$VariantAlsoNegotiates$.html"><span class="name">VariantAlsoNegotiates</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@VariantAlsoNegotiates" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.response#anyToConcreteEncode" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="anyToConcreteEncode[A](implicite:io.finch.response.package.EncodeAnyResponse):io.finch.response.package.EncodeResponse[A]"></a>
+      <a id="anyToConcreteEncode[A](EncodeAnyResponse):EncodeResponse[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">anyToConcreteEncode</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="e">e: <a href="package$$EncodeAnyResponse.html" class="extype" name="io.finch.response.EncodeAnyResponse">EncodeAnyResponse</a></span>)</span><span class="result">: <a href="package$$EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>[<span class="extype" name="io.finch.response.anyToConcreteEncode.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@anyToConcreteEncode[A](implicite:io.finch.response.package.EncodeAnyResponse):io.finch.response.package.EncodeResponse[A]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Converts <i>EncodeAnyResponse</i> into <i>EncodeResponse</i>.</p>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
