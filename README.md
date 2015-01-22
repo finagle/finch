@@ -89,5 +89,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ----
-[![Build Status](https://secure.travis-ci.org/finagle/finch.png)](http://travis-ci.org/finagle/finch)
-[![Coverage Status](https://coveralls.io/repos/finagle/finch/badge.png)](https://coveralls.io/r/finagle/finch)
+[![Build Status](https://travis-ci.org/finagle/finch.svg?branch=master)](https://travis-ci.org/finagle/finch)
+[![Coverage Status](https://coveralls.io/repos/finagle/finch/badge.svg?branch=master)](https://coveralls.io/r/finagle/finch?branch=master)
