@@ -21,12 +21,13 @@
  * Ben Whitehead
  * Ryan Plessner
  * Pedro Viegas
+ * Jens Halm
  */
 
 package io.finch
 
 import com.twitter.finagle.httpx.Cookie
-import com.twitter.util.Future
+import com.twitter.util.{Future,Return,Throw,Try}
 
 import scala.reflect.ClassTag
 
@@ -54,6 +55,27 @@ package object request {
     def map[B](fn: A => B) = new RequestReader[B] {
       def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = self(req) map fn
     }
+    
+    def ~ [B](other: RequestReader[B]): RequestReader[A ~ B] = new RequestReader[A ~ B] {
+      
+      def apply[Req] (req: Req)(implicit ev: Req => HttpRequest): Future[A ~ B] = 
+        Future.join(self(req)(ev).liftToTry, other(req)(ev).liftToTry) flatMap {
+          case (Return(a), Return(b)) => new ~(a, b).toFuture
+          case (Throw(a), Throw(b)) => collectExceptions(a,b).toFutureException
+          case (Throw(e), _) => e.toFutureException
+          case (_, Throw(e)) => e.toFutureException
+        } 
+      
+      def collectExceptions (a: Throwable, b: Throwable): RequestReaderErrors = {
+        
+        def collect (e: Throwable): Seq[Throwable] = e match {
+          case RequestReaderErrors(errors) => errors
+          case other => Seq(other)
+        }
+        
+        RequestReaderErrors(collect(a) ++ collect(b))
+      }
+    }
 
     // A workaround for https://issues.scala-lang.org/browse/SI-1336
     def withFilter(p: A => Boolean) = self
@@ -66,6 +88,14 @@ package object request {
    */
   class RequestReaderError(val message: String) extends Exception(message)
 
+  /**
+   * An exception that collects multiple request reader errors.
+   * 
+   * @param errors the errors collected from various request readers
+   */
+  case class RequestReaderErrors(errors: Seq[Throwable]) 
+    extends RequestReaderError("One or more errors reading request: " + errors.map(_.getMessage).mkString("\n  ","\n  ",""))
+  
   /**
    * An exception that indicates missed parameter in the request.
    *
@@ -869,4 +899,11 @@ package object request {
         def apply(req: String): Option[A] = d(req)(tag)
       }
     }
+  
+  
+  /** A wrapper for two result values.
+   */
+  case class ~[+A, +B](_1:A, _2:B)
+
+  
 }
