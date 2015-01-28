@@ -1,9 +1,9 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <title>RequestReaderError - io.finch.request.RequestReaderError</title>
-          <meta name="description" content="RequestReaderError - io.finch.request.RequestReaderError" />
-          <meta name="keywords" content="RequestReaderError io.finch.request.RequestReaderError" />
+          <title>RequestReaderErrors - io.finch.request.RequestReaderErrors</title>
+          <meta name="description" content="RequestReaderErrors - io.finch.request.RequestReaderErrors" />
+          <meta name="keywords" content="RequestReaderErrors io.finch.request.RequestReaderErrors" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -16,7 +16,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../../../index.html';
-            var hash = 'io.finch.request.package$$RequestReaderError';
+            var hash = 'io.finch.request.package$$RequestReaderErrors';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -30,10 +30,10 @@
       <div id="definition">
         <img src="../../../lib/class_big.png" />
         <p id="owner"><a href="../../package.html" class="extype" name="io">io</a>.<a href="../package.html" class="extype" name="io.finch">finch</a>.<a href="package.html" class="extype" name="io.finch.request">request</a></p>
-        <h1>RequestReaderError</h1><h3><span class="morelinks"><div>Related Doc:
+        <h1>RequestReaderErrors</h1><h3><span class="morelinks"><div>Related Doc:
             <a href="package.html" class="extype" name="io.finch.request">package request</a>
           </div></span></h3><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -42,21 +42,19 @@
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">class</span>
+        <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">RequestReaderError</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span></span>
+        <span class="name">RequestReaderErrors</span><span class="params">(<span name="errors">errors: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Throwable">Throwable</span>]</span>)</span><span class="result"> extends <a href="package$$RequestReaderError.html" class="extype" name="io.finch.request.RequestReaderError">RequestReaderError</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A base exception of request reader.
-</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>An exception that collects multiple request reader errors.
+</p></div><dl class="paramcmts block"><dt class="param">errors</dt><dd class="cmt"><p>the errors collected from various request readers
+</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="java.lang.Exception">Exception</span>, <span class="extype" name="java.lang.Throwable">Throwable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
-        </div><div class="toggleContainer block">
-            <span class="toggle">Known Subclasses</span>
-            <div class="subClasses hiddenContent"><a href="package$$BodyNotFound$.html" class="extype" name="io.finch.request.BodyNotFound">BodyNotFound</a>, <a href="package$$BodyNotParsed$.html" class="extype" name="io.finch.request.BodyNotParsed">BodyNotParsed</a>, <a href="package$$CookieNotFound.html" class="extype" name="io.finch.request.CookieNotFound">CookieNotFound</a>, <a href="package$$HeaderNotFound.html" class="extype" name="io.finch.request.HeaderNotFound">HeaderNotFound</a>, <a href="package$$ParamNotFound.html" class="extype" name="io.finch.request.ParamNotFound">ParamNotFound</a>, <a href="package$$RequestReaderErrors.html" class="extype" name="io.finch.request.RequestReaderErrors">RequestReaderErrors</a>, <a href="package$$ValidationFailed.html" class="extype" name="io.finch.request.ValidationFailed">ValidationFailed</a></div>
-          </div></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="package$$RequestReaderError.html" class="extype" name="io.finch.request.RequestReaderError">RequestReaderError</a>, <span class="extype" name="java.lang.Exception">Exception</span>, <span class="extype" name="java.lang.Throwable">Throwable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
         
 
       <div id="mbrsel">
@@ -73,7 +71,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="io.finch.request.RequestReaderError"><span>RequestReaderError</span></li><li class="in" name="java.lang.Exception"><span>Exception</span></li><li class="in" name="java.lang.Throwable"><span>Throwable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="io.finch.request.RequestReaderErrors"><span>RequestReaderErrors</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="io.finch.request.RequestReaderError"><span>RequestReaderError</span></li><li class="in" name="java.lang.Exception"><span>Exception</span></li><li class="in" name="java.lang.Throwable"><span>Throwable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -93,23 +91,23 @@
         <div id="allMembers">
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
-              <ol><li name="io.finch.request.RequestReaderError#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(message:String):io.finch.request.package.RequestReaderError"></a>
-      <a id="&lt;init&gt;:RequestReaderError"></a>
+              <ol><li name="io.finch.request.RequestReaderErrors#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;init&gt;(errors:Seq[Throwable]):io.finch.request.package.RequestReaderErrors"></a>
+      <a id="&lt;init&gt;:RequestReaderErrors"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">RequestReaderError</span><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span>
+        <span class="name">RequestReaderErrors</span><span class="params">(<span name="errors">errors: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Throwable">Throwable</span>]</span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@&lt;init&gt;(message:String):io.finch.request.package.RequestReaderError" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@&lt;init&gt;(errors:Seq[Throwable]):io.finch.request.package.RequestReaderErrors" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">message</dt><dd class="cmt"><p>the message
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">errors</dt><dd class="cmt"><p>the errors collected from various request readers
 </p></dd></dl></div>
     </li></ol>
             </div>
@@ -132,7 +130,7 @@
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@!=(x$1:Any):Boolean" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -149,7 +147,7 @@
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@##():Int" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@##():Int" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -166,7 +164,7 @@
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@==(x$1:Any):Boolean" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@==(x$1:Any):Boolean" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -183,7 +181,7 @@
         <span class="name">addSuppressed</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="java.lang.Throwable">Throwable</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@addSuppressed(x$1:Throwable):Unit" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@addSuppressed(x$1:Throwable):Unit" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -200,7 +198,7 @@
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@asInstanceOf[T0]:T0" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -217,7 +215,7 @@
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@clone():Object" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@clone():Object" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -240,28 +238,29 @@
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="equals(x$1:Any):Boolean"></a>
-      <a id="equals(Any):Boolean"></a>
+    </li><li name="io.finch.request.RequestReaderErrors#errors" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="errors:Seq[Throwable]"></a>
+      <a id="errors:Seq[Throwable]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">def</span>
+        <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">errors</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Throwable">Throwable</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@errors:Seq[Throwable]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      <p class="shortcomment cmt">the errors collected from various request readers
+</p>
     </li><li name="java.lang.Throwable#fillInStackTrace" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fillInStackTrace():Throwable"></a>
       <a id="fillInStackTrace():Throwable"></a>
@@ -274,7 +273,7 @@
         <span class="name">fillInStackTrace</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Throwable">Throwable</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@fillInStackTrace():Throwable" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@fillInStackTrace():Throwable" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -291,7 +290,7 @@
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@finalize():Unit" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@finalize():Unit" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -314,7 +313,7 @@
         <span class="name">getCause</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Throwable">Throwable</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@getCause():Throwable" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@getCause():Throwable" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -331,7 +330,7 @@
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@getClass():Class[_]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@getClass():Class[_]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -348,7 +347,7 @@
         <span class="name">getLocalizedMessage</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@getLocalizedMessage():String" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@getLocalizedMessage():String" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -365,7 +364,7 @@
         <span class="name">getMessage</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@getMessage():String" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@getMessage():String" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -382,7 +381,7 @@
         <span class="name">getStackTrace</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="java.lang.StackTraceElement">StackTraceElement</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@getStackTrace():Array[StackTraceElement]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@getStackTrace():Array[StackTraceElement]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -399,28 +398,11 @@
         <span class="name">getSuppressed</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="java.lang.Throwable">Throwable</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@getSuppressed():Array[Throwable]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@getSuppressed():Array[Throwable]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Throwable</dd></dl></div>
-    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hashCode():Int"></a>
-      <a id="hashCode():Int"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@hashCode():Int" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="java.lang.Throwable#initCause" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="initCause(x$1:Throwable):Throwable"></a>
       <a id="initCause(Throwable):Throwable"></a>
@@ -433,7 +415,7 @@
         <span class="name">initCause</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="java.lang.Throwable">Throwable</span></span>)</span><span class="result">: <span class="extype" name="java.lang.Throwable">Throwable</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@initCause(x$1:Throwable):Throwable" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@initCause(x$1:Throwable):Throwable" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -450,12 +432,12 @@
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.finch.request.RequestReaderError#message" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.finch.request.RequestReaderError#message" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="message:String"></a>
       <a id="message:String"></a>
       <h4 class="signature">
@@ -467,12 +449,13 @@
         <span class="name">message</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@message:String" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@message:String" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
       <p class="shortcomment cmt">the message
-</p>
+</p><div class="fullcomment"><div class="comment cmt"><p>the message
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="package$$RequestReaderError.html" class="extype" name="io.finch.request.RequestReaderError">RequestReaderError</a></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -485,7 +468,7 @@
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -502,7 +485,7 @@
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@notify():Unit" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@notify():Unit" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -519,7 +502,7 @@
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@notifyAll():Unit" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@notifyAll():Unit" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -536,7 +519,7 @@
         <span class="name">printStackTrace</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="java.io.PrintWriter">PrintWriter</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@printStackTrace(x$1:java.io.PrintWriter):Unit" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@printStackTrace(x$1:java.io.PrintWriter):Unit" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -553,7 +536,7 @@
         <span class="name">printStackTrace</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="java.io.PrintStream">PrintStream</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@printStackTrace(x$1:java.io.PrintStream):Unit" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@printStackTrace(x$1:java.io.PrintStream):Unit" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -570,7 +553,7 @@
         <span class="name">printStackTrace</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@printStackTrace():Unit" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@printStackTrace():Unit" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -587,7 +570,7 @@
         <span class="name">setStackTrace</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="java.lang.StackTraceElement">StackTraceElement</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@setStackTrace(x$1:Array[StackTraceElement]):Unit" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@setStackTrace(x$1:Array[StackTraceElement]):Unit" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -604,7 +587,7 @@
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -621,7 +604,7 @@
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@toString():String" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@toString():String" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -638,7 +621,7 @@
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@wait():Unit" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@wait():Unit" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -661,7 +644,7 @@
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -684,7 +667,7 @@
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequestReaderError@wait(x$1:Long):Unit" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequestReaderErrors@wait(x$1:Long):Unit" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -704,7 +687,15 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="java.lang.Exception">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="io.finch.request.RequestReaderError">
+              <h3>Inherited from <a href="package$$RequestReaderError.html" class="extype" name="io.finch.request.RequestReaderError">RequestReaderError</a></h3>
+            </div><div class="parent" name="java.lang.Exception">
               <h3>Inherited from <span class="extype" name="java.lang.Exception">Exception</span></h3>
             </div><div class="parent" name="java.lang.Throwable">
               <h3>Inherited from <span class="extype" name="java.lang.Throwable">Throwable</span></h3>

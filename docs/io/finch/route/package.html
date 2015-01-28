@@ -1,0 +1,641 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>route - io.finch.route</title>
+          <meta name="description" content="route - io.finch.route" />
+          <meta name="keywords" content="route io.finch.route" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../index.html';
+            var hash = 'io.finch.route.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../lib/package_big.png" />
+        <p id="owner"><a href="../../package.html" class="extype" name="io">io</a>.<a href="../package.html" class="extype" name="io.finch">finch</a></p>
+        <h1>route</h1><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">route</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>This package contains various of functions and types that enable _router
+combinators_ in Finch. A Finch <a href="#Router[+A]=io.finch.route.package.RouterN[A]" class="extmbr" name="io.finch.route.Router">route.Router</a> is an abstraction that
+is responsible for routing the HTTP requests using their method and path
+information. There are two types of routers in Finch: <a href="package$$Router0.html" class="extype" name="io.finch.route.Router0">route.Router0</a>
+and <a href="package$$RouterN.html" class="extype" name="io.finch.route.RouterN">route.RouterN</a>. <code>Router0</code> matches the route and returns an <code>Option</code>
+of the rest of the route. <code>RouterN[A]</code> (or just <code>Router[A]</code>) in addition
+to the <code>Router0</code> behaviour extracts a value of type <code>A</code> from the route.</p><p>A <a href="#Router[+A]=io.finch.route.package.RouterN[A]" class="extmbr" name="io.finch.route.Router">route.Router</a> that extracts <span class="extype" name="Service">Service</span> is called an endpoint. An
+endpoint <code>Req =&gt; Rep</code> might be implicitly converted into <code>Service[Req, Rep]</code>.
+Thus, the following example is a valid Finch code:</p><pre><span class="kw">def</span> hello(s: <span class="std">String</span>) = <span class="kw">new</span> Service[HttRequest, HttpResponse] {
+  <span class="kw">def</span> apply(req: HttpRequest) = Ok(s<span class="lit">"Hello $name!"</span>).toFuture
+}
+
+Httpx.serve(
+  <span class="kw">new</span> InetSocketAddress(<span class="num">8081</span>),
+  Get / string /&gt; hello <span class="cmt">// will be implicitly converted into service</span>
+)</pre></div><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="io.finch.route"><span>route</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="io.finch.route./" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="/[+A,+B]extendsProductwithSerializable"></a>
+      <a id="/[+A,+B]:/[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$$div.html"><span title="gt4s: $div" class="name">/</span></a><span class="tparams">[<span name="A">+A</span>, <span name="B">+B</span>]</span><span class="params">(<span name="_1">_1: <span class="extype" name="io.finch.route./.A">A</span></span>, <span name="_2">_2: <span class="extype" name="io.finch.route./.B">B</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@/[+A,+B]extendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A case class that enables the following syntax:</p><div class="fullcomment"><div class="comment cmt"><p>A case class that enables the following syntax:</p><pre><span class="kw">val</span> r: Router[<span class="std">Int</span> / <span class="std">String</span>] = Get / int / string
+<span class="kw">val</span> s: <span class="std">String</span> = p /&gt; { <span class="kw">case</span> i / s <span class="kw">=&gt;</span> s + i }</pre></div></div>
+    </li><li name="io.finch.route.Extractor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Extractor[A]extendspackage.RouterN[A]withProductwithSerializable"></a>
+      <a id="Extractor[A]:Extractor[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Extractor.html"><span class="name">Extractor</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="f">f: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="io.finch.route.Extractor.A">A</span>]</span>)</span><span class="result"> extends <a href="package$$RouterN.html" class="extype" name="io.finch.route.RouterN">RouterN</a>[<span class="extype" name="io.finch.route.Extractor.A">A</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@Extractor[A]extendspackage.RouterN[A]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An universal extractor that extracts some value of type <code>A</code> if
+it's possible to fetch the value from the string.</p>
+    </li><li name="io.finch.route.Matcher" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Matcherextendspackage.Router0withProductwithSerializable"></a>
+      <a id="Matcher:Matcher"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Matcher.html"><span class="name">Matcher</span></a><span class="params">(<span name="s">s: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="package$$Router0.html" class="extype" name="io.finch.route.Router0">Router0</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@Matcherextendspackage.Router0withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An universal matcher.</p>
+    </li><li name="io.finch.route.MethodMatcher" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MethodMatcherextendspackage.Router0withProductwithSerializable"></a>
+      <a id="MethodMatcher:MethodMatcher"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$MethodMatcher.html"><span class="name">MethodMatcher</span></a><span class="params">(<span name="m">m: <span class="extype" name="com.twitter.finagle.httpx.Method">Method</span></span>)</span><span class="result"> extends <a href="package$$Router0.html" class="extype" name="io.finch.route.Router0">Router0</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@MethodMatcherextendspackage.Router0withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A router that matches the given HTTP method <code>m</code> in the route.</p>
+    </li><li name="io.finch.route.RouteNotFound" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RouteNotFoundextendsExceptionwithProductwithSerializable"></a>
+      <a id="RouteNotFound:RouteNotFound"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RouteNotFound.html"><span class="name">RouteNotFound</span></a><span class="params">(<span name="r">r: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@RouteNotFoundextendsExceptionwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An exception, which is thrown by router in case of missing route <code>r</code>.</p>
+    </li><li name="io.finch.route.Router" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Router[+A]=io.finch.route.package.RouterN[A]"></a>
+      <a id="Router[+A]:Router[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Router</span><span class="tparams">[<span name="A">+A</span>]</span><span class="result"> = <a href="package$$RouterN.html" class="extype" name="io.finch.route.RouterN">RouterN</a>[<span class="extype" name="io.finch.route.Router.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@Router[+A]=io.finch.route.package.RouterN[A]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A user friendly alias for <a href="package$$RouterN.html" class="extype" name="io.finch.route.RouterN">RouterN</a>.</p>
+    </li><li name="io.finch.route.Router0" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Router0extendsAnyRef"></a>
+      <a id="Router0:Router0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Router0.html"><span class="name">Router0</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@Router0extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A router that match the given route to some predicate.</p>
+    </li><li name="io.finch.route.RouterN" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="RouterN[+A]extendsAnyRef"></a>
+      <a id="RouterN[+A]:RouterN[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RouterN.html"><span class="name">RouterN</span></a><span class="tparams">[<span name="A">+A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@RouterN[+A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A router that extracts some value of the type <code>A</code> from the given route.</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="io.finch.route.$" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="$"></a>
+      <a id="$:$"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$$$.html"><span class="name">$</span></a><span class="result"> extends <a href="package$$Router0.html" class="extype" name="io.finch.route.Router0">Router0</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@$" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A <a href="package$$Router0.html" class="extype" name="io.finch.route.Router0">Router0</a> that matches the end of the route.</p>
+    </li><li name="io.finch.route.*" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="*"></a>
+      <a id="*:*"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$$times$.html"><span title="gt4s: $times" class="name">*</span></a><span class="result"> extends <a href="package$$Router0.html" class="extype" name="io.finch.route.Router0">Router0</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@*" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A <a href="package$$Router0.html" class="extype" name="io.finch.route.Router0">Router0</a> that skips one route token.</p>
+    </li><li name="io.finch.route.Connect" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Connect"></a>
+      <a id="Connect:Connect"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Connect$.html"><span class="name">Connect</span></a><span class="result"> extends <a href="package$$MethodMatcher.html" class="extype" name="io.finch.route.MethodMatcher">MethodMatcher</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@Connect" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.route.Delete" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Delete"></a>
+      <a id="Delete:Delete"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Delete$.html"><span class="name">Delete</span></a><span class="result"> extends <a href="package$$MethodMatcher.html" class="extype" name="io.finch.route.MethodMatcher">MethodMatcher</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@Delete" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.route.Get" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Get"></a>
+      <a id="Get:Get"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Get$.html"><span class="name">Get</span></a><span class="result"> extends <a href="package$$MethodMatcher.html" class="extype" name="io.finch.route.MethodMatcher">MethodMatcher</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@Get" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.route.Head" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Head"></a>
+      <a id="Head:Head"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Head$.html"><span class="name">Head</span></a><span class="result"> extends <a href="package$$MethodMatcher.html" class="extype" name="io.finch.route.MethodMatcher">MethodMatcher</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@Head" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.route.Options" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Options"></a>
+      <a id="Options:Options"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Options$.html"><span class="name">Options</span></a><span class="result"> extends <a href="package$$MethodMatcher.html" class="extype" name="io.finch.route.MethodMatcher">MethodMatcher</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@Options" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.route.Patch" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Patch"></a>
+      <a id="Patch:Patch"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Patch$.html"><span class="name">Patch</span></a><span class="result"> extends <a href="package$$MethodMatcher.html" class="extype" name="io.finch.route.MethodMatcher">MethodMatcher</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@Patch" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.route.PathTokenExtractor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PathTokenExtractor"></a>
+      <a id="PathTokenExtractor:PathTokenExtractor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$PathTokenExtractor$.html"><span class="name">PathTokenExtractor</span></a><span class="result"> extends <a href="package$$RouterN.html" class="extype" name="io.finch.route.RouterN">RouterN</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@PathTokenExtractor" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A <a href="package$$RouterN.html" class="extype" name="io.finch.route.RouterN">RouterN</a> that extracts a path token.</p>
+    </li><li name="io.finch.route.Post" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Post"></a>
+      <a id="Post:Post"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Post$.html"><span class="name">Post</span></a><span class="result"> extends <a href="package$$MethodMatcher.html" class="extype" name="io.finch.route.MethodMatcher">MethodMatcher</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@Post" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.route.Put" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Put"></a>
+      <a id="Put:Put"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Put$.html"><span class="name">Put</span></a><span class="result"> extends <a href="package$$MethodMatcher.html" class="extype" name="io.finch.route.MethodMatcher">MethodMatcher</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@Put" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.route.Trace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Trace"></a>
+      <a id="Trace:Trace"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Trace$.html"><span class="name">Trace</span></a><span class="result"> extends <a href="package$$MethodMatcher.html" class="extype" name="io.finch.route.MethodMatcher">MethodMatcher</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@Trace" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.route.boolean" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="boolean"></a>
+      <a id="boolean:boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$boolean$.html"><span class="name">boolean</span></a><span class="result"> extends <a href="package$$Extractor.html" class="extype" name="io.finch.route.Extractor">Extractor</a>[<span class="extype" name="scala.Boolean">Boolean</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A router that extract a boolean value from the route.</p>
+    </li><li name="io.finch.route#booleanToMather" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="booleanToMather(b:Boolean):io.finch.route.package.Router0"></a>
+      <a id="booleanToMather(Boolean):Router0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">booleanToMather</span><span class="params">(<span name="b">b: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <a href="package$$Router0.html" class="extype" name="io.finch.route.Router0">Router0</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@booleanToMather(b:Boolean):io.finch.route.package.Router0" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.route.int" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="int"></a>
+      <a id="int:int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$int$.html"><span class="name">int</span></a><span class="result"> extends <a href="package$$Extractor.html" class="extype" name="io.finch.route.Extractor">Extractor</a>[<span class="extype" name="scala.Int">Int</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@int" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A router that extract an integer from the route.</p>
+    </li><li name="io.finch.route#intToMatcher" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="intToMatcher(i:Int):io.finch.route.package.Router0"></a>
+      <a id="intToMatcher(Int):Router0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">intToMatcher</span><span class="params">(<span name="i">i: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="package$$Router0.html" class="extype" name="io.finch.route.Router0">Router0</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@intToMatcher(i:Int):io.finch.route.package.Router0" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.route.long" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="long"></a>
+      <a id="long:long"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$long$.html"><span class="name">long</span></a><span class="result"> extends <a href="package$$Extractor.html" class="extype" name="io.finch.route.Extractor">Extractor</a>[<span class="extype" name="scala.Long">Long</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@long" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A router that extract a long value from the route.</p>
+    </li><li name="io.finch.route#routerOfFutureToService" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="routerOfFutureToService[Req,Rep](r:io.finch.route.package.RouterN[com.twitter.util.Future[Rep]])(implicitev:Req=&gt;io.finch.HttpRequest):com.twitter.finagle.Service[Req,Rep]"></a>
+      <a id="routerOfFutureToService[Req,Rep](RouterN[Future[Rep]])((Req)⇒HttpRequest):Service[Req,Rep]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">routerOfFutureToService</span><span class="tparams">[<span name="Req">Req</span>, <span name="Rep">Rep</span>]</span><span class="params">(<span name="r">r: <a href="package$$RouterN.html" class="extype" name="io.finch.route.RouterN">RouterN</a>[<span class="extype" name="com.twitter.util.Future">Future</span>[<span class="extype" name="io.finch.route.routerOfFutureToService.Rep">Rep</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: (<span class="extype" name="io.finch.route.routerOfFutureToService.Req">Req</span>) ⇒ <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a></span>)</span><span class="result">: <span class="extype" name="com.twitter.finagle.Service">Service</span>[<span class="extype" name="io.finch.route.routerOfFutureToService.Req">Req</span>, <span class="extype" name="io.finch.route.routerOfFutureToService.Rep">Rep</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@routerOfFutureToService[Req,Rep](r:io.finch.route.package.RouterN[com.twitter.util.Future[Rep]])(implicitev:Req=&gt;io.finch.HttpRequest):com.twitter.finagle.Service[Req,Rep]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicitly converts the given <code>Router[Future[_]]</code> into a service.</p>
+    </li><li name="io.finch.route#routerOfServiceToService" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="routerOfServiceToService[Req,Rep](r:io.finch.route.package.RouterN[com.twitter.finagle.Service[Req,Rep]])(implicitev:Req=&gt;io.finch.HttpRequest):com.twitter.finagle.Service[Req,Rep]"></a>
+      <a id="routerOfServiceToService[Req,Rep](RouterN[Service[Req,Rep]])((Req)⇒HttpRequest):Service[Req,Rep]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">routerOfServiceToService</span><span class="tparams">[<span name="Req">Req</span>, <span name="Rep">Rep</span>]</span><span class="params">(<span name="r">r: <a href="package$$RouterN.html" class="extype" name="io.finch.route.RouterN">RouterN</a>[<span class="extype" name="com.twitter.finagle.Service">Service</span>[<span class="extype" name="io.finch.route.routerOfServiceToService.Req">Req</span>, <span class="extype" name="io.finch.route.routerOfServiceToService.Rep">Rep</span>]]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: (<span class="extype" name="io.finch.route.routerOfServiceToService.Req">Req</span>) ⇒ <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a></span>)</span><span class="result">: <span class="extype" name="com.twitter.finagle.Service">Service</span>[<span class="extype" name="io.finch.route.routerOfServiceToService.Req">Req</span>, <span class="extype" name="io.finch.route.routerOfServiceToService.Rep">Rep</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@routerOfServiceToService[Req,Rep](r:io.finch.route.package.RouterN[com.twitter.finagle.Service[Req,Rep]])(implicitev:Req=&gt;io.finch.HttpRequest):com.twitter.finagle.Service[Req,Rep]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicitly converts the given <code>Router[Service[_, _]]</code> into a service.</p>
+    </li><li name="io.finch.route.string" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="string"></a>
+      <a id="string:string"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$string$.html"><span class="name">string</span></a><span class="result"> extends <a href="package$$Extractor.html" class="extype" name="io.finch.route.Extractor">Extractor</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@string" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A router that extract a string value from the route.</p>
+    </li><li name="io.finch.route#stringToMatcher" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="stringToMatcher(s:String):io.finch.route.package.Router0"></a>
+      <a id="stringToMatcher(String):Router0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">stringToMatcher</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="package$$Router0.html" class="extype" name="io.finch.route.Router0">Router0</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@stringToMatcher(s:String):io.finch.route.package.Router0" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

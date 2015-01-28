@@ -358,6 +358,39 @@ Httpx.serve(<span class="kw">new</span> InetSocketAddress(<span class="num">8081
       </a>
     </span>
       
+    </li><li name="io.finch.route" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="route"></a>
+      <a id="route:route"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="route/package.html"><span class="name">route</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@route" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This package contains various of functions and types that enable _router
+combinators_ in Finch.</p><div class="fullcomment"><div class="comment cmt"><p>This package contains various of functions and types that enable _router
+combinators_ in Finch. A Finch <a href="route/package.html#Router[+A]=io.finch.route.package.RouterN[A]" class="extmbr" name="io.finch.route.Router">route.Router</a> is an abstraction that
+is responsible for routing the HTTP requests using their method and path
+information. There are two types of routers in Finch: <a href="route/package$$Router0.html" class="extype" name="io.finch.route.Router0">route.Router0</a>
+and <a href="route/package$$RouterN.html" class="extype" name="io.finch.route.RouterN">route.RouterN</a>. <code>Router0</code> matches the route and returns an <code>Option</code>
+of the rest of the route. <code>RouterN[A]</code> (or just <code>Router[A]</code>) in addition
+to the <code>Router0</code> behaviour extracts a value of type <code>A</code> from the route.</p><p>A <a href="route/package.html#Router[+A]=io.finch.route.package.RouterN[A]" class="extmbr" name="io.finch.route.Router">route.Router</a> that extracts <span class="extype" name="Service">Service</span> is called an endpoint. An
+endpoint <code>Req =&gt; Rep</code> might be implicitly converted into <code>Service[Req, Rep]</code>.
+Thus, the following example is a valid Finch code:</p><pre><span class="kw">def</span> hello(s: <span class="std">String</span>) = <span class="kw">new</span> Service[HttRequest, HttpResponse] {
+  <span class="kw">def</span> apply(req: HttpRequest) = Ok(s<span class="lit">"Hello $name!"</span>).toFuture
+}
+
+Httpx.serve(
+  <span class="kw">new</span> InetSocketAddress(<span class="num">8081</span>),
+  Get / string /&gt; hello <span class="cmt">// will be implicitly converted into service</span>
+)</pre></div></div>
     </li></ol>
             </div>
 
