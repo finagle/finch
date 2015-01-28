@@ -29,15 +29,14 @@ import com.twitter.util.{Await,Throw}
 
 class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
 
-  
-  val reader: RequestReader[(Int, Double, Int)] = 
+  val reader: RequestReader[(Int, Double, Int)] =
     (RequiredIntParam("a") ~
      RequiredDoubleParam("b") ~
      RequiredIntParam("c")) map { 
        case a ~ b ~ c => (a, b, c)
      }
   
-  
+
   "The applicative reader" should "produce three errors if all three numbers cannot be parsed" in {
     val request = Request.apply("a"->"foo", "b"->"foo", "c"->"foo")
     Await.result(reader(request).liftToTry) should be (Throw(RequestReaderErrors(Seq(
@@ -72,6 +71,4 @@ class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
     val request = Request.apply("a"->"9", "b"->"7.7", "c"->"5")
     Await.result(reader(request)) should be ((9,7.7,5))
   }
-    
-  
 }

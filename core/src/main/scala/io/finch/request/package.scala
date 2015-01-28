@@ -56,23 +56,21 @@ package object request {
       def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = self(req) map fn
     }
     
-    def ~ [B](other: RequestReader[B]): RequestReader[A ~ B] = new RequestReader[A ~ B] {
-      
+    def ~[B](that: RequestReader[B]): RequestReader[A ~ B] = new RequestReader[A ~ B] {
       def apply[Req] (req: Req)(implicit ev: Req => HttpRequest): Future[A ~ B] = 
-        Future.join(self(req)(ev).liftToTry, other(req)(ev).liftToTry) flatMap {
+        Future.join(self(req)(ev).liftToTry, that(req)(ev).liftToTry) flatMap {
           case (Return(a), Return(b)) => new ~(a, b).toFuture
-          case (Throw(a), Throw(b)) => collectExceptions(a,b).toFutureException
+          case (Throw(a), Throw(b)) => collectExceptions(a, b).toFutureException
           case (Throw(e), _) => e.toFutureException
           case (_, Throw(e)) => e.toFutureException
         } 
       
       def collectExceptions (a: Throwable, b: Throwable): RequestReaderErrors = {
-        
         def collect (e: Throwable): Seq[Throwable] = e match {
           case RequestReaderErrors(errors) => errors
           case other => Seq(other)
         }
-        
+
         RequestReaderErrors(collect(a) ++ collect(b))
       }
     }
@@ -194,7 +192,6 @@ package object request {
       out
     }
   }
-
 
   /**
    * A required string param.
@@ -903,7 +900,5 @@ package object request {
   
   /** A wrapper for two result values.
    */
-  case class ~[+A, +B](_1:A, _2:B)
-
-  
+  case class ~[+A, +B](_1: A, _2: B)
 }
