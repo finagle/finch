@@ -3,7 +3,8 @@
 </p>
 
 Finch is a thin layer of purely functional basic blocks atop of [Finagle](http://twitter.github.io/finagle) for 
-building composable REST APIs. Its mission is to provide the developers simple and robust REST API primitives being as close as possible to the bare metal Finagle API.
+building composable REST APIs. Its mission is to provide the developers simple and robust REST API primitives being as 
+close as possible to the bare metal Finagle API.
 
 Modules
 -------
@@ -32,31 +33,19 @@ libraryDependencies ++= Seq(
 * for the `SNAPSHOT` version:
 
 ```scala
-resolvers ++= Seq(
-  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
-)
+resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies ++= Seq(
   "com.github.finagle" %% "[finch-module]" % "0.5.0-SNAPSHOT" changing()
 )
 ```
 
-Quickstart
-----------
-This quick start example is built with the `0.4.0` version of both `finch-core` and `finch-json`.
+Hello World!
+------------
+This "Hello World!" example is built with the `0.5.0-SNAPSHOT` version of `finch-core`.
 
 ```scala
-def hello(name: String) = new Service[HttpRequest, HttpResponse] {
-  def apply(req: HttpRequest) = for {
-    title <- OptionalParam("title")(req)
-  } yield Ok(Json.obj("greetings" -> s"Hello, ${title.getOrElse("")} $name!"))
-}
-
-val endpoint = Endpoint[HttpRequest, HttpResponse] {
-    // routes requests like '/hello/Bob?title=Mr.'
-    case Method.Get -> Root / "hello" / name => hello(name)
-  }
-}
+Httpx.serve(":8080", Get / "hello" / string /> Ok("Hello " + _ + "!").toFuture)
 ```
 
 Documentation
