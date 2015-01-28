@@ -46,6 +46,10 @@ class BodySpec extends FlatSpec with Matchers {
     a [BodyNotFound.type] should be thrownBy Await.result(futureResult)
   }
 
+  it should "have a toString that produces a string representation of itself" in {
+    RequiredArrayBody.toString should equal(s"Required body")
+  }
+
   "An OptionalArrayBody" should "be properly read if it exists" in {
     val request: HttpRequest = requestWithBody(fooBytes)
     val futureResult: Future[Option[Array[Byte]]] = OptionalArrayBody(request)
@@ -56,6 +60,10 @@ class BodySpec extends FlatSpec with Matchers {
     val request: HttpRequest = requestWithBody(Array[Byte]())
     val futureResult: Future[Option[Array[Byte]]] = OptionalArrayBody(request)
     Await.result(futureResult) should equal(None)
+  }
+
+  it should "have a toString that produces a string representation of itself" in {
+    OptionalArrayBody.toString should equal(s"Optional body")
   }
 
   "A RequiredStringBody" should "be properly read if it exists" in {

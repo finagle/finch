@@ -63,4 +63,9 @@ class CookieSpec extends FlatSpec with Matchers {
 
     Await.result(futureResult) should equal(None)
   }
+
+  it should "have a toString that produces a string representation of itself" in {
+    RequiredCookie(cookieName).toString should equal(s"Required cookie '$cookieName'")
+    OptionalCookie(cookieName).toString should equal(s"Optional cookie '$cookieName'")
+  }
 }

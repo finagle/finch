@@ -42,6 +42,11 @@ class OptionalParamSpec extends FlatSpec with Matchers {
     Await.result(futureResult) should equal(None)
   }
 
+  it should "have a toString that produces a string representation of itself" in {
+    val param = "foo"
+    OptionalParam(param).toString should equal(s"Optional parameter '$param'")
+  }
+
 
   "An OptionalBooleanParam" should "be parsed as an integer" in {
     val request: HttpRequest = Request.apply(("foo", "true"))

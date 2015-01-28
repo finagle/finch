@@ -18,6 +18,7 @@
  * limitations under the License.
  *
  * Contributor(s):
+ * Ryan Plessner
  */
 
 package io.finch.request
@@ -60,6 +61,11 @@ class RequiredParamsSpec extends FlatSpec with Matchers {
     intercept[ValidationFailed] {
       Await.result(futureResult)
     }
+  }
+
+  it should "have a toString that produces a string representation of itself" in {
+    val param = "foo"
+    RequiredParams(param).toString should equal(s"Required parameters '$param'")
   }
 
 

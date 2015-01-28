@@ -47,6 +47,11 @@ class RequiredParamSpec extends FlatSpec with Matchers {
     a [ParamNotFound] should be thrownBy Await.result(futureResult)
   }
 
+  it should "have a toString that produces a string representation of itself" in {
+    val param = "foo"
+    RequiredParam(param).toString should equal(s"Required parameter '$param'")
+  }
+
   "A RequiredBooleanParam" should "be parsed as a boolean" in {
     val request: HttpRequest = Request.apply(("foo", "true"))
     val futureResult: Future[Boolean] = RequiredBooleanParam("foo")(request)
