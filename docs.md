@@ -6,6 +6,7 @@
   * [Custom Request Types](docs.md#custom-request-types)
   * [Request Reader](docs.md#request-reader-monad)
   * [Query String Params](docs.md#query-string-params)
+  * [Improved Error Handling with Applicative Syntax](docs.md#improved-error-handling-with-applicative-syntax)
   * [Param Validation](docs.md#param-validation)
   * [Multiple-Value Params](docs.md#multiple-value-params)
   * [HTTP Headers](docs.md#http-headers)
@@ -179,6 +180,39 @@ val service = new Service[HttpRequest, HttpResponse] {
 * `Future[Some[A]]` if param is presented in the request and may be converted to a requested type `OptionalIntParam`,
 `OptionalLongParam` or `OptionalBooleanParam`
 * `Future.None` otherwise.
+
+
+### Improved Error Handling with Applicative Syntax
+
+In addition to the monadic style shown in the examples above, Finch also supports an applicative style.
+The previous example for a request reader for a User can be rewritten in applicative style as follows:
+
+```scala
+case class User(name: String, age: Int, city: String)
+
+val user: RequestReader[User] = 
+  (RequiredParam("name") ~
+  RequiredIntParam("age") ~
+  OptionalParam("city")) map {
+    case name ~ age ~ city => 
+      User(name, age, city.getOrElse("Novosibirsk"))
+  }
+```
+
+The main advantage of this style is that errors will be collected.
+If the name parameter is missing and the age parameter cannot be converted
+to an integer, both errors will be included in the failure of the Future 
+(in an exception class `RequestReaderErrors` that has an `errors` property
+of type `Seq[Throwable]`).
+
+The monadic style on the other hand is fail-fast and will always only present
+the first error it ran into. For this reason the applicative style is the
+recommended syntax for all use cases where detailed error reporting
+is essential. The monadic style is useful for the rare cases where one
+reader depends on the result of another reader or for those who have a 
+strong preference for the monadic style and do not care for sophisticated
+error reporting.
+
 
 ### Param Validation
 
