@@ -93,7 +93,7 @@ package object route {
     def apply(req: Req): Future[Rep] = {
       val path = requestToRoute(req)
       r(path) match {
-        case Some((_, service)) => service(req)
+        case Some((Nil, service)) => service(req)
         case _ => RouteNotFound(req.path).toFutureException
       }
     }
@@ -174,10 +174,18 @@ package object route {
     /**
      * Sequentially composes this router with the given `that` router. The resulting
      * router will succeed if either this or `that` routers are succeed.
+     *
+     * Router composition via `orElse` operator happens in a _greedy_ manner: it
+     * minimizes the output route tail. Thus, if both of the routers can handle
+     * the given `route` the router is being chosen is that which eats more.
      */
     def orElse[B >: A](that: RouterN[B]): RouterN[B] = new RouterN[B] {
-      def apply(route: Route): Option[(Route, B)] =
-        self(route) orElse that(route)
+      def apply(route: Route): Option[(Route, B)] = (self(route), that(route)) match {
+        case (aa @ Some((a, _)), bb @ Some((b, _))) =>
+          if (a.length < b.length) aa else bb
+        case (a, b) => a orElse b
+      }
+
       override def toString = s"(${self.toString}|${that.toString})"
     }
 
@@ -257,10 +265,18 @@ package object route {
     /**
      * Sequentially composes this router with the given `that` router. The resulting
      * router will succeed if either this or `that` routers are succeed.
+     *
+     * Router composition via `orElse` operator happens in a _greedy_ manner: it
+     * minimizes the output route tail. Thus, if both of the routers can handle
+     * the given `route` the router is being chosen is that which eats more.
      */
     def orElse(that: Router0): Router0 = new Router0 {
-      def apply(route: Route): Option[Route] =
-        self(route) orElse that(route)
+      def apply(route: Route): Option[Route] = (self(route), that(route)) match {
+        case (aa @ Some(a), bb @ Some(b)) =>
+          if (a.length < b.length) aa else bb
+        case (a, b) => a orElse b
+      }
+
       override def toString = s"(${self.toString}|${that.toString})"
     }
 
@@ -353,15 +369,6 @@ package object route {
   object * extends Router0 {
     def apply(route: Route): Option[Route] = Some(route.tail)
     override def toString = "*"
-  }
-
-  /**
-   * A [[Router0]] that matches the end of the route.
-   */
-  object $ extends Router0 {
-    def apply(route: Route): Option[Route] =
-      if (route.isEmpty) Some(Nil) else None
-    override def toString = ""
   }
 
   /**

@@ -103,15 +103,15 @@ class RouterSpec extends FlatSpec with Matchers {
   }
 
   it should "be able to match the whole route" in {
-    val r1 = Get / * / $
-    val r2 = Get / * / * / * / * / $
-    r1(route) shouldBe None
+    val r1 = Get / *
+    val r2 = Get / * / * / * / *
+    r1(route) shouldBe Some(route.drop(2))
     r2(route) shouldBe Some(Nil)
   }
 
   it should "support DSL for string and int extractors" in {
     val r1 = Get / "a" / int / string
-    val r2 = Get / "a" / int("1") / "b" / int("2") / $
+    val r2 = Get / "a" / int("1") / "b" / int("2")
 
     r1(route) shouldBe Some((route.drop(4), /(1, "b")))
     r2(route) shouldBe Some((Nil, /(1, 2)))
@@ -149,17 +149,17 @@ class RouterSpec extends FlatSpec with Matchers {
   }
 
   it should "converts into a string" in {
-    val r1 = Get / $
+    val r1 = Get
     val r2 = Get / "a" / true / 1
     val r3 = Get / ("a" | "b") / int / long / string
     val r4 = Get / string("name") / int("id") / boolean("flag") / "foo"
-    val r5 = Post / * / $
+    val r5 = Post / *
 
-    r1.toString shouldBe "GET/"
+    r1.toString shouldBe "GET"
     r2.toString shouldBe "GET/a/true/1"
     r3.toString shouldBe "GET/(a|b)/:int/:long/:string"
     r4.toString shouldBe "GET/:name/:id/:flag/foo"
-    r5.toString shouldBe "POST/*/"
+    r5.toString shouldBe "POST/*"
   }
 
   it should "support the for-comprehension syntax" in {
@@ -169,7 +169,7 @@ class RouterSpec extends FlatSpec with Matchers {
 
     r1(route) shouldBe Some((route.drop(3), "a1"))
     r2(route) shouldBe Some((Nil, "b21"))
-    r3(route) shouldBe r1(route)
+    r3(route) shouldBe r2(route)
   }
 
   it should "be implicitly convertible into service from future" in {
@@ -180,5 +180,24 @@ class RouterSpec extends FlatSpec with Matchers {
     Await.result(s(httpx.Request("/foo"))).contentString shouldBe "bar"
     Await.result(s(httpx.Request("/bar"))).contentString shouldBe "foo"
     a [RouteNotFound] should be thrownBy Await.result(s(httpx.Request("/baz")))
+  }
+
+  it should "be greedy" in {
+    val a = List(PathToken("a"), PathToken("10"))
+    val b = List(PathToken("a"))
+
+    val r1 = "a" | "b" | ("a" / 10)
+    val r2 = ("a" / 10) | "b" |  "a"
+    val r3 = ("a" / int) | ("b" /> 30) | ("a" /> 20)
+    val r4 = ("a" /> 20) | ("b" /> 30) | ("a" / int)
+
+    r1(a) shouldBe Some(Nil)
+    r1(b) shouldBe Some(Nil)
+    r2(a) shouldBe Some(Nil)
+    r2(b) shouldBe Some(Nil)
+    r3(a) shouldBe Some((Nil, 10))
+    r3(b) shouldBe Some((Nil, 20))
+    r4(a) shouldBe Some((Nil, 10))
+    r4(b) shouldBe Some((Nil, 20))
   }
 }
