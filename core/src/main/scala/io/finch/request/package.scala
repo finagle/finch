@@ -27,7 +27,7 @@
 package io.finch
 
 import com.twitter.finagle.httpx.Cookie
-import com.twitter.util.{Future,Return,Throw,Try}
+import com.twitter.util.{Future,Return,Throw}
 
 import scala.reflect.ClassTag
 
@@ -76,7 +76,25 @@ package object request {
     }
 
     // A workaround for https://issues.scala-lang.org/browse/SI-1336
-    def withFilter(p: A => Boolean) = self
+    def withFilter(p: A => Boolean) = self.should("not fail validation")(p)
+
+    /**
+     * Validate the result of this ''RequestReader'' using a predicate. The rule is used for error reporting.
+     *
+     * @param rule Text describing the rule being validated
+     * @param predicate Predicate that returns true if the data is valid
+     *
+     * @return Return a ''RequestReader'' that will return the value of from this reader if it is valid.
+     *         Otherwise a ''RequestReaderError'' is returned as ''FutureException''.
+     */
+    def should(rule: String)(predicate: A => Boolean): RequestReader[A] = new RequestReader[A] {
+      def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[A] = {
+        self(req).flatMap { a =>
+          if (predicate(a)) a.toFuture
+          else new RequestReaderError(s"${self.toString} should $rule.").toFutureException
+        }
+      }
+    }
   }
 
   /**
@@ -162,6 +180,8 @@ package object request {
       def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
         try number.toFuture
         catch { case _: IllegalArgumentException => ValidationFailed(param, rule).toFutureException }
+
+      override def toString: String = s"param: $param"
     }
   }
 
@@ -213,6 +233,8 @@ package object request {
           case Some(value) => value.toFuture
           case None => ParamNotFound(param).toFutureException
         }
+
+      override def toString: String = s"Required parameter '$param'"
     }
   }
 
@@ -334,6 +356,8 @@ package object request {
       new RequestReader[Option[String]] {
         def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
           req.params.get(param).toFuture
+
+        override def toString: String = s"Optional parameter '$param'"
       }
   }
 
@@ -479,6 +503,8 @@ package object request {
               case filtered => filtered.toFuture
             }
           }
+
+        override def toString: String = s"Required parameters '$param'"
       }
   }
 
@@ -600,6 +626,8 @@ package object request {
       new RequestReader[List[String]] {
         def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
           req.params.getAll(param).toList.flatMap(_.split(",")).filter(_ != "").toFuture
+
+        override def toString: String = s"Optional parameters '$param'"
       }
   }
 
@@ -722,6 +750,8 @@ package object request {
           case Some(value) => value.toFuture
           case None => HeaderNotFound(header).toFutureException
         }
+
+      override def toString: String = s"Required header '$header'"
     }
   }
 
@@ -743,6 +773,8 @@ package object request {
       new RequestReader[Option[String]] {
         def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
           req.headerMap.get(header).toFuture
+
+        override def toString: String = s"Optional header '$header'"
       }
   }
 
@@ -756,6 +788,8 @@ package object request {
         case Some(body) => body.toFuture
         case None => BodyNotFound.toFutureException
       }
+
+    override def toString: String = "Required body"
   }
 
   /**
@@ -768,6 +802,8 @@ package object request {
         case Some(length) if length > 0 => Some(RequestBody(req)).toFuture
         case _ => Future.None
       }
+
+    override def toString: String = "Optional body"
   }
 
   /**
@@ -813,7 +849,10 @@ package object request {
    */
   object RequiredBody {
     def apply[A](implicit m: DecodeMagnet[A]): RequestReader[A] = OptionalBody[A].flatMap {
-      case Some(body) => ConstReader(body.toFuture)
+      case Some(body) => new RequestReader[A] {
+        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = body.toFuture
+        override def toString: String = "Required body"
+      }
       case None => ConstReader(BodyNotParsed.toFutureException)
     }
     // TODO: Make it accept `Req` instead
@@ -834,6 +873,8 @@ package object request {
     def apply(cookieName: String) = new RequestReader[Option[Cookie]] {
       def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Option[Cookie]] =
         req.cookies.get(cookieName).toFuture
+
+      override def toString: String = s"Optional cookie '$cookieName'"
     }
   }
 
@@ -855,6 +896,8 @@ package object request {
           case None => CookieNotFound(cookieName).toFutureException
           case Some(cookie: Cookie) => cookie.toFuture
         }
+
+      override def toString: String = s"Required cookie '$cookieName'"
     }
   }
 

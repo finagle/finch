@@ -18,6 +18,7 @@
  * limitations under the License.
  *
  * Contributor(s):
+ * Ryan Plessner
  */
 
 package io.finch.request
@@ -53,5 +54,11 @@ class HeaderSpec extends FlatSpec with Matchers {
     val request = Request()
     val futureResult = OptionalHeader("Location")(request)
     Await.result(futureResult) should be (None)
+  }
+
+  "A Header Reader" should "have a toString that produces a string representation of itself" in {
+    val header = "Location"
+    RequiredHeader(header).toString should equal(s"Required header '$header'")
+    OptionalHeader(header).toString should equal(s"Optional header '$header'")
   }
 }
