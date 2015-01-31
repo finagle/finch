@@ -310,6 +310,30 @@ val req: HttpRequest = ???
 val readDouble: RequestReader[Double] = RequiredBody[Double]
 ```
 
+
+### Type Conversion
+
+A `DecodeRequest[A]` can also be applied in a generic way to any `RequestReader[String]`, 
+`RequestReader[Option[String]]` or `RequestReader[Seq[String]]`
+as long as a matching implicit is in scope, through calling `as[A]` on the reader.
+
+This is an example for applying an integer conversion to a reader:
+
+```scala
+implicit val decodeInt = new DecodeRequest[Int] {
+   def apply(req: String): Try[Int] = Try(req.toInt)
+}
+
+val reader: RequestReader[Int] = RequiredParam("foo").as[Int]
+```
+
+The above is equivalent to the built-in `RequiredIntParam("foo")`, but the 
+generic `as[A]` method allows to use `DecodeRequest` instances for any target
+type, such as a Joda `DateTime` for example, making the `DecodeRequest` API
+more broadly useful than just offering this functionality for the request body
+as in previous Finch versions.
+
+
 ## Responses
 
 ### Response Builder
