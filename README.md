@@ -6,6 +6,11 @@ Finch is a thin layer of purely functional basic blocks atop of [Finagle](http:/
 building composable REST APIs. Its mission is to provide the developers simple and robust REST API primitives being as 
 close as possible to the bare metal Finagle API.
 
+Status
+------
+[![Build Status](https://travis-ci.org/finagle/finch.svg?branch=master)](https://travis-ci.org/finagle/finch)
+[![Coverage Status](https://coveralls.io/repos/finagle/finch/badge.svg?branch=master)](https://coveralls.io/r/finagle/finch?branch=master)
+
 Modules
 -------
 
@@ -76,7 +81,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
-----
-[![Build Status](https://travis-ci.org/finagle/finch.svg?branch=master)](https://travis-ci.org/finagle/finch)
-[![Coverage Status](https://coveralls.io/repos/finagle/finch/badge.svg?branch=master)](https://coveralls.io/r/finagle/finch?branch=master)
