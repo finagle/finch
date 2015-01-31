@@ -120,8 +120,7 @@ case class PostUser(userId: Long, db: Main.Db) extends Service[AuthRequest, User
   // A requests reader that reads user objects from the http request.
   // A user is represented by url-encoded param ''name''.
   val user: RequestReader[User] = for {
-    name <- RequiredParam("name")
-    _ <- ValidationRule("name", "should be greater then 5 symbols") { name.length > 5 }
+    name <- RequiredParam("name").should("be greater then 5 symbols"){ _.length > 5 }
   } yield User(userId, name, Seq.empty[Ticket])
 
   def apply(req: AuthRequest) = for {
