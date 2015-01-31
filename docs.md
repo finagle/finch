@@ -297,13 +297,14 @@ An HTTP body may be fetched from the HTTP request using the following readers:
 Finch supports pluggable request decoders. In fact, any type `A` my be read from the request body using either:
 `io.finch.request.RequiredBody[A]` or `io.finch.request.OptionalBody[A]` if there is an implicit value of type 
 `DecodeRequest[A]` available in the scope. The `DecodeRequest[A]` abstraction may be described as function 
-`String => Option[A]`. Thus, any decoders may be easily defined to use the functionality of body readers. Note, that 
+`String => Try[A]`. Thus, any decoders may be easily defined to use the functionality of body readers. Note, that 
 the body type (i.e., `Double`) should be always explicitly defined for both `RequiredBody` and `OptionalBody`.
 
 ```
 implicit val decodeDouble = new DecodeRequest[Double] {
-  def apply(s: String): Option[Double] =
-    try { Some(s.toDouble) } catch { case _: NumberFormatException => None }
+  
+  def apply(s: String): Try[Double] = Try { s.toDouble }
+  
 }
 val req: HttpRequest = ???
 val readDouble: RequestReader[Double] = RequiredBody[Double]

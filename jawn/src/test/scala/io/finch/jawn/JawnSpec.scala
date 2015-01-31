@@ -36,6 +36,10 @@ class JawnSpec extends FlatSpec with Matchers {
   "A DecodeJawn" should "parse valid json into its ast" in {
     toJawnDecode(facade)(str).foreach(v => v.shouldBe(jsVal))
   }
+  
+  it should "fail given invalid JSON" in {
+    toJawnDecode(facade)("{{{{").isThrow shouldBe true
+  }
 
   "An EncodeJawn" should "render a valid JValue as a string" in {
     EncodeJawn(jsVal) == str

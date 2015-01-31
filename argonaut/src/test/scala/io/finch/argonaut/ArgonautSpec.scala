@@ -4,7 +4,7 @@ import argonaut.Argonaut._
 import argonaut._
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.Request
-import com.twitter.util.Await
+import com.twitter.util.{Await,Return}
 import io.finch._
 import io.finch.request.RequiredBody
 import io.finch.response.TurnIntoHttp
@@ -36,15 +36,15 @@ class ArgonautSpec extends FlatSpec with Matchers {
   val exampleUser = TestUser(42, "bob")
 
   "An ArgonautDecode" should "decode json string into a data structure" in {
-    toArgonautDecode(testUserCodec)(str) shouldEqual Option(exampleUser)
+    toArgonautDecode(testUserCodec)(str) shouldEqual Return(exampleUser)
   }
 
-  it should "return None if the string is not valid json" in {
-    toArgonautDecode(testUserCodec)(badJson) shouldEqual None
+  it should "fail if the string is not valid json" in {
+    toArgonautDecode(testUserCodec)(badJson).isThrow shouldEqual true
   }
 
-  it should "return None if the decoder could not decode the string into data" in {
-    toArgonautDecode(testUserCodec)(invalidStructure) shouldEqual None
+  it should "fail if the decoder could not decode the string into data" in {
+    toArgonautDecode(testUserCodec)(invalidStructure).isThrow shouldEqual true
   }
 
   it should "be compatible with finch-core's requests" in {

@@ -27,7 +27,7 @@
 package io.finch
 
 import com.twitter.finagle.httpx.Cookie
-import com.twitter.util.{Future, Return, Throw}
+import com.twitter.util.{Future, Return, Throw, Try}
 
 import scala.reflect.ClassTag
 
@@ -923,9 +923,13 @@ package object request {
    * and decodes it, according to an implicit decoder, into an ''Option''.
    */
   object OptionalBody {
-    def apply[A](implicit m: DecodeMagnet[A]): RequestReader[Option[A]] = for {
-      b <- OptionalStringBody
-    } yield b flatMap { m()(_) }
+    def apply[A](implicit m: DecodeMagnet[A]): RequestReader[Option[A]] = OptionalStringBody.flatMap {
+      case Some(body) => new RequestReader[Option[A]] {
+        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = Future.const(m()(body) map (Some(_)))
+        override def toString: String = "Optional body"
+      }
+      case None => ConstReader(Future.None)
+    }
 
     // TODO: Make it accept `Req` instead
     def apply[A](req: HttpRequest)(implicit m: DecodeMagnet[A]): Future[Option[A]] =
@@ -942,7 +946,7 @@ package object request {
         def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = body.toFuture
         override def toString: String = "Required body"
       }
-      case None => ConstReader(BodyNotParsed.toFutureException)
+      case None => ConstReader(BodyNotFound.toFutureException)
     }
     // TODO: Make it accept `Req` instead
     def apply[A](req: HttpRequest)(implicit m: DecodeMagnet[A]): Future[A] = RequiredBody[A](m)(req)
@@ -994,14 +998,14 @@ package object request {
    * An abstraction that is responsible for decoding the request of type ''A''.
    */
   trait DecodeRequest[+A] {
-    def apply(req: String): Option[A]
+    def apply(req: String): Try[A]
   }
 
   /**
    * An abstraction that is responsible for decoding the request of general type.
    */
   trait DecodeAnyRequest {
-    def apply[A: ClassTag](req: String): Option[A]
+    def apply[A: ClassTag](req: String): Try[A]
   }
 
   /**
@@ -1025,7 +1029,7 @@ package object request {
   implicit def magnetFromAnyDecode[A](implicit d: DecodeAnyRequest, tag: ClassTag[A]): DecodeMagnet[A] =
     new DecodeMagnet[A] {
       def apply(): DecodeRequest[A] = new DecodeRequest[A] {
-        def apply(req: String): Option[A] = d(req)(tag)
+        def apply(req: String): Try[A] = d(req)(tag)
       }
     }
 

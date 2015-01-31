@@ -23,16 +23,18 @@
 package io.finch.request
 
 import org.scalatest.{Matchers, FlatSpec}
+import com.twitter.util.{Try,Return}
 import scala.math._
 
 class DecodeSpec extends FlatSpec with Matchers {
 
-  private def decode[A](json: String)(implicit d: DecodeRequest[A]): Option[A] = d(json)
+  private def decode[A](json: String)(implicit d: DecodeRequest[A]): Try[A] = d(json)
+  
   "A DecodeJson" should "be accepted as implicit instance of superclass" in {
     implicit object BigDecimalJson extends DecodeRequest[BigDecimal] {
-      def apply(s: String): Option[BigDecimal] = Some(BigDecimal(s))
+      def apply(s: String): Try[BigDecimal] = Try(BigDecimal(s))
     }
 
-    decode[ScalaNumber]("12345.25") shouldBe Some(BigDecimal(12345.25))
+    decode[ScalaNumber]("12345.25") shouldBe Return(BigDecimal(12345.25))
   }
 }

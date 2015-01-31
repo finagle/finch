@@ -27,6 +27,8 @@ import _root_.jawn.ast.{CanonicalRenderer, JValue}
 import _root_.jawn.{Facade, Parser}
 import io.finch.request.DecodeRequest
 import io.finch.response.EncodeResponse
+import com.twitter.util.{Try, Return, Throw}
+import scala.util.{Success, Failure}
 
 /**
  * This package provides support for use of the Jawn json parsing library in Finch.io.
@@ -40,7 +42,10 @@ package object jawn {
    *
    */
   implicit def toJawnDecode[J](implicit facade: Facade[J]): DecodeRequest[J] = new DecodeRequest[J] {
-    def apply(json: String): Option[J] = Parser.parseFromString(json).toOption
+    def apply(json: String): Try[J] = Parser.parseFromString(json) match {
+      case Success(value) => Return(value)
+      case Failure(error) => Throw(error)
+    }
   }
 
   /**
