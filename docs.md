@@ -7,7 +7,7 @@
   * [Request Reader](docs.md#request-reader-monad)
   * [Query String Params](docs.md#query-string-params)
   * [Improved Error Handling with Applicative Syntax](docs.md#improved-error-handling-with-applicative-syntax)
-  * [Param Validation](docs.md#param-validation)
+  * [Validation](docs.md#validation)
   * [Multiple-Value Params](docs.md#multiple-value-params)
   * [HTTP Headers](docs.md#http-headers)
   * [HTTP Bodies](docs.md#http-bodies)
@@ -214,18 +214,38 @@ strong preference for the monadic style and do not care for sophisticated
 error reporting.
 
 
-### Param Validation
+### Validation
 
-There is a request reader `ValidationRule` that exposes the validation logic. Since the request reader has monadic API,  
-a for-comprehension might be used to compose request readers together. Here is an example of _composing_ an existing 
-reader `user` within a `ValidationRule`, which is a primitive request that returns `Future.Done` if the given `predicate`  
-is true or future of `ValidationFailed(param, rule)` exception otherwise.
+A reader allows for its result to be validated based on a predicate or a comination of predicates.
+This can happen inline or based on predefined validation rules, and is possible with both
+the monadic and the applicative syntax. The predefined rules can also be combined with `and`
+or `or`.
 
 ```scala
+case class User(name: String, age: Int)
+
+// monadic syntax
 val adult: RequestReader[User] = for {
-  u <- user
-  _ <- ValidationRule("age", "should be greater then 18") { user.age > 18 }
-} yield u
+  name <- RequiredParam("name")
+  age <- RequiredIntParam("age").should("be greater than 18"){ _ > 18 }
+} yield User(name, age)
+
+// applicative syntax  
+val adult2: RequestReader[User] = 
+  (RequiredParam("name") ~
+  RequiredIntParam("age").should("be greater than 18"){ _ > 18 }) map {
+    case name ~ age => User(name, age)
+}
+  
+// reusable validators
+val beNonNegative = ValidationRule[Int]("be non-negative") { _ >= 0 }
+def beSmallerThan(value: Int) = ValidationRule[Int](s"be smaller than $value") { _ < value }
+  
+val child: RequestReader[User] = 
+  (RequiredParam("name") ~
+  RequiredIntParam("age").should(beNonNegative and beSmallerThan(18))) map {
+    case name ~ age => User(name, age)
+}
 ```
 
 The exceptions from a request-reader might be handled just like other future exceptions in Finagle:
@@ -236,27 +256,8 @@ val user: Future[Json] = service(...) handle {
 }
 ```
 
-Note, that all the exception throw by `RequestReader` are case classes. So, the pattern matching my be used to handle them.
+Note, that all the exception throw by `RequestReader` are case classes. So, the pattern matching may be used to handle them.
 
-Optional params may be validated by using `Option.forAll(p)` function, which does exactly what's needed. If the option is 
-`Some(value)` it checks whether or not the given predicate `p` is true for `value`. Otherwise (if the option is `None`) it 
-just returns `true`.
-
-```scala
-val pagination: RequestReader[(Int, Int)] = for {
-  offset <- OptionalIntParam("offset")
-  limit <- OptionalIntParam("limit")
-  _ <- ValidationRule("offset", "should be positive") { offset.forAll(_ >= 0) }
-  _ <- ValidationRule("limit", "should be positive") { limit.forAll(_ >= 0) }
-  _ <- ValidationRule("limit", "should be greater then offset") {
-   (for { o <- offset; l <- limit} yield (l > o)).getOrElse(true)
-  }
-} yield (offset.getOrElse(0), math.min(limit.getOrElse(50), 50))
-```
-
-#### A `io.finch.request.ValidationRule(param, rule)(predicate)`
-* returns `Future.Done` when predicate is `true`
-* throws `ValidationFailed(param, rule)` exception
 
 ### Multiple-Value Params
 
