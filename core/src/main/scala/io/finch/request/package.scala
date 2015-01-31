@@ -186,6 +186,64 @@ package object request {
     def shouldNot(rule: ValidationRule[A]): RequestReader[A] = shouldNot(rule.description)(rule.apply)
   }
   
+  /**
+   * Implicit conversion that allows to call ''as[T]'' on any ''RequestReader[String]''
+   * to perform a type conversion based on an implicit ''DecodeRequest[T]'' which must
+   * be in scope.
+   * 
+   * The resulting reader will fail when type conversion fails.
+   */
+  implicit class StringReaderOps(val reader: RequestReader[String]) extends AnyVal {
+    
+    def as[T](implicit magnet: DecodeMagnet[T]): RequestReader[T] = reader flatMap { value =>
+      new RequestReader[T] {
+        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = Future.const(magnet()(value))
+      } 
+    }
+    
+  }
+  
+  /**
+   * Implicit conversion that allows to call ''as[T]'' on any ''RequestReader[Option[String]]''
+   * to perform a type conversion based on an implicit ''DecodeRequest[T]'' which must
+   * be in scope.
+   * 
+   * The resulting reader will fail when the result is non-empty and type conversion fails.
+   * It will succeed if the result is empty or type conversion succeeds.
+   */
+  implicit class StringOptionReaderOps(val reader: RequestReader[Option[String]]) extends AnyVal {
+    
+    def as[T](implicit magnet: DecodeMagnet[T]): RequestReader[Option[T]] = reader flatMap { 
+      case Some(value) => new RequestReader[Option[T]] {
+        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = Future.const(magnet()(value) map (Option(_)))
+      }
+      case None => ConstReader(Future.None)
+    }
+    
+  }
+  
+  /**
+   * Implicit conversion that allows to call ''as[T]'' on any ''RequestReader[Seq[String]]''
+   * to perform a type conversion based on an implicit ''DecodeRequest[T]'' which must
+   * be in scope.
+   * 
+   * The resulting reader will fail when the result is non-empty and type conversion fails
+   * on one or more of the elements in the ''Seq''.
+   * It will succeed if the result is empty or type conversion succeeds for all elements.
+   */
+  implicit class StringSeqReaderOps(val reader: RequestReader[Seq[String]]) extends AnyVal {
+    
+    def as[T](implicit magnet: DecodeMagnet[T]): RequestReader[Seq[T]] = reader flatMap { items =>
+      new RequestReader[Seq[T]] {
+        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = {
+          val converted = items map (magnet()(_))
+          if (converted.forall(_.isReturn)) converted.map(_.get).toFuture
+          else RequestReaderErrors(converted collect { case Throw(e) => e }).toFutureException
+        }
+      }
+    }
+    
+  }
   
   /**
    * Implicit conversion that allows the same validation rule to be used
@@ -300,7 +358,7 @@ package object request {
   }
 
   private[this] object StringsToValues {
-    def apply[A](fn: String => A)(l: List[String]) = l.flatMap { s =>
+    def apply[A](fn: String => A)(l: Seq[String]) = l.flatMap { s =>
       try List(fn(s))
       catch { case _: IllegalArgumentException => Nil }
     }
@@ -577,8 +635,8 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String): RequestReader[List[String]] =
-      new RequestReader[List[String]] {
+    def apply(param: String): RequestReader[Seq[String]] =
+      new RequestReader[Seq[String]] {
         def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
           req.params.getAll(param).toList.flatMap(_.split(",")) match {
             case Nil => ParamNotFound(param).toFutureException
@@ -606,7 +664,7 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String): RequestReader[List[Int]] = for {
+    def apply(param: String): RequestReader[Seq[Int]] = for {
       ss <- RequiredParams(param)
       ns <- StringToValueOrFail(param, "should be integer")(ss.map { _.toInt })
     } yield ns
@@ -626,7 +684,7 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String): RequestReader[List[Long]] = for {
+    def apply(param: String): RequestReader[Seq[Long]] = for {
       ss <- RequiredParams(param)
       ns <- StringToValueOrFail(param, "should be long")(ss.map { _.toLong })
     } yield ns
@@ -646,7 +704,7 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String): RequestReader[List[Boolean]] = for {
+    def apply(param: String): RequestReader[Seq[Boolean]] = for {
       ss <- RequiredParams(param)
       ns <- StringToValueOrFail(param, "should be boolean")(ss.map { _.toBoolean })
     } yield ns
@@ -666,7 +724,7 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String): RequestReader[List[Float]] = for {
+    def apply(param: String): RequestReader[Seq[Float]] = for {
       ss <- RequiredParams(param)
       ns <- StringToValueOrFail(param, "should be float")(ss.map { _.toFloat })
     } yield ns
@@ -686,7 +744,7 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String): RequestReader[List[Double]] = for {
+    def apply(param: String): RequestReader[Seq[Double]] = for {
       ss <- RequiredParams(param)
       ns <- StringToValueOrFail(param, "should be double")(ss.map { _.toDouble })
     } yield ns
@@ -706,8 +764,8 @@ package object request {
      * @return a ''List'' that contains all the values of multi-value param or
      *         en empty list ''Nil'' if the param is missing or empty.
      */
-    def apply(param: String): RequestReader[List[String]] =
-      new RequestReader[List[String]] {
+    def apply(param: String): RequestReader[Seq[String]] =
+      new RequestReader[Seq[String]] {
         def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
           req.params.getAll(param).toList.flatMap(_.split(",")).filter(_ != "").toFuture
 
@@ -730,7 +788,7 @@ package object request {
      *         en empty list ''Nil'' if the param is missing or empty or doesn't
      *         correspond to a requested type.
      */
-    def apply(param: String): RequestReader[List[Int]] = for {
+    def apply(param: String): RequestReader[Seq[Int]] = for {
       l <- OptionalParams(param)
     } yield StringsToValues(_.toInt)(l)
   }
@@ -750,7 +808,7 @@ package object request {
      *         en empty list ''Nil'' if the param is missing or empty or doesn't
      *         correspond to a requested type.
      */
-    def apply(param: String): RequestReader[List[Long]] = for {
+    def apply(param: String): RequestReader[Seq[Long]] = for {
       l <- OptionalParams(param)
     } yield StringsToValues(_.toLong)(l)
   }
@@ -770,7 +828,7 @@ package object request {
      *         en empty list ''Nil'' if the param is missing or empty or doesn't
      *         correspond to a requested type.
      */
-    def apply(param: String): RequestReader[List[Boolean]] = for {
+    def apply(param: String): RequestReader[Seq[Boolean]] = for {
       l <- OptionalParams(param)
     } yield StringsToValues(_.toBoolean)(l)
   }
@@ -790,7 +848,7 @@ package object request {
      *         en empty list ''Nil'' if the param is missing or empty or doesn't
      *         correspond to a requested type.
      */
-    def apply(param: String): RequestReader[List[Float]] = for {
+    def apply(param: String): RequestReader[Seq[Float]] = for {
       l <- OptionalParams(param)
     } yield StringsToValues(_.toFloat)(l)
   }
@@ -810,7 +868,7 @@ package object request {
      *         en empty list ''Nil'' if the param is missing or empty or doesn't
      *         correspond to a requested type.
      */
-    def apply(param: String): RequestReader[List[Double]] = for {
+    def apply(param: String): RequestReader[Seq[Double]] = for {
       l <- OptionalParams(param)
     } yield StringsToValues(_.toDouble)(l)
   }
