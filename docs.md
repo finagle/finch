@@ -251,12 +251,24 @@ val child: RequestReader[User] =
 The exceptions from a request-reader might be handled just like other future exceptions in Finagle:
 ```scala
 val user: Future[Json] = service(...) handle {
-  case ParamNotFound(param) => Json.obj("error" -> "param_not_found", "param" -> param)
-  case ValidationFailed(param, rule) => Json.obj("error" -> "validation_failed", "param" -> param, "rule" -> rule)
+  case NotFound(ParamItem(param)) => Json.obj("error" -> "param_not_found", "param" -> param)
+  case NotValid(ParamItem(param), rule) => Json.obj("error" -> "validation_failed", "param" -> param, "rule" -> rule)
 }
 ```
 
-Note, that all the exception throw by `RequestReader` are case classes. So, the pattern matching may be used to handle them.
+All the exceptions throw by `RequestReader` are case classes. Therefore pattern matching may be used to handle them.
+
+These are all error types produced by Finch (which all extend `RequestReaderError`):
+
+```scala
+case class RequestReaderErrors(errors: Seq[Throwable]) // when multiple request item were invalid or missing
+
+case class NotFound(item: RequestItem) // when a required request item (header, param, cookie, body) was missing
+
+case class NotParsed(item: RequestItem, targetType: ClassTag[_], cause: Throwable) // when type conversion failed
+
+case class NotValid(item: RequestItem, rule: String) // when a validation rule did not pass for a request item
+```
 
 
 ### Multiple-Value Params

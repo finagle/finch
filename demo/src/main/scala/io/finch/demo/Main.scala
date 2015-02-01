@@ -191,10 +191,9 @@ object HandleExceptions extends SimpleFilter[HttpRequest, HttpResponse] {
   def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]) =
     service(req) handle {
       case UserNotFound(id) => BadRequest(Json.obj("error" -> "user_not_found", "id" -> id))
-      case ParamNotFound(param) => BadRequest(Json.obj("error" -> "param_not_found", "param" -> param))
-      case ValidationFailed(param, rule) => BadRequest(Json.obj("error" -> "bad_param", "param" -> param, "rule" -> rule))
-      case BodyNotFound => BadRequest(Json.obj("error" -> "body_not_found"))
-      case BodyNotParsed => BadRequest(Json.obj("error" -> "body_not_parsed"))
+      case NotPresent(item) => BadRequest(Json.obj("error" -> "item_not_found", "item" -> item))
+      case np: NotParsed => BadRequest(Json.obj("error" -> "item_not_parsed", "item" -> np.item, "message" -> np.getMessage))
+      case NotValid(item, rule) => BadRequest(Json.obj("error" -> "item_not_valid", "rule" -> rule))
       case _ => InternalServerError()
     }
 }

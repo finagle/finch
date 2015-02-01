@@ -34,9 +34,7 @@ class DecodeSpec extends FlatSpec with Matchers {
 
   private def decode[A](json: String)(implicit d: DecodeRequest[A]): Try[A] = d(json)
   
-  implicit val decodeInt = new DecodeRequest[Int] {
-     def apply(req: String): Try[Int] = Try(req.toInt)
-  }
+  implicit val decodeInt = DecodeRequest { s => Try(s.toInt) }
   
   "A DecodeJson" should "be accepted as implicit instance of superclass" in {
     implicit object BigDecimalJson extends DecodeRequest[BigDecimal] {
