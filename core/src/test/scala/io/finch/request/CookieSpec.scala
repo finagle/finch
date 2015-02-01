@@ -46,7 +46,7 @@ class CookieSpec extends FlatSpec with Matchers {
     request.addCookie(cookie)
     val futureResult: Future[Cookie] = RequiredCookie("another-cookie")(request)
 
-    a [CookieNotFound] should be thrownBy Await.result(futureResult)
+    a [NotFound] should be thrownBy Await.result(futureResult)
   }
 
   it should "read an optional cookie if it exists" in {
@@ -64,8 +64,8 @@ class CookieSpec extends FlatSpec with Matchers {
     Await.result(futureResult) should equal(None)
   }
 
-  it should "have a toString that produces a string representation of itself" in {
-    RequiredCookie(cookieName).toString should equal(s"Required cookie '$cookieName'")
-    OptionalCookie(cookieName).toString should equal(s"Optional cookie '$cookieName'")
+  it should "have a matching RequestItem" in {
+    RequiredCookie(cookieName).item should equal(items.CookieItem(cookieName))
+    OptionalCookie(cookieName).item should equal(items.CookieItem(cookieName))
   }
 }

@@ -33,6 +33,18 @@ import scala.reflect.ClassTag
 
 package object request {
 
+  
+  implicit val decodeInt: DecodeRequest[Int] = DecodeRequest { s => Try(s.toInt) }
+  
+  implicit val decodeLong: DecodeRequest[Long] = DecodeRequest { s => Try(s.toLong) }
+  
+  implicit val decodeFloat: DecodeRequest[Float] = DecodeRequest { s => Try(s.toFloat) }
+  
+  implicit val decodeDouble: DecodeRequest[Double] = DecodeRequest { s => Try(s.toDouble) }
+  
+  implicit val decodeBoolean: DecodeRequest[Boolean] = DecodeRequest { s => Try(s.toBoolean) }
+  
+  
   /**
    * A reusable validation rule that can be applied to any ''RequestReader'' with a matching type.
    */
@@ -83,12 +95,31 @@ package object request {
   }
   
   /**
+   * Representations for the various request item types
+   * that can be processed with ''RequestReaders''.
+   */
+  object items {
+    sealed abstract class RequestItem(val kind: String, val nameOption:Option[String] = None) {
+      val description = kind + nameOption.fold("")(" '"+_+"'")
+    }
+    case class ParamItem(name: String) extends RequestItem("param", Some(name))
+    case class HeaderItem(name: String) extends RequestItem("header", Some(name))
+    case class CookieItem(name: String) extends RequestItem("cookie", Some(name))
+    case object BodyItem extends RequestItem("body")
+    case object MultipleItems extends RequestItem("request")
+  }
+  
+  import items._
+  
+  /**
    * A request reader (a Reader Monad) reads a ''Future'' of ''A'' from the ''HttpRequest''.
    *
    * @tparam A the result type
    */
   trait RequestReader[A] { self =>
 
+    def item: RequestItem
+    
     /**
      * Reads the data from given request ''req''.
      *
@@ -98,14 +129,22 @@ package object request {
     def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[A]
 
     def flatMap[B](fn: A => RequestReader[B]) = new RequestReader[B] {
+      val item = MultipleItems
       def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = self(req) flatMap { fn(_)(req) }
     }
 
     def map[B](fn: A => B) = new RequestReader[B] {
+      val item = self.item
       def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = self(req) map fn
     }
     
+    def mapFuture[B](fn: A => Future[B]) = new RequestReader[B] {
+      val item = self.item
+      def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = self(req) flatMap fn
+    }
+    
     def ~[B](that: RequestReader[B]): RequestReader[A ~ B] = new RequestReader[A ~ B] {
+      val item = MultipleItems
       def apply[Req] (req: Req)(implicit ev: Req => HttpRequest): Future[A ~ B] = 
         Future.join(self(req)(ev).liftToTry, that(req)(ev).liftToTry) flatMap {
           case (Return(a), Return(b)) => new ~(a, b).toFuture
@@ -136,13 +175,9 @@ package object request {
      * @return Return a ''RequestReader'' that will return the value of this reader if it is valid.
      *         Otherwise a ''RequestReaderError'' is returned as ''FutureException''.
      */
-    def should(rule: String)(predicate: A => Boolean): RequestReader[A] = new RequestReader[A] {
-      def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[A] = {
-        self(req).flatMap { a =>
-          if (predicate(a)) a.toFuture
-          else new RequestReaderError(s"${self.toString} should $rule.").toFutureException
-        }
-      }
+    def should(rule: String)(predicate: A => Boolean): RequestReader[A] = mapFuture { a =>
+      if (predicate(a)) a.toFuture
+      else NotValid(self.item, rule).toFutureException
     }
     
     /**
@@ -154,14 +189,7 @@ package object request {
      * @return Return a ''RequestReader'' that will return the value of this reader if it is valid.
      *         Otherwise a ''RequestReaderError'' is returned as ''FutureException''.
      */
-    def shouldNot(rule: String)(predicate: A => Boolean): RequestReader[A] = new RequestReader[A] {
-      def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[A] = {
-        self(req).flatMap { a =>
-          if (!predicate(a)) a.toFuture
-          else new RequestReaderError(s"${self.toString} should not $rule.").toFutureException
-        }
-      }
-    }
+    def shouldNot(rule: String)(predicate: A => Boolean): RequestReader[A] = should(s"not $rule.")(x => !predicate(x))
     
     /**
      * Validate the result of this ''RequestReader'' using a predefined rule. This method allows
@@ -187,6 +215,23 @@ package object request {
   }
   
   /**
+   * Convenience methods for creating new reader instances.
+   */
+  object RequestReader {
+    
+    def apply[T](reqItem: RequestItem)(f: HttpRequest => T): RequestReader[T] = 
+      new RequestReader[T] {
+        val item = reqItem
+        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = f(req).toFuture
+      }
+    
+  }
+  
+  private[this] def notParsed[T](reader: RequestReader[_], tag: ClassTag[_]): PartialFunction[Throwable,Try[T]] = {
+    case exc => Throw(NotParsed(reader.item, tag, exc))
+  }
+  
+  /**
    * Implicit conversion that allows to call ''as[T]'' on any ''RequestReader[String]''
    * to perform a type conversion based on an implicit ''DecodeRequest[T]'' which must
    * be in scope.
@@ -195,10 +240,8 @@ package object request {
    */
   implicit class StringReaderOps(val reader: RequestReader[String]) extends AnyVal {
     
-    def as[T](implicit magnet: DecodeMagnet[T]): RequestReader[T] = reader flatMap { value =>
-      new RequestReader[T] {
-        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = Future.const(magnet()(value))
-      } 
+    def as[T](implicit magnet: DecodeMagnet[T], tag: ClassTag[T]): RequestReader[T] = reader mapFuture { value =>
+      Future.const(magnet()(value).rescue(notParsed(reader, tag)))
     }
     
   }
@@ -213,11 +256,9 @@ package object request {
    */
   implicit class StringOptionReaderOps(val reader: RequestReader[Option[String]]) extends AnyVal {
     
-    def as[T](implicit magnet: DecodeMagnet[T]): RequestReader[Option[T]] = reader flatMap { 
-      case Some(value) => new RequestReader[Option[T]] {
-        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = Future.const(magnet()(value) map (Option(_)))
-      }
-      case None => ConstReader(Future.None)
+    def as[T](implicit magnet: DecodeMagnet[T], tag: ClassTag[T]): RequestReader[Option[T]] = reader mapFuture { 
+      case Some(value) => Future.const(magnet()(value).rescue(notParsed(reader, tag)) map (Option(_)))
+      case None => Future.None
     }
     
   }
@@ -233,14 +274,22 @@ package object request {
    */
   implicit class StringSeqReaderOps(val reader: RequestReader[Seq[String]]) extends AnyVal {
     
-    def as[T](implicit magnet: DecodeMagnet[T]): RequestReader[Seq[T]] = reader flatMap { items =>
-      new RequestReader[Seq[T]] {
-        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = {
-          val converted = items map (magnet()(_))
-          if (converted.forall(_.isReturn)) converted.map(_.get).toFuture
-          else RequestReaderErrors(converted collect { case Throw(e) => e }).toFutureException
-        }
-      }
+    def as[T](implicit magnet: DecodeMagnet[T], tag: ClassTag[T]): RequestReader[Seq[T]] = reader mapFuture { items =>
+      val converted = items map (magnet()(_))
+      if (converted.forall(_.isReturn)) converted.map(_.get).toFuture
+      else RequestReaderErrors(converted collect { case Throw(e) => NotParsed(reader.item, tag, e) }).toFutureException
+    }
+    
+  }
+  
+  /**
+   * Implicit conversion that adds convenience methods to readers for optional values.
+   */
+  implicit class OptionReaderOps[T](val reader: RequestReader[Option[T]]) extends AnyVal {
+    
+    def failIfEmpty: RequestReader[T] = reader mapFuture { 
+      case Some(value) => value.toFuture
+      case None => NotFound(reader.item).toFutureException
     }
     
   }
@@ -267,7 +316,9 @@ package object request {
    *
    * @param message the message
    */
-  class RequestReaderError(val message: String) extends Exception(message)
+  class RequestReaderError(val message: String, cause: Throwable) extends Exception(message, cause) {
+    def this(message: String) = this(message, null)
+  }
 
   /**
    * An exception that collects multiple request reader errors.
@@ -278,105 +329,33 @@ package object request {
     extends RequestReaderError("One or more errors reading request: " + errors.map(_.getMessage).mkString("\n  ","\n  ",""))
   
   /**
-   * An exception that indicates missed parameter in the request.
+   * An exception that indicates a required request item (header, param, cookie, body)
+   * was missing in the request.
    *
-   * @param param the missed parameter name
+   * @param item the missing request item
    */
-  case class ParamNotFound(param: String) extends RequestReaderError(s"Param '$param' not found in the request.")
+  case class NotFound(item: RequestItem) extends RequestReaderError(s"Required ${item.description} not found in the request.")
 
   /**
-   * An exception that indicates a broken validation rule on the param.
+   * An exception that indicates a broken validation rule on the request item.
    *
-   * @param param the param name
+   * @param item the invalid request item
    * @param rule the rule description
    */
-  case class ValidationFailed(param: String, rule: String)
-    extends RequestReaderError(s"Request validation failed: param '$param' $rule.")
-
+  case class NotValid(item: RequestItem, rule: String)
+    extends RequestReaderError(s"Validation failed: ${item.description} $rule.")
+  
   /**
-   * An exception that indicates missed header in the request.
+   * An exception that indicates that a request item could be parsed.
    *
-   * @param header the missed header name
+   * @param item the invalid request item
+   * @param targetType the type the item should be converted into
+   * @param cause the cause of the parsing error
    */
-  case class HeaderNotFound(header: String) extends RequestReaderError(s"Header '$header' not found in the request.")
+  case class NotParsed(item: RequestItem, targetType: ClassTag[_], cause: Throwable)
+    extends RequestReaderError(s"${item.description} cannot be converted to ${targetType.runtimeClass.getSimpleName}: ${cause.getMessage}.")
 
-  /**
-   * An exception that indicates a missing cookie in the request.
-   *
-   * @param cookie the missing cookie's name
-   */
-  case class CookieNotFound(cookie: String) extends RequestReaderError(s"Cookie '$cookie' not found in the request.")
-
-  /**
-   * An exception that indicated a missing body in the request.
-   */
-  object BodyNotFound extends RequestReaderError("Body not found in the request.")
-
-  /**
-   * An exception that indicates an error in JSON format.
-   */
-  object BodyNotParsed extends RequestReaderError("A serialized object in a request body can not be parsed.")
-
-  /**
-   * An empty ''RequestReader''.
-   */
-  object EmptyReader extends RequestReader[Nothing] {
-    def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
-      new NoSuchElementException("Empty reader.").toFutureException
-  }
-
-  /**
-   * A const param.
-   */
-  object ConstReader {
-
-    /**
-     * Creates a ''RequestReader'' that reads given ''const'' param from the request.
-     *
-     * @return a const param value
-     */
-    def apply[A](const: Future[A]) = new RequestReader[A] {
-      def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = const
-    }
-  }
-
-  private[this] object StringToValueOrFail {
-    def apply[A](param: String, rule: String)(number: => A) = new RequestReader[A] {
-      def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
-        try number.toFuture
-        catch { case _: IllegalArgumentException => ValidationFailed(param, rule).toFutureException }
-
-      override def toString: String = s"param: $param"
-    }
-  }
-
-  private[this] object SomeStringToSomeValue {
-    def apply[A](fn: String => A)(o: Option[String]) = o.flatMap { s =>
-      try Some(fn(s))
-      catch { case _: IllegalArgumentException => None }
-    }
-  }
-
-  private[this] object StringsToValues {
-    def apply[A](fn: String => A)(l: Seq[String]) = l.flatMap { s =>
-      try List(fn(s))
-      catch { case _: IllegalArgumentException => Nil }
-    }
-  }
-
-  /**
-   * A helper function that encapsulates the logic necessary to turn the ''ChannelBuffer''
-   * of ''req'' into an ''Array[Byte]''
-   * @return The ''Array[Byte]'' representing the contents of the request body
-   */
-  private[this] object RequestBody {
-    def apply(req: HttpRequest): Array[Byte] = {
-      val buf = req.content
-      val out = Array.ofDim[Byte](buf.length)
-      buf.write(out, 0)
-      out
-    }
-  }
+  
 
   /**
    * A required string param.
@@ -391,116 +370,7 @@ package object request {
      *
      * @return a param value
      */
-    def apply(param: String) = new RequestReader[String] {
-      def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[String] =
-        req.params.get(param) match {
-          case Some("") => ValidationFailed(param, "should not be empty").toFutureException
-          case Some(value) => value.toFuture
-          case None => ParamNotFound(param).toFutureException
-        }
-
-      override def toString: String = s"Required parameter '$param'"
-    }
-  }
-
-  /**
-   * A required integer param.
-   */
-  object RequiredIntParam {
-
-    /**
-     * Creates a ''RequestReader'' that reads a required integer ''param''
-     * from the request or raises an exception when the param is missing or empty
-     * or doesn't correspond to an expected type.
-     *
-     * @param param the param to read
-     *
-     * @return a param value
-     */
-    def apply(param: String): RequestReader[Int] = for {
-      s <- RequiredParam(param)
-      n <- StringToValueOrFail(param, "should be integer")(s.toInt)
-    } yield n
-  }
-
-  /**
-   * A required long param.
-   */
-  object RequiredLongParam {
-
-    /**
-     * Creates a ''RequestReader'' that reads a required long ''param''
-     * from the request or raises an exception when the param is missing or empty
-     * or doesn't correspond to an expected type.
-     *
-     * @param param the param to read
-     *
-     * @return a param value
-     */
-    def apply(param: String): RequestReader[Long] = for {
-      s <- RequiredParam(param)
-      n <- StringToValueOrFail(param, "should be long")(s.toLong)
-    } yield n
-  }
-
-  /**
-   * A required boolean param.
-   */
-  object RequiredBooleanParam {
-
-    /**
-     * Creates a ''RequestReader'' that reads a required boolean ''param''
-     * from the request or raises an exception when the param is missing or empty
-     * or doesn't correspond to an expected type.
-     *
-     * @param param the param to read
-     *
-     * @return a param value
-     */
-    def apply(param: String): RequestReader[Boolean] = for {
-      s <- RequiredParam(param)
-      n <- StringToValueOrFail(param, "should be boolean")(s.toBoolean)
-    } yield n
-  }
-
-  /**
-   * A required float param.
-   */
-  object RequiredFloatParam {
-
-    /**
-     * Creates a ''RequestReader'' that reads a required float ''param''
-     * from the request or raises an exception when the param is missing or empty
-     * or doesn't correspond to an expected type.
-     *
-     * @param param the param to read
-     *
-     * @return a param value
-     */
-    def apply(param: String): RequestReader[Float] = for {
-      s <- RequiredParam(param)
-      n <- StringToValueOrFail(param, "should be float")(s.toFloat)
-    } yield n
-  }
-
-  /**
-   * A required double param.
-   */
-  object RequiredDoubleParam {
-
-    /**
-     * Creates a ''RequestReader'' that reads a required double ''param''
-     * from the request or raises an exception when the param is missing or empty
-     * or doesn't correspond to an expected type.
-     *
-     * @param param the param to read
-     *
-     * @return a param value
-     */
-    def apply(param: String): RequestReader[Double] = for {
-      s <- RequiredParam(param)
-      n <- StringToValueOrFail(param, "should be double")(s.toDouble)
-    } yield n
+    def apply(param: String): RequestReader[String] = OptionalParam(param).failIfEmpty.shouldNot("be empty")(_.trim.isEmpty)
   }
 
   /**
@@ -517,110 +387,19 @@ package object request {
      * @return an option that contains a param value or ''None'' if the param
      *         is empty or it doesn't correspond to the expected type
      */
-    def apply(param: String): RequestReader[Option[String]] =
-      new RequestReader[Option[String]] {
-        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
-          req.params.get(param).toFuture
-
-        override def toString: String = s"Optional parameter '$param'"
-      }
+    def apply(param: String): RequestReader[Option[String]] = RequestReader(ParamItem(param))(_.params.get(param))
   }
 
   /**
-   * An optional int param.
+   * A helper function that encapsulates the logic necessary to read
+   * a multi-value parameter.
    */
-  object OptionalIntParam {
-
-    /**
-     * Creates a ''RequestReader'' that reads an optional integer ''param''
-     * from the request into an ''Option''.
-     *
-     * @param param the param to read
-     *
-     * @return an option that contains a param value or ''None'' if the param
-     *         is empty or it doesn't correspond to the expected type
-     */
-    def apply(param: String): RequestReader[Option[Int]] = for {
-      o <- OptionalParam(param)
-    } yield SomeStringToSomeValue(_.toInt)(o)
+  private[this] object RequestParams {
+    def apply(req: HttpRequest, param: String): Seq[String] = {
+      req.params.getAll(param).toList.flatMap(_.split(","))
+    }
   }
-
-  /**
-   * An optional long param.
-   */
-  object OptionalLongParam {
-
-    /**
-     * Creates a ''RequestReader'' that reads an optional long ''param''
-     * from the request into an ''Option''.
-     *
-     * @param param the param to read
-     *
-     * @return an option that contains a param value or ''None'' if the param
-     *         is empty or it doesn't correspond to the expected type
-     */
-    def apply(param: String): RequestReader[Option[Long]] = for {
-      o <- OptionalParam(param)
-    } yield SomeStringToSomeValue(_.toLong)(o)
-  }
-
-  /**
-   * An optional boolean param.
-   */
-  object OptionalBooleanParam {
-
-    /**
-     * Creates a ''RequestReader'' that reads an optional boolean ''param''
-     * from the request into an ''Option''.
-     *
-     * @param param the param to read
-     *
-     * @return an option that contains a param value or ''None'' if the param
-     *         is empty or it doesn't correspond to the expected type
-     */
-    def apply(param: String): RequestReader[Option[Boolean]] = for {
-      o <- OptionalParam(param)
-    } yield SomeStringToSomeValue(_.toBoolean)(o)
-  }
-
-  /**
-   * An optional float param.
-   */
-  object OptionalFloatParam {
-
-    /**
-     * Creates a ''RequestReader'' that reads an optional float ''param''
-     * from the request into an ''Option''.
-     *
-     * @param param the param to read
-     *
-     * @return an option that contains a param value or ''None'' if the param
-     *         is empty or it doesn't correspond to the expected type
-     */
-    def apply(param: String): RequestReader[Option[Float]] = for {
-      o <- OptionalParam(param)
-    } yield SomeStringToSomeValue(_.toFloat)(o)
-  }
-
-  /**
-   * An optional double param.
-   */
-  object OptionalDoubleParam {
-
-    /**
-     * Creates a ''RequestReader'' that reads an optional double ''param''
-     * from the request into an ''Option''.
-     *
-     * @param param the param to read
-     *
-     * @return an option that contains a param value or ''None'' if the param
-     *         is empty or it doesn't correspond to the expected type
-     */
-    def apply(param: String): RequestReader[Option[Double]] = for {
-      o <- OptionalParam(param)
-    } yield SomeStringToSomeValue(_.toDouble)(o)
-  }
-
+  
   /**
    * A required multi-value string param.
    */
@@ -635,119 +414,11 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String): RequestReader[Seq[String]] =
-      new RequestReader[Seq[String]] {
-        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
-          req.params.getAll(param).toList.flatMap(_.split(",")) match {
-            case Nil => ParamNotFound(param).toFutureException
-            case unfiltered => unfiltered.filter(_ != "") match {
-              case Nil => ValidationFailed(param, "should not be empty").toFutureException
-              case filtered => filtered.toFuture
-            }
-          }
-
-        override def toString: String = s"Required parameters '$param'"
-      }
-  }
-
-  /**
-   * A required multi-value integer param.
-   */
-  object RequiredIntParams {
-
-    /**
-     * Creates a ''RequestReader'' that reads a required multi-value integer
-     * ''param'' from the request into an ''List'' or raises an exception when the
-     * param is missing or empty or doesn't correspond to an expected type.
-     *
-     * @param param the param to read
-     *
-     * @return a ''List'' that contains all the values of multi-value param
-     */
-    def apply(param: String): RequestReader[Seq[Int]] = for {
-      ss <- RequiredParams(param)
-      ns <- StringToValueOrFail(param, "should be integer")(ss.map { _.toInt })
-    } yield ns
-  }
-
-  /**
-   * A required multi-value long param.
-   */
-  object RequiredLongParams {
-
-    /**
-     * Creates a ''RequestReader'' that reads a required multi-value long
-     * ''param'' from the request into an ''List'' or raises an exception when the
-     * param is missing or empty or doesn't correspond to an expected type.
-     *
-     * @param param the param to read
-     *
-     * @return a ''List'' that contains all the values of multi-value param
-     */
-    def apply(param: String): RequestReader[Seq[Long]] = for {
-      ss <- RequiredParams(param)
-      ns <- StringToValueOrFail(param, "should be long")(ss.map { _.toLong })
-    } yield ns
-  }
-
-  /**
-   * A required multi-value boolean param.
-   */
-  object RequiredBooleanParams {
-
-    /**
-     * Creates a ''RequestReader'' that reads a required multi-value boolean
-     * ''param'' from the request into an ''List'' or raises an exception when the
-     * param is missing or empty or doesn't correspond to an expected type.
-     *
-     * @param param the param to read
-     *
-     * @return a ''List'' that contains all the values of multi-value param
-     */
-    def apply(param: String): RequestReader[Seq[Boolean]] = for {
-      ss <- RequiredParams(param)
-      ns <- StringToValueOrFail(param, "should be boolean")(ss.map { _.toBoolean })
-    } yield ns
-  }
-
-  /**
-   * A required multi-value float param.
-   */
-  object RequiredFloatParams {
-
-    /**
-     * Creates a ''RequestReader'' that reads a required multi-value float
-     * ''param'' from the request into an ''List'' or raises an exception when the
-     * param is missing or empty or doesn't correspond to an expected type.
-     *
-     * @param param the param to read
-     *
-     * @return a ''List'' that contains all the values of multi-value param
-     */
-    def apply(param: String): RequestReader[Seq[Float]] = for {
-      ss <- RequiredParams(param)
-      ns <- StringToValueOrFail(param, "should be float")(ss.map { _.toFloat })
-    } yield ns
-  }
-
-  /**
-   * A required multi-value double param.
-   */
-  object RequiredDoubleParams {
-
-    /**
-     * Creates a ''RequestReader'' that reads a required multi-value double
-     * ''param'' from the request into an ''List'' or raises an exception when the
-     * param is missing or empty or doesn't correspond to an expected type.
-     *
-     * @param param the param to read
-     *
-     * @return a ''List'' that contains all the values of multi-value param
-     */
-    def apply(param: String): RequestReader[Seq[Double]] = for {
-      ss <- RequiredParams(param)
-      ns <- StringToValueOrFail(param, "should be double")(ss.map { _.toDouble })
-    } yield ns
+    def apply(param: String): RequestReader[Seq[String]] = 
+      (RequestReader(ParamItem(param))(RequestParams(_, param)) mapFuture {
+        case Nil => NotFound(ParamItem(param)).toFutureException
+        case unfiltered => unfiltered.filter(_ != "").toFuture 
+      }).shouldNot("be empty")(_.isEmpty)
   }
 
   /**
@@ -764,113 +435,8 @@ package object request {
      * @return a ''List'' that contains all the values of multi-value param or
      *         en empty list ''Nil'' if the param is missing or empty.
      */
-    def apply(param: String): RequestReader[Seq[String]] =
-      new RequestReader[Seq[String]] {
-        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
-          req.params.getAll(param).toList.flatMap(_.split(",")).filter(_ != "").toFuture
-
-        override def toString: String = s"Optional parameters '$param'"
-      }
-  }
-
-  /**
-   * An optional multi-value integer param.
-   */
-  object OptionalIntParams {
-
-    /**
-     * Creates a ''RequestReader'' that reads an optional multi-value
-     * integer ''param'' from the request into an ''List''.
-     *
-     * @param param the param to read
-     *
-     * @return a ''List'' that contains all the values of multi-value param or
-     *         en empty list ''Nil'' if the param is missing or empty or doesn't
-     *         correspond to a requested type.
-     */
-    def apply(param: String): RequestReader[Seq[Int]] = for {
-      l <- OptionalParams(param)
-    } yield StringsToValues(_.toInt)(l)
-  }
-
-  /**
-   * An optional multi-value long param.
-   */
-  object OptionalLongParams {
-
-    /**
-     * Creates a ''RequestReader'' that reads an optional multi-value
-     * integer ''param'' from the request into an ''List''.
-     *
-     * @param param the param to read
-     *
-     * @return a ''List'' that contains all the values of multi-value param or
-     *         en empty list ''Nil'' if the param is missing or empty or doesn't
-     *         correspond to a requested type.
-     */
-    def apply(param: String): RequestReader[Seq[Long]] = for {
-      l <- OptionalParams(param)
-    } yield StringsToValues(_.toLong)(l)
-  }
-
-  /**
-   * An optional multi-value boolean param.
-   */
-  object OptionalBooleanParams {
-
-    /**
-     * Creates a ''RequestReader'' that reads an optional multi-value
-     * boolean ''param'' from the request into an ''List''.
-     *
-     * @param param the param to read
-     *
-     * @return a ''List'' that contains all the values of multi-value param or
-     *         en empty list ''Nil'' if the param is missing or empty or doesn't
-     *         correspond to a requested type.
-     */
-    def apply(param: String): RequestReader[Seq[Boolean]] = for {
-      l <- OptionalParams(param)
-    } yield StringsToValues(_.toBoolean)(l)
-  }
-
-  /**
-   * An optional multi-value float param.
-   */
-  object OptionalFloatParams {
-
-    /**
-     * Creates a ''RequestReader'' that reads an optional multi-value
-     * float ''param'' from the request into an ''List''.
-     *
-     * @param param the param to read
-     *
-     * @return a ''List'' that contains all the values of multi-value param or
-     *         en empty list ''Nil'' if the param is missing or empty or doesn't
-     *         correspond to a requested type.
-     */
-    def apply(param: String): RequestReader[Seq[Float]] = for {
-      l <- OptionalParams(param)
-    } yield StringsToValues(_.toFloat)(l)
-  }
-
-  /**
-   * An optional multi-value double param.
-   */
-  object OptionalDoubleParams {
-
-    /**
-     * Creates a ''RequestReader'' that reads an optional multi-value
-     * double ''param'' from the request into an ''List''.
-     *
-     * @param param the param to read
-     *
-     * @return a ''List'' that contains all the values of multi-value param or
-     *         en empty list ''Nil'' if the param is missing or empty or doesn't
-     *         correspond to a requested type.
-     */
-    def apply(param: String): RequestReader[Seq[Double]] = for {
-      l <- OptionalParams(param)
-    } yield StringsToValues(_.toDouble)(l)
+    def apply(param: String): RequestReader[Seq[String]] = 
+      RequestReader(ParamItem(param))(RequestParams(_, param).filter(_ != ""))
   }
 
   /**
@@ -880,21 +446,13 @@ package object request {
 
     /**
      * Creates a ''RequestReader'' that reads a required string ''header''
-     * from the request or raises an exception when the param is missing or empty.
+     * from the request or raises an exception when the header is missing.
      *
      * @param header the header to read
      *
      * @return a header
      */
-    def apply(header: String): RequestReader[String] = new RequestReader[String] {
-      def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
-        req.headerMap.get(header) match {
-          case Some(value) => value.toFuture
-          case None => HeaderNotFound(header).toFutureException
-        }
-
-      override def toString: String = s"Required header '$header'"
-    }
+    def apply(header: String): RequestReader[String] = OptionalHeader(header).failIfEmpty
   }
 
   /**
@@ -911,41 +469,43 @@ package object request {
      * @return an option that contains a header value or ''None'' if the header
      *         is not exist in the request
      */
-    def apply(header: String): RequestReader[Option[String]] =
-      new RequestReader[Option[String]] {
-        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
-          req.headerMap.get(header).toFuture
-
-        override def toString: String = s"Optional header '$header'"
-      }
+    def apply(header: String): RequestReader[Option[String]] = RequestReader(HeaderItem(header))(_.headerMap.get(header))
   }
 
+  /**
+   * A helper function that encapsulates the logic necessary to turn the ''ChannelBuffer''
+   * of ''req'' into an ''Array[Byte]''
+   * @return The ''Array[Byte]'' representing the contents of the request body
+   */
+  private[this] object RequestBody {
+    def apply(req: HttpRequest): Array[Byte] = {
+      val buf = req.content
+      val out = Array.ofDim[Byte](buf.length)
+      buf.write(out, 0)
+      out
+    }
+  }
+  
   /**
    * A ''RequestReader'' that reads the request body, interpreted as a ''Array[Byte]'',
    * or throws a ''BodyNotFound'' exception.
    */
   object RequiredArrayBody extends RequestReader[Array[Byte]] {
-    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Array[Byte]] =
-      OptionalArrayBody(req).flatMap {
-        case Some(body) => body.toFuture
-        case None => BodyNotFound.toFutureException
-      }
-
-    override def toString: String = "Required body"
+    val item = BodyItem
+    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Array[Byte]] = OptionalArrayBody.failIfEmpty(req)
   }
 
   /**
    * A ''RequestReader'' that reads the request body, interpreted as a ''Array[Byte]'',
    * into an ''Option''.
    */
-  object OptionalArrayBody extends RequestReader[Option[Array[Byte]]]{
+  object OptionalArrayBody extends RequestReader[Option[Array[Byte]]] {
+    val item = BodyItem
     def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Option[Array[Byte]]] =
       req.contentLength match {
         case Some(length) if length > 0 => Some(RequestBody(req)).toFuture
         case _ => Future.None
       }
-
-    override def toString: String = "Optional body"
   }
 
   /**
@@ -953,9 +513,8 @@ package object request {
    * or throws a ''BodyNotFound'' exception.
    */
   object RequiredStringBody extends RequestReader[String] {
-    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[String] = for {
-      b <- RequiredArrayBody(req)
-    } yield new String(b, "UTF-8")
+    val item = BodyItem
+    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[String] = OptionalStringBody.failIfEmpty(req)
   }
 
   /**
@@ -963,46 +522,10 @@ package object request {
    * into an ''Option''.
    */
   object OptionalStringBody extends RequestReader[Option[String]] {
+    val item = BodyItem
     def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Option[String]] = for {
       b <- OptionalArrayBody(req)
-    } yield b match {
-      case Some(body) => Some(new String(body, "UTF-8"))
-      case None => None
-    }
-  }
-
-  /**
-   * A ''RequestReader'' that reads an optional encoded object serialized in request body
-   * and decodes it, according to an implicit decoder, into an ''Option''.
-   */
-  object OptionalBody {
-    def apply[A](implicit m: DecodeMagnet[A]): RequestReader[Option[A]] = OptionalStringBody.flatMap {
-      case Some(body) => new RequestReader[Option[A]] {
-        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = Future.const(m()(body) map (Option(_)))
-        override def toString: String = "Optional body"
-      }
-      case None => ConstReader(Future.None)
-    }
-
-    // TODO: Make it accept `Req` instead
-    def apply[A](req: HttpRequest)(implicit m: DecodeMagnet[A]): Future[Option[A]] =
-      OptionalBody[A](m)(req)
-  }
-
-  /**
-   * A ''RequestReader'' that reads an encoded object serialized in request body
-   * and decodes it according to an implicit decoder.
-   */
-  object RequiredBody {
-    def apply[A](implicit m: DecodeMagnet[A]): RequestReader[A] = OptionalBody[A].flatMap {
-      case Some(body) => new RequestReader[A] {
-        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = body.toFuture
-        override def toString: String = "Required body"
-      }
-      case None => ConstReader(BodyNotFound.toFutureException)
-    }
-    // TODO: Make it accept `Req` instead
-    def apply[A](req: HttpRequest)(implicit m: DecodeMagnet[A]): Future[A] = RequiredBody[A](m)(req)
+    } yield b map (new String(_, "UTF-8"))
   }
 
   /**
@@ -1016,12 +539,7 @@ package object request {
      *
      * @return An option that contains a cookie or None if the cookie does not exist on the request.
      */
-    def apply(cookieName: String) = new RequestReader[Option[Cookie]] {
-      def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Option[Cookie]] =
-        req.cookies.get(cookieName).toFuture
-
-      override def toString: String = s"Optional cookie '$cookieName'"
-    }
+    def apply(cookie: String): RequestReader[Option[Cookie]] = RequestReader(CookieItem(cookie))(_.cookies.get(cookie))
   }
 
   /**
@@ -1036,15 +554,7 @@ package object request {
      *
      * @return the cookie
      */
-    def apply(cookieName: String): RequestReader[Cookie] = new RequestReader[Cookie] {
-      def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Cookie] =
-        OptionalCookie(cookieName)(req) flatMap {
-          case None => CookieNotFound(cookieName).toFutureException
-          case Some(cookie: Cookie) => cookie.toFuture
-        }
-
-      override def toString: String = s"Required cookie '$cookieName'"
-    }
+    def apply(cookieName: String): RequestReader[Cookie] = OptionalCookie(cookieName).failIfEmpty
   }
 
   /**
@@ -1052,6 +562,15 @@ package object request {
    */
   trait DecodeRequest[+A] {
     def apply(req: String): Try[A]
+  }
+  
+  /**
+   * Convenience method for creating new DecodeRequest instances.
+   */
+  object DecodeRequest {
+    def apply[A](f: String => Try[A]): DecodeRequest[A] = new DecodeRequest[A] {
+      def apply(value: String): Try[A] = f(value)
+    }
   }
 
   /**

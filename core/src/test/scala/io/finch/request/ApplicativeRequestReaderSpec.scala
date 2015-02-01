@@ -25,7 +25,8 @@ package io.finch.request
 import org.scalatest.{FlatSpec,Matchers}
 
 import com.twitter.finagle.httpx.Request
-import com.twitter.util.{Await,Throw}
+import com.twitter.util.{Await,Throw,Try,Return}
+import items._
 
 class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
 
@@ -36,35 +37,45 @@ class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
        case a ~ b ~ c => (a, b, c)
      }
   
+  def extractNotParsedTargets (result: Try[(Int, Double, Int)]): AnyRef = {
+    (result handle {
+      case RequestReaderErrors(errors) => errors map {
+        case NotParsed(item, _, _) => item
+      }
+      case NotParsed(item, _, _) => Seq(item)
+      case _ => Seq()
+    }).get
+  }
+  
 
   "The applicative reader" should "produce three errors if all three numbers cannot be parsed" in {
     val request = Request.apply("a"->"foo", "b"->"foo", "c"->"foo")
-    Await.result(reader(request).liftToTry) should be (Throw(RequestReaderErrors(Seq(
-      ValidationFailed("a", "should be integer"),
-      ValidationFailed("b", "should be double"),
-      ValidationFailed("c", "should be integer")
-    ))))
+    extractNotParsedTargets(Await.result(reader(request).liftToTry)) should be (Seq(
+      ParamItem("a"),
+      ParamItem("b"),
+      ParamItem("c")
+    ))
   }
   
   it should "produce two validation errors if two numbers cannot be parsed" in {
     val request = Request.apply("a"->"foo", "b"->"7.7", "c"->"foo")
-    Await.result(reader(request).liftToTry) should be (Throw(RequestReaderErrors(Seq(
-      ValidationFailed("a", "should be integer"),
-      ValidationFailed("c", "should be integer")
-    ))))
+    extractNotParsedTargets(Await.result(reader(request).liftToTry)) should be (Seq(
+      ParamItem("a"),
+      ParamItem("c")
+    ))
   }
   
   it should "produce two ParamNotFound errors if two parameters are missing" in {
     val request = Request.apply("b"->"7.7")
     Await.result(reader(request).liftToTry) should be (Throw(RequestReaderErrors(Seq(
-      ParamNotFound("a"),
-      ParamNotFound("c")
+      NotFound(ParamItem("a")),
+      NotFound(ParamItem("c"))
     ))))
   }
   
   it should "produce one error if the last parameter cannot be parsed to an integer" in {
     val request = Request.apply("a"->"9", "b"->"7.7", "c"->"foo")
-    Await.result(reader(request).liftToTry) should be (Throw(ValidationFailed("c","should be integer")))
+    extractNotParsedTargets(Await.result(reader(request).liftToTry)) should be (Seq(ParamItem("c")))
   }
   
   it should "parse all integers and doubles" in {

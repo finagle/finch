@@ -39,7 +39,7 @@ class HeaderSpec extends FlatSpec with Matchers {
   it should "error if it does not exist" in {
     val request = Request()
     val futureResult = RequiredHeader("Location")(request)
-    a [HeaderNotFound] should be thrownBy Await.result(futureResult)
+    a [NotFound] should be thrownBy Await.result(futureResult)
   }
 
 
@@ -56,9 +56,9 @@ class HeaderSpec extends FlatSpec with Matchers {
     Await.result(futureResult) should be (None)
   }
 
-  "A Header Reader" should "have a toString that produces a string representation of itself" in {
+  "A Header Reader" should "have a matching RequestItem" in {
     val header = "Location"
-    RequiredHeader(header).toString should equal(s"Required header '$header'")
-    OptionalHeader(header).toString should equal(s"Optional header '$header'")
+    RequiredHeader(header).item should equal(items.HeaderItem(header))
+    OptionalHeader(header).item should equal(items.HeaderItem(header))
   }
 }

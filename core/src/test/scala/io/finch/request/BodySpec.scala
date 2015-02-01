@@ -29,6 +29,7 @@ import com.twitter.util.{Await, Future, Try}
 import io.finch.HttpRequest
 import org.jboss.netty.handler.codec.http.HttpHeaders
 import org.scalatest.{FlatSpec, Matchers}
+import items._
 
 class BodySpec extends FlatSpec with Matchers {
   val foo = "foo"
@@ -43,11 +44,11 @@ class BodySpec extends FlatSpec with Matchers {
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody(Array[Byte]())
     val futureResult: Future[Array[Byte]] = RequiredArrayBody(request)
-    a [BodyNotFound.type] should be thrownBy Await.result(futureResult)
+    a [NotFound] should be thrownBy Await.result(futureResult)
   }
 
-  it should "have a toString that produces a string representation of itself" in {
-    RequiredArrayBody.toString should equal(s"Required body")
+  it should "have a corresponding RequestItem" in {
+    RequiredArrayBody.item should equal(BodyItem)
   }
 
   "An OptionalArrayBody" should "be properly read if it exists" in {
@@ -62,8 +63,8 @@ class BodySpec extends FlatSpec with Matchers {
     Await.result(futureResult) should equal(None)
   }
 
-  it should "have a toString that produces a string representation of itself" in {
-    OptionalArrayBody.toString should equal(s"Optional body")
+  it should "have a corresponding RequestItem" in {
+    OptionalArrayBody.item should equal(BodyItem)
   }
 
   "A RequiredStringBody" should "be properly read if it exists" in {
@@ -75,7 +76,7 @@ class BodySpec extends FlatSpec with Matchers {
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody("")
     val futureResult: Future[String] = RequiredStringBody(request)
-    a [BodyNotFound.type] should be thrownBy Await.result(futureResult)
+    a [NotFound] should be thrownBy Await.result(futureResult)
   }
 
   "An OptionalStringBody" should "be properly read if it exists" in {
@@ -144,10 +145,10 @@ class BodySpec extends FlatSpec with Matchers {
     val oi: RequestReader[Option[Int]] = OptionalBody[Int]
     val o: Future[Option[Int]] = OptionalBody[Int](req)
 
-    a [NumberFormatException] should be thrownBy Await.result(ri(req))
-    a [NumberFormatException] should be thrownBy Await.result(i)
-    a [NumberFormatException] should be thrownBy Await.result(oi(req))
-    a [NumberFormatException] should be thrownBy Await.result(o)
+    a [NotParsed] should be thrownBy Await.result(ri(req))
+    a [NotParsed] should be thrownBy Await.result(i)
+    a [NotParsed] should be thrownBy Await.result(oi(req))
+    a [NotParsed] should be thrownBy Await.result(o)
   }
 
   private[this] def requestWithBody(body: String): HttpRequest = {
