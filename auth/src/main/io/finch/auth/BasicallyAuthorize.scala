@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, by Vladimir Kostyukov and Contributors.
+ * Copyright 2015, by Vladimir Kostyukov and Contributors.
  *
  * This file is a part of a Finch library that may be found at
  *
@@ -20,24 +20,22 @@
  * Contributor(s): -
  */
 
-package io.finch
+package io.finch.auth
 
+import io.finch._
 import io.finch.response._
 import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Base64StringEncoder
 import org.jboss.netty.handler.codec.http.HttpHeaders
 
-package object auth {
+case class BasicallyAuthorize(user: String, password: String) extends SimpleFilter[HttpRequest, HttpResponse] {
+  def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]) = {
+    val userInfo = s"$user:$password"
+    val expected = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
 
-  case class BasicallyAuthorize(user: String, password: String) extends SimpleFilter[HttpRequest, HttpResponse] {
-    def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]) = {
-      val userInfo = s"$user:$password"
-      val expected = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
-
-      req.headerMap.get(HttpHeaders.Names.AUTHORIZATION) match {
-        case Some(actual) if actual == expected => service(req)
-        case _ => Unauthorized().toFuture
-      }
+    req.headerMap.get(HttpHeaders.Names.AUTHORIZATION) match {
+      case Some(actual) if actual == expected => service(req)
+      case _ => Unauthorized().toFuture
     }
   }
 }
