@@ -35,9 +35,9 @@ import com.twitter.util.Future
  * of the rest of the route. `RouterN[A]` (or just `Router[A]`) in addition
  * to the `Router0` behaviour extracts a value of type `A` from the route.
  *
- * A [[route.Router]] that extracts [[Service]] is called an endpoint. An
- * endpoint `Req => Rep` might be implicitly converted into `Service[Req, Rep]`.
- * Thus, the following example is a valid Finch code:
+ * A [[route.Router]] that maps route to a [[Service]] is called an
+ * [[route.Endpoint]]. An endpoint `Req => Rep` might be implicitly converted
+ * into `Service[Req, Rep]`. Thus, the following example is a valid Finch code:
  *
  * {{{
  *   def hello(s: String) = new Service[HttRequest, HttpResponse] {
@@ -75,6 +75,11 @@ package object route {
    * A user friendly alias for [[RouterN]].
    */
   type Router[+A] = RouterN[A]
+
+  /**
+   * An alias for [[Router]] that maps route to a [[Service]].
+   */
+  type Endpoint[-A, +B] = Router[Service[A, B]]
 
   /**
    * An exception, which is thrown by router in case of missing route `r`.
