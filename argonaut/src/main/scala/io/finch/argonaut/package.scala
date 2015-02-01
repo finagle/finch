@@ -26,7 +26,7 @@ package io.finch
 
 import _root_.argonaut.{EncodeJson, Json, Parse, DecodeJson}
 import io.finch.request.DecodeRequest
-import io.finch.request.RequestReaderError
+import io.finch.request.RequestError
 import io.finch.response.EncodeResponse
 import com.twitter.util.{Try, Throw, Return}
 
@@ -39,7 +39,7 @@ package object argonaut {
    */
   implicit def toArgonautDecode[A](implicit decode: DecodeJson[A]): DecodeRequest[A] = new DecodeRequest[A] {
     override def apply(json: String): Try[A] = Parse.decodeEither(json).fold(
-      error => Throw(new RequestReaderError(error)),
+      error => Throw(new RequestError(error)),
       Return(_)
     )
   }

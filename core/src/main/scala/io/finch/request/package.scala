@@ -187,13 +187,13 @@ package object request extends LowPriorityImplicits {
           case (_, Throw(e)) => e.toFutureException
         } 
       
-      def collectExceptions (a: Throwable, b: Throwable): RequestReaderErrors = {
+      def collectExceptions (a: Throwable, b: Throwable): RequestErrors = {
         def collect (e: Throwable): Seq[Throwable] = e match {
-          case RequestReaderErrors(errors) => errors
+          case RequestErrors(errors) => errors
           case other => Seq(other)
         }
 
-        RequestReaderErrors(collect(a) ++ collect(b))
+        RequestErrors(collect(a) ++ collect(b))
       }
     }
 
@@ -206,7 +206,7 @@ package object request extends LowPriorityImplicits {
      * @param predicate returns true if the data is valid
      *
      * @return a ''RequestReader'' that will return the value of this reader if it is valid.
-     *         Otherwise a ''RequestReaderError'' is returned as ''FutureException''.
+     *         Otherwise the future fails with a ''NotValid'' error.
      */
     def should(rule: String)(predicate: A => Boolean): RequestReader[A] = embedFlatMap { a =>
       if (predicate(a)) a.toFuture
@@ -220,7 +220,7 @@ package object request extends LowPriorityImplicits {
      * @param predicate returns false if the data is valid
      *
      * @return a ''RequestReader'' that will return the value of this reader if it is valid.
-     *         Otherwise a ''RequestReaderError'' is returned as ''FutureException''.
+     *         Otherwise the future fails with a ''NotValid'' error.
      */
     def shouldNot(rule: String)(predicate: A => Boolean): RequestReader[A] = should(s"not $rule.")(x => !predicate(x))
     
@@ -231,7 +231,7 @@ package object request extends LowPriorityImplicits {
      * @param rule the predefined validation rule that will return true if the data is valid
      *
      * @return a ''RequestReader'' that will return the value of this reader if it is valid.
-     *         Otherwise a ''RequestReaderError'' is returned as ''FutureException''.
+     *         Otherwise the future fails with a ''NotValid'' error.
      */
     def should(rule: ValidationRule[A]): RequestReader[A] = should(rule.description)(rule.apply)
  		
@@ -242,7 +242,7 @@ package object request extends LowPriorityImplicits {
      * @param rule the predefined validation rule that will return false if the data is valid
      *
      * @return a ''RequestReader'' that will return the value of this reader if it is valid.
-     *         Otherwise a ''RequestReaderError'' is returned as ''FutureException''.
+     *         Otherwise the future fails with a ''NotValid'' error.
      */
     def shouldNot(rule: ValidationRule[A]): RequestReader[A] = shouldNot(rule.description)(rule.apply)
   }
@@ -252,10 +252,47 @@ package object request extends LowPriorityImplicits {
    */
   object RequestReader {
     
-    def apply[A](reqItem: RequestItem)(f: HttpRequest => A): RequestReader[A] = 
+    /**
+     * Creates a new reader that always succeeds, producing the specified value.
+     * 
+     * @param value the value the new reader should produce
+     * @param item the request item (e.g. parameter, header) the value is associated with
+     * @return a new reader that always succeeds, producing the specified value
+     */
+	  def value[A](value: A, item: RequestItem = MultipleItems): RequestReader[A] = const(value.toFuture)
+	  
+    /**
+     * Creates a new reader that always fails, producing the specified exception.
+     * 
+     * @param exc the exception the new reader should produce
+     * @param item the request item (e.g. parameter, header) the value is associated with
+     * @return a new reader that always fails, producing the specified exception
+     */
+    def exception[A](exc: Throwable, item: RequestItem = MultipleItems): RequestReader[A] = const(exc.toFutureException)
+    
+    /**
+     * Creates a new reader that always produces the specified value.
+     * It will succeed if the Future succeeds and fail if the Future fails.
+     * 
+     * @param value the value the new reader should produce
+     * @param item the request item (e.g. parameter, header) the value is associated with
+     * @return a new reader that always produces the specified value
+     */
+    def const[A](value: Future[A], item: RequestItem = MultipleItems): RequestReader[A] = embed(item)(_ => value)
+    
+    /**
+     * Creates a new reader that reads the result from the request.
+     * 
+     * @param item the request item (e.g. parameter, header) the value is associated with
+     * @param f the function to apply to the request
+     * @return a new reader that reads the result from the request
+     */
+    def apply[A](item: RequestItem)(f: HttpRequest => A): RequestReader[A] = embed(item)(f(_).toFuture)
+      
+    private[this] def embed[A](reqItem: RequestItem)(f: HttpRequest => Future[A]): RequestReader[A] = 
       new RequestReader[A] {
         val item = reqItem
-        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = f(req).toFuture
+        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = f(req)
       }
     
   }
@@ -320,7 +357,7 @@ package object request extends LowPriorityImplicits {
     def as[A](implicit magnet: DecodeMagnet[A], tag: ClassTag[A]): RequestReader[Seq[A]] = reader embedFlatMap { items =>
       val converted = items map (magnet()(_))
       if (converted.forall(_.isReturn)) converted.map(_.get).toFuture
-      else RequestReaderErrors(converted collect { case Throw(e) => NotParsed(reader.item, tag, e) }).toFutureException
+      else RequestErrors(converted collect { case Throw(e) => NotParsed(reader.item, tag, e) }).toFutureException
     }
     
   }
@@ -358,7 +395,7 @@ package object request extends LowPriorityImplicits {
    *
    * @param message the message
    */
-  class RequestReaderError(val message: String, cause: Throwable) extends Exception(message, cause) {
+  class RequestError(val message: String, cause: Throwable) extends Exception(message, cause) {
     def this(message: String) = this(message, null)
   }
 
@@ -367,8 +404,8 @@ package object request extends LowPriorityImplicits {
    * 
    * @param errors the errors collected from various request readers
    */
-  case class RequestReaderErrors(errors: Seq[Throwable]) 
-    extends RequestReaderError("One or more errors reading request: " + errors.map(_.getMessage).mkString("\n  ","\n  ",""))
+  case class RequestErrors(errors: Seq[Throwable]) 
+    extends RequestError("One or more errors reading request: " + errors.map(_.getMessage).mkString("\n  ","\n  ",""))
   
   /**
    * An exception that indicates a required request item (header, param, cookie, body)
@@ -376,7 +413,7 @@ package object request extends LowPriorityImplicits {
    *
    * @param item the missing request item
    */
-  case class NotPresent(item: RequestItem) extends RequestReaderError(s"Required ${item.description} not present in the request.")
+  case class NotPresent(item: RequestItem) extends RequestError(s"Required ${item.description} not present in the request.")
 
   /**
    * An exception that indicates a broken validation rule on the request item.
@@ -385,7 +422,7 @@ package object request extends LowPriorityImplicits {
    * @param rule the rule description
    */
   case class NotValid(item: RequestItem, rule: String)
-    extends RequestReaderError(s"Validation failed: ${item.description} $rule.")
+    extends RequestError(s"Validation failed: ${item.description} $rule.")
   
   /**
    * An exception that indicates that a request item could be parsed.
@@ -395,7 +432,7 @@ package object request extends LowPriorityImplicits {
    * @param cause the cause of the parsing error
    */
   case class NotParsed(item: RequestItem, targetType: ClassTag[_], cause: Throwable)
-    extends RequestReaderError(s"${item.description} cannot be converted to ${targetType.runtimeClass.getSimpleName}: ${cause.getMessage}.")
+    extends RequestError(s"${item.description} cannot be converted to ${targetType.runtimeClass.getSimpleName}: ${cause.getMessage}.")
 
   
 
@@ -529,19 +566,19 @@ package object request extends LowPriorityImplicits {
   }
   
   /**
-   * A ''RequestReader'' that reads the request body, interpreted as a ''Array[Byte]'',
+   * A ''RequestReader'' that reads a binary request body, interpreted as a ''Array[Byte]'',
    * or throws a ''NotPresent'' exception.
    */
-  object RequiredArrayBody extends RequestReader[Array[Byte]] {
+  object RequiredBinaryBody extends RequestReader[Array[Byte]] {
     val item = BodyItem
-    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Array[Byte]] = OptionalArrayBody.failIfEmpty(req)
+    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Array[Byte]] = OptionalBinaryBody.failIfEmpty(req)
   }
 
   /**
-   * A ''RequestReader'' that reads the request body, interpreted as a ''Array[Byte]'',
+   * A ''RequestReader'' that reads a binary request body, interpreted as a ''Array[Byte]'',
    * into an ''Option''.
    */
-  object OptionalArrayBody extends RequestReader[Option[Array[Byte]]] {
+  object OptionalBinaryBody extends RequestReader[Option[Array[Byte]]] {
     val item = BodyItem
     def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Option[Array[Byte]]] =
       req.contentLength match {
@@ -554,19 +591,19 @@ package object request extends LowPriorityImplicits {
    * A ''RequestReader'' that reads the request body, interpreted as a ''String'',
    * or throws a ''NotPresent'' exception.
    */
-  object RequiredStringBody extends RequestReader[String] {
+  object RequiredBody extends RequestReader[String] {
     val item = BodyItem
-    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[String] = OptionalStringBody.failIfEmpty(req)
+    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[String] = OptionalBody.failIfEmpty(req)
   }
 
   /**
    * A ''RequestReader'' that reads the request body, interpreted as a ''String'',
    * into an ''Option''.
    */
-  object OptionalStringBody extends RequestReader[Option[String]] {
+  object OptionalBody extends RequestReader[Option[String]] {
     val item = BodyItem
     def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Option[String]] = for {
-      b <- OptionalArrayBody(req)
+      b <- OptionalBinaryBody(req)
     } yield b map (new String(_, "UTF-8"))
   }
 

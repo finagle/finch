@@ -141,7 +141,7 @@ case class PostUserTicket(userId: Long, ticketId: Long, db: Main.Db) extends Ser
   // A request reader that reads ticket object from the http request.
   // A ticket object is represented by json object serialized in request body.
   val ticket: RequestReader[Ticket] = for {
-    json <- RequiredBody[Json]
+    json <- RequiredBody.as[Json]
   } yield Ticket(ticketId, json[String]("label").getOrElse("N/A"))
 
   def apply(req: AuthRequest) = for {

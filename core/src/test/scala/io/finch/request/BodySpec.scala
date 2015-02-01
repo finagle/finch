@@ -105,10 +105,10 @@ class BodySpec extends FlatSpec with Matchers {
        def apply(req: String): Try[Int] = Try(req.toInt)
     }
     val req = requestWithBody("123")
-    val ri: RequestReader[Int] = RequiredBody[Int]
-    val i: Future[Int] = RequiredBody[Int](req)
-    val oi: RequestReader[Option[Int]] = OptionalBody[Int]
-    val o = OptionalBody[Int](req)
+    val ri: RequestReader[Int] = RequiredBody.as[Int]
+    val i: Future[Int] = RequiredBody.as[Int].apply(req)
+    val oi: RequestReader[Option[Int]] = OptionalBody.as[Int]
+    val o = OptionalBody.as[Int].apply(req)
 
     Await.result(ri(req)) shouldBe 123
     Await.result(i) shouldBe 123
@@ -124,10 +124,10 @@ class BodySpec extends FlatSpec with Matchers {
     implicit val cReqEv = (req: CReq) => req.http // implicit view
 
     val req = CReq(requestWithBody("42.0"))
-    val rd: RequestReader[Double] = RequiredBody[Double]
-    val d = RequiredBody[Double](req)
-    val od: RequestReader[Option[Double]] = OptionalBody[Double]
-    val o: Future[Option[Double]] = OptionalBody[Double](req)
+    val rd: RequestReader[Double] = RequiredBody.as[Double]
+    val d = RequiredBody.as[Double].apply(req)
+    val od: RequestReader[Option[Double]] = OptionalBody.as[Double]
+    val o: Future[Option[Double]] = OptionalBody.as[Double].apply(req)
 
     Await.result(rd(req)) shouldBe 42.0
     Await.result(d) shouldBe 42.0
@@ -140,10 +140,10 @@ class BodySpec extends FlatSpec with Matchers {
        def apply(req: String): Try[Int] = Try(req.toInt)
     }
     val req = requestWithBody("foo")
-    val ri: RequestReader[Int] = RequiredBody[Int]
-    val i: Future[Int] = RequiredBody[Int](req)
-    val oi: RequestReader[Option[Int]] = OptionalBody[Int]
-    val o: Future[Option[Int]] = OptionalBody[Int](req)
+    val ri: RequestReader[Int] = RequiredBody.as[Int]
+    val i: Future[Int] = RequiredBody.as[Int].apply(req)
+    val oi: RequestReader[Option[Int]] = OptionalBody.as[Int]
+    val o: Future[Option[Int]] = OptionalBody.as[Int].apply(req)
 
     a [NotParsed] should be thrownBy Await.result(ri(req))
     a [NotParsed] should be thrownBy Await.result(i)
