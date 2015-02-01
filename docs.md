@@ -136,7 +136,7 @@ case class User(name: String, age: Int, city: String)
 // Define a new request reader composed from provided out-of-the-box readers.
 val user: RequestReader[User] = for {
   name <- RequiredParam("name")
-  age <- RequiredIntParam("age")
+  age <- RequiredParam("age").as[Int]
   city <- OptionalParam("city")
 } yield User(name, age, city.getOrElse("Novosibirsk"))
 
@@ -155,12 +155,12 @@ val user: Json = service(req) handle {
 }
 ```
 
-Optional request readers such as `OptionalIntParam` are quite often used for fetching pagination details.
+Optional request readers such as `OptionalParam` are quite often used for fetching pagination details.
 
 ```scala
 val pagination: RequestReader[(Int, Int)] = for {
-  offset <- OptionalIntParam("offset")
-  limit <- OptionalIntParam("limit")
+  offset <- OptionalParam("offset").as[Int]
+  limit <- OptionalParam("limit").as[Int]
 } yield (offset.getOrElse(0), math.min(limit.getOrElse(50), 50))
 
 val service = new Service[HttpRequest, HttpResponse] {
@@ -173,13 +173,13 @@ val service = new Service[HttpRequest, HttpResponse] {
 #### A `io.finch.request.RequiredParam` reader makes sure that
 * param is presented in the request (otherwise it throws `ParamNoFound(param)` exception)
 * param is not empty (otherwise it throws `ValidationFailed(param, rule)` exception)
-* param may be converted to a requested type `RequiredIntParam`, `RequiredLongParam` or `RequiredBooleanParam`
-(otherwise it throws `ValidationFailed(param, rule)` exception).
+* param may be converted to a requested type through calling `as[Int]`, `as[Float]`, etc.
+(otherwise it throws a `NotParsed` exception).
 
-#### An `io.finch.request.OptionalParam` returns
-* `Future[Some[A]]` if param is presented in the request and may be converted to a requested type `OptionalIntParam`,
-`OptionalLongParam` or `OptionalBooleanParam`
-* `Future.None` otherwise.
+#### An `io.finch.request.OptionalParam.as[A]` returns
+* `Future[Some[A]]` if param is presented in the request and can be converted to the requested type
+* `Future.None` if the param is missing.
+* `NotParsed` exception if the param is presented, but cannot be converted to the requested type
 
 
 ### Improved Error Handling with Applicative Syntax
@@ -192,7 +192,7 @@ case class User(name: String, age: Int, city: String)
 
 val user: RequestReader[User] = 
   (RequiredParam("name") ~
-  RequiredIntParam("age") ~
+  RequiredParam("age").as[Int] ~
   OptionalParam("city")) map {
     case name ~ age ~ city => 
       User(name, age, city.getOrElse("Novosibirsk"))
@@ -227,13 +227,13 @@ case class User(name: String, age: Int)
 // monadic syntax
 val adult: RequestReader[User] = for {
   name <- RequiredParam("name")
-  age <- RequiredIntParam("age").should("be greater than 18"){ _ > 18 }
+  age <- RequiredParam("age").as[Int].should("be greater than 18"){ _ > 18 }
 } yield User(name, age)
 
 // applicative syntax  
 val adult2: RequestReader[User] = 
   (RequiredParam("name") ~
-  RequiredIntParam("age").should("be greater than 18"){ _ > 18 }) map {
+  RequiredParam("age").as[Int].should("be greater than 18"){ _ > 18 }) map {
     case name ~ age => User(name, age)
 }
   
@@ -243,7 +243,7 @@ def beSmallerThan(value: Int) = ValidationRule[Int](s"be smaller than $value") {
   
 val child: RequestReader[User] = 
   (RequiredParam("name") ~
-  RequiredIntParam("age").should(beNonNegative and beSmallerThan(18))) map {
+  RequiredParam("age").as[Int].should(beNonNegative and beSmallerThan(18))) map {
     case name ~ age => User(name, age)
 }
 ```
@@ -275,15 +275,14 @@ case class NotValid(item: RequestItem, rule: String) // when a validation rule d
 
 All the readers have companion readers that can read multiple-value params `List[A]` instead of single-value params `A`.
 Multiple-value readers have `s` postfix in their names. So, `Param` has `Params`, `OptionalParam` has `OptionalParams`
-and finally `RequiredParam` has `RequiredParams` companions. There are also typed versions for every reader, like
-`IntParams` or even `OptionalLongParams`.
+and finally `RequiredParam` has `RequiredParams` companions.
 
-Thus, the following HTTP params `a=1,2,3&b=4&b=5` might be fetched with `RequiredIntParams` reader like this:
+Thus, the following HTTP params `a=1,2,3&b=4&b=5` might be fetched with `RequiredParams` reader like this:
 
 ```scala
-val reader: RequestReader[(Int, Int)] = for {
- a <- RequiredIntParams("a")
- b <- RequiredIntParams("b")
+val reader: RequestReader[(List[Int], List[Int])] = for {
+ a <- RequiredParams("a").as[Int]
+ b <- RequiredParams("b").as[Int]
 } yield (a, b)
 
 val (a, b): (List[Int], List[Int]) = reader(request)
@@ -307,10 +306,10 @@ An HTTP body may be fetched from the HTTP request using the following readers:
 * `io.finch.request.OptionalStringBody` - fetches the HTTP body as `Option[String]`
 
 Finch supports pluggable request decoders. In fact, any type `A` my be read from the request body using either:
-`io.finch.request.RequiredBody[A]` or `io.finch.request.OptionalBody[A]` if there is an implicit value of type 
+`io.finch.request.RequiredStringBody.as[A]` or `io.finch.request.OptionalStringBody.as[A]` if there is an implicit value of type 
 `DecodeRequest[A]` available in the scope. The `DecodeRequest[A]` abstraction may be described as function 
 `String => Try[A]`. Thus, any decoders may be easily defined to use the functionality of body readers. Note, that 
-the body type (i.e., `Double`) should be always explicitly defined for both `RequiredBody` and `OptionalBody`.
+the body type (i.e., `Double`) should be always explicitly defined for both `RequiredStringBody` and `OptionalStringBody`.
 
 ```
 implicit val decodeDouble = new DecodeRequest[Double] {
@@ -319,7 +318,7 @@ implicit val decodeDouble = new DecodeRequest[Double] {
   
 }
 val req: HttpRequest = ???
-val readDouble: RequestReader[Double] = RequiredBody[Double]
+val readDouble: RequestReader[Double] = RequiredStringBody.as[Double]
 ```
 
 
@@ -448,7 +447,7 @@ import io.finch.json._
 import io.finch.request._
 
 vaj j: Json = Json.obj("a" -> 10)
-val i: RequestReader[Json] = RequiredBody[Json]
+val i: RequestReader[Json] = RequiredStringBody.as[Json]
 val o: HttpResponse = Ok(Json.arr("a", "b", "c")
 
 ```
@@ -477,7 +476,7 @@ implicit val objectMapper: ObjectMapper = new ObjectMapper().registerModule(Defa
 case class Foo(id: Int, s: String)
 
 val ok: HttpResponse = Ok(Foo(10, "foo")) // will be encoded as JSON
-val foo: RequestReader[Foo] = RequiredBody[Foo] // a request reader that reads Foo
+val foo: RequestReader[Foo] = RequiredStringBody.as[Foo] // a request reader that reads Foo
 ```
 
 

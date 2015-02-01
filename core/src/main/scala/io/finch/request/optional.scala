@@ -34,6 +34,7 @@ import scala.reflect.ClassTag
 /**
  * An empty ''RequestReader''.
  */
+@deprecated("no replacement yet, if there is a use for it, it should be on the RequestReader companion object", "0.5.0")
 object EmptyReader extends RequestReader[Nothing] {
   val item = MultipleItems
   def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
@@ -43,6 +44,7 @@ object EmptyReader extends RequestReader[Nothing] {
 /**
  * A const param.
  */
+@deprecated("no replacement yet, if there is a use for it, it should be on the RequestReader companion object", "0.5.0")
 object ConstReader {
 
   /**
@@ -59,6 +61,7 @@ object ConstReader {
 /**
  * A required integer param.
  */
+@deprecated("use RequiredParam(name).as[Int]", "0.5.0")
 object RequiredIntParam {
 
   /**
@@ -76,6 +79,7 @@ object RequiredIntParam {
 /**
  * A required long param.
  */
+@deprecated("use RequiredParam(name).as[Long]", "0.5.0")
 object RequiredLongParam {
 
   /**
@@ -93,6 +97,7 @@ object RequiredLongParam {
 /**
  * A required boolean param.
  */
+@deprecated("use RequiredParam(name).as[Boolean]", "0.5.0")
 object RequiredBooleanParam {
 
   /**
@@ -110,6 +115,7 @@ object RequiredBooleanParam {
 /**
  * A required float param.
  */
+@deprecated("use RequiredParam(name).as[Float]", "0.5.0")
 object RequiredFloatParam {
 
   /**
@@ -127,6 +133,7 @@ object RequiredFloatParam {
 /**
  * A required double param.
  */
+@deprecated("use RequiredParam(name).as[Double]", "0.5.0")
 object RequiredDoubleParam {
 
   /**
@@ -144,6 +151,7 @@ object RequiredDoubleParam {
 /**
  * An optional int param.
  */
+@deprecated("use OptionalParam(name).as[Int]", "0.5.0")
 object OptionalIntParam {
 
   /**
@@ -161,6 +169,7 @@ object OptionalIntParam {
 /**
  * An optional long param.
  */
+@deprecated("use OptionalParam(name).as[Long]", "0.5.0")
 object OptionalLongParam {
 
   /**
@@ -178,6 +187,7 @@ object OptionalLongParam {
 /**
  * An optional boolean param.
  */
+@deprecated("use OptionalParam(name).as[Boolean]", "0.5.0")
 object OptionalBooleanParam {
 
   /**
@@ -195,6 +205,7 @@ object OptionalBooleanParam {
 /**
  * An optional float param.
  */
+@deprecated("use OptionalParam(name).as[Float]", "0.5.0")
 object OptionalFloatParam {
 
   /**
@@ -212,6 +223,7 @@ object OptionalFloatParam {
 /**
  * An optional double param.
  */
+@deprecated("use OptionalParam(name).as[Double]", "0.5.0")
 object OptionalDoubleParam {
 
   /**
@@ -229,6 +241,7 @@ object OptionalDoubleParam {
 /**
  * A required multi-value integer param.
  */
+@deprecated("use RequiredParams(name).as[Int]", "0.5.0")
 object RequiredIntParams {
 
   /**
@@ -246,6 +259,7 @@ object RequiredIntParams {
 /**
  * A required multi-value long param.
  */
+@deprecated("use RequiredParams(name).as[Long]", "0.5.0")
 object RequiredLongParams {
 
   /**
@@ -263,6 +277,7 @@ object RequiredLongParams {
 /**
  * A required multi-value boolean param.
  */
+@deprecated("use RequiredParams(name).as[Boolean]", "0.5.0")
 object RequiredBooleanParams {
 
   /**
@@ -280,6 +295,7 @@ object RequiredBooleanParams {
 /**
  * A required multi-value float param.
  */
+@deprecated("use RequiredParams(name).as[Float]", "0.5.0")
 object RequiredFloatParams {
 
   /**
@@ -297,6 +313,7 @@ object RequiredFloatParams {
 /**
  * A required multi-value double param.
  */
+@deprecated("use RequiredParams(name).as[Double]", "0.5.0")
 object RequiredDoubleParams {
 
   /**
@@ -314,6 +331,7 @@ object RequiredDoubleParams {
 /**
  * An optional multi-value integer param.
  */
+@deprecated("use OptionalParams(name).as[Int]", "0.5.0")
 object OptionalIntParams {
 
   /**
@@ -332,6 +350,7 @@ object OptionalIntParams {
 /**
  * An optional multi-value long param.
  */
+@deprecated("use OptionalParams(name).as[Long]", "0.5.0")
 object OptionalLongParams {
 
   /**
@@ -350,6 +369,7 @@ object OptionalLongParams {
 /**
  * An optional multi-value boolean param.
  */
+@deprecated("use OptionalParams(name).as[Boolean]", "0.5.0")
 object OptionalBooleanParams {
 
   /**
@@ -368,6 +388,7 @@ object OptionalBooleanParams {
 /**
  * An optional multi-value float param.
  */
+@deprecated("use OptionalParams(name).as[Float]", "0.5.0")
 object OptionalFloatParams {
 
   /**
@@ -386,6 +407,7 @@ object OptionalFloatParams {
 /**
  * An optional multi-value double param.
  */
+@deprecated("use OptionalParams(name).as[Double]", "0.5.0")
 object OptionalDoubleParams {
 
 /**
@@ -405,6 +427,7 @@ object OptionalDoubleParams {
  * A ''RequestReader'' that reads an optional encoded object serialized in request body
  * and decodes it, according to an implicit decoder, into an ''Option''.
  */
+@deprecated("use OptionalStringBody.as[A]", "0.5.0")
 object OptionalBody {
   def apply[A](implicit m: DecodeMagnet[A], tag: ClassTag[A]): RequestReader[Option[A]] = OptionalStringBody.as[A]
 
@@ -417,6 +440,7 @@ object OptionalBody {
  * A ''RequestReader'' that reads an encoded object serialized in request body
  * and decodes it according to an implicit decoder.
  */
+@deprecated("use RequiredStringBody.as[A]", "0.5.0")
 object RequiredBody {
   def apply[A](implicit m: DecodeMagnet[A], tag: ClassTag[A]): RequestReader[A] = OptionalStringBody.as[A].failIfEmpty
   
