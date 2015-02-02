@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.twitter.finagle.httpx.Request
 import com.twitter.io.Buf.Utf8
-import com.twitter.util.{Await, Future}
+import com.twitter.util.{Await, Future, Return}
 import io.finch.request.{OptionalBody, RequiredBody, RequestReader}
 import io.finch.response.Ok
 import org.jboss.netty.handler.codec.http.HttpHeaders
@@ -42,7 +42,13 @@ class JacksonSpec extends FlatSpec with Matchers {
   it should "decode a case class from JSON" in {
     val json = "{\"bar\":\"bar\",\"baz\":20}"
     val decode = decodeJackson(objectMapper)
-    decode[Foo](json) shouldBe Some(Foo("bar", 20))
+    decode[Foo](json) shouldBe Return(Foo("bar", 20))
+  }
+  
+  it should "fail given invalid JSON" in {
+    val json = "{\"bar\":\"bar\",\"baz\":20}"
+    val decode = decodeJackson(objectMapper)
+    decode[Foo]("{{{{").isThrow shouldBe true
   }
 
   it should "work w/o exceptions with ResponseBuilder" in {
@@ -56,7 +62,7 @@ class JacksonSpec extends FlatSpec with Matchers {
     val decode = decodeJackson(objectMapper)
 
     encode(list) shouldBe "[1,2,3]"
-    decode[List[Int]]("[1,2,3]") shouldBe Some(List(1, 2, 3))
+    decode[List[Int]]("[1,2,3]") shouldBe Return(List(1, 2, 3))
   }
 
   it should "work w/o exceptions with RequestReader" in {

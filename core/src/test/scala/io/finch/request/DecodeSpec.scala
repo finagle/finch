@@ -19,20 +19,84 @@
  *
  * Contributor(s):
  * Rodrigo Ribeiro
+ * Jens Halm
  */
 package io.finch.request
 
 import org.scalatest.{Matchers, FlatSpec}
+import com.twitter.util.{Try,Return,Future,Await}
+import com.twitter.finagle.httpx.Request
 import scala.math._
+import io.finch.HttpRequest
 
 class DecodeSpec extends FlatSpec with Matchers {
 
-  private def decode[A](json: String)(implicit d: DecodeRequest[A]): Option[A] = d(json)
+  private def decode[A](json: String)(implicit d: DecodeRequest[A]): Try[A] = d(json)
+  
+  implicit val decodeInt = DecodeRequest { s => Try(s.toInt) }
+  
   "A DecodeJson" should "be accepted as implicit instance of superclass" in {
     implicit object BigDecimalJson extends DecodeRequest[BigDecimal] {
-      def apply(s: String): Option[BigDecimal] = Some(BigDecimal(s))
+      def apply(s: String): Try[BigDecimal] = Try(BigDecimal(s))
     }
 
-    decode[ScalaNumber]("12345.25") shouldBe Some(BigDecimal(12345.25))
+    decode[ScalaNumber]("12345.25") shouldBe Return(BigDecimal(12345.25))
   }
+  
+  "A RequestReader for a String" should "allow for type converions based on implicit DecodeRequest" in {
+    val request: HttpRequest = Request.apply(("foo", "5"))
+    val reader: RequestReader[Int] = RequiredParam("foo").as[Int]
+    val result = reader(request)
+    Await.result(result) shouldBe 5
+  }
+  
+  it should "fail if a type converions based on implicit DecodeRequest fails" in {
+    val request: HttpRequest = Request.apply(("foo", "foo"))
+    val reader: RequestReader[Int] = RequiredParam("foo").as[Int]
+    val result = reader(request)
+    Await.result(result.liftToTry).isThrow shouldBe true
+  }
+  
+  it should "allow for type converions of optional parameters" in {
+    val request: HttpRequest = Request.apply(("foo", "5"))
+    val reader: RequestReader[Option[Int]] = OptionalParam("foo").as[Int]
+    val result = reader(request)
+    Await.result(result) shouldBe Some(5)
+  }
+  
+  it should "fail if a type converions for an optional value fails" in {
+    val request: HttpRequest = Request.apply(("foo", "foo"))
+    val reader: RequestReader[Option[Int]] = OptionalParam("foo").as[Int]
+    val result = reader(request)
+    Await.result(result.liftToTry).isThrow shouldBe true
+  }
+  
+  it should "skip type conversion and succeed if the optional value is missing" in {
+    val request: HttpRequest = Request.apply(("bar", "foo"))
+    val reader: RequestReader[Option[Int]] = OptionalParam("foo").as[Int]
+    val result = reader(request)
+    Await.result(result) shouldBe None
+  }
+  
+  it should "allow for type converions of a parameter list" in {
+    val request: HttpRequest = Request.apply(("foo", "5,6,7"))
+    val reader: RequestReader[Seq[Int]] = OptionalParams("foo").as[Int]
+    val result = reader(request)
+    Await.result(result) shouldBe Seq(5,6,7)
+  }
+  
+  it should "fail if a type converion for an element in a parameter list fails" in {
+    val request: HttpRequest = Request.apply(("foo", "5,foo,7"))
+    val reader: RequestReader[Seq[Int]] = OptionalParams("foo").as[Int]
+    val result = reader(request)
+    Await.result(result.liftToTry).isThrow shouldBe true
+  }
+  
+  it should "skip type conversion and succeed if a parameter list is empty" in {
+    val request: HttpRequest = Request.apply(("bar", "foo"))
+    val reader: RequestReader[Seq[Int]] = OptionalParams("foo").as[Int]
+    val result = reader(request)
+    Await.result(result).isEmpty shouldBe true
+  }
+  
 }

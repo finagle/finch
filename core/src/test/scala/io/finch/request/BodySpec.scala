@@ -25,10 +25,11 @@ package io.finch.request
 
 import com.twitter.finagle.httpx.Request
 import com.twitter.io.Buf.ByteArray
-import com.twitter.util.{Await, Future}
+import com.twitter.util.{Await, Future, Try}
 import io.finch.HttpRequest
 import org.jboss.netty.handler.codec.http.HttpHeaders
 import org.scalatest.{FlatSpec, Matchers}
+import items._
 
 class BodySpec extends FlatSpec with Matchers {
   val foo = "foo"
@@ -43,11 +44,11 @@ class BodySpec extends FlatSpec with Matchers {
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody(Array[Byte]())
     val futureResult: Future[Array[Byte]] = RequiredArrayBody(request)
-    a [BodyNotFound.type] should be thrownBy Await.result(futureResult)
+    a [NotFound] should be thrownBy Await.result(futureResult)
   }
 
-  it should "have a toString that produces a string representation of itself" in {
-    RequiredArrayBody.toString should equal(s"Required body")
+  it should "have a corresponding RequestItem" in {
+    RequiredArrayBody.item should equal(BodyItem)
   }
 
   "An OptionalArrayBody" should "be properly read if it exists" in {
@@ -62,8 +63,8 @@ class BodySpec extends FlatSpec with Matchers {
     Await.result(futureResult) should equal(None)
   }
 
-  it should "have a toString that produces a string representation of itself" in {
-    OptionalArrayBody.toString should equal(s"Optional body")
+  it should "have a corresponding RequestItem" in {
+    OptionalArrayBody.item should equal(BodyItem)
   }
 
   "A RequiredStringBody" should "be properly read if it exists" in {
@@ -75,7 +76,7 @@ class BodySpec extends FlatSpec with Matchers {
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody("")
     val futureResult: Future[String] = RequiredStringBody(request)
-    a [BodyNotFound.type] should be thrownBy Await.result(futureResult)
+    a [NotFound] should be thrownBy Await.result(futureResult)
   }
 
   "An OptionalStringBody" should "be properly read if it exists" in {
@@ -101,8 +102,7 @@ class BodySpec extends FlatSpec with Matchers {
 
   "RequiredBody and OptionalBody" should "work with no request type available" in {
     implicit val decodeInt = new DecodeRequest[Int] {
-       def apply(req: String): Option[Int] =
-         try Some(req.toInt) catch { case _: NumberFormatException => None }
+       def apply(req: String): Try[Int] = Try(req.toInt)
     }
     val req = requestWithBody("123")
     val ri: RequestReader[Int] = RequiredBody[Int]
@@ -118,8 +118,7 @@ class BodySpec extends FlatSpec with Matchers {
 
   it should "work with custom request and its implicit view to HttpRequest" in {
     implicit val decodeDouble = new DecodeRequest[Double] { // custom encoder
-      def apply(req: String): Option[Double] =
-        try Some(req.toDouble) catch { case _: NumberFormatException => None }
+      def apply(req: String): Try[Double] = Try(req.toDouble)
     }
     case class CReq(http: HttpRequest) // custom request
     implicit val cReqEv = (req: CReq) => req.http // implicit view
@@ -134,6 +133,22 @@ class BodySpec extends FlatSpec with Matchers {
     Await.result(d) shouldBe 42.0
     Await.result(od(req)) shouldBe Some(42.0)
     Await.result(o) shouldBe Some(42.0)
+  }
+  
+  it should "fail if the decoding of the body fails" in {
+    implicit val decodeInt = new DecodeRequest[Int] {
+       def apply(req: String): Try[Int] = Try(req.toInt)
+    }
+    val req = requestWithBody("foo")
+    val ri: RequestReader[Int] = RequiredBody[Int]
+    val i: Future[Int] = RequiredBody[Int](req)
+    val oi: RequestReader[Option[Int]] = OptionalBody[Int]
+    val o: Future[Option[Int]] = OptionalBody[Int](req)
+
+    a [NotParsed] should be thrownBy Await.result(ri(req))
+    a [NotParsed] should be thrownBy Await.result(i)
+    a [NotParsed] should be thrownBy Await.result(oi(req))
+    a [NotParsed] should be thrownBy Await.result(o)
   }
 
   private[this] def requestWithBody(body: String): HttpRequest = {

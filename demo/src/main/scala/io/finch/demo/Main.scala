@@ -120,8 +120,7 @@ case class PostUser(userId: Long, db: Main.Db) extends Service[AuthRequest, User
   // A requests reader that reads user objects from the http request.
   // A user is represented by url-encoded param ''name''.
   val user: RequestReader[User] = for {
-    name <- RequiredParam("name")
-    _ <- ValidationRule("name", "should be greater then 5 symbols") { name.length > 5 }
+    name <- RequiredParam("name").should("be greater then 5 symbols"){ _.length > 5 }
   } yield User(userId, name, Seq.empty[Ticket])
 
   def apply(req: AuthRequest) = for {
@@ -192,10 +191,9 @@ object HandleExceptions extends SimpleFilter[HttpRequest, HttpResponse] {
   def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]) =
     service(req) handle {
       case UserNotFound(id) => BadRequest(Json.obj("error" -> "user_not_found", "id" -> id))
-      case ParamNotFound(param) => BadRequest(Json.obj("error" -> "param_not_found", "param" -> param))
-      case ValidationFailed(param, rule) => BadRequest(Json.obj("error" -> "bad_param", "param" -> param, "rule" -> rule))
-      case BodyNotFound => BadRequest(Json.obj("error" -> "body_not_found"))
-      case BodyNotParsed => BadRequest(Json.obj("error" -> "body_not_parsed"))
+      case request.NotFound(item) => BadRequest(Json.obj("error" -> "item_not_found", "item" -> item))
+      case np: NotParsed => BadRequest(Json.obj("error" -> "item_not_parsed", "item" -> np.item, "message" -> np.getMessage))
+      case NotValid(item, rule) => BadRequest(Json.obj("error" -> "item_not_valid", "rule" -> rule))
       case _ => InternalServerError()
     }
 }
