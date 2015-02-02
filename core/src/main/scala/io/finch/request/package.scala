@@ -27,59 +27,67 @@
 package io.finch
 
 import com.twitter.finagle.httpx.Cookie
-import com.twitter.util.{Future,Return,Throw}
+import com.twitter.util.{Future, Return, Throw}
 
 import scala.reflect.ClassTag
 
 package object request {
 
   /**
-   * A reusable validation rule that can be applied to any ''RequestReader'' with a matching type.
+   * A reusable validation rule that can be applied to any [[RequestReader]] with a matching type.
    */
-  class ValidationRule[T] private[request] (val description: String, predicate: T => Boolean) extends (T => Boolean) { self =>
-    
+  trait ValidationRule[A] { self =>
+
+    /**
+     * Text description of this validation rule.
+     */
+    def description: String
+
     /**
      * Applies the rule to the specified value.
      * 
      * @return true if the predicate of this rule holds for the specified value
      */
-    def apply(value: T): Boolean = predicate(value)
+    def apply(value: A): Boolean
     
     /**
      * Combines this rule with another rule such that the new
      * rule only validates if both the combined rules validate.
      * 
-     * @param other the rule to combine with this rule
+     * @param that the rule to combine with this rule
      * @return a new rule that only validates if both the combined rules validate
      */
-    def and(other: ValidationRule[T]): ValidationRule[T] = 
-      new ValidationRule(self.description + " and " + other.description, {value => self(value) && other(value)})
+    def and(that: ValidationRule[A]): ValidationRule[A] =
+      ValidationRule(s"${self.description} and ${that.description}") { value => self(value) && that(value) }
     
     /**
      * Combines this rule with another rule such that the new
      * rule validates if any one of the combined rules validates.
      * 
-     * @param other the rule to combine with this rule
+     * @param that the rule to combine with this rule
      * @return a new rule that validates if any of the the combined rules validates
      */
-    def or(other: ValidationRule[T]): ValidationRule[T] = 
-      new ValidationRule(self.description + " or " + other.description, {value => self(value) || other(value)})
+    def or(that: ValidationRule[A]): ValidationRule[A] =
+      ValidationRule(s"${self.description} or ${that.description}") { value => self(value) || that(value) }
   }
   
   /**
-   * Allows the creation of reusable validation rules for ''RequestReaders''.
+   * Allows the creation of reusable validation rules for [[RequestReader]]s.
    */
   object ValidationRule {
     
     /**
      * Creates a new reusable validation rule based on the specified predicate.
      *
-     * @param description text describing the rule being validated
-     * @param predicate returns true if the data is valid
+     * @param desc text describing the rule being validated
+     * @param p returns true if the data is valid
      *
      * @return a new reusable validation rule.
      */
-    def apply[T](description: String)(predicate: T => Boolean): ValidationRule[T] = new ValidationRule(description, predicate)
+    def apply[A](desc: String)(p: A => Boolean): ValidationRule[A] = new ValidationRule[A] {
+      def description = desc
+      def apply(value: A) = p(value)
+    }
   }
   
   /**
@@ -124,7 +132,6 @@ package object request {
       }
     }
 
-    // A workaround for https://issues.scala-lang.org/browse/SI-1336
     def withFilter(p: A => Boolean) = self.should("not fail validation")(p)
 
     /**
@@ -185,8 +192,7 @@ package object request {
      */
     def shouldNot(rule: ValidationRule[A]): RequestReader[A] = shouldNot(rule.description)(rule.apply)
   }
-  
-  
+
   /**
    * Implicit conversion that allows the same validation rule to be used
    * for required and optional values. If the optional value is non-empty,
@@ -196,13 +202,12 @@ package object request {
    * @param rule The validation rule to adapt for optional values
    * @return A new validation rule that applies the specified rule to an optional value in case it is not empty. 
    */
-  implicit def toOptionalRule[T](rule: ValidationRule[T]): ValidationRule[Option[T]] = {
-    new ValidationRule(rule.description, {
+  implicit def toOptionalRule[A](rule: ValidationRule[A]): ValidationRule[Option[A]] = {
+    ValidationRule(rule.description) {
       case Some(value) => rule(value)
       case None => true
-    })
+    }
   }
-  
 
   /**
    * A base exception of request reader.
@@ -1023,8 +1028,7 @@ package object request {
         def apply(req: String): Option[A] = d(req)(tag)
       }
     }
-  
-  
+
   /** A wrapper for two result values.
    */
   case class ~[+A, +B](_1: A, _2: B)

@@ -30,11 +30,10 @@ import org.scalatest.{Matchers, FlatSpec}
 
 class RequestReaderValidationSpec extends FlatSpec with Matchers {
 
-  val request = Request(("foo" -> "6"), ("bar" -> "9"))
+  val request = Request("foo" -> "6", "bar" -> "9")
   val fooReader = RequiredIntParam("foo")
   val barReader = RequiredIntParam("bar")
 
-  
   val beEven = ValidationRule[Int]("be even") { _ % 2 == 0 }
   def beSmallerThan(value: Int) = ValidationRule[Int](s"be smaller than $value") { _ < value }
 
@@ -66,8 +65,7 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers {
     } yield foo
     a [RequestReaderError] should be thrownBy Await.result(readFoo(request))
   }
-  
-  
+
   "A RequestReader with a predefined validation rule" should "allow valid values" in {
     val evenReader = fooReader.should(beEven)
     Await.result(evenReader(request)) shouldBe 6
@@ -117,6 +115,4 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers {
     val optReader = OptionalIntParam("baz").should(beEven)
     Await.result(optReader(request)) shouldBe None
   }
-  
-  
 }
