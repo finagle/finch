@@ -34,6 +34,55 @@ import scala.reflect.ClassTag
 package object request {
 
   /**
+   * A reusable validation rule that can be applied to any ''RequestReader'' with a matching type.
+   */
+  class ValidationRule[T] private[request] (val description: String, predicate: T => Boolean) extends (T => Boolean) { self =>
+    
+    /**
+     * Applies the rule to the specified value.
+     * 
+     * @return true if the predicate of this rule holds for the specified value
+     */
+    def apply(value: T): Boolean = predicate(value)
+    
+    /**
+     * Combines this rule with another rule such that the new
+     * rule only validates if both the combined rules validate.
+     * 
+     * @param other the rule to combine with this rule
+     * @return a new rule that only validates if both the combined rules validate
+     */
+    def and(other: ValidationRule[T]): ValidationRule[T] = 
+      new ValidationRule(self.description + " and " + other.description, {value => self(value) && other(value)})
+    
+    /**
+     * Combines this rule with another rule such that the new
+     * rule validates if any one of the combined rules validates.
+     * 
+     * @param other the rule to combine with this rule
+     * @return a new rule that validates if any of the the combined rules validates
+     */
+    def or(other: ValidationRule[T]): ValidationRule[T] = 
+      new ValidationRule(self.description + " or " + other.description, {value => self(value) || other(value)})
+  }
+  
+  /**
+   * Allows the creation of reusable validation rules for ''RequestReaders''.
+   */
+  object ValidationRule {
+    
+    /**
+     * Creates a new reusable validation rule based on the specified predicate.
+     *
+     * @param description text describing the rule being validated
+     * @param predicate returns true if the data is valid
+     *
+     * @return a new reusable validation rule.
+     */
+    def apply[T](description: String)(predicate: T => Boolean): ValidationRule[T] = new ValidationRule(description, predicate)
+  }
+  
+  /**
    * A request reader (a Reader Monad) reads a ''Future'' of ''A'' from the ''HttpRequest''.
    *
    * @tparam A the result type
@@ -79,12 +128,12 @@ package object request {
     def withFilter(p: A => Boolean) = self.should("not fail validation")(p)
 
     /**
-     * Validate the result of this ''RequestReader'' using a predicate. The rule is used for error reporting.
+     * Validates the result of this ''RequestReader'' using a predicate. The rule is used for error reporting.
      *
-     * @param rule Text describing the rule being validated
-     * @param predicate Predicate that returns true if the data is valid
+     * @param rule text describing the rule being validated
+     * @param predicate returns true if the data is valid
      *
-     * @return Return a ''RequestReader'' that will return the value of from this reader if it is valid.
+     * @return a ''RequestReader'' that will return the value of this reader if it is valid.
      *         Otherwise a ''RequestReaderError'' is returned as ''FutureException''.
      */
     def should(rule: String)(predicate: A => Boolean): RequestReader[A] = new RequestReader[A] {
@@ -95,7 +144,65 @@ package object request {
         }
       }
     }
+    
+    /**
+     * Validates the result of this ''RequestReader'' using a predicate. The rule is used for error reporting.
+     *
+     * @param rule text describing the rule being validated
+     * @param predicate returns false if the data is valid
+     *
+     * @return a ''RequestReader'' that will return the value of this reader if it is valid.
+     *         Otherwise a ''RequestReaderError'' is returned as ''FutureException''.
+     */
+    def shouldNot(rule: String)(predicate: A => Boolean): RequestReader[A] = new RequestReader[A] {
+      def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[A] = {
+        self(req).flatMap { a =>
+          if (!predicate(a)) a.toFuture
+          else new RequestReaderError(s"${self.toString} should not $rule.").toFutureException
+        }
+      }
+    }
+    
+    /**
+     * Validates the result of this ''RequestReader'' using a predefined rule. This method allows
+     * for rules to be reused across multiple ''RequestReaders''.
+     *
+     * @param rule the predefined validation rule that will return true if the data is valid
+     *
+     * @return a ''RequestReader'' that will return the value of this reader if it is valid.
+     *         Otherwise a ''RequestReaderError'' is returned as ''FutureException''.
+     */
+    def should(rule: ValidationRule[A]): RequestReader[A] = should(rule.description)(rule.apply)
+ 		
+    /**
+     * Validates the result of this ''RequestReader'' using a predefined rule. This method allows
+     * for rules to be reused across multiple ''RequestReaders''.
+     *
+     * @param rule the predefined validation rule that will return false if the data is valid
+     *
+     * @return a ''RequestReader'' that will return the value of this reader if it is valid.
+     *         Otherwise a ''RequestReaderError'' is returned as ''FutureException''.
+     */
+    def shouldNot(rule: ValidationRule[A]): RequestReader[A] = shouldNot(rule.description)(rule.apply)
   }
+  
+  
+  /**
+   * Implicit conversion that allows the same validation rule to be used
+   * for required and optional values. If the optional value is non-empty,
+   * it gets validated (and validation may fail, producing an error), but
+   * if it is empty, it is always treated as valid.
+   * 
+   * @param rule The validation rule to adapt for optional values
+   * @return A new validation rule that applies the specified rule to an optional value in case it is not empty. 
+   */
+  implicit def toOptionalRule[T](rule: ValidationRule[T]): ValidationRule[Option[T]] = {
+    new ValidationRule(rule.description, {
+      case Some(value) => rule(value)
+      case None => true
+    })
+  }
+  
 
   /**
    * A base exception of request reader.
@@ -454,29 +561,6 @@ package object request {
     def apply(param: String): RequestReader[Option[Double]] = for {
       o <- OptionalParam(param)
     } yield SomeStringToSomeValue(_.toDouble)(o)
-  }
-
-  /**
-   * A param validation rule.
-   */
-  object ValidationRule {
-
-    /**
-     * Creates a ''RequestReader'' that raises a ''ParamValidationFailed'' exception
-     * with message ''rule'' when the given ''predicated'' is evaluated as ''false''.
-     *
-     * @param param the param name to validate
-     * @param rule the exception message
-     * @param predicate the predicate to test
-     *
-     * @return nothing or exception
-     */
-    def apply(param: String, rule: String)(predicate: => Boolean): RequestReader[Unit] =
-      new RequestReader[Unit] {
-        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
-          if (predicate) Future.Done
-          else ValidationFailed(param, rule).toFutureException
-      }
   }
 
   /**
