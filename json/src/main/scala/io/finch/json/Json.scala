@@ -93,7 +93,7 @@ case class JsonArray(list: List[Any]) extends Json
 /**
  * A json null value.
  */
-object JsonNull extends Json
+case object JsonNull extends Json
 
 /**
  * A json companion object, which in an entry point into JSON API.
@@ -101,7 +101,7 @@ object JsonNull extends Json
 object Json {
 
   /**
-   * Creates an empty json object
+   * Creates an empty json object.
    *
    * @return an empty json object
    */
@@ -115,7 +115,7 @@ object Json {
   def emptyArray: Json = JsonArray(List.empty[Any])
 
   /**
-   * Creates a new json array of given sequence of items ''args''.
+   * Creates a new json array of given sequence of items `args`.
    *
    * @param args sequence of items in the array
    *
@@ -124,9 +124,9 @@ object Json {
   def arr(args: Any*): Json = JsonArray(args.toList)
 
   /**
-   * Creates a json object of given sequence of properties ''args''. Every
-   * argument/property is a pair of ''tag'' and ''value'' associated with it.
-   * It's possible to pass a complete json path (separated by dot) as ''tag''.
+   * Creates a json object of given sequence of properties `args`. Every
+   * argument/property is a pair of `tag` and `value` associated with it.
+   * It's possible to pass a complete json path (separated by dot) as `tag`.
    *
    * @param args a sequence of json properties
    *
@@ -188,20 +188,49 @@ object Json {
       case c => c.toString
     }
 
-    def wire(any: Any): String = any match {
-      case s: String => "\"" + escape(s) + "\""
-      case JsonObject(map) => "{" + map.map({ case (k, v) => wire(k.toString) + ":" + wire(v) }).mkString(",") + "}"
-      case JsonArray(list) => "[" + list.map(wire).mkString(",") + "]"
-      case JsonNull => "null"
-      case other => other.toString
+    def wire(any: Any, sb: StringBuilder): StringBuilder = any match {
+      case s: String =>
+        sb += '\"' ++= escape(s) += '\"'
+      case JsonObject(map) =>
+        var first = true
+        sb += '{'
+        map.foreach { case (k, v) =>
+          if (first) {
+            wire(k.toString, sb) += ':'
+            wire(v, sb)
+            first = false
+          } else {
+            sb +=','
+            wire(k.toString, sb) += ':'
+            wire(v, sb)
+          }
+        }
+        sb += '}'
+      case JsonArray(list) =>
+        var first = true
+        sb += '['
+        list.foreach { i =>
+          if (first) {
+            wire(i, sb)
+            first = false
+          } else {
+            sb += ','
+            wire(i, sb)
+          }
+        }
+        sb += ']'
+      case JsonNull =>
+        sb ++= "null"
+      case other =>
+        sb ++= other.toString
     }
 
-    wire(j)
+    wire(j, new StringBuilder).toString()
   }
 
   /**
-   * Deeply merges given json objects ''a'' and ''b'' into a single json object.
-   * In case of conflict tag the value of a right json object will be taken.
+   * Deeply merges given json objects `a` and `b` into a single json object.
+   * In case of conflict tag the value of a _right_ json object will be taken.
    *
    * @param a the left json object
    * @param b the right json object
@@ -211,8 +240,8 @@ object Json {
   def mergeRight(a: Json, b: Json): Json = mergeLeft(b, a)
 
   /**
-   * Deeply merges given json objects ''a'' and ''b'' into a single json object.
-   * In case of conflict tag the value of a left json object will be taken.
+   * Deeply merges given json objects `a` and `b` into a single json object.
+   * In case of conflict tag the value of a _left_ json object will be taken.
    *
    * @param a the left json object
    * @param b the right json object
@@ -242,7 +271,7 @@ object Json {
   }
 
   /**
-   * Concatenates two given json object ''a'' and ''b'' with ''b'' object priority.
+   * Concatenates two given json object `a` and `b` with `b` object in priority.
    *
    * @param a the left object
    * @param b the right object
@@ -252,7 +281,7 @@ object Json {
   def concatRight(a: Json, b: Json): Json = concatLeft(b, a)
 
   /**
-   * Concatenates two given json object ''a'' and ''b'' with ''a'' object in priority.
+   * Concatenates two given json object `a` and `b` with `a` object in priority.
    *
    * @param a the left object
    * @param b the right object
@@ -268,7 +297,7 @@ object Json {
   }
 
   /**
-   * Removes all null-value properties from this json object.
+   * Removes all null-value properties from the given json object `j`.
    *
    * @return a compressed json object
    */
