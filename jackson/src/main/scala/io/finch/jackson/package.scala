@@ -25,16 +25,17 @@ package io.finch
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.finch.request.DecodeAnyRequest
 import io.finch.response.EncodeAnyResponse
+import com.twitter.util.Try
 
 import scala.reflect.ClassTag
 
 package object jackson {
 
   implicit def decodeJackson(implicit mapper: ObjectMapper) = new DecodeAnyRequest {
-    def apply[A: ClassTag](s: String): Option[A] = try {
+    def apply[A: ClassTag](s: String): Try[A] = Try {
       val clazz = implicitly[ClassTag[A]].runtimeClass.asInstanceOf[Class[A]]
-      Some(mapper.readValue[A](s, clazz))
-    } catch { case _: Exception => None }
+      mapper.readValue[A](s, clazz)
+    }
   }
 
   implicit def encodeJackson(implicit mapper: ObjectMapper) = new EncodeAnyResponse {
