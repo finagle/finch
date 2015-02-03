@@ -62,7 +62,7 @@ Documentation
 Contacts
 --------
 
-* Use a Gitter room for questions like _"How do I ..."_ [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/finagle/finch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+* Most of the discussions and announcements are happen at [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/finagle/finch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Adopters
 --------
@@ -70,6 +70,16 @@ Adopters
 * [JusBrasil](http://www.jusbrasil.com.br)
 * [Sabre Labs](http://sabrelabs.com)
 * *Submit a pull-request to include your company/project into the list*
+
+Contributing
+------------
+
+There are plenty of ways to contribute into Finch:
+
+* Give it a star
+* Join the [Gitter](https://gitter.im/finagle/finch) room and leave a feedback or help with answering users' questions
+* [Submit a PR](CONTRIBUTING.md)
+* Be cool and wear a [Finch T-Shirt](http://www.redbubble.com/people/vkostyukov/works/13277123-finch-io-rest-api-with-finagle?p=t-shirt)
 
 License
 -------
