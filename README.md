@@ -51,7 +51,13 @@ Hello World!
 This "Hello World!" example is built with the `0.5.0-SNAPSHOT` version of `finch-core`.
 
 ```scala
-Httpx.serve(":8080", Get / "hello" / string /> Ok("Hello " + _ + "!").toFuture)
+import io.finch._
+import io.finch.route._
+import io.finch.response._
+
+Httpx.serve(":8080",
+  Get / "hello" / string /> Ok("Hello, " + _ + "!").toFuture: Endpoint[HttRequest, HttpResponse]
+)
 ```
 
 Documentation

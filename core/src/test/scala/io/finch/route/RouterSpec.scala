@@ -26,6 +26,7 @@ import com.twitter.util.Await
 
 import io.finch._
 import io.finch.response._
+import io.finch.route.tokens._
 
 import com.twitter.finagle.httpx
 import com.twitter.finagle.httpx.Method
@@ -173,13 +174,13 @@ class RouterSpec extends FlatSpec with Matchers {
   }
 
   it should "be implicitly convertible into service from future" in {
-    val s: Service[HttpRequest, HttpResponse] =
-      (Get / "foo" /> Ok("bar").toFuture) |
+    val e: Endpoint[HttpRequest, HttpResponse] =
+      (Get / "foo" /> Ok("bar").toFuture: Endpoint[HttpRequest, HttpResponse]) |
       (Get / "bar" /> Ok("foo").toFuture)
 
-    Await.result(s(httpx.Request("/foo"))).contentString shouldBe "bar"
-    Await.result(s(httpx.Request("/bar"))).contentString shouldBe "foo"
-    a [RouteNotFound] should be thrownBy Await.result(s(httpx.Request("/baz")))
+    Await.result(e(httpx.Request("/foo"))).contentString shouldBe "bar"
+    Await.result(e(httpx.Request("/bar"))).contentString shouldBe "foo"
+    a [RouteNotFound] should be thrownBy Await.result(e(httpx.Request("/baz")))
   }
 
   it should "be greedy" in {
@@ -199,5 +200,25 @@ class RouterSpec extends FlatSpec with Matchers {
     r3(b) shouldBe Some((Nil, 20))
     r4(a) shouldBe Some((Nil, 10))
     r4(b) shouldBe Some((Nil, 20))
+  }
+
+  it should "allow mix routers that returns futures and services" in {
+    val service = new Service[HttpRequest, HttpResponse] {
+      def apply(req: HttpRequest) = Ok("foo").toFuture
+    }
+    val e: Endpoint[HttpRequest, HttpResponse] =
+      (Get / "bar" /> Ok("bar").toFuture: Endpoint[HttpRequest, HttpResponse]) |
+      (Get / "foo" /> service)
+
+    Await.result(e(httpx.Request("/foo"))).contentString shouldBe "foo"
+    Await.result(e(httpx.Request("/bar"))).contentString shouldBe "bar"
+  }
+
+  it should "convert Router[Future[_]] to both endpoint and service" in {
+    val s: Service[HttpRequest, HttpResponse] = Get / "foo" /> Ok("foo").toFuture: Endpoint[HttpRequest, HttpResponse]
+    val e: Endpoint[HttpRequest, HttpResponse] = Get / "bar" /> Ok("bar").toFuture
+
+    Await.result(s(httpx.Request("/foo"))).contentString shouldBe "foo"
+    Await.result(e(httpx.Request("/bar"))).contentString shouldBe "bar"
   }
 }
