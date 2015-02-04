@@ -31,7 +31,33 @@ import com.twitter.util.{Future, Return, Throw, Try}
 
 import scala.reflect.ClassTag
 
-package object request {
+package request {
+  
+  /**
+   * Trait with low-priority implicits to avoid conflicts that would arise from adding
+   * implicits that would work with any type in the same scope as implicits for concrete
+   * types.
+   * 
+   * Implicits defined in super-types have lower priority than those defined in a sub-type.
+   * Therefore we define low-priority implicits here and mix this trait into the package
+   * object.
+   */
+  trait LowPriorityImplicits {
+
+    /**
+     * Creates a ''DecodeMagnet'' from ''DecodeAnyRequest''.
+     */
+    implicit def magnetFromAnyDecode[A](implicit d: DecodeAnyRequest, tag: ClassTag[A]): DecodeMagnet[A] =
+      new DecodeMagnet[A] {
+        def apply(): DecodeRequest[A] = new DecodeRequest[A] {
+          def apply(req: String): Try[A] = d(req)(tag)
+        }
+      }
+    }
+  
+}
+
+package object request extends LowPriorityImplicits {
 
   /**
    * A reusable validation rule that can be applied to any [[RequestReader]] with a matching type.
@@ -192,7 +218,76 @@ package object request {
      */
     def shouldNot(rule: ValidationRule[A]): RequestReader[A] = shouldNot(rule.description)(rule.apply)
   }
+  
+  /**
+   * Implicit conversion that allows to call ''as[A]'' on any ''RequestReader[String]''
+   * to perform a type conversion based on an implicit ''DecodeRequest[A]'' which must
+   * be in scope.
+   * 
+   * The resulting reader will fail when type conversion fails.
+   */
+  implicit class StringReaderOps(val reader: RequestReader[String]) {
 
+    /* IMPLEMENTATION NOTE: The three implicit classes for string based readers should
+     * all extend AnyVal to avoid instance creation for each invocation of the extension
+     * method. However, this let's us run into a compiler bug when we compile for Scala 2.10:
+     * https://issues.scala-lang.org/browse/SI-8018. The bug is caused by the combination of
+     * three things: 1) an implicit class, 2) extending AnyVal, 3) wrapping a class with type
+     * parameters. 2) is the only thing we can remove here, otherwise we'd need to move the
+     * body of the methods somewhere else. Once we drop support for Scala 2.10, these classes
+     * can safely extends AnyVal. 
+     */
+    
+    def as[A](implicit magnet: DecodeMagnet[A]): RequestReader[A] = reader flatMap { value =>
+      new RequestReader[A] {
+        def apply[Req] (req: Req)(implicit ev: Req => HttpRequest): Future[A] = Future.const(magnet()(value))
+      } 
+    }
+    
+  }
+  
+  /**
+   * Implicit conversion that allows to call ''as[A]'' on any ''RequestReader[Option[String]]''
+   * to perform a type conversion based on an implicit ''DecodeRequest[A]'' which must
+   * be in scope.
+   * 
+   * The resulting reader will fail when the result is non-empty and type conversion fails.
+   * It will succeed if the result is empty or type conversion succeeds.
+   */
+  implicit class StringOptionReaderOps(val reader: RequestReader[Option[String]]) {
+    
+    def as[A](implicit magnet: DecodeMagnet[A]): RequestReader[Option[A]] = reader flatMap { 
+      case Some(value) => new RequestReader[Option[A]] {
+        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = Future.const(magnet()(value) map (Option(_)))
+      }
+      case None => ConstReader(Future.None)
+    }
+    
+  }
+  
+  /**
+   * Implicit conversion that allows to call ''as[A]'' on any ''RequestReader[Seq[String]]''
+   * to perform a type conversion based on an implicit ''DecodeRequest[A]'' which must
+   * be in scope.
+   * 
+   * The resulting reader will fail when the result is non-empty and type conversion fails
+   * on one or more of the elements in the ''Seq''.
+   * It will succeed if the result is empty or type conversion succeeds for all elements.
+   */
+  implicit class StringSeqReaderOps(val reader: RequestReader[Seq[String]]) {
+    
+    def as[A](implicit magnet: DecodeMagnet[A]): RequestReader[Seq[A]] = reader flatMap { items =>
+      new RequestReader[Seq[A]] {
+        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = {
+          val converted = items map (magnet()(_))
+          if (converted.forall(_.isReturn)) converted.map(_.get).toFuture
+          else RequestReaderErrors(converted collect { case Throw(e) => e }).toFutureException
+        }
+      }
+    }
+    
+  }
+  
   /**
    * Implicit conversion that allows the same validation rule to be used
    * for required and optional values. If the optional value is non-empty,
@@ -305,7 +400,7 @@ package object request {
   }
 
   private[this] object StringsToValues {
-    def apply[A](fn: String => A)(l: List[String]) = l.flatMap { s =>
+    def apply[A](fn: String => A)(l: Seq[String]) = l.flatMap { s =>
       try List(fn(s))
       catch { case _: IllegalArgumentException => Nil }
     }
@@ -582,8 +677,8 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String): RequestReader[List[String]] =
-      new RequestReader[List[String]] {
+    def apply(param: String): RequestReader[Seq[String]] =
+      new RequestReader[Seq[String]] {
         def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
           req.params.getAll(param).toList.flatMap(_.split(",")) match {
             case Nil => ParamNotFound(param).toFutureException
@@ -611,7 +706,7 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String): RequestReader[List[Int]] = for {
+    def apply(param: String): RequestReader[Seq[Int]] = for {
       ss <- RequiredParams(param)
       ns <- StringToValueOrFail(param, "should be integer")(ss.map { _.toInt })
     } yield ns
@@ -631,7 +726,7 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String): RequestReader[List[Long]] = for {
+    def apply(param: String): RequestReader[Seq[Long]] = for {
       ss <- RequiredParams(param)
       ns <- StringToValueOrFail(param, "should be long")(ss.map { _.toLong })
     } yield ns
@@ -651,7 +746,7 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String): RequestReader[List[Boolean]] = for {
+    def apply(param: String): RequestReader[Seq[Boolean]] = for {
       ss <- RequiredParams(param)
       ns <- StringToValueOrFail(param, "should be boolean")(ss.map { _.toBoolean })
     } yield ns
@@ -671,7 +766,7 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String): RequestReader[List[Float]] = for {
+    def apply(param: String): RequestReader[Seq[Float]] = for {
       ss <- RequiredParams(param)
       ns <- StringToValueOrFail(param, "should be float")(ss.map { _.toFloat })
     } yield ns
@@ -691,7 +786,7 @@ package object request {
      *
      * @return a ''List'' that contains all the values of multi-value param
      */
-    def apply(param: String): RequestReader[List[Double]] = for {
+    def apply(param: String): RequestReader[Seq[Double]] = for {
       ss <- RequiredParams(param)
       ns <- StringToValueOrFail(param, "should be double")(ss.map { _.toDouble })
     } yield ns
@@ -711,8 +806,8 @@ package object request {
      * @return a ''List'' that contains all the values of multi-value param or
      *         en empty list ''Nil'' if the param is missing or empty.
      */
-    def apply(param: String): RequestReader[List[String]] =
-      new RequestReader[List[String]] {
+    def apply(param: String): RequestReader[Seq[String]] =
+      new RequestReader[Seq[String]] {
         def apply[Req](req: Req)(implicit ev: Req => HttpRequest) =
           req.params.getAll(param).toList.flatMap(_.split(",")).filter(_ != "").toFuture
 
@@ -735,7 +830,7 @@ package object request {
      *         en empty list ''Nil'' if the param is missing or empty or doesn't
      *         correspond to a requested type.
      */
-    def apply(param: String): RequestReader[List[Int]] = for {
+    def apply(param: String): RequestReader[Seq[Int]] = for {
       l <- OptionalParams(param)
     } yield StringsToValues(_.toInt)(l)
   }
@@ -755,7 +850,7 @@ package object request {
      *         en empty list ''Nil'' if the param is missing or empty or doesn't
      *         correspond to a requested type.
      */
-    def apply(param: String): RequestReader[List[Long]] = for {
+    def apply(param: String): RequestReader[Seq[Long]] = for {
       l <- OptionalParams(param)
     } yield StringsToValues(_.toLong)(l)
   }
@@ -775,7 +870,7 @@ package object request {
      *         en empty list ''Nil'' if the param is missing or empty or doesn't
      *         correspond to a requested type.
      */
-    def apply(param: String): RequestReader[List[Boolean]] = for {
+    def apply(param: String): RequestReader[Seq[Boolean]] = for {
       l <- OptionalParams(param)
     } yield StringsToValues(_.toBoolean)(l)
   }
@@ -795,7 +890,7 @@ package object request {
      *         en empty list ''Nil'' if the param is missing or empty or doesn't
      *         correspond to a requested type.
      */
-    def apply(param: String): RequestReader[List[Float]] = for {
+    def apply(param: String): RequestReader[Seq[Float]] = for {
       l <- OptionalParams(param)
     } yield StringsToValues(_.toFloat)(l)
   }
@@ -815,7 +910,7 @@ package object request {
      *         en empty list ''Nil'' if the param is missing or empty or doesn't
      *         correspond to a requested type.
      */
-    def apply(param: String): RequestReader[List[Double]] = for {
+    def apply(param: String): RequestReader[Seq[Double]] = for {
       l <- OptionalParams(param)
     } yield StringsToValues(_.toDouble)(l)
   }
@@ -1023,15 +1118,7 @@ package object request {
       def apply(): DecodeRequest[A] = d
     }
 
-  /**
-   * Creates a ''DecodeMagnet'' from ''DecodeAnyRequest''.
-   */
-  implicit def magnetFromAnyDecode[A](implicit d: DecodeAnyRequest, tag: ClassTag[A]): DecodeMagnet[A] =
-    new DecodeMagnet[A] {
-      def apply(): DecodeRequest[A] = new DecodeRequest[A] {
-        def apply(req: String): Try[A] = d(req)(tag)
-      }
-    }
+  
 
   /** A wrapper for two result values.
    */
