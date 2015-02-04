@@ -26,7 +26,6 @@ package io.finch
 import io.finch.request.DecodeRequest
 import io.finch.response.EncodeResponse
 import com.twitter.util.{Try, Throw, Return}
-import io.finch.request.BodyNotParsed
 
 package object json {
   implicit val encodeFinchJson = new EncodeResponse[Json] {
@@ -37,6 +36,6 @@ package object json {
 
   implicit val decodeFinchJson = new DecodeRequest[Json] {
     def apply(json: String): Try[Json] = Json.decode(json)
-      .fold[Try[Json]](Throw(BodyNotParsed))(Return(_)) // TODO - error detail is swallowed
+      .fold[Try[Json]](Throw(new IllegalArgumentException("unknown error parsing JSON")))(Return(_)) // TODO - error detail is swallowed
   }
 }
