@@ -39,7 +39,7 @@ class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
   
   def extractNotParsedTargets (result: Try[(Int, Double, Int)]): AnyRef = {
     (result handle {
-      case RequestReaderErrors(errors) => errors map {
+      case RequestErrors(errors) => errors map {
         case NotParsed(item, _, _) => item
       }
       case NotParsed(item, _, _) => Seq(item)
@@ -67,7 +67,7 @@ class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
   
   it should "produce two ParamNotFound errors if two parameters are missing" in {
     val request = Request.apply("b"->"7.7")
-    Await.result(reader(request).liftToTry) should be (Throw(RequestReaderErrors(Seq(
+    Await.result(reader(request).liftToTry) should be (Throw(RequestErrors(Seq(
       NotPresent(ParamItem("a")),
       NotPresent(ParamItem("c"))
     ))))

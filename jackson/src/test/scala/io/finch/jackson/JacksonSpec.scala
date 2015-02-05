@@ -71,10 +71,10 @@ class JacksonSpec extends FlatSpec with Matchers {
     req.content = body
     req.headerMap.update(HttpHeaders.Names.CONTENT_LENGTH, body.length.toString)
 
-    val rFoo: RequestReader[Foo] = RequiredBody[Foo]
-    val foo: Future[Foo] = RequiredBody[Foo](req)
-    val roFoo: RequestReader[Option[Foo]] = OptionalBody[Foo]
-    val oFoo: Future[Option[Foo]] = OptionalBody[Foo](req)
+    val rFoo: RequestReader[Foo] = RequiredBody.as[Foo]
+    val foo: Future[Foo] = RequiredBody.as[Foo].apply(req)
+    val roFoo: RequestReader[Option[Foo]] = OptionalBody.as[Foo]
+    val oFoo: Future[Option[Foo]] = OptionalBody.as[Foo].apply(req)
 
     val expectedFoo = Foo("bar", 42)
     Await.result(rFoo(req)) shouldBe expectedFoo

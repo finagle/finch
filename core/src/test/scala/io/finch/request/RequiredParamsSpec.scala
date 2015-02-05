@@ -81,7 +81,7 @@ class RequiredParamsSpec extends FlatSpec with Matchers {
   it should "produce an error if one of the params is not a boolean" in {
     val request: HttpRequest = Request.apply(("foo", "true"), ("foo", "5"))
     val futureResult: Future[Seq[Boolean]] = RequiredBooleanParams("foo")(request)
-    intercept[RequestReaderErrors] {
+    intercept[RequestErrors] {
       Await.result(futureResult)
     }
   }
@@ -99,7 +99,7 @@ class RequiredParamsSpec extends FlatSpec with Matchers {
   it should "produce an error if one of the params is not an integer" in {
     val request: HttpRequest = Request.apply(("foo", "non-number"), ("foo", "255"))
     val futureResult: Future[Seq[Int]] = RequiredIntParams("foo")(request)
-    intercept[RequestReaderErrors] {
+    intercept[RequestErrors] {
       Await.result(futureResult)
     }
   }
@@ -117,7 +117,7 @@ class RequiredParamsSpec extends FlatSpec with Matchers {
   it should "produce an error if one of the params is not a long" in {
     val request: HttpRequest = Request.apply(("foo", "false"), ("foo", "7500000000000000"))
     val futureResult: Future[Seq[Long]] = RequiredLongParams("foo")(request)
-    intercept[RequestReaderErrors] {
+    intercept[RequestErrors] {
       Await.result(futureResult)
     }
   }
@@ -135,7 +135,7 @@ class RequiredParamsSpec extends FlatSpec with Matchers {
   it should "produce an error if one of the params is not a float" in {
     val request: HttpRequest = Request.apply(("foo", "non-number"), ("foo", "true"))
     val futureResult: Future[Seq[Float]] = RequiredFloatParams("foo")(request)
-    intercept[RequestReaderErrors] {
+    intercept[RequestErrors] {
       Await.result(futureResult)
     }
   }
@@ -153,7 +153,7 @@ class RequiredParamsSpec extends FlatSpec with Matchers {
   it should "produce an error if one of the params is not a double" in {
     val request: HttpRequest = Request.apply(("foo", "45543245.435"), ("foo", "non-number"))
     val futureResult: Future[Seq[Double]] = RequiredDoubleParams("foo")(request)
-    intercept[RequestReaderErrors] {
+    intercept[RequestErrors] {
       Await.result(futureResult)
     }
   }

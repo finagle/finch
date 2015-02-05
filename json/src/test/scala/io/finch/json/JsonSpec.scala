@@ -198,9 +198,9 @@ class JsonSpec extends FlatSpec with Matchers {
     req.headerMap.update(HttpHeaders.Names.CONTENT_LENGTH, jsonBody.length.toString)
 
     val ok: HttpResponse = Ok(json)
-    val j: RequestReader[Json] = RequiredBody[Json]
-    val k: Future[Json] = RequiredBody[Json](req)
-    val o = OptionalBody[Json](req)
+    val j: RequestReader[Json] = RequiredBody.as[Json]
+    val k: Future[Json] = RequiredBody.as[Json].apply(req)
+    val o = OptionalBody.as[Json].apply(req)
     val s: Service[Json, HttpResponse] = TurnIntoHttp[Json]
 
     ok.getContentString() shouldBe Json.encode(json)
