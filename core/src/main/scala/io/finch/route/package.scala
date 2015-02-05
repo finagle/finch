@@ -52,12 +52,16 @@ import com.twitter.util.Future
  */
 package object route {
 
-  //
-  // ADT that describes a route abstraction.
-  //
-  private[route] sealed trait RouteToken
-  private[route] case class MethodToken(m: Method) extends RouteToken
-  private[route] case class PathToken(p: String) extends RouteToken
+  object tokens {
+    //
+    // ADT that describes a route abstraction.
+    //
+    private[route] sealed trait RouteToken
+    private[route] case class MethodToken(m: Method) extends RouteToken
+    private[route] case class PathToken(p: String) extends RouteToken
+  }
+
+  import tokens._
 
   private[route] type Route = List[RouteToken]
 
@@ -92,7 +96,7 @@ package object route {
   /**
    * Implicitly converts the given `Router[Service[_, _]]` into a service.
    */
-  implicit def routerOfServiceToService[Req, Rep](
+  implicit def endpointToService[R, Req, Rep](
     r: RouterN[Service[Req, Rep]]
   )(implicit ev: Req => HttpRequest): Service[Req, Rep] = new Service[Req, Rep] {
     def apply(req: Req): Future[Rep] = {
@@ -103,17 +107,6 @@ package object route {
       }
     }
   }
-
-  /**
-   * Implicitly converts the given `Router[Future[_]]` into a service.
-   */
-  implicit def routerOfFutureToService[Req, Rep](
-    r: RouterN[Future[Rep]]
-  )(implicit ev: Req => HttpRequest): Service[Req, Rep] = routerOfServiceToService(r.map { f =>
-    new Service[Req, Rep] {
-      def apply(req: Req) = f
-    }
-  })
 
   implicit def intToMatcher(i: Int): Router0 = new Matcher(i.toString)
   implicit def stringToMatcher(s: String): Router0 = new Matcher(s)
@@ -145,7 +138,7 @@ package object route {
      * Maps the router to the given function `fn`. If the given function `None`
      * the resulting router will also return `None`.
      */
-    def maybeMap[B](fn: A => Option[B]): RouterN[B] = new RouterN[B] {
+    def embedFlatMap[B](fn: A => Option[B]): RouterN[B] = new RouterN[B] {
       def apply(route: Route): Option[(Route, B)] = for {
         (r, a) <- self(route)
         b <- fn(a)
@@ -340,7 +333,7 @@ package object route {
    * it's possible to fetch the value from the string.
    */
   case class Extractor[A](name: String, f: String => Option[A]) extends RouterN[A] {
-    def apply(route: Route): Option[(Route, A)] = PathTokenExtractor.maybeMap(f)(route)
+    def apply(route: Route): Option[(Route, A)] = PathTokenExtractor.embedFlatMap(f)(route)
     def apply(n: String): Extractor[A] = copy(name = n)
     override def toString = s":$name"
   }
