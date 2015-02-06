@@ -22,7 +22,7 @@
 
 package io.finch.route
 
-import com.twitter.util.Await
+import com.twitter.util.{Await, Future}
 
 import io.finch._
 import io.finch.response._
@@ -180,7 +180,7 @@ class RouterSpec extends FlatSpec with Matchers {
 
     Await.result(e(httpx.Request("/foo"))).contentString shouldBe "bar"
     Await.result(e(httpx.Request("/bar"))).contentString shouldBe "foo"
-    a [RouteNotFound] should be thrownBy Await.result(e(httpx.Request("/baz")))
+    a [RouteNotFound] shouldBe thrownBy(Await.result(e(httpx.Request("/baz"))))
   }
 
   it should "be greedy" in {

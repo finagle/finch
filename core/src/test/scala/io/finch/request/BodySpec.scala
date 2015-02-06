@@ -38,57 +38,57 @@ class BodySpec extends FlatSpec with Matchers {
   "A RequiredArrayBody" should "be properly read if it exists" in {
     val request: HttpRequest = requestWithBody(fooBytes)
     val futureResult: Future[Array[Byte]] = RequiredArrayBody(request)
-    Await.result(futureResult) should equal(fooBytes)
+    Await.result(futureResult) shouldBe fooBytes
   }
 
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody(Array[Byte]())
     val futureResult: Future[Array[Byte]] = RequiredArrayBody(request)
-    a [NotPresent] should be thrownBy Await.result(futureResult)
+    a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
 
   it should "have a corresponding RequestItem" in {
-    RequiredArrayBody.item should equal(BodyItem)
+    RequiredArrayBody.item shouldBe BodyItem
   }
 
   "An OptionalArrayBody" should "be properly read if it exists" in {
     val request: HttpRequest = requestWithBody(fooBytes)
     val futureResult: Future[Option[Array[Byte]]] = OptionalArrayBody(request)
-    Await.result(futureResult).get should equal(fooBytes)
+    Await.result(futureResult).get shouldBe fooBytes
   }
 
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody(Array[Byte]())
     val futureResult: Future[Option[Array[Byte]]] = OptionalArrayBody(request)
-    Await.result(futureResult) should equal(None)
+    Await.result(futureResult) shouldBe None
   }
 
   it should "have a corresponding RequestItem" in {
-    OptionalArrayBody.item should equal(BodyItem)
+    OptionalArrayBody.item shouldBe BodyItem
   }
 
   "A RequiredStringBody" should "be properly read if it exists" in {
     val request: HttpRequest = requestWithBody(foo)
     val futureResult: Future[String] = RequiredStringBody(request)
-    Await.result(futureResult) should equal(foo)
+    Await.result(futureResult) shouldBe foo
   }
 
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody("")
     val futureResult: Future[String] = RequiredStringBody(request)
-    a [NotPresent] should be thrownBy Await.result(futureResult)
+    a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
 
   "An OptionalStringBody" should "be properly read if it exists" in {
     val request: HttpRequest = requestWithBody(foo)
     val futureResult: Future[Option[String]] = OptionalStringBody(request)
-    Await.result(futureResult) should equal(Some(foo))
+    Await.result(futureResult) shouldBe Some(foo)
   }
 
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody("")
     val futureResult: Future[Option[String]] = OptionalStringBody(request)
-    Await.result(futureResult) should equal(None)
+    Await.result(futureResult) shouldBe None
   }
 
   "RequiredArrayBody Reader" should "work without parentheses at call site" in {
@@ -97,7 +97,7 @@ class BodySpec extends FlatSpec with Matchers {
     } yield body
 
     val request: HttpRequest = requestWithBody(fooBytes)
-    Await.result(reader(request)) should equal(fooBytes)
+    Await.result(reader(request)) shouldBe fooBytes
   }
 
   "RequiredBody and OptionalBody" should "work with no request type available" in {
@@ -145,10 +145,10 @@ class BodySpec extends FlatSpec with Matchers {
     val oi: RequestReader[Option[Int]] = OptionalBody.as[Int]
     val o: Future[Option[Int]] = OptionalBody.as[Int].apply(req)
 
-    a [NotParsed] should be thrownBy Await.result(ri(req))
-    a [NotParsed] should be thrownBy Await.result(i)
-    a [NotParsed] should be thrownBy Await.result(oi(req))
-    a [NotParsed] should be thrownBy Await.result(o)
+    a [NotParsed] shouldBe thrownBy(Await.result(ri(req)))
+    a [NotParsed] shouldBe thrownBy(Await.result(i))
+    a [NotParsed] shouldBe thrownBy(Await.result(oi(req)))
+    a [NotParsed] shouldBe thrownBy(Await.result(o))
   }
 
   private[this] def requestWithBody(body: String): HttpRequest = {

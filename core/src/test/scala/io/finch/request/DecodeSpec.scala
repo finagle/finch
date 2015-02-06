@@ -45,56 +45,56 @@ class DecodeSpec extends FlatSpec with Matchers {
   }
   
   "A RequestReader for a String" should "allow for type converions based on implicit DecodeRequest" in {
-    val request: HttpRequest = Request.apply(("foo", "5"))
+    val request: HttpRequest = Request(("foo", "5"))
     val reader: RequestReader[Int] = RequiredParam("foo").as[Int]
     val result = reader(request)
     Await.result(result) shouldBe 5
   }
   
   it should "fail if a type converions based on implicit DecodeRequest fails" in {
-    val request: HttpRequest = Request.apply(("foo", "foo"))
+    val request: HttpRequest = Request(("foo", "foo"))
     val reader: RequestReader[Int] = RequiredParam("foo").as[Int]
     val result = reader(request)
     Await.result(result.liftToTry).isThrow shouldBe true
   }
   
   it should "allow for type converions of optional parameters" in {
-    val request: HttpRequest = Request.apply(("foo", "5"))
+    val request: HttpRequest = Request(("foo", "5"))
     val reader: RequestReader[Option[Int]] = OptionalParam("foo").as[Int]
     val result = reader(request)
     Await.result(result) shouldBe Some(5)
   }
   
   it should "fail if a type converions for an optional value fails" in {
-    val request: HttpRequest = Request.apply(("foo", "foo"))
+    val request: HttpRequest = Request(("foo", "foo"))
     val reader: RequestReader[Option[Int]] = OptionalParam("foo").as[Int]
     val result = reader(request)
     Await.result(result.liftToTry).isThrow shouldBe true
   }
   
   it should "skip type conversion and succeed if the optional value is missing" in {
-    val request: HttpRequest = Request.apply(("bar", "foo"))
+    val request: HttpRequest = Request(("bar", "foo"))
     val reader: RequestReader[Option[Int]] = OptionalParam("foo").as[Int]
     val result = reader(request)
     Await.result(result) shouldBe None
   }
   
   it should "allow for type converions of a parameter list" in {
-    val request: HttpRequest = Request.apply(("foo", "5,6,7"))
+    val request: HttpRequest = Request(("foo", "5,6,7"))
     val reader: RequestReader[Seq[Int]] = OptionalParams("foo").as[Int]
     val result = reader(request)
     Await.result(result) shouldBe Seq(5,6,7)
   }
   
   it should "fail if a type converion for an element in a parameter list fails" in {
-    val request: HttpRequest = Request.apply(("foo", "5,foo,7"))
+    val request: HttpRequest = Request(("foo", "5,foo,7"))
     val reader: RequestReader[Seq[Int]] = OptionalParams("foo").as[Int]
     val result = reader(request)
     Await.result(result.liftToTry).isThrow shouldBe true
   }
   
   it should "skip type conversion and succeed if a parameter list is empty" in {
-    val request: HttpRequest = Request.apply(("bar", "foo"))
+    val request: HttpRequest = Request(("bar", "foo"))
     val reader: RequestReader[Seq[Int]] = OptionalParams("foo").as[Int]
     val result = reader(request)
     Await.result(result).isEmpty shouldBe true
@@ -113,7 +113,7 @@ class DecodeSpec extends FlatSpec with Matchers {
       def apply(req: String): Try[Foo] = Return(new Foo(req))
     }   
     
-    val request: HttpRequest = Request.apply(("foo", "foo"), ("bar", "bar"))
+    val request: HttpRequest = Request(("foo", "foo"), ("bar", "bar"))
     val reader: RequestReader[(Foo, Bar)] = for {
       foo <- RequiredParam("foo").as[Foo] 
       bar <- RequiredParam("bar").as[Bar] 

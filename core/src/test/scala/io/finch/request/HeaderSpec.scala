@@ -33,13 +33,13 @@ class HeaderSpec extends FlatSpec with Matchers {
     val request = Request()
     request.headerMap.update("Location", "some header")
     val futureResult = RequiredHeader("Location")(request)
-    Await.result(futureResult) should equal("some header")
+    Await.result(futureResult) shouldBe "some header"
   }
 
   it should "error if it does not exist" in {
     val request = Request()
     val futureResult = RequiredHeader("Location")(request)
-    a [NotPresent] should be thrownBy Await.result(futureResult)
+    a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
 
 
@@ -47,18 +47,18 @@ class HeaderSpec extends FlatSpec with Matchers {
     val request = Request()
     request.headerMap.update("Location", "some header")
     val futureResult = OptionalHeader("Location")(request)
-    Await.result(futureResult) should equal(Some("some header"))
+    Await.result(futureResult) shouldBe Some("some header")
   }
 
   it should "be None if it does not exist" in {
     val request = Request()
     val futureResult = OptionalHeader("Location")(request)
-    Await.result(futureResult) should be (None)
+    Await.result(futureResult) shouldBe None
   }
 
   "A Header Reader" should "have a matching RequestItem" in {
     val header = "Location"
-    RequiredHeader(header).item should equal(items.HeaderItem(header))
-    OptionalHeader(header).item should equal(items.HeaderItem(header))
+    RequiredHeader(header).item shouldBe items.HeaderItem(header)
+    OptionalHeader(header).item shouldBe items.HeaderItem(header)
   }
 }

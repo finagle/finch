@@ -56,7 +56,7 @@ class ResponseBuilderSpec extends FlatSpec with Matchers {
     val rep = Ok.withCookies(cookie)
     val response = rep()
 
-    rep.cookies should equal(Seq(cookie))
-    response.cookies.get("session") should equal(Some(cookie))
+    rep.cookies shouldBe Seq(cookie)
+    response.cookies.get("session") shouldBe Some(cookie)
   }
 }
