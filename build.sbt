@@ -47,6 +47,8 @@ lazy val publishSettings = Seq(
   publishArtifact in Test := false,
   licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
   homepage := Some(url("https://github.com/finagle/finch")),
+  autoAPIMappings := true,
+  apiURL := Some(url("https://finagle.github.io/finch/docs/")),
   pomExtra := (
     <scm>
       <url>git://github.com/finagle/finch.git</url>
