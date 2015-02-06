@@ -129,7 +129,7 @@ class JsonSpec extends FlatSpec with Matchers {
     val a = Json.obj("a" -> 1)
     val b = Json.arr(1)
 
-    an [IllegalArgumentException] should be thrownBy Json.concatLeft(a, b)
+    an [IllegalArgumentException] shouldBe thrownBy(Json.concatLeft(a, b))
   }
 
   it should "merge objects" in {
@@ -151,7 +151,7 @@ class JsonSpec extends FlatSpec with Matchers {
     val a = Json.arr(1, 2, 3)
     val b = Json.arr(1, 2, 3)
 
-    an [IllegalArgumentException] should be thrownBy Json.mergeLeft(a, b)
+    an [IllegalArgumentException] shouldBe thrownBy(Json.mergeLeft(a, b))
   }
 
   it should "query properties" in {

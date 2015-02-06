@@ -36,15 +36,15 @@ class ArgonautSpec extends FlatSpec with Matchers {
   val exampleUser = TestUser(42, "bob")
 
   "An ArgonautDecode" should "decode json string into a data structure" in {
-    toArgonautDecode(testUserCodec)(str) shouldEqual Return(exampleUser)
+    toArgonautDecode(testUserCodec)(str) shouldBe Return(exampleUser)
   }
 
   it should "fail if the string is not valid json" in {
-    toArgonautDecode(testUserCodec)(badJson).isThrow shouldEqual true
+    toArgonautDecode(testUserCodec)(badJson).isThrow shouldBe true
   }
 
   it should "fail if the decoder could not decode the string into data" in {
-    toArgonautDecode(testUserCodec)(invalidStructure).isThrow shouldEqual true
+    toArgonautDecode(testUserCodec)(invalidStructure).isThrow shouldBe true
   }
 
   it should "be compatible with finch-core's requests" in {
@@ -54,16 +54,16 @@ class ArgonautSpec extends FlatSpec with Matchers {
     req.headerMap.update(HttpHeaders.Names.CONTENT_LENGTH, str.length.toString)
 
     val user: TestUser = Await.result(RequiredBody.as[TestUser].apply(req))
-    user shouldEqual exampleUser
+    user shouldBe exampleUser
   }
 
   "An ArgonautEncode" should "encode a data structure into a json string" in {
-    toArgonautEncode(testUserCodec)(exampleUser) shouldEqual str
+    toArgonautEncode(testUserCodec)(exampleUser) shouldBe str
   }
 
   it should "be compatible with finch-core's responses" in {
     val service: Service[TestUser, HttpResponse] = TurnIntoHttp[TestUser]
     val result = Await.result(service(exampleUser))
-    result.getContentString() shouldEqual str
+    result.getContentString() shouldBe str
   }
 }

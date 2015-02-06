@@ -18,7 +18,7 @@ Finch uses [ScalaTest][2] with the following settings:
 
 * Every test should be a `FlatSpec` with `Matchers` mixed in
 * An assertion should be done with `x shouldBe y`
-* Exceptions should be intercepted with `an [Exception] should be thrownBy x`
+* Exceptions should be intercepted with `an [Exception] shouldBe thrownBy(x)`
 
 ## Write Docs
 Write clean and simple docs in the `docs.md` file.

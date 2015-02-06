@@ -31,27 +31,27 @@ import items._
 class RequestReaderCompanionSpec extends FlatSpec with Matchers {
 
   "The RequestReaderCompanion" should "support a facotry method based on a funciton that reads from the request" in {
-    val request: HttpRequest = Request.apply(("foo", "5"))
+    val request: HttpRequest = Request(("foo", "5"))
     val futureResult: Future[String] = RequestReader(ParamItem("foo"))(_.params.get("foo")).failIfEmpty(request)
     Await.result(futureResult) shouldBe "5"
   }
 
   it should "support a factory method based on a constant Future" in {
-    val request: HttpRequest = Request.apply(("foo", ""))
+    val request: HttpRequest = Request(("foo", ""))
     val futureResult: Future[Int] = RequestReader.const(1.toFuture)(request)
     Await.result(futureResult) shouldBe 1
   }
   
   it should "support a factory method based on a constant value" in {
-    val request: HttpRequest = Request.apply(("foo", ""))
+    val request: HttpRequest = Request(("foo", ""))
     val futureResult: Future[Int] = RequestReader.value(1)(request)
     Await.result(futureResult) shouldBe 1
   }
   
   it should "support a factory method based on a constant exception" in {
-    val request: HttpRequest = Request.apply(("foo", ""))
+    val request: HttpRequest = Request(("foo", ""))
     val futureResult: Future[Int] = RequestReader.exception(NotPresent(BodyItem))(request)
-    a [NotPresent] should be thrownBy Await.result(futureResult)
+    a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
   
 }

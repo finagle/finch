@@ -30,7 +30,7 @@ import org.scalatest.{Matchers, FlatSpec}
 class OptionalParamsSpec extends FlatSpec with Matchers {
 
   "A OptionalParams" should "parse all of the url params with the same key" in {
-    val request: HttpRequest = Request.apply(("foo", "5"), ("bar", "6"), ("foo", "25"))
+    val request: HttpRequest = Request(("foo", "5"), ("bar", "6"), ("foo", "25"))
     val futureResult: Future[Seq[String]] = OptionalParams("foo")(request)
     val result: Seq[String] = Await.result(futureResult)
     result should have length 2
@@ -39,7 +39,7 @@ class OptionalParamsSpec extends FlatSpec with Matchers {
   }
 
   it should "return only params that are not the empty string" in {
-    val request: HttpRequest = Request.apply(("foo", ""), ("bar", "6"), ("foo", "25"))
+    val request: HttpRequest = Request(("foo", ""), ("bar", "6"), ("foo", "25"))
     val futureResult: Future[Seq[String]] = OptionalParams("foo")(request)
     val result: Seq[String] = Await.result(futureResult)
     result should have length 1
@@ -47,25 +47,25 @@ class OptionalParamsSpec extends FlatSpec with Matchers {
   }
 
   it should "return Nil if the parameter does not exist at all" in {
-    val request: HttpRequest = Request.apply(("foo", "5"), ("bar", "6"), ("foo", "25"))
+    val request: HttpRequest = Request(("foo", "5"), ("bar", "6"), ("foo", "25"))
     val futureResult: Future[Seq[String]] = OptionalParams("baz")(request)
-    Await.result(futureResult) should be (Nil)
+    Await.result(futureResult) shouldBe Nil
   }
 
   it should "return Nil if all of the values for that parameter ar the emptry string" in {
-    val request: HttpRequest = Request.apply(("foo", ""), ("bar", "6"), ("foo", ""))
+    val request: HttpRequest = Request(("foo", ""), ("bar", "6"), ("foo", ""))
     val futureResult: Future[Seq[String]] = OptionalParams("")(request)
-    Await.result(futureResult) should be (Nil)
+    Await.result(futureResult) shouldBe Nil
   }
 
   it should "have a matching RequestItem" in {
     val param = "foo"
-    OptionalParams(param).item should equal(items.ParamItem(param))
+    OptionalParams(param).item shouldBe items.ParamItem(param)
   }
 
 
   "A OptionalBooleanParams" should "be parsed as a list of booleans" in {
-    val request: HttpRequest = Request.apply(("foo", "true"), ("foo", "false"))
+    val request: HttpRequest = Request(("foo", "true"), ("foo", "false"))
     val futureResult: Future[Seq[Boolean]] = OptionalBooleanParams("foo")(request)
     val result: Seq[Boolean] = Await.result(futureResult)
     result should have length 2
@@ -74,14 +74,14 @@ class OptionalParamsSpec extends FlatSpec with Matchers {
   }
 
   it should "produce an error if one of the params is not a boolean" in {
-    val request: HttpRequest = Request.apply(("foo", "true"), ("foo", "5"))
+    val request: HttpRequest = Request(("foo", "true"), ("foo", "5"))
     val futureResult: Future[Seq[Boolean]] = OptionalBooleanParams("foo")(request)
-    a [RequestErrors] should be thrownBy Await.result(futureResult)
+    a [RequestErrors] shouldBe thrownBy(Await.result(futureResult))
   }
 
 
   "A OptionalIntParams" should "be parsed as a list of integers" in {
-    val request: HttpRequest = Request.apply(("foo", "5"), ("foo", "255"))
+    val request: HttpRequest = Request(("foo", "5"), ("foo", "255"))
     val futureResult: Future[Seq[Int]] = OptionalIntParams("foo")(request)
     val result: Seq[Int] = Await.result(futureResult)
     result should have length 2
@@ -90,14 +90,14 @@ class OptionalParamsSpec extends FlatSpec with Matchers {
   }
 
   it should "produce an error if one of the params is not an integer" in {
-    val request: HttpRequest = Request.apply(("foo", "non-number"), ("foo", "255"))
+    val request: HttpRequest = Request(("foo", "non-number"), ("foo", "255"))
     val futureResult: Future[Seq[Int]] = OptionalIntParams("foo")(request)
-    a [RequestErrors] should be thrownBy Await.result(futureResult)
+    a [RequestErrors] shouldBe thrownBy(Await.result(futureResult))
   }
 
 
   "A OptionalLongParams" should "be parsed as a list of longs" in {
-    val request: HttpRequest = Request.apply(("foo", "9000000000000000"), ("foo", "7500000000000000"))
+    val request: HttpRequest = Request(("foo", "9000000000000000"), ("foo", "7500000000000000"))
     val futureResult: Future[Seq[Long]] = OptionalLongParams("foo")(request)
     val result: Seq[Long] = Await.result(futureResult)
     result should have length 2
@@ -106,13 +106,13 @@ class OptionalParamsSpec extends FlatSpec with Matchers {
   }
 
   it should "produce an error if one of the params is not a long" in {
-    val request: HttpRequest = Request.apply(("foo", "false"), ("foo", "7500000000000000"))
+    val request: HttpRequest = Request(("foo", "false"), ("foo", "7500000000000000"))
     val futureResult: Future[Seq[Long]] = OptionalLongParams("foo")(request)
-    a [RequestErrors] should be thrownBy Await.result(futureResult)
+    a [RequestErrors] shouldBe thrownBy(Await.result(futureResult))
   }
 
   "A OptionalFloatParams" should "be parsed as a list of floats" in {
-    val request: HttpRequest = Request.apply(("foo", "5.123"), ("foo", "536.22345"))
+    val request: HttpRequest = Request(("foo", "5.123"), ("foo", "536.22345"))
     val futureResult: Future[Seq[Float]] = OptionalFloatParams("foo")(request)
     val result: Seq[Float] = Await.result(futureResult)
     result should have length 2
@@ -121,14 +121,14 @@ class OptionalParamsSpec extends FlatSpec with Matchers {
   }
 
   it should "produce an error if one of the params is not a float" in {
-    val request: HttpRequest = Request.apply(("foo", "non-number"), ("foo", "true"), ("foo", "5.123"))
+    val request: HttpRequest = Request(("foo", "non-number"), ("foo", "true"), ("foo", "5.123"))
     val futureResult: Future[Seq[Float]] = OptionalFloatParams("foo")(request)
-    a [RequestErrors] should be thrownBy Await.result(futureResult)
+    a [RequestErrors] shouldBe thrownBy(Await.result(futureResult))
   }
 
 
   "A OptionalDoubleParams" should "be parsed as a list of doubles" in {
-    val request: HttpRequest = Request.apply(("foo", "100.0"), ("foo", "66566.45243"))
+    val request: HttpRequest = Request(("foo", "100.0"), ("foo", "66566.45243"))
     val futureResult: Future[Seq[Double]] = OptionalDoubleParams("foo")(request)
     val result: Seq[Double] = Await.result(futureResult)
     result should have length 2
@@ -137,8 +137,8 @@ class OptionalParamsSpec extends FlatSpec with Matchers {
   }
 
   it should "produce an error if one of the params is not a double" in {
-    val request: HttpRequest = Request.apply(("foo", "45543245.435"), ("foo", "non-number"))
+    val request: HttpRequest = Request(("foo", "45543245.435"), ("foo", "non-number"))
     val futureResult: Future[Seq[Double]] = OptionalDoubleParams("foo")(request)
-    a [RequestErrors] should be thrownBy Await.result(futureResult)
+    a [RequestErrors] shouldBe thrownBy(Await.result(futureResult))
   }
 }

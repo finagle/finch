@@ -31,83 +31,83 @@ import org.scalatest.{Matchers, FlatSpec}
 class OptionalParamSpec extends FlatSpec with Matchers {
 
   "An OptionalParam" should "be properly parsed when it exists" in {
-    val request: HttpRequest = Request.apply(("foo", "5"))
+    val request: HttpRequest = Request(("foo", "5"))
     val futureResult: Future[Option[String]] = OptionalParam("foo")(request)
-    Await.result(futureResult) should equal(Some("5"))
+    Await.result(futureResult) shouldBe Some("5")
   }
 
   it should "produce an error if the param is empty" in {
-    val request: HttpRequest = Request.apply()
+    val request: HttpRequest = Request()
     val futureResult: Future[Option[String]] = OptionalParam("foo")(request)
-    Await.result(futureResult) should equal(None)
+    Await.result(futureResult) shouldBe None
   }
 
   it should "have a matching RequestItem" in {
     val param = "foo"
-    OptionalParam(param).item should equal(items.ParamItem(param))
+    OptionalParam(param).item shouldBe items.ParamItem(param)
   }
 
 
   "An OptionalBooleanParam" should "be parsed as an integer" in {
-    val request: HttpRequest = Request.apply(("foo", "true"))
+    val request: HttpRequest = Request(("foo", "true"))
     val futureResult: Future[Option[Boolean]] = OptionalBooleanParam("foo")(request)
     Await.result(futureResult) shouldBe Some(true)
   }
 
   it should "produce an error if the param is not a number" in {
-    val request: HttpRequest = Request.apply(("foo", "non-boolean"))
+    val request: HttpRequest = Request(("foo", "non-boolean"))
     val futureResult: Future[Option[Boolean]] = OptionalBooleanParam("foo")(request)
-    a [NotParsed] should be thrownBy Await.result(futureResult)
+    a [NotParsed] shouldBe thrownBy(Await.result(futureResult))
   }
 
 
   "An OptionalIntParam" should "be parsed as an integer" in {
-    val request: HttpRequest = Request.apply(("foo", "5"))
+    val request: HttpRequest = Request(("foo", "5"))
     val futureResult: Future[Option[Int]] = OptionalIntParam("foo")(request)
-    Await.result(futureResult) should equal(Some(5))
+    Await.result(futureResult) shouldBe Some(5)
   }
 
   it should "produce an error if the param is not a number" in {
-    val request: HttpRequest = Request.apply(("foo", "non-number"))
+    val request: HttpRequest = Request(("foo", "non-number"))
     val futureResult: Future[Option[Int]] = OptionalIntParam("foo")(request)
-    a [NotParsed] should be thrownBy Await.result(futureResult)
+    a [NotParsed] shouldBe thrownBy(Await.result(futureResult))
   }
 
 
   "An OptionalLongParam" should "be parsed as a long" in {
-    val request: HttpRequest = Request.apply(("foo", "9000000000000000"))
+    val request: HttpRequest = Request(("foo", "9000000000000000"))
     val futureResult: Future[Option[Long]] = OptionalLongParam("foo")(request)
-    Await.result(futureResult) should equal(Some(9000000000000000L))
+    Await.result(futureResult) shouldBe Some(9000000000000000L)
   }
 
   it should "produce an error if the param is not a number" in {
-    val request: HttpRequest = Request.apply(("foo", "non-number"))
+    val request: HttpRequest = Request(("foo", "non-number"))
     val futureResult: Future[Option[Long]] = OptionalLongParam("foo")(request)
-    a [NotParsed] should be thrownBy Await.result(futureResult)
+    a [NotParsed] shouldBe thrownBy(Await.result(futureResult))
   }
 
   "An OptionalFloatParam" should "be parsed as a double" in {
-    val request: HttpRequest = Request.apply(("foo", "5.123"))
+    val request: HttpRequest = Request(("foo", "5.123"))
     val futureResult: Future[Option[Float]] = OptionalFloatParam("foo")(request)
-    Await.result(futureResult) should equal(Some(5.123f))
+    Await.result(futureResult) shouldBe Some(5.123f)
   }
 
   it should "produce an error if the param is not a number" in {
-    val request: HttpRequest = Request.apply(("foo", "non-number"))
+    val request: HttpRequest = Request(("foo", "non-number"))
     val futureResult: Future[Option[Float]] = OptionalFloatParam("foo")(request)
-    a [NotParsed] should be thrownBy Await.result(futureResult)
+    a [NotParsed] shouldBe thrownBy(Await.result(futureResult))
   }
 
 
   "An OptionalDoubleParam" should "be parsed as a float" in {
-    val request: HttpRequest = Request.apply(("foo", "100.0"))
+    val request: HttpRequest = Request(("foo", "100.0"))
     val futureResult: Future[Option[Double]] = OptionalDoubleParam("foo")(request)
-    Await.result(futureResult) should equal(Some(100.0))
+    Await.result(futureResult) shouldBe Some(100.0)
   }
 
   it should "produce an error if the param is not a number" in {
-    val request: HttpRequest = Request.apply(("foo", "non-number"))
+    val request: HttpRequest = Request(("foo", "non-number"))
     val futureResult: Future[Option[Double]] = OptionalDoubleParam("foo")(request)
-    a [NotParsed] should be thrownBy Await.result(futureResult)
+    a [NotParsed] shouldBe thrownBy(Await.result(futureResult))
   }
 }

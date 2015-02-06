@@ -38,7 +38,7 @@ class CookieSpec extends FlatSpec with Matchers {
     request.addCookie(cookie)
     val futureResult: Future[Cookie] = RequiredCookie(cookieName)(request)
 
-    Await.result(futureResult) should equal(cookie)
+    Await.result(futureResult) shouldBe cookie
   }
 
   it should "throw an exception if the require cookie does not exist" in {
@@ -46,7 +46,7 @@ class CookieSpec extends FlatSpec with Matchers {
     request.addCookie(cookie)
     val futureResult: Future[Cookie] = RequiredCookie("another-cookie")(request)
 
-    a [NotPresent] should be thrownBy Await.result(futureResult)
+    a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
 
   it should "read an optional cookie if it exists" in {
@@ -54,18 +54,18 @@ class CookieSpec extends FlatSpec with Matchers {
     request.addCookie(cookie)
     val futureResult: Future[Option[Cookie]] = OptionalCookie(cookieName)(request)
 
-    Await.result(futureResult) should equal(Some(cookie))
+    Await.result(futureResult) shouldBe Some(cookie)
   }
 
   it should "read None if the cookie name does not exist" in {
     val request: HttpRequest = Request()
     val futureResult: Future[Option[Cookie]] = OptionalCookie(cookieName)(request)
 
-    Await.result(futureResult) should equal(None)
+    Await.result(futureResult) shouldBe None
   }
 
   it should "have a matching RequestItem" in {
-    RequiredCookie(cookieName).item should equal(items.CookieItem(cookieName))
-    OptionalCookie(cookieName).item should equal(items.CookieItem(cookieName))
+    RequiredCookie(cookieName).item shouldBe items.CookieItem(cookieName)
+    OptionalCookie(cookieName).item shouldBe items.CookieItem(cookieName)
   }
 }

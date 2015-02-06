@@ -49,37 +49,37 @@ class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
   
 
   "The applicative reader" should "produce three errors if all three numbers cannot be parsed" in {
-    val request = Request.apply("a"->"foo", "b"->"foo", "c"->"foo")
-    extractNotParsedTargets(Await.result(reader(request).liftToTry)) should be (Seq(
+    val request = Request("a"->"foo", "b"->"foo", "c"->"foo")
+    extractNotParsedTargets(Await.result(reader(request).liftToTry)) shouldBe Seq(
       ParamItem("a"),
       ParamItem("b"),
       ParamItem("c")
-    ))
+    )
   }
   
   it should "produce two validation errors if two numbers cannot be parsed" in {
-    val request = Request.apply("a"->"foo", "b"->"7.7", "c"->"foo")
-    extractNotParsedTargets(Await.result(reader(request).liftToTry)) should be (Seq(
+    val request = Request("a"->"foo", "b"->"7.7", "c"->"foo")
+    extractNotParsedTargets(Await.result(reader(request).liftToTry)) shouldBe Seq(
       ParamItem("a"),
       ParamItem("c")
-    ))
+    )
   }
   
   it should "produce two ParamNotFound errors if two parameters are missing" in {
-    val request = Request.apply("b"->"7.7")
-    Await.result(reader(request).liftToTry) should be (Throw(RequestErrors(Seq(
+    val request = Request("b"->"7.7")
+    Await.result(reader(request).liftToTry) shouldBe Throw(RequestErrors(Seq(
       NotPresent(ParamItem("a")),
       NotPresent(ParamItem("c"))
-    ))))
+    )))
   }
   
   it should "produce one error if the last parameter cannot be parsed to an integer" in {
-    val request = Request.apply("a"->"9", "b"->"7.7", "c"->"foo")
-    extractNotParsedTargets(Await.result(reader(request).liftToTry)) should be (Seq(ParamItem("c")))
+    val request = Request("a"->"9", "b"->"7.7", "c"->"foo")
+    extractNotParsedTargets(Await.result(reader(request).liftToTry)) shouldBe Seq(ParamItem("c"))
   }
   
   it should "parse all integers and doubles" in {
-    val request = Request.apply("a"->"9", "b"->"7.7", "c"->"5")
-    Await.result(reader(request)) should be ((9,7.7,5))
+    val request = Request("a"->"9", "b"->"7.7", "c"->"5")
+    Await.result(reader(request)) shouldBe ((9, 7.7, 5))
   }
 }
