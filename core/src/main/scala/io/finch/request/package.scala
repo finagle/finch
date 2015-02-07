@@ -27,7 +27,7 @@
 package io.finch
 
 import com.twitter.finagle.httpx.Cookie
-import com.twitter.util.{Future, Return, Throw, Try}
+import com.twitter.util.{Future, Throw, Try}
 
 import scala.reflect.ClassTag
 
@@ -54,7 +54,6 @@ package request {
         }
       }
     }
-
 }
 
 package object request extends LowPriorityImplicits {
@@ -68,63 +67,6 @@ package object request extends LowPriorityImplicits {
   implicit val decodeDouble: DecodeRequest[Double] = DecodeRequest { s => Try(s.toDouble) }
 
   implicit val decodeBoolean: DecodeRequest[Boolean] = DecodeRequest { s => Try(s.toBoolean) }
-
-  /**
-   * A reusable validation rule that can be applied to any [[RequestReader]] with a matching type.
-   */
-  trait ValidationRule[A] { self =>
-
-    /**
-     * Text description of this validation rule.
-     */
-    def description: String
-
-    /**
-     * Applies the rule to the specified value.
-     *
-     * @return true if the predicate of this rule holds for the specified value
-     */
-    def apply(value: A): Boolean
-
-    /**
-     * Combines this rule with another rule such that the new
-     * rule only validates if both the combined rules validate.
-     *
-     * @param that the rule to combine with this rule
-     * @return a new rule that only validates if both the combined rules validate
-     */
-    def and(that: ValidationRule[A]): ValidationRule[A] =
-      ValidationRule(s"${self.description} and ${that.description}") { value => self(value) && that(value) }
-
-    /**
-     * Combines this rule with another rule such that the new
-     * rule validates if any one of the combined rules validates.
-     *
-     * @param that the rule to combine with this rule
-     * @return a new rule that validates if any of the the combined rules validates
-     */
-    def or(that: ValidationRule[A]): ValidationRule[A] =
-      ValidationRule(s"${self.description} or ${that.description}") { value => self(value) || that(value) }
-  }
-
-  /**
-   * Allows the creation of reusable validation rules for [[RequestReader]]s.
-   */
-  object ValidationRule {
-
-    /**
-     * Creates a new reusable validation rule based on the specified predicate.
-     *
-     * @param desc text describing the rule being validated
-     * @param p returns true if the data is valid
-     *
-     * @return a new reusable validation rule.
-     */
-    def apply[A](desc: String)(p: A => Boolean): ValidationRule[A] = new ValidationRule[A] {
-      def description = desc
-      def apply(value: A) = p(value)
-    }
-  }
 
   /**
    * Representations for the various request item types
@@ -142,157 +84,6 @@ package object request extends LowPriorityImplicits {
   }
 
   import items._
-
-  /**
-   * A request reader (a Reader Monad) reads a ''Future'' of ''A'' from the ''HttpRequest''.
-   *
-   * @tparam A the result type
-   */
-  trait RequestReader[A] { self =>
-
-    def item: RequestItem
-
-    /**
-     * Reads the data from given request ''req''.
-     *
-     * @tparam Req the request type
-     * @param req the request to read
-     */
-    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[A]
-
-    def flatMap[B](fn: A => RequestReader[B]) = new RequestReader[B] {
-      val item = MultipleItems
-      def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = self(req) flatMap { fn(_)(req) }
-    }
-
-    def map[B](fn: A => B) = new RequestReader[B] {
-      val item = self.item
-      def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = self(req) map fn
-    }
-
-    def embedFlatMap[B](fn: A => Future[B]) = new RequestReader[B] {
-      val item = self.item
-      def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = self(req) flatMap fn
-    }
-
-    def ~[B](that: RequestReader[B]): RequestReader[A ~ B] = new RequestReader[A ~ B] {
-      val item = MultipleItems
-      def apply[Req] (req: Req)(implicit ev: Req => HttpRequest): Future[A ~ B] =
-        Future.join(self(req)(ev).liftToTry, that(req)(ev).liftToTry) flatMap {
-          case (Return(a), Return(b)) => new ~(a, b).toFuture
-          case (Throw(a), Throw(b)) => collectExceptions(a, b).toFutureException
-          case (Throw(e), _) => e.toFutureException
-          case (_, Throw(e)) => e.toFutureException
-        }
-
-      def collectExceptions (a: Throwable, b: Throwable): RequestErrors = {
-        def collect (e: Throwable): Seq[Throwable] = e match {
-          case RequestErrors(errors) => errors
-          case other => Seq(other)
-        }
-
-        RequestErrors(collect(a) ++ collect(b))
-      }
-    }
-
-    def withFilter(p: A => Boolean) = self.should("not fail validation")(p)
-
-    /**
-     * Validates the result of this ''RequestReader'' using a predicate. The rule is used for error reporting.
-     *
-     * @param rule text describing the rule being validated
-     * @param predicate returns true if the data is valid
-     *
-     * @return a ''RequestReader'' that will return the value of this reader if it is valid.
-     *         Otherwise the future fails with a ''NotValid'' error.
-     */
-    def should(rule: String)(predicate: A => Boolean): RequestReader[A] = embedFlatMap { a =>
-      if (predicate(a)) a.toFuture
-      else NotValid(self.item, rule).toFutureException
-    }
-
-    /**
-     * Validates the result of this ''RequestReader'' using a predicate. The rule is used for error reporting.
-     *
-     * @param rule text describing the rule being validated
-     * @param predicate returns false if the data is valid
-     *
-     * @return a ''RequestReader'' that will return the value of this reader if it is valid.
-     *         Otherwise the future fails with a ''NotValid'' error.
-     */
-    def shouldNot(rule: String)(predicate: A => Boolean): RequestReader[A] = should(s"not $rule.")(x => !predicate(x))
-
-    /**
-     * Validates the result of this ''RequestReader'' using a predefined rule. This method allows
-     * for rules to be reused across multiple ''RequestReaders''.
-     *
-     * @param rule the predefined validation rule that will return true if the data is valid
-     *
-     * @return a ''RequestReader'' that will return the value of this reader if it is valid.
-     *         Otherwise the future fails with a ''NotValid'' error.
-     */
-    def should(rule: ValidationRule[A]): RequestReader[A] = should(rule.description)(rule.apply)
-
-    /**
-     * Validates the result of this ''RequestReader'' using a predefined rule. This method allows
-     * for rules to be reused across multiple ''RequestReaders''.
-     *
-     * @param rule the predefined validation rule that will return false if the data is valid
-     *
-     * @return a ''RequestReader'' that will return the value of this reader if it is valid.
-     *         Otherwise the future fails with a ''NotValid'' error.
-     */
-    def shouldNot(rule: ValidationRule[A]): RequestReader[A] = shouldNot(rule.description)(rule.apply)
-  }
-
-  /**
-   * Convenience methods for creating new reader instances.
-   */
-  object RequestReader {
-
-    /**
-     * Creates a new reader that always succeeds, producing the specified value.
-     *
-     * @param value the value the new reader should produce
-     * @param item the request item (e.g. parameter, header) the value is associated with
-     * @return a new reader that always succeeds, producing the specified value
-     */
-    def value[A](value: A, item: RequestItem = MultipleItems): RequestReader[A] = const(value.toFuture)
-
-    /**
-     * Creates a new reader that always fails, producing the specified exception.
-     *
-     * @param exc the exception the new reader should produce
-     * @param item the request item (e.g. parameter, header) the value is associated with
-     * @return a new reader that always fails, producing the specified exception
-     */
-    def exception[A](exc: Throwable, item: RequestItem = MultipleItems): RequestReader[A] = const(exc.toFutureException)
-
-    /**
-     * Creates a new reader that always produces the specified value.
-     * It will succeed if the Future succeeds and fail if the Future fails.
-     *
-     * @param value the value the new reader should produce
-     * @param item the request item (e.g. parameter, header) the value is associated with
-     * @return a new reader that always produces the specified value
-     */
-    def const[A](value: Future[A], item: RequestItem = MultipleItems): RequestReader[A] = embed(item)(_ => value)
-
-    /**
-     * Creates a new reader that reads the result from the request.
-     *
-     * @param item the request item (e.g. parameter, header) the value is associated with
-     * @param f the function to apply to the request
-     * @return a new reader that reads the result from the request
-     */
-    def apply[A](item: RequestItem)(f: HttpRequest => A): RequestReader[A] = embed(item)(f(_).toFuture)
-
-    private[this] def embed[A](reqItem: RequestItem)(f: HttpRequest => Future[A]): RequestReader[A] =
-      new RequestReader[A] {
-        val item = reqItem
-        def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = f(req)
-      }
-  }
 
   private[this] def notParsed[A](reader: RequestReader[_], tag: ClassTag[_]): PartialFunction[Throwable,Try[A]] = {
     case exc => Throw(NotParsed(reader.item, tag, exc))
@@ -370,8 +161,8 @@ package object request extends LowPriorityImplicits {
    * it gets validated (and validation may fail, producing an error), but
    * if it is empty, it is always treated as valid.
    *
-   * @param rule The validation rule to adapt for optional values
-   * @return A new validation rule that applies the specified rule to an optional value in case it is not empty.
+   * @param rule the validation rule to adapt for optional values
+   * @return a new validation rule that applies the specified rule to an optional value in case it is not empty
    */
   implicit def toOptionalRule[A](rule: ValidationRule[A]): ValidationRule[Option[A]] = {
     ValidationRule(rule.description) {
@@ -381,48 +172,25 @@ package object request extends LowPriorityImplicits {
   }
 
   /**
-   * A base exception of request reader.
+   * Implicit conversion that allows the same inline rules to be used for
+   * required and optional values. If the optional value is non-empty, it
+   * gets validated (and validation may fail, producing error), but
+   * if it is empty, it is always treated as valid.
    *
-   * @param message the message
+   * In order to help the compiler determine the case when inline rule should
+   * be converted the type of the validated value should be specified explicitly.
+   *
+   *
+   * {{{
+   *   OptionalIntParam("foo").should("be greater than 50") { i: Int => i > 50 }
+   * }}}
+   *
+   * @param fn the underlying function to convert
    */
-  class RequestError(val message: String, cause: Throwable) extends Exception(message, cause) {
-    def this(message: String) = this(message, null)
+  implicit def toOptionalInlineRule[A](fn: A => Boolean): Option[A] => Boolean = {
+    case Some(value) => fn(value)
+    case None => true
   }
-
-  /**
-   * An exception that collects multiple request reader errors.
-   *
-   * @param errors the errors collected from various request readers
-   */
-  case class RequestErrors(errors: Seq[Throwable])
-    extends RequestError("One or more errors reading request: " + errors.map(_.getMessage).mkString("\n  ","\n  ",""))
-
-  /**
-   * An exception that indicates a required request item (header, param, cookie, body)
-   * was missing in the request.
-   *
-   * @param item the missing request item
-   */
-  case class NotPresent(item: RequestItem) extends RequestError(s"Required ${item.description} not present in the request.")
-
-  /**
-   * An exception that indicates a broken validation rule on the request item.
-   *
-   * @param item the invalid request item
-   * @param rule the rule description
-   */
-  case class NotValid(item: RequestItem, rule: String)
-    extends RequestError(s"Validation failed: ${item.description} $rule.")
-
-  /**
-   * An exception that indicates that a request item could be parsed.
-   *
-   * @param item the invalid request item
-   * @param targetType the type the item should be converted into
-   * @param cause the cause of the parsing error
-   */
-  case class NotParsed(item: RequestItem, targetType: ClassTag[_], cause: Throwable)
-    extends RequestError(s"${item.description} cannot be converted to ${targetType.runtimeClass.getSimpleName}: ${cause.getMessage}.")
 
   /**
    * A required string param.
@@ -665,4 +433,28 @@ package object request extends LowPriorityImplicits {
   /** A wrapper for two result values.
    */
   case class ~[+A, +B](_1: A, _2: B)
+
+  /**
+   * A validation rule that makes sure the numeric value is greater than given `n`.
+   */
+  def beGreaterThan[A](n: A)(implicit ev: Numeric[A]): ValidationRule[A] =
+    ValidationRule(s"be greater than $n")(ev.gt(_, n))
+
+  /**
+   * A validation rule that makes sure the numeric value is less than given `n`.
+   */
+  def beLessThan[A](n: A)(implicit ev: Numeric[A]): ValidationRule[A] =
+    ValidationRule(s"be less than $n")(ev.lt(_, n))
+
+  /**
+   * A validation rule that makes sure the string value is longer than `n` symbols.
+   */
+  def beLongerThan(n: Int): ValidationRule[String] =
+    ValidationRule(s"be longer than $n symbols")(_.length > n)
+
+  /**
+   * A validation rule that makes sure the string value is shorter than `n` symbols.
+   */
+  def beShorterThan(n: Int): ValidationRule[String] =
+    ValidationRule(s"be shorter than $n symbols")(_.length < n)
 }
