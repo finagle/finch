@@ -4,13 +4,25 @@
 * [Endpoints](docs.md#endpoints)
 * [Requests](docs.md#requests)
   * [Custom Request Types](docs.md#custom-request-types)
-  * [Request Reader](docs.md#request-reader-monad)
-  * [Query String Params](docs.md#query-string-params)
-  * [Improved Error Handling with Applicative Syntax](docs.md#improved-error-handling-with-applicative-syntax)
+  * [Request Reader](docs.md#request-reader) 
+    * [Overview](docs.md#overview)
+    * [API](docs.md#api)
+  * [Base Readers](docs.md#base-readers)
+    * [Required and Optional Readers](docs.md#required-and-optional-readers)
+    * [Multi-Value Parameters](docs.md#multi-value-parameters)
+    * [Custom Readers](docs.md#custom-readers)
+    * [Error Handling](docs.md#error-handling)
+  * [Combining and Reusing Readers](docs.md#combining-and-reusing-readers)
+    * [Applicative Syntax](docs.md#applicative-syntax)
+    * [Monadic Syntax](docs.md#monadic-syntax)
+  * [Type Conversion](docs.md#type-conversion)
+    * [Built-in Decoders](docs.md#built-in-decoders)
+    * [Custom Decoders](docs.md#custom-decoders)
+    * [Integration with JSON Libraries](docs.md#integration-with-json-libraries)
   * [Validation](docs.md#validation)
-  * [Multiple-Value Params](docs.md#multiple-value-params)
-  * [HTTP Headers](docs.md#http-headers)
-  * [HTTP Bodies](docs.md#http-bodies)
+    * [Inline Validation](docs.md#inline-validation)
+    * [Reusable Rules](docs.md#reusable-validators)
+    * [Built-in Rules](docs.md#built-in-rules)
 * [Responses](docs.md#responses)
   * [Response Builder](docs.md#response-builder)
   * [HTTP Redirects](docs.md#redirects)
@@ -80,11 +92,12 @@ Httpx.serve(new InetSocketAddress(8081), e)
 
 ## Requests
 
+
 ### Custom Request Types
 
 An `Endpoint` doesn't have any constraints on its type parameters. In fact any `Req` and `Rep` types may be used in 
-`Endpoint` with just one requirement: there is should be an implicit view `Req => HttpRequest` available in the scope.  
-This approach allows to define custom request type using composition but not inheritance. More precisely, the user-defined 
+`Endpoint` with just one requirement: there should be an implicit view `Req => HttpRequest` available in the scope.  
+This approach allows to define custom request types using composition but not inheritance. More precisely, the user-defined 
 request `MyReq` may be smoothly integrated into the Finch stack just by its implicit view to an `HttpRequest`.
  
 ```scala
@@ -98,145 +111,432 @@ val s = RequiredParam("foo")(req)
 In the example above, the `MyRequest` type may be used in both `Endpoint` and `RequestReader` without any exceptions, 
 since there is an implicit view `myReqEv` defined. See [demo][1] for the complete example of custom request types.
 
-### Request Reader Monad
 
-Finch has built-in request reader that implements the [Reader Monad][2] functional design pattern:
+### Request Reader
+
+Finch has a built-in request reader that implements the [Reader Monad][2] functional design pattern:
 * `io.finch.request.RequestReader` reads `Future[A]`
 
-The simplified signature of the `RequestReader` abstraction is similar to `Service` but with monadic API methods `map`
-and `flatMap`:
+Since the request readers read futures they might be chained together with regular Finagle services in a single
+for-comprehension. Thus, reading the request params is an additional monad-transformation in the program's data flow.
+This is extremely useful when a service should fetch and validate the request params before doing the real job and not
+do the job at all if the params are not valid. Request reader might throw a future exception and none of further
+transformations will be performed. Reader Monad is sort of a famous abstraction that is heavily used in Finch.
+
+
+#### Overview
+
+A typical `RequestReader` might look like this:
+
+```scala
+import io.finch.request._
+
+case class User(name: String, age: Int, city: String)
+    
+val user: RequestReader[User] = (
+  RequiredParam("name") ~
+  RequiredParam("age").as[Int].shouldNot(beLessThan(18)) ~
+  OptionalParam("city")
+) map {
+  case name ~ age ~ city => 
+    User(name, age, city.getOrElse("Novosibirsk"))
+}
+```
+
+A `RequestReader` is responsible for the following typical tasks of request processing:
+
+* It reads parameters, header, cookies or the body of the request (see [Base Readers](docs.md#base-readers)).
+* It declares these artifacts as either required or optional (see [Required and Optional Readers](docs.md#required-and-optional-readers)).
+* It converts string-based input to other types with the `as[A]` method (see [Type Conversion](docs.md#type-conversion)).
+* It validates one or more readers with `should` or `shouldNot` (see [Validation](docs.md#validation)).
+* It combines multiple readers with the `~` combinator method (see [Combining and Reusing Readers](docs.md#combining-and-reusing-readers)).
+
+
+#### API
+
+The `RequestReader` API is fairly simple. It allows to apply the reader to a request instance with `apply`,
+to transform the reader with `map`, `flatMap` and `embedFlatMap`, to combine it with other readers with
+the `~` combinator and to validate it with `should` or `shouldNot`:
 
 ```scala
 trait RequestReader[A] {
   def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[A]
-  def map[B](fn: A => B): RequestReader[B] = ???
-  def flatMap(fn: A => RequestReader[B]): RequestReader[B] = ???
+  
+  def map[B](fn: A => B): RequestReader[B]
+  def flatMap[B](fn: A => RequestReader[B]): RequestReader[B]
+  def embedFlatMap[B](fn: A => Future[B]): RequestReader[B]
+  
+  def ~[B](that: RequestReader[B]): RequestReader[A ~ B]
+  
+  def should(rule: String)(predicate: A => Boolean): RequestReader[A]
+  def shouldNot(rule: String)(predicate: A => Boolean): RequestReader[A]
+  def should(rule: ValidationRule[A]): RequestReader[A]
+  def shouldNot(rule: ValidationRule[A]): RequestReader[A]
 }
 ```
 
-Since the request readers read futures they might be chained together with regular Finagle services in a single
-for-comprehension. Thus, reading the request params is an additional monad-transformation in the program's data flow.
-This is an extremely useful when a service should fetch and validate the request params before doing a real job and not
-doing the job at all if the params are not valid. Request reader might throw a future exception and none of further
-transformations will be performed. Reader Monad is sort of famous abstraction that is heavily used in Finch.
-
-### Query String Params
-
-The following readers are available in Finch:
-* `io.finch.request.RequiredParam` - fetches required params within specified type
-* `io.finch.request.OptionalParam` - fetches optional params within specified type
-* `io.finch.request.RequiredParams` - fetches required multi-value params into the list
-* `io.finch.request.OptionalParams` - fetches optional multi-value params into the list
+In addition there are implicit `as[A]` methods available for type conversion on string-based readers:
 
 ```scala
-case class User(name: String, age: Int, city: String)
+// for all `RequestReader[String]`
+def as[A](implicit magnet: DecodeMagnet[A], tag: ClassTag[A]): RequestReader[A]
 
-// Define a new request reader composed from provided out-of-the-box readers.
-val user: RequestReader[User] = for {
-  name <- RequiredParam("name")
-  age <- RequiredParam("age").as[Int]
-  city <- OptionalParam("city")
-} yield User(name, age, city.getOrElse("Novosibirsk"))
+// for all `RequestReader[Option[String]]`
+def as[A](implicit magnet: DecodeMagnet[A], tag: ClassTag[A]): RequestReader[Option[A]]
 
-val service = new Service[HttpRequest, Json] {
-  def apply(req: HttpRequest) = for {
-    u <- user(req)
-  } yield Json.obj(
-    "name" -> u.name,
-    "age" -> u.age,
-    "city" -> u.city
-  )
+// for all `RequestReader[Seq[String]]`
+def as[A](implicit magnet: DecodeMagnet[A], tag: ClassTag[A]): RequestReader[Seq[A]]
+```
+
+Don't think too much about these type signatures, it is all explained in 
+[Type Conversion](docs.md#type-conversion).
+
+The following sections cover all these features in more detail. All sample code assumes
+that you have imported `io.finch.request._`.
+
+
+### Base Readers
+
+Finch provides a set of base readers for extracting parameters, headers, cookies or the body from 
+the request. The column for the result type specifies the type parameter of the resulting reader
+(e.g. `Option[String]` means the reader is a `RequestReader[Option[String]]`).
+
+Request Item   | Reader Type                                     | Result Type  
+-------------- | ----------------------------------------------- | ------------ 
+Parameter      | `RequiredParam(name)`/`OptionalParam(name)`   | `String`/`Option[String]`
+[Multi-Value Parameters](docs.md#multi-value-parameters) | `RequiredParams(name)`/`OptionalParams(name)` | `Seq[String]`/`Seq[String]`
+Header         | `RequiredHeader(name)`/`OptionalHeader(name)` | `String`/`Option[String]`
+Cookie         | `RequiredCookie(name)`/`OptionalCookie(name)` | `Cookie`/`Option[Cookie]`
+Text Body      | `RequiredBody`/`OptionalBody`                 | `String`/`Option[String]`
+Binary Body    | `RequiredBinaryBody`/`OptionalBinaryBody`     | `Array[Byte]`/`Option[Array[Byte]]`
+
+
+#### Required and Optional Readers
+
+As you can see in the table above, the 6 base readers all come in two flavors, allowing to
+declare a request item as either required or optional.
+
+* A `RequiredXxx` reader fails with a `NotPresent` exception if the item is not found in the request
+* An `OptionalXxx` reader succeeds, producing a `None` if the item is not found in the request
+* If you apply type conversions or validations to an optional item, the behaviour is as follows:
+  * If the result is `None`, all type conversions and validations are skipped and the reader succeeds with a `None` result
+  * If the result is non-empty, all type conversions and validations have to succeed or otherwise the reader will fail
+
+
+#### Multi-Value Parameters
+
+The `RequiredParams` and `OptionalParams` readers read multi-value parameters in the following way:
+
+* In case of multiple occurrences of the same parameter in the URL, the values are combined into a single `Seq[String]`
+* If any of the values is a comma-separated list, it will be split into `Seq[String]`
+
+Thus, the following HTTP params `a=1,2,3&b=4&b=5` might be fetched with the `RequiredParams` reader like this:
+
+```scala
+val reader: RequestReader[(Seq[Int], Seq[Int])] = (
+  RequiredParams("a").as[Int] ~
+  RequiredParams("b").as[Int]
+) map {
+  case a ~ b => (a, b)
 }
 
-val user: Json = service(req) handle {
-  case e: ParamNotFound => Json.obj("status" -> 400) // bad request
+val (a, b): (Seq[Int], Seq[Int]) = reader(request)
+// a = Seq(1, 2, 3)
+// b = Seq(4, 5)
+```
+
+
+#### Custom Readers
+
+In most cases you will combine several of the built-in base readers to compose new readers.
+For the rare cases where you want to create a new reader type yourself, the `RequestReader`
+companion object comes with a range of convenient factory methods:
+
+```scala
+// Creates a new reader that always succeeds, producing the specified value.
+def value[A](value: A, item: RequestItem = MultipleItems): RequestReader[A]
+    
+// Creates a new reader that always fails, producing the specified exception.
+def exception[A](exc: Throwable, item: RequestItem = MultipleItems): RequestReader[A]
+
+// Creates a new reader that always produces the specified value.
+def const[A](value: Future[A], item: RequestItem = MultipleItems): RequestReader[A]
+
+// Creates a new reader that reads the result from the request.
+def apply[A](item: RequestItem)(f: HttpRequest => A): RequestReader[A]
+```
+
+The `RequestItem` passed to all these factory methods gets used in the exceptions
+a reader may throw and is an ADT consisting of the types `ParamItem`, `HeaderItem`,
+`CookieItem`, `BodyItem` or `MultipleItems`. In most factory methods this parameter
+is optional, so you can leave it out if your reader does not deal with one particular
+request item.
+
+
+#### Error Handling
+
+The exceptions from a request reader might be handled just like other future exceptions in Finagle:
+```scala
+val user: Future[Json] = service(...) handle {
+  case NotFound(ParamItem(param)) => 
+    Json.obj("error" -> "param_not_found", "param" -> param)
+  case NotValid(ParamItem(param), rule) => 
+    Json.obj("error" -> "validation_failed", "param" -> param, "rule" -> rule)
 }
 ```
 
-Optional request readers such as `OptionalParam` are quite often used for fetching pagination details.
+All the exceptions throw by `RequestReader` are case classes. Therefore pattern matching may be used to handle them.
+
+These are all error types produced by Finch (which all extend `RequestError`):
 
 ```scala
-val pagination: RequestReader[(Int, Int)] = for {
-  offset <- OptionalParam("offset").as[Int]
-  limit <- OptionalParam("limit").as[Int]
-} yield (offset.getOrElse(0), math.min(limit.getOrElse(50), 50))
+ // when multiple request items were invalid or missing
+case class RequestErrors(errors: Seq[Throwable])
 
-val service = new Service[HttpRequest, HttpResponse] {
-  def apply(req: HttpRequest) = for {
-    (offsetIt, limit) <- pagination(req)
-  } yield Ok(s"Fetching items $offset..${offset+limit}")
+// when a required request item (header, param, cookie, body) was missing
+case class NotFound(item: RequestItem)
+
+// when type conversion failed
+case class NotParsed(item: RequestItem, targetType: ClassTag[_], cause: Throwable) 
+
+// when a validation rule did not pass for a request item
+case class NotValid(item: RequestItem, rule: String) 
+```
+
+
+### Combining and Reusing Readers
+
+As you have already seen in previous example, Finch provides the basic building
+blocks for request processing in the form of readers for parameters, headers,
+cookies and the request body.
+
+You then perform type conversions or validations on these readers as required
+and combine them to build new readers:
+
+```scala
+case class Address(street: String, city: String, postCode: String)
+
+val address: RequestReader[Address] = (
+  RequiredParam("street") ~
+  RequiredParam("city") ~
+  RequiredParam("postCode").shouldNot(beLongerThan(5))
+) map {
+  case street ~ city ~ postCode => 
+    Address(street, city, postCode)
 }
 ```
 
-#### A `io.finch.request.RequiredParam` reader makes sure that
-* param is present in the request (otherwise it throws `NotPresent` exception)
-* param is not empty (otherwise it throws `NotParsed` exception)
-* param may be converted to a requested type through calling `as[Int]`, `as[Float]`, etc.
-(otherwise it throws a `NotParsed` exception).
+These new readers can then themselves be combined with other readers:
+ 
+```scala
+case class User(name: String, address: Address)
 
-#### An `io.finch.request.OptionalParam.as[A]` returns
-* `Future[Some[A]]` if param is present in the request and can be converted to the requested type
-* `Future.None` if the param is missing.
-* `NotParsed` exception if the param is present, but cannot be converted to the requested type
+val user: RequestReader[User] = (
+  RequiredParam("name") ~ address
+) map {
+  case name ~ address => 
+    User(name, address)
+}
+```
+  
+The following sections will explain the difference between the applicative
+style based on the `~` combinator you see in the examples above and the 
+monadic style that you will only need in exceptional cases.
 
 
-### Improved Error Handling with Applicative Syntax
+#### Applicative Syntax
 
-In addition to the monadic style shown in the examples above, Finch also supports an applicative style.
-The previous example for a request reader for a User can be rewritten in applicative style as follows:
+Almost all the examples in this documentation show the applicative syntax based
+on the `~` combinator for composing readers. It is roughly equivalent to the 
+Applicative Builder `|@|` in scalaz, with a few subtle differences.
 
 ```scala
-case class User(name: String, age: Int, city: String)
-
-val user: RequestReader[User] = 
-  (RequiredParam("name") ~
-  RequiredParam("age").as[Int] ~
-  OptionalParam("city")) map {
-    case name ~ age ~ city => 
-      User(name, age, city.getOrElse("Novosibirsk"))
-  }
+case class User(name: String, age: Int)
+    
+val user: RequestReader[User] = (
+  RequiredParam("name") ~
+  RequiredParam("age").as[Int]
+) map {
+  case name ~ age => User(name, age)
+}
 ```
 
 The main advantage of this style is that errors will be collected.
 If the name parameter is missing and the age parameter cannot be converted
-to an integer, both errors will be included in the failure of the Future 
-(in an exception class `RequestReaderErrors` that has an `errors` property
-of type `Seq[Throwable]`).
+to an integer, both errors will be included in the failure of the Future, 
+in an exception class `RequestErrors` that has an `errors` property
+of type `Seq[Throwable]`:
 
-The monadic style on the other hand is fail-fast and will always only present
-the first error it ran into. For this reason the applicative style is the
-recommended syntax for all use cases where detailed error reporting
-is essential. The monadic style is useful for the rare cases where one
-reader depends on the result of another reader or for those who have a 
-strong preference for the monadic style and do not care for sophisticated
-error reporting.
+```scala
+user(Request("age" -> "broken"))
+
+// will return a `Future` failing with this exception:
+RequestErrors(Seq(
+  NotPresent(ParamItem("name")),
+  NotParsed(ParamItem("age"), <ClassTag[Int]>, <NumberFormatException>)
+))
+```
+
+
+#### Monadic Syntax
+
+Since the `RequestReader` is a Reader Monad you can alternatively
+combine readers in for-comprehensions:
+
+```scala
+case class User(name: String, age: Int)
+    
+val user: RequestReader[User] = for {
+  name <- RequiredParam("name")
+  age <- RequiredParam("age").as[Int]
+} yield User(name, age)
+```
+
+But while this syntax may look familiar and intuitive, it has the major
+disadvantage that it is fail-fast. If both parameters are invalid, 
+only one error will be returned. A fact your users and client developers 
+probably won't fancy much.
+
+The monadic style might still be useful for the rare cases where one
+reader depends on the result of another reader.
+
+Note: If you've used older versions of Finch (before 0.5.0), then 
+the monadic style was the only way to combine readers. The applicative
+style has been introduced in version 0.5.0 and is the recommended
+combinator pattern now.
+
+
+### Type Conversion
+
+For all string based readers, Finch provides an `as[A]` method to perform 
+type conversions. It is available for any `RequestReader[String]`, 
+`RequestReader[Option[String]]` or `RequestReader[Seq[String]]`
+as long as a matching implicit `DecodeRequest[A]` is in scope. 
+
+This facility is designed to be intuitive, meaning that you do not
+have to provide a `DecodeRequest[Seq[MyType]]` for converting a sequence.
+A decoder for a single item will allow you to convert `Option[String]`
+and `Seq[String]`, too:
+
+```scala
+RequiredParam("foo").as[Int]  // RequestReader[Int]
+OptionalParam("foo").as[Int]  // RequestReader[Option[Int]]
+RequiredParams("foo").as[Int] // RequestReader[Seq[Int]]
+```
+
+Note that the method signatures for `as[A]` show `DecodeMagnet[A]` as the required implicit,
+but you can ignore this indirection as an implementation detail. All you ever have
+to deal with yourself is bringing existing implicits for `DecodeRequest[A]` into scope
+or implement such a decoder yourself.
+
+
+#### Built-in Decoders
+
+Finch comes with predefined decoders for `Int`, `Long`, `Float`, `Double` and `Boolean`.
+As long as you have imported `io.finch.request._` the implicits for these decoders
+are in scope and can be used with the `as[A]` method:
+
+```scala
+val reader: RequestReader[Int] = RequiredParam("foo").as[Int]
+```
+
+
+#### Custom Decoders
+
+Writing a new decoder for a type not supported out of the box is very easy, too.
+The following example shows a decoder for a Joda `DateTime` from a `Long` representing
+the milliseconds since the epoch:
+
+```scala
+implicit val dateTimeDecoder: DecodeRequest[DateTime] = 
+  DecodeRequest(s => Try(new DateTime(s.toLong)))
+```
+
+The example shows the most concise way of creating a new decoder: using the factory method
+on the companion object of `DecodeRequest`:
+
+```scala
+def apply[A](f: String => Try[A]): DecodeRequest[A]
+```
+
+All you need to implement is a simple function from `String` to `Try[A]`.
+
+As long as the implicit declared above is in scope you can then use your custom
+decoder the same way as one of the built-in decoders (in this case for creating
+a JodaTime `Interval`:
+
+```scala
+val user: RequestReader[Interval] = (
+  RequiredParam("start").as[DateTime] ~
+  RequiredParam("end").as[DateTime]
+) map {
+  case start ~ end => new Interval(start, end)
+}
+```
+
+
+#### Integration with JSON Libraries
+
+A third way of using the `as[A]` type conversion facility is to use one of the JSON
+library integrations Finch offers. Finch comes with support for [Argonaut](docs.md#argonaut),
+[Jawn](docs.md#jawn), [Jackson](jackson.md#jawn) and its own JSON support [Finch Json](docs.md#finch-json).
+
+All these integration modules do is making the library-specific JSON decoders available for use
+as a `DecodeRequest[A]`. To take Argonaut as an example, you only have to import `io.finch.argonaut._`
+and then have the implicit Argonaut `DecodeJSON` instances in scope:
+
+```scala
+case class Person(name: String, age: Int)
+ 
+implicit def PersonDecodeJson: DecodeJson[Person] =
+  jdecode2L(Person.apply)("name", "age")
+```
+
+Finch will automatically adapt these implicits to its own `DecodeRequest[Person]` type, 
+so that you can use the `as[A]` method on a reader for a body sent in JSON format:
+
+```scala
+val person: RequestReader[Person] = RequiredBody.as[Person]
+```
+
+The integration for the other JSON libraries works in a similar way.
 
 
 ### Validation
 
-A reader allows for its result to be validated based on a predicate or a comination of predicates.
-This can happen inline or based on predefined validation rules, and is possible with both
-the monadic and the applicative syntax. The predefined rules can also be combined with `and`
-or `or`.
+The `should` and `shouldNot` methods on `RequestReader` allow to perform validation logic.
+If the specified predicate does not hold the reader will fail with a `NotValid(item, rule)`
+exception. The `rule` is a description that you pass to the `should` or `shouldNot` methods
+as a string.
+
+Note that for an optional reader, the validation will be skipped for `None` results,
+but if the value is non-empty then all validation must succeed for the reader to succeed. 
+
+Validation can happen inline or based on predefined validation rules, as shown in the next
+two sections.
+
+  
+#### Inline Validation
+
+For validation logic only needed in one place, the most convenient way is to declare
+it inline:
 
 ```scala
-case class User(name: String, age: Int)
-
-// monadic syntax
-val adult: RequestReader[User] = for {
-  name <- RequiredParam("name")
-  age <- RequiredParam("age").as[Int].should("be greater than 18"){ _ > 18 }
-} yield User(name, age)
-
-// applicative syntax  
 val adult2: RequestReader[User] = 
   (RequiredParam("name") ~
-  RequiredParam("age").as[Int].should("be greater than 18"){ _ > 18 }) map {
+  RequiredParam("age").as[Int].shouldNot("be less than 18"){ _ < 18 }) map {
     case name ~ age => User(name, age)
 }
-  
-// reusable validators
-val bePositive = ValidationRule[Int]("be non-negative") { _ > 0 }
+```
+
+
+#### Reusable Rules
+
+If you perform the same validation logic in multiple readers, it is more convenient
+to declare them separately and reuse them wherever needed:
+
+```scala
+val bePositive = ValidationRule[Int]("be positive") { _ > 0 }
 def beLessThan(value: Int) = ValidationRule[Int](s"be less than $value") { _ < value }
   
 val child: RequestReader[User] = 
@@ -246,101 +546,15 @@ val child: RequestReader[User] =
 }
 ```
 
-The exceptions from a request-reader might be handled just like other future exceptions in Finagle:
-```scala
-val user: Future[Json] = service(...) handle {
-  case NotFound(ParamItem(param)) => Json.obj("error" -> "param_not_found", "param" -> param)
-  case NotValid(ParamItem(param), rule) => Json.obj("error" -> "validation_failed", "param" -> param, "rule" -> rule)
-}
-```
-
-All the exceptions throw by `RequestReader` are case classes. Therefore pattern matching may be used to handle them.
-
-These are all error types produced by Finch (which all extend `RequestReaderError`):
-
-```scala
-case class RequestReaderErrors(errors: Seq[Throwable]) // when multiple request item were invalid or missing
-
-case class NotFound(item: RequestItem) // when a required request item (header, param, cookie, body) was missing
-
-case class NotParsed(item: RequestItem, targetType: ClassTag[_], cause: Throwable) // when type conversion failed
-
-case class NotValid(item: RequestItem, rule: String) // when a validation rule did not pass for a request item
-```
+As you can see in the example above, predefined rules can also be logically combined
+with `and` or `or`.
 
 
-### Multiple-Value Params
+#### Built-in Rules
 
-All the readers have companion readers that can read multiple-value params `List[A]` instead of single-value params `A`.
-Multiple-value readers have `s` postfix in their names. So, `Param` has `Params`, `OptionalParam` has `OptionalParams`
-and finally `RequiredParam` has `RequiredParams` companions.
-
-Thus, the following HTTP params `a=1,2,3&b=4&b=5` might be fetched with `RequiredParams` reader like this:
-
-```scala
-val reader: RequestReader[(List[Int], List[Int])] = for {
- a <- RequiredParams("a").as[Int]
- b <- RequiredParams("b").as[Int]
-} yield (a, b)
-
-val (a, b): (List[Int], List[Int]) = reader(request)
-// a = List(1, 2, 3)
-// b = List(4, 5)
-```
-
-### HTTP Headers
-
-The HTTP headers may also be read with `RequestReader`. The following pre-defined readers should be used:
-* `io.finch.request.RequiredHeader` - fetches header or throws a `HeaderNotFound(header)` exception
-* `io.finch.request.OptionalHeader` - fetches header into an `Option`
-
-### HTTP Bodies
-
-An HTTP body may be fetched from the HTTP request using the following readers:
-
-* `io.finch.request.RequiredBody` - fetches the HTTP body as `String` or throws a `NotPresent` exception
-* `io.finch.request.OptionalBody` - fetches the HTTP body as `Option[String]`
-* `io.finch.request.RequiredBinaryBody` - fetches the HTTP body as `Array[Byte]` or throws a `NotPresent` exception
-* `io.finch.request.OptionalBinaryBody` - fetches the HTTP body as `Option[Array[Byte]]`
-
-Finch supports pluggable request decoders. In fact, any type `A` my be read from the request body using either:
-`io.finch.request.RequiredBody.as[A]` or `io.finch.request.OptionalBody.as[A]` if there is an implicit value of type 
-`DecodeRequest[A]` available in the scope. The `DecodeRequest[A]` abstraction may be described as function 
-`String => Try[A]`. Thus, any decoders may be easily defined to use the functionality of body readers. Note, that 
-the body type (i.e., `Double`) should be always explicitly defined for both `RequiredBody` and `OptionalBody`.
-
-```
-implicit val decodeDouble = new DecodeRequest[Double] {
-  
-  def apply(s: String): Try[Double] = Try { s.toDouble }
-  
-}
-val req: HttpRequest = ???
-val readDouble: RequestReader[Double] = RequiredBody.as[Double]
-```
-
-
-### Type Conversion
-
-A `DecodeRequest[A]` can also be applied in a generic way to any `RequestReader[String]`, 
-`RequestReader[Option[String]]` or `RequestReader[Seq[String]]`
-as long as a matching implicit is in scope, through calling `as[A]` on the reader.
-
-This is an example for applying an integer conversion to a reader:
-
-```scala
-implicit val decodeInt = new DecodeRequest[Int] {
-   def apply(req: String): Try[Int] = Try(req.toInt)
-}
-
-val reader: RequestReader[Int] = RequiredParam("foo").as[Int]
-```
-
-The above is equivalent to the built-in `RequiredIntParam("foo")`, but the 
-generic `as[A]` method allows to use `DecodeRequest` instances for any target
-type, such as a Joda `DateTime` for example, making the `DecodeRequest` API
-more broadly useful than just offering this functionality for the request body
-as in previous Finch versions.
+Finch comes with a small set of predefined rules. For readers producing numeric results
+you can use `beLessThan(n: Int)` or `beGreaterThan(n: Int)`, for strings you can use
+`beLongerThan(n: Int)` or `beShorterThan(n: Int)`.
 
 
 ## Responses
