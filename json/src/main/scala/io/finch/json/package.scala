@@ -28,14 +28,10 @@ import io.finch.response.EncodeResponse
 import com.twitter.util.{Try, Throw, Return}
 
 package object json {
-  implicit val encodeFinchJson = new EncodeResponse[Json] {
-    def apply(json: Json): String = Json.encode(json)
+  implicit val encodeFinchJson = EncodeResponse[Json]("application/json")(Json.encode)
 
-    override def contentType: String = "application/json"
-  }
-
-  implicit val decodeFinchJson = new DecodeRequest[Json] {
-    def apply(json: String): Try[Json] = Json.decode(json)
-      .fold[Try[Json]](Throw(new IllegalArgumentException("unknown error parsing JSON")))(Return(_)) // TODO - error detail is swallowed
+  implicit val decodeFinchJson = DecodeRequest[Json] { json =>
+    // TODO - error detail is swallowed
+    Json.decode(json).fold[Try[Json]](Throw(new IllegalArgumentException("unknown error parsing JSON")))(Return(_))
   }
 }

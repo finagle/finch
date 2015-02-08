@@ -31,32 +31,28 @@ import com.twitter.util.Future
 import com.twitter.finagle.{Filter, Service}
 
 /**
- * This is a root package of the Finch library, which provides an immutable
- * layer of functions and types atop of Finagle for writing lightweight consuming
- * HTTP services. It roughly contains three packages: [[io.finch.route]],
- * [[io.finch.request]], [[io.finch.response]], which correspond to three simple
- * steps to a robust REST/HTTP API:
+ * This is a root package of the Finch library, which provides an immutable layer of functions and types atop of Finagle
+ * for writing lightweight consuming HTTP services. It roughly contains three packages: [[io.finch.route]],
+ * [[io.finch.request]], [[io.finch.response]], which correspond to three simple steps to a robust REST/HTTP API:
  *
- * Step 1. Routing the HTTP request to a [[Service]].
+ * Step 1. Routing the HTTP requests to a `Service`.
  *
- * The [[io.finch.route.Router]] abstraction routes the requests depending on their
- * path and method information. `Router` combinator provides a bunch of predefined
- * routers handling separated parts of a route. `Router`s might be composed with
- * either `/` (`flatMap`) or `/>` (`map`) operator. There is also `|` (`orElse`)
- * operator that combines two routers in terms of the inclusive or operator.
+ * The [[io.finch.route.Router Router]] abstraction routes the requests depending on their path and method information.
+ * `Router` combinator provides a bunch of predefined routers handling separated parts of a route. `Router`s might be
+ * composed with either `/` (`flatMap`) or `/>` (`map`) operator. There is also `|` (`orElse`) operator that combines
+ * two routers in terms of the inclusive or operator.
  *
  * {{{
  *   val router: Endpoint[HttpRequest, HttpResponse] =
  *     Get / ("users" | "user") / int /> GetUser
  * }}}
  *
- * Step 2: Reading the HTTP request in a [[Service]].
+ * Step 2: Reading the HTTP requests in a `Service`.
  *
- * The [[io.finch.request.RequestReader]] abstraction is responsible for reading
- * any details form the HTTP request. `RequestReader` is composable in both ways:
- * via the monadic API (using the for-comprehension, i.e., `flatMap`/`map`) and via
- * the applicative API (using the `~` operator). These approaches define an unlimited
- * number of readers out the plenty of predefined ones.
+ * The [[io.finch.request.RequestReader RequestReader]] abstraction is responsible for reading any details form the HTTP
+ * request. `RequestReader` is composable in both ways: via the monadic API (using the for-comprehension, i.e.,
+ * `flatMap`/`map`) and via the applicative API (using the `~` operator). These approaches define an unlimited number of
+ * readers out the plenty of predefined ones.
  *
  * {{{
  *   val pagination: RequestReader[(Int, Int)] =
@@ -66,12 +62,11 @@ import com.twitter.finagle.{Filter, Service}
  *   val p = pagination(request)
  * }}}
  *
- * Step 3. Building the HTTP response in a [[Service]].
+ * Step 3. Building the HTTP responses in a [[Service]].
  *
- * The [[io.finch.response.ResponseBuilder]] abstraction provides a convenient way
- * of building the HTTP responses any type. In fact, `ResponseBuilder` is a function
- * that takes some content and builds an HTTP response of a type depending on a content.
- * There are plenty of predefined builders that might be used directly.
+ * The [[io.finch.response.ResponseBuilder ResponseBuilder]] abstraction provides a convenient way of building the HTTP
+ * responses any type. In fact, `ResponseBuilder` is a function that takes some content and builds an HTTP response of a
+ * type depending on a content. There are plenty of predefined builders that might be used directly.
  *
  * {{{
  *   val ok: HttpResponse = Ok("Hello, world!") // plain/text HTTP response with status code 200
@@ -80,17 +75,17 @@ import com.twitter.finagle.{Filter, Service}
 package object finch {
 
   /**
-   * An alias for [[httpx.Request]].
+   * An alias for [[com.twitter.finagle.httpx.Request httpx.Request]].
    */
   type HttpRequest = httpx.Request
 
   /**
-   * An alias for [[httpx.Response]].
+   * An alias for [[com.twitter.finagle.httpx.Response httpx.Response]].
    */
   type HttpResponse = httpx.Response
 
   /**
-   * Alters any object within a ''toFuture'' method.
+   * Alters any object within a `toFuture` method.
    *
    * @param any an object to be altered
    *
@@ -100,30 +95,25 @@ package object finch {
 
     /**
      * Converts this ''any'' object into a ''Future''
-     *
-     * @return an object wrapped with ''Future''
      */
     def toFuture: Future[A] = Future.value(any)
   }
 
   /**
-   * Alters any throwable with a ''toFutureException'' method.
+   * Alters any throwable with a `toFutureException` method.
    *
    * @param t a throwable to be altered
    */
   implicit class ThrowableOps(val t: Throwable) extends AnyVal {
 
     /**
-     * Converts this throwable object into a ''Future'' exception.
-     *
-     * @return an exception wrapped with ''Future''
+     * Converts this throwable object into a `Future` exception.
      */
     def toFutureException[A]: Future[A] = Future.exception(t)
   }
 
   /**
-   * Alters underlying filter within ''afterThat'' methods composing a filter
-   * with a given endpoint or withing a next filter.
+   * Alters underlying filter within `!` methods composing a filter with a given endpoint or withing a next filter.
    *
    * @param filter a filter to be altered
    */
@@ -164,8 +154,7 @@ package object finch {
   }
 
   /**
-   * Alters underlying service within ''afterThat'' method composing a service
-   * with a given filter.
+   * Alters underlying service within ''afterThat'' method composing a service with a given filter.
    *
    * @param service a service to be altered
    *

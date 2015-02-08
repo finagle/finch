@@ -27,39 +27,42 @@ import scala.annotation.tailrec
 import scala.util.parsing.json.JSON
 
 /**
- * An immutable Json API.
+ * An immutable JSON API.
  */
 sealed trait Json {
 
   /**
-   * The string representation of this json object.
+   * The string representation of this JSON object.
    */
   override def toString: String = Json.encode(this)
 
   /**
-   * Merges this json object with given `that` one.
-   * See [[Json.mergeLeft]] for details.
+   * Merges this JSON object with given `that` one.
+   *
+   * See `Json.mergeLeft` for details.
    */
   def merge(that: Json): Json = Json.mergeLeft(this, that)
 
   /**
-   * Concatenates this json object with given `that` one.
-   * See [[Json.concatLeft]] for details.
+   * Concatenates this JSON object with given `that` one.
+   *
+   * See `Json.concatLeft` for details.
    */
   def concat(that: Json): Json = Json.concatLeft(this, that)
 
   /**
-   * A compressed version of this json object.
-   * See [[Json.compress]] for details.
+   * A compressed version of this JSON object.
+   *
+   * See `Json.compress` for details.
    */
   def compressed: Json = Json.compress(this)
 
   /**
-   * Queries this json object by the given `path`.
+   * Queries this JSON object by the given `path`.
    *
-   * @param path a path to json value
+   * @param path a path to JSON value
    *
-   * @return an option of json value
+   * @return an `Option` of JSON value
    */
   def apply[A](path: String): Option[A] = {
     @tailrec
@@ -81,56 +84,47 @@ sealed trait Json {
 }
 
 /**
- *  A json object with underlying `map`.
+ *  A JSON object with underlying `map`.
  */
 case class JsonObject(map: Map[String, Any]) extends Json
 
 /**
- * A json array with underlying `list`.
+ * A JSON array with underlying `list`.
  */
 case class JsonArray(list: List[Any]) extends Json
 
 /**
- * A json null value.
+ * A JSON null value.
  */
 case object JsonNull extends Json
 
 /**
- * A json companion object, which in an entry point into JSON API.
+ * A JSON companion object, which in an entry point into JSON API.
  */
 object Json {
 
   /**
-   * Creates an empty json object.
-   *
-   * @return an empty json object
+   * Creates an empty JSON object.
    */
   def emptyObject: Json = JsonObject(Map.empty[String, Any])
 
   /**
-   * Creates an empty json array.
-   *
-   * @return an empty json array.
+   * Creates an empty JSON array.
    */
   def emptyArray: Json = JsonArray(List.empty[Any])
 
   /**
-   * Creates a new json array of given sequence of items `args`.
+   * Creates a new JSON array of given sequence of items `args`.
    *
    * @param args sequence of items in the array
-   *
-   * @return a new json array
    */
   def arr(args: Any*): Json = JsonArray(args.toList)
 
   /**
-   * Creates a json object of given sequence of properties `args`. Every
-   * argument/property is a pair of `tag` and `value` associated with it.
-   * It's possible to pass a complete json path (separated by dot) as `tag`.
+   * Creates a JSON object of given sequence of properties `args`. Every argument/property is a pair of `tag` and
+   * `value` associated with it. It's possible to pass a complete JSON path (separated by dot) as `tag`.
    *
    * @param args a sequence of json properties
-   *
-   * @return a json object
    */
   def obj(args: (String, Any)*): Json = {
     def loop(path: List[String], value: Any): Map[String, Any] = path match {
@@ -148,11 +142,9 @@ object Json {
   }
 
   /**
-   * Decodes a json object from the given string `s`.
+   * Decodes a JSON object from the given string `s`.
    *
    * @param s a string representation of a json object
-   *
-   * @return a decoded json object wrapping in option
    */
   def decode(s: String): Option[Json] = {
     def wrap(a: Any): Any = a match {
@@ -170,11 +162,9 @@ object Json {
   }
 
   /**
-   * Encodes the given json object `j` into its string representation.
+   * Encodes the given JSON object `j` into its string representation.
    *
    * @param j a json object to encode
-   *
-   * @return a string representation of a json object
    */
   def encode(j: Json): String = {
     def escape(s: String) = s flatMap {
@@ -229,24 +219,20 @@ object Json {
   }
 
   /**
-   * Deeply merges given json objects `a` and `b` into a single json object.
-   * In case of conflict tag the value of a _right_ json object will be taken.
+   * Deeply merges given JSON objects `a` and `b` into a single json object. In case of conflict tag the value of a
+   * _right_ json object will be taken.
    *
    * @param a the left json object
    * @param b the right json object
-   *
-   * @return a merged json object
    */
   def mergeRight(a: Json, b: Json): Json = mergeLeft(b, a)
 
   /**
-   * Deeply merges given json objects `a` and `b` into a single json object.
-   * In case of conflict tag the value of a _left_ json object will be taken.
+   * Deeply merges given JSON objects `a` and `b` into a single json object. In case of conflict tag the value of a
+   * _left_ json object will be taken.
    *
    * @param a the left json object
    * @param b the right json object
-   *
-   * @return a merged json object
    */
   def mergeLeft(a: Json, b: Json): Json = {
     def loop(aa: Map[String, Any], bb: Map[String, Any]): Map[String, Any] =
@@ -271,22 +257,18 @@ object Json {
   }
 
   /**
-   * Concatenates two given json object `a` and `b` with `b` object in priority.
+   * Concatenates two given JSON object `a` and `b` with `b` object in priority.
    *
    * @param a the left object
    * @param b the right object
-   *
-   * @return a concatenated array
    */
   def concatRight(a: Json, b: Json): Json = concatLeft(b, a)
 
   /**
-   * Concatenates two given json object `a` and `b` with `a` object in priority.
+   * Concatenates two given JSON object `a` and `b` with `a` object in priority.
    *
    * @param a the left object
    * @param b the right object
-   *
-   * @return a concatenated array
    */
   def concatLeft(a: Json, b: Json): Json = (a, b) match {
     case (JsonObject(aa), JsonObject(bb)) => JsonObject(aa ++ bb)
@@ -297,9 +279,7 @@ object Json {
   }
 
   /**
-   * Removes all null-value properties from the given json object `j`.
-   *
-   * @return a compressed json object
+   * Removes all null-value properties from the given JSON object `j`.
    */
   def compress(j: Json): Json = {
     def loop(obj: Map[String, Any]): Map[String, Any] = obj.flatMap {

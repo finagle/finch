@@ -27,10 +27,11 @@ package io.finch.response
 import com.twitter.finagle.httpx.{Response, Cookie, Status}
 
 /**
- * A companion factory object for ''HttpResponse''.
+ * An abstraction that is responsible for building HTTP responses.
  *
- * @param status the http response status
+ * @param status the HTTP response status
  * @param headers the HTTP headers map
+ * @param cookies the HTTP cookies list
  */
 case class ResponseBuilder(
   status: Status,
@@ -39,27 +40,23 @@ case class ResponseBuilder(
 ) {
 
   /**
-   * Creates a new respond with given ''headers''.
+   * Creates a new response builder with the given `headers`.
    *
    * @param headers the HTTP headers map
-   *
-   * @return a respond with headers
    */
   def withHeaders(headers: (String, String)*) = copy(headers = this.headers ++ headers)
 
   /**
-   * Create a new ResponseBuilder with the given ''cookies''.
-   * @param cookies The ''Cookie''s to add to the response
-   * @return a ResponseBuilder with the cookies
+   * Create a new response builder with the given ''cookies''.
+   *
+   * @param cookies the [[com.twitter.finagle.httpx.Cookie Cookie]]'s to add to the response
    */
   def withCookies(cookies: Cookie*) = copy(cookies = this.cookies ++ cookies)
 
   /**
-   * Creates a ''text/plain'' http response.
+   * Builds a ''text/plain'' HTTP response.
    *
    * @param plain the response body
-   *
-   * @return a plain text http response
    */
   def apply(plain: String) = {
     val rep = Response(status)
@@ -71,10 +68,10 @@ case class ResponseBuilder(
   }
 
   /**
-   * Creates an http response with content-type according to the implicit encode.
+   * Builds an HTTP response of the given `body` with content-type according to the implicit
+   * [[io.finch.response.EncodeResponse EncodeResponse]].
    *
    * @param body the response body
-   * @return an http response
    */
   def apply[A](body: A)(implicit encode: EncodeResponse[A]) = {
     val rep = Response(status)
@@ -87,9 +84,7 @@ case class ResponseBuilder(
   }
 
   /**
-   * Creates an empty http response.
-   *
-   * @return an empty http response
+   * Builds an empty HTTP response.
    */
   def apply() = {
     val rep = Response(status)

@@ -39,11 +39,7 @@ class EncodeSpec extends FlatSpec with Matchers {
       override def contentType: String = "application/json"
     }
 
-    implicit val scalaNumberEncodeJson = new EncodeResponse[ScalaNumber] {
-      def apply(n: ScalaNumber): String = n.toString
-
-      override def contentType: String = "application/json"
-    }
+    implicit val scalaNumberEncodeJson = EncodeResponse[ScalaNumber]("application/json") { _.toString }
 
     encode(Seq(BigDecimal(123l), BigDecimal(0l))) shouldBe "[123, 0]"
     encode(Vector(BigDecimal(123l), BigDecimal(0l))) shouldBe "[123, 0]"

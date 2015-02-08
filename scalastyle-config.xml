@@ -6,6 +6,11 @@
             <parameter name="maxFileLength"><![CDATA[800]]></parameter>
         </parameters>
     </check>
+    <check level="warning" class="org.scalastyle.file.FileLineLengthChecker" enabled="true">
+        <parameters>
+            <parameter name="maxLineLength"><![CDATA[120]]></parameter>
+        </parameters>
+    </check>
     <check level="error" class="org.scalastyle.file.WhitespaceEndOfLineChecker" enabled="true"></check>
     <check level="error" class="org.scalastyle.scalariform.ClassNamesChecker" enabled="true">
         <parameters>

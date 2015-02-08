@@ -47,15 +47,16 @@ case class RequestErrors(errors: Seq[Throwable])
   extends RequestError("One or more errors reading request: " + errors.map(_.getMessage).mkString("\n  ","\n  ",""))
 
 /**
- * An exception that indicates a required request item (header, param, cookie, body)
- * was missing in the request.
+ * An exception that indicates a required request item (''header'', ''param'', ''cookie'', ''body'') was missing in the
+ * request.
  *
  * @param item the missing request item
  */
-case class NotPresent(item: RequestItem) extends RequestError(s"Required ${item.description} not present in the request.")
+case class NotPresent(item: RequestItem)
+  extends RequestError(s"Required ${item.description} not present in the request.")
 
 /**
- * An exception that indicates a broken validation rule on the request item.
+ * An exception that indicates a broken [[[io.finch.request.ValidationRule ValidationRule]] on the request item.
  *
  * @param item the invalid request item
  * @param rule the rule description
@@ -71,5 +72,7 @@ case class NotValid(item: RequestItem, rule: String)
  * @param cause the cause of the parsing error
  */
 case class NotParsed(item: RequestItem, targetType: ClassTag[_], cause: Throwable)
-  extends RequestError(s"${item.description} cannot be converted to ${targetType.runtimeClass.getSimpleName}: ${cause.getMessage}.")
+  extends RequestError(
+    s"${item.description} cannot be converted to ${targetType.runtimeClass.getSimpleName}: ${cause.getMessage}."
+  )
 

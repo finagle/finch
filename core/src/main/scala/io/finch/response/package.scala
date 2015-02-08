@@ -28,6 +28,28 @@ import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.path.Path
 import com.twitter.finagle.httpx.Status
 
+/**
+ * This package enables a reasonable approach of building HTTP responses using the
+ * [[io.finch.response.ResponseBuilder ResponseBuilder]] abstraction. The `ResponseBuilder` provides an immutable way
+ * of building concrete [[com.twitter.finagle.httpx.Response Response]] instances by specifying their ''status'',
+ * ''headers'' and ''cookies''. There are plenty of predefined builders named by HTTP statuses, i.e., `Ok`, `Created`,
+ * `NotFound`. Thus, the typical use case of the `ResponseBuilder` abstraction involves usage of concrete builder
+ * instead of abstract `ResponseBuilder` itself.
+ *
+ * {{{
+ *   val ok: HttpResponse = Ok("Hello, World!")
+ * }}}
+ *
+ * In addition to `plain/text` responses, the `ResponseBuilder` is able to build any response, whose `content-type` is
+ * specified by an implicit type-class [[io.finch.response.EncodeResponse EncodeResponse]] instance. In fact, any type
+ * `A` may be passed to a `RequestReader` if there is a corresponding `EncodeRequest[A]` instance available in the
+ * scope.
+ *
+ * {{{
+ *   implicit val encodeBigInt = EncodeResponse[BigInt]("plain/text") { _.toString }
+ *   val ok: HttpResponse = Ok(BigInt(100))
+ * }}}
+ */
 package object response {
 
   // 1xx
@@ -125,11 +147,21 @@ package object response {
   }
 
   /**
-   * An abstraction that is responsible for encoding the response of type ''A''.
+   * An abstraction that is responsible for encoding the response of type `A`.
    */
   trait EncodeResponse[-A] {
     def apply(rep: A): String
     def contentType: String
+  }
+
+  /**
+   * Convenience method for creating new [[io.finch.response.EncodeResponse EncodeResponse]] instances.
+   */
+  object EncodeResponse {
+    def apply[A](ct: String)(fn: A => String) = new EncodeResponse[A] {
+      def apply(rep: A) = fn(rep)
+      def contentType = ct
+    }
   }
 
   /**
@@ -141,7 +173,8 @@ package object response {
   }
 
   /**
-   * Converts ''EncodeAnyResponse'' into ''EncodeResponse''.
+   * Converts [[io.finch.response.EncodeAnyResponse EncodeAnyResponse]] into
+   * [[io.finch.response.EncodeResponse EncodeResponse]].
    */
   implicit def anyToConcreteEncode[A](implicit e: EncodeAnyResponse): EncodeResponse[A] =
     new EncodeResponse[A] {
@@ -154,8 +187,8 @@ package object response {
   }
 
   /**
-   * A service that converts an encoded object into HTTP response with status ''OK''
-   * given an implicit encoder.
+   * A service that converts an encoded object into HTTP response with status ''OK'' using an implicit
+   * [[io.finch.response.EncodeResponse EncodeResponse]].
    */
   object TurnIntoHttp {
     def apply[A](implicit e: EncodeResponse[A]) = new TurnIntoHttp[A](e)

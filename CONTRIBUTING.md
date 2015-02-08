@@ -13,6 +13,8 @@ elsewhere.
 * Code and comments should be formatted to a width no greater than 120 columns
 * Files should be exempt of trailing spaces
 
+That said, the Scala style checker `sbt scalastyle` should pass on the code. 
+
 ## Write Tests
 Finch uses [ScalaTest][2] with the following settings:
 
