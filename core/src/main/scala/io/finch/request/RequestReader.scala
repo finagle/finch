@@ -26,6 +26,7 @@
 
 package io.finch.request
 
+import com.twitter.finagle.Service
 import com.twitter.util.{Throw, Return, Future}
 import io.finch._
 import io.finch.request.items._
@@ -130,6 +131,16 @@ trait RequestReader[A] { self =>
    *         Otherwise the future fails with a ''NotValid'' error.
    */
   def shouldNot(rule: ValidationRule[A]): RequestReader[A] = shouldNot(rule.description)(rule.apply)
+
+  /**
+   * Allows this reader to be used as a Finagle `Service` through
+   * "fixing" the type of the request it can handle.
+   *
+   * @return this reader as a Finagle Service for the specified request type
+   */
+  def asService[Req](implicit ev: Req => HttpRequest): Service[Req, A] = new Service[Req, A] {
+    def apply(req: Req) = self.apply(req)
+  }
 }
 
 /**
@@ -180,4 +191,3 @@ object RequestReader {
       def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = f(req)
     }
 }
-
