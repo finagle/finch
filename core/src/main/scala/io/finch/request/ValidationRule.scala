@@ -27,7 +27,8 @@
 package io.finch.request
 
 /**
- * A reusable validation rule that can be applied to any [[RequestReader]] with a matching type.
+ * A reusable validation rule that can be applied to any [[io.finch.request.RequestReader RequestReader]] with a
+ * matching type.
  */
 trait ValidationRule[A] { self =>
 
@@ -44,8 +45,7 @@ trait ValidationRule[A] { self =>
   def apply(value: A): Boolean
 
   /**
-   * Combines this rule with another rule such that the new
-   * rule only validates if both the combined rules validate.
+   * Combines this rule with another rule such that the new rule only validates if both the combined rules validate.
    *
    * @param that the rule to combine with this rule
    * @return a new rule that only validates if both the combined rules validate
@@ -54,8 +54,7 @@ trait ValidationRule[A] { self =>
     ValidationRule(s"${self.description} and ${that.description}") { value => self(value) && that(value) }
 
   /**
-   * Combines this rule with another rule such that the new
-   * rule validates if any one of the combined rules validates.
+   * Combines this rule with another rule such that the new rule validates if any one of the combined rules validates.
    *
    * @param that the rule to combine with this rule
    * @return a new rule that validates if any of the the combined rules validates
@@ -65,12 +64,12 @@ trait ValidationRule[A] { self =>
 }
 
 /**
- * Allows the creation of reusable validation rules for [[RequestReader]]s.
+ * Allows the creation of reusable validation rules for [[io.finch.request.RequestReader RequestReader]]s.
  */
 object ValidationRule {
 
   /**
-   * Creates a new reusable validation rule based on the specified predicate.
+   * Creates a new reusable [[io.finch.request.ValidationRule ValidationRule]] based on the specified predicate.
    *
    * @param desc text describing the rule being validated
    * @param p returns true if the data is valid

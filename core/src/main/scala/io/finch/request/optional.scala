@@ -29,10 +29,9 @@ package io.finch.request
 import com.twitter.util.Future
 import io.finch._
 import items._
-import scala.reflect.ClassTag
 
 /**
- * An empty ''RequestReader''.
+ * An empty `RequestReader`.
  */
 @deprecated("use RequestReader.exception()", "0.5.0")
 object EmptyReader extends RequestReader[Nothing] {
@@ -48,7 +47,7 @@ object EmptyReader extends RequestReader[Nothing] {
 object ConstReader {
 
   /**
-   * Creates a ''RequestReader'' that reads given ''const'' param from the request.
+   * Creates a `RequestReader` that reads given `const` param from the request.
    *
    * @return a const param value
    */
@@ -65,9 +64,9 @@ object ConstReader {
 object RequiredIntParam {
 
   /**
-   * Creates a ''RequestReader'' that reads a required integer ''param''
+   * Creates a `RequestReader` that reads a required integer `param`
    * from the request or raises an exception when the param is missing or empty
-   * or doesn't correspond to an expected type.
+   * or does not correspond to an expected type.
    *
    * @param param the param to read
    *
@@ -83,9 +82,9 @@ object RequiredIntParam {
 object RequiredLongParam {
 
   /**
-   * Creates a ''RequestReader'' that reads a required long ''param''
+   * Creates a `RequestReader` that reads a required long `param`
    * from the request or raises an exception when the param is missing or empty
-   * or doesn't correspond to an expected type.
+   * or does not correspond to an expected type.
    *
    * @param param the param to read
    *
@@ -101,9 +100,9 @@ object RequiredLongParam {
 object RequiredBooleanParam {
 
   /**
-   * Creates a ''RequestReader'' that reads a required boolean ''param''
+   * Creates a `RequestReader` that reads a required boolean `param`
    * from the request or raises an exception when the param is missing or empty
-   * or doesn't correspond to an expected type.
+   * or does not correspond to an expected type.
    *
    * @param param the param to read
    *
@@ -119,9 +118,9 @@ object RequiredBooleanParam {
 object RequiredFloatParam {
 
   /**
-   * Creates a ''RequestReader'' that reads a required float ''param''
+   * Creates a `RequestReader` that reads a required float `param`
    * from the request or raises an exception when the param is missing or empty
-   * or doesn't correspond to an expected type.
+   * or does not correspond to an expected type.
    *
    * @param param the param to read
    *
@@ -137,9 +136,9 @@ object RequiredFloatParam {
 object RequiredDoubleParam {
 
   /**
-   * Creates a ''RequestReader'' that reads a required double ''param''
+   * Creates a `RequestReader` that reads a required double `param`
    * from the request or raises an exception when the param is missing or empty
-   * or doesn't correspond to an expected type.
+   * or does not correspond to an expected type.
    *
    * @param param the param to read
    *
@@ -155,12 +154,12 @@ object RequiredDoubleParam {
 object OptionalIntParam {
 
   /**
-   * Creates a ''RequestReader'' that reads an optional integer ''param''
-   * from the request into an ''Option''.
+   * Creates a `RequestReader` that reads an optional integer `param`
+   * from the request into an `Option`.
    *
    * @param param the param to read
    *
-   * @return an option that contains a param value or ''None'' if the param
+   * @return an option that contains a param value or `None` if the param
    *         is empty or it doesn't correspond to the expected type
    */
   def apply(param: String): RequestReader[Option[Int]] = OptionalParam(param).as[Int]
@@ -173,12 +172,12 @@ object OptionalIntParam {
 object OptionalLongParam {
 
   /**
-   * Creates a ''RequestReader'' that reads an optional long ''param''
-   * from the request into an ''Option''.
+   * Creates a `RequestReader` that reads an optional long `param`
+   * from the request into an `Option`.
    *
    * @param param the param to read
    *
-   * @return an option that contains a param value or ''None'' if the param
+   * @return an option that contains a param value or `None` if the param
    *         is empty or it doesn't correspond to the expected type
    */
   def apply(param: String): RequestReader[Option[Long]] = OptionalParam(param).as[Long]
@@ -191,12 +190,12 @@ object OptionalLongParam {
 object OptionalBooleanParam {
 
   /**
-   * Creates a ''RequestReader'' that reads an optional boolean ''param''
-   * from the request into an ''Option''.
+   * Creates a `RequestReader` that reads an optional boolean `param`
+   * from the request into an `Option`.
    *
    * @param param the param to read
    *
-   * @return an option that contains a param value or ''None'' if the param
+   * @return an option that contains a param value or `None` if the param
    *         is empty or it doesn't correspond to the expected type
    */
   def apply(param: String): RequestReader[Option[Boolean]] = OptionalParam(param).as[Boolean]
@@ -209,12 +208,12 @@ object OptionalBooleanParam {
 object OptionalFloatParam {
 
   /**
-   * Creates a ''RequestReader'' that reads an optional float ''param''
-   * from the request into an ''Option''.
+   * Creates a `RequestReader` that reads an optional float `param`
+   * from the request into an `Option`.
    *
    * @param param the param to read
    *
-   * @return an option that contains a param value or ''None'' if the param
+   * @return an option that contains a param value or `None` if the param
    *         is empty or it doesn't correspond to the expected type
    */
   def apply(param: String): RequestReader[Option[Float]] = OptionalParam(param).as[Float]
@@ -227,12 +226,12 @@ object OptionalFloatParam {
 object OptionalDoubleParam {
 
   /**
-   * Creates a ''RequestReader'' that reads an optional double ''param''
-   * from the request into an ''Option''.
+   * Creates a `RequestReader` that reads an optional double `param`
+   * from the request into an `Option`.
    *
    * @param param the param to read
    *
-   * @return an option that contains a param value or ''None'' if the param
+   * @return an option that contains a param value or `None` if the param
    *         is empty or it doesn't correspond to the expected type
    */
   def apply(param: String): RequestReader[Option[Double]] = OptionalParam(param).as[Double]
@@ -245,13 +244,13 @@ object OptionalDoubleParam {
 object RequiredIntParams {
 
   /**
-   * Creates a ''RequestReader'' that reads a required multi-value integer
-   * ''param'' from the request into an ''List'' or raises an exception when the
+   * Creates a `RequestReader` that reads a required multi-value integer
+   * `param` from the request into a `List` or raises an exception when the
    * param is missing or empty or doesn't correspond to an expected type.
    *
    * @param param the param to read
    *
-   * @return a ''List'' that contains all the values of multi-value param
+   * @return a `List` that contains all the values of multi-value param
    */
   def apply(param: String): RequestReader[Seq[Int]] = RequiredParams(param).as[Int]
 }
@@ -263,13 +262,13 @@ object RequiredIntParams {
 object RequiredLongParams {
 
   /**
-   * Creates a ''RequestReader'' that reads a required multi-value long
-   * ''param'' from the request into an ''List'' or raises an exception when the
+   * Creates a `RequestReader` that reads a required multi-value long
+   * `param` from the request into a `List` or raises an exception when the
    * param is missing or empty or doesn't correspond to an expected type.
    *
    * @param param the param to read
    *
-   * @return a ''List'' that contains all the values of multi-value param
+   * @return a `List` that contains all the values of multi-value param
    */
   def apply(param: String): RequestReader[Seq[Long]] = RequiredParams(param).as[Long]
 }
@@ -281,13 +280,13 @@ object RequiredLongParams {
 object RequiredBooleanParams {
 
   /**
-   * Creates a ''RequestReader'' that reads a required multi-value boolean
-   * ''param'' from the request into an ''List'' or raises an exception when the
+   * Creates a `RequestReader` that reads a required multi-value boolean
+   * `param` from the request into a `List` or raises an exception when the
    * param is missing or empty or doesn't correspond to an expected type.
    *
    * @param param the param to read
    *
-   * @return a ''List'' that contains all the values of multi-value param
+   * @return a `List` that contains all the values of multi-value param
    */
   def apply(param: String): RequestReader[Seq[Boolean]] = RequiredParams(param).as[Boolean]
 }
@@ -299,13 +298,13 @@ object RequiredBooleanParams {
 object RequiredFloatParams {
 
   /**
-   * Creates a ''RequestReader'' that reads a required multi-value float
-   * ''param'' from the request into an ''List'' or raises an exception when the
+   * Creates a `RequestReader` that reads a required multi-value float
+   * `param` from the request into a `List` or raises an exception when the
    * param is missing or empty or doesn't correspond to an expected type.
    *
    * @param param the param to read
    *
-   * @return a ''List'' that contains all the values of multi-value param
+   * @return a `List` that contains all the values of multi-value param
    */
   def apply(param: String): RequestReader[Seq[Float]] = RequiredParams(param).as[Float]
 }
@@ -317,13 +316,13 @@ object RequiredFloatParams {
 object RequiredDoubleParams {
 
   /**
-   * Creates a ''RequestReader'' that reads a required multi-value double
-   * ''param'' from the request into an ''List'' or raises an exception when the
+   * Creates a `RequestReader` that reads a required multi-value double
+   * `param` from the request into a `List` or raises an exception when the
    * param is missing or empty or doesn't correspond to an expected type.
    *
    * @param param the param to read
    *
-   * @return a ''List'' that contains all the values of multi-value param
+   * @return a `List` that contains all the values of multi-value param
    */
   def apply(param: String): RequestReader[Seq[Double]] = RequiredParams(param).as[Double]
 }
@@ -335,14 +334,14 @@ object RequiredDoubleParams {
 object OptionalIntParams {
 
   /**
-   * Creates a ''RequestReader'' that reads an optional multi-value
-   * integer ''param'' from the request into an ''List''.
+   * Creates a `RequestReader` that reads an optional multi-value
+   * integer `param` from the request into an `List`.
    *
    * @param param the param to read
    *
-   * @return a ''List'' that contains all the values of multi-value param or
-   *         en empty list ''Nil'' if the param is missing or empty or doesn't
-   *         correspond to a requested type.
+   * @return a `List` that contains all the values of multi-value param or
+   *         en empty list `Nil` if the param is missing or empty or doesn't
+   *         correspond to a requested type
    */
   def apply(param: String): RequestReader[Seq[Int]] = OptionalParams(param).as[Int]
 }
@@ -354,14 +353,14 @@ object OptionalIntParams {
 object OptionalLongParams {
 
   /**
-   * Creates a ''RequestReader'' that reads an optional multi-value
-   * integer ''param'' from the request into an ''List''.
+   * Creates a `RequestReader` that reads an optional multi-value
+   * integer `param` from the request into an `List`.
    *
    * @param param the param to read
    *
-   * @return a ''List'' that contains all the values of multi-value param or
-   *         en empty list ''Nil'' if the param is missing or empty or doesn't
-   *         correspond to a requested type.
+   * @return a `List` that contains all the values of multi-value param or
+   *         en empty list `Nil` if the param is missing or empty or doesn't
+   *         correspond to a requested type
    */
   def apply(param: String): RequestReader[Seq[Long]] = OptionalParams(param).as[Long]
 }
@@ -373,14 +372,14 @@ object OptionalLongParams {
 object OptionalBooleanParams {
 
   /**
-   * Creates a ''RequestReader'' that reads an optional multi-value
-   * boolean ''param'' from the request into an ''List''.
+   * Creates a `RequestReader` that reads an optional multi-value
+   * boolean `param` from the request into an `List`.
    *
    * @param param the param to read
    *
-   * @return a ''List'' that contains all the values of multi-value param or
-   *         en empty list ''Nil'' if the param is missing or empty or doesn't
-   *         correspond to a requested type.
+   * @return a `List` that contains all the values of multi-value param or
+   *         en empty list `Nil` if the param is missing or empty or doesn't
+   *         correspond to a requested type
    */
   def apply(param: String): RequestReader[Seq[Boolean]] = OptionalParams(param).as[Boolean]
 }
@@ -392,14 +391,14 @@ object OptionalBooleanParams {
 object OptionalFloatParams {
 
   /**
-   * Creates a ''RequestReader'' that reads an optional multi-value
-   * float ''param'' from the request into an ''List''.
+   * Creates a `RequestReader` that reads an optional multi-value
+   * float `param` from the request into an `List`.
    *
    * @param param the param to read
    *
-   * @return a ''List'' that contains all the values of multi-value param or
-   *         en empty list ''Nil'' if the param is missing or empty or doesn't
-   *         correspond to a requested type.
+   * @return a `List` that contains all the values of multi-value param or
+   *         en empty list `Nil` if the param is missing or empty or doesn't
+   *         correspond to a requested type
    */
   def apply(param: String): RequestReader[Seq[Float]] = OptionalParams(param).as[Float]
 }
@@ -411,21 +410,21 @@ object OptionalFloatParams {
 object OptionalDoubleParams {
 
 /**
- * Creates a ''RequestReader'' that reads an optional multi-value
- * double ''param'' from the request into an ''List''.
+ * Creates a `RequestReader` that reads an optional multi-value
+ * double `param` from the request into an `List`.
  *
  * @param param the param to read
  *
- * @return a ''List'' that contains all the values of multi-value param or
- *         en empty list ''Nil'' if the param is missing or empty or doesn't
+ * @return a `List` that contains all the values of multi-value param or
+ *         en empty list `Nil` if the param is missing or empty or doesn't
  *         correspond to a requested type.
  */
   def apply(param: String): RequestReader[Seq[Double]] = OptionalParams(param).as[Double]
 }
 
 /**
- * A ''RequestReader'' that reads the request body, interpreted as a ''Array[Byte]'',
- * or throws a ''NotPresent'' exception.
+ * A `RequestReader` that reads the request body, interpreted as an `Array[Byte]`,
+ * or throws a `NotPresent` exception.
  */
 @deprecated("use RequiredBinaryBody", "0.5.0")
 object RequiredArrayBody extends RequestReader[Array[Byte]] {
@@ -434,8 +433,8 @@ object RequiredArrayBody extends RequestReader[Array[Byte]] {
 }
 
 /**
- * A ''RequestReader'' that reads the request body, interpreted as a ''Array[Byte]'',
- * into an ''Option''.
+ * A `RequestReader` that reads the request body, interpreted as an `Array[Byte]`,
+ * into an `Option`.
  */
 @deprecated("use OptionalBinaryBody", "0.5.0")
 object OptionalArrayBody extends RequestReader[Option[Array[Byte]]] {
@@ -444,8 +443,8 @@ object OptionalArrayBody extends RequestReader[Option[Array[Byte]]] {
 }
 
 /**
- * A ''RequestReader'' that reads the request body, interpreted as a ''String'',
- * or throws a ''NotPresent'' exception.
+ * A `RequestReader` that reads the request body, interpreted as a `String`,
+ * or throws a `NotPresent` exception.
  */
 @deprecated("use RequiredBody", "0.5.0")
 object RequiredStringBody extends RequestReader[String] {
@@ -454,8 +453,8 @@ object RequiredStringBody extends RequestReader[String] {
 }
 
 /**
- * A ''RequestReader'' that reads the request body, interpreted as a ''String'',
- * into an ''Option''.
+ * A `RequestReader` that reads the request body, interpreted as a `String`,
+ * into an `Option`.
  */
 @deprecated("use OptionalBody", "0.5.0")
 object OptionalStringBody extends RequestReader[Option[String]] {

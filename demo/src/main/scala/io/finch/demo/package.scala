@@ -28,9 +28,21 @@ import java.util.concurrent.atomic.AtomicLong
 import scala.collection.JavaConverters._
 
 import com.twitter.util.Future
-import io.finch.demo.model.User
 
+/**
+ * The ''demo'' project shows the usage of Finch's basic blocks for building a purely functional REST API backend
+ * emulating a set of services working with ''users'' and their ''tickets'' (i.e., cinema tickets).
+ *
+ * The following packages represent the backend:
+ *
+ * - [[demo.model]] - domain model classes: `User` and `Ticket`
+ * - [[demo.reader]] - [[io.finch.request.RequestReader]]s for models
+ * - [[demo.service]] - the application services
+ * - [[demo.endpoint]] - [[io.finch.route.Router]]s for services (endpoints)
+ */
 package object demo {
+
+  import model._
 
   // A custom request type that wraps an `HttpRequest`.
   // We prefer composition over inheritance.

@@ -27,17 +27,16 @@ import com.twitter.finagle.httpx.Method
 import com.twitter.util.Future
 
 /**
- * This package contains various of functions and types that enable _router
- * combinators_ in Finch. A Finch [[route.Router]] is an abstraction that
- * is responsible for routing the HTTP requests using their method and path
- * information. There are two types of routers in Finch: [[route.Router0]]
- * and [[route.RouterN]]. `Router0` matches the route and returns an `Option`
- * of the rest of the route. `RouterN[A]` (or just `Router[A]`) in addition
- * to the `Router0` behaviour extracts a value of type `A` from the route.
+ * This package contains various of functions and types that enable _router combinators_ in Finch. A Finch
+ * [[io.finch.route.Router Router]] is an abstraction that is responsible for routing the HTTP requests using their
+ * method and path information. There are two types of routers in Finch: [[io.finch.route.Router0 Router0]] and
+ * [[io.finch.route.RouterN RouterN]]. `Router0` matches the route and returns an `Option` of the rest of the route.
+ * `RouterN[A]` (or just `Router[A]`) in addition to the `Router0` behaviour extracts a value of type `A` from the
+ * route.
  *
- * A [[route.Router]] that maps route to a [[Service]] is called an
- * [[route.Endpoint]]. An endpoint `Req => Rep` might be implicitly converted
- * into `Service[Req, Rep]`. Thus, the following example is a valid Finch code:
+ * A [[io.finch.route.Router Router]] that maps route to a [[com.twitter.finagle.Service Service]] is called an
+ * [[io.finch.route.Endpoint Endpoint]]. An endpoint `Req => Rep` might be implicitly converted into a
+ * `Service[Req, Rep]`. Thus, the following example is a valid Finch code:
  *
  * {{{
  *   def hello(s: String) = new Service[HttRequest, HttpResponse] {
@@ -76,12 +75,12 @@ package object route {
   case class /[+A, +B](_1: A, _2: B)
 
   /**
-   * A user friendly alias for [[RouterN]].
+   * A user friendly alias for [[io.finch.route.RouterN RouterN]].
    */
   type Router[+A] = RouterN[A]
 
   /**
-   * An alias for [[Router]] that maps route to a [[Service]].
+   * An alias for [[io.finch.route.Router Router]] that maps route to a [[com.twitter.finagle.Service Service]].
    */
   type Endpoint[-A, +B] = Router[Service[A, B]]
 
@@ -96,7 +95,7 @@ package object route {
   /**
    * Implicitly converts the given `Router[Service[_, _]]` into a service.
    */
-  implicit def endpointToService[R, Req, Rep](
+  implicit def endpointToService[Req, Rep](
     r: RouterN[Service[Req, Rep]]
   )(implicit ev: Req => HttpRequest): Service[Req, Rep] = new Service[Req, Rep] {
     def apply(req: Req): Future[Rep] = {
@@ -126,7 +125,7 @@ package object route {
     try Some(fn(s)) catch { case _: IllegalArgumentException => None }
 
   /**
-   * A [[RouterN]] that extracts a path token.
+   * A [[io.finch.route.RouterN RouterN]] that extracts a path token.
    */
   object PathTokenExtractor extends RouterN[String] {
     override def apply(route: Route): Option[(Route, String)] = for {
@@ -135,8 +134,7 @@ package object route {
   }
 
   /**
-   * An universal extractor that extracts some value of type `A` if
-   * it's possible to fetch the value from the string.
+   * An universal extractor that extracts some value of type `A` if it's possible to fetch the value from the string.
    */
   case class Extractor[A](name: String, f: String => Option[A]) extends RouterN[A] {
     def apply(route: Route): Option[(Route, A)] = PathTokenExtractor.embedFlatMap(f)(route)
@@ -145,7 +143,7 @@ package object route {
   }
 
   /**
-   * A router that matches the given HTTP method `m` in the route.
+   * A [[io.finch.route.Router0 Router0]] that matches the given HTTP method `m` in the route.
    */
   case class MethodMatcher(m: Method) extends Router0 {
     def apply(route: Route): Option[Route] = for {
@@ -168,7 +166,7 @@ package object route {
   object Trace extends MethodMatcher(Method.Trace)
 
   /**
-   * A [[Router0]] that skips one route token.
+   * A [[io.finch.route.Router0 Router0]] that skips one route token.
    */
   object * extends Router0 {
     def apply(route: Route): Option[Route] = Some(route.tail)
@@ -176,22 +174,22 @@ package object route {
   }
 
   /**
-   * A router that extract an integer from the route.
+   * A [[io.finch.route.RouterN RouterN]] that extract an integer from the route.
    */
   object int extends Extractor("int", stringToSomeValue(_.toInt))
 
   /**
-   * A router that extract a long value from the route.
+   * A [[io.finch.route.RouterN RouterN]] that extract a long value from the route.
    */
   object long extends Extractor("long", stringToSomeValue(_.toLong))
 
   /**
-   * A router that extract a string value from the route.
+   * A [[io.finch.route.RouterN RouterN]] that extract a string value from the route.
    */
   object string extends Extractor("string", Some(_))
 
   /**
-   * A router that extract a boolean value from the route.
+   * A [[io.finch.route.RouterN RouterN]] that extract a boolean value from the route.
    */
   object boolean extends Extractor("boolean", stringToSomeValue(_.toBoolean))
 }
