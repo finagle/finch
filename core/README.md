@@ -13,4 +13,4 @@ libraryDependencies ++= Seq(
 
 Documentation
 -------------
-See [docs.md](/docs.md) file for more details.
+See [/docs](/docs/index.md) for more details.

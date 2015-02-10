@@ -3,4 +3,4 @@ _users_ and their _tickets_ (i.e., cinema tickets). It uses an in-memory storage
 
 Documentation
 -------------
-For more details, see section [Demo](/docs.md#demo) in the [docs.md](/docs.md) file.
+See [Demo](/docs/demo.md) section.

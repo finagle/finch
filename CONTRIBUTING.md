@@ -12,6 +12,8 @@ elsewhere.
 
 * Code and comments should be formatted to a width no greater than 120 columns
 * Files should be exempt of trailing spaces
+* Each abstraction should live in its own Scala file, i.e `RequestReader.scala`
+* Each implementation should live in the package object, i.e, `io.finch.request`
 
 That said, the Scala style checker `sbt scalastyle` should pass on the code. 
 

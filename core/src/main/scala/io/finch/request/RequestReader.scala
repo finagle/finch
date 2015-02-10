@@ -111,7 +111,7 @@ trait RequestReader[A] { self =>
    */
   def should(rule: String)(predicate: A => Boolean): RequestReader[A] = embedFlatMap { a =>
     if (predicate(a)) a.toFuture
-    else NotValid(self.item, rule).toFutureException
+    else NotValid(self.item, "should " + rule).toFutureException
   }
 
   /**

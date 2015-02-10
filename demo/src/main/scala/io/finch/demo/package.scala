@@ -46,7 +46,7 @@ package object demo {
 
   // A custom request type that wraps an `HttpRequest`.
   // We prefer composition over inheritance.
-  case class AuthRequest(http: HttpRequest, secret: String)
+  case class AuthRequest(http: HttpRequest)
 
   // We define an implicit view from `AuthRequest to `HttpRequest`,
   // so we can get two benefits:
