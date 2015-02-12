@@ -39,7 +39,7 @@ import com.twitter.finagle.{Filter, Service}
  *
  * The [[io.finch.route.Router Router]] abstraction routes the requests depending on their path and method information.
  * `Router` combinator provides a bunch of predefined routers handling separated parts of a route. `Router`s might be
- * composed with either `/` (`flatMap`) or `/>` (`map`) operator. There is also `|` (`orElse`) operator that combines
+ * composed with either `/` (`andThen`) or `/>` (`map`) operator. There is also `|` (`orElse`) operator that combines
  * two routers in terms of the inclusive or operator.
  *
  * {{{
@@ -51,7 +51,7 @@ import com.twitter.finagle.{Filter, Service}
  *
  * The [[io.finch.request.RequestReader RequestReader]] abstraction is responsible for reading any details form the HTTP
  * request. `RequestReader` is composable in both ways: via the monadic API (using the for-comprehension, i.e.,
- * `flatMap`/`map`) and via the applicative API (using the `~` operator). These approaches define an unlimited number of
+ * `flatMap`) and via the applicative API (using the `~` operator). These approaches define an unlimited number of
  * readers out the plenty of predefined ones.
  *
  * {{{
