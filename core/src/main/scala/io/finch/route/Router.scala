@@ -67,15 +67,25 @@ trait RouterN[+A] { self =>
   }
 
   /**
-   * Flat-maps this router to the given [[io.finch.route.Router0 Router0]].
+   * Sequentially composes this router with the given `that` [[io.finch.route.Router0 Router0]].
    */
-  def flatMap(rm: => Router0): RouterN[A] = new RouterN[A] {
+  def andThen(that: => Router0): RouterN[A] = new RouterN[A] {
     def apply(route: Route): Option[(Route, A)] = for {
       (r, a) <- self(route)
-      rr <- rm(r)
+      rr <- that(r)
     } yield (rr, a)
 
-    override def toString = s"${self.toString}/${rm.toString}"
+    override def toString = s"${self.toString}/${that.toString}"
+  }
+
+  /**
+   * Sequentially composes this router with the given `that` router. The resulting router will succeed only if both this
+   * and `that` routers are succeed.
+   */
+  def andThen[B](that: RouterN[B]): RouterN[A / B] = new RouterN[A / B] {
+    val ab = for { a <- self; b <- that } yield new /(a, b)
+    def apply(route: Route): Option[(Route, /[A, B])] = ab(route)
+    override def toString = s"${self.toString}/${that.toString}"
   }
 
   /**
@@ -99,18 +109,15 @@ trait RouterN[+A] { self =>
    * Sequentially composes this router with the given `that` router. The resulting router will succeed only if both this
    * and `that` routers are succeed.
    */
-  def /[B](that: RouterN[B]): RouterN[A / B] = new RouterN[A / B] {
-    val ab = for { a <- self; b <- that } yield new /(a, b)
-    def apply(route: Route): Option[(Route, /[A, B])] = ab(route)
-    override def toString = s"${self.toString}/${that.toString}"
-  }
+  def /[B](that: RouterN[B]): RouterN[A / B] =
+    this andThen that
 
   /**
    * Sequentially composes this router with the given `that` router. The resulting router will succeed only if both this
    * and `that` routers are succeed.
    */
   def /(that: Router0): RouterN[A] =
-    this flatMap that
+    this andThen that
 
   /**
    * Maps this router to the given function `A => B`.
@@ -151,21 +158,21 @@ trait Router0 { self =>
   }
 
   /**
-   * Flat-maps this router to the given [[io.finch.route.RouterN RouterN]].
+   * Sequentially composes this router with the given `that` [[io.finch.route.RouterN RouterN]].
    */
-  def flatMap[A](re: => RouterN[A]): RouterN[A] = new RouterN[A] {
+  def andThen[A](that: => RouterN[A]): RouterN[A] = new RouterN[A] {
     def apply(route: Route): Option[(Route, A)] =
-      self(route) flatMap { r => re(r) }
-    override def toString = s"${self.toString}/${re.toString}"
+      self(route) flatMap { r => that(r) }
+    override def toString = s"${self.toString}/${that.toString}"
   }
 
   /**
-   * Flat-maps this router to the given [[io.finch.route.Router0 Router0]].
+   * Sequentially composes this router with the given `that` [[io.finch.route.Router0 Router0]].
    */
-  def flatMap(rm: => Router0): Router0 = new Router0 {
+  def andThen(that: => Router0): Router0 = new Router0 {
     def apply(route: Route): Option[Route] =
-      self(route) flatMap { r => rm(r) }
-    override def toString = s"${self.toString}/${rm.toString}"
+      self(route) flatMap { r => that(r) }
+    override def toString = s"${self.toString}/${that.toString}"
   }
 
   /**
@@ -190,14 +197,14 @@ trait Router0 { self =>
    * and `that` routers are succeed.
    */
   def /(that: Router0): Router0 =
-    this flatMap that
+    this andThen that
 
   /**
    * Sequentially composes this router with the given `that` router. The resulting router will succeed only if both this
    * and `that` routers are succeed.
    */
   def /[A](that: RouterN[A]): RouterN[A] =
-    this flatMap that
+    this andThen that
 
   /**
    * Maps this router to some value.
