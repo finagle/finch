@@ -51,7 +51,7 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A json companion object, which in an entry point into JSON API.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A JSON companion object, which in an entry point into JSON API.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
@@ -165,9 +165,8 @@
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a new json array of given sequence of items <i>args</i>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new json array of given sequence of items <i>args</i>.
+      <p class="shortcomment cmt">Creates a new JSON array of given sequence of items <code>args</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new JSON array of given sequence of items <code>args</code>.
 </p></div><dl class="paramcmts block"><dt class="param">args</dt><dd class="cmt"><p>sequence of items in the array
-</p></dd><dt>returns</dt><dd class="cmt"><p>a new json array
 </p></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
@@ -209,7 +208,7 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.finch.json.Json#compress" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="io.finch.json.Json#compress" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="compress(j:io.finch.json.Json):io.finch.json.Json"></a>
       <a id="compress(Json):Json"></a>
       <h4 class="signature">
@@ -225,9 +224,7 @@
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Removes all null-value properties from this json object.</p><div class="fullcomment"><div class="comment cmt"><p>Removes all null-value properties from this json object.
-</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>a compressed json object
-</p></dd></dl></div>
+      <p class="shortcomment cmt">Removes all null-value properties from the given JSON object <code>j</code>.</p>
     </li><li name="io.finch.json.Json#concatLeft" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="concatLeft(a:io.finch.json.Json,b:io.finch.json.Json):io.finch.json.Json"></a>
       <a id="concatLeft(Json,Json):Json"></a>
@@ -244,9 +241,8 @@
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Concatenates two given json object <i>a</i> and <i>b</i> with <i>a</i> object in priority.</p><div class="fullcomment"><div class="comment cmt"><p>Concatenates two given json object <i>a</i> and <i>b</i> with <i>a</i> object in priority.
+      <p class="shortcomment cmt">Concatenates two given JSON object <code>a</code> and <code>b</code> with <code>a</code> object in priority.</p><div class="fullcomment"><div class="comment cmt"><p>Concatenates two given JSON object <code>a</code> and <code>b</code> with <code>a</code> object in priority.
 </p></div><dl class="paramcmts block"><dt class="param">a</dt><dd class="cmt"><p>the left object</p></dd><dt class="param">b</dt><dd class="cmt"><p>the right object
-</p></dd><dt>returns</dt><dd class="cmt"><p>a concatenated array
 </p></dd></dl></div>
     </li><li name="io.finch.json.Json#concatRight" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="concatRight(a:io.finch.json.Json,b:io.finch.json.Json):io.finch.json.Json"></a>
@@ -264,9 +260,8 @@
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Concatenates two given json object <i>a</i> and <i>b</i> with <i>b</i> object priority.</p><div class="fullcomment"><div class="comment cmt"><p>Concatenates two given json object <i>a</i> and <i>b</i> with <i>b</i> object priority.
+      <p class="shortcomment cmt">Concatenates two given JSON object <code>a</code> and <code>b</code> with <code>b</code> object in priority.</p><div class="fullcomment"><div class="comment cmt"><p>Concatenates two given JSON object <code>a</code> and <code>b</code> with <code>b</code> object in priority.
 </p></div><dl class="paramcmts block"><dt class="param">a</dt><dd class="cmt"><p>the left object</p></dd><dt class="param">b</dt><dd class="cmt"><p>the right object
-</p></dd><dt>returns</dt><dd class="cmt"><p>a concatenated array
 </p></dd></dl></div>
     </li><li name="io.finch.json.Json#decode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="decode(s:String):Option[io.finch.json.Json]"></a>
@@ -284,11 +279,10 @@
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Decodes a json object from the given string <code>s</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Decodes a json object from the given string <code>s</code>.
+      <p class="shortcomment cmt">Decodes a JSON object from the given string <code>s</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Decodes a JSON object from the given string <code>s</code>.
 </p></div><dl class="paramcmts block"><dt class="param">s</dt><dd class="cmt"><p>a string representation of a json object
-</p></dd><dt>returns</dt><dd class="cmt"><p>a decoded json object wrapping in option
 </p></dd></dl></div>
-    </li><li name="io.finch.json.Json#emptyArray" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="io.finch.json.Json#emptyArray" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="emptyArray:io.finch.json.Json"></a>
       <a id="emptyArray:Json"></a>
       <h4 class="signature">
@@ -304,10 +298,8 @@
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates an empty json array.</p><div class="fullcomment"><div class="comment cmt"><p>Creates an empty json array.
-</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>an empty json array.
-</p></dd></dl></div>
-    </li><li name="io.finch.json.Json#emptyObject" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <p class="shortcomment cmt">Creates an empty JSON array.</p>
+    </li><li name="io.finch.json.Json#emptyObject" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="emptyObject:io.finch.json.Json"></a>
       <a id="emptyObject:Json"></a>
       <h4 class="signature">
@@ -323,10 +315,7 @@
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates an empty json object
-</p><div class="fullcomment"><div class="comment cmt"><p>Creates an empty json object
-</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>an empty json object
-</p></dd></dl></div>
+      <p class="shortcomment cmt">Creates an empty JSON object.</p>
     </li><li name="io.finch.json.Json#encode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="encode(j:io.finch.json.Json):String"></a>
       <a id="encode(Json):String"></a>
@@ -343,9 +332,8 @@
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Encodes the given json object <code>j</code> into its string representation.</p><div class="fullcomment"><div class="comment cmt"><p>Encodes the given json object <code>j</code> into its string representation.
+      <p class="shortcomment cmt">Encodes the given JSON object <code>j</code> into its string representation.</p><div class="fullcomment"><div class="comment cmt"><p>Encodes the given JSON object <code>j</code> into its string representation.
 </p></div><dl class="paramcmts block"><dt class="param">j</dt><dd class="cmt"><p>a json object to encode
-</p></dd><dt>returns</dt><dd class="cmt"><p>a string representation of a json object
 </p></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
@@ -471,10 +459,9 @@
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Deeply merges given json objects <i>a</i> and <i>b</i> into a single json object.</p><div class="fullcomment"><div class="comment cmt"><p>Deeply merges given json objects <i>a</i> and <i>b</i> into a single json object.
-In case of conflict tag the value of a left json object will be taken.
+      <p class="shortcomment cmt">Deeply merges given JSON objects <code>a</code> and <code>b</code> into a single json object.</p><div class="fullcomment"><div class="comment cmt"><p>Deeply merges given JSON objects <code>a</code> and <code>b</code> into a single json object. In case of conflict tag the value of a
+_left_ json object will be taken.
 </p></div><dl class="paramcmts block"><dt class="param">a</dt><dd class="cmt"><p>the left json object</p></dd><dt class="param">b</dt><dd class="cmt"><p>the right json object
-</p></dd><dt>returns</dt><dd class="cmt"><p>a merged json object
 </p></dd></dl></div>
     </li><li name="io.finch.json.Json#mergeRight" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="mergeRight(a:io.finch.json.Json,b:io.finch.json.Json):io.finch.json.Json"></a>
@@ -492,10 +479,9 @@ In case of conflict tag the value of a left json object will be taken.
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Deeply merges given json objects <i>a</i> and <i>b</i> into a single json object.</p><div class="fullcomment"><div class="comment cmt"><p>Deeply merges given json objects <i>a</i> and <i>b</i> into a single json object.
-In case of conflict tag the value of a right json object will be taken.
+      <p class="shortcomment cmt">Deeply merges given JSON objects <code>a</code> and <code>b</code> into a single json object.</p><div class="fullcomment"><div class="comment cmt"><p>Deeply merges given JSON objects <code>a</code> and <code>b</code> into a single json object. In case of conflict tag the value of a
+_right_ json object will be taken.
 </p></div><dl class="paramcmts block"><dt class="param">a</dt><dd class="cmt"><p>the left json object</p></dd><dt class="param">b</dt><dd class="cmt"><p>the right json object
-</p></dd><dt>returns</dt><dd class="cmt"><p>a merged json object
 </p></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
@@ -564,11 +550,9 @@ In case of conflict tag the value of a right json object will be taken.
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a json object of given sequence of properties <i>args</i>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a json object of given sequence of properties <i>args</i>. Every
-argument/property is a pair of <i>tag</i> and <i>value</i> associated with it.
-It's possible to pass a complete json path (separated by dot) as <i>tag</i>.
+      <p class="shortcomment cmt">Creates a JSON object of given sequence of properties <code>args</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a JSON object of given sequence of properties <code>args</code>. Every argument/property is a pair of <code>tag</code> and
+<code>value</code> associated with it. It's possible to pass a complete JSON path (separated by dot) as <code>tag</code>.
 </p></div><dl class="paramcmts block"><dt class="param">args</dt><dd class="cmt"><p>a sequence of json properties
-</p></dd><dt>returns</dt><dd class="cmt"><p>a json object
 </p></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>

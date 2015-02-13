@@ -148,7 +148,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="io.finch.request.RequiredHeader#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply(header:String):io.finch.request.package.RequestReader[String]"></a>
+      <a id="apply(header:String):io.finch.request.RequestReader[String]"></a>
       <a id="apply(String):RequestReader[String]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -156,16 +156,16 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="header">header: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="package$$RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">apply</span><span class="params">(<span name="header">header: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredHeader$@apply(header:String):io.finch.request.package.RequestReader[String]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$RequiredHeader$@apply(header:String):io.finch.request.RequestReader[String]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a <i>RequestReader</i> that reads a required string <i>header</i>
-from the request or raises an exception when the param is missing or empty.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <i>RequestReader</i> that reads a required string <i>header</i>
-from the request or raises an exception when the param is missing or empty.
+      <p class="shortcomment cmt">Creates a <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that reads a required string <i>header</i> from the
+request or raises a <a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a> exception when the header is missing.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that reads a required string <i>header</i> from the
+request or raises a <a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a> exception when the header is missing.
 </p></div><dl class="paramcmts block"><dt class="param">header</dt><dd class="cmt"><p>the header to read
 </p></dd><dt>returns</dt><dd class="cmt"><p>a header
 </p></dd></dl></div>

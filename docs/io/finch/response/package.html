@@ -47,7 +47,16 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>This package enables a reasonable approach of building HTTP responses using the
+<a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a> abstraction. The <code>ResponseBuilder</code> provides an immutable way
+of building concrete <span class="extype" name="com.twitter.finagle.httpx.Response">Response</span> instances by specifying their <i>status</i>,
+<i>headers</i> and <i>cookies</i>. There are plenty of predefined builders named by HTTP statuses, i.e., <code>Ok</code>, <code>Created</code>,
+<code>NotFound</code>. Thus, the typical use case of the <code>ResponseBuilder</code> abstraction involves usage of concrete builder
+instead of abstract <code>ResponseBuilder</code> itself.</p><pre><span class="kw">val</span> ok: HttpResponse = Ok(<span class="lit">"Hello, World!"</span>)</pre><p>In addition to <code>plain/text</code> responses, the <code>ResponseBuilder</code> is able to build any response, whose <code>content-type</code> is
+specified by an implicit type-class <a href="package$$EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a> instance. In fact, any type
+<code>A</code> may be passed to a <code>RequestReader</code> if there is a corresponding <code>EncodeRequest[A]</code> instance available in the
+scope.</p><pre><span class="kw">implicit</span> <span class="kw">val</span> encodeBigInt = EncodeResponse[BigInt](<span class="lit">"plain/text"</span>) { _.toString }
+<span class="kw">val</span> ok: HttpResponse = Ok(BigInt(<span class="num">100</span>))</pre></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -122,7 +131,7 @@
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">An abstraction that is responsible for encoding the response of type <i>A</i>.</p>
+      <p class="shortcomment cmt">An abstraction that is responsible for encoding the response of type <code>A</code>.</p>
     </li><li name="io.finch.response.ResponseBuilder" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ResponseBuilderextendsProductwithSerializable"></a>
       <a id="ResponseBuilder:ResponseBuilder"></a>
@@ -132,15 +141,15 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="package$$ResponseBuilder.html"><span class="name">ResponseBuilder</span></a><span class="params">(<span name="status">status: <span class="extype" name="com.twitter.finagle.httpx.Status">Status</span></span>, <span name="headers">headers: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Map.empty</span></span>, <span name="cookies">cookies: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="com.twitter.finagle.httpx.Cookie">Cookie</span>] = <span class="symbol">Seq.empty</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="ResponseBuilder.html"><span class="name">ResponseBuilder</span></a><span class="params">(<span name="status">status: <span class="extype" name="com.twitter.finagle.httpx.Status">Status</span></span>, <span name="headers">headers: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Map.empty</span></span>, <span name="cookies">cookies: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="com.twitter.finagle.httpx.Cookie">Cookie</span>] = <span class="symbol">Seq.empty</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@ResponseBuilderextendsProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">A companion factory object for <i>HttpResponse</i>.</p><div class="fullcomment"><div class="comment cmt"><p>A companion factory object for <i>HttpResponse</i>.
-</p></div><dl class="paramcmts block"><dt class="param">status</dt><dd class="cmt"><p>the http response status</p></dd><dt class="param">headers</dt><dd class="cmt"><p>the HTTP headers map
+      <p class="shortcomment cmt">An abstraction that is responsible for building HTTP responses.</p><div class="fullcomment"><div class="comment cmt"><p>An abstraction that is responsible for building HTTP responses.
+</p></div><dl class="paramcmts block"><dt class="param">status</dt><dd class="cmt"><p>the HTTP response status</p></dd><dt class="param">headers</dt><dd class="cmt"><p>the HTTP headers map</p></dd><dt class="param">cookies</dt><dd class="cmt"><p>the HTTP cookies list
 </p></dd></dl></div>
     </li><li name="io.finch.response.TurnIntoHttp" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="TurnIntoHttp[A]extendsService[A,io.finch.HttpResponse]"></a>
@@ -175,7 +184,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$Accepted$.html"><span class="name">Accepted</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$Accepted$.html"><span class="name">Accepted</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@Accepted" title="Permalink" target="_top">
@@ -192,7 +201,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$BadGateway$.html"><span class="name">BadGateway</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$BadGateway$.html"><span class="name">BadGateway</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@BadGateway" title="Permalink" target="_top">
@@ -209,7 +218,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$BadRequest$.html"><span class="name">BadRequest</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$BadRequest$.html"><span class="name">BadRequest</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@BadRequest" title="Permalink" target="_top">
@@ -226,7 +235,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$Conflict$.html"><span class="name">Conflict</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$Conflict$.html"><span class="name">Conflict</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@Conflict" title="Permalink" target="_top">
@@ -243,7 +252,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$Continue$.html"><span class="name">Continue</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$Continue$.html"><span class="name">Continue</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@Continue" title="Permalink" target="_top">
@@ -260,7 +269,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$Created$.html"><span class="name">Created</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$Created$.html"><span class="name">Created</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@Created" title="Permalink" target="_top">
@@ -268,6 +277,23 @@
       </a>
     </span>
       
+    </li><li name="io.finch.response.EncodeResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="EncodeResponse"></a>
+      <a id="EncodeResponse:EncodeResponse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$EncodeResponse$.html"><span class="name">EncodeResponse</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@EncodeResponse" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Convenience method for creating new <a href="package$$EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a> instances.</p>
     </li><li name="io.finch.response.ExpectationFailed" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ExpectationFailed"></a>
       <a id="ExpectationFailed:ExpectationFailed"></a>
@@ -277,7 +303,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$ExpectationFailed$.html"><span class="name">ExpectationFailed</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$ExpectationFailed$.html"><span class="name">ExpectationFailed</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@ExpectationFailed" title="Permalink" target="_top">
@@ -294,7 +320,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$FailedDependency$.html"><span class="name">FailedDependency</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$FailedDependency$.html"><span class="name">FailedDependency</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@FailedDependency" title="Permalink" target="_top">
@@ -311,7 +337,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$Forbidden$.html"><span class="name">Forbidden</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$Forbidden$.html"><span class="name">Forbidden</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@Forbidden" title="Permalink" target="_top">
@@ -328,7 +354,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$Found$.html"><span class="name">Found</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$Found$.html"><span class="name">Found</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@Found" title="Permalink" target="_top">
@@ -345,7 +371,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$GatewayTimeout$.html"><span class="name">GatewayTimeout</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$GatewayTimeout$.html"><span class="name">GatewayTimeout</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@GatewayTimeout" title="Permalink" target="_top">
@@ -362,7 +388,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$Gone$.html"><span class="name">Gone</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$Gone$.html"><span class="name">Gone</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@Gone" title="Permalink" target="_top">
@@ -379,7 +405,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$HttpVersionNotSupported$.html"><span class="name">HttpVersionNotSupported</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$HttpVersionNotSupported$.html"><span class="name">HttpVersionNotSupported</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@HttpVersionNotSupported" title="Permalink" target="_top">
@@ -396,7 +422,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$InsufficientStorage$.html"><span class="name">InsufficientStorage</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$InsufficientStorage$.html"><span class="name">InsufficientStorage</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@InsufficientStorage" title="Permalink" target="_top">
@@ -413,7 +439,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$InternalServerError$.html"><span class="name">InternalServerError</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$InternalServerError$.html"><span class="name">InternalServerError</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@InternalServerError" title="Permalink" target="_top">
@@ -430,7 +456,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$LengthRequired$.html"><span class="name">LengthRequired</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$LengthRequired$.html"><span class="name">LengthRequired</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@LengthRequired" title="Permalink" target="_top">
@@ -447,7 +473,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$Locked$.html"><span class="name">Locked</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$Locked$.html"><span class="name">Locked</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@Locked" title="Permalink" target="_top">
@@ -464,7 +490,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$MethodNotAllowed$.html"><span class="name">MethodNotAllowed</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$MethodNotAllowed$.html"><span class="name">MethodNotAllowed</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@MethodNotAllowed" title="Permalink" target="_top">
@@ -481,7 +507,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$MovedPermanently$.html"><span class="name">MovedPermanently</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$MovedPermanently$.html"><span class="name">MovedPermanently</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@MovedPermanently" title="Permalink" target="_top">
@@ -498,7 +524,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$MultiStatus$.html"><span class="name">MultiStatus</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$MultiStatus$.html"><span class="name">MultiStatus</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@MultiStatus" title="Permalink" target="_top">
@@ -515,7 +541,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$MultipleChoices$.html"><span class="name">MultipleChoices</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$MultipleChoices$.html"><span class="name">MultipleChoices</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@MultipleChoices" title="Permalink" target="_top">
@@ -532,7 +558,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$NoContent$.html"><span class="name">NoContent</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$NoContent$.html"><span class="name">NoContent</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@NoContent" title="Permalink" target="_top">
@@ -549,7 +575,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$NonAuthoritativeInformation$.html"><span class="name">NonAuthoritativeInformation</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$NonAuthoritativeInformation$.html"><span class="name">NonAuthoritativeInformation</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@NonAuthoritativeInformation" title="Permalink" target="_top">
@@ -566,7 +592,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$NotAcceptable$.html"><span class="name">NotAcceptable</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$NotAcceptable$.html"><span class="name">NotAcceptable</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@NotAcceptable" title="Permalink" target="_top">
@@ -583,7 +609,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$NotExtended$.html"><span class="name">NotExtended</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$NotExtended$.html"><span class="name">NotExtended</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@NotExtended" title="Permalink" target="_top">
@@ -600,7 +626,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$NotFound$.html"><span class="name">NotFound</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$NotFound$.html"><span class="name">NotFound</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@NotFound" title="Permalink" target="_top">
@@ -617,7 +643,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$NotImplemented$.html"><span class="name">NotImplemented</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$NotImplemented$.html"><span class="name">NotImplemented</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@NotImplemented" title="Permalink" target="_top">
@@ -634,7 +660,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$NotModified$.html"><span class="name">NotModified</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$NotModified$.html"><span class="name">NotModified</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@NotModified" title="Permalink" target="_top">
@@ -651,7 +677,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$Ok$.html"><span class="name">Ok</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$Ok$.html"><span class="name">Ok</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@Ok" title="Permalink" target="_top">
@@ -668,7 +694,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$PartialContent$.html"><span class="name">PartialContent</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$PartialContent$.html"><span class="name">PartialContent</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@PartialContent" title="Permalink" target="_top">
@@ -685,7 +711,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$PaymentRequired$.html"><span class="name">PaymentRequired</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$PaymentRequired$.html"><span class="name">PaymentRequired</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@PaymentRequired" title="Permalink" target="_top">
@@ -702,7 +728,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$PreconditionFailed$.html"><span class="name">PreconditionFailed</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$PreconditionFailed$.html"><span class="name">PreconditionFailed</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@PreconditionFailed" title="Permalink" target="_top">
@@ -719,7 +745,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$PreconditionRequired$.html"><span class="name">PreconditionRequired</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$PreconditionRequired$.html"><span class="name">PreconditionRequired</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@PreconditionRequired" title="Permalink" target="_top">
@@ -736,7 +762,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$Processing$.html"><span class="name">Processing</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$Processing$.html"><span class="name">Processing</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@Processing" title="Permalink" target="_top">
@@ -753,7 +779,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$ProxyAuthenticationRequired$.html"><span class="name">ProxyAuthenticationRequired</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$ProxyAuthenticationRequired$.html"><span class="name">ProxyAuthenticationRequired</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@ProxyAuthenticationRequired" title="Permalink" target="_top">
@@ -787,7 +813,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$RequestEntityTooLarge$.html"><span class="name">RequestEntityTooLarge</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$RequestEntityTooLarge$.html"><span class="name">RequestEntityTooLarge</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@RequestEntityTooLarge" title="Permalink" target="_top">
@@ -804,7 +830,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$RequestTimeOut$.html"><span class="name">RequestTimeOut</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$RequestTimeOut$.html"><span class="name">RequestTimeOut</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@RequestTimeOut" title="Permalink" target="_top">
@@ -821,7 +847,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$RequestUriTooLong$.html"><span class="name">RequestUriTooLong</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$RequestUriTooLong$.html"><span class="name">RequestUriTooLong</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@RequestUriTooLong" title="Permalink" target="_top">
@@ -838,7 +864,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$RequestedRangeNotSatisfiable$.html"><span class="name">RequestedRangeNotSatisfiable</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$RequestedRangeNotSatisfiable$.html"><span class="name">RequestedRangeNotSatisfiable</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@RequestedRangeNotSatisfiable" title="Permalink" target="_top">
@@ -855,7 +881,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$ResetContent$.html"><span class="name">ResetContent</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$ResetContent$.html"><span class="name">ResetContent</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@ResetContent" title="Permalink" target="_top">
@@ -872,7 +898,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$SeeOther$.html"><span class="name">SeeOther</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$SeeOther$.html"><span class="name">SeeOther</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@SeeOther" title="Permalink" target="_top">
@@ -889,7 +915,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$ServiceUnavailable$.html"><span class="name">ServiceUnavailable</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$ServiceUnavailable$.html"><span class="name">ServiceUnavailable</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@ServiceUnavailable" title="Permalink" target="_top">
@@ -906,7 +932,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$TemporaryRedirect$.html"><span class="name">TemporaryRedirect</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$TemporaryRedirect$.html"><span class="name">TemporaryRedirect</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@TemporaryRedirect" title="Permalink" target="_top">
@@ -923,7 +949,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$TooManyRequests$.html"><span class="name">TooManyRequests</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$TooManyRequests$.html"><span class="name">TooManyRequests</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@TooManyRequests" title="Permalink" target="_top">
@@ -947,8 +973,8 @@
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">A service that converts an encoded object into HTTP response with status <i>OK</i>
-given an implicit encoder.</p>
+      <p class="shortcomment cmt">A service that converts an encoded object into HTTP response with status <i>OK</i> using an implicit
+<a href="package$$EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>.</p>
     </li><li name="io.finch.response.Unauthorized" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Unauthorized"></a>
       <a id="Unauthorized:Unauthorized"></a>
@@ -958,7 +984,7 @@ given an implicit encoder.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$Unauthorized$.html"><span class="name">Unauthorized</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$Unauthorized$.html"><span class="name">Unauthorized</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@Unauthorized" title="Permalink" target="_top">
@@ -975,7 +1001,7 @@ given an implicit encoder.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$UnorderedCollection$.html"><span class="name">UnorderedCollection</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$UnorderedCollection$.html"><span class="name">UnorderedCollection</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@UnorderedCollection" title="Permalink" target="_top">
@@ -992,7 +1018,7 @@ given an implicit encoder.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$UnprocessableEntity$.html"><span class="name">UnprocessableEntity</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$UnprocessableEntity$.html"><span class="name">UnprocessableEntity</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@UnprocessableEntity" title="Permalink" target="_top">
@@ -1009,7 +1035,7 @@ given an implicit encoder.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$UnsupportedMediaType$.html"><span class="name">UnsupportedMediaType</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$UnsupportedMediaType$.html"><span class="name">UnsupportedMediaType</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@UnsupportedMediaType" title="Permalink" target="_top">
@@ -1026,7 +1052,7 @@ given an implicit encoder.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$UpgradeRequired$.html"><span class="name">UpgradeRequired</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$UpgradeRequired$.html"><span class="name">UpgradeRequired</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@UpgradeRequired" title="Permalink" target="_top">
@@ -1043,7 +1069,7 @@ given an implicit encoder.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$UseProxy$.html"><span class="name">UseProxy</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$UseProxy$.html"><span class="name">UseProxy</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@UseProxy" title="Permalink" target="_top">
@@ -1060,7 +1086,7 @@ given an implicit encoder.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$VariantAlsoNegotiates$.html"><span class="name">VariantAlsoNegotiates</span></a><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <a href="package$$VariantAlsoNegotiates$.html"><span class="name">VariantAlsoNegotiates</span></a><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@VariantAlsoNegotiates" title="Permalink" target="_top">
@@ -1084,7 +1110,8 @@ given an implicit encoder.</p>
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Converts <i>EncodeAnyResponse</i> into <i>EncodeResponse</i>.</p>
+      <p class="shortcomment cmt">Converts <a href="package$$EncodeAnyResponse.html" class="extype" name="io.finch.response.EncodeAnyResponse">EncodeAnyResponse</a> into
+<a href="package$$EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>.</p>
     </li></ol>
             </div>
 

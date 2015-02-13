@@ -45,15 +45,15 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">OptionalBody</span>
+        <span class="name">OptionalBody</span><span class="result"> extends <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A <i>RequestReader</i> that reads an optional encoded object serialized in request body
-and decodes it, according to an implicit decoder, into an <i>Option</i>.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that reads the request body, interpreted as a <code>String</code>, into an
+<code>Option</code>.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -71,7 +71,7 @@ and decodes it, according to an implicit decoder, into an <i>Option</i>.
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="io.finch.request.OptionalBody"><span>OptionalBody</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="io.finch.request.OptionalBody"><span>OptionalBody</span></li><li class="in" name="io.finch.request.RequestReader"><span>RequestReader</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -148,40 +148,25 @@ and decodes it, according to an implicit decoder, into an <i>Option</i>.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.finch.request.OptionalBody#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply[A](req:io.finch.HttpRequest)(implicitm:io.finch.request.package.DecodeMagnet[A]):com.twitter.util.Future[Option[A]]"></a>
-      <a id="apply[A](HttpRequest)(DecodeMagnet[A]):Future[Option[A]]"></a>
+    </li><li name="io.finch.request.OptionalBody#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="apply[Req](req:Req)(implicitev:Req=&gt;io.finch.HttpRequest):com.twitter.util.Future[Option[String]]"></a>
+      <a id="apply[Req](Req)((Req)⇒HttpRequest):Future[Option[String]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="req">req: <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="m">m: <a href="package$$DecodeMagnet.html" class="extype" name="io.finch.request.DecodeMagnet">DecodeMagnet</a>[<span class="extype" name="io.finch.request.OptionalBody.apply.A">A</span>]</span>)</span><span class="result">: <span class="extype" name="com.twitter.util.Future">Future</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="io.finch.request.OptionalBody.apply.A">A</span>]]</span>
+        <span class="name">apply</span><span class="tparams">[<span name="Req">Req</span>]</span><span class="params">(<span name="req">req: <span class="extype" name="io.finch.request.OptionalBody.apply.Req">Req</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: (<span class="extype" name="io.finch.request.OptionalBody.apply.Req">Req</span>) ⇒ <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a></span>)</span><span class="result">: <span class="extype" name="com.twitter.util.Future">Future</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$OptionalBody$@apply[A](req:io.finch.HttpRequest)(implicitm:io.finch.request.package.DecodeMagnet[A]):com.twitter.util.Future[Option[A]]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$OptionalBody$@apply[Req](req:Req)(implicitev:Req=&gt;io.finch.HttpRequest):com.twitter.util.Future[Option[String]]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      
-    </li><li name="io.finch.request.OptionalBody#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply[A](implicitm:io.finch.request.package.DecodeMagnet[A]):io.finch.request.package.RequestReader[Option[A]]"></a>
-      <a id="apply[A](DecodeMagnet[A]):RequestReader[Option[A]]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="m">m: <a href="package$$DecodeMagnet.html" class="extype" name="io.finch.request.DecodeMagnet">DecodeMagnet</a>[<span class="extype" name="io.finch.request.OptionalBody.apply.A">A</span>]</span>)</span><span class="result">: <a href="package$$RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="io.finch.request.OptionalBody.apply.A">A</span>]]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$OptionalBody$@apply[A](implicitm:io.finch.request.package.DecodeMagnet[A]):io.finch.request.package.RequestReader[Option[A]]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      
+      <p class="shortcomment cmt">Reads the data from given request <code>req</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Reads the data from given request <code>req</code>.
+</p></div><dl class="paramcmts block"><dt class="tparam">Req</dt><dd class="cmt"><p>the request type</p></dd><dt class="param">req</dt><dd class="cmt"><p>the request to read
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="io.finch.request.OptionalBody">OptionalBody</a> → <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -222,6 +207,24 @@ and decodes it, according to an implicit decoder, into an <i>Option</i>.
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="io.finch.request.RequestReader#embedFlatMap" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="embedFlatMap[B](fn:A=&gt;com.twitter.util.Future[B]):io.finch.request.RequestReader[B]{valitem:io.finch.request.items.RequestItem}"></a>
+      <a id="embedFlatMap[B]((Option[String])⇒Future[B]):RequestReader[B]{valitem:io.finch.request.items.RequestItem}"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">embedFlatMap</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]) ⇒ <span class="extype" name="com.twitter.util.Future">Future</span>[<span class="extype" name="io.finch.request.RequestReader.embedFlatMap.B">B</span>]</span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.embedFlatMap.B">B</span>] { val item: io.finch.request.items.RequestItem }</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.package$$OptionalBody$@embedFlatMap[B](fn:A=&gt;com.twitter.util.Future[B]):io.finch.request.RequestReader[B]{valitem:io.finch.request.items.RequestItem}" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Flat-maps this request reader to the given function <code>A =&gt; Future[B]</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Flat-maps this request reader to the given function <code>A =&gt; Future[B]</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -279,6 +282,24 @@ and decodes it, according to an implicit decoder, into an <i>Option</i>.
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="io.finch.request.RequestReader#flatMap" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="flatMap[B](fn:A=&gt;io.finch.request.RequestReader[B]):io.finch.request.RequestReader[B]{valitem:io.finch.request.items.MultipleItems.type}"></a>
+      <a id="flatMap[B]((Option[String])⇒RequestReader[B]):RequestReader[B]{valitem:io.finch.request.items.MultipleItems.type}"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">flatMap</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]) ⇒ <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.flatMap.B">B</span>]</span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.flatMap.B">B</span>] { val item: io.finch.request.items.MultipleItems.type }</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.package$$OptionalBody$@flatMap[B](fn:A=&gt;io.finch.request.RequestReader[B]):io.finch.request.RequestReader[B]{valitem:io.finch.request.items.MultipleItems.type}" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Flat-maps this request reader to the given function <code>A =&gt; RequestReader[B]</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Flat-maps this request reader to the given function <code>A =&gt; RequestReader[B]</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a></dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <a id="getClass():Class[_]"></a>
@@ -330,6 +351,42 @@ and decodes it, according to an implicit decoder, into an <i>Option</i>.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.finch.request.OptionalBody#item" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="item:io.finch.request.package.items.BodyItem.type"></a>
+      <a id="item:BodyItem.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">item</span><span class="result">: <a href="package$$items$$BodyItem$.html" class="extype" name="io.finch.request.items.BodyItem">BodyItem</a>.type</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.package$$OptionalBody$@item:io.finch.request.package.items.BodyItem.type" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A <a href="package$$items$$RequestItem.html" class="extype" name="io.finch.request.items.RequestItem">RequestItem</a> read by this request reader.</p><div class="fullcomment"><div class="comment cmt"><p>A <a href="package$$items$$RequestItem.html" class="extype" name="io.finch.request.items.RequestItem">RequestItem</a> read by this request reader.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="io.finch.request.OptionalBody">OptionalBody</a> → <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a></dd></dl></div>
+    </li><li name="io.finch.request.RequestReader#map" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="map[B](fn:A=&gt;B):io.finch.request.RequestReader[B]{valitem:io.finch.request.items.RequestItem}"></a>
+      <a id="map[B]((Option[String])⇒B):RequestReader[B]{valitem:io.finch.request.items.RequestItem}"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">map</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]) ⇒ <span class="extype" name="io.finch.request.RequestReader.map.B">B</span></span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.map.B">B</span>] { val item: io.finch.request.items.RequestItem }</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.package$$OptionalBody$@map[B](fn:A=&gt;B):io.finch.request.RequestReader[B]{valitem:io.finch.request.items.RequestItem}" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Maps this request reader to the given function <code>A =&gt; B</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Maps this request reader to the given function <code>A =&gt; B</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -381,6 +438,94 @@ and decodes it, according to an implicit decoder, into an <i>Option</i>.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="io.finch.request.RequestReader#should" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="should(rule:io.finch.request.ValidationRule[A]):io.finch.request.RequestReader[A]"></a>
+      <a id="should(ValidationRule[Option[String]]):RequestReader[Option[String]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">should</span><span class="params">(<span name="rule">rule: <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.package$$OptionalBody$@should(rule:io.finch.request.ValidationRule[A]):io.finch.request.RequestReader[A]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Validates the result of this request reader using a predefined <code>rule</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Validates the result of this request reader using a predefined <code>rule</code>. This method allows for rules to be reused
+across multiple request readers.
+</p></div><dl class="paramcmts block"><dt class="param">rule</dt><dd class="cmt"><p>the predefined <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a> that will return true if the data is
+            valid
+</p></dd><dt>returns</dt><dd class="cmt"><p>a request reader that will return the value of this reader if it is valid.
+        Otherwise the future fails with a <a href="NotValid.html" class="extype" name="io.finch.request.NotValid">NotValid</a> error.
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a></dd></dl></div>
+    </li><li name="io.finch.request.RequestReader#should" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="should(rule:String)(predicate:A=&gt;Boolean):io.finch.request.RequestReader[A]"></a>
+      <a id="should(String)((Option[String])⇒Boolean):RequestReader[Option[String]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">should</span><span class="params">(<span name="rule">rule: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="predicate">predicate: (<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.package$$OptionalBody$@should(rule:String)(predicate:A=&gt;Boolean):io.finch.request.RequestReader[A]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Validates the result of this request reader using a <code>predicate</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Validates the result of this request reader using a <code>predicate</code>. The rule is used for error reporting.
+</p></div><dl class="paramcmts block"><dt class="param">rule</dt><dd class="cmt"><p>text describing the rule being validated</p></dd><dt class="param">predicate</dt><dd class="cmt"><p>returns true if the data is valid
+</p></dd><dt>returns</dt><dd class="cmt"><p>a request reader that will return the value of this reader if it is valid.
+        Otherwise the future fails with a <a href="NotValid.html" class="extype" name="io.finch.request.NotValid">NotValid</a> error.
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a></dd></dl></div>
+    </li><li name="io.finch.request.RequestReader#shouldNot" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="shouldNot(rule:io.finch.request.ValidationRule[A]):io.finch.request.RequestReader[A]"></a>
+      <a id="shouldNot(ValidationRule[Option[String]]):RequestReader[Option[String]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shouldNot</span><span class="params">(<span name="rule">rule: <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.package$$OptionalBody$@shouldNot(rule:io.finch.request.ValidationRule[A]):io.finch.request.RequestReader[A]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Validates the result of this request reader using a predefined <code>rule</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Validates the result of this request reader using a predefined <code>rule</code>. This method allows for rules to be reused
+across multiple request readers.
+</p></div><dl class="paramcmts block"><dt class="param">rule</dt><dd class="cmt"><p>the predefined <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a> that will return false if the data is
+            valid
+</p></dd><dt>returns</dt><dd class="cmt"><p>a request reader that will return the value of this reader if it is valid.
+        Otherwise the future fails with a <a href="NotValid.html" class="extype" name="io.finch.request.NotValid">NotValid</a> error.
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a></dd></dl></div>
+    </li><li name="io.finch.request.RequestReader#shouldNot" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="shouldNot(rule:String)(predicate:A=&gt;Boolean):io.finch.request.RequestReader[A]"></a>
+      <a id="shouldNot(String)((Option[String])⇒Boolean):RequestReader[Option[String]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shouldNot</span><span class="params">(<span name="rule">rule: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="predicate">predicate: (<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.package$$OptionalBody$@shouldNot(rule:String)(predicate:A=&gt;Boolean):io.finch.request.RequestReader[A]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Validates the result of this request reader using a <code>predicate</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Validates the result of this request reader using a <code>predicate</code>. The rule is used for error reporting.
+</p></div><dl class="paramcmts block"><dt class="param">rule</dt><dd class="cmt"><p>text describing the rule being validated</p></dd><dt class="param">predicate</dt><dd class="cmt"><p>returns false if the data is valid
+</p></dd><dt>returns</dt><dd class="cmt"><p>a request reader that will return the value of this reader if it is valid.
+        Otherwise the future fails with a <a href="NotValid.html" class="extype" name="io.finch.request.NotValid">NotValid</a> error.
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -484,6 +629,42 @@ and decodes it, according to an implicit decoder, into an <i>Option</i>.
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="io.finch.request.RequestReader#withFilter" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withFilter(p:A=&gt;Boolean):io.finch.request.RequestReader[A]"></a>
+      <a id="withFilter((Option[String])⇒Boolean):RequestReader[Option[String]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withFilter</span><span class="params">(<span name="p">p: (<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.package$$OptionalBody$@withFilter(p:A=&gt;Boolean):io.finch.request.RequestReader[A]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Applies the given filter <code>p</code> to this request reader.</p><div class="fullcomment"><div class="comment cmt"><p>Applies the given filter <code>p</code> to this request reader.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a></dd></dl></div>
+    </li><li name="io.finch.request.RequestReader#~" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="~[B](that:io.finch.request.RequestReader[B]):io.finch.request.RequestReader[io.finch.request.~[A,B]]"></a>
+      <a id="~[B](RequestReader[B]):RequestReader[~[Option[String],B]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $tilde" class="name">~</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="that">that: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.~.B">B</span>]</span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<a href="package$$$tilde.html" class="extype" name="io.finch.request.~">~</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>], <span class="extype" name="io.finch.request.RequestReader.~.B">B</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.package$$OptionalBody$@~[B](that:io.finch.request.RequestReader[B]):io.finch.request.RequestReader[io.finch.request.~[A,B]]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Composes this request reader with the given <code>that</code> request reader.</p><div class="fullcomment"><div class="comment cmt"><p>Composes this request reader with the given <code>that</code> request reader.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a></dd></dl></div>
     </li></ol>
             </div>
 
@@ -493,7 +674,9 @@ and decodes it, according to an implicit decoder, into an <i>Option</i>.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="io.finch.request.RequestReader">
+              <h3>Inherited from <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

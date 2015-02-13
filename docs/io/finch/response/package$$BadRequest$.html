@@ -45,13 +45,13 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">BadRequest</span><span class="result"> extends <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <span class="name">BadRequest</span><span class="result"> extends <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a>, <span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a>, <span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -162,11 +162,10 @@
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates an empty http response.</p><div class="fullcomment"><div class="comment cmt"><p>Creates an empty http response.
-</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>an empty http response
-</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></dd></dl></div>
+      <p class="shortcomment cmt">Builds an empty HTTP response.</p><div class="fullcomment"><div class="comment cmt"><p>Builds an empty HTTP response.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></dd></dl></div>
     </li><li name="io.finch.response.ResponseBuilder#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply[A](body:A)(implicitencode:io.finch.response.package.EncodeResponse[A]):com.twitter.finagle.httpx.Response"></a>
+      <a id="apply[A](body:A)(implicitencode:io.finch.response.EncodeResponse[A]):com.twitter.finagle.httpx.Response"></a>
       <a id="apply[A](A)(EncodeResponse[A]):Response"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -177,13 +176,15 @@
         <span class="name">apply</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="body">body: <span class="extype" name="io.finch.response.ResponseBuilder.apply.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="encode">encode: <a href="package$$EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>[<span class="extype" name="io.finch.response.ResponseBuilder.apply.A">A</span>]</span>)</span><span class="result">: <span class="extype" name="com.twitter.finagle.httpx.Response">Response</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.response.package$$BadRequest$@apply[A](body:A)(implicitencode:io.finch.response.package.EncodeResponse[A]):com.twitter.finagle.httpx.Response" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.response.package$$BadRequest$@apply[A](body:A)(implicitencode:io.finch.response.EncodeResponse[A]):com.twitter.finagle.httpx.Response" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates an http response with content-type according to the implicit encode.</p><div class="fullcomment"><div class="comment cmt"><p>Creates an http response with content-type according to the implicit encode.
-</p></div><dl class="paramcmts block"><dt class="param">body</dt><dd class="cmt"><p>the response body</p></dd><dt>returns</dt><dd class="cmt"><p>an http response
-</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></dd></dl></div>
+      <p class="shortcomment cmt">Builds an HTTP response of the given <code>body</code> with content-type according to the implicit
+<a href="package$$EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Builds an HTTP response of the given <code>body</code> with content-type according to the implicit
+<a href="package$$EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>.
+</p></div><dl class="paramcmts block"><dt class="param">body</dt><dd class="cmt"><p>the response body
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></dd></dl></div>
     </li><li name="io.finch.response.ResponseBuilder#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="apply(plain:String):com.twitter.finagle.httpx.Response"></a>
       <a id="apply(String):Response"></a>
@@ -200,10 +201,9 @@
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a <i>text/plain</i> http response.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <i>text/plain</i> http response.
+      <p class="shortcomment cmt">Builds a <i>text/plain</i> HTTP response.</p><div class="fullcomment"><div class="comment cmt"><p>Builds a <i>text/plain</i> HTTP response.
 </p></div><dl class="paramcmts block"><dt class="param">plain</dt><dd class="cmt"><p>the response body
-</p></dd><dt>returns</dt><dd class="cmt"><p>a plain text http response
-</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></dd></dl></div>
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -260,7 +260,9 @@
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></dd></dl></div>
+      <p class="shortcomment cmt">the HTTP cookies list
+</p><div class="fullcomment"><div class="comment cmt"><p>the HTTP cookies list
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -334,9 +336,7 @@
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">the HTTP headers map
-</p><div class="fullcomment"><div class="comment cmt"><p>the HTTP headers map
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></dd></dl></div>
+      <p class="shortcomment cmt">the HTTP headers map</p><div class="fullcomment"><div class="comment cmt"><p>the HTTP headers map</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -421,7 +421,7 @@
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">the http response status</p><div class="fullcomment"><div class="comment cmt"><p>the http response status</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></dd></dl></div>
+      <p class="shortcomment cmt">the HTTP response status</p><div class="fullcomment"><div class="comment cmt"><p>the HTTP response status</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -509,7 +509,7 @@
               
         </dd></dl></div>
     </li><li name="io.finch.response.ResponseBuilder#withCookies" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withCookies(cookies:com.twitter.finagle.httpx.Cookie*):io.finch.response.package.ResponseBuilder"></a>
+      <a id="withCookies(cookies:com.twitter.finagle.httpx.Cookie*):io.finch.response.ResponseBuilder"></a>
       <a id="withCookies(Cookie*):ResponseBuilder"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -517,17 +517,18 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">withCookies</span><span class="params">(<span name="cookies">cookies: <span class="extype" name="com.twitter.finagle.httpx.Cookie">Cookie</span>*</span>)</span><span class="result">: <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <span class="name">withCookies</span><span class="params">(<span name="cookies">cookies: <span class="extype" name="com.twitter.finagle.httpx.Cookie">Cookie</span>*</span>)</span><span class="result">: <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.response.package$$BadRequest$@withCookies(cookies:com.twitter.finagle.httpx.Cookie*):io.finch.response.package.ResponseBuilder" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.response.package$$BadRequest$@withCookies(cookies:com.twitter.finagle.httpx.Cookie*):io.finch.response.ResponseBuilder" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Create a new ResponseBuilder with the given <i>cookies</i>.</p><div class="fullcomment"><div class="comment cmt"><p>Create a new ResponseBuilder with the given <i>cookies</i>.</p></div><dl class="paramcmts block"><dt class="param">cookies</dt><dd class="cmt"><p>The <i>Cookie</i>s to add to the response</p></dd><dt>returns</dt><dd class="cmt"><p>a ResponseBuilder with the cookies
-</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></dd></dl></div>
+      <p class="shortcomment cmt">Create a new response builder with the given <i>cookies</i>.</p><div class="fullcomment"><div class="comment cmt"><p>Create a new response builder with the given <i>cookies</i>.
+</p></div><dl class="paramcmts block"><dt class="param">cookies</dt><dd class="cmt"><p>the <span class="extype" name="com.twitter.finagle.httpx.Cookie">Cookie</span>'s to add to the response
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></dd></dl></div>
     </li><li name="io.finch.response.ResponseBuilder#withHeaders" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withHeaders(headers:(String,String)*):io.finch.response.package.ResponseBuilder"></a>
+      <a id="withHeaders(headers:(String,String)*):io.finch.response.ResponseBuilder"></a>
       <a id="withHeaders((String,String)*):ResponseBuilder"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -535,17 +536,16 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">withHeaders</span><span class="params">(<span name="headers">headers: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
+        <span class="name">withHeaders</span><span class="params">(<span name="headers">headers: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.response.package$$BadRequest$@withHeaders(headers:(String,String)*):io.finch.response.package.ResponseBuilder" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.response.package$$BadRequest$@withHeaders(headers:(String,String)*):io.finch.response.ResponseBuilder" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a new respond with given <i>headers</i>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new respond with given <i>headers</i>.
+      <p class="shortcomment cmt">Creates a new response builder with the given <code>headers</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new response builder with the given <code>headers</code>.
 </p></div><dl class="paramcmts block"><dt class="param">headers</dt><dd class="cmt"><p>the HTTP headers map
-</p></dd><dt>returns</dt><dd class="cmt"><p>a respond with headers
-</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></dd></dl></div>
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></dd></dl></div>
     </li></ol>
             </div>
 
@@ -556,7 +556,7 @@
 
         <div id="inheritedMembers">
         <div class="parent" name="io.finch.response.ResponseBuilder">
-              <h3>Inherited from <a href="package$$ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></h3>
+              <h3>Inherited from <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a></h3>
             </div><div class="parent" name="scala.Serializable">
               <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
             </div><div class="parent" name="java.io.Serializable">

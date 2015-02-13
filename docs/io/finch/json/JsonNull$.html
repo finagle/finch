@@ -45,14 +45,14 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">JsonNull</span><span class="result"> extends <a href="Json.html" class="extype" name="io.finch.json.Json">Json</a></span>
+        <span class="name">JsonNull</span><span class="result"> extends <a href="Json.html" class="extype" name="io.finch.json.Json">Json</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A json null value.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A JSON null value.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="Json.html" class="extype" name="io.finch.json.Json">Json</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="Json.html" class="extype" name="io.finch.json.Json">Json</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -70,7 +70,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="io.finch.json.JsonNull"><span>JsonNull</span></li><li class="in" name="io.finch.json.Json"><span>Json</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="io.finch.json.JsonNull"><span>JsonNull</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="io.finch.json.Json"><span>Json</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -163,9 +163,9 @@
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Queries this json object by the given <code>path</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Queries this json object by the given <code>path</code>.
-</p></div><dl class="paramcmts block"><dt class="param">path</dt><dd class="cmt"><p>a path to json value
-</p></dd><dt>returns</dt><dd class="cmt"><p>an option of json value
+      <p class="shortcomment cmt">Queries this JSON object by the given <code>path</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Queries this JSON object by the given <code>path</code>.
+</p></div><dl class="paramcmts block"><dt class="param">path</dt><dd class="cmt"><p>a path to JSON value
+</p></dd><dt>returns</dt><dd class="cmt"><p>an <code>Option</code> of JSON value
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Json.html" class="extype" name="io.finch.json.Json">Json</a></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
@@ -223,8 +223,7 @@
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">A compressed version of this json object.</p><div class="fullcomment"><div class="comment cmt"><p>A compressed version of this json object.
-See <a href="Json$.html#compress(j:io.finch.json.Json):io.finch.json.Json" class="extmbr" name="io.finch.json.Json#compress">Json.compress</a> for details.
+      <p class="shortcomment cmt">A compressed version of this JSON object.</p><div class="fullcomment"><div class="comment cmt"><p>A compressed version of this JSON object.</p><p>See <code>Json.compress</code> for details.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Json.html" class="extype" name="io.finch.json.Json">Json</a></dd></dl></div>
     </li><li name="io.finch.json.Json#concat" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="concat(that:io.finch.json.Json):io.finch.json.Json"></a>
@@ -242,8 +241,7 @@ See <a href="Json$.html#compress(j:io.finch.json.Json):io.finch.json.Json" class
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Concatenates this json object with given <code>that</code> one.</p><div class="fullcomment"><div class="comment cmt"><p>Concatenates this json object with given <code>that</code> one.
-See <a href="Json$.html#concatLeft(a:io.finch.json.Json,b:io.finch.json.Json):io.finch.json.Json" class="extmbr" name="io.finch.json.Json#concatLeft">Json.concatLeft</a> for details.
+      <p class="shortcomment cmt">Concatenates this JSON object with given <code>that</code> one.</p><div class="fullcomment"><div class="comment cmt"><p>Concatenates this JSON object with given <code>that</code> one.</p><p>See <code>Json.concatLeft</code> for details.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Json.html" class="extype" name="io.finch.json.Json">Json</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
@@ -319,23 +317,6 @@ See <a href="Json$.html#concatLeft(a:io.finch.json.Json,b:io.finch.json.Json):io
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hashCode():Int"></a>
-      <a id="hashCode():Int"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.json.JsonNull$@hashCode():Int" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -369,8 +350,7 @@ See <a href="Json$.html#concatLeft(a:io.finch.json.Json,b:io.finch.json.Json):io
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Merges this json object with given <code>that</code> one.</p><div class="fullcomment"><div class="comment cmt"><p>Merges this json object with given <code>that</code> one.
-See <a href="Json$.html#mergeLeft(a:io.finch.json.Json,b:io.finch.json.Json):io.finch.json.Json" class="extmbr" name="io.finch.json.Json#mergeLeft">Json.mergeLeft</a> for details.
+      <p class="shortcomment cmt">Merges this JSON object with given <code>that</code> one.</p><div class="fullcomment"><div class="comment cmt"><p>Merges this JSON object with given <code>that</code> one.</p><p>See <code>Json.mergeLeft</code> for details.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Json.html" class="extype" name="io.finch.json.Json">Json</a></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
@@ -456,7 +436,7 @@ See <a href="Json$.html#mergeLeft(a:io.finch.json.Json,b:io.finch.json.Json):io.
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">The string representation of this json object.</p><div class="fullcomment"><div class="comment cmt"><p>The string representation of this json object.
+      <p class="shortcomment cmt">The string representation of this JSON object.</p><div class="fullcomment"><div class="comment cmt"><p>The string representation of this JSON object.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Json.html" class="extype" name="io.finch.json.Json">Json</a> → AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
@@ -536,7 +516,15 @@ See <a href="Json$.html#mergeLeft(a:io.finch.json.Json,b:io.finch.json.Json):io.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="io.finch.json.Json">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="io.finch.json.Json">
               <h3>Inherited from <a href="Json.html" class="extype" name="io.finch.json.Json">Json</a></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
