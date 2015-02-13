@@ -409,7 +409,7 @@ For validation logic only needed in one place, the most convenient way is to dec
 ```scala
 val adult2: RequestReader[User] = 
   RequiredParam("name") ~
-  RequiredParam("age").as[Int] shouldNot ("be less than 18") { _ < 18 } map {
+  RequiredParam("age").as[Int].shouldNot("be less than 18") { _ < 18 } map {
     case name ~ age => User(name, age)
   }
 ```
@@ -425,7 +425,7 @@ def beLessThan(value: Int) = ValidationRule[Int](s"be less than $value") { _ < v
   
 val child: RequestReader[User] = 
   RequiredParam("name") ~
-  RequiredParam("age").as[Int] should (bePositive and beLessThan(18)) map {
+  RequiredParam("age").as[Int].should(bePositive and beLessThan(18)) map {
     case name ~ age => User(name, age)
   }
 ```
