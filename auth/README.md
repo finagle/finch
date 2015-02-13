@@ -12,6 +12,6 @@ libraryDependencies ++= Seq(
 
 Documentation
 -------------
-See section [Basic HTTP Auth](/docs.md#basic-http-auth) in the [docs.md](/docs.md) file.
+See [Basic HTTP Auth](/docs/auth.md#basic-http-auth) section.
 
 [1]: http://en.wikipedia.org/wiki/Basic_access_authentication

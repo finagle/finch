@@ -89,20 +89,21 @@ package object route {
    */
   case class RouteNotFound(r: String) extends Exception(s"Route not found: $r")
 
-  private[route] def requestToRoute[Req](req: Req)(implicit ev: Req => HttpRequest): Route =
-    MethodToken(req.method) :: (req.path.split("/").toList.tail map PathToken)
-
   /**
    * Implicitly converts the given `Router[Service[_, _]]` into a service.
    */
   implicit def endpointToService[Req, Rep](
     r: RouterN[Service[Req, Rep]]
   )(implicit ev: Req => HttpRequest): Service[Req, Rep] = new Service[Req, Rep] {
+
+    private def requestToRoute(req: Req)(implicit ev: Req => HttpRequest): Route =
+      MethodToken(req.method) :: (req.path.split("/").toList.tail map PathToken)
+
     def apply(req: Req): Future[Rep] = {
       val path = requestToRoute(req)
       r(path) match {
         case Some((Nil, service)) => service(req)
-        case _ => RouteNotFound(req.path).toFutureException
+        case _ => RouteNotFound(s"${req.method.toString.toUpperCase} ${req.path}").toFutureException
       }
     }
   }

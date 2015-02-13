@@ -12,4 +12,4 @@ libraryDependencies ++= Seq(
 
 Documentation
 -------------
-See section [Jawn](/docs.md#jawn) in the [docs.md](/docs.md) file.
+See section [Jawn](/docs/json.md#jawn).

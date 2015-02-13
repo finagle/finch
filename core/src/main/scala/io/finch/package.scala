@@ -47,7 +47,7 @@ import com.twitter.finagle.{Filter, Service}
  *     Get / ("users" | "user") / int /> GetUser
  * }}}
  *
- * Step 2: Reading the HTTP requests in a `Service`.
+ * Step 2. Reading the HTTP requests in a `Service`.
  *
  * The [[io.finch.request.RequestReader RequestReader]] abstraction is responsible for reading any details form the HTTP
  * request. `RequestReader` is composable in both ways: via the monadic API (using the for-comprehension, i.e.,
@@ -56,13 +56,13 @@ import com.twitter.finagle.{Filter, Service}
  *
  * {{{
  *   val pagination: RequestReader[(Int, Int)] =
- *     OptionalIntParam("offset") ~ OptionalIntParam("limit") map {
+ *     OptionalParam("offset").as[Int] ~ OptionalParam("limit").as[Int] map {
  *       case offset ~ limit => (offset.getOrElse(0), limit.getOrElse(100))
  *     }
  *   val p = pagination(request)
  * }}}
  *
- * Step 3. Building the HTTP responses in a [[Service]].
+ * Step 3. Building the HTTP responses in a `Service`.
  *
  * The [[io.finch.response.ResponseBuilder ResponseBuilder]] abstraction provides a convenient way of building the HTTP
  * responses any type. In fact, `ResponseBuilder` is a function that takes some content and builds an HTTP response of a

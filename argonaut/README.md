@@ -12,4 +12,4 @@ libraryDependencies ++= Seq(
 
 Documentation
 -------------
-See section [Argonaut](/docs.md#argonaut) in the [docs.md](/docs.md) file.
+See section [Argonaut](/docs/json.md#argonaut).

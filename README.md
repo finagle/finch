@@ -6,10 +6,11 @@ Finch is a thin layer of purely functional basic blocks atop of [Finagle](http:/
 building composable REST APIs. Its mission is to provide the developers simple and robust REST API primitives being as 
 close as possible to the bare metal Finagle API.
 
-Status
+Badges
 ------
 [![Build Status](https://travis-ci.org/finagle/finch.svg?branch=master)](https://travis-ci.org/finagle/finch)
 [![Coverage Status](https://coveralls.io/repos/finagle/finch/badge.svg?branch=master)](https://coveralls.io/r/finagle/finch?branch=master)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/finagle/finch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Modules
 -------
@@ -62,14 +63,9 @@ Httpx.serve(":8080",
 
 Documentation
 -------------
- * A comprehensive documentation may be found in the [`docs.md`](docs.md) file in the root directory
- * The latest Scaladoc is [here](http://finagle.github.io/finch/docs/#io.finch.package)
-
-Contacts
---------
-
-* Most of the discussions and announcements are happen at [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/finagle/finch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
+* A comprehensive documentation may be found in the [`docs/`](docs/index.md) folder
+* The latest Scaladoc is available at [http://finagle.github.io/finch/docs](http://finagle.github.io/finch/docs/#io.finch.package)
+ 
 Adopters
 --------
 * [Konfettin](http://konfettin.ru)
@@ -83,8 +79,8 @@ Contributing
 There are plenty of ways to contribute into Finch:
 
 * Give it a star
-* Join the [Gitter](https://gitter.im/finagle/finch) room and leave a feedback or help with answering users' questions
-* [Submit a PR](CONTRIBUTING.md)
+* Join the [Gitter][1] room and leave a feedback or help with answering users' questions
+* [Submit a PR](CONTRIBUTING.md) (there is an issue label ["easy"](https://github.com/finagle/finch/issues?q=is%3Aopen+is%3Aissue+label%3Aeasy) for newcomers)
 * Be cool and wear a [Finch T-Shirt](http://www.redbubble.com/people/vkostyukov/works/13277123-finch-io-rest-api-with-finagle?p=t-shirt)
 
 License
@@ -98,3 +94,5 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+[1]: https://gitter.im/finagle/finch
