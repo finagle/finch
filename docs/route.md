@@ -16,7 +16,7 @@ Luckily the compile figures out the exact type of the router, so you usually don
 Although, since the `RouterN[A]` class is the one that you will likely use in the Finch applications, there is a special
 user-friendly type alias `Router[A]`.
 
-At the high level, `Router[A]` might be treated as function `Route => Option[(Route, A)]`. It take an HTTP route, which
+At the high level, `Router[A]` might be treated as function `Route => Option[(Route, A)]`. It takes an HTTP route, which
 is a pair of HTTP method and HTTP path, and returns an `Option` of both the remaining route and the extracted value. A
 matching `Router0` returns just `Option[Route]` if it's able to match the given route.
 
@@ -105,9 +105,19 @@ val endpoint: Endpoint[HttpRequest, HttpResponse] = users | tickets
 Httpx.serve(":8081", endpoint)
 ```
 
+`Service` with underlying endpoint tries to match the _full_ route and throws a `RouteNotFound` exception in case if
+it's not possible. The following code shows how to handle a router exception.
+  
+```scala
+val endpoint: Service[HttpRequest, HttpResponse] = users
+endpoint(request) handle {
+  case RouteNotFound(route) => NotFound(route)
+}
+```
+
 ### Filters and Endpoints
 
-It's hard two imagine a Finagle/Finch application with out `Filter`s. While, they are not really applicable to routers,
+It's hard two imagine a Finagle/Finch application without `Filter`s. While, they are not really applicable to routers,
 you can always convert `Router` to `Service` and then apply any set of filters. Thus, the common practice is to have
 a joint endpoint converted into service as shown bellow.
  
