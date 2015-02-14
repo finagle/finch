@@ -42,7 +42,6 @@ class HeaderSpec extends FlatSpec with Matchers {
     a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
 
-
   "An OptionalHeader" should "properly read an existing header field" in {
     val request = Request()
     request.headerMap.update("Location", "some header")

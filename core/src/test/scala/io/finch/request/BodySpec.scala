@@ -37,63 +37,63 @@ class BodySpec extends FlatSpec with Matchers {
 
   "A RequiredArrayBody" should "be properly read if it exists" in {
     val request: HttpRequest = requestWithBody(fooBytes)
-    val futureResult: Future[Array[Byte]] = RequiredArrayBody(request)
+    val futureResult: Future[Array[Byte]] = RequiredBinaryBody(request)
     Await.result(futureResult) shouldBe fooBytes
   }
 
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody(Array[Byte]())
-    val futureResult: Future[Array[Byte]] = RequiredArrayBody(request)
+    val futureResult: Future[Array[Byte]] = RequiredBinaryBody(request)
     a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
 
   it should "have a corresponding RequestItem" in {
-    RequiredArrayBody.item shouldBe BodyItem
+    RequiredBinaryBody.item shouldBe BodyItem
   }
 
   "An OptionalArrayBody" should "be properly read if it exists" in {
     val request: HttpRequest = requestWithBody(fooBytes)
-    val futureResult: Future[Option[Array[Byte]]] = OptionalArrayBody(request)
+    val futureResult: Future[Option[Array[Byte]]] = OptionalBinaryBody(request)
     Await.result(futureResult).get shouldBe fooBytes
   }
 
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody(Array[Byte]())
-    val futureResult: Future[Option[Array[Byte]]] = OptionalArrayBody(request)
+    val futureResult: Future[Option[Array[Byte]]] = OptionalBinaryBody(request)
     Await.result(futureResult) shouldBe None
   }
 
   it should "have a corresponding RequestItem" in {
-    OptionalArrayBody.item shouldBe BodyItem
+    OptionalBinaryBody.item shouldBe BodyItem
   }
 
   "A RequiredStringBody" should "be properly read if it exists" in {
     val request: HttpRequest = requestWithBody(foo)
-    val futureResult: Future[String] = RequiredStringBody(request)
+    val futureResult: Future[String] = RequiredBody(request)
     Await.result(futureResult) shouldBe foo
   }
 
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody("")
-    val futureResult: Future[String] = RequiredStringBody(request)
+    val futureResult: Future[String] = RequiredBody(request)
     a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
 
   "An OptionalStringBody" should "be properly read if it exists" in {
     val request: HttpRequest = requestWithBody(foo)
-    val futureResult: Future[Option[String]] = OptionalStringBody(request)
+    val futureResult: Future[Option[String]] = OptionalBody(request)
     Await.result(futureResult) shouldBe Some(foo)
   }
 
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody("")
-    val futureResult: Future[Option[String]] = OptionalStringBody(request)
+    val futureResult: Future[Option[String]] = OptionalBody(request)
     Await.result(futureResult) shouldBe None
   }
 
   "RequiredArrayBody Reader" should "work without parentheses at call site" in {
     val reader = for {
-      body <- RequiredArrayBody
+      body <- RequiredBinaryBody
     } yield body
 
     val request: HttpRequest = requestWithBody(fooBytes)
