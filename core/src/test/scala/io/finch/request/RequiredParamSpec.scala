@@ -54,64 +54,64 @@ class RequiredParamSpec extends FlatSpec with Matchers {
 
   "A RequiredBooleanParam" should "be parsed as a boolean" in {
     val request: HttpRequest = Request(("foo", "true"))
-    val futureResult: Future[Boolean] = RequiredBooleanParam("foo")(request)
+    val futureResult: Future[Boolean] = RequiredParam("foo").as[Boolean].apply(request)
     Await.result(futureResult) shouldBe true
   }
 
   it should "produce an error if the param is not a boolean" in {
     val request: HttpRequest = Request(("foo", "5"))
-    val futureResult: Future[Boolean] = RequiredBooleanParam("foo")(request)
+    val futureResult: Future[Boolean] = RequiredParam("foo").as[Boolean].apply(request)
     a [NotParsed] shouldBe thrownBy(Await.result(futureResult))
   }
 
 
   "A RequiredIntParam" should "be parsed as an integer" in {
     val request: HttpRequest = Request(("foo", "5"))
-    val futureResult: Future[Int] = RequiredIntParam("foo")(request)
+    val futureResult: Future[Int] = RequiredParam("foo").as[Int].apply(request)
     Await.result(futureResult) shouldBe 5
   }
 
   it should "produce an error if the param is not an integer" in {
     val request: HttpRequest = Request(("foo", "non-number"))
-    val futureResult: Future[Int] = RequiredIntParam("foo")(request)
+    val futureResult: Future[Int] = RequiredParam("foo").as[Int].apply(request)
     a [NotParsed] shouldBe thrownBy(Await.result(futureResult))
   }
 
 
   "A RequiredLongParam" should "be parsed as a long" in {
     val request: HttpRequest = Request(("foo", "9000000000000000"))
-    val futureResult: Future[Long] = RequiredLongParam("foo")(request)
+    val futureResult: Future[Long] = RequiredParam("foo").as[Long].apply(request)
     Await.result(futureResult) shouldBe 9000000000000000L
   }
 
   it should "produce an error if the param is not a long" in {
     val request: HttpRequest = Request(("foo", "non-number"))
-    val futureResult: Future[Long] = RequiredLongParam("foo")(request)
+    val futureResult: Future[Long] = RequiredParam("foo").as[Long].apply(request)
     a [NotParsed] shouldBe thrownBy(Await.result(futureResult))
   }
 
   "A RequiredFloatParam" should "be parsed as a float" in {
     val request: HttpRequest = Request(("foo", "5.123"))
-    val futureResult: Future[Float] = RequiredFloatParam("foo")(request)
+    val futureResult: Future[Float] = RequiredParam("foo").as[Float].apply(request)
     Await.result(futureResult) shouldBe 5.123f
   }
 
   it should "produce an error if the param is not a float" in {
     val request: HttpRequest = Request(("foo", "non-number"))
-    val futureResult: Future[Float] = RequiredFloatParam("foo")(request)
+    val futureResult: Future[Float] = RequiredParam("foo").as[Float].apply(request)
     a [NotParsed] shouldBe thrownBy(Await.result(futureResult))
   }
 
 
   "A RequiredDoubleParam" should "be parsed as a double" in {
     val request: HttpRequest = Request(("foo", "100.0"))
-    val futureResult: Future[Double] = RequiredDoubleParam("foo")(request)
+    val futureResult: Future[Double] = RequiredParam("foo").as[Double].apply(request)
     Await.result(futureResult) shouldBe 100.0
   }
 
   it should "produce an error if the param is not a double" in {
     val request: HttpRequest = Request(("foo", "non-number"))
-    val futureResult: Future[Double] = RequiredDoubleParam("foo")(request)
+    val futureResult: Future[Double] = RequiredParam("foo").as[Double].apply(request)
     a [NotParsed] shouldBe thrownBy(Await.result(futureResult))
   }
 }

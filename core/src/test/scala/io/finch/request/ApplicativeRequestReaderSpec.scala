@@ -31,11 +31,11 @@ import items._
 class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
 
   val reader: RequestReader[(Int, Double, Int)] =
-    (RequiredIntParam("a") ~
-     RequiredDoubleParam("b") ~
-     RequiredIntParam("c")) map { 
-       case a ~ b ~ c => (a, b, c)
-     }
+    RequiredParam("a").as[Int] ~
+    RequiredParam("b").as[Double] ~
+    RequiredParam("c").as[Int] map {
+      case a ~ b ~ c => (a, b, c)
+    }
   
   def extractNotParsedTargets (result: Try[(Int, Double, Int)]): AnyRef = {
     (result handle {
@@ -46,7 +46,6 @@ class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
       case _ => Seq()
     }).get
   }
-  
 
   "The applicative reader" should "produce three errors if all three numbers cannot be parsed" in {
     val request = Request("a"->"foo", "b"->"foo", "c"->"foo")
