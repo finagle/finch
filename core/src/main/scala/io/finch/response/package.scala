@@ -193,4 +193,9 @@ package object response {
   object TurnIntoHttp {
     def apply[A](implicit e: EncodeResponse[A]) = new TurnIntoHttp[A](e)
   }
+
+  /**
+   * Allows to pass raw strings to [[io.finch.response.ResponseBuilder ResponseBuilder]].
+   */
+  implicit val encodeString: EncodeResponse[String] = EncodeResponse("plain/text")(s => s)
 }
