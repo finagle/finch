@@ -57,7 +57,7 @@ trait ValidationRule[A] { self =>
    * Combines this rule with another rule such that the new rule validates if any one of the combined rules validates.
    *
    * @param that the rule to combine with this rule
-   * @return a new rule that validates if any of the the combined rules validates
+   * @return a new rule that validates if any of the combined rules validates
    */
   def or(that: ValidationRule[A]): ValidationRule[A] =
     ValidationRule(s"${self.description} or ${that.description}") { value => self(value) || that(value) }
