@@ -54,20 +54,6 @@ case class ResponseBuilder(
   def withCookies(cookies: Cookie*) = copy(cookies = this.cookies ++ cookies)
 
   /**
-   * Builds a ''text/plain'' HTTP response.
-   *
-   * @param plain the response body
-   */
-  def apply(plain: String) = {
-    val rep = Response(status)
-    rep.setContentString(plain)
-    headers.foreach { case (k, v) => rep.headerMap.add(k, v) }
-    cookies.foreach { rep.addCookie }
-
-    rep
-  }
-
-  /**
    * Builds an HTTP response of the given `body` with content-type according to the implicit
    * [[io.finch.response.EncodeResponse EncodeResponse]].
    *
