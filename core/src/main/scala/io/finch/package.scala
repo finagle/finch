@@ -32,8 +32,8 @@ import com.twitter.finagle.{Filter, Service}
 
 /**
  * This is a root package of the Finch library, which provides an immutable layer of functions and types atop of Finagle
- * for writing lightweight consuming HTTP services. It roughly contains three packages: [[io.finch.route]],
- * [[io.finch.request]], [[io.finch.response]], which correspond to three simple steps to a robust REST/HTTP API:
+ * for writing lightweight HTTP services. It roughly contains three packages: [[io.finch.route]], [[io.finch.request]],
+ * [[io.finch.response]], which correspond to three simple steps to a robust REST/HTTP API:
  *
  * Step 1. Routing the HTTP requests to a `Service`.
  *

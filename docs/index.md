@@ -2,8 +2,8 @@
   <img src="https://raw.githubusercontent.com/finagle/finch/master/finch-logo.png" width="360px" />
 </p>
 
-The Finch library provides an immutable layer of functions and types atop of [Finagle][1] for writing lightweight
-consuming HTTP services. It roughly contains three packages: [io.finch.route](route.md), [io.finch.request](request.md),
+The Finch library provides an immutable layer of functions and types atop of [Finagle][1] for writing lightweight HTTP
+services. It roughly contains three packages: [io.finch.route](route.md), [io.finch.request](request.md),
 [io.finch.response](response.md), which correspond to three simple steps to a robust REST/HTTP API:
 
 #### Step 1: Routing the HTTP requests to a `Service`

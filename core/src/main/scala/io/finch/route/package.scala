@@ -175,6 +175,14 @@ package object route {
   }
 
   /**
+   * A [[io.finch.route.Router0 Router0]] that skips all route tokens.
+   */
+  object ** extends Router0 {
+    def apply(route: Route): Option[Route] = Some(Nil)
+    override def toString = "**"
+  }
+
+  /**
    * A [[io.finch.route.RouterN RouterN]] that extract an integer from the route.
    */
   object int extends Extractor("int", stringToSomeValue(_.toInt))
