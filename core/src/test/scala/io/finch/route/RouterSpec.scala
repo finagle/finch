@@ -22,7 +22,7 @@
 
 package io.finch.route
 
-import com.twitter.util.{Await, Future}
+import com.twitter.util.Await
 
 import io.finch._
 import io.finch.response._
@@ -147,6 +147,11 @@ class RouterSpec extends FlatSpec with Matchers {
   it should "maps to value" in {
     val r = Get /> 10
     r(route) shouldBe Some((route.tail, 10))
+  }
+
+  it should "skip all the route tokens" in {
+    val r = Get / "a" / **
+    r(route) shouldBe Some(Nil)
   }
 
   it should "converts into a string" in {

@@ -39,7 +39,16 @@ methods via matchers with the corresponding names: `Post`, `Get`, `Patch`, etc.
 val router = Put // matches the HTTP method
 ```
 
-Finally, `*` router always matches the current part of the given route.
+Finally, there two special routers `*` and `**`. The `*` router always matches the current part of the given route,
+while the `**` router always matches the whole route. Using the `*` router you can build something like fan-out proxy
+for the underlying services. In the example above, we redirect all the requests (with any method) like `"/users"` to the
+`usersBackend` and requests like `"/tickets"` to the `ticketsBackend`.
+
+```scala
+val proxy = 
+  (* / "users" / ** /> usersBackend) |
+  (* / "tickets" / ** /> ticketsBackend)
+```
 
 Things are getting interesting with extractors, i.e, `Router[N]`s. There are just four base extractors available for 
 integer, string, boolean and long values.
@@ -81,6 +90,17 @@ operator) it to `Ticket`.
 def getUserTicket(userId: Int, ticketId: Int): Ticket = ???
 val router: Router[Int / Int] = Get / "users" / int("userId") / "tickets" / int("ticketId")
 val tickets: Router[Ticket] = router /> { case userId / ticketId => getUserTicket(userId, ticketId) }
+```
+
+The `|` (or `orElse`) operator composes two routers in a _greedy_ manner. That said, if both routers are able to match
+the given route, the router is being chosen by `orElse` operator is that which eats more route tokens. In the example
+above, the `GET /users/100` request will be routed to the `GetUser` service since in this case, the route (i.e., path)
+matched by the second router (`"GET /users/100"`) is longer than the matched route of the first router (`"GET /users"`).
+
+```scala
+val users = 
+  (Get / "users" => GetAllUsers) |
+  (Get / "users" / int => GetUser)
 ```
 
 ### Endpoints
