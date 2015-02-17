@@ -55,6 +55,7 @@ This "Hello World!" example is built with the `0.6.0-SNAPSHOT` version of `finch
 import io.finch._
 import io.finch.route._
 import io.finch.response._
+import com.twitter.finagle.Httpx
 
 Httpx.serve(":8080",
   Get / "hello" /> Ok("Hello, world!").toFuture: Endpoint[HttpRequest, HttpResponse]
