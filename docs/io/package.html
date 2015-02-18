@@ -87,9 +87,9 @@
       </a>
     </span>
       <p class="shortcomment cmt">This is a root package of the Finch library, which provides an immutable layer of functions and types atop of Finagle
-for writing lightweight consuming HTTP services.</p><div class="fullcomment"><div class="comment cmt"><p>This is a root package of the Finch library, which provides an immutable layer of functions and types atop of Finagle
-for writing lightweight consuming HTTP services. It roughly contains three packages: <a href="finch/route/package.html" class="extype" name="io.finch.route">io.finch.route</a>,
-<a href="finch/request/package.html" class="extype" name="io.finch.request">io.finch.request</a>, <a href="finch/response/package.html" class="extype" name="io.finch.response">io.finch.response</a>, which correspond to three simple steps to a robust REST/HTTP API:</p><p>Step 1. Routing the HTTP requests to a <code>Service</code>.</p><p>The <a href="finch/route/package.html#Router[+A]=io.finch.route.RouterN[A]" class="extmbr" name="io.finch.route.Router">Router</a> abstraction routes the requests depending on their path and method information.
+for writing lightweight HTTP services.</p><div class="fullcomment"><div class="comment cmt"><p>This is a root package of the Finch library, which provides an immutable layer of functions and types atop of Finagle
+for writing lightweight HTTP services. It roughly contains three packages: <a href="finch/route/package.html" class="extype" name="io.finch.route">io.finch.route</a>, <a href="finch/request/package.html" class="extype" name="io.finch.request">io.finch.request</a>,
+<a href="finch/response/package.html" class="extype" name="io.finch.response">io.finch.response</a>, which correspond to three simple steps to a robust REST/HTTP API:</p><p>Step 1. Routing the HTTP requests to a <code>Service</code>.</p><p>The <a href="finch/route/package.html#Router[+A]=io.finch.route.RouterN[A]" class="extmbr" name="io.finch.route.Router">Router</a> abstraction routes the requests depending on their path and method information.
 <code>Router</code> combinator provides a bunch of predefined routers handling separated parts of a route. <code>Router</code>s might be
 composed with either <code>/</code> (<code>andThen</code>) or <code>/&gt;</code> (<code>map</code>) operator. There is also <code>|</code> (<code>orElse</code>) operator that combines
 two routers in terms of the inclusive or operator.</p><pre><span class="kw">val</span> router: Endpoint[HttpRequest, HttpResponse] =
