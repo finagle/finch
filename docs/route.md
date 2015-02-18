@@ -2,6 +2,8 @@
 
 * [Overview](route.md#overview)
 * [Built-in Routers](route.md#built-in-routers)
+  * [Matchers](route.md#matchers)
+  * [Extractors](route.md#extractors)
 * [Composing Routers](route.md#composing-routers)
 * [Endpoints](route.md#endpoints)
 * [Filters and Endpoints](route.md#filters-and-endpoints)
@@ -25,6 +27,8 @@ matching `Router0` returns just `Option[Route]` if it's able to match the given 
 There are plenty of predefined routers that match the simple part of the route or extract some value from it. You can
 get of all them by importing `io.finch.route._`. 
 
+#### Matchers
+
 All the matchers are available via implicit conversions from strings, integers and booleans. The following code
 illustrates this functionality:
 
@@ -40,15 +44,18 @@ val router = Put // matches the HTTP method
 ```
 
 Finally, there two special routers `*` and `**`. The `*` router always matches the current part of the given route,
-while the `**` router always matches the whole route. Using the `*` router you can build something like fan-out proxy
-for the underlying services. In the example above, we redirect all the requests (with any method) like `"/users"` to the
-`usersBackend` and requests like `"/tickets"` to the `ticketsBackend`.
+while the `**` router always matches the whole route. Using both `*` and `**` routers you can build something like
+fan-out proxy for the underlying services. In the example above, we redirect all the requests (with any method) like
+`/users` to the `usersBackend` and requests like `/tickets` to the `ticketsBackend`.
 
 ```scala
 val proxy = 
   (* / "users" / ** /> usersBackend) |
   (* / "tickets" / ** /> ticketsBackend)
+
+Httpx.serve(":8081", proxy)
 ```
+#### Extractors
 
 Things are getting interesting with extractors, i.e, `Router[N]`s. There are just four base extractors available for 
 integer, string, boolean and long values.
