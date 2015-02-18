@@ -14,7 +14,7 @@
 
 The `io.finch.route` package provides _combinators_ API for building both _matching_ and _extracting_ routers in
 Finch. There are two main abstractions in the package: `Route0` (matching router) and `RouteN[A]` (extracting router).
-Luckily the compile figures out the exact type of the router, so you usually don't have to deal with that names.
+Luckily the compiler figures out the exact type of the router, so you usually don't have to deal with those names.
 Although, since the `RouterN[A]` class is the one that you will likely use in the Finch applications, there is a special
 user-friendly type alias `Router[A]`.
 
@@ -22,7 +22,7 @@ At the high level, `Router[A]` might be treated as function `Route => Option[(Ro
 is a pair of HTTP method and HTTP path, and returns an `Option` of both the remaining route and the extracted value. A
 matching `Router0` returns just `Option[Route]` if it's able to match the given route.
 
-### Build-in Routers
+### Built-in Routers
 
 There are plenty of predefined routers that match the simple part of the route or extract some value from it. You can
 get of all them by importing `io.finch.route._`. 
