@@ -27,8 +27,12 @@
 package io.finch
 
 import com.twitter.finagle.httpx.Cookie
+import com.twitter.finagle.httpx.netty.Bijections._
 import com.twitter.util.{Future, Throw, Try}
 
+import org.jboss.netty.handler.codec.http.multipart.{FileUpload, HttpPostRequestDecoder, Attribute}
+
+import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 
 package request {
@@ -430,6 +434,77 @@ package object request extends LowPriorityImplicits {
      * @return the cookie
      */
     def apply(cookieName: String): RequestReader[Cookie] = OptionalCookie(cookieName).failIfEmpty
+  }
+
+  /**
+    * An optional parameter that is send via a multipart/form-data request
+    */
+  object OptionalMultipartParam {
+    /**
+     * Creates a [[io.finch.request.RequestReader RequestReader]]
+     * that reads an optional parameter from a multipart/form-data request.
+     * 
+     * @param param the name of the parameter to read
+     * @return an `Option` that contains the parameter value or `None` is the parameter does not exist on the request.
+     */
+    def apply(param: String): RequestReader[Option[String]] =
+      RequestReader(ParamItem(param)) { req =>
+        val decoder = new HttpPostRequestDecoder(from(req))
+        decoder.getBodyHttpDatas.asScala.find(_.getName == param).flatMap{
+          case attr: Attribute => Some(attr.getValue)
+          case _ => None
+        }
+      }
+  }
+
+  /**
+   * A required parameter that is send via a multipart/form-data request
+   */
+  object RequiredMultipartParam {
+    /**
+     * Creates a [[io.finch.request.RequestReader RequestReader]]
+     * that reads a required parameter from a multipart/form-data request.
+     * 
+     * @param param the name of the parameter to read
+     * @return the parameter value
+     */
+    def apply(param: String): RequestReader[String] =
+      OptionalMultipartParam(param).failIfEmpty.shouldNot("be empty")(_.trim.isEmpty)
+  }
+
+  /**
+    * An optional file that is send via a multipart/form-data request
+    */
+  object OptionalMultipartFile {
+    /**
+     * Creates a [[io.finch.request.RequestReader RequestReader]]
+     * that reads an optional file from a multipart/form-data request.
+     * 
+     * @param param the name of the parameter to read
+     * @return an `Option` that contains the file or `None` is the parameter does not exist on the request.
+     */
+    def apply(param: String): RequestReader[Option[FileUpload]] =
+      RequestReader(ParamItem(param)) { req =>
+        val decoder = new HttpPostRequestDecoder(from(req))
+        decoder.getBodyHttpDatas.asScala.find(_.getName == param).flatMap{
+          case file: FileUpload => Some(file)
+          case _ => None
+        }
+      }
+  }
+
+  /**
+   * A required file that is send via a multipart/form-data request
+   */
+  object RequiredMultipartFile {
+    /**
+     * Creates a [[io.finch.request.RequestReader RequestReader]]
+     * that reads a required file from a multipart/form-data request.
+     * 
+     * @param param the name of the parameter to read
+     * @return the file
+     */
+    def apply(param: String) = OptionalMultipartFile(param).failIfEmpty
   }
 
   /**
