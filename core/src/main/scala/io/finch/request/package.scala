@@ -443,7 +443,7 @@ package object request extends LowPriorityImplicits {
     /**
      * Creates a [[io.finch.request.RequestReader RequestReader]]
      * that reads an optional parameter from a multipart/form-data request.
-     * 
+     *
      * @param param the name of the parameter to read
      * @return an `Option` that contains the parameter value or `None` is the parameter does not exist on the request.
      */
@@ -464,7 +464,7 @@ package object request extends LowPriorityImplicits {
     /**
      * Creates a [[io.finch.request.RequestReader RequestReader]]
      * that reads a required parameter from a multipart/form-data request.
-     * 
+     *
      * @param param the name of the parameter to read
      * @return the parameter value
      */
@@ -479,7 +479,7 @@ package object request extends LowPriorityImplicits {
     /**
      * Creates a [[io.finch.request.RequestReader RequestReader]]
      * that reads an optional file from a multipart/form-data request.
-     * 
+     *
      * @param param the name of the parameter to read
      * @return an `Option` that contains the file or `None` is the parameter does not exist on the request.
      */
@@ -500,7 +500,7 @@ package object request extends LowPriorityImplicits {
     /**
      * Creates a [[io.finch.request.RequestReader RequestReader]]
      * that reads a required file from a multipart/form-data request.
-     * 
+     *
      * @param param the name of the parameter to read
      * @return the file
      */
