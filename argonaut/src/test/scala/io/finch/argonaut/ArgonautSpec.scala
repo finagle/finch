@@ -36,15 +36,15 @@ class ArgonautSpec extends FlatSpec with Matchers {
   val exampleUser = TestUser(42, "bob")
 
   "An ArgonautDecode" should "decode json string into a data structure" in {
-    toArgonautDecode(testUserCodec)(str) shouldBe Return(exampleUser)
+    decodeArgonaut(testUserCodec)(str) shouldBe Return(exampleUser)
   }
 
   it should "fail if the string is not valid json" in {
-    toArgonautDecode(testUserCodec)(badJson).isThrow shouldBe true
+    decodeArgonaut(testUserCodec)(badJson).isThrow shouldBe true
   }
 
   it should "fail if the decoder could not decode the string into data" in {
-    toArgonautDecode(testUserCodec)(invalidStructure).isThrow shouldBe true
+    decodeArgonaut(testUserCodec)(invalidStructure).isThrow shouldBe true
   }
 
   it should "be compatible with finch-core's requests" in {
@@ -58,7 +58,7 @@ class ArgonautSpec extends FlatSpec with Matchers {
   }
 
   "An ArgonautEncode" should "encode a data structure into a json string" in {
-    toArgonautEncode(testUserCodec)(exampleUser) shouldBe str
+    encodeArgonaut(testUserCodec)(exampleUser) shouldBe str
   }
 
   it should "be compatible with finch-core's responses" in {

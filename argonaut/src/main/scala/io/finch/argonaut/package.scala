@@ -37,21 +37,19 @@ package object argonaut {
    * @tparam A The type of data that the ''DecodeJson'' will decode into
    * @return Create a Finch ''DecodeRequest'' from an argonaut ''DecodeJson''
    */
-  implicit def toArgonautDecode[A](implicit decode: DecodeJson[A]): DecodeRequest[A] = new DecodeRequest[A] {
-    override def apply(json: String): Try[A] = Parse.decodeEither(json).fold(
-      error => Throw(new RequestError(error)),
-      Return(_)
+  implicit def decodeArgonaut[A](implicit decode: DecodeJson[A]): DecodeRequest[A] =
+    DecodeRequest(
+      Parse.decodeEither(_).fold(
+        error => Throw(new RequestError(error)),
+        Return(_)
+      )
     )
-  }
 
   /**
    * @param encode The argonaut ''EncodeJson'' to use for decoding
    * @tparam A The type of data that the ''EncodeJson'' will encode use to create the json string
    * @return Create a Finch ''EncodeJson'' from an argonaut ''EncodeJson''
    */
-  implicit def toArgonautEncode[A](implicit encode: EncodeJson[A]): EncodeResponse[A] = new EncodeResponse[A] {
-    override def apply(data: A): String = encode.encode(data).nospaces
-
-    override def contentType: String = "application/json"
-  }
+  implicit def encodeArgonaut[A](implicit encode: EncodeJson[A]): EncodeResponse[A] =
+    EncodeResponse("application/json")(encode.encode(_).nospaces)
 }

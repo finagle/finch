@@ -96,7 +96,7 @@ package object finch {
     /**
      * Converts this ''any'' object into a ''Future''
      */
-    def toFuture: Future[A] = Future.value(any)
+    def toFuture: Future[A] = Future.value[A](any)
   }
 
   /**
@@ -109,7 +109,7 @@ package object finch {
     /**
      * Converts this throwable object into a `Future` exception.
      */
-    def toFutureException[A]: Future[A] = Future.exception(t)
+    def toFutureException[A]: Future[A] = Future.exception[A](t)
   }
 
   /**

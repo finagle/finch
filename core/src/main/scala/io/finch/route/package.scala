@@ -97,7 +97,7 @@ package object route {
   )(implicit ev: Req => HttpRequest): Service[Req, Rep] = new Service[Req, Rep] {
 
     private def requestToRoute(req: Req)(implicit ev: Req => HttpRequest): Route =
-      MethodToken(req.method) :: (req.path.split("/").toList.tail map PathToken)
+      (MethodToken(req.method): RouteToken) :: (req.path.split("/").toList.drop(1) map PathToken)
 
     def apply(req: Req): Future[Rep] = {
       val path = requestToRoute(req)
@@ -139,7 +139,7 @@ package object route {
    */
   case class Extractor[A](name: String, f: String => Option[A]) extends RouterN[A] {
     def apply(route: Route): Option[(Route, A)] = PathTokenExtractor.embedFlatMap(f)(route)
-    def apply(n: String): Extractor[A] = copy(name = n)
+    def apply(n: String): Extractor[A] = copy[A](name = n)
     override def toString = s":$name"
   }
 
@@ -170,7 +170,7 @@ package object route {
    * A [[io.finch.route.Router0 Router0]] that skips one route token.
    */
   object * extends Router0 {
-    def apply(route: Route): Option[Route] = Some(route.tail)
+    def apply(route: Route): Option[Route] = Some(route.drop(1))
     override def toString = "*"
   }
 
