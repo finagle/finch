@@ -6,7 +6,7 @@
             <parameter name="maxFileLength"><![CDATA[800]]></parameter>
         </parameters>
     </check>
-    <check level="warning" class="org.scalastyle.file.FileLineLengthChecker" enabled="true">
+    <check level="error" class="org.scalastyle.file.FileLineLengthChecker" enabled="true">
         <parameters>
             <parameter name="maxLineLength"><![CDATA[120]]></parameter>
         </parameters>
@@ -36,7 +36,7 @@
     <check level="error" class="org.scalastyle.scalariform.NoWhitespaceBeforeLeftBracketChecker" enabled="true"></check>
     <check level="error" class="org.scalastyle.scalariform.NoWhitespaceAfterLeftBracketChecker" enabled="true"></check>
     <check level="error" class="org.scalastyle.scalariform.ReturnChecker" enabled="true"></check>
-    <check level="error" class="org.scalastyle.scalariform.NullChecker" enabled="false"></check>
+    <check level="error" class="org.scalastyle.scalariform.NullChecker" enabled="true"></check>
     <check level="error" class="org.scalastyle.scalariform.NoCloneChecker" enabled="true"></check>
     <check level="error" class="org.scalastyle.scalariform.NoFinalizeChecker" enabled="true"></check>
     <check level="error" class="org.scalastyle.scalariform.CovariantEqualsChecker" enabled="true"></check>
@@ -64,4 +64,10 @@
     </check>
     <check level="error" class="org.scalastyle.file.NewLineAtEofChecker" enabled="true"></check>
     <check level="error" class="org.scalastyle.file.NoNewLineAtEofChecker" enabled="false"></check>
+    <check level="error" class="org.scalastyle.scalariform.NotImplementedErrorUsage" enabled="true"></check>
+    <check level="error" class="org.scalastyle.scalariform.PublicMethodsHaveTypeChecker" enabled="true">
+        <parameters>
+            <parameter name="ignoreOverride">true</parameter>
+        </parameters>
+    </check>
 </scalastyle>

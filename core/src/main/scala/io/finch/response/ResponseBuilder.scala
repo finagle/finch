@@ -45,14 +45,14 @@ case class ResponseBuilder(
    *
    * @param headers the HTTP headers map
    */
-  def withHeaders(headers: (String, String)*) = copy(headers = this.headers ++ headers)
+  def withHeaders(headers: (String, String)*): ResponseBuilder = copy(headers = this.headers ++ headers)
 
   /**
    * Create a new response builder with the given ''cookies''.
    *
    * @param cookies the [[com.twitter.finagle.httpx.Cookie Cookie]]'s to add to the response
    */
-  def withCookies(cookies: Cookie*) = copy(cookies = this.cookies ++ cookies)
+  def withCookies(cookies: Cookie*): ResponseBuilder= copy(cookies = this.cookies ++ cookies)
 
   /**
    * Builds an HTTP response of the given `body` with content-type according to the implicit

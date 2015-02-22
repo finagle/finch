@@ -23,7 +23,7 @@
 package io.finch.demo
 
 import com.twitter.finagle.{Filter, SimpleFilter, Service, Httpx}
-import com.twitter.util.Await
+import com.twitter.util.{Future, Await}
 
 import io.finch.{Endpoint => _, _} // import the pipe `!` operator
 import io.finch.json._             // import finch-json classes such as `Json`
@@ -44,7 +44,7 @@ object Main extends App {
 
   // A Finagle filter that authorizes a request: performs conversion `HttpRequest` => `AuthRequest`.
   val authorize = new Filter[HttpRequest, HttpResponse, AuthRequest, HttpResponse] {
-    def apply(req: HttpRequest, service: Service[AuthRequest, HttpResponse]) = for {
+    def apply(req: HttpRequest, service: Service[AuthRequest, HttpResponse]): Future[HttpResponse] = for {
       secret <- OptionalHeader("X-Secret")(req)
       rep <- secret collect {
         case "open sesame" => service(AuthRequest(req))
@@ -85,7 +85,7 @@ object Main extends App {
   // A simple Finagle filter that handles all the exceptions, which might be thrown by
   // a request reader of one of the REST services.
   val handleExceptions = new SimpleFilter[HttpRequest, HttpResponse] {
-    def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]) = service(req) handle
+    def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]): Future[HttpResponse] = service(req) handle
       (handleDomainErrors orElse handleRequestReaderErrors orElse handleRouterErrors orElse {
         case _ => InternalServerError()
       })

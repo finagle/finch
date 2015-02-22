@@ -22,8 +22,11 @@
 
 package io.finch.demo
 
-import io.finch._
+import com.twitter.util.Future
 import com.twitter.finagle.Service
+
+import io.finch._
+
 
 object service {
 
@@ -32,7 +35,7 @@ object service {
 
   // A REST service that fetches a user with `userId`.
   case class GetUser(userId: Long) extends Service[AuthRequest, User] {
-    def apply(req: AuthRequest) = Db.select(userId) flatMap {
+    def apply(req: AuthRequest): Future[User] = Db.select(userId) flatMap {
       case Some(user) => user.toFuture
       case None => UserNotFound(userId).toFutureException
     }
@@ -40,12 +43,12 @@ object service {
 
   // A REST service that fetches all users.
   object GetAllUsers extends Service[AuthRequest, Seq[User]] {
-    def apply(req: AuthRequest) = Db.all
+    def apply(req: AuthRequest): Future[Seq[User]] = Db.all
   }
 
   // A REST service that inserts a new user with `userId`.
   object PostUser extends Service[AuthRequest, User] {
-    def apply(req: AuthRequest) = for {
+    def apply(req: AuthRequest): Future[User] = for {
       in <- user(req)
       out <- Db.insert(in.id, in)
     } yield out
@@ -53,7 +56,7 @@ object service {
 
   // A REST service that add a ticket to a given user `userId`.
   case class PostUserTicket(userId: Long) extends Service[AuthRequest, Ticket] {
-    def apply(req: AuthRequest) = for {
+    def apply(req: AuthRequest): Future[Ticket] = for {
       t <- ticket(req)
       u <- GetUser(userId)(req) // fetch exist user
       updatedU = u.copy(tickets = u.tickets :+ t) // modify its tickets

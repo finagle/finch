@@ -32,7 +32,7 @@ val baseSettings = Seq(
   ),
   compilerOptions,
   coverageExcludedPackages := ".*demo.*",
-  wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.NoNeedForMonad)
+  wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.NoNeedForMonad, Wart.Null)
 )
 
 lazy val publishSettings = Seq(

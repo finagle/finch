@@ -31,15 +31,17 @@ import scala.reflect.ClassTag
 
 package object jackson {
 
-  implicit def decodeJackson(implicit mapper: ObjectMapper) = new DecodeAnyRequest {
-    def apply[A: ClassTag](s: String): Try[A] = Try {
-      val clazz = implicitly[ClassTag[A]].runtimeClass.asInstanceOf[Class[A]]
-      mapper.readValue[A](s, clazz)
+  implicit def decodeJackson(implicit mapper: ObjectMapper): DecodeAnyRequest =
+    new DecodeAnyRequest {
+      def apply[A: ClassTag](s: String): Try[A] = Try {
+        val clazz = implicitly[ClassTag[A]].runtimeClass.asInstanceOf[Class[A]]
+        mapper.readValue[A](s, clazz)
+      }
     }
-  }
 
-  implicit def encodeJackson(implicit mapper: ObjectMapper) = new EncodeAnyResponse {
-    def apply[A](rep: A): String = mapper.writeValueAsString(rep)
-    def contentType = "application/json"
-  }
+  implicit def encodeJackson(implicit mapper: ObjectMapper): EncodeAnyResponse =
+    new EncodeAnyResponse {
+      def apply[A](rep: A): String = mapper.writeValueAsString(rep)
+      def contentType: String = "application/json"
+    }
 }

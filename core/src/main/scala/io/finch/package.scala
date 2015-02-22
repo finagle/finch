@@ -127,7 +127,7 @@ package object finch {
      *
      * @return an endpoint composed with filter
      */
-    def !(next: Endpoint[ReqOut, RepIn]) =
+    def !(next: Endpoint[ReqOut, RepIn]): Endpoint[ReqIn, RepOut] =
       next andThen { service =>
         filter andThen service
       }
@@ -141,7 +141,8 @@ package object finch {
      *
      * @return a filter composed within next filter
      */
-    def ![Req, Rep](next: Filter[ReqOut, RepIn, Req, Rep]) = filter andThen next
+    def ![Req, Rep](next: Filter[ReqOut, RepIn, Req, Rep]): Filter[ReqIn, RepOut, Req, Rep] =
+      filter andThen next
 
     /**
      * Composes this filter within given ''next'' service.
@@ -150,7 +151,7 @@ package object finch {
      *
      * @return a service composed with filter
      */
-    def !(next: Service[ReqOut, RepIn]) = filter andThen next
+    def !(next: Service[ReqOut, RepIn]): Service[ReqIn, RepOut] = filter andThen next
   }
 
   /**
@@ -170,9 +171,9 @@ package object finch {
      *
      * @return a new service compose with other service.
      */
-    def ![RepOut](next: Service[RepIn, RepOut]) =
+    def ![RepOut](next: Service[RepIn, RepOut]): Service[Req, RepOut]=
       new Service[Req, RepOut] {
-        def apply(req: Req) = service(req) flatMap next
+        def apply(req: Req): Future[RepOut] = service(req) flatMap next
       }
   }
 
@@ -191,7 +192,7 @@ package object finch {
    */
   implicit def futureToService[Req, Rep](f: Future[Rep]): Service[Req, Rep] =
     new Service[Req, Rep] {
-      def apply(req: Req) = f
+      def apply(req: Req): Future[Rep] = f
     }
 
   /**
@@ -213,6 +214,6 @@ package object finch {
    */
   implicit def endpointToService[Req, Rep](e: Endpoint[Req, Rep])(implicit ev: Req => HttpRequest): Service[Req, Rep] =
     new Service[Req, Rep] {
-      def apply(req: Req) = e.route(req.method -> Path(req.path))(req)
+      def apply(req: Req): Future[Rep] = e.route(req.method -> Path(req.path))(req)
     }
 }

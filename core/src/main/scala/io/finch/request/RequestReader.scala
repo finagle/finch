@@ -51,25 +51,25 @@ trait RequestReader[A] { self =>
   /**
    * Flat-maps this request reader to the given function `A => RequestReader[B]`.
    */
-  def flatMap[B](fn: A => RequestReader[B]) = new RequestReader[B] {
+  def flatMap[B](fn: A => RequestReader[B]): RequestReader[B] = new RequestReader[B] {
     val item = MultipleItems
-    def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = self(req) flatMap { fn(_)(req) }
+    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[B] = self(req) flatMap { fn(_)(req) }
   }
 
   /**
    * Maps this request reader to the given function `A => B`.
    */
-  def map[B](fn: A => B) = new RequestReader[B] {
+  def map[B](fn: A => B): RequestReader[B] = new RequestReader[B] {
     val item = self.item
-    def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = self(req) map fn
+    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[B] = self(req) map fn
   }
 
   /**
    * Flat-maps this request reader to the given function `A => Future[B]`.
    */
-  def embedFlatMap[B](fn: A => Future[B]) = new RequestReader[B] {
+  def embedFlatMap[B](fn: A => Future[B]): RequestReader[B] = new RequestReader[B] {
     val item = self.item
-    def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = self(req) flatMap fn
+    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[B] = self(req) flatMap fn
   }
 
   /**
@@ -98,7 +98,7 @@ trait RequestReader[A] { self =>
   /**
    * Applies the given filter `p` to this request reader.
    */
-  def withFilter(p: A => Boolean) = self.should("not fail validation")(p)
+  def withFilter(p: A => Boolean): RequestReader[A] = self.should("not fail validation")(p)
 
   /**
    * Validates the result of this request reader using a `predicate`. The rule is used for error reporting.
@@ -162,7 +162,8 @@ object RequestReader {
    * @param item the request item (e.g. parameter, header) the value is associated with
    * @return a new reader that always succeeds, producing the specified value
    */
-  def value[A](value: A, item: RequestItem = MultipleItems): RequestReader[A] = const[A](value.toFuture)
+  def value[A](value: A, item: RequestItem = MultipleItems): RequestReader[A] =
+    const[A](value.toFuture)
 
   /**
    * Creates a new [[io.finch.request.RequestReader RequestReader]] that always fails, producing the specified
@@ -172,7 +173,8 @@ object RequestReader {
    * @param item the request item (e.g. parameter, header) the value is associated with
    * @return a new reader that always fails, producing the specified exception
    */
-  def exception[A](exc: Throwable, item: RequestItem = MultipleItems): RequestReader[A] = const[A](exc.toFutureException)
+  def exception[A](exc: Throwable, item: RequestItem = MultipleItems): RequestReader[A] =
+    const[A](exc.toFutureException)
 
   /**
    * Creates a new [[io.finch.request.RequestReader RequestReader]] that always produces the specified value. It will
@@ -182,7 +184,8 @@ object RequestReader {
    * @param item the request item (e.g. parameter, header) the value is associated with
    * @return a new reader that always produces the specified value
    */
-  def const[A](value: Future[A], item: RequestItem = MultipleItems): RequestReader[A] = embed[A](item)(_ => value)
+  def const[A](value: Future[A], item: RequestItem = MultipleItems): RequestReader[A] =
+    embed[A](item)(_ => value)
 
   /**
    * Creates a new [[io.finch.request.RequestReader RequestReader]] that reads the result from the request.
@@ -191,11 +194,12 @@ object RequestReader {
    * @param f the function to apply to the request
    * @return a new reader that reads the result from the request
    */
-  def apply[A](item: RequestItem)(f: HttpRequest => A): RequestReader[A] = embed[A](item)(f(_).toFuture)
+  def apply[A](item: RequestItem)(f: HttpRequest => A): RequestReader[A] =
+    embed[A](item)(f(_).toFuture)
 
   private[this] def embed[A](reqItem: RequestItem)(f: HttpRequest => Future[A]): RequestReader[A] =
     new RequestReader[A] {
       val item = reqItem
-      def apply[Req](req: Req)(implicit ev: Req => HttpRequest) = f(req)
+      def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[A] = f(req)
     }
 }

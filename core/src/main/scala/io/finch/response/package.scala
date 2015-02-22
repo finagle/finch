@@ -27,6 +27,7 @@ package io.finch
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.path.Path
 import com.twitter.finagle.httpx.Status
+import com.twitter.util.Future
 
 /**
  * This package enables a reasonable approach of building HTTP responses using the
@@ -133,7 +134,7 @@ package object response {
      * @return A Service that generates a redirect to the given url
      */
     def apply(url: String): Service[HttpRequest, HttpResponse] = new Service[HttpRequest, HttpResponse] {
-      def apply(req: HttpRequest) = SeeOther.withHeaders(("Location", url))().toFuture
+      override def apply(req: HttpRequest) = SeeOther.withHeaders(("Location", url))().toFuture
     }
 
     /**
@@ -158,9 +159,9 @@ package object response {
    * Convenience method for creating new [[io.finch.response.EncodeResponse EncodeResponse]] instances.
    */
   object EncodeResponse {
-    def apply[A](ct: String)(fn: A => String) = new EncodeResponse[A] {
-      def apply(rep: A) = fn(rep)
-      def contentType = ct
+    def apply[A](ct: String)(fn: A => String): EncodeResponse[A] = new EncodeResponse[A] {
+      def apply(rep: A): String = fn(rep)
+      def contentType: String = ct
     }
   }
 
@@ -178,12 +179,12 @@ package object response {
    */
   implicit def anyToConcreteEncode[A](implicit e: EncodeAnyResponse): EncodeResponse[A] =
     new EncodeResponse[A] {
-      def apply(rep: A) = e(rep)
-      def contentType = e.contentType
+      def apply(rep: A): String = e(rep)
+      def contentType: String = e.contentType
     }
 
   class TurnIntoHttp[A](val e: EncodeResponse[A]) extends Service[A, HttpResponse] {
-    def apply(req: A) = Ok(req)(e).toFuture
+    def apply(req: A): Future[HttpResponse] = Ok(req)(e).toFuture
   }
 
   /**
@@ -191,7 +192,7 @@ package object response {
    * [[io.finch.response.EncodeResponse EncodeResponse]].
    */
   object TurnIntoHttp {
-    def apply[A](implicit e: EncodeResponse[A]) = new TurnIntoHttp[A](e)
+    def apply[A](implicit e: EncodeResponse[A]): Service[A, HttpResponse] = new TurnIntoHttp[A](e)
   }
 
   /**

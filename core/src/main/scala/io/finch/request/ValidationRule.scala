@@ -77,7 +77,7 @@ object ValidationRule {
    * @return a new reusable validation rule.
    */
   def apply[A](desc: String)(p: A => Boolean): ValidationRule[A] = new ValidationRule[A] {
-    def description = desc
-    def apply(value: A) = p(value)
+    def description: String = desc
+    def apply(value: A): Boolean = p(value)
   }
 }

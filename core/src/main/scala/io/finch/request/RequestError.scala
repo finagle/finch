@@ -35,6 +35,7 @@ import io.finch.request.items._
  * @param message the message
  */
 class RequestError(val message: String, cause: Throwable) extends Exception(message, cause) {
+  // scalastyle:off null
   def this(message: String) = this(message, null)
 }
 

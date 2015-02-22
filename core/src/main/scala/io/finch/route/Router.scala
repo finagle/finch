@@ -133,7 +133,7 @@ trait RouterN[+A] { self =>
     this orElse that
 
   // A workaround for https://issues.scala-lang.org/browse/SI-1336
-  def withFilter(p: A => Boolean) = self
+  def withFilter(p: A => Boolean): RouterN[A] = self
 }
 
 /**

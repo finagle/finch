@@ -22,6 +22,7 @@
 
 package io.finch
 
+import com.twitter.util.Future
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.Method
 import com.twitter.finagle.httpx.path.Path
@@ -65,7 +66,7 @@ trait Endpoint[Req, Rep] { self =>
    */
   def orElse(that: PartialFunction[(Method, Path), Service[Req, Rep]]): Endpoint[Req, Rep] =
     new Endpoint[Req, Rep] {
-      def route = self.route orElse that
+      override def route = self.route orElse that
     }
 
   /**
@@ -75,9 +76,9 @@ trait Endpoint[Req, Rep] { self =>
    *
    * @return a new endpoint
    */
-  def andThen[ReqOut, RepOut](fn: Service[Req, Rep] => Service[ReqOut, RepOut]) =
+  def andThen[ReqOut, RepOut](fn: Service[Req, Rep] => Service[ReqOut, RepOut]): Endpoint[ReqOut, RepOut] =
     new Endpoint[ReqOut, RepOut] {
-      def route = self.route andThen fn
+      override def route = self.route andThen fn
     }
 
   /**
@@ -88,10 +89,10 @@ trait Endpoint[Req, Rep] { self =>
    *
    * @return an endpoint composed with filter
    */
-  def ![RepOut](next: Service[Rep, RepOut]) =
+  def ![RepOut](next: Service[Rep, RepOut]): Endpoint[Req, RepOut] =
     andThen { service =>
       new Service[Req, RepOut] {
-        def apply(req: Req) = service(req) flatMap next
+        def apply(req: Req): Future[RepOut] = service(req) flatMap next
       }
     }
 }
@@ -110,14 +111,15 @@ object Endpoint {
    *
    * @return a joined endpoint
    */
-  def join[Req, Rep](endpoints: Endpoint[Req, Rep]*) = endpoints.reduce(_ orElse _)
+  def join[Req, Rep](endpoints: Endpoint[Req, Rep]*) : Endpoint[Req, Rep] =
+    endpoints.reduce(_ orElse _)
 
   /**
    * A robust 404 respond for missing endpoints.
    */
-  val NotFound = new Endpoint[HttpRequest, HttpResponse] {
-    val underlying = new NotFoundService[HttpRequest]
-    def route = { case _ => underlying }
+  val NotFound: Endpoint[HttpRequest, HttpResponse] = new Endpoint[HttpRequest, HttpResponse] {
+    private val underlying = new NotFoundService[HttpRequest]
+    override def route = { case _ => underlying }
   }
 
   /**
@@ -125,7 +127,6 @@ object Endpoint {
    *
    * @param r The route for the new Endpoint
    */
-  def apply[Req, Rep](r: PartialFunction[(Method, Path), Service[Req, Rep]]): Endpoint[Req, Rep] = {
-    new Endpoint[Req, Rep] { def route = r }
-  }
+  def apply[Req, Rep](r: PartialFunction[(Method, Path), Service[Req, Rep]]): Endpoint[Req, Rep] =
+    new Endpoint[Req, Rep] { override def route = r }
 }

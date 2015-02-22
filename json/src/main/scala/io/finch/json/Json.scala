@@ -135,7 +135,7 @@ object Json {
 
     val jsonSeq = args.flatMap {
       case (path, value) =>
-        Seq(JsonObject(loop(path.split('.').toList, if (value == null) JsonNull else value)))
+        Seq(JsonObject(loop(path.split('.').toList, if (value == null) JsonNull else value))) // scalastyle:off null
     }
 
     jsonSeq.foldLeft(Json.emptyObject) { Json.mergeRight(_, _) }
@@ -167,7 +167,7 @@ object Json {
    * @param j a json object to encode
    */
   def encode(j: Json): String = {
-    def escape(s: String) = s flatMap {
+    def escape(s: String): String = s flatMap {
       case '"'  => "\\\""
       case '\\' => "\\\\"
       case '\b' => "\\b"
