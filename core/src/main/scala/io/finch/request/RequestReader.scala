@@ -162,7 +162,7 @@ object RequestReader {
    * @param item the request item (e.g. parameter, header) the value is associated with
    * @return a new reader that always succeeds, producing the specified value
    */
-  def value[A](value: A, item: RequestItem = MultipleItems): RequestReader[A] = const(value.toFuture)
+  def value[A](value: A, item: RequestItem = MultipleItems): RequestReader[A] = const[A](value.toFuture)
 
   /**
    * Creates a new [[io.finch.request.RequestReader RequestReader]] that always fails, producing the specified
@@ -172,7 +172,7 @@ object RequestReader {
    * @param item the request item (e.g. parameter, header) the value is associated with
    * @return a new reader that always fails, producing the specified exception
    */
-  def exception[A](exc: Throwable, item: RequestItem = MultipleItems): RequestReader[A] = const(exc.toFutureException)
+  def exception[A](exc: Throwable, item: RequestItem = MultipleItems): RequestReader[A] = const[A](exc.toFutureException)
 
   /**
    * Creates a new [[io.finch.request.RequestReader RequestReader]] that always produces the specified value. It will
@@ -182,7 +182,7 @@ object RequestReader {
    * @param item the request item (e.g. parameter, header) the value is associated with
    * @return a new reader that always produces the specified value
    */
-  def const[A](value: Future[A], item: RequestItem = MultipleItems): RequestReader[A] = embed(item)(_ => value)
+  def const[A](value: Future[A], item: RequestItem = MultipleItems): RequestReader[A] = embed[A](item)(_ => value)
 
   /**
    * Creates a new [[io.finch.request.RequestReader RequestReader]] that reads the result from the request.
@@ -191,7 +191,7 @@ object RequestReader {
    * @param f the function to apply to the request
    * @return a new reader that reads the result from the request
    */
-  def apply[A](item: RequestItem)(f: HttpRequest => A): RequestReader[A] = embed(item)(f(_).toFuture)
+  def apply[A](item: RequestItem)(f: HttpRequest => A): RequestReader[A] = embed[A](item)(f(_).toFuture)
 
   private[this] def embed[A](reqItem: RequestItem)(f: HttpRequest => Future[A]): RequestReader[A] =
     new RequestReader[A] {

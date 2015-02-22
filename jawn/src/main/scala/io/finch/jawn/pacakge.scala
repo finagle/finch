@@ -27,7 +27,7 @@ import _root_.jawn.ast.{CanonicalRenderer, JValue}
 import _root_.jawn.{Facade, Parser}
 import io.finch.request.DecodeRequest
 import io.finch.response.EncodeResponse
-import com.twitter.util.{Try, Return, Throw}
+import com.twitter.util.{Return, Throw}
 import scala.util.{Success, Failure}
 
 /**
@@ -37,24 +37,21 @@ package object jawn {
 
   /**
    * @param facade The ''Facade'' that represents how jawn should parse json
-   * @tparam J The type of data returned by the ''Facade''
+   * @tparam A The type of data returned by the ''Facade''
    * @return Converts a jawn ''Facade'' into a ''DecodeJson''
    *
    */
-  implicit def toJawnDecode[J](implicit facade: Facade[J]): DecodeRequest[J] = new DecodeRequest[J] {
-    def apply(json: String): Try[J] = Parser.parseFromString(json) match {
+  implicit def decodeJawn[A](implicit facade: Facade[A]): DecodeRequest[A] = DecodeRequest(
+    Parser.parseFromString(_) match {
       case Success(value) => Return(value)
       case Failure(error) => Throw(error)
     }
-  }
+  )
 
   /**
-   * The ''EncodeJawn'' object takes a ''JValue'' (part of Jawn's ast package) and
+   * The ''encodeJawn'' object takes a ''JValue'' (part of Jawn's ast package) and
    * returns the string representation of that value.
    */
-  implicit val EncodeJawn: EncodeResponse[JValue] = new EncodeResponse[JValue] {
-    def apply(json: JValue): String = CanonicalRenderer.render(json)
-
-    override def contentType: String = "application/json"
-  }
+  implicit val encodeJawn: EncodeResponse[JValue] =
+    EncodeResponse("application/json")(CanonicalRenderer.render)
 }

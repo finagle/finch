@@ -39,6 +39,8 @@ class RouterSpec extends FlatSpec with Matchers {
     MethodToken(Method.Get), PathToken("a"), PathToken("1"), PathToken("b"), PathToken("2")
   )
 
+  val emptyRoute = List(MethodToken(Method.Get))
+
   "A Router" should "extract single string" in {
     val r = Get / string
     r(route) shouldBe Some((route.drop(2), "a"))
@@ -225,5 +227,17 @@ class RouterSpec extends FlatSpec with Matchers {
 
     Await.result(s(httpx.Request("/foo"))).contentString shouldBe "foo"
     Await.result(e(httpx.Request("/bar"))).contentString shouldBe "bar"
+  }
+
+  it should "handle the empty route well" in {
+    val r1 = Get / * / * / **
+    val r2 = Get / int / string / boolean
+    val r3 = Get / "a" / "b" / "c"
+    val r4 = Post
+
+    r1(emptyRoute) shouldBe Some(Nil)
+    r2(emptyRoute) shouldBe None
+    r3(emptyRoute) shouldBe None
+    r4(emptyRoute) shouldBe None
   }
 }
