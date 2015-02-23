@@ -30,10 +30,10 @@ import items._
 
 class RequestReaderCompanionSpec extends FlatSpec with Matchers {
 
-  "The RequestReaderCompanion" should "support a facotry method based on a funciton that reads from the request" in {
+  "The RequestReaderCompanion" should "support a factory method based on a function that reads from the request" in {
     val request: HttpRequest = Request(("foo", "5"))
-    val futureResult: Future[String] = RequestReader(ParamItem("foo"))(_.params.get("foo")).failIfEmpty(request)
-    Await.result(futureResult) shouldBe "5"
+    val futureResult: Future[Option[String]] = RequestReader(ParamItem("foo"))(_ => Some("5"))(request)
+    Await.result(futureResult) shouldBe Some("5")
   }
 
   it should "support a factory method based on a constant Future" in {

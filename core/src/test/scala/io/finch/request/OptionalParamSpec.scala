@@ -36,8 +36,14 @@ class OptionalParamSpec extends FlatSpec with Matchers {
     Await.result(futureResult) shouldBe Some("5")
   }
 
-  it should "produce an error if the param is empty" in {
+  it should "return none if the param is not present" in {
     val request: HttpRequest = Request()
+    val futureResult: Future[Option[String]] = OptionalParam("foo")(request)
+    Await.result(futureResult) shouldBe None
+  }
+
+  it should "return none if the param is empty" in {
+    val request: HttpRequest = Request("foo" -> "")
     val futureResult: Future[Option[String]] = OptionalParam("foo")(request)
     Await.result(futureResult) shouldBe None
   }
