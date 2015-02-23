@@ -134,6 +134,10 @@ Header         | `RequiredHeader(name)`/`OptionalHeader(name)` | `String`/`Optio
 Cookie         | `RequiredCookie(name)`/`OptionalCookie(name)` | `Cookie`/`Option[Cookie]`
 Text Body      | `RequiredBody`/`OptionalBody`                 | `String`/`Option[String]`
 Binary Body    | `RequiredBinaryBody`/`OptionalBinaryBody`     | `Array[Byte]`/`Option[Array[Byte]]`
+Multipart Parameter | `RequiredMultipartParam`/`OptionalMultipartParam` | `String`/`Option[String]`
+File Upload | `RequiredFileUpload`/`OptionalFileUpload` | `FileUpload`/`Option[FileUpload]`
+
+
 
 #### Required and Optional Readers
 

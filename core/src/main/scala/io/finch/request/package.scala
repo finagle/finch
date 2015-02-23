@@ -26,10 +26,13 @@
 
 package io.finch
 
-import com.twitter.finagle.httpx.Cookie
 import com.twitter.io.Buf
+import com.twitter.finagle.httpx.{Cookie, Method}
 import com.twitter.util.{Future, Throw, Try}
 
+import org.jboss.netty.handler.codec.http.multipart.{HttpPostRequestDecoder, Attribute}
+
+import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 
 package request {
@@ -91,6 +94,12 @@ package request {
  * }}}
  */
 package object request extends LowPriorityImplicits {
+
+  /**
+    * A type alias for a [[org.jboss.netty.handler.codec.http.multipart.FileUpload]]
+    * to prevent imports.
+    */
+  type FileUpload = org.jboss.netty.handler.codec.http.multipart.FileUpload
 
   /**
    * A [[io.finch.request.DecodeRequest DecodeRequest]] instance for `Int`.
@@ -240,7 +249,17 @@ package object request extends LowPriorityImplicits {
 
   // Helper functions.
   private[request] def requestParam(param: String)(req: HttpRequest): Option[String] =
-    req.params.get(param)
+    req.params.get(param) orElse {
+      import com.twitter.finagle.httpx.netty.Bijections._
+      val nettyReq = from(req)
+      if (req.method == Method.Post && HttpPostRequestDecoder.isMultipart(nettyReq)) {
+        val decoder = new HttpPostRequestDecoder(from(req))
+        decoder.getBodyHttpDatas.asScala.find(_.getName == param) flatMap {
+          case attr: Attribute => Some(attr.getValue)
+          case _ => None
+        }
+      } else None
+    }
 
   private[request] def requestParams(params: String)(req: HttpRequest): Seq[String] =
     req.params.getAll(params).toList.flatMap(_.split(","))
@@ -253,6 +272,15 @@ package object request extends LowPriorityImplicits {
 
   private[request] def requestCookie(cookie: String)(req: HttpRequest): Option[Cookie] =
     req.cookies.get(cookie)
+
+  private[request] def requestUpload(upload: String)(req: HttpRequest): Option[FileUpload] = {
+    import com.twitter.finagle.httpx.netty.Bijections._
+    val decoder = new HttpPostRequestDecoder(from(req))
+    decoder.getBodyHttpDatas.asScala.find(_.getName == upload).flatMap{
+      case file: FileUpload => Some(file)
+      case _ => None
+    }
+  }
 
   /**
    * A required string param.
@@ -431,6 +459,36 @@ package object request extends LowPriorityImplicits {
      * @return the cookie
      */
     def apply(cookieName: String): RequestReader[Cookie] = OptionalCookie(cookieName).failIfNone
+  }
+
+  /**
+    * An optional uploaded file that is send via a multipart/form-data request.
+    */
+  object OptionalFileUpload {
+    /**
+     * Creates a [[io.finch.request.RequestReader RequestReader]] that reads an optional file from a multipart/form-data
+     * request.
+     *
+     * @param upload the name of the parameter to read
+     * @return an `Option` that contains the file or `None` is the parameter does not exist on the request.
+     */
+    def apply(upload: String): RequestReader[Option[FileUpload]] =
+      RequestReader(ParamItem(upload))(requestUpload(upload))
+  }
+
+  /**
+   * A required uploaded file that is send via a multipart/form-data
+   * request
+   */
+  object RequiredFileUpload {
+    /**
+     * Creates a [[io.finch.request.RequestReader RequestReader]]
+     * that reads a required file from a multipart/form-data request.
+     *
+     * @param param the name of the parameter to read
+     * @return the file
+     */
+    def apply(param: String) = OptionalFileUpload(param).failIfNone
   }
 
   /**
