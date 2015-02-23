@@ -55,6 +55,13 @@ class HeaderSpec extends FlatSpec with Matchers {
     Await.result(futureResult) shouldBe None
   }
 
+  it should "be None if it's empty" in {
+    val request = Request()
+    request.headerMap.update("Location", "")
+    val futureResult = OptionalHeader("Location")(request)
+    Await.result(futureResult) shouldBe None
+  }
+
   "A Header Reader" should "have a matching RequestItem" in {
     val header = "Location"
     RequiredHeader(header).item shouldBe items.HeaderItem(header)

@@ -27,6 +27,7 @@
 package io.finch
 
 import com.twitter.finagle.httpx.Cookie
+import com.twitter.io.Buf
 import com.twitter.util.{Future, Throw, Try}
 
 import scala.reflect.ClassTag
@@ -160,6 +161,11 @@ package object request extends LowPriorityImplicits {
       case Some(value) => Future.const(magnet()(value).rescue(notParsed(reader, tag)) map (Some(_)))
       case None => Future.None
     }
+
+    private[request] def noneIfEmpty: RequestReader[Option[String]] = reader map {
+      case Some(value) if value.isEmpty => None
+      case other => other
+    }
   }
 
   /**
@@ -191,7 +197,8 @@ package object request extends LowPriorityImplicits {
    * Implicit conversion that adds convenience methods to readers for optional values.
    */
   implicit class OptionReaderOps[A](val reader: RequestReader[Option[A]]) extends AnyVal {
-    def failIfEmpty: RequestReader[A] = reader embedFlatMap {
+    // TODO: better name. See #187.
+    private[request] def failIfNone: RequestReader[A] = reader embedFlatMap {
       case Some(value) => value.toFuture
       case None => NotPresent(reader.item).toFutureException
     }
@@ -231,6 +238,22 @@ package object request extends LowPriorityImplicits {
     case None => true
   }
 
+  // Helper functions.
+  private[request] def requestParam(param: String)(req: HttpRequest): Option[String] =
+    req.params.get(param)
+
+  private[request] def requestParams(params: String)(req: HttpRequest): Seq[String] =
+    req.params.getAll(params).toList.flatMap(_.split(","))
+
+  private[request] def requestHeader(header: String)(req: HttpRequest): Option[String] =
+    req.headerMap.get(header)
+
+  private[request] def requestBody(req: HttpRequest): Array[Byte] =
+    Buf.ByteArray.Shared.extract(req.content)
+
+  private[request] def requestCookie(cookie: String)(req: HttpRequest): Option[Cookie] =
+    req.cookies.get(cookie)
+
   /**
    * A required string param.
    */
@@ -245,7 +268,7 @@ package object request extends LowPriorityImplicits {
      * @return a param value
      */
     def apply(param: String): RequestReader[String] =
-      OptionalParam(param).failIfEmpty.shouldNot("be empty")(_.trim.isEmpty)
+      RequestReader(ParamItem(param))(requestParam(param)).failIfNone shouldNot beEmpty
   }
 
   /**
@@ -261,16 +284,8 @@ package object request extends LowPriorityImplicits {
      *
      * @return an `Option` that contains a param value or `None` if the param is empty
      */
-    def apply(param: String): RequestReader[Option[String]] = RequestReader(ParamItem(param))(_.params.get(param))
-  }
-
-  /**
-   * A helper function that encapsulates the logic necessary to read a multi-value parameter.
-   */
-  private[this] object RequestParams {
-    def apply(req: HttpRequest, param: String): Seq[String] = {
-      req.params.getAll(param).toList.flatMap(_.split(","))
-    }
+    def apply(param: String): RequestReader[Option[String]] =
+      RequestReader(ParamItem(param))(requestParam(param)).noneIfEmpty
   }
 
   /**
@@ -288,9 +303,9 @@ package object request extends LowPriorityImplicits {
      * @return a `Seq` that contains all the values of multi-value param
      */
     def apply(param: String): RequestReader[Seq[String]] =
-      (RequestReader(ParamItem(param))(RequestParams(_, param)) embedFlatMap {
+      (RequestReader(ParamItem(param))(requestParams(param)) embedFlatMap {
         case Nil => NotPresent(ParamItem(param)).toFutureException
-        case unfiltered => unfiltered.filter(_ != "").toFuture
+        case unfiltered => unfiltered.filter(_.nonEmpty).toFuture
       }).shouldNot("be empty")(_.isEmpty)
   }
 
@@ -309,7 +324,7 @@ package object request extends LowPriorityImplicits {
      *         or empty.
      */
     def apply(param: String): RequestReader[Seq[String]] =
-      RequestReader(ParamItem(param))(RequestParams(_, param).filter(_ != ""))
+      RequestReader(ParamItem(param))(requestParams(param)(_).filter(_.nonEmpty))
   }
 
   /**
@@ -325,7 +340,8 @@ package object request extends LowPriorityImplicits {
      *
      * @return a header
      */
-    def apply(header: String): RequestReader[String] = OptionalHeader(header).failIfEmpty
+    def apply(header: String): RequestReader[String] =
+      RequestReader(HeaderItem(header))(requestHeader(header)).failIfNone shouldNot beEmpty
   }
 
   /**
@@ -342,22 +358,7 @@ package object request extends LowPriorityImplicits {
      * @return an `Option` that contains a header value or `None` if the header is not present in the request
      */
     def apply(header: String): RequestReader[Option[String]] =
-      RequestReader(HeaderItem(header))(_.headerMap.get(header))
-  }
-
-  /**
-   * A helper function that encapsulates the logic necessary to turn the `ChannelBuffer` of `req` into an `Array[Byte]`.
-   *
-   * @return the `Array[Byte]` representing the contents of the request body
-   */
-  private[this] object RequestBody {
-    def apply(req: HttpRequest): Array[Byte] = {
-      val buf = req.content
-      val out = Array.ofDim[Byte](buf.length)
-      buf.write(out, 0)
-
-      out
-    }
+      RequestReader(HeaderItem(header))(requestHeader(header)).noneIfEmpty
   }
 
   /**
@@ -366,7 +367,7 @@ package object request extends LowPriorityImplicits {
    */
   object RequiredBinaryBody extends RequestReader[Array[Byte]] {
     val item = BodyItem
-    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Array[Byte]] = OptionalBinaryBody.failIfEmpty(req)
+    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Array[Byte]] = OptionalBinaryBody.failIfNone(req)
   }
 
   /**
@@ -377,7 +378,7 @@ package object request extends LowPriorityImplicits {
     val item = BodyItem
     def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[Option[Array[Byte]]] =
       req.contentLength match {
-        case Some(length) if length > 0 => Some(RequestBody(req)).toFuture
+        case Some(length) if length > 0 => Some(requestBody(req)).toFuture
         case _ => Future.None
       }
   }
@@ -388,7 +389,7 @@ package object request extends LowPriorityImplicits {
    */
   object RequiredBody extends RequestReader[String] {
     val item = BodyItem
-    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[String] = OptionalBody.failIfEmpty(req)
+    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[String] = OptionalBody.failIfNone(req)
   }
 
   /**
@@ -413,7 +414,7 @@ package object request extends LowPriorityImplicits {
      *
      * @return an `Option` that contains a cookie or None if the cookie does not exist on the request.
      */
-    def apply(cookie: String): RequestReader[Option[Cookie]] = RequestReader(CookieItem(cookie))(_.cookies.get(cookie))
+    def apply(cookie: String): RequestReader[Option[Cookie]] = RequestReader(CookieItem(cookie))(requestCookie(cookie))
   }
 
   /**
@@ -429,7 +430,7 @@ package object request extends LowPriorityImplicits {
      *
      * @return the cookie
      */
-    def apply(cookieName: String): RequestReader[Cookie] = OptionalCookie(cookieName).failIfEmpty
+    def apply(cookieName: String): RequestReader[Cookie] = OptionalCookie(cookieName).failIfNone
   }
 
   /**
@@ -474,6 +475,8 @@ package object request extends LowPriorityImplicits {
    * A wrapper for two result values.
    */
   case class ~[+A, +B](_1: A, _2: B)
+
+  private[request] val beEmpty: ValidationRule[String] = ValidationRule("be empty")(_.isEmpty)
 
   /**
    * A [[io.finch.request.ValidationRule ValidationRule]] that makes sure the numeric value is greater than given `n`.
