@@ -485,10 +485,10 @@ package object request extends LowPriorityImplicits {
      * Creates a [[io.finch.request.RequestReader RequestReader]]
      * that reads a required file from a multipart/form-data request.
      *
-     * @param param the name of the parameter to read
+     * @param upload the name of the parameter to read
      * @return the file
      */
-    def apply(param: String) = OptionalFileUpload(param).failIfNone
+    def apply(upload: String): RequestReader[FileUpload] = OptionalFileUpload(upload).failIfNone
   }
 
   /**
