@@ -26,11 +26,11 @@
 
 package io.finch
 
-import com.twitter.finagle.httpx.Cookie
+import com.twitter.finagle.httpx.{Cookie, Method}
 import com.twitter.finagle.httpx.netty.Bijections._
 import com.twitter.util.{Future, Throw, Try}
 
-import org.jboss.netty.handler.codec.http.multipart.{FileUpload, HttpPostRequestDecoder, Attribute}
+import org.jboss.netty.handler.codec.http.multipart.{HttpPostRequestDecoder, Attribute}
 
 import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
@@ -94,6 +94,12 @@ package request {
  * }}}
  */
 package object request extends LowPriorityImplicits {
+
+  /**
+    * A type alias for a [[org.jboss.netty.handler.codec.http.multipart.FileUpload]]
+    * to prevent imports.
+    */
+  type FileUpload = org.jboss.netty.handler.codec.http.multipart.FileUpload
 
   /**
    * A [[io.finch.request.DecodeRequest DecodeRequest]] instance for `Int`.
@@ -265,7 +271,20 @@ package object request extends LowPriorityImplicits {
      *
      * @return an `Option` that contains a param value or `None` if the param is empty
      */
-    def apply(param: String): RequestReader[Option[String]] = RequestReader(ParamItem(param))(_.params.get(param))
+    def apply(param: String): RequestReader[Option[String]] =
+      RequestReader(ParamItem(param)){ req =>
+        // Finagle doesn't handle multipart parameter by default, so
+        // we need to add it here
+        if (req.method == Method.Post && HttpPostRequestDecoder.isMultipart(from(req))) {
+          val decoder = new HttpPostRequestDecoder(from(req))
+          decoder.getBodyHttpDatas.asScala.find(_.getName == param).map {
+            case attr: Attribute => Some(attr.getValue)
+            case _ => None
+          }.getOrElse(req.params.get(param))
+        } else {
+          req.params.get(param)
+        }
+      }
   }
 
   /**
@@ -437,45 +456,10 @@ package object request extends LowPriorityImplicits {
   }
 
   /**
-    * An optional parameter that is send via a multipart/form-data request
+    * An optional uploaded file that is send via a multipart/form-data
+    * request
     */
-  object OptionalMultipartParam {
-    /**
-     * Creates a [[io.finch.request.RequestReader RequestReader]]
-     * that reads an optional parameter from a multipart/form-data request.
-     *
-     * @param param the name of the parameter to read
-     * @return an `Option` that contains the parameter value or `None` is the parameter does not exist on the request.
-     */
-    def apply(param: String): RequestReader[Option[String]] =
-      RequestReader(ParamItem(param)) { req =>
-        val decoder = new HttpPostRequestDecoder(from(req))
-        decoder.getBodyHttpDatas.asScala.find(_.getName == param).flatMap{
-          case attr: Attribute => Some(attr.getValue)
-          case _ => None
-        }
-      }
-  }
-
-  /**
-   * A required parameter that is send via a multipart/form-data request
-   */
-  object RequiredMultipartParam {
-    /**
-     * Creates a [[io.finch.request.RequestReader RequestReader]]
-     * that reads a required parameter from a multipart/form-data request.
-     *
-     * @param param the name of the parameter to read
-     * @return the parameter value
-     */
-    def apply(param: String): RequestReader[String] =
-      OptionalMultipartParam(param).failIfEmpty.shouldNot("be empty")(_.trim.isEmpty)
-  }
-
-  /**
-    * An optional file that is send via a multipart/form-data request
-    */
-  object OptionalMultipartFile {
+  object OptionalFileUpload {
     /**
      * Creates a [[io.finch.request.RequestReader RequestReader]]
      * that reads an optional file from a multipart/form-data request.
@@ -494,9 +478,10 @@ package object request extends LowPriorityImplicits {
   }
 
   /**
-   * A required file that is send via a multipart/form-data request
+   * A required uploaded file that is send via a multipart/form-data
+   * request
    */
-  object RequiredMultipartFile {
+  object RequiredFileUpload {
     /**
      * Creates a [[io.finch.request.RequestReader RequestReader]]
      * that reads a required file from a multipart/form-data request.
@@ -504,7 +489,7 @@ package object request extends LowPriorityImplicits {
      * @param param the name of the parameter to read
      * @return the file
      */
-    def apply(param: String) = OptionalMultipartFile(param).failIfEmpty
+    def apply(param: String) = OptionalFileUpload(param).failIfEmpty
   }
 
   /**

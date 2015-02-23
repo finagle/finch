@@ -135,7 +135,7 @@ Cookie         | `RequiredCookie(name)`/`OptionalCookie(name)` | `Cookie`/`Optio
 Text Body      | `RequiredBody`/`OptionalBody`                 | `String`/`Option[String]`
 Binary Body    | `RequiredBinaryBody`/`OptionalBinaryBody`     | `Array[Byte]`/`Option[Array[Byte]]`
 Multipart Parameter | `RequiredMultipartParam`/`OptionalMultipartParam` | `String`/`Option[String]`
-Multipart File | `RequiredMultipartFile`/`OptionalMultipartFile` | [`FileUpload`](http://netty.io/4.0/api/io/netty/handler/codec/http/multipart/FileUpload.html)/`Option[[FileUpload]`
+File Upload | `RequiredFileUpload`/`OptionalFileUpload` | `FileUpload`/`Option[FileUpload]`
 
 
 

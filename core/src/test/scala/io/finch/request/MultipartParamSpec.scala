@@ -28,7 +28,6 @@ import com.twitter.util.{Await, Future, Try}
 import io.finch.HttpRequest
 import org.scalatest.{FlatSpec, Matchers}
 import java.nio.file.{Files, Path}
-import org.jboss.netty.handler.codec.http.multipart.FileUpload
 
 /**
   * Specification for multipart/form-data request.
@@ -50,43 +49,49 @@ class MultipartParameterSpec extends FlatSpec with Matchers {
 
   "A RequiredMultipartFile" should "have a filename" in {
     val request = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[FileUpload] = RequiredMultipartFile("groups")(request)
+    val futureResult: Future[FileUpload] = RequiredFileUpload("groups")(request)
     Await.result(futureResult).getFilename shouldBe "dealwithit.gif"
   }
 
   it should "have a content type" in {
     val request = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[FileUpload] = RequiredMultipartFile("groups")(request)
+    val futureResult: Future[FileUpload] = RequiredFileUpload("groups")(request)
     Await.result(futureResult).getContentType shouldBe "image/gif"
   }
 
   it should "have a size greater zero" in {
     val request = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[FileUpload] = RequiredMultipartFile("groups")(request)
+    val futureResult: Future[FileUpload] = RequiredFileUpload("groups")(request)
     Await.result(futureResult).get.size should be > 0
   }
 
   "An OptionalMultipartFile" should "have a filename if it exists" in {
     val request = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[Option[FileUpload]] = OptionalMultipartFile("groups")(request)
+    val futureResult: Future[Option[FileUpload]] = OptionalFileUpload("groups")(request)
     Await.result(futureResult).get.getFilename shouldBe "dealwithit.gif"
   }
 
   "A RequiredMultipartParam" should "be properly parsed if it exists" in {
     val request = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[String] = RequiredMultipartParam("type")(request)
+    val futureResult: Future[String] = RequiredParam("type")(request)
     Await.result(futureResult) shouldBe "text"
   }
 
   it should "produce an error if the param does not exist" in {
     val request = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[String] = RequiredMultipartParam("foo")(request)
+    val futureResult: Future[String] = RequiredParam("foo")(request)
     a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
+  }
+
+  it should "also return query parameters" in {
+    val request = requestFromBinaryFile("/upload.bytes")
+    val futureResult: Future[String] = RequiredParam("debug")(request)
+    Await.result(futureResult) shouldBe "true"
   }
 
   "An OptionalMultipartParam" should "be properly parsed when it exists" in {
     val request: HttpRequest = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[Option[String]] = OptionalMultipartParam("type")(request)
+    val futureResult: Future[Option[String]] = OptionalParam("type")(request)
     Await.result(futureResult) shouldBe Some("text")
   }
 
