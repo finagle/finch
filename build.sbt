@@ -70,14 +70,14 @@ lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
 lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Seq(
   site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "docs"),
   git.remoteRepo := s"git@github.com:finagle/finch.git",
-  unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(demo)
+  unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(demo, playground)
 )
 
 lazy val root = project.in(file("."))
   .settings(moduleName := "finch")
   .settings(allSettings: _*)
   .settings(docSettings: _*)
-  .aggregate(core, json, demo, jawn, argonaut, jackson, auth)
+  .aggregate(core, json, demo, playground, jawn, argonaut, jackson, auth)
 
 lazy val core = project
   .settings(moduleName := "finch-core")
@@ -94,6 +94,12 @@ lazy val demo = project
   .settings(moduleName := "finch-demo")
   .settings(allSettings: _*)
   .dependsOn(core, json)
+  .disablePlugins(CoverallsPlugin)
+
+lazy val playground = project
+  .settings(moduleName := "finch-playground")
+  .settings(allSettings: _*)
+  .dependsOn(core)
   .disablePlugins(CoverallsPlugin)
 
 lazy val jawn = project
