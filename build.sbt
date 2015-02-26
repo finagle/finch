@@ -99,7 +99,7 @@ lazy val demo = project
 lazy val playground = project
   .settings(moduleName := "finch-playground")
   .settings(allSettings: _*)
-  .dependsOn(core)
+  .dependsOn(core, jackson)
   .disablePlugins(CoverallsPlugin)
 
 lazy val jawn = project

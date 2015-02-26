@@ -23,12 +23,12 @@
 package io
 
 import com.twitter.finagle.httpx.path.Path
-
-import scala.language.implicitConversions
+import io.finch.response.{Ok, EncodeResponse}
 
 import com.twitter.finagle.httpx
 import com.twitter.util.Future
-import com.twitter.finagle.{Filter, Service}
+import com.twitter.finagle.Service
+import com.twitter.finagle.Filter
 
 /**
  * This is a root package of the Finch library, which provides an immutable layer of functions and types atop of Finagle
