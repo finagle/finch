@@ -240,4 +240,16 @@ class RouterSpec extends FlatSpec with Matchers {
     r3(emptyRoute) shouldBe None
     r4(emptyRoute) shouldBe None
   }
+
+  it should "use the first router if both eats the same number of tokens" in {
+    val r =
+      Get /> "root" |
+      Get / "foo" /> "foo"
+
+    val route1 = List(MethodToken(Method.Get))
+    val route2 = List(MethodToken(Method.Get), PathToken("foo"))
+
+    r(route1) shouldBe Some((Nil, "root"))
+    r(route2) shouldBe Some((Nil, "foo"))
+  }
 }

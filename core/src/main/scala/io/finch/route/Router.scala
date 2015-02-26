@@ -98,7 +98,7 @@ trait RouterN[+A] { self =>
   def orElse[B >: A](that: RouterN[B]): RouterN[B] = new RouterN[B] {
     def apply(route: Route): Option[(Route, B)] = (self(route), that(route)) match {
       case (aa @ Some((a, _)), bb @ Some((b, _))) =>
-        if (a.length < b.length) aa else bb
+        if (a.length <= b.length) aa else bb
       case (a, b) => a orElse b
     }
 
@@ -185,7 +185,7 @@ trait Router0 { self =>
   def orElse(that: Router0): Router0 = new Router0 {
     def apply(route: Route): Option[Route] = (self(route), that(route)) match {
       case (aa @ Some(a), bb @ Some(b)) =>
-        if (a.length < b.length) aa else bb
+        if (a.length <= b.length) aa else bb
       case (a, b) => a orElse b
     }
 
