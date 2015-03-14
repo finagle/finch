@@ -39,15 +39,23 @@ import io.finch.route._            // import route combinators
  */
 object Main extends App {
 
+  // Serve the backend using the Httpx protocol.
+  val _ = Await.ready(Httpx.serve(":8080", Demo.backend))
+}
+
+object Demo {
+
   import model._
   import endpoint._
+
+  val secret = "open sesame"
 
   // A Finagle filter that authorizes a request: performs conversion `HttpRequest` => `AuthRequest`.
   val authorize = new Filter[HttpRequest, HttpResponse, AuthRequest, HttpResponse] {
     def apply(req: HttpRequest, service: Service[AuthRequest, HttpResponse]): Future[HttpResponse] = for {
-      secret <- OptionalHeader("X-Secret")(req)
-      rep <- secret collect {
-        case "open sesame" => service(AuthRequest(req))
+      `X-Secret` <- OptionalHeader("X-Secret")(req)
+      rep <- `X-Secret` collect {
+        case secret => service(AuthRequest(req))
       } getOrElse Unauthorized().toFuture
     } yield rep
   }
@@ -98,6 +106,4 @@ object Main extends App {
   val backend: Service[HttpRequest, HttpResponse] =
     handleExceptions ! authorize ! (api ! TurnModelIntoJson ! TurnIntoHttp[Json])
 
-  // Serve the backend using the Httpx protocol.
-  Await.ready(Httpx.serve(":8080", backend))
 }
