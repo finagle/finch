@@ -80,9 +80,9 @@ trait RequestReader[A] { self =>
     def apply[Req] (req: Req)(implicit ev: Req => HttpRequest): Future[A ~ B] =
       Future.join(self(req)(ev).liftToTry, that(req)(ev).liftToTry) flatMap {
         case (Return(a), Return(b)) => new ~(a, b).toFuture
-        case (Throw(a), Throw(b)) => collectExceptions(a, b).toFutureException
-        case (Throw(e), _) => e.toFutureException
-        case (_, Throw(e)) => e.toFutureException
+        case (Throw(a), Throw(b)) => collectExceptions(a, b).toFutureException[A ~ B]
+        case (Throw(e), _) => e.toFutureException[A ~ B]
+        case (_, Throw(e)) => e.toFutureException[A ~ B]
       }
 
     def collectExceptions (a: Throwable, b: Throwable): RequestErrors = {
@@ -111,7 +111,7 @@ trait RequestReader[A] { self =>
    */
   def should(rule: String)(predicate: A => Boolean): RequestReader[A] = embedFlatMap { a =>
     if (predicate(a)) a.toFuture
-    else NotValid(self.item, "should " + rule).toFutureException
+    else NotValid(self.item, "should " + rule).toFutureException[A]
   }
 
   /**
@@ -174,7 +174,7 @@ object RequestReader {
    * @return a new reader that always fails, producing the specified exception
    */
   def exception[A](exc: Throwable, item: RequestItem = MultipleItems): RequestReader[A] =
-    const[A](exc.toFutureException)
+    const[A](exc.toFutureException[A])
 
   /**
    * Creates a new [[io.finch.request.RequestReader RequestReader]] that always produces the specified value. It will
