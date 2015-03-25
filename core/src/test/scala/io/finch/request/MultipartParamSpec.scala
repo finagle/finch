@@ -45,29 +45,29 @@ import java.nio.file.{Files, Path}
   *   <input type="submit" name="submit" value="Submit">
   * </form>
   */
-class MultipartParameterSpec extends FlatSpec with Matchers {
+class MultipartParamSpec extends FlatSpec with Matchers {
 
   "A RequiredMultipartFile" should "have a filename" in {
     val request = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[FileUpload] = RequiredFileUpload("groups")(request)
+    val futureResult: Future[FileUpload] = fileUpload("groups")(request)
     Await.result(futureResult).getFilename shouldBe "dealwithit.gif"
   }
 
   it should "have a content type" in {
     val request = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[FileUpload] = RequiredFileUpload("groups")(request)
+    val futureResult: Future[FileUpload] = fileUpload("groups")(request)
     Await.result(futureResult).getContentType shouldBe "image/gif"
   }
 
   it should "have a size greater zero" in {
     val request = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[FileUpload] = RequiredFileUpload("groups")(request)
+    val futureResult: Future[FileUpload] = fileUpload("groups")(request)
     Await.result(futureResult).get.size should be > 0
   }
 
   "An OptionalMultipartFile" should "have a filename if it exists" in {
     val request = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[Option[FileUpload]] = OptionalFileUpload("groups")(request)
+    val futureResult: Future[Option[FileUpload]] = fileUploadOption("groups")(request)
     Await.result(futureResult).get.getFilename shouldBe "dealwithit.gif"
   }
 

@@ -51,10 +51,8 @@ import scala.reflect.ClassTag
  * {{{
  *   case class Complex(r: Double, i: Double)
  *   val complex: RequestReader[Complex] =
- *     RequiredParam("real").as[Double] ~
- *     OptionalParam("imaginary").as[Double] map {
- *       case r ~ i => Complex(r, i.getOrElse(0.0))
- *     }
+ *     param("real").as[Double] ~
+ *     paramOption("imaginary").as[Double].withDefault(0.0) ~> Complex
  * }}}
  *
  * A `ValidationRule` enables a reusable way of defining a validation rules in the application domain. It might be
@@ -64,10 +62,8 @@ import scala.reflect.ClassTag
  * {{{
  *   case class User(name: String, age: Int)
  *   val user: RequestReader[User] =
- *     RequiredParam("name") should beLongerThan(3) ~
- *     RequiredParam("age").as[Int] should (beGreaterThan(0) and beLessThan(120)) map {
- *       case name ~ age => User(name, age)
- *     }
+ *     param("name") should beLongerThan(3) ~
+ *     param("age").as[Int] should (beGreaterThan(0) and beLessThan(120)) ~> User
  * }}}
  */
 package object request extends LowPriorityRequestReaderImplicits {
@@ -212,26 +208,20 @@ package object request extends LowPriorityRequestReaderImplicits {
    * Implicit conversion that adds convenience methods to readers for optional values.
    */
   implicit class OptionReaderOps[R, A](val rr: PRequestReader[R, Option[A]]) extends AnyVal {
-    // TODO: better name. See #187.
     private[request] def failIfNone: PRequestReader[R, A] = rr.embedFlatMap {
       case Some(value) => value.toFuture
       case None => NotPresent(rr.item).toFutureException
     }
 
-
     /**
      * If reader is empty it will return provided default value
      */
-    def withDefault[B >: A](default: => B): PRequestReader[R, B] = rr.map {
-      _ getOrElse default
-    }
+    def withDefault[B >: A](default: => B): PRequestReader[R, B] = rr.map(_.getOrElse(default))
 
     /**
      * If reader is empty it will return provided alternative
      */
-    def orElse[B >: A](alternative: => Option[B]): PRequestReader[R, Option[B]] = rr.map {
-      _ orElse alternative
-    }
+    def orElse[B >: A](alternative: => Option[B]): PRequestReader[R, Option[B]] = rr.map(_.orElse(alternative))
   }
 
   /**
@@ -354,7 +344,7 @@ package object request extends LowPriorityRequestReaderImplicits {
       val nettyReq = from(req)
       if (req.method == Method.Post && HttpPostRequestDecoder.isMultipart(nettyReq)) {
         val decoder = new HttpPostRequestDecoder(from(req))
-        decoder.getBodyHttpDatas.asScala.find(_.getName == param) flatMap {
+        decoder.getBodyHttpDatas.asScala.find(_.getName == param).flatMap {
           case attr: Attribute => Some(attr.getValue)
           case _ => None
         }
@@ -386,17 +376,152 @@ package object request extends LowPriorityRequestReaderImplicits {
   private[request] def rr[A](i: RequestItem)(f: HttpRequest => A): RequestReader[A] =
     RequestReader.embed[HttpRequest, A](i)(f(_).toFuture)
 
+  /**
+   * Creates a [[RequestReader]] that reads a required query-string param `name` from the request or raises a
+   * [[NotPresent]] exception when the param is missing; a [[NotValid]] exception is the param is empty.
+   *
+   * @param name the param name to read
+   *
+   * @return a param value
+   */
+  def param(name: String): RequestReader[String] =
+    rr(ParamItem(name))(requestParam(name)).failIfNone.shouldNot(beEmpty)
+
+  /**
+   * Creates a [[RequestReader]] that reads an optional query-string param `name` from the request into an `Option`.
+   *
+   * @param name the param to read
+   *
+   * @return an `Option` that contains a param value or `None` if the param is empty
+   */
+  def paramOption(name: String): RequestReader[Option[String]] =
+    rr(ParamItem(name))(requestParam(name)).noneIfEmpty
+
+  /**
+   * Creates a [[RequestReader]] that reads a required (in a meaning that a resulting `Seq` will have at least one
+   * element) multi-value query-string param `name` from the request into a `Seq` or raises a [[NotPresent]] exception
+   * when the params are missing or empty.
+   *
+   * @param name the param to read
+   *
+   * @return a `Seq` that contains all the values of multi-value param
+   */
+  def paramsNonEmpty(name: String): RequestReader[Seq[String]] =
+    rr(ParamItem(name))(requestParams(name)).embedFlatMap({
+      case Nil => NotPresent(ParamItem(name)).toFutureException
+      case unfiltered => unfiltered.filter(_.nonEmpty).toFuture
+    }).shouldNot("be empty")(_.isEmpty)
+
+  /**
+   * Creates a [[RequestReader]] that reads an optional (in a meaning that a resulting `Seq` may be empty) multi-value
+   * query-string param `name` from the request into a `Seq`.
+   *
+   * @param name the param to read
+   *
+   * @return a `Seq` that contains all the values of multi-value param or an empty seq `Nil` if the params are missing
+   *         or empty.
+   */
+  def params(name: String): RequestReader[Seq[String]] =
+    rr(ParamItem(name))(requestParams(name)(_).filter(_.nonEmpty))
+
+  /**
+   * Creates a [[RequestReader]] that reads a required HTTP header `name` from the request or raises a [[NotPresent]]
+   * exception when the header is missing.
+   *
+   * @param name the header to read
+   *
+   * @return a header
+   */
+  def header(name: String): RequestReader[String] =
+    rr(HeaderItem(name))(requestHeader(name)).failIfNone.shouldNot(beEmpty)
+
+  /**
+   * Creates a [[RequestReader]] that reads an optional HTTP header `name` from the request into an `Option`.
+   *
+   * @param name the header to read
+   *
+   * @return an `Option` that contains a header value or `None` if the header is not present in the request
+   */
+  def headerOption(name: String): RequestReader[Option[String]] =
+    rr(HeaderItem(name))(requestHeader(name)).noneIfEmpty
+
+  /**
+   * A [[RequestReader]] that reads a binary request body, interpreted as a `Array[Byte]`, into an `Option`.
+   */
+  val binaryBodyOption: RequestReader[Option[Array[Byte]]] = rr(BodyItem) { req =>
+    req.contentLength.flatMap(length =>
+      if (length > 0) Some(requestBody(req)) else None
+    )
+  }
+
+  /**
+   * A [[RequestReader]] that reads a required binary request body, interpreted as a `Array[Byte]`, or throws a
+   * [[NotPresent]] exception.
+   */
+  val binaryBody: RequestReader[Array[Byte]] = binaryBodyOption.failIfNone
+
+  /**
+   * A [[RequestReader]] that reads an optional request body, interpreted as a `String`, into an `Option`.
+   */
+  val bodyOption: RequestReader[Option[String]] = binaryBodyOption.map(_.map(new String(_, "UTF-8")))
+
+  /**
+   * A [[RequestReader]] that reads the required request body, interpreted as a `String`, or throws a [[NotPresent]]
+   * exception.
+   */
+  val body: RequestReader[String] = bodyOption.failIfNone
+
+  /**
+   * Creates a [[RequestReader]] that reads an optional HTTP cookie from the request into an `Option`.
+   *
+   * @param name the name of the cookie to read
+   *
+   * @return an `Option` that contains a cookie or None if the cookie does not exist on the request.
+   */
+  def cookieOption(name: String): RequestReader[Option[Cookie]] = rr(CookieItem(name))(requestCookie(name))
+
+  /**
+   * Creates a [[RequestReader]] that reads a required cookie from the request or raises a [[NotPresent]] exception
+   * when the cookie is missing.
+   *
+   * @param name the name of the cookie to read
+   *
+   * @return the cookie
+   */
+  def cookie(name: String): RequestReader[Cookie] = cookieOption(name).failIfNone
+
+  /**
+   * Creates a [[RequestReader]] that reads an optional file upload from a multipart/form-data request into an `Option`.
+   *
+   * @param name the name of the parameter to read
+   * @return an `Option` that contains the file or `None` is the parameter does not exist on the request.
+   */
+  def fileUploadOption(name: String): RequestReader[Option[FileUpload]] = rr(ParamItem(name))(requestUpload(name))
+
+  /**
+   * Creates a [[RequestReader]] that reads a required file upload from a multipart/form-data request.
+   *
+   * @param name the name of the parameter to read
+   * @return the file
+   */
+  def fileUpload(name: String): RequestReader[FileUpload] = fileUploadOption(name).failIfNone
+
+  //
+  //
+  // --------- Deprecated methods -----------
+  //
+  //
 
   /**
    * Creates a [[io.finch.request.RequestReader RequestReader]] that reads a required string ''param'' from the
    * request or raises a [[io.finch.request.NotPresent NotPresent]] exception when the param is missing or empty.
    *
-   * @param param the param to read
+   * @param name the param name to read
    *
    * @return a param value
    */
-  def RequiredParam(param: String): RequestReader[String] =
-    rr(ParamItem(param))(requestParam(param)).failIfNone.shouldNot(beEmpty)
+  @deprecated("Use param(name) instead", "0.6.0")
+  def RequiredParam(name: String): RequestReader[String] = param(name)
 
   /**
    * Creates a [[io.finch.request.RequestReader RequestReader]] that reads an optional string ''param'' from the
@@ -406,8 +531,8 @@ package object request extends LowPriorityRequestReaderImplicits {
    *
    * @return an `Option` that contains a param value or `None` if the param is empty
    */
-  def OptionalParam(param: String): RequestReader[Option[String]] =
-    rr(ParamItem(param))(requestParam(param)).noneIfEmpty
+  @deprecated("Use paramOption(name) instead", "0.6.0")
+  def OptionalParam(param: String): RequestReader[Option[String]] = paramOption(param)
 
   /**
    * Creates a [[io.finch.request.RequestReader RequestReader]] that reads a required multi-value string ''param''
@@ -418,11 +543,8 @@ package object request extends LowPriorityRequestReaderImplicits {
    *
    * @return a `Seq` that contains all the values of multi-value param
    */
-  def RequiredParams(param: String): RequestReader[Seq[String]] =
-    rr(ParamItem(param))(requestParams(param)).embedFlatMap({
-      case Nil => NotPresent(ParamItem(param)).toFutureException
-      case unfiltered => unfiltered.filter(_.nonEmpty).toFuture
-    }).shouldNot("be empty")(_.isEmpty)
+  @deprecated("Use paramsNonEmpty(name) instead.", "0.6.0")
+  def RequiredParams(param: String): RequestReader[Seq[String]] = paramsNonEmpty(param)
 
   /**
    * Creates a [[io.finch.request.RequestReader RequestReader]] that reads an optional multi-value string ''param''
@@ -433,67 +555,68 @@ package object request extends LowPriorityRequestReaderImplicits {
    * @return a `Seq` that contains all the values of multi-value param or an empty seq `Nil` if the param is missing
    *         or empty.
    */
-  def OptionalParams(param: String): RequestReader[Seq[String]] =
-    rr(ParamItem(param))(requestParams(param)(_).filter(_.nonEmpty))
+  @deprecated("Use params(name) instead.", "0.6.0")
+  def OptionalParams(param: String): RequestReader[Seq[String]] = params(param)
 
   /**
    * Creates a [[io.finch.request.RequestReader RequestReader]] that reads a required string ''header'' from the
    * request or raises a [[io.finch.request.NotPresent NotPresent]] exception when the header is missing.
    *
-   * @param header the header to read
+   * @param name the header to read
    *
    * @return a header
    */
-  def RequiredHeader(header: String): RequestReader[String] =
-    rr(HeaderItem(header))(requestHeader(header)).failIfNone shouldNot beEmpty
+  @deprecated("Use header(name) instead.", "0.6.0")
+  def RequiredHeader(name: String): RequestReader[String] = header(name)
 
   /**
    * Creates a [[io.finch.request.RequestReader RequestReader]] that reads an optional string ''header'' from the
    * request into an `Option`.
    *
-   * @param header the header to read
+   * @param name the header to read
    *
    * @return an `Option` that contains a header value or `None` if the header is not present in the request
    */
-  def OptionalHeader(header: String): RequestReader[Option[String]] =
-    rr(HeaderItem(header))(requestHeader(header)).noneIfEmpty
+  @deprecated("Use headerOption(name) instead.", "0.6.0")
+  def OptionalHeader(name: String): RequestReader[Option[String]] = headerOption(name)
 
   /**
    * A [[io.finch.request.RequestReader RequestReader]] that reads a binary request ''body'', interpreted as a
    * `Array[Byte]`, into an `Option`.
    */
-  val OptionalBinaryBody: RequestReader[Option[Array[Byte]]] = rr(BodyItem) { req =>
-    req.contentLength.flatMap(length =>
-      if (length > 0) Some(requestBody(req)) else None
-    )
-  }
+  @deprecated("Use binaryBodyOption instead.", "0.6.0")
+  val OptionalBinaryBody: RequestReader[Option[Array[Byte]]] = binaryBodyOption
 
   /**
-   * A [[io.finch.request.RequestReader RequestReader]] that reads a binary request ''body'', interpreted as a
+   * A [[io.finch.request.RequestReader RequestReader]] that reads an optional binary request ''body'', interpreted as a
    * `Array[Byte]`, or throws a [[io.finch.request.NotPresent NotPresent]] exception.
    */
-  val RequiredBinaryBody: RequestReader[Array[Byte]] = OptionalBinaryBody.failIfNone
+  @deprecated("Use binaryBody instead.", "0.6.0")
+  val RequiredBinaryBody: RequestReader[Array[Byte]] = binaryBody
 
   /**
    * A [[io.finch.request.RequestReader RequestReader]] that reads the request body, interpreted as a `String`, into an
    * `Option`.
    */
-  val OptionalBody: RequestReader[Option[String]] = OptionalBinaryBody.map(_.map(new String(_, "UTF-8")))
+  @deprecated("Use bodyOption instead.", "0.6.0")
+  val OptionalBody: RequestReader[Option[String]] = bodyOption
 
   /**
    * A [[io.finch.request.RequestReader RequestReader]] that reads the request body, interpreted as a `String`, or
    * throws a [[io.finch.request.NotPresent NotPresent]] exception.
    */
-  val RequiredBody: RequestReader[String] = OptionalBody.failIfNone
+  @deprecated("Use body instead.", "0.6.0")
+  val RequiredBody: RequestReader[String] = body
 
   /**
    * Creates a [[io.finch.request.RequestReader RequestReader]] that reads an optional cookie from the request.
    *
-   * @param cookie the name of the cookie to read
+   * @param name the name of the cookie to read
    *
    * @return an `Option` that contains a cookie or None if the cookie does not exist on the request.
    */
-  def OptionalCookie(cookie: String): RequestReader[Option[Cookie]] = rr(CookieItem(cookie))(requestCookie(cookie))
+  @deprecated("Use cookieOption(name) instead.", "0.6.0")
+  def OptionalCookie(name: String): RequestReader[Option[Cookie]] = cookieOption(name)
 
   /**
    * Creates a [[RequestReader]] that reads a required cookie from the request or raises a [[NotPresent]] exception
@@ -503,26 +626,8 @@ package object request extends LowPriorityRequestReaderImplicits {
    *
    * @return the cookie
    */
-  def RequiredCookie(cookie: String): RequestReader[Cookie] = OptionalCookie(cookie).failIfNone
-
-  /**
-   * Creates a [[io.finch.request.RequestReader RequestReader]] that reads an optional file from a multipart/form-data
-   * request.
-   *
-   * @param upload the name of the parameter to read
-   * @return an `Option` that contains the file or `None` is the parameter does not exist on the request.
-   */
-  def OptionalFileUpload(upload: String): RequestReader[Option[FileUpload]] =
-    rr(ParamItem(upload))(requestUpload(upload))
-
-  /**
-   * Creates a [[io.finch.request.RequestReader RequestReader]]
-   * that reads a required file from a multipart/form-data request.
-   *
-   * @param upload the name of the parameter to read
-   * @return the file
-   */
-  def RequiredFileUpload(upload: String): RequestReader[FileUpload] = OptionalFileUpload(upload).failIfNone
+  @deprecated("Use cookie(name) instead.", "0.6.0")
+  def RequiredCookie(cookie: String): RequestReader[Cookie] = cookieOption(cookie).failIfNone
 
   /**
    * An abstraction that is responsible for decoding the request of type `A`.
