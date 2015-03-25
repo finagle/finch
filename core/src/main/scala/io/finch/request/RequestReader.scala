@@ -50,9 +50,11 @@ trait PRequestReader[R, A] { self =>
   /**
    * Flat-maps this request reader to the given function `A => PRequestReader[R, B]`.
    */
-  def flatMap[B](fn: A => PRequestReader[R, B]): PRequestReader[R, B] = new PRequestReader[R, B] {
+  def flatMap[S, B](fn: A => PRequestReader[S, B])(
+    implicit ev: R %> S
+  ): PRequestReader[R, B] = new PRequestReader[R, B] {
     val item = MultipleItems
-    def apply(req: R): Future[B] = self(req) flatMap { fn(_)(req) }
+    def apply(req: R): Future[B] = self(req) flatMap { fn(_)(ev(req)) }
   }
 
   /**
@@ -74,9 +76,11 @@ trait PRequestReader[R, A] { self =>
   /**
    * Composes this request reader with the given `that` request reader.
    */
-  def ~[S, B](magnet: ApplicativeMagnet[R, A, S, B]): PRequestReader[S, A ~ B] = new PRequestReader[S, A ~ B] {
+  def ~[S, B](that: PRequestReader[S, B])(
+    implicit ev: R %> S
+  ): PRequestReader[R, A ~ B] = new PRequestReader[R, A ~ B] {
     val item = MultipleItems
-    def apply(req: S): Future[A ~ B] = magnet(req, self).flatMap {
+    def apply(req: R): Future[A ~ B] = Future.join(self(req).liftToTry, that(ev(req)).liftToTry).flatMap {
       case (Return(a), Return(b)) => new ~(a, b).toFuture
       case (Throw(a), Throw(b)) => collectExceptions(a, b).toFutureException[A ~ B]
       case (Throw(e), _) => e.toFutureException[A ~ B]

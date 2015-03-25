@@ -22,7 +22,7 @@ object Main extends App {
   implicit val objectMapper: ObjectMapper = new ObjectMapper().registerModule(DefaultScalaModule)
 
   // model
-  case class Group(name: String, ownerId: Int = 0)
+  case class Group(ownerId: Int = 0, name: String)
   case class User(id: Int, groups: Seq[Group])
 
   case class UnknownUser(id: Int) extends Exception(s"Unknown user with id=$id")
@@ -44,11 +44,11 @@ object Main extends App {
 
   // GET /user/groups -> Seq[Group]
   val getUserGroups: AuthMicro[Seq[Group]] =
-    currentUser ~> { userId => Seq(Group("foo", userId), Group("bar", userId)) }
+    currentUser ~> { userId => Seq(Group(userId, "foo"), Group(userId, "bar")) }
 
   // POST /groups?name=foo -> Group
   val postGroup: AuthMicro[Group] =
-    RequiredParam("name") ~ currentUser ~> Group
+    currentUser ~ RequiredParam("name") ~> Group
 
   // PUT /user/groups/:group -> User
   def putUserGroup(group: String): AuthMicro[User] =

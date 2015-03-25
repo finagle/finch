@@ -548,31 +548,6 @@ package object request extends LowPriorityRequestReaderImplicits {
     }
 
   /**
-   *
-   */
-  trait ApplicativeMagnet[R, A, S, B] {
-    def apply(req: S, left: PRequestReader[R, A]): Future[(Try[A], Try[B])]
-  }
-
-  trait LowPriorityApplicativeMagnetImplicits {
-    implicit def rightAssociativeMagnet[R, A, S, B](right: PRequestReader[S, B])(
-      implicit ev: R %> S
-      ): ApplicativeMagnet[R, A, R, B] = new ApplicativeMagnet[R, A, R, B] {
-      def apply(req: R, left: PRequestReader[R, A]): Future[(Try[A], Try[B])] =
-        Future.join(left(req).liftToTry, right(ev(req)).liftToTry)
-    }
-  }
-
-  object ApplicativeMagnet extends LowPriorityApplicativeMagnetImplicits {
-    implicit def leftAssociativeMagnet[R, A, S, B](right: PRequestReader[S, B])(
-      implicit ev: S %> R
-      ): ApplicativeMagnet[R, A, S, B] = new ApplicativeMagnet[R, A, S, B] {
-      def apply(req: S, left: PRequestReader[R, A]): Future[(Try[A], Try[B])] =
-        Future.join(left(ev(req)).liftToTry, right(req).liftToTry)
-    }
-  }
-
-  /**
    * A wrapper for two result values.
    */
   case class ~[+A, +B](_1: A, _2: B)
