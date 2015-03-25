@@ -119,19 +119,6 @@ trait RouterN[+A] { self =>
   def /(that: Router0): RouterN[A] =
     this andThen that
 
-  /**
-   * Maps this router to the given function `A => B`.
-   */
-  def />[B](fn: A => B): RouterN[B] =
-    this map fn
-
-  /**
-   * Sequentially composes this router with the given `that` router. The resulting router will succeed if either this or
-   * `that` routers are succeed.
-   */
-  def |[B >: A](that: RouterN[B]): RouterN[B] =
-    this orElse that
-
   // A workaround for https://issues.scala-lang.org/browse/SI-1336
   def withFilter(p: A => Boolean): RouterN[A] = self
 }

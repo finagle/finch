@@ -140,7 +140,7 @@ class RouterSpec extends FlatSpec with Matchers {
 
   it should "be composable as an endpoint" in {
     val r1 = Get / "a" / int /> { _ + 10 }
-    val r2 = Get / "b" / int / int /> { case a / b => a + b }
+    val r2 = Get / "b" / int / int /> { _ + _ }
     val r3 = r1 | r2
 
     r3(route) shouldBe Some((route.drop(3), 11))

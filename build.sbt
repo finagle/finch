@@ -5,7 +5,7 @@ lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   version := "0.6.0-SNAPSHOT",
   scalaVersion := "2.11.5",
-  crossScalaVersions := Seq("2.10.4", "2.11.5")
+  crossScalaVersions := Seq("2.10.5", "2.11.6")
 )
 
 lazy val compilerOptions = scalacOptions ++= Seq(
@@ -99,7 +99,7 @@ lazy val demo = project
 lazy val playground = project
   .settings(moduleName := "finch-playground")
   .settings(allSettings: _*)
-  .dependsOn(core)
+  .dependsOn(core, jackson)
   .disablePlugins(CoverallsPlugin)
 
 lazy val jawn = project

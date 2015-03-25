@@ -31,9 +31,9 @@ import io.finch._
 import io.finch.request.items._
 
 /**
- * A request reader (a reader monad) that reads a [[com.twitter.util.Future Future]] of `A` from the HTTP request.
+ * A polymorphic request reader (a reader monad) that reads a [[Future]] of `A` from the request of type `R`.
  */
-trait RequestReader[A] { self =>
+trait PRequestReader[R, A] { self =>
 
   /**
    * A [[io.finch.request.items.RequestItem RequestItem]] read by this request reader.
@@ -43,50 +43,52 @@ trait RequestReader[A] { self =>
   /**
    * Reads the data from given request `req`.
    *
-   * @tparam Req the request type
    * @param req the request to read
    */
-  def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[A]
+  def apply(req: R): Future[A]
 
   /**
-   * Flat-maps this request reader to the given function `A => RequestReader[B]`.
+   * Flat-maps this request reader to the given function `A => PRequestReader[R, B]`.
    */
-  def flatMap[B](fn: A => RequestReader[B]): RequestReader[B] = new RequestReader[B] {
+  def flatMap[S, B](fn: A => PRequestReader[S, B])(
+    implicit ev: R %> S
+  ): PRequestReader[R, B] = new PRequestReader[R, B] {
     val item = MultipleItems
-    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[B] = self(req) flatMap { fn(_)(req) }
+    def apply(req: R): Future[B] = self(req) flatMap { fn(_)(ev(req)) }
   }
 
   /**
    * Maps this request reader to the given function `A => B`.
    */
-  def map[B](fn: A => B): RequestReader[B] = new RequestReader[B] {
+  def map[B](fn: A => B): PRequestReader[R, B] = new PRequestReader[R, B] {
     val item = self.item
-    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[B] = self(req) map fn
+    def apply(req: R): Future[B] = self(req) map fn
   }
 
   /**
    * Flat-maps this request reader to the given function `A => Future[B]`.
    */
-  def embedFlatMap[B](fn: A => Future[B]): RequestReader[B] = new RequestReader[B] {
+  def embedFlatMap[B](fn: A => Future[B]): PRequestReader[R, B] = new PRequestReader[R, B] {
     val item = self.item
-    def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[B] = self(req) flatMap fn
+    def apply(req: R): Future[B] = self(req) flatMap fn
   }
 
   /**
    * Composes this request reader with the given `that` request reader.
    */
-  def ~[B](that: RequestReader[B]): RequestReader[A ~ B] = new RequestReader[A ~ B] {
+  def ~[S, B](that: PRequestReader[S, B])(
+    implicit ev: R %> S
+  ): PRequestReader[R, A ~ B] = new PRequestReader[R, A ~ B] {
     val item = MultipleItems
-    def apply[Req] (req: Req)(implicit ev: Req => HttpRequest): Future[A ~ B] =
-      Future.join(self(req)(ev).liftToTry, that(req)(ev).liftToTry) flatMap {
-        case (Return(a), Return(b)) => new ~(a, b).toFuture
-        case (Throw(a), Throw(b)) => collectExceptions(a, b).toFutureException[A ~ B]
-        case (Throw(e), _) => e.toFutureException[A ~ B]
-        case (_, Throw(e)) => e.toFutureException[A ~ B]
-      }
+    def apply(req: R): Future[A ~ B] = Future.join(self(req).liftToTry, that(ev(req)).liftToTry).flatMap {
+      case (Return(a), Return(b)) => new ~(a, b).toFuture
+      case (Throw(a), Throw(b)) => collectExceptions(a, b).toFutureException[A ~ B]
+      case (Throw(e), _) => e.toFutureException[A ~ B]
+      case (_, Throw(e)) => e.toFutureException[A ~ B]
+    }
 
-    def collectExceptions (a: Throwable, b: Throwable): RequestErrors = {
-      def collect (e: Throwable): Seq[Throwable] = e match {
+    def collectExceptions(a: Throwable, b: Throwable): RequestErrors = {
+      def collect(e: Throwable): Seq[Throwable] = e match {
         case RequestErrors(errors) => errors
         case other => Seq(other)
       }
@@ -98,7 +100,7 @@ trait RequestReader[A] { self =>
   /**
    * Applies the given filter `p` to this request reader.
    */
-  def withFilter(p: A => Boolean): RequestReader[A] = self.should("not fail validation")(p)
+  def withFilter(p: A => Boolean): PRequestReader[R, A] = self.should("not fail validation")(p)
 
   /**
    * Validates the result of this request reader using a `predicate`. The rule is used for error reporting.
@@ -109,7 +111,7 @@ trait RequestReader[A] { self =>
    * @return a request reader that will return the value of this reader if it is valid.
    *         Otherwise the future fails with a [[io.finch.request.NotValid NotValid]] error.
    */
-  def should(rule: String)(predicate: A => Boolean): RequestReader[A] = embedFlatMap { a =>
+  def should(rule: String)(predicate: A => Boolean): PRequestReader[R, A] = embedFlatMap { a =>
     if (predicate(a)) a.toFuture
     else NotValid(self.item, "should " + rule).toFutureException[A]
   }
@@ -123,7 +125,7 @@ trait RequestReader[A] { self =>
    * @return a request reader that will return the value of this reader if it is valid.
    *         Otherwise the future fails with a [[io.finch.request.NotValid NotValid]] error.
    */
-  def shouldNot(rule: String)(predicate: A => Boolean): RequestReader[A] = should(s"not $rule.")(x => !predicate(x))
+  def shouldNot(rule: String)(predicate: A => Boolean): PRequestReader[R, A] = should(s"not $rule.")(x => !predicate(x))
 
   /**
    * Validates the result of this request reader using a predefined `rule`. This method allows for rules to be reused
@@ -135,7 +137,7 @@ trait RequestReader[A] { self =>
    * @return a request reader that will return the value of this reader if it is valid.
    *         Otherwise the future fails with a [[io.finch.request.NotValid NotValid]] error.
    */
-  def should(rule: ValidationRule[A]): RequestReader[A] = should(rule.description)(rule.apply)
+  def should(rule: ValidationRule[A]): PRequestReader[R, A] = should(rule.description)(rule.apply)
 
   /**
    * Validates the result of this request reader using a predefined `rule`. This method allows for rules to be reused
@@ -147,7 +149,7 @@ trait RequestReader[A] { self =>
    * @return a request reader that will return the value of this reader if it is valid.
    *         Otherwise the future fails with a [[io.finch.request.NotValid NotValid]] error.
    */
-  def shouldNot(rule: ValidationRule[A]): RequestReader[A] = shouldNot(rule.description)(rule.apply)
+  def shouldNot(rule: ValidationRule[A]): PRequestReader[R, A] = shouldNot(rule.description)(rule.apply)
 }
 
 /**
@@ -159,47 +161,39 @@ object RequestReader {
    * Creates a new [[io.finch.request.RequestReader RequestReader]] that always succeeds, producing the specified value.
    *
    * @param value the value the new reader should produce
-   * @param item the request item (e.g. parameter, header) the value is associated with
    * @return a new reader that always succeeds, producing the specified value
    */
-  def value[A](value: A, item: RequestItem = MultipleItems): RequestReader[A] =
-    const[A](value.toFuture)
+  def value[A](value: A): RequestReader[A] = const[A](value.toFuture)
 
   /**
    * Creates a new [[io.finch.request.RequestReader RequestReader]] that always fails, producing the specified
    * exception.
    *
    * @param exc the exception the new reader should produce
-   * @param item the request item (e.g. parameter, header) the value is associated with
    * @return a new reader that always fails, producing the specified exception
    */
-  def exception[A](exc: Throwable, item: RequestItem = MultipleItems): RequestReader[A] =
-    const[A](exc.toFutureException[A])
+  def exception[A](exc: Throwable): RequestReader[A] = const[A](exc.toFutureException[A])
 
   /**
    * Creates a new [[io.finch.request.RequestReader RequestReader]] that always produces the specified value. It will
    * succeed if the given `Future` succeeds and fail if the `Future` fails.
    *
    * @param value the value the new reader should produce
-   * @param item the request item (e.g. parameter, header) the value is associated with
    * @return a new reader that always produces the specified value
    */
-  def const[A](value: Future[A], item: RequestItem = MultipleItems): RequestReader[A] =
-    embed[A](item)(_ => value)
+  def const[A](value: Future[A]): RequestReader[A] = embed[HttpRequest, A](MultipleItems)(_ => value)
 
   /**
    * Creates a new [[io.finch.request.RequestReader RequestReader]] that reads the result from the request.
    *
-   * @param item the request item (e.g. parameter, header) the value is associated with
    * @param f the function to apply to the request
    * @return a new reader that reads the result from the request
    */
-  def apply[A](item: RequestItem)(f: HttpRequest => A): RequestReader[A] =
-    embed[A](item)(f(_).toFuture)
+  def apply[R, A](f: R => A): PRequestReader[R, A] = embed[R, A](MultipleItems)(f(_).toFuture)
 
-  private[this] def embed[A](reqItem: RequestItem)(f: HttpRequest => Future[A]): RequestReader[A] =
-    new RequestReader[A] {
-      val item = reqItem
-      def apply[Req](req: Req)(implicit ev: Req => HttpRequest): Future[A] = f(req)
+  private[request] def embed[R, A](i: RequestItem)(f: R => Future[A]): PRequestReader[R, A] =
+    new PRequestReader[R, A] {
+      val item = i
+      def apply(req: R): Future[A] = f(req)
     }
 }
