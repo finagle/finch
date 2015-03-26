@@ -45,6 +45,7 @@ depending on a content. There are plenty of predefined builders that might be us
 
 * [Quckstart](quickstart.md)
 * [Demo](demo.md)
+* [Micros](micro.md)
 * [Routes](route.md)
   * [Overview](route.md#overview)
   * [Built-in Routers](route.md#built-in-routers)

@@ -8,7 +8,18 @@ import io.finch.response._
 import io.finch.request._
 
 /**
- * An experimental package that enables `micro`-services support in Finch.
+ * An experimental package that enables a secret Finch mode: "Your REST API as a Monad". The idea is to replace
+ * `Service` with `RequestReader`. Both `RequestReader` and `Service` do similar things, process request (they both
+ * functions `Req => Future[Rep]`), but the `RequestReader` is insanely composable (being a monad), so it makes sense
+ * to route request directly to `RequestReader`. Thus, an `Endpoint` is `Router[RequestReader[HttpResponse]]`.
+ *
+ * The high-level idea behind this package is to allow users to work the domain types that matter rather than deal with
+ * raw HTTP types directly.
+ *
+ * In order to make things clear, this package introduces a new type `Micro` (from "microservice"), which is actually an
+ * alias to `RequestReader`, since it's no longer a reader but _processor_.
+ *
+ * See <a href="https://gist.github.com/vkostyukov/e0e952c28b87563b2383">this gist<a/> for more details.
  */
 package object micro {
 
