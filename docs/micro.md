@@ -3,6 +3,7 @@
 * [Your REST API as a Monad](micro.md#your-rest-api-as-a-monad)
 * [Micro](micro.md#micro)
 * [Endpoint](micro.md#endpoint)
+* [Custom Request Type](micro.md#custom-request-type)
 
 --
 
@@ -31,7 +32,7 @@ The example bellow defines a new `Micro[Int]` that is a maximum of two given par
 stage from the previous section (i.e., request decoding).
 
 ```scala
-val max: Micro[Int] = param("a") ~ param("b") ~> math.max
+val max: Micro[Int] = param("a").as[Int] ~ param("b").as[Int] ~> math.max
 ```
 
 See ["Finch in Action"][1] for more details on `Micro` type.
@@ -42,15 +43,15 @@ An `Endpoint` (`io.finch.micro.Endpoint`) is a `Router` that fetches a `Micro[Ht
 any endpoint may be implicitly converted into a Finagle service. In fact, any `Router[Micro[A]]` may be implicitly
 converted into `Endpoint` if there is an implicit value of type `EncodeResponse[A]` available in the scope. So, it
 implies the third stage of the request lifecycle from the previous section (i.e, response encoding). In the example
-bellow, `Router[Micro[String]]` will be implicitly converted into `Endpoint` (or `Router[Micro[HttpResponse]]`) since
-there is an implicit value of type `EncodeResponse[String]` provided by `io.finch.request` package.
+bellow, `Router[Micro[String]]` will be implicitly converted into `Endpoint` since there is an implicit value of type
+`EncodeResponse[String]` provided by `io.finch.request` package.
 
 ```scala
 val e: Endpoint = Get / "a" /> Micro.value("foo")
 Httpx.serve(":8081", e)
 ```
 
-### Custom Requests
+### Custom Request Type
 
 TODO:
 
