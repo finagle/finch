@@ -48,6 +48,24 @@ class OptionalParamSpec extends FlatSpec with Matchers {
     Await.result(futureResult) shouldBe None
   }
 
+  it should "return provided default value if the param is empty" in {
+    val request: HttpRequest = Request()
+    val futureResult: Future[String] = OptionalParam("foo").withDefault("bar")(request)
+    Await.result(futureResult) shouldBe "bar"
+  }
+
+  it should "return provided alternative option if the param is empty" in {
+    val request: HttpRequest = Request()
+    val futureResult: Future[Option[String]] = OptionalParam("foo").orElse(Some("bar"))(request)
+    Await.result(futureResult) shouldBe Some("bar")
+  }
+
+  it should "return existing value even if default value is provided" in {
+    val request: HttpRequest = Request("foo" -> "baz")
+    val futureResult: Future[String] = OptionalParam("foo").withDefault("bar")(request)
+    Await.result(futureResult) shouldBe "baz"
+  }
+
   it should "have a matching RequestItem" in {
     val param = "foo"
     OptionalParam(param).item shouldBe items.ParamItem(param)

@@ -66,7 +66,8 @@ case class User(name: String, age: Int, city: String)
 val user: RequestReader[User] =
   RequiredParam("name") ~
   RequiredParam("age").as[Int].shouldNot(beLessThan(18)) ~
-  OptionalParam("city") map {
+  OptionalParam("city")
+  OptionalParam("sex").withDefault("male") map {
     case name ~ age ~ city => User(name, age, city.getOrElse("Novosibirsk"))
   }
 ```
