@@ -217,6 +217,21 @@ package object request extends LowPriorityRequestReaderImplicits {
       case Some(value) => value.toFuture
       case None => NotPresent(rr.item).toFutureException
     }
+
+
+    /**
+     * If reader is empty it will return provided default value
+     */
+    def withDefault[B >: A](default: => B): PRequestReader[R, B] = rr.map {
+      _ getOrElse default
+    }
+
+    /**
+     * If reader is empty it will return provided alternative
+     */
+    def orElse[B >: A](alternative: => Option[B]): PRequestReader[R, Option[B]] = rr.map {
+      _ orElse alternative
+    }
   }
 
   /**
