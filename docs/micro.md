@@ -51,13 +51,14 @@ problems, so we may consider wrapping this into a monad `M[_]`, such that a tran
 `M[A] => M[B]` is a business logic of a REST API server.
 
 Considering that function `param: String => M[Int]` creates an instance of `M[Int]` with HTTP param wrapped it, the
-problem of summing up two numbers may be rewritten as following.
+problem of summing up two numbers may be rewritten as following (using `map` and `flatMap`).
 
 ```scala
-val sum: M[Int] = param("a") ~ param("b") map {_ + _}
+val getSum: M[Int] = for {
+ a <- param("a")
+ b <- param("b")
+} yield sum(a, b)
 ```
-
-The `~` operator from above is an applicative that takes `M[A]` and `M[B]` and produces `M[A ~ B]`.
 
 ### Micro
 
@@ -65,21 +66,25 @@ The `io.finch.micro` introduces a higher-kinded type `Micro[_]` that implements 
 fact, `Micro` is just an alias for `RequestReader` that does all the magic (i.e., converting the `HttpRequest` into an
 arbitrary type `A`).
 
-The example bellow defines a new `Micro[Int]` that is a maximum of two given params "a" and "b". This implies the first
-stage from the previous section (i.e., request decoding).
+The example bellow defines a new `Micro[Int]` that sums up two given numbers passed via query-string params "a" and "b".
+Note that we reuse an existent function `sum` here that actually does work.
 
 ```scala
 val getSum: Micro[Int] = param("a").as[Int] ~ param("b").as[Int] ~> sum
 ```
+
+Note that `getSum` wires params reading (request decoding) and business logic (function `sum`) together. Thus, while
+`sum` itself represents a second transformation from the request lifecycle, `getSum` is a first one.
 
 ### Endpoint
 
 An `Endpoint` (`io.finch.micro.Endpoint`) is a `Router` that fetches a `Micro[HttpResponse]` from the request. Thus,
 any endpoint may be implicitly converted into a Finagle service. In fact, any `Router[Micro[A]]` may be implicitly
 converted into `Endpoint` if there is an implicit value of type `EncodeResponse[A]` available in the scope. So, it
-implies the third stage of the request lifecycle from the previous section (i.e, response encoding). In the example
-bellow, `Router[Micro[String]]` will be implicitly converted into `Endpoint` since there is an implicit value of type
-`EncodeResponse[String]` provided by `io.finch.request` package.
+implies the third transformation of the request lifecycle from the previous section (i.e, response encoding).
+
+In the example bellow, `Router[Micro[String]]` will be implicitly converted into `Endpoint` since there is an implicit
+value of type `EncodeResponse[String]` provided by the `io.finch.request` package.
 
 ```scala
 val e: Endpoint = Get / "a" /> Micro.value("foo")
@@ -88,7 +93,45 @@ Httpx.serve(":8081", e)
 
 ### Custom Request Type
 
-TODO:
+Since version 0.6.0 it's easily possible to use `Micro`s (`RequestReader`s) to read data from a request of an arbitrary
+type. In fact, a generalized version of `Micro` looks as follows.
+
+```scala
+trait PMicro[R, A] {
+  def apply(req: R): Future[A]
+}
+```
+
+It implies to be _polymorphic_ in terms of request type. Thus, `Micro[A]` is just an alias to `PMicro[HttpRequest, A]`.
+That said, it's possible to create an instance of `Micro` that curry a custom request type. There is a factory method
+in companion object that allows it.
+
+```scala
+object Micro {
+  def apply[R, A](f: R => A): PMicro[R, A]
+}
+```
+
+So far so good, but it's not clear yet how to compose `PMicro`s with just `Micro`s since they have different request
+types (in `Micro` it's always fixed to `HttpRequest`). `PMicro` is flexible enough to allow it with one constrain. It's
+possible to compose (using `flatMap` or `~`) `PMicro[R, _]` with `PMicro[S, _]` if there is an implicit view `R %> S`
+available in the scope. Note, that it uses it's own version of implicit view `io.finch.request.View`, which is just a
+safe alternative to a standard implementation via function.
+
+The following example show usage of a custom request type `SumReq` that curries both values we need to sum.
+
+```scala
+case class SumReq(a: Int, b: Int, http: HttpRequest)
+implicit val sumReqIsHttp: SumReq %> HttpRequest = View(_.http)
+
+// It makes sense to create these aliases and do not write the full signature every time
+type SMicro[A] = PMicro[SumReq, A]
+type SEndpoint = PEndpoint[SumReq]
+
+val getSum: SMicro[Int] = Micro[SumReq, Int](_.a) ~ Micro[SumReq, Int](_.b) ~> sum
+```
+
+There is a [playground project][3] that uses custom request type and polymorphic micros.
 
 --
 Read Next: [Routes](route.md)
@@ -96,3 +139,4 @@ Read Next: [Routes](route.md)
 [0]: http://monkey.org/~marius/funsrv.pdf
 [1]: https://gist.github.com/vkostyukov/e0e952c28b87563b2383
 [2]: https://twitter.com/ID_AA_Carmack/status/53512300451201024
+[3]: https://github.com/finagle/finch/blob/master/playground/src/main/scala/io/finch/playground/Main.scala
