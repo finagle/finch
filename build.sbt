@@ -31,7 +31,6 @@ val baseSettings = Seq(
     "org.scalatest" %% "scalatest" % "2.2.3" % "test"
   ),
   compilerOptions,
-  coverageExcludedPackages := ".*demo.*",
   wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.NoNeedForMonad, Wart.Null)
 )
 
