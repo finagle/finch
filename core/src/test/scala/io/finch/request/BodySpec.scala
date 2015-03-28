@@ -37,63 +37,63 @@ class BodySpec extends FlatSpec with Matchers {
 
   "A RequiredArrayBody" should "be properly read if it exists" in {
     val request: HttpRequest = requestWithBody(fooBytes)
-    val futureResult: Future[Array[Byte]] = RequiredBinaryBody(request)
+    val futureResult: Future[Array[Byte]] = binaryBody(request)
     Await.result(futureResult) shouldBe fooBytes
   }
 
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody(Array[Byte]())
-    val futureResult: Future[Array[Byte]] = RequiredBinaryBody(request)
+    val futureResult: Future[Array[Byte]] = binaryBody(request)
     a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
 
   it should "have a corresponding RequestItem" in {
-    RequiredBinaryBody.item shouldBe BodyItem
+    binaryBody.item shouldBe BodyItem
   }
 
   "An OptionalArrayBody" should "be properly read if it exists" in {
     val request: HttpRequest = requestWithBody(fooBytes)
-    val futureResult: Future[Option[Array[Byte]]] = OptionalBinaryBody(request)
+    val futureResult: Future[Option[Array[Byte]]] = binaryBodyOption(request)
     Await.result(futureResult).get shouldBe fooBytes
   }
 
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody(Array[Byte]())
-    val futureResult: Future[Option[Array[Byte]]] = OptionalBinaryBody(request)
+    val futureResult: Future[Option[Array[Byte]]] = binaryBodyOption(request)
     Await.result(futureResult) shouldBe None
   }
 
   it should "have a corresponding RequestItem" in {
-    OptionalBinaryBody.item shouldBe BodyItem
+    binaryBodyOption.item shouldBe BodyItem
   }
 
   "A RequiredStringBody" should "be properly read if it exists" in {
     val request: HttpRequest = requestWithBody(foo)
-    val futureResult: Future[String] = RequiredBody(request)
+    val futureResult: Future[String] = body(request)
     Await.result(futureResult) shouldBe foo
   }
 
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody("")
-    val futureResult: Future[String] = RequiredBody(request)
+    val futureResult: Future[String] = body(request)
     a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
 
   "An OptionalStringBody" should "be properly read if it exists" in {
     val request: HttpRequest = requestWithBody(foo)
-    val futureResult: Future[Option[String]] = OptionalBody(request)
+    val futureResult: Future[Option[String]] = bodyOption(request)
     Await.result(futureResult) shouldBe Some(foo)
   }
 
   it should "produce an error if the body is empty" in {
     val request: HttpRequest = requestWithBody("")
-    val futureResult: Future[Option[String]] = OptionalBody(request)
+    val futureResult: Future[Option[String]] = bodyOption(request)
     Await.result(futureResult) shouldBe None
   }
 
   "RequiredArrayBody Reader" should "work without parentheses at call site" in {
     val reader = for {
-      body <- RequiredBinaryBody
+      body <- binaryBody
     } yield body
 
     val request: HttpRequest = requestWithBody(fooBytes)
@@ -105,10 +105,10 @@ class BodySpec extends FlatSpec with Matchers {
        def apply(req: String): Try[Int] = Try(req.toInt)
     }
     val req = requestWithBody("123")
-    val ri: RequestReader[Int] = RequiredBody.as[Int]
-    val i: Future[Int] = RequiredBody.as[Int].apply(req)
-    val oi: RequestReader[Option[Int]] = OptionalBody.as[Int]
-    val o = OptionalBody.as[Int].apply(req)
+    val ri: RequestReader[Int] = body.as[Int]
+    val i: Future[Int] = body.as[Int].apply(req)
+    val oi: RequestReader[Option[Int]] = bodyOption.as[Int]
+    val o = bodyOption.as[Int].apply(req)
 
     Await.result(ri(req)) shouldBe 123
     Await.result(i) shouldBe 123
@@ -124,10 +124,10 @@ class BodySpec extends FlatSpec with Matchers {
     implicit val cReqEv = (req: CReq) => req.http // implicit view
 
     val req = CReq(requestWithBody("42.0"))
-    val rd: RequestReader[Double] = RequiredBody.as[Double]
-    val d = RequiredBody.as[Double].apply(req)
-    val od: RequestReader[Option[Double]] = OptionalBody.as[Double]
-    val o: Future[Option[Double]] = OptionalBody.as[Double].apply(req)
+    val rd: RequestReader[Double] = body.as[Double]
+    val d = body.as[Double].apply(req)
+    val od: RequestReader[Option[Double]] = bodyOption.as[Double]
+    val o: Future[Option[Double]] = bodyOption.as[Double].apply(req)
 
     Await.result(rd(req)) shouldBe 42.0
     Await.result(d) shouldBe 42.0
@@ -140,10 +140,10 @@ class BodySpec extends FlatSpec with Matchers {
        def apply(req: String): Try[Int] = Try(req.toInt)
     }
     val req = requestWithBody("foo")
-    val ri: RequestReader[Int] = RequiredBody.as[Int]
-    val i: Future[Int] = RequiredBody.as[Int].apply(req)
-    val oi: RequestReader[Option[Int]] = OptionalBody.as[Int]
-    val o: Future[Option[Int]] = OptionalBody.as[Int].apply(req)
+    val ri: RequestReader[Int] = body.as[Int]
+    val i: Future[Int] = body.as[Int].apply(req)
+    val oi: RequestReader[Option[Int]] = bodyOption.as[Int]
+    val o: Future[Option[Int]] = bodyOption.as[Int].apply(req)
 
     a [NotParsed] shouldBe thrownBy(Await.result(ri(req)))
     a [NotParsed] shouldBe thrownBy(Await.result(i))

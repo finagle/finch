@@ -105,7 +105,7 @@ class DemoSpec extends FlatSpec with Matchers {
 
   def mkSecretHttpRequest(m: HttpMethod, p: String): DefaultHttpRequest = {
     val r = new DefaultHttpRequest(HttpVersion.HTTP_1_1, m, p)
-    r.headers().add("X-Secret", Demo.secret)
+    r.headers().add("X-Secret", Demo.Secret)
     r
   }
 

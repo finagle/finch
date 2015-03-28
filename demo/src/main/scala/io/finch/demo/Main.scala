@@ -48,14 +48,14 @@ object Demo {
   import model._
   import endpoint._
 
-  val secret = "open sesame"
+  val Secret = "open sesame"
 
   // A Finagle filter that authorizes a request: performs conversion `HttpRequest` => `AuthRequest`.
   val authorize = new Filter[HttpRequest, HttpResponse, AuthRequest, HttpResponse] {
     def apply(req: HttpRequest, service: Service[AuthRequest, HttpResponse]): Future[HttpResponse] = for {
-      `X-Secret` <- OptionalHeader("X-Secret")(req)
+      `X-Secret` <- headerOption("X-Secret")(req)
       rep <- `X-Secret` collect {
-        case secret => service(AuthRequest(req))
+        case Secret => service(AuthRequest(req))
       } getOrElse Unauthorized().toFuture
     } yield rep
   }

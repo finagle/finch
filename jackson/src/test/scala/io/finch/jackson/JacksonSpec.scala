@@ -26,7 +26,7 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.twitter.finagle.httpx.Request
 import com.twitter.io.Buf.Utf8
 import com.twitter.util.{Await, Future, Return}
-import io.finch.request.{OptionalBody, RequiredBody, RequestReader}
+import io.finch.request._
 import io.finch.response.Ok
 import org.jboss.netty.handler.codec.http.HttpHeaders
 import org.scalatest.{Matchers, FlatSpec}
@@ -66,15 +66,15 @@ class JacksonSpec extends FlatSpec with Matchers {
   }
 
   it should "work w/o exceptions with RequestReader" in {
-    val body = Utf8("{\"bar\":\"bar\",\"baz\":42}")
+    val b = Utf8("{\"bar\":\"bar\",\"baz\":42}")
     val req = Request()
-    req.content = body
-    req.headerMap.update(HttpHeaders.Names.CONTENT_LENGTH, body.length.toString)
+    req.content = b
+    req.headerMap.update(HttpHeaders.Names.CONTENT_LENGTH, b.length.toString)
 
-    val rFoo: RequestReader[Foo] = RequiredBody.as[Foo]
-    val foo: Future[Foo] = RequiredBody.as[Foo].apply(req)
-    val roFoo: RequestReader[Option[Foo]] = OptionalBody.as[Foo]
-    val oFoo: Future[Option[Foo]] = OptionalBody.as[Foo].apply(req)
+    val rFoo: RequestReader[Foo] = body.as[Foo]
+    val foo: Future[Foo] = body.as[Foo].apply(req)
+    val roFoo: RequestReader[Option[Foo]] = bodyOption.as[Foo]
+    val oFoo: Future[Option[Foo]] = bodyOption.as[Foo].apply(req)
 
     val expectedFoo = Foo("bar", 42)
     Await.result(rFoo(req)) shouldBe expectedFoo

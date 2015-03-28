@@ -31,8 +31,8 @@ import org.scalatest.{Matchers, FlatSpec}
 class RequestReaderValidationSpec extends FlatSpec with Matchers {
 
   val request = Request("foo" -> "6", "bar" -> "9")
-  val fooReader = RequiredParam("foo").as[Int]
-  val barReader = RequiredParam("bar").as[Int]
+  val fooReader = param("foo").as[Int]
+  val barReader = param("bar").as[Int]
 
   val beEven = ValidationRule[Int]("be even") { _ % 2 == 0 }
   def beSmallerThan(value: Int) = ValidationRule[Int](s"be smaller than $value") { _ < value }
@@ -102,25 +102,25 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers {
   }
   
   it should "allow to reuse a validation rule with optional readers" in {
-    val optReader = OptionalParam("foo").as[Int].should(beEven)
+    val optReader = paramOption("foo").as[Int].should(beEven)
     Await.result(optReader(request)) shouldBe Some(6)
   }
   
   it should "raise a RequestReader error if a rule for a non-empty optional value fails" in {
-    val optReader = OptionalParam("bar").as[Int].should(beEven)
+    val optReader = paramOption("bar").as[Int].should(beEven)
     a [RequestError] shouldBe thrownBy(Await.result(optReader(request)))
   }
   
   it should "skip validation when applied to an empty optional value" in {
-    val optReader = OptionalParam("baz").as[Int].should(beEven)
+    val optReader = paramOption("baz").as[Int].should(beEven)
     Await.result(optReader(request)) shouldBe None
   }
 
   it should "work with predefined rules" in {
-    val intReader = RequiredParam("foo").as[Int] should beGreaterThan(100)
-    val floatReader = RequiredParam("bar").as[Float].should(beGreaterThan(100.0f))
-    val stringReader = RequiredParam("baz").should(beLongerThan(10))
-    val optLongReader = OptionalParam("foo").as[Int] should beGreaterThan(100)
+    val intReader = param("foo").as[Int] should beGreaterThan(100)
+    val floatReader = param("bar").as[Float].should(beGreaterThan(100.0f))
+    val stringReader = param("baz").should(beLongerThan(10))
+    val optLongReader = paramOption("foo").as[Int] should beGreaterThan(100)
 
     val req = Request("foo" -> "20", "bar" -> "20.0", "baz" -> "baz")
 
@@ -131,8 +131,8 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers {
   }
 
   it should "allow to use inline rules with optional params" in {
-    val optInt = OptionalParam("foo").as[Int].should("be greater than 50") { i: Int => i > 50 }
-    val optString = OptionalParam("bar").should("be longer than 5 chars") { s: String => s.length > 5 }
+    val optInt = paramOption("foo").as[Int].should("be greater than 50") { i: Int => i > 50 }
+    val optString = paramOption("bar").should("be longer than 5 chars") { s: String => s.length > 5 }
 
     a [RequestError] shouldBe thrownBy(Await.result(optInt(request)))
     a [RequestError] shouldBe thrownBy(Await.result(optString(request)))

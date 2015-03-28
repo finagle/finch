@@ -32,14 +32,14 @@ object reader {
   // A requests reader that reads user objects from the http request.
   // A user is represented by url-encoded param `name`.
   val user: RequestReader[User] =
-    RequiredParam("name") should beLongerThan(5) map { name =>
+    param("name") should beLongerThan(5) map { name =>
       User(Id(), name, Seq.empty[Ticket])
     }
 
   // A request reader that reads ticket object from the http request.
   // A ticket is represented by a JSON object serialized in request body.
   val ticket: RequestReader[Ticket] =
-    RequiredBody.as[Json] map { json =>
+    body.as[Json] map { json =>
       Ticket(Id(), json[String]("label").getOrElse("N/A"))
     }
 }

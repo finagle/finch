@@ -24,10 +24,9 @@
 package io.finch.request
 
 import com.twitter.finagle.httpx.Request
-import com.twitter.util.{Await, Future, Try}
+import com.twitter.util.{Await, Future}
 import io.finch.HttpRequest
 import org.scalatest.{FlatSpec, Matchers}
-import java.nio.file.{Files, Path}
 
 /**
   * Specification for multipart/form-data request.
@@ -73,31 +72,31 @@ class MultipartParamSpec extends FlatSpec with Matchers {
 
   "A RequiredMultipartParam" should "be properly parsed if it exists" in {
     val request = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[String] = RequiredParam("type")(request)
+    val futureResult: Future[String] = param("type")(request)
     Await.result(futureResult) shouldBe "text"
   }
 
   it should "produce an error if the param does not exist" in {
     val request = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[String] = RequiredParam("foo")(request)
+    val futureResult: Future[String] = param("foo")(request)
     a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
 
   it should "also return query parameters" in {
     val request = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[String] = RequiredParam("debug")(request)
+    val futureResult: Future[String] = param("debug")(request)
     Await.result(futureResult) shouldBe "true"
   }
 
   "An OptionalMultipartParam" should "be properly parsed when it exists" in {
     val request: HttpRequest = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[Option[String]] = OptionalParam("type")(request)
+    val futureResult: Future[Option[String]] = paramOption("type")(request)
     Await.result(futureResult) shouldBe Some("text")
   }
 
   it should "produce an error if the param is empty" in {
     val request: HttpRequest = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[Option[String]] = OptionalParam("foo")(request)
+    val futureResult: Future[Option[String]] = paramOption("foo")(request)
     Await.result(futureResult) shouldBe None
   }
 

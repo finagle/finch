@@ -24,7 +24,7 @@
 package io.finch.request
 
 import org.scalatest.{Matchers, FlatSpec}
-import com.twitter.util.{Try, Return, Future, Await}
+import com.twitter.util.{Try, Return, Await}
 import com.twitter.finagle.httpx.Request
 import scala.math._
 import io.finch.HttpRequest
@@ -44,58 +44,58 @@ class DecodeSpec extends FlatSpec with Matchers {
     decode[ScalaNumber]("12345.25") shouldBe Return(BigDecimal(12345.25))
   }
   
-  "A RequestReader for a String" should "allow for type converions based on implicit DecodeRequest" in {
+  "A RequestReader for a String" should "allow for type conversions based on implicit DecodeRequest" in {
     val request: HttpRequest = Request(("foo", "5"))
-    val reader: RequestReader[Int] = RequiredParam("foo").as[Int]
+    val reader: RequestReader[Int] = param("foo").as[Int]
     val result = reader(request)
     Await.result(result) shouldBe 5
   }
   
-  it should "fail if a type converions based on implicit DecodeRequest fails" in {
+  it should "fail if a type conversions based on implicit DecodeRequest fails" in {
     val request: HttpRequest = Request(("foo", "foo"))
-    val reader: RequestReader[Int] = RequiredParam("foo").as[Int]
+    val reader: RequestReader[Int] = param("foo").as[Int]
     val result = reader(request)
     Await.result(result.liftToTry).isThrow shouldBe true
   }
   
-  it should "allow for type converions of optional parameters" in {
+  it should "allow for type conversions of optional parameters" in {
     val request: HttpRequest = Request(("foo", "5"))
-    val reader: RequestReader[Option[Int]] = OptionalParam("foo").as[Int]
+    val reader: RequestReader[Option[Int]] = paramOption("foo").as[Int]
     val result = reader(request)
     Await.result(result) shouldBe Some(5)
   }
   
-  it should "fail if a type converions for an optional value fails" in {
+  it should "fail if a type conversions for an optional value fails" in {
     val request: HttpRequest = Request(("foo", "foo"))
-    val reader: RequestReader[Option[Int]] = OptionalParam("foo").as[Int]
+    val reader: RequestReader[Option[Int]] = paramOption("foo").as[Int]
     val result = reader(request)
     Await.result(result.liftToTry).isThrow shouldBe true
   }
   
   it should "skip type conversion and succeed if the optional value is missing" in {
     val request: HttpRequest = Request(("bar", "foo"))
-    val reader: RequestReader[Option[Int]] = OptionalParam("foo").as[Int]
+    val reader: RequestReader[Option[Int]] = paramOption("foo").as[Int]
     val result = reader(request)
     Await.result(result) shouldBe None
   }
   
-  it should "allow for type converions of a parameter list" in {
+  it should "allow for type conversions of a parameter list" in {
     val request: HttpRequest = Request(("foo", "5,6,7"))
-    val reader: RequestReader[Seq[Int]] = OptionalParams("foo").as[Int]
+    val reader: RequestReader[Seq[Int]] = params("foo").as[Int]
     val result = reader(request)
     Await.result(result) shouldBe Seq(5,6,7)
   }
   
-  it should "fail if a type converion for an element in a parameter list fails" in {
+  it should "fail if a type conversion for an element in a parameter list fails" in {
     val request: HttpRequest = Request(("foo", "5,foo,7"))
-    val reader: RequestReader[Seq[Int]] = OptionalParams("foo").as[Int]
+    val reader: RequestReader[Seq[Int]] = params("foo").as[Int]
     val result = reader(request)
     Await.result(result.liftToTry).isThrow shouldBe true
   }
   
   it should "skip type conversion and succeed if a parameter list is empty" in {
     val request: HttpRequest = Request(("bar", "foo"))
-    val reader: RequestReader[Seq[Int]] = OptionalParams("foo").as[Int]
+    val reader: RequestReader[Seq[Int]] = params("foo").as[Int]
     val result = reader(request)
     Await.result(result).isEmpty shouldBe true
   }
@@ -115,8 +115,8 @@ class DecodeSpec extends FlatSpec with Matchers {
     
     val request: HttpRequest = Request(("foo", "foo"), ("bar", "bar"))
     val reader: RequestReader[(Foo, Bar)] = for {
-      foo <- RequiredParam("foo").as[Foo] 
-      bar <- RequiredParam("bar").as[Bar] 
+      foo <- param("foo").as[Foo]
+      bar <- param("bar").as[Bar]
     } yield (foo, bar)
     
     val result = reader(request)

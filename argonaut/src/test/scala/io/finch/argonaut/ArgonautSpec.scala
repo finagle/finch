@@ -6,7 +6,7 @@ import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.Request
 import com.twitter.util.{Await,Return}
 import io.finch._
-import io.finch.request.RequiredBody
+import io.finch.request._
 import io.finch.response.TurnIntoHttp
 import org.jboss.netty.handler.codec.http.HttpHeaders
 import org.scalatest.{FlatSpec, Matchers}
@@ -53,7 +53,7 @@ class ArgonautSpec extends FlatSpec with Matchers {
     req.setContentTypeJson()
     req.headerMap.update(HttpHeaders.Names.CONTENT_LENGTH, str.length.toString)
 
-    val user: TestUser = Await.result(RequiredBody.as[TestUser].apply(req))
+    val user: TestUser = Await.result(body.as[TestUser].apply(req))
     user shouldBe exampleUser
   }
 

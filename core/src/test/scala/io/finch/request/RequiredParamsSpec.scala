@@ -32,7 +32,7 @@ class RequiredParamsSpec extends FlatSpec with Matchers {
 
   "A RequiredParams" should "parse all of the url params with the same key" in {
     val request: HttpRequest = Request(("foo", "5"), ("bar", "6"), ("foo", "25"))
-    val futureResult: Future[Seq[String]] = RequiredParams("foo")(request)
+    val futureResult: Future[Seq[String]] = paramsNonEmpty("foo")(request)
     val result: Seq[String] = Await.result(futureResult)
     result should have length 2
     result should contain("5")
@@ -41,7 +41,7 @@ class RequiredParamsSpec extends FlatSpec with Matchers {
 
   it should "return only params that are not the empty string" in {
     val request: HttpRequest = Request(("foo", ""), ("bar", "6"), ("foo", "25"))
-    val futureResult: Future[Seq[String]] = RequiredParams("foo")(request)
+    val futureResult: Future[Seq[String]] = paramsNonEmpty("foo")(request)
     val result: Seq[String] = Await.result(futureResult)
     result should have length 1
     result should contain("25")
@@ -49,25 +49,25 @@ class RequiredParamsSpec extends FlatSpec with Matchers {
 
   it should "throw a ParamNotFound Exception if the parameter does not exist at all" in {
     val request: HttpRequest = Request(("foo", "5"), ("bar", "6"), ("foo", "25"))
-    val futureResult: Future[Seq[String]] = RequiredParams("baz")(request)
+    val futureResult: Future[Seq[String]] = paramsNonEmpty("baz")(request)
     a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
 
   it should "throw a Validation Exception if all of the parameter values are empty" in {
     val request: HttpRequest = Request(("foo", ""), ("bar", "6"), ("foo", ""))
-    val futureResult: Future[Seq[String]] = RequiredParams("foo")(request)
+    val futureResult: Future[Seq[String]] = paramsNonEmpty("foo")(request)
     a [NotValid] shouldBe thrownBy(Await.result(futureResult))
   }
 
   it should "have a matching RequestItem" in {
     val param = "foo"
-    RequiredParams(param).item shouldBe items.ParamItem(param)
+    paramsNonEmpty(param).item shouldBe items.ParamItem(param)
   }
 
 
   "A RequiredBooleanParams" should "be parsed as a list of booleans" in {
     val request: HttpRequest = Request(("foo", "true"), ("foo", "false"))
-    val futureResult: Future[Seq[Boolean]] = RequiredParams("foo").as[Boolean].apply(request)
+    val futureResult: Future[Seq[Boolean]] = paramsNonEmpty("foo").as[Boolean].apply(request)
     val result: Seq[Boolean] = Await.result(futureResult)
     result should have length 2
     result should contain(true)
@@ -76,14 +76,14 @@ class RequiredParamsSpec extends FlatSpec with Matchers {
 
   it should "produce an error if one of the params is not a boolean" in {
     val request: HttpRequest = Request(("foo", "true"), ("foo", "5"))
-    val futureResult: Future[Seq[Boolean]] = RequiredParams("foo").as[Boolean].apply(request)
+    val futureResult: Future[Seq[Boolean]] = paramsNonEmpty("foo").as[Boolean].apply(request)
     a [RequestErrors] shouldBe thrownBy(Await.result(futureResult))
   }
 
 
   "A RequiredIntParams" should "be parsed as a list of integers" in {
     val request: HttpRequest = Request(("foo", "5"), ("foo", "255"))
-    val futureResult: Future[Seq[Int]] = RequiredParams("foo").as[Int].apply(request)
+    val futureResult: Future[Seq[Int]] = paramsNonEmpty("foo").as[Int].apply(request)
     val result: Seq[Int] = Await.result(futureResult)
     result should have length 2
     result should contain(5)
@@ -92,14 +92,14 @@ class RequiredParamsSpec extends FlatSpec with Matchers {
 
   it should "produce an error if one of the params is not an integer" in {
     val request: HttpRequest = Request(("foo", "non-number"), ("foo", "255"))
-    val futureResult: Future[Seq[Int]] = RequiredParams("foo").as[Int].apply(request)
+    val futureResult: Future[Seq[Int]] = paramsNonEmpty("foo").as[Int].apply(request)
     a [RequestErrors] shouldBe thrownBy(Await.result(futureResult))
   }
 
 
   "A RequiredLongParams" should "be parsed as a list of longs" in {
     val request: HttpRequest = Request(("foo", "9000000000000000"), ("foo", "7500000000000000"))
-    val futureResult: Future[Seq[Long]] = RequiredParams("foo").as[Long].apply(request)
+    val futureResult: Future[Seq[Long]] = paramsNonEmpty("foo").as[Long].apply(request)
     val result: Seq[Long] = Await.result(futureResult)
     result should have length 2
     result should contain(9000000000000000L)
@@ -108,14 +108,14 @@ class RequiredParamsSpec extends FlatSpec with Matchers {
 
   it should "produce an error if one of the params is not a long" in {
     val request: HttpRequest = Request(("foo", "false"), ("foo", "7500000000000000"))
-    val futureResult: Future[Seq[Long]] = RequiredParams("foo").as[Long].apply(request)
+    val futureResult: Future[Seq[Long]] = paramsNonEmpty("foo").as[Long].apply(request)
     a [RequestErrors] shouldBe thrownBy(Await.result(futureResult))
   }
 
 
   "A RequiredFloatParams" should "be parsed as a list of floats" in {
     val request: HttpRequest = Request(("foo", "5.123"), ("foo", "536.22345"))
-    val futureResult: Future[Seq[Float]] = RequiredParams("foo").as[Float].apply(request)
+    val futureResult: Future[Seq[Float]] = paramsNonEmpty("foo").as[Float].apply(request)
     val result: Seq[Float] = Await.result(futureResult)
     result should have length 2
     result should contain(5.123f)
@@ -124,14 +124,14 @@ class RequiredParamsSpec extends FlatSpec with Matchers {
 
   it should "produce an error if one of the params is not a float" in {
     val request: HttpRequest = Request(("foo", "non-number"), ("foo", "true"))
-    val futureResult: Future[Seq[Float]] = RequiredParams("foo").as[Float].apply(request)
+    val futureResult: Future[Seq[Float]] = paramsNonEmpty("foo").as[Float].apply(request)
     a [RequestErrors] shouldBe thrownBy(Await.result(futureResult))
   }
 
 
   "A RequiredDoubleParams" should "be parsed as a list of doubles" in {
     val request: HttpRequest = Request(("foo", "100.0"), ("foo", "66566.45243"))
-    val futureResult: Future[Seq[Double]] = RequiredParams("foo").as[Double].apply(request)
+    val futureResult: Future[Seq[Double]] = paramsNonEmpty("foo").as[Double].apply(request)
     val result: Seq[Double] = Await.result(futureResult)
     result should have length 2
     result should contain(100.0)
@@ -140,7 +140,7 @@ class RequiredParamsSpec extends FlatSpec with Matchers {
 
   it should "produce an error if one of the params is not a double" in {
     val request: HttpRequest = Request(("foo", "45543245.435"), ("foo", "non-number"))
-    val futureResult: Future[Seq[Double]] = RequiredParams("foo").as[Double].apply(request)
+    val futureResult: Future[Seq[Double]] = paramsNonEmpty("foo").as[Double].apply(request)
     a [RequestErrors] shouldBe thrownBy(Await.result(futureResult))
   }
 }

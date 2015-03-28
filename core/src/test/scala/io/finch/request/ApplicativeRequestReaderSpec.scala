@@ -35,9 +35,9 @@ class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
   implicit val reqEv: MyReq %> HttpRequest = View(_.http)
 
   val reader: RequestReader[(Int, Double, Int)] =
-    RequiredParam("a").as[Int] ~
-    RequiredParam("b").as[Double] ~
-    RequiredParam("c").as[Int] map {
+    param("a").as[Int] ~
+    param("b").as[Double] ~
+    param("c").as[Int] map {
       case a ~ b ~ c => (a, b, c)
     }
   
@@ -88,10 +88,10 @@ class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
 
   it should "be polymorphic in terms of request type" in {
     val i: PRequestReader[MyReq, Int] = RequestReader(_.i)
-    val a = i ~ RequiredParam("a") ~> (_ + _)
+    val a = i ~ param("a") ~> (_ + _)
     val b = for {
       ii <- i
-      aa <- RequiredParam("a")
+      aa <- param("a")
     } yield aa + ii
 
     Await.result(a(MyReq(Request("a" -> "foo"), 10))) shouldBe "10foo"
