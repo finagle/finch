@@ -45,7 +45,7 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">StringSeqReaderOps</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">StringSeqReaderOps</span><span class="tparams">[<span name="R">R</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       
@@ -93,18 +93,18 @@ elements in the <code>Seq</code>. It will succeed if the result is empty or type
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="io.finch.request.StringSeqReaderOps#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(reader:io.finch.request.RequestReader[Seq[String]]):io.finch.request.package.StringSeqReaderOps"></a>
-      <a id="&lt;init&gt;:StringSeqReaderOps"></a>
+      <a id="&lt;init&gt;(rr:io.finch.request.PRequestReader[R,Seq[String]]):io.finch.request.package.StringSeqReaderOps[R]"></a>
+      <a id="&lt;init&gt;:StringSeqReaderOps[R]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">StringSeqReaderOps</span><span class="params">(<span name="reader">reader: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>)</span>
+        <span class="name">StringSeqReaderOps</span><span class="params">(<span name="rr">rr: <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.StringSeqReaderOps.R">R</span>, <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$StringSeqReaderOps@&lt;init&gt;(reader:io.finch.request.RequestReader[Seq[String]]):io.finch.request.package.StringSeqReaderOps" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$StringSeqReaderOps@&lt;init&gt;(rr:io.finch.request.PRequestReader[R,Seq[String]]):io.finch.request.package.StringSeqReaderOps[R]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -170,18 +170,18 @@ elements in the <code>Seq</code>. It will succeed if the result is empty or type
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="io.finch.request.StringSeqReaderOps#as" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="as[A](implicitmagnet:io.finch.request.package.DecodeMagnet[A],implicittag:scala.reflect.ClassTag[A]):io.finch.request.RequestReader[Seq[A]]"></a>
-      <a id="as[A](DecodeMagnet[A],ClassTag[A]):RequestReader[Seq[A]]"></a>
+      <a id="as[A](implicitmagnet:io.finch.request.package.DecodeMagnet[A],implicittag:scala.reflect.ClassTag[A]):io.finch.request.PRequestReader[R,Seq[A]]"></a>
+      <a id="as[A](DecodeMagnet[A],ClassTag[A]):PRequestReader[R,Seq[A]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="magnet">magnet: <a href="package$$DecodeMagnet.html" class="extype" name="io.finch.request.DecodeMagnet">DecodeMagnet</a>[<span class="extype" name="io.finch.request.StringSeqReaderOps.as.A">A</span>]</span>, <span name="tag">tag: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="io.finch.request.StringSeqReaderOps.as.A">A</span>]</span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="io.finch.request.StringSeqReaderOps.as.A">A</span>]]</span>
+        <span class="name">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="magnet">magnet: <a href="package$$DecodeMagnet.html" class="extype" name="io.finch.request.DecodeMagnet">DecodeMagnet</a>[<span class="extype" name="io.finch.request.StringSeqReaderOps.as.A">A</span>]</span>, <span name="tag">tag: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="io.finch.request.StringSeqReaderOps.as.A">A</span>]</span>)</span><span class="result">: <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.StringSeqReaderOps.R">R</span>, <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="io.finch.request.StringSeqReaderOps.as.A">A</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$StringSeqReaderOps@as[A](implicitmagnet:io.finch.request.package.DecodeMagnet[A],implicittag:scala.reflect.ClassTag[A]):io.finch.request.RequestReader[Seq[A]]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$StringSeqReaderOps@as[A](implicitmagnet:io.finch.request.package.DecodeMagnet[A],implicittag:scala.reflect.ClassTag[A]):io.finch.request.PRequestReader[R,Seq[A]]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -385,19 +385,19 @@ elements in the <code>Seq</code>. It will succeed if the result is empty or type
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="io.finch.request.StringSeqReaderOps#reader" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="reader:io.finch.request.RequestReader[Seq[String]]"></a>
-      <a id="reader:RequestReader[Seq[String]]"></a>
+    </li><li name="io.finch.request.StringSeqReaderOps#rr" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="rr:io.finch.request.PRequestReader[R,Seq[String]]"></a>
+      <a id="rr:PRequestReader[R,Seq[String]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">reader</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="name">rr</span><span class="result">: <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.StringSeqReaderOps.R">R</span>, <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$StringSeqReaderOps@reader:io.finch.request.RequestReader[Seq[String]]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$StringSeqReaderOps@rr:io.finch.request.PRequestReader[R,Seq[String]]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>

@@ -45,7 +45,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">ResponseBuilder</span><span class="params">(<span name="status">status: <span class="extype" name="com.twitter.finagle.httpx.Status">Status</span></span>, <span name="headers">headers: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Map.empty</span></span>, <span name="cookies">cookies: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="com.twitter.finagle.httpx.Cookie">Cookie</span>] = <span class="symbol">Seq.empty</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">ResponseBuilder</span><span class="params">(<span name="status">status: <span class="extype" name="com.twitter.finagle.httpx.Status">Status</span></span>, <span name="headers">headers: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Map.empty[String, String]</span></span>, <span name="cookies">cookies: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="com.twitter.finagle.httpx.Cookie">Cookie</span>] = <span class="symbol">Seq.empty[Cookie]</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
@@ -103,7 +103,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">ResponseBuilder</span><span class="params">(<span name="status">status: <span class="extype" name="com.twitter.finagle.httpx.Status">Status</span></span>, <span name="headers">headers: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Map.empty</span></span>, <span name="cookies">cookies: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="com.twitter.finagle.httpx.Cookie">Cookie</span>] = <span class="symbol">Seq.empty</span></span>)</span>
+        <span class="name">ResponseBuilder</span><span class="params">(<span name="status">status: <span class="extype" name="com.twitter.finagle.httpx.Status">Status</span></span>, <span name="headers">headers: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Map.empty[String, String]</span></span>, <span name="cookies">cookies: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="com.twitter.finagle.httpx.Cookie">Cookie</span>] = <span class="symbol">Seq.empty[Cookie]</span></span>)</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.ResponseBuilder@&lt;init&gt;(status:com.twitter.finagle.httpx.Status,headers:Map[String,String],cookies:Seq[com.twitter.finagle.httpx.Cookie]):io.finch.response.ResponseBuilder" title="Permalink" target="_top">
@@ -173,35 +173,35 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="io.finch.response.ResponseBuilder#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply():com.twitter.finagle.httpx.Response"></a>
-      <a id="apply():Response"></a>
+      <a id="apply():io.finch.HttpResponse"></a>
+      <a id="apply():HttpResponse"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">()</span><span class="result">: <span class="extype" name="com.twitter.finagle.httpx.Response">Response</span></span>
+        <span class="name">apply</span><span class="params">()</span><span class="result">: <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.response.ResponseBuilder@apply():com.twitter.finagle.httpx.Response" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.response.ResponseBuilder@apply():io.finch.HttpResponse" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
       <p class="shortcomment cmt">Builds an empty HTTP response.</p>
     </li><li name="io.finch.response.ResponseBuilder#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply[A](body:A)(implicitencode:io.finch.response.EncodeResponse[A]):com.twitter.finagle.httpx.Response"></a>
-      <a id="apply[A](A)(EncodeResponse[A]):Response"></a>
+      <a id="apply[A](body:A)(implicitencode:io.finch.response.EncodeResponse[A]):io.finch.HttpResponse"></a>
+      <a id="apply[A](A)(EncodeResponse[A]):HttpResponse"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="body">body: <span class="extype" name="io.finch.response.ResponseBuilder.apply.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="encode">encode: <a href="package$$EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>[<span class="extype" name="io.finch.response.ResponseBuilder.apply.A">A</span>]</span>)</span><span class="result">: <span class="extype" name="com.twitter.finagle.httpx.Response">Response</span></span>
+        <span class="name">apply</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="body">body: <span class="extype" name="io.finch.response.ResponseBuilder.apply.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="encode">encode: <a href="package$$EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>[<span class="extype" name="io.finch.response.ResponseBuilder.apply.A">A</span>]</span>)</span><span class="result">: <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.response.ResponseBuilder@apply[A](body:A)(implicitencode:io.finch.response.EncodeResponse[A]):com.twitter.finagle.httpx.Response" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.response.ResponseBuilder@apply[A](body:A)(implicitencode:io.finch.response.EncodeResponse[A]):io.finch.HttpResponse" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>

@@ -63,7 +63,7 @@ Httpx.serve(
   Get / string /&gt; hello <span class="cmt">// will be implicitly converted into service</span>
 )</pre></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="LowPriorityRouterImplicits.html" class="extype" name="io.finch.route.LowPriorityRouterImplicits">LowPriorityRouterImplicits</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -81,7 +81,7 @@ Httpx.serve(
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="io.finch.route"><span>route</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="io.finch.route"><span>route</span></li><li class="in" name="io.finch.route.LowPriorityRouterImplicits"><span>LowPriorityRouterImplicits</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -155,6 +155,23 @@ Httpx.serve(
       </a>
     </span>
       <p class="shortcomment cmt">An universal extractor that extracts some value of type <code>A</code> if it's possible to fetch the value from the string.</p>
+    </li><li name="io.finch.route.LowPriorityRouterImplicits" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="LowPriorityRouterImplicitsextendsAnyRef"></a>
+      <a id="LowPriorityRouterImplicits:LowPriorityRouterImplicits"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="LowPriorityRouterImplicits.html"><span class="name">LowPriorityRouterImplicits</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@LowPriorityRouterImplicitsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
     </li><li name="io.finch.route.Matcher" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="MatcherextendsRouter0withProductwithSerializable"></a>
       <a id="Matcher:Matcher"></a>
@@ -189,6 +206,75 @@ Httpx.serve(
       </a>
     </span>
       <p class="shortcomment cmt">A <a href="Router0.html" class="extype" name="io.finch.route.Router0">Router0</a> that matches the given HTTP method <code>m</code> in the route.</p>
+    </li><li name="io.finch.route.LowPriorityRouterImplicits.RArrow1" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RArrow1[A]extendsAnyRef"></a>
+      <a id="RArrow1[A]:RArrow1[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="LowPriorityRouterImplicits$RArrow1.html"><span class="name">RArrow1</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.LowPriorityRouterImplicits@RArrow1[A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Add <code>/&gt;</code> compositors to <code>RouterN</code> to compose it with function of one argument.</p><div class="fullcomment"><div class="comment cmt"><p>Add <code>/&gt;</code> compositors to <code>RouterN</code> to compose it with function of one argument.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityRouterImplicits.html" class="extype" name="io.finch.route.LowPriorityRouterImplicits">LowPriorityRouterImplicits</a></dd></dl></div>
+    </li><li name="io.finch.route.RArrow2" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RArrow2[A,B]extendsAnyVal"></a>
+      <a id="RArrow2[A,B]:RArrow2[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RArrow2.html"><span class="name">RArrow2</span></a><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@RArrow2[A,B]extendsAnyVal" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Add <code>/&gt;</code> compositor to <code>RouterN</code> to compose it with function of two argument.</p>
+    </li><li name="io.finch.route.RArrow3" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RArrow3[A,B,C]extendsAnyVal"></a>
+      <a id="RArrow3[A,B,C]:RArrow3[A,B,C]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RArrow3.html"><span class="name">RArrow3</span></a><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>, <span name="C">C</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@RArrow3[A,B,C]extendsAnyVal" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Add <code>/&gt;</code> compositor to <code>RouterN</code> to compose it with function of three argument.</p>
+    </li><li name="io.finch.route.RArrow4" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RArrow4[A,B,C,D]extendsAnyVal"></a>
+      <a id="RArrow4[A,B,C,D]:RArrow4[A,B,C,D]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RArrow4.html"><span class="name">RArrow4</span></a><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>, <span name="C">C</span>, <span name="D">D</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.route.package@RArrow4[A,B,C,D]extendsAnyVal" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Add <code>/&gt;</code> compositor to <code>RouterN</code> to compose it with function of four argument.</p>
     </li><li name="io.finch.route.RouteNotFound" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="RouteNotFoundextendsExceptionwithProductwithSerializable"></a>
       <a id="RouteNotFound:RouteNotFound"></a>
@@ -630,7 +716,9 @@ Httpx.serve(
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="io.finch.route.LowPriorityRouterImplicits">
+              <h3>Inherited from <a href="LowPriorityRouterImplicits.html" class="extype" name="io.finch.route.LowPriorityRouterImplicits">LowPriorityRouterImplicits</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

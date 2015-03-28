@@ -53,14 +53,13 @@ for writing lightweight HTTP services. It roughly contains three packages: <a hr
 <code>Router</code> combinator provides a bunch of predefined routers handling separated parts of a route. <code>Router</code>s might be
 composed with either <code>/</code> (<code>andThen</code>) or <code>/&gt;</code> (<code>map</code>) operator. There is also <code>|</code> (<code>orElse</code>) operator that combines
 two routers in terms of the inclusive or operator.</p><pre><span class="kw">val</span> router: Endpoint[HttpRequest, HttpResponse] =
-  Get / (<span class="lit">"users"</span> | <span class="lit">"user"</span>) / int /&gt; GetUser</pre><p>Step 2. Reading the HTTP requests in a <code>Service</code>.</p><p>The <a href="request/RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> abstraction is responsible for reading any details form the HTTP
+  Get / (<span class="lit">"users"</span> | <span class="lit">"user"</span>) / int /&gt; GetUser</pre><p>Step 2. Reading the HTTP requests in a <code>Service</code>.</p><p>The <a href="request/package.html#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> abstraction is responsible for reading any details form the HTTP
 request. <code>RequestReader</code> is composable in both ways: via the monadic API (using the for-comprehension, i.e.,
 <code>flatMap</code>) and via the applicative API (using the <code>~</code> operator). These approaches define an unlimited number of
 readers out the plenty of predefined ones.</p><pre><span class="kw">val</span> pagination: RequestReader[(<span class="std">Int</span>, <span class="std">Int</span>)] =
-  OptionalParam(<span class="lit">"offset"</span>).as[<span class="std">Int</span>] ~ OptionalParam(<span class="lit">"limit"</span>).as[<span class="std">Int</span>] map {
-    <span class="kw">case</span> offset ~ limit <span class="kw">=&gt;</span> (offset.getOrElse(<span class="num">0</span>), limit.getOrElse(<span class="num">100</span>))
-  }
-<span class="kw">val</span> p = pagination(request)</pre><p>Step 3. Building the HTTP responses in a <code>Service</code>.</p><p>The <a href="response/ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a> abstraction provides a convenient way of building the HTTP
+  paramOption(<span class="lit">"offset"</span>).as[<span class="std">Int</span>].withDefault(<span class="num">0</span>) ~
+  paramOption(<span class="lit">"limit"</span>).as[<span class="std">Int</span>].withDefault(<span class="num">0</span>) ~&gt; { (_, _) }
+<span class="kw">val</span> p: Future[(<span class="std">Int</span>, <span class="std">Int</span>)] = pagination(request)</pre><p>Step 3. Building the HTTP responses in a <code>Service</code>.</p><p>The <a href="response/ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a> abstraction provides a convenient way of building the HTTP
 responses any type. In fact, <code>ResponseBuilder</code> is a function that takes some content and builds an HTTP response of a
 type depending on a content. There are plenty of predefined builders that might be used directly.</p><pre><span class="kw">val</span> ok: HttpResponse = Ok(<span class="lit">"Hello, world!"</span>) <span class="cmt">// plain/text HTTP response with status code 200</span></pre></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
@@ -318,6 +317,29 @@ Httpx.serve(<span class="kw">new</span> InetSocketAddress(<span class="num">8081
       </a>
     </span>
       
+    </li><li name="io.finch.micro" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="micro"></a>
+      <a id="micro:micro"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="micro/package.html"><span class="name">micro</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@micro" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An experimental package that enables a secret Finch mode: &quot;Your REST API as a Monad&quot;.</p><div class="fullcomment"><div class="comment cmt"><p>An experimental package that enables a secret Finch mode: &quot;Your REST API as a Monad&quot;. The idea is to replace
+<code>Service</code> with <code>RequestReader</code>. Both <code>RequestReader</code> and <code>Service</code> do similar things, process request (they both
+functions <code>Req =&gt; Future[Rep]</code>), but the <code>RequestReader</code> is insanely composable (being a monad), so it makes sense
+to route request directly to <code>RequestReader</code>. Thus, an <code>Endpoint</code> is <code>Router[RequestReader[HttpResponse]]</code>.</p><p>The high-level idea behind this package is to allow users to work the domain types that matter rather than deal with
+raw HTTP types directly.</p><p>In order to make things clear, this package introduces a new type <code>Micro</code> (from &quot;microservice&quot;), which is actually an
+alias to <code>RequestReader</code>, since it's no longer a reader but _processor_.</p><p>See <a href="https://gist.github.com/vkostyukov/e0e952c28b87563b2383">this gist<a/> for more details.
+</p></div></div>
     </li><li name="io.finch.request" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="request"></a>
       <a id="request:request"></a>
@@ -336,24 +358,20 @@ Httpx.serve(<span class="kw">new</span> InetSocketAddress(<span class="num">8081
     </span>
       <p class="shortcomment cmt">This package introduces types and functions that enable _request processing_ in Finch.</p><div class="fullcomment"><div class="comment cmt"><p>This package introduces types and functions that enable _request processing_ in Finch. The <a href="request/package.html" class="extype" name="io.finch.request">io.finch.request</a>
 primitives allow both to _read_ the various request items (<i>query string param</i>, <i>header</i> and <i>cookie</i>) using
-the <a href="request/RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> and _validate_ them using the
+the <a href="request/package.html#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> and _validate_ them using the
 <a href="request/ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a>.</p><p>The cornerstone abstraction of this package is a <code>RequestReader</code>, which is responsible for reading any amount of data
 from the HTTP request. <code>RequestReader</code>s might be composed with each other using either monadic API (<code>flatMap</code> method)
 or applicative API (<code>~</code> method). Regardless the API used for <code>RequestReader</code>s composition, the main idea behind it is
-to use primitive readers (i.e., <code>RequiredParam</code>, <code>OptionalParam</code>) in order to _compose_ them together and _map_ to
+to use primitive readers (i.e., <code>param</code>, <code>paramOption</code>) in order to _compose_ them together and _map_ to
 the application domain data.</p><pre><span class="kw">case</span> <span class="kw">class</span> Complex(r: <span class="std">Double</span>, i: <span class="std">Double</span>)
 <span class="kw">val</span> complex: RequestReader[Complex] =
-  RequiredParam(<span class="lit">"real"</span>).as[<span class="std">Double</span>] ~
-  OptionalParam(<span class="lit">"imaginary"</span>).as[<span class="std">Double</span>] map {
-    <span class="kw">case</span> r ~ i <span class="kw">=&gt;</span> Complex(r, i.getOrElse(<span class="num">0.0</span>))
-  }</pre><p>A <code>ValidationRule</code> enables a reusable way of defining a validation rules in the application domain. It might be
+  param(<span class="lit">"real"</span>).as[<span class="std">Double</span>] ~
+  paramOption(<span class="lit">"imaginary"</span>).as[<span class="std">Double</span>].withDefault(<span class="num">0.0</span>) ~&gt; Complex</pre><p>A <code>ValidationRule</code> enables a reusable way of defining a validation rules in the application domain. It might be
 composed with <code>RequestReader</code>s using either <code>should</code> or <code>shouldNot</code> methods and with other <code>ValidationRule</code>s using
 logical methods <code>and</code> and <code>or</code>.</p><pre><span class="kw">case</span> <span class="kw">class</span> User(name: <span class="std">String</span>, age: <span class="std">Int</span>)
 <span class="kw">val</span> user: RequestReader[User] =
-  RequiredParam(<span class="lit">"name"</span>) should beLongerThan(<span class="num">3</span>) ~
-  RequiredParam(<span class="lit">"age"</span>).as[<span class="std">Int</span>] should (beGreaterThan(<span class="num">0</span>) and beLessThan(<span class="num">120</span>)) map {
-    <span class="kw">case</span> name ~ age <span class="kw">=&gt;</span> User(name, age)
-  }</pre></div></div>
+  param(<span class="lit">"name"</span>) should beLongerThan(<span class="num">3</span>) ~
+  param(<span class="lit">"age"</span>).as[<span class="std">Int</span>] should (beGreaterThan(<span class="num">0</span>) and beLessThan(<span class="num">120</span>)) ~&gt; User</pre></div></div>
     </li><li name="io.finch.response" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="response"></a>
       <a id="response:response"></a>

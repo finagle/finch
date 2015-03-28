@@ -45,7 +45,7 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">OptionReaderOps</span><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
+        <span class="name">OptionReaderOps</span><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
       </span>
       </h4>
       
@@ -91,18 +91,18 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="io.finch.request.OptionReaderOps#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(reader:io.finch.request.RequestReader[Option[A]]):io.finch.request.package.OptionReaderOps[A]"></a>
-      <a id="&lt;init&gt;:OptionReaderOps[A]"></a>
+      <a id="&lt;init&gt;(rr:io.finch.request.PRequestReader[R,Option[A]]):io.finch.request.package.OptionReaderOps[R,A]"></a>
+      <a id="&lt;init&gt;:OptionReaderOps[R,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">OptionReaderOps</span><span class="params">(<span name="reader">reader: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="io.finch.request.OptionReaderOps.A">A</span>]]</span>)</span>
+        <span class="name">OptionReaderOps</span><span class="params">(<span name="rr">rr: <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.OptionReaderOps.R">R</span>, <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="io.finch.request.OptionReaderOps.A">A</span>]]</span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$OptionReaderOps@&lt;init&gt;(reader:io.finch.request.RequestReader[Option[A]]):io.finch.request.package.OptionReaderOps[A]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$OptionReaderOps@&lt;init&gt;(rr:io.finch.request.PRequestReader[R,Option[A]]):io.finch.request.package.OptionReaderOps[R,A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -184,23 +184,6 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.finch.request.OptionReaderOps#failIfEmpty" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="failIfEmpty:io.finch.request.RequestReader[A]"></a>
-      <a id="failIfEmpty:RequestReader[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">failIfEmpty</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.OptionReaderOps.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$OptionReaderOps@failIfEmpty:io.finch.request.RequestReader[A]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      
     </li><li name="scala.AnyVal#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_&lt;:AnyVal]"></a>
       <a id="getClass():Class[_&lt;:AnyVal]"></a>
@@ -235,19 +218,37 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.finch.request.OptionReaderOps#reader" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="reader:io.finch.request.RequestReader[Option[A]]"></a>
-      <a id="reader:RequestReader[Option[A]]"></a>
+    </li><li name="io.finch.request.OptionReaderOps#orElse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="orElse[B&gt;:A](alternative:=&gt;Option[B]):io.finch.request.PRequestReader[R,Option[B]]"></a>
+      <a id="orElse[B&gt;:A](⇒Option[B]):PRequestReader[R,Option[B]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">orElse</span><span class="tparams">[<span name="B">B &gt;: <span class="extype" name="io.finch.request.OptionReaderOps.A">A</span></span>]</span><span class="params">(<span name="alternative">alternative: ⇒ <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="io.finch.request.OptionReaderOps.orElse.B">B</span>]</span>)</span><span class="result">: <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.OptionReaderOps.R">R</span>, <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="io.finch.request.OptionReaderOps.orElse.B">B</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.package$$OptionReaderOps@orElse[B&gt;:A](alternative:=&gt;Option[B]):io.finch.request.PRequestReader[R,Option[B]]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">If reader is empty it will return provided alternative
+</p>
+    </li><li name="io.finch.request.OptionReaderOps#rr" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="rr:io.finch.request.PRequestReader[R,Option[A]]"></a>
+      <a id="rr:PRequestReader[R,Option[A]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">reader</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="io.finch.request.OptionReaderOps.A">A</span>]]</span>
+        <span class="name">rr</span><span class="result">: <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.OptionReaderOps.R">R</span>, <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="io.finch.request.OptionReaderOps.A">A</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$OptionReaderOps@reader:io.finch.request.RequestReader[Option[A]]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$OptionReaderOps@rr:io.finch.request.PRequestReader[R,Option[A]]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -269,6 +270,24 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.finch.request.OptionReaderOps#withDefault" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withDefault[B&gt;:A](default:=&gt;B):io.finch.request.PRequestReader[R,B]"></a>
+      <a id="withDefault[B&gt;:A](⇒B):PRequestReader[R,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withDefault</span><span class="tparams">[<span name="B">B &gt;: <span class="extype" name="io.finch.request.OptionReaderOps.A">A</span></span>]</span><span class="params">(<span name="default">default: ⇒ <span class="extype" name="io.finch.request.OptionReaderOps.withDefault.B">B</span></span>)</span><span class="result">: <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.OptionReaderOps.R">R</span>, <span class="extype" name="io.finch.request.OptionReaderOps.withDefault.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.package$$OptionReaderOps@withDefault[B&gt;:A](default:=&gt;B):io.finch.request.PRequestReader[R,B]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">If reader is empty it will return provided default value
+</p>
     </li></ol>
             </div>
 

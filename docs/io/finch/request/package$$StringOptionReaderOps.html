@@ -45,7 +45,7 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">StringOptionReaderOps</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
+        <span class="name">StringOptionReaderOps</span><span class="tparams">[<span name="R">R</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
       </span>
       </h4>
       
@@ -93,18 +93,18 @@ result is empty or type conversion succeeds.
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="io.finch.request.StringOptionReaderOps#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(reader:io.finch.request.RequestReader[Option[String]]):io.finch.request.package.StringOptionReaderOps"></a>
-      <a id="&lt;init&gt;:StringOptionReaderOps"></a>
+      <a id="&lt;init&gt;(rr:io.finch.request.PRequestReader[R,Option[String]]):io.finch.request.package.StringOptionReaderOps[R]"></a>
+      <a id="&lt;init&gt;:StringOptionReaderOps[R]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">StringOptionReaderOps</span><span class="params">(<span name="reader">reader: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>)</span>
+        <span class="name">StringOptionReaderOps</span><span class="params">(<span name="rr">rr: <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.StringOptionReaderOps.R">R</span>, <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$StringOptionReaderOps@&lt;init&gt;(reader:io.finch.request.RequestReader[Option[String]]):io.finch.request.package.StringOptionReaderOps" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$StringOptionReaderOps@&lt;init&gt;(rr:io.finch.request.PRequestReader[R,Option[String]]):io.finch.request.package.StringOptionReaderOps[R]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -170,18 +170,18 @@ result is empty or type conversion succeeds.
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="io.finch.request.StringOptionReaderOps#as" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="as[A](implicitmagnet:io.finch.request.package.DecodeMagnet[A],implicittag:scala.reflect.ClassTag[A]):io.finch.request.RequestReader[Option[A]]"></a>
-      <a id="as[A](DecodeMagnet[A],ClassTag[A]):RequestReader[Option[A]]"></a>
+      <a id="as[A](implicitmagnet:io.finch.request.package.DecodeMagnet[A],implicittag:scala.reflect.ClassTag[A]):io.finch.request.PRequestReader[R,Option[A]]"></a>
+      <a id="as[A](DecodeMagnet[A],ClassTag[A]):PRequestReader[R,Option[A]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="magnet">magnet: <a href="package$$DecodeMagnet.html" class="extype" name="io.finch.request.DecodeMagnet">DecodeMagnet</a>[<span class="extype" name="io.finch.request.StringOptionReaderOps.as.A">A</span>]</span>, <span name="tag">tag: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="io.finch.request.StringOptionReaderOps.as.A">A</span>]</span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="io.finch.request.StringOptionReaderOps.as.A">A</span>]]</span>
+        <span class="name">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="magnet">magnet: <a href="package$$DecodeMagnet.html" class="extype" name="io.finch.request.DecodeMagnet">DecodeMagnet</a>[<span class="extype" name="io.finch.request.StringOptionReaderOps.as.A">A</span>]</span>, <span name="tag">tag: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="io.finch.request.StringOptionReaderOps.as.A">A</span>]</span>)</span><span class="result">: <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.StringOptionReaderOps.R">R</span>, <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="io.finch.request.StringOptionReaderOps.as.A">A</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$StringOptionReaderOps@as[A](implicitmagnet:io.finch.request.package.DecodeMagnet[A],implicittag:scala.reflect.ClassTag[A]):io.finch.request.RequestReader[Option[A]]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$StringOptionReaderOps@as[A](implicitmagnet:io.finch.request.package.DecodeMagnet[A],implicittag:scala.reflect.ClassTag[A]):io.finch.request.PRequestReader[R,Option[A]]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -237,19 +237,19 @@ result is empty or type conversion succeeds.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.finch.request.StringOptionReaderOps#reader" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="reader:io.finch.request.RequestReader[Option[String]]"></a>
-      <a id="reader:RequestReader[Option[String]]"></a>
+    </li><li name="io.finch.request.StringOptionReaderOps#rr" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="rr:io.finch.request.PRequestReader[R,Option[String]]"></a>
+      <a id="rr:PRequestReader[R,Option[String]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">reader</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="name">rr</span><span class="result">: <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.StringOptionReaderOps.R">R</span>, <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$StringOptionReaderOps@reader:io.finch.request.RequestReader[Option[String]]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$StringOptionReaderOps@rr:io.finch.request.PRequestReader[R,Option[String]]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>

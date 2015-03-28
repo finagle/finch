@@ -1,0 +1,290 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>micro - io.finch.micro</title>
+          <meta name="description" content="micro - io.finch.micro" />
+          <meta name="keywords" content="micro io.finch.micro" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../index.html';
+            var hash = 'io.finch.micro.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../lib/package_big.png" />
+        <p id="owner"><a href="../../package.html" class="extype" name="io">io</a>.<a href="../package.html" class="extype" name="io.finch">finch</a></p>
+        <h1>micro</h1><span class="permalink">
+      <a href="../../../index.html#io.finch.micro.package" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">micro</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>An experimental package that enables a secret Finch mode: &quot;Your REST API as a Monad&quot;. The idea is to replace
+<code>Service</code> with <code>RequestReader</code>. Both <code>RequestReader</code> and <code>Service</code> do similar things, process request (they both
+functions <code>Req =&gt; Future[Rep]</code>), but the <code>RequestReader</code> is insanely composable (being a monad), so it makes sense
+to route request directly to <code>RequestReader</code>. Thus, an <code>Endpoint</code> is <code>Router[RequestReader[HttpResponse]]</code>.</p><p>The high-level idea behind this package is to allow users to work the domain types that matter rather than deal with
+raw HTTP types directly.</p><p>In order to make things clear, this package introduces a new type <code>Micro</code> (from &quot;microservice&quot;), which is actually an
+alias to <code>RequestReader</code>, since it's no longer a reader but _processor_.</p><p>See <a href="https://gist.github.com/vkostyukov/e0e952c28b87563b2383">this gist<a/> for more details.
+</p></div><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="io.finch.micro"><span>micro</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="io.finch.micro.Endpoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Endpoint=io.finch.micro.package.PEndpoint[io.finch.HttpRequest]"></a>
+      <a id="Endpoint:Endpoint"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Endpoint</span><span class="result"> = <a href="../route/RouterN.html" class="extype" name="io.finch.route.RouterN">RouterN</a>[<a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a>[<a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.micro.package@Endpoint=io.finch.micro.package.PEndpoint[io.finch.HttpRequest]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A <a href="#PEndpoint[R]=io.finch.route.Router[io.finch.micro.package.PMicro[R,io.finch.HttpResponse]]" class="extmbr" name="io.finch.micro.PEndpoint">PEndpoint</a> with request type fixed to <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>.</p>
+    </li><li name="io.finch.micro.Micro" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Micro[A]=io.finch.micro.package.PMicro[io.finch.HttpRequest,A]"></a>
+      <a id="Micro[A]:Micro[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Micro</span><span class="tparams">[<span name="A">A</span>]</span><span class="result"> = <a href="../request/PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>, <span class="extype" name="io.finch.micro.Micro.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.micro.package@Micro[A]=io.finch.micro.package.PMicro[io.finch.HttpRequest,A]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a> with request type fixed to <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>.</p>
+    </li><li name="io.finch.micro.MicroRouterOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="MicroRouterOps[R,A]extendsAnyRef"></a>
+      <a id="MicroRouterOps[R,A]:MicroRouterOps[R,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$MicroRouterOps.html"><span class="name">MicroRouterOps</span></a><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.micro.package@MicroRouterOps[R,A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.micro.PEndpoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PEndpoint[R]=io.finch.route.Router[io.finch.micro.package.PMicro[R,io.finch.HttpResponse]]"></a>
+      <a id="PEndpoint[R]:PEndpoint[R]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">PEndpoint</span><span class="tparams">[<span name="R">R</span>]</span><span class="result"> = <a href="../route/RouterN.html" class="extype" name="io.finch.route.RouterN">RouterN</a>[<a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a>[<span class="extype" name="io.finch.micro.PEndpoint.R">R</span>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.micro.package@PEndpoint[R]=io.finch.route.Router[io.finch.micro.package.PMicro[R,io.finch.HttpResponse]]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A <span class="extype" name="Router">Router</span> that fetches a <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a> is called an endpoint.</p>
+    </li><li name="io.finch.micro.PMicro" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PMicro[R,A]=io.finch.request.PRequestReader[R,A]"></a>
+      <a id="PMicro[R,A]:PMicro[R,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">PMicro</span><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>]</span><span class="result"> = <a href="../request/PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.micro.PMicro.R">R</span>, <span class="extype" name="io.finch.micro.PMicro.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.micro.package@PMicro[R,A]=io.finch.request.PRequestReader[R,A]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An alias for polymorphic <span class="extype" name="PRequestReader">PRequestReader</span>.</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="io.finch.micro#Micro" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Micro:io.finch.request.RequestReader.type"></a>
+      <a id="Micro:RequestReader.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Micro</span><span class="result">: <a href="../request/RequestReader$.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>.type</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.micro.package@Micro:io.finch.request.RequestReader.type" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A companion object for <code>Micro</code>.</p>
+    </li><li name="io.finch.micro#endpointToFinagleService" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="endpointToFinagleService[M,R](r:io.finch.route.Router[M])(implicitevM:M=&gt;io.finch.micro.package.PMicro[R,io.finch.HttpResponse],implicitevR:io.finch.request.%&gt;[R,io.finch.HttpRequest]):com.twitter.finagle.Service[R,io.finch.HttpResponse]"></a>
+      <a id="endpointToFinagleService[M,R](Router[M])((M)⇒PMicro[R,HttpResponse],%&gt;[R,HttpRequest]):Service[R,HttpResponse]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">endpointToFinagleService</span><span class="tparams">[<span name="M">M</span>, <span name="R">R</span>]</span><span class="params">(<span name="r">r: <a href="../route/package.html#Router[+A]=io.finch.route.RouterN[A]" class="extmbr" name="io.finch.route.Router">Router</a>[<span class="extype" name="io.finch.micro.endpointToFinagleService.M">M</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evM">evM: (<span class="extype" name="io.finch.micro.endpointToFinagleService.M">M</span>) ⇒ <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a>[<span class="extype" name="io.finch.micro.endpointToFinagleService.R">R</span>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]</span>, <span name="evR">evR: <a href="../request/package.html#%&gt;[A,B]=io.finch.request.package.View[A,B]" class="extmbr" name="io.finch.request.%&gt;">%&gt;</a>[<span class="extype" name="io.finch.micro.endpointToFinagleService.R">R</span>, <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>]</span>)</span><span class="result">: <span class="extype" name="com.twitter.finagle.Service">Service</span>[<span class="extype" name="io.finch.micro.endpointToFinagleService.R">R</span>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.micro.package@endpointToFinagleService[M,R](r:io.finch.route.Router[M])(implicitevM:M=&gt;io.finch.micro.package.PMicro[R,io.finch.HttpResponse],implicitevR:io.finch.request.%&gt;[R,io.finch.HttpRequest]):com.twitter.finagle.Service[R,io.finch.HttpResponse]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.micro#microRouterToEndpoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="microRouterToEndpoint[R,M](r:io.finch.route.Router[M])(implicitev:M=&gt;io.finch.micro.package.PMicro[R,io.finch.HttpResponse]):io.finch.micro.package.PEndpoint[R]"></a>
+      <a id="microRouterToEndpoint[R,M](Router[M])((M)⇒PMicro[R,HttpResponse]):PEndpoint[R]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">microRouterToEndpoint</span><span class="tparams">[<span name="R">R</span>, <span name="M">M</span>]</span><span class="params">(<span name="r">r: <a href="../route/package.html#Router[+A]=io.finch.route.RouterN[A]" class="extmbr" name="io.finch.route.Router">Router</a>[<span class="extype" name="io.finch.micro.microRouterToEndpoint.M">M</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: (<span class="extype" name="io.finch.micro.microRouterToEndpoint.M">M</span>) ⇒ <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a>[<span class="extype" name="io.finch.micro.microRouterToEndpoint.R">R</span>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]</span>)</span><span class="result">: <a href="#PEndpoint[R]=io.finch.route.Router[io.finch.micro.package.PMicro[R,io.finch.HttpResponse]]" class="extmbr" name="io.finch.micro.PEndpoint">PEndpoint</a>[<span class="extype" name="io.finch.micro.microRouterToEndpoint.R">R</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.micro.package@microRouterToEndpoint[R,M](r:io.finch.route.Router[M])(implicitev:M=&gt;io.finch.micro.package.PMicro[R,io.finch.HttpResponse]):io.finch.micro.package.PEndpoint[R]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.micro#microToHttpMicro" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="microToHttpMicro[R,A](m:io.finch.micro.package.PMicro[R,A])(implicite:io.finch.response.EncodeResponse[A]):io.finch.micro.package.PMicro[R,io.finch.HttpResponse]"></a>
+      <a id="microToHttpMicro[R,A](PMicro[R,A])(EncodeResponse[A]):PMicro[R,HttpResponse]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">microToHttpMicro</span><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>]</span><span class="params">(<span name="m">m: <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a>[<span class="extype" name="io.finch.micro.microToHttpMicro.R">R</span>, <span class="extype" name="io.finch.micro.microToHttpMicro.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="e">e: <a href="../response/package$$EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>[<span class="extype" name="io.finch.micro.microToHttpMicro.A">A</span>]</span>)</span><span class="result">: <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a>[<span class="extype" name="io.finch.micro.microToHttpMicro.R">R</span>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.micro.package@microToHttpMicro[R,A](m:io.finch.micro.package.PMicro[R,A])(implicite:io.finch.response.EncodeResponse[A]):io.finch.micro.package.PMicro[R,io.finch.HttpResponse]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

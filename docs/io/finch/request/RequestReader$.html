@@ -28,12 +28,10 @@
         </head>
         <body class="value">
       <div id="definition">
-        <a href="RequestReader.html" title="Go to companion"><img src="../../../lib/object_to_trait_big.png" /></a>
+        <img src="../../../lib/object_big.png" />
         <p id="owner"><a href="../../package.html" class="extype" name="io">io</a>.<a href="../package.html" class="extype" name="io.finch">finch</a>.<a href="package.html" class="extype" name="io.finch.request">request</a></p>
-        <h1><a href="RequestReader.html" title="Go to companion">RequestReader</a></h1><h3><span class="morelinks"><div>
-            Related Docs:
-            <a href="RequestReader.html" title="See companion">trait RequestReader</a>
-            | <a href="package.html" class="extype" name="io.finch.request">package request</a>
+        <h1>RequestReader</h1><h3><span class="morelinks"><div>Related Doc:
+            <a href="package.html" class="extype" name="io.finch.request">package request</a>
           </div></span></h3><span class="permalink">
       <a href="../../../index.html#io.finch.request.RequestReader$" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
@@ -150,23 +148,23 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="io.finch.request.RequestReader#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply[A](item:io.finch.request.items.RequestItem)(f:io.finch.HttpRequest=&gt;A):io.finch.request.RequestReader[A]"></a>
-      <a id="apply[A](RequestItem)((HttpRequest)⇒A):RequestReader[A]"></a>
+      <a id="apply[R,A](f:R=&gt;A):io.finch.request.PRequestReader[R,A]"></a>
+      <a id="apply[R,A]((R)⇒A):PRequestReader[R,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="item">item: <a href="package$$items$$RequestItem.html" class="extype" name="io.finch.request.items.RequestItem">RequestItem</a></span>)</span><span class="params">(<span name="f">f: (<a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>) ⇒ <span class="extype" name="io.finch.request.RequestReader.apply.A">A</span></span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.apply.A">A</span>]</span>
+        <span class="name">apply</span><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.finch.request.RequestReader.apply.R">R</span>) ⇒ <span class="extype" name="io.finch.request.RequestReader.apply.A">A</span></span>)</span><span class="result">: <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.apply.R">R</span>, <span class="extype" name="io.finch.request.RequestReader.apply.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.RequestReader$@apply[A](item:io.finch.request.items.RequestItem)(f:io.finch.HttpRequest=&gt;A):io.finch.request.RequestReader[A]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.RequestReader$@apply[R,A](f:R=&gt;A):io.finch.request.PRequestReader[R,A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a new <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that reads the result from the request.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that reads the result from the request.
-</p></div><dl class="paramcmts block"><dt class="param">item</dt><dd class="cmt"><p>the request item (e.g. parameter, header) the value is associated with</p></dd><dt class="param">f</dt><dd class="cmt"><p>the function to apply to the request</p></dd><dt>returns</dt><dd class="cmt"><p>a new reader that reads the result from the request
+      <p class="shortcomment cmt">Creates a new <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads the result from the request.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads the result from the request.
+</p></div><dl class="paramcmts block"><dt class="param">f</dt><dd class="cmt"><p>the function to apply to the request</p></dd><dt>returns</dt><dd class="cmt"><p>a new reader that reads the result from the request
 </p></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
@@ -209,24 +207,24 @@
               
         </dd></dl></div>
     </li><li name="io.finch.request.RequestReader#const" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="const[A](value:com.twitter.util.Future[A],item:io.finch.request.items.RequestItem):io.finch.request.RequestReader[A]"></a>
-      <a id="const[A](Future[A],RequestItem):RequestReader[A]"></a>
+      <a id="const[A](value:com.twitter.util.Future[A]):io.finch.request.RequestReader[A]"></a>
+      <a id="const[A](Future[A]):RequestReader[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">const</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="com.twitter.util.Future">Future</span>[<span class="extype" name="io.finch.request.RequestReader.const.A">A</span>]</span>, <span name="item">item: <a href="package$$items$$RequestItem.html" class="extype" name="io.finch.request.items.RequestItem">RequestItem</a> = <span class="symbol"><span class="name"><a href="../../package.html">MultipleItems</a></span></span></span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.const.A">A</span>]</span>
+        <span class="name">const</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="com.twitter.util.Future">Future</span>[<span class="extype" name="io.finch.request.RequestReader.const.A">A</span>]</span>)</span><span class="result">: <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.const.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.RequestReader$@const[A](value:com.twitter.util.Future[A],item:io.finch.request.items.RequestItem):io.finch.request.RequestReader[A]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.RequestReader$@const[A](value:com.twitter.util.Future[A]):io.finch.request.RequestReader[A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a new <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that always produces the specified value.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that always produces the specified value. It will
+      <p class="shortcomment cmt">Creates a new <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that always produces the specified value.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that always produces the specified value. It will
 succeed if the given <code>Future</code> succeeds and fail if the <code>Future</code> fails.
-</p></div><dl class="paramcmts block"><dt class="param">value</dt><dd class="cmt"><p>the value the new reader should produce</p></dd><dt class="param">item</dt><dd class="cmt"><p>the request item (e.g. parameter, header) the value is associated with</p></dd><dt>returns</dt><dd class="cmt"><p>a new reader that always produces the specified value
+</p></div><dl class="paramcmts block"><dt class="param">value</dt><dd class="cmt"><p>the value the new reader should produce</p></dd><dt>returns</dt><dd class="cmt"><p>a new reader that always produces the specified value
 </p></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
@@ -263,25 +261,25 @@ succeed if the given <code>Future</code> succeeds and fail if the <code>Future</
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="io.finch.request.RequestReader#exception" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="exception[A](exc:Throwable,item:io.finch.request.items.RequestItem):io.finch.request.RequestReader[A]"></a>
-      <a id="exception[A](Throwable,RequestItem):RequestReader[A]"></a>
+      <a id="exception[A](exc:Throwable):io.finch.request.RequestReader[A]"></a>
+      <a id="exception[A](Throwable):RequestReader[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">exception</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="exc">exc: <span class="extype" name="scala.Throwable">Throwable</span></span>, <span name="item">item: <a href="package$$items$$RequestItem.html" class="extype" name="io.finch.request.items.RequestItem">RequestItem</a> = <span class="symbol"><span class="name"><a href="../../package.html">MultipleItems</a></span></span></span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.exception.A">A</span>]</span>
+        <span class="name">exception</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="exc">exc: <span class="extype" name="scala.Throwable">Throwable</span></span>)</span><span class="result">: <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.exception.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.RequestReader$@exception[A](exc:Throwable,item:io.finch.request.items.RequestItem):io.finch.request.RequestReader[A]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.RequestReader$@exception[A](exc:Throwable):io.finch.request.RequestReader[A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a new <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that always fails, producing the specified
-exception.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that always fails, producing the specified
+      <p class="shortcomment cmt">Creates a new <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that always fails, producing the specified
+exception.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that always fails, producing the specified
 exception.
-</p></div><dl class="paramcmts block"><dt class="param">exc</dt><dd class="cmt"><p>the exception the new reader should produce</p></dd><dt class="param">item</dt><dd class="cmt"><p>the request item (e.g. parameter, header) the value is associated with</p></dd><dt>returns</dt><dd class="cmt"><p>a new reader that always fails, producing the specified exception
+</p></div><dl class="paramcmts block"><dt class="param">exc</dt><dd class="cmt"><p>the exception the new reader should produce</p></dd><dt>returns</dt><dd class="cmt"><p>a new reader that always fails, producing the specified exception
 </p></dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
@@ -443,23 +441,23 @@ exception.
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="io.finch.request.RequestReader#value" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="value[A](value:A,item:io.finch.request.items.RequestItem):io.finch.request.RequestReader[A]"></a>
-      <a id="value[A](A,RequestItem):RequestReader[A]"></a>
+      <a id="value[A](value:A):io.finch.request.RequestReader[A]"></a>
+      <a id="value[A](A):RequestReader[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">value</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="io.finch.request.RequestReader.value.A">A</span></span>, <span name="item">item: <a href="package$$items$$RequestItem.html" class="extype" name="io.finch.request.items.RequestItem">RequestItem</a> = <span class="symbol"><span class="name"><a href="../../package.html">MultipleItems</a></span></span></span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.value.A">A</span>]</span>
+        <span class="name">value</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="io.finch.request.RequestReader.value.A">A</span></span>)</span><span class="result">: <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.value.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.RequestReader$@value[A](value:A,item:io.finch.request.items.RequestItem):io.finch.request.RequestReader[A]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.RequestReader$@value[A](value:A):io.finch.request.RequestReader[A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a new <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that always succeeds, producing the specified value.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that always succeeds, producing the specified value.
-</p></div><dl class="paramcmts block"><dt class="param">value</dt><dd class="cmt"><p>the value the new reader should produce</p></dd><dt class="param">item</dt><dd class="cmt"><p>the request item (e.g. parameter, header) the value is associated with</p></dd><dt>returns</dt><dd class="cmt"><p>a new reader that always succeeds, producing the specified value
+      <p class="shortcomment cmt">Creates a new <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that always succeeds, producing the specified value.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that always succeeds, producing the specified value.
+</p></div><dl class="paramcmts block"><dt class="param">value</dt><dd class="cmt"><p>the value the new reader should produce</p></dd><dt>returns</dt><dd class="cmt"><p>a new reader that always succeeds, producing the specified value
 </p></dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>

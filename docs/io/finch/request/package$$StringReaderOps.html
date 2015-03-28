@@ -45,7 +45,7 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">StringReaderOps</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
+        <span class="name">StringReaderOps</span><span class="tparams">[<span name="R">R</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
       </span>
       </h4>
       
@@ -92,18 +92,18 @@ on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><p>The r
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="io.finch.request.StringReaderOps#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(reader:io.finch.request.RequestReader[String]):io.finch.request.package.StringReaderOps"></a>
-      <a id="&lt;init&gt;:StringReaderOps"></a>
+      <a id="&lt;init&gt;(rr:io.finch.request.PRequestReader[R,String]):io.finch.request.package.StringReaderOps[R]"></a>
+      <a id="&lt;init&gt;:StringReaderOps[R]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">StringReaderOps</span><span class="params">(<span name="reader">reader: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span>
+        <span class="name">StringReaderOps</span><span class="params">(<span name="rr">rr: <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.StringReaderOps.R">R</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$StringReaderOps@&lt;init&gt;(reader:io.finch.request.RequestReader[String]):io.finch.request.package.StringReaderOps" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$StringReaderOps@&lt;init&gt;(rr:io.finch.request.PRequestReader[R,String]):io.finch.request.package.StringReaderOps[R]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -169,18 +169,18 @@ on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><p>The r
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="io.finch.request.StringReaderOps#as" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="as[A](implicitmagnet:io.finch.request.package.DecodeMagnet[A],implicittag:scala.reflect.ClassTag[A]):io.finch.request.RequestReader[A]"></a>
-      <a id="as[A](DecodeMagnet[A],ClassTag[A]):RequestReader[A]"></a>
+      <a id="as[A](implicitmagnet:io.finch.request.package.DecodeMagnet[A],implicittag:scala.reflect.ClassTag[A]):io.finch.request.PRequestReader[R,A]"></a>
+      <a id="as[A](DecodeMagnet[A],ClassTag[A]):PRequestReader[R,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="magnet">magnet: <a href="package$$DecodeMagnet.html" class="extype" name="io.finch.request.DecodeMagnet">DecodeMagnet</a>[<span class="extype" name="io.finch.request.StringReaderOps.as.A">A</span>]</span>, <span name="tag">tag: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="io.finch.request.StringReaderOps.as.A">A</span>]</span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.StringReaderOps.as.A">A</span>]</span>
+        <span class="name">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="magnet">magnet: <a href="package$$DecodeMagnet.html" class="extype" name="io.finch.request.DecodeMagnet">DecodeMagnet</a>[<span class="extype" name="io.finch.request.StringReaderOps.as.A">A</span>]</span>, <span name="tag">tag: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="io.finch.request.StringReaderOps.as.A">A</span>]</span>)</span><span class="result">: <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.StringReaderOps.R">R</span>, <span class="extype" name="io.finch.request.StringReaderOps.as.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$StringReaderOps@as[A](implicitmagnet:io.finch.request.package.DecodeMagnet[A],implicittag:scala.reflect.ClassTag[A]):io.finch.request.RequestReader[A]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$StringReaderOps@as[A](implicitmagnet:io.finch.request.package.DecodeMagnet[A],implicittag:scala.reflect.ClassTag[A]):io.finch.request.PRequestReader[R,A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -236,19 +236,19 @@ on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><p>The r
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.finch.request.StringReaderOps#reader" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="reader:io.finch.request.RequestReader[String]"></a>
-      <a id="reader:RequestReader[String]"></a>
+    </li><li name="io.finch.request.StringReaderOps#rr" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="rr:io.finch.request.PRequestReader[R,String]"></a>
+      <a id="rr:PRequestReader[R,String]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">reader</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">rr</span><span class="result">: <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.StringReaderOps.R">R</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$StringReaderOps@reader:io.finch.request.RequestReader[String]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package$$StringReaderOps@rr:io.finch.request.PRequestReader[R,String]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>

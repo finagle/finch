@@ -93,14 +93,13 @@ for writing lightweight HTTP services. It roughly contains three packages: <a hr
 <code>Router</code> combinator provides a bunch of predefined routers handling separated parts of a route. <code>Router</code>s might be
 composed with either <code>/</code> (<code>andThen</code>) or <code>/&gt;</code> (<code>map</code>) operator. There is also <code>|</code> (<code>orElse</code>) operator that combines
 two routers in terms of the inclusive or operator.</p><pre><span class="kw">val</span> router: Endpoint[HttpRequest, HttpResponse] =
-  Get / (<span class="lit">"users"</span> | <span class="lit">"user"</span>) / int /&gt; GetUser</pre><p>Step 2. Reading the HTTP requests in a <code>Service</code>.</p><p>The <a href="finch/request/RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> abstraction is responsible for reading any details form the HTTP
+  Get / (<span class="lit">"users"</span> | <span class="lit">"user"</span>) / int /&gt; GetUser</pre><p>Step 2. Reading the HTTP requests in a <code>Service</code>.</p><p>The <a href="finch/request/package.html#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> abstraction is responsible for reading any details form the HTTP
 request. <code>RequestReader</code> is composable in both ways: via the monadic API (using the for-comprehension, i.e.,
 <code>flatMap</code>) and via the applicative API (using the <code>~</code> operator). These approaches define an unlimited number of
 readers out the plenty of predefined ones.</p><pre><span class="kw">val</span> pagination: RequestReader[(<span class="std">Int</span>, <span class="std">Int</span>)] =
-  OptionalParam(<span class="lit">"offset"</span>).as[<span class="std">Int</span>] ~ OptionalParam(<span class="lit">"limit"</span>).as[<span class="std">Int</span>] map {
-    <span class="kw">case</span> offset ~ limit <span class="kw">=&gt;</span> (offset.getOrElse(<span class="num">0</span>), limit.getOrElse(<span class="num">100</span>))
-  }
-<span class="kw">val</span> p = pagination(request)</pre><p>Step 3. Building the HTTP responses in a <code>Service</code>.</p><p>The <a href="finch/response/ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a> abstraction provides a convenient way of building the HTTP
+  paramOption(<span class="lit">"offset"</span>).as[<span class="std">Int</span>].withDefault(<span class="num">0</span>) ~
+  paramOption(<span class="lit">"limit"</span>).as[<span class="std">Int</span>].withDefault(<span class="num">0</span>) ~&gt; { (_, _) }
+<span class="kw">val</span> p: Future[(<span class="std">Int</span>, <span class="std">Int</span>)] = pagination(request)</pre><p>Step 3. Building the HTTP responses in a <code>Service</code>.</p><p>The <a href="finch/response/ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a> abstraction provides a convenient way of building the HTTP
 responses any type. In fact, <code>ResponseBuilder</code> is a function that takes some content and builds an HTTP response of a
 type depending on a content. There are plenty of predefined builders that might be used directly.</p><pre><span class="kw">val</span> ok: HttpResponse = Ok(<span class="lit">"Hello, world!"</span>) <span class="cmt">// plain/text HTTP response with status code 200</span></pre></div></div>
     </li></ol>

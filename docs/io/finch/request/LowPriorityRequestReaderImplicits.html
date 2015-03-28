@@ -1,9 +1,9 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <title>RequiredParam - io.finch.request.RequiredParam</title>
-          <meta name="description" content="RequiredParam - io.finch.request.RequiredParam" />
-          <meta name="keywords" content="RequiredParam io.finch.request.RequiredParam" />
+          <title>LowPriorityRequestReaderImplicits - io.finch.request.LowPriorityRequestReaderImplicits</title>
+          <meta name="description" content="LowPriorityRequestReaderImplicits - io.finch.request.LowPriorityRequestReaderImplicits" />
+          <meta name="keywords" content="LowPriorityRequestReaderImplicits io.finch.request.LowPriorityRequestReaderImplicits" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -16,7 +16,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../../../index.html';
-            var hash = 'io.finch.request.package$$RequiredParam$';
+            var hash = 'io.finch.request.LowPriorityRequestReaderImplicits';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -26,14 +26,14 @@
    	  </script>
     
         </head>
-        <body class="value">
+        <body class="type">
       <div id="definition">
-        <img src="../../../lib/object_big.png" />
+        <img src="../../../lib/trait_big.png" />
         <p id="owner"><a href="../../package.html" class="extype" name="io">io</a>.<a href="../package.html" class="extype" name="io.finch">finch</a>.<a href="package.html" class="extype" name="io.finch.request">request</a></p>
-        <h1>RequiredParam</h1><h3><span class="morelinks"><div>Related Doc:
+        <h1>LowPriorityRequestReaderImplicits</h1><h3><span class="morelinks"><div>Related Doc:
             <a href="package.html" class="extype" name="io.finch.request">package request</a>
           </div></span></h3><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -42,14 +42,16 @@
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">object</span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <span class="name">RequiredParam</span>
+        <span class="name">LowPriorityRequestReaderImplicits</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A required string param.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Trait with low-priority implicits to avoid conflicts that would arise from adding implicits that would work with
+any type in the same scope as implicits for concrete types.</p><p>Implicits defined in super-types have lower priority than those defined in a sub-type. Therefore we define low-
+priority implicits here and mix this trait into the package object.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
@@ -70,7 +72,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="io.finch.request.RequiredParam"><span>RequiredParam</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="io.finch.request.LowPriorityRequestReaderImplicits"><span>LowPriorityRequestReaderImplicits</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -90,7 +92,27 @@
         <div id="allMembers">
         
 
-        
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="io.finch.request.LowPriorityRequestReaderImplicits.RrArrow1" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RrArrow1[R,A]extendsAnyRef"></a>
+      <a id="RrArrow1[R,A]:RrArrow1[R,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="LowPriorityRequestReaderImplicits$RrArrow1.html"><span class="name">RrArrow1</span></a><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@RrArrow1[R,A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Adds a <code>~&gt;</code> and <code>~~&gt;</code> compositors to <code>RequestReader</code> to compose it with function of one argument.</p>
+    </li></ol>
+            </div>
 
         
 
@@ -108,7 +130,7 @@
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@!=(x$1:Any):Boolean" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -125,7 +147,7 @@
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@##():Int" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@##():Int" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -142,33 +164,11 @@
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@==(x$1:Any):Boolean" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@==(x$1:Any):Boolean" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.finch.request.RequiredParam#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply(param:String):io.finch.request.RequestReader[String]"></a>
-      <a id="apply(String):RequestReader[String]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="param">param: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@apply(param:String):io.finch.request.RequestReader[String]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Creates a <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that reads a required string <i>param</i> from the
-request or raises a <a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a> exception when the param is missing or empty.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that reads a required string <i>param</i> from the
-request or raises a <a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a> exception when the param is missing or empty.
-</p></div><dl class="paramcmts block"><dt class="param">param</dt><dd class="cmt"><p>the param to read
-</p></dd><dt>returns</dt><dd class="cmt"><p>a param value
-</p></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -181,7 +181,7 @@ request or raises a <a href="NotPresent.html" class="extype" name="io.finch.requ
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@asInstanceOf[T0]:T0" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -198,7 +198,7 @@ request or raises a <a href="NotPresent.html" class="extype" name="io.finch.requ
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@clone():Object" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@clone():Object" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -221,7 +221,7 @@ request or raises a <a href="NotPresent.html" class="extype" name="io.finch.requ
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -238,7 +238,7 @@ request or raises a <a href="NotPresent.html" class="extype" name="io.finch.requ
         <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@equals(x$1:Any):Boolean" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -255,7 +255,7 @@ request or raises a <a href="NotPresent.html" class="extype" name="io.finch.requ
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@finalize():Unit" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@finalize():Unit" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -278,7 +278,7 @@ request or raises a <a href="NotPresent.html" class="extype" name="io.finch.requ
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@getClass():Class[_]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@getClass():Class[_]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -295,7 +295,7 @@ request or raises a <a href="NotPresent.html" class="extype" name="io.finch.requ
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@hashCode():Int" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@hashCode():Int" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -312,11 +312,29 @@ request or raises a <a href="NotPresent.html" class="extype" name="io.finch.requ
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.finch.request.LowPriorityRequestReaderImplicits#magnetFromAnyDecode" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="magnetFromAnyDecode[A](implicitd:io.finch.request.DecodeAnyRequest,implicittag:scala.reflect.ClassTag[A]):io.finch.request.DecodeMagnet[A]"></a>
+      <a id="magnetFromAnyDecode[A](DecodeAnyRequest,ClassTag[A]):DecodeMagnet[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">magnetFromAnyDecode</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="package$$DecodeAnyRequest.html" class="extype" name="io.finch.request.DecodeAnyRequest">DecodeAnyRequest</a></span>, <span name="tag">tag: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="io.finch.request.LowPriorityRequestReaderImplicits.magnetFromAnyDecode.A">A</span>]</span>)</span><span class="result">: <a href="package$$DecodeMagnet.html" class="extype" name="io.finch.request.DecodeMagnet">DecodeMagnet</a>[<span class="extype" name="io.finch.request.LowPriorityRequestReaderImplicits.magnetFromAnyDecode.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@magnetFromAnyDecode[A](implicitd:io.finch.request.DecodeAnyRequest,implicittag:scala.reflect.ClassTag[A]):io.finch.request.DecodeMagnet[A]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Creates a <a href="package$$DecodeMagnet.html" class="extype" name="io.finch.request.DecodeMagnet">DecodeMagnet</a> from
+<a href="package$$DecodeAnyRequest.html" class="extype" name="io.finch.request.DecodeAnyRequest">DecodeAnyRequest</a>.</p>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -329,7 +347,7 @@ request or raises a <a href="NotPresent.html" class="extype" name="io.finch.requ
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -346,7 +364,7 @@ request or raises a <a href="NotPresent.html" class="extype" name="io.finch.requ
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@notify():Unit" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@notify():Unit" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -363,7 +381,7 @@ request or raises a <a href="NotPresent.html" class="extype" name="io.finch.requ
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@notifyAll():Unit" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@notifyAll():Unit" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -380,7 +398,7 @@ request or raises a <a href="NotPresent.html" class="extype" name="io.finch.requ
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -397,7 +415,7 @@ request or raises a <a href="NotPresent.html" class="extype" name="io.finch.requ
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@toString():String" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@toString():String" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -414,7 +432,7 @@ request or raises a <a href="NotPresent.html" class="extype" name="io.finch.requ
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@wait():Unit" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@wait():Unit" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -437,7 +455,7 @@ request or raises a <a href="NotPresent.html" class="extype" name="io.finch.requ
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -460,7 +478,7 @@ request or raises a <a href="NotPresent.html" class="extype" name="io.finch.requ
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package$$RequiredParam$@wait(x$1:Long):Unit" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@wait(x$1:Long):Unit" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
