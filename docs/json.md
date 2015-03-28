@@ -16,7 +16,7 @@ import io.finch.json._
 import io.finch.request._
 
 vaj j: Json = Json.obj("a" -> 10)
-val i: RequestReader[Json] = RequiredBody.as[Json]
+val i: RequestReader[Json] = body.as[Json]
 val o: HttpResponse = Ok(Json.arr("a", "b", "c"))
 ```
 
@@ -44,7 +44,7 @@ implicit val objectMapper: ObjectMapper = new ObjectMapper().registerModule(Defa
 case class Foo(id: Int, s: String)
 
 val ok: HttpResponse = Ok(Foo(10, "foo")) // will be encoded as JSON
-val foo: RequestReader[Foo] = RequiredBody.as[Foo] // a request reader that reads Foo
+val foo: RequestReader[Foo] = body.as[Foo] // a request reader that reads Foo
 ```
 
 [3]: https://github.com/finagle/finch/blob/master/finch-json/src/main/scala/io/finch/json/Json.scala

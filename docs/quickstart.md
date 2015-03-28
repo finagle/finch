@@ -44,7 +44,7 @@ In order to _read_ the incoming request and fetch the query-string param `title`
 value.
 
 ```scala
-val title = OptionalParam("title") map { _.getOrElse("") }
+val title = paramOption("title").withDefault("")
 ```
 
 Finally, we define a service `hello` that actually greets users. The HTTP response `OK 200` is _built_ with

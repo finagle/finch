@@ -56,10 +56,9 @@ import com.twitter.finagle.Filter
  *
  * {{{
  *   val pagination: RequestReader[(Int, Int)] =
- *     OptionalParam("offset").as[Int] ~ OptionalParam("limit").as[Int] map {
- *       case offset ~ limit => (offset.getOrElse(0), limit.getOrElse(100))
- *     }
- *   val p = pagination(request)
+ *     paramOption("offset").as[Int].withDefault(0) ~
+ *     paramOption("limit").as[Int].withDefault(0) ~> { (_, _) }
+ *   val p: Future[(Int, Int)] = pagination(request)
  * }}}
  *
  * Step 3. Building the HTTP responses in a `Service`.

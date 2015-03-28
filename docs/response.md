@@ -55,7 +55,7 @@ import io.finch.response._
 
 object Hello extends Service[HttpRequest, HttpResponse] {
   def apply(req: HttpRequest) = for {
-    name <- RequiredParam("name")(req)
+    name <- param("name")(req)
   } yield Ok(s"Hello, $name!")
 }
 ```

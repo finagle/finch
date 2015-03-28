@@ -45,7 +45,7 @@ import scala.reflect.ClassTag
  * The cornerstone abstraction of this package is a `RequestReader`, which is responsible for reading any amount of data
  * from the HTTP request. `RequestReader`s might be composed with each other using either monadic API (`flatMap` method)
  * or applicative API (`~` method). Regardless the API used for `RequestReader`s composition, the main idea behind it is
- * to use primitive readers (i.e., `RequiredParam`, `OptionalParam`) in order to _compose_ them together and _map_ to
+ * to use primitive readers (i.e., `param`, `paramOption`) in order to _compose_ them together and _map_ to
  * the application domain data.
  *
  * {{{

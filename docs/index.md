@@ -26,7 +26,7 @@ of predefined ones.
 
 ```scala
 val pagination: RequestReader[(Int, Int)] =
-  OptionalParam("offset").as[Int] ~ OptionalParam("limit").as[Int] map {
+  paramOption("offset").as[Int] ~ paramOption("limit").as[Int] map {
     case offset ~ limit => (offset.getOrElse(0), limit.getOrElse(100))
   }
 ```
