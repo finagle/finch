@@ -48,7 +48,7 @@ object Main extends App {
 
   // POST /groups?name=foo -> Group
   val postGroup: AuthMicro[Group] =
-    currentUser ~ RequiredParam("name") ~> Group
+    currentUser ~ param("name") ~> Group
 
   // PUT /user/groups/:group -> User
   def putUserGroup(group: String): AuthMicro[User] =
