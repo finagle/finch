@@ -7,4 +7,4 @@ jdk:
   - openjdk7
   - oraclejdk7
   - oraclejdk8
-script: "sbt -sbt-version 0.13.7 ++$TRAVIS_SCALA_VERSION clean coverage test coveralls scalastyle"
+script: "sbt -sbt-version 0.13.8 ++$TRAVIS_SCALA_VERSION clean coverage test coveralls scalastyle"
