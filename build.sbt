@@ -4,7 +4,7 @@ import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   version := "0.7.0-SNAPSHOT",
-  scalaVersion := "2.11.5",
+  scalaVersion := "2.11.6",
   crossScalaVersions := Seq("2.10.5", "2.11.6")
 )
 
@@ -74,36 +74,36 @@ lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Se
 
 lazy val root = project.in(file("."))
   .settings(moduleName := "finch")
-  .settings(allSettings: _*)
-  .settings(docSettings: _*)
+  .settings(allSettings)
+  .settings(docSettings)
   .aggregate(core, json, demo, playground, jawn, argonaut, jackson, auth)
 
 lazy val core = project
   .settings(moduleName := "finch-core")
-  .settings(allSettings: _*)
+  .settings(allSettings)
   .disablePlugins(CoverallsPlugin)
 
 lazy val json = project
   .settings(moduleName := "finch-json")
-  .settings(allSettings: _*)
+  .settings(allSettings)
   .dependsOn(core)
   .disablePlugins(CoverallsPlugin)
 
 lazy val demo = project
   .settings(moduleName := "finch-demo")
-  .settings(allSettings: _*)
+  .settings(allSettings)
   .dependsOn(core, json)
   .disablePlugins(CoverallsPlugin)
 
 lazy val playground = project
   .settings(moduleName := "finch-playground")
-  .settings(allSettings: _*)
+  .settings(allSettings)
   .dependsOn(core, jackson)
   .disablePlugins(CoverallsPlugin)
 
 lazy val jawn = project
   .settings(moduleName := "finch-jawn")
-  .settings(allSettings: _*)
+  .settings(allSettings)
   .settings(
     libraryDependencies ++= Seq(
       "org.spire-math" %% "jawn-parser" % "0.7.2",
@@ -115,20 +115,20 @@ lazy val jawn = project
 
 lazy val argonaut = project
   .settings(moduleName := "finch-argonaut")
-  .settings(allSettings: _*)
+  .settings(allSettings)
   .settings(libraryDependencies += "io.argonaut" %% "argonaut" % "6.0.4")
   .dependsOn(core)
   .disablePlugins(CoverallsPlugin)
 
 lazy val jackson = project
   .settings(moduleName := "finch-jackson")
-  .settings(allSettings: _*)
+  .settings(allSettings)
   .settings(libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.4.4")
   .dependsOn(core)
   .disablePlugins(CoverallsPlugin)
 
 lazy val auth = project
   .settings(moduleName := "finch-auth")
-  .settings(allSettings: _*)
+  .settings(allSettings)
   .dependsOn(core)
   .disablePlugins(CoverallsPlugin)
