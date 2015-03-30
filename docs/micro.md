@@ -12,7 +12,7 @@
 
 The ["Finch in Action"][1] problem is about using types that matter rather than dealing with raw HTTP types directly.
 Before version 0.6.0, it wasn't possible to avoid HTTP types (i.e., `HttpRequest`, `HttpResponse`) in the code, since
-typical use-case was to create a Finch `RequestReader[A]` and call it from `Service[HttpRequest, HttpResponse]`, like
+the typical use-case is to create a Finch `RequestReader[A]` and call it from `Service[HttpRequest, HttpResponse]`, like
 this:
 
 ```scala
@@ -38,17 +38,17 @@ boilerplate code. This might be achieved by treating a REST API server as a mona
 ### Your REST API as a Monad
 
 It's well known and widely adopted in Finagle that ["Your Server as a Function"][0] `Request => Response`. In a REST API
-setting this function may be viewed as shown bellow, where transformation `1` is request decoding (deserialization),
+setting this function may be viewed as shown below, where transformation `1` is request decoding (deserialization),
 transformation `2` - business logic and transformation `3` - response encoding (serialization).
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/finagle/finch/master/docs/req-a-b-rep.png" />
 </p>
 
-The only interesting part here is transformation `2` (i.e., `A => B`), since both `1` and `3` is just a boilerplate code
-that should be provided by library. Although, it's usually challenge to deal with pure functions in a real-world
-problems, so we may consider wrapping this into a monad `M[_]`, such that a transformation (i.e, `map`, `flatMap`)
-`M[A] => M[B]` is a business logic of a REST API server.
+The only interesting part here is transformation `2` (i.e., `A => B`), since both `1` and `3` are just a boilerplate code
+that should be provided by library. It's usually a challenge to deal with pure functions in a real-world
+problems, so we wrap this into a monad `M[_]`, such that a transformation (i.e, `map`, `flatMap`)
+`M[A] => M[B]` encodes the business logic of a REST API server.
 
 Considering that function `param: String => M[Int]` creates an instance of `M[Int]` with HTTP param wrapped it, the
 problem of summing up two numbers may be rewritten as following (using `map` and `flatMap`).
@@ -66,8 +66,8 @@ The `io.finch.micro` introduces a higher-kinded type `Micro[_]` that implements 
 fact, `Micro` is just an alias for `RequestReader` that does all the magic (i.e., converting the `HttpRequest` into an
 arbitrary type `A`).
 
-The example bellow defines a new `Micro[Int]` that sums up two given numbers passed via query-string params "a" and "b".
-Note that we reuse an existent function `sum` here that actually does work.
+The example below defines a new `Micro[Int]` that sums up two given numbers passed via query-string params "a" and "b".
+Note that we reuse an existing function `sum` here that actually does the work.
 
 ```scala
 val getSum: Micro[Int] = param("a").as[Int] ~ param("b").as[Int] ~> sum
@@ -83,7 +83,7 @@ any endpoint may be implicitly converted into a Finagle service. In fact, any `R
 converted into `Endpoint` if there is an implicit value of type `EncodeResponse[A]` available in the scope. So, it
 implies the third transformation of the request lifecycle from the previous section (i.e, response encoding).
 
-In the example bellow, `Router[Micro[String]]` will be implicitly converted into `Endpoint` since there is an implicit
+In the example below, `Router[Micro[String]]` is implicitly converted into `Endpoint` since there is an implicit
 value of type `EncodeResponse[String]` provided by the `io.finch.request` package.
 
 ```scala
