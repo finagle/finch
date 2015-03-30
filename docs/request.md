@@ -48,11 +48,11 @@ Finch has a built-in request reader that implements the [Reader Monad][2] functi
 
 * `io.finch.request.RequestReader` reads `Future[A]`
 
-Since the request readers read futures they might be chained together with regular Finagle services in a single
+Since the request readers read futures they may be chained together with regular Finagle services in a single
 for-comprehension. Thus, reading the request params is an additional monad-transformation in the program's data flow.
 This is extremely useful when a service should fetch and validate the request params before doing the real job and not
-do the job at all if the params are not valid. Request reader might throw a future exception and none of further
-transformations will be performed. Reader Monad is sort of a famous abstraction that is heavily used in Finch.
+do the job at all if the params are not valid. Request reader might throw a future exception and no further
+transformations will be performed. The Reader Monad is a famous abstraction that is heavily used in Finch.
 
 #### Overview
 
@@ -71,15 +71,15 @@ val user: RequestReader[User] =
 
 A `RequestReader` is responsible for the following typical tasks of request processing:
 
-* It reads parameters, header, cookies or the body of the request (see [Base Readers](request.md#base-readers)).
-* It declares these artifacts as either required or optional (see [Required and Optional Readers](request.md#required-and-optional-readers)).
-* It converts string-based input to other types with the `as[A]` method (see [Type Conversion](request.md#type-conversion)).
-* It validates one or more readers with `should` or `shouldNot` (see [Validation](request.md#validation)).
-* It combines multiple readers with the `~` combinator method (see [Combining and Reusing Readers](request.md#combining-and-reusing-readers)).
+* reading parameters, header, cookies or the body of the request (see [Base Readers](request.md#base-readers)).
+* declaring these artifacts as either required or optional (see [Required and Optional Readers](request.md#required-and-optional-readers)).
+* converting string-based input to other types with the `as[A]` method (see [Type Conversion](request.md#type-conversion)).
+* validating one or more readers with `should` or `shouldNot` (see [Validation](request.md#validation)).
+* combining multiple readers with the `~` combinator method (see [Combining and Reusing Readers](request.md#combining-and-reusing-readers)).
 
 #### API
 
-The `RequestReader` API is fairly simple. It allows to apply the reader to a request instance with `apply` to transform
+The `RequestReader` API is fairly simple. It allows one to apply the reader to a request instance with `apply` to transform
 the reader with `map` (or `~>`), `flatMap` and `embedFlatMap` (or `~~>`), to combine it with other readers with the `~`
 combinator and to validate it with `should` or `shouldNot`:
 
@@ -138,7 +138,7 @@ File Upload           | `fileUpload`/`fileUploadOption`      | `FileUpload`/`Opt
 
 #### Required and Optional Readers
 
-As you can see in the table above, the 6 base readers all come in two flavors, allowing to declare a request item as
+As you can see in the table above, the 6 base readers all come in two flavors, allowing one to declare a request item as
 either required or optional.
 
 * A `x` reader fails with a `NotPresent` exception if the item is not found in the request
@@ -257,11 +257,11 @@ val user: RequestReader[User] = (
   param("name") ~ address ~> User
 ```
 
-Note that `~>` combinator is a user-friendly alias for `map` that allows to treat an underlying type `A ~ B ~ .. ~ Z` as
-`(A, B, ..., Z)`. That said, it allows to pass a regular function into `map` rather than use pattern-matching to convert
+Note that `~>` combinator is a user-friendly alias for `map` that allows one to treat an underlying type `A ~ B ~ .. ~ Z` as
+`(A, B, ..., Z)`. That said, it allows one to pass a regular function into `map` rather than use pattern-matching to convert
 function `A ~ B ~ .. ~ Z => Out` to `(A, B, ..., Z) => Out`.
 
-The example above still may be rewritten with `map` and pattern-matching.
+The example above may be rewritten with `map` and pattern-matching.
 
 ```scala
 case class User(name: String, address: Address)
@@ -274,7 +274,7 @@ val user: RequestReader[User] = (
 
 Combinator `~~>` does the same magic for asynchronous functions like `(A, B, ..., Z) => Future[Out]`.
 
-The following sections will explain the difference between the applicative style based on the `~` combinator you see in
+The following sections explain the difference between the applicative style based on the `~` combinator you see in
 the examples above and the monadic style that you will only need in exceptional cases.
 
 #### Applicative Syntax
