@@ -99,9 +99,9 @@ val router: Router[Int / Int] = Get / "users" / int("userId") / "tickets" / int(
 val tickets: Router[Ticket] = router /> { case userId / ticketId => getUserTicket(userId, ticketId) }
 ```
 
-The `|` (or `orElse`) operator composes two routers in a _greedy_ manner. That said, if both routers are able to match
-the given route, the router is being chosen by `orElse` operator is that which eats more route tokens. In the example
-above, the `GET /users/100` request will be routed to the `GetUser` service since in this case, the route (i.e., path)
+The `|` (or `orElse`) operator composes two routers in a _greedy_ manner. If both routers are able to match
+the given route, the router chosen by the `orElse` operator is that which consumes more route tokens. In the example
+above, the `GET /users/100` request will be routed to the `GetUser` service since in this case, the route (i.e. path)
 matched by the second router (`"GET /users/100"`) is longer than the matched route of the first router (`"GET /users"`).
 
 ```scala
@@ -114,8 +114,8 @@ val users =
 
 A router that extracts `Service[Req, Rep]` out of the route is called an `Endpoint[Req, Rep]`. In, fact it's just a type
 alias `type Endpoint[-A, +B] = Router[Service[A, B]]`, which brings the endpoints to the insane composability level.
-This gives us an ability to compose several endpoints together with `|` or `orElse` operator. The usual practice is to
-group endpoints by resource they work with.
+This gives us the ability to compose several endpoints together with the `|` or `orElse` operator. The usual practice is to
+group endpoints by the resource that they work with.
    
 ```scala
 val users: Endpoint[HttpRequest, HttpResponse] =
@@ -144,9 +144,9 @@ endpoint(request) handle {
 
 ### Filters and Endpoints
 
-It's hard two imagine a Finagle/Finch application without `Filter`s. While, they are not really applicable to routers,
+It's hard two imagine a Finagle/Finch application without `Filter`s. While they are not really applicable to routers,
 you can always convert `Router` to `Service` and then apply any set of filters. Thus, the common practice is to have
-a joint endpoint converted into service as shown bellow.
+a joint endpoint converted into service as shown below.
  
 ```scala
 val api: Service[HttpRequest, HttpResponse] = users | tickets
