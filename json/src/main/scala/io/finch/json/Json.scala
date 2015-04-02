@@ -152,6 +152,7 @@ object Json {
       case map: Map[_, _] => JsonObject(map map {
         case (k, v) => k.toString -> wrap(v)
       })
+      case null => JsonNull
       case other => other
     }
 

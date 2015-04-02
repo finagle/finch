@@ -77,6 +77,7 @@ class JsonSpec extends FlatSpec with Matchers {
   it should "support JSON from string decoding" in {
     Json.decode("{\"a\":1,\"b\":[1,2,3]}") shouldBe Some(Json.obj("a" -> 1, "b" -> Json.arr(1, 2, 3)))
     Json.decode("[\"a\",\"b\",{\"c\":1}]") shouldBe Some(Json.arr("a", "b", Json.obj("c" -> 1)))
+    Json.decode("{\"a\":null}") shouldBe Some(Json.obj("a" -> null))
   }
 
   it should "be able to read what it has wired" in  {
