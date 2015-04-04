@@ -47,7 +47,7 @@ val ok: HttpResponse = Ok(Foo(10, "foo")) // will be encoded as JSON
 val foo: RequestReader[Foo] = body.as[Foo] // a request reader that reads Foo
 ```
 
-[3]: https://github.com/finagle/finch/blob/master/finch-json/src/main/scala/io/finch/json/Json.scala
+[3]: https://github.com/finagle/finch/blob/master/json/src/main/scala/io/finch/json/Json.scala
 [4]: http://argonaut.io
 [5]: https://github.com/non/jawn
 [6]: http://jackson.codehaus.org/
