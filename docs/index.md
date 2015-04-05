@@ -43,7 +43,7 @@ depending on a content. There are plenty of predefined builders that might be us
 
 ## Table of Contents
 
-* [Quckstart](quickstart.md)
+* [Quickstart](quickstart.md)
 * [Demo](demo.md)
 * [Micros](micro.md)
   * [Finch in Action](micro.md#finch-in-action)
