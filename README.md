@@ -72,6 +72,7 @@ Adopters
 * [Konfettin](http://konfettin.ru)
 * [JusBrasil](http://www.jusbrasil.com.br)
 * [Sabre Labs](http://sabrelabs.com)
+* [Spright](http://spright.com)
 * *Submit a pull-request to include your company/project into the list*
 
 Contributing
