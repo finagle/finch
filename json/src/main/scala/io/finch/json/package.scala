@@ -32,6 +32,8 @@ package object json {
 
   implicit val decodeFinchJson = DecodeRequest[Json] { json =>
     // TODO - error detail is swallowed
-    Json.decode(json).fold[Try[Json]](Throw(new IllegalArgumentException("unknown error parsing JSON")))(Return(_))
+    Json
+      .decode(json)
+      .fold[Try[Json]](Throw[Json](new IllegalArgumentException("unknown error parsing JSON")))(Return(_))
   }
 }

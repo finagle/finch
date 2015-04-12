@@ -37,7 +37,7 @@ object service {
   case class GetUser(userId: Long) extends Service[AuthRequest, User] {
     def apply(req: AuthRequest): Future[User] = Db.select(userId) flatMap {
       case Some(user) => user.toFuture
-      case None => UserNotFound(userId).toFutureException
+      case None => UserNotFound(userId).toFutureException[User]
     }
   }
 

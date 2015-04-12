@@ -39,8 +39,8 @@ package object argonaut {
    */
   implicit def decodeArgonaut[A](implicit decode: DecodeJson[A]): DecodeRequest[A] =
     DecodeRequest(
-      Parse.decodeEither(_).fold(
-        error => Throw(new RequestError(error)),
+      Parse.decodeEither(_).fold[Try[A]](
+        error => Throw[A](new RequestError(error)),
         Return(_)
       )
     )

@@ -44,7 +44,7 @@ package object jawn {
   implicit def decodeJawn[A](implicit facade: Facade[A]): DecodeRequest[A] = DecodeRequest(
     Parser.parseFromString(_) match {
       case Success(value) => Return(value)
-      case Failure(error) => Throw(error)
+      case Failure(error) => Throw[A](error)
     }
   )
 

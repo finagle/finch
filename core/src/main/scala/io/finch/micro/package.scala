@@ -66,9 +66,10 @@ package object micro {
   ): Service[R, HttpResponse] = new Service[R, HttpResponse] {
     def apply(req: R): Future[HttpResponse] = {
       val httpReq = evR(req)
-      r.map(evM)(requestToRoute(httpReq)) match {
+      r.map(evM)(requestToRoute[R](httpReq)) match {
         case Some((Nil, micro)) => micro(req)
-        case _ => RouteNotFound(s"${httpReq.method.toString.toUpperCase} ${httpReq.path}").toFutureException
+        case _ => RouteNotFound(s"${httpReq.method.toString.toUpperCase} ${httpReq.path}")
+          .toFutureException[HttpResponse]
       }
     }
   }

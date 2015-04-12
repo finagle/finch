@@ -101,9 +101,9 @@ package object route extends LowPriorityRouterImplicits {
   implicit def endpointToService[Req, Rep](
     r: RouterN[Service[Req, Rep]]
   )(implicit ev: Req => HttpRequest): Service[Req, Rep] = new Service[Req, Rep] {
-    def apply(req: Req): Future[Rep] = r(requestToRoute(req)) match {
+    def apply(req: Req): Future[Rep] = r(requestToRoute[Req](req)) match {
       case Some((Nil, service)) => service(req)
-      case _ => RouteNotFound(s"${req.method.toString.toUpperCase} ${req.path}").toFutureException
+      case _ => RouteNotFound(s"${req.method.toString.toUpperCase} ${req.path}").toFutureException[Rep]
     }
   }
 
