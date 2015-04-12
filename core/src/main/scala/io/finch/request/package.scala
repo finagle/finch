@@ -145,7 +145,7 @@ package object request extends LowPriorityRequestReaderImplicits {
   import items._
 
   private[this] def notParsed[A](rr: PRequestReader[_, _], tag: ClassTag[_]): PartialFunction[Throwable, Try[A]] = {
-    case exc => Throw(NotParsed(rr.item, tag, exc))
+    case exc => Throw[A](NotParsed(rr.item, tag, exc))
   }
 
   /**
@@ -156,7 +156,7 @@ package object request extends LowPriorityRequestReaderImplicits {
    */
   implicit class StringReaderOps[R](val rr: PRequestReader[R, String]) extends AnyVal {
     def as[A](implicit magnet: DecodeMagnet[A], tag: ClassTag[A]): PRequestReader[R, A] = rr.embedFlatMap { value =>
-      Future.const(magnet()(value).rescue(notParsed(rr, tag)))
+      Future.const(magnet()(value).rescue(notParsed[A](rr, tag)))
     }
   }
 
@@ -169,7 +169,7 @@ package object request extends LowPriorityRequestReaderImplicits {
    */
   implicit class StringOptionReaderOps[R](val rr: PRequestReader[R, Option[String]]) extends AnyVal {
     def as[A](implicit magnet: DecodeMagnet[A], tag: ClassTag[A]): PRequestReader[R, Option[A]] = rr.embedFlatMap {
-      case Some(value) => Future.const(magnet()(value).rescue(notParsed(rr, tag)) map (Some(_)))
+      case Some(value) => Future.const(magnet()(value).rescue(notParsed[A](rr, tag)) map (Some(_)))
       case None => Future.None
     }
 
@@ -200,7 +200,7 @@ package object request extends LowPriorityRequestReaderImplicits {
       rr.embedFlatMap { items =>
         val converted = items map (magnet()(_))
         if (converted.forall(_.isReturn)) converted.map(_.get).toFuture
-        else RequestErrors(converted collect { case Throw(e) => NotParsed(rr.item, tag, e) }).toFutureException
+        else RequestErrors(converted collect { case Throw(e) => NotParsed(rr.item, tag, e) }).toFutureException[Seq[A]]
       }
   }
 
@@ -210,7 +210,7 @@ package object request extends LowPriorityRequestReaderImplicits {
   implicit class OptionReaderOps[R, A](val rr: PRequestReader[R, Option[A]]) extends AnyVal {
     private[request] def failIfNone: PRequestReader[R, A] = rr.embedFlatMap {
       case Some(value) => value.toFuture
-      case None => NotPresent(rr.item).toFutureException
+      case None => NotPresent(rr.item).toFutureException[A]
     }
 
     /**
@@ -408,7 +408,7 @@ package object request extends LowPriorityRequestReaderImplicits {
    */
   def paramsNonEmpty(name: String): RequestReader[Seq[String]] =
     rr(ParamItem(name))(requestParams(name)).embedFlatMap({
-      case Nil => NotPresent(ParamItem(name)).toFutureException
+      case Nil => NotPresent(ParamItem(name)).toFutureException[Seq[String]]
       case unfiltered => unfiltered.filter(_.nonEmpty).toFuture
     }).shouldNot("be empty")(_.isEmpty)
 

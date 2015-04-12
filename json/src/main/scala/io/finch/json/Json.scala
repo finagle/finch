@@ -147,19 +147,22 @@ object Json {
    * @param s a string representation of a json object
    */
   def decode(s: String): Option[Json] = {
-    def wrap(a: Any): Any = a match {
-      case list: List[_] => JsonArray(list map wrap)
+    def wrap(a: Any): Json = a match {
+      case list: List[_] => JsonArray(list map wrapElement)
       case map: Map[_, _] => JsonObject(map map {
-        case (k, v) => k.toString -> wrap(v)
+        case (k, v) => k.toString -> wrapElement(v)
       })
       case null => JsonNull
+    }
+
+    def wrapElement(a: Any): Any = a match {
+      case list: List[_] => wrap(a)
+      case map: Map[_, _] => wrap(a)
+      case null => wrap(a)
       case other => other
     }
 
-    JSON.parseFull(s) match {
-      case Some(json) => Some(wrap(json).asInstanceOf[Json])
-      case None => None
-    }
+    JSON.parseFull(s).map(wrap(_))
   }
 
   /**
@@ -183,31 +186,22 @@ object Json {
       case s: String =>
         sb += '\"' ++= escape(s) += '\"'
       case JsonObject(map) =>
-        var first = true
         sb += '{'
-        map.foreach { case (k, v) =>
-          if (first) {
-            wire(k.toString, sb) += ':'
-            wire(v, sb)
-            first = false
-          } else {
-            sb +=','
-            wire(k.toString, sb) += ':'
-            wire(v, sb)
+        map.zipWithIndex.foreach { case ((k, v), index) =>
+          if (index > 0) {
+            sb += ','
           }
+          wire(k.toString, sb) += ':'
+          wire(v, sb)
         }
         sb += '}'
       case JsonArray(list) =>
-        var first = true
         sb += '['
-        list.foreach { i =>
-          if (first) {
-            wire(i, sb)
-            first = false
-          } else {
+        list.zipWithIndex.foreach { case (i, index) =>
+          if (index > 0) {
             sb += ','
-            wire(i, sb)
           }
+          wire(i, sb)
         }
         sb += ']'
       case JsonNull =>

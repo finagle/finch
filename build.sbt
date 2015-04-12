@@ -31,7 +31,7 @@ val baseSettings = Seq(
     "org.scalatest" %% "scalatest" % "2.2.3" % "test"
   ),
   compilerOptions,
-  wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.NoNeedForMonad, Wart.Null)
+  wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.NoNeedForMonad, Wart.Null, Wart.DefaultArguments)
 )
 
 lazy val publishSettings = Seq(
