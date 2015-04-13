@@ -96,7 +96,7 @@ operator) it to `Ticket`.
 ```scala
 def getUserTicket(userId: Int, ticketId: Int): Ticket = ???
 val router: Router[Int / Int] = Get / "users" / int("userId") / "tickets" / int("ticketId")
-val tickets: Router[Ticket] = router /> { case userId / ticketId => getUserTicket(userId, ticketId) }
+val tickets: Router[Ticket] = router /> getUserTicket
 ```
 
 The `|` (or `orElse`) operator composes two routers in a _greedy_ manner. If both routers are able to match
