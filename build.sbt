@@ -92,7 +92,7 @@ lazy val json = project
 lazy val demo = project
   .settings(moduleName := "finch-demo")
   .settings(allSettings)
-  .dependsOn(core, json)
+  .dependsOn(core, argonaut)
   .disablePlugins(CoverallsPlugin)
 
 lazy val playground = project

@@ -2,8 +2,8 @@
   <img src="https://raw.githubusercontent.com/finagle/finch/master/finch-logo.png" width="360px" />
 </p>
 
-Finch is a thin layer of purely functional basic blocks atop of [Finagle](http://twitter.github.io/finagle) for 
-building composable REST APIs. Its mission is to provide the developers simple and robust REST API primitives being as 
+Finch is a thin layer of purely functional basic blocks atop of [Finagle](http://twitter.github.io/finagle) for
+building composable REST APIs. Its mission is to provide the developers simple and robust REST API primitives being as
 close as possible to the bare metal Finagle API.
 
 Badges
@@ -19,7 +19,7 @@ Modules
 Finch uses multi-project structure and contains of the following _modules_:
 
 * [`finch-core`](core) - the core classes/functions
-* [`finch-json`](json) - the lightweight and immutable JSON API
+* [`finch-json`](json) - the lightweight and immutable JSON API. __DEPRECATED__
 * [`finch-auth`](auth) - the Basic HTTP Auth support
 * [`finch-demo`](demo) - the demo project
 * [`finch-playground`](playground) - the playground project
@@ -27,12 +27,12 @@ Finch uses multi-project structure and contains of the following _modules_:
 * [`finch-argonaut`](argonaut) - the JSON API support for the [Argonaut](http://argonaut.io/) library
 * [`finch-jackson`](jackson) - the JSON API support for the [Jackson](http://jackson.codehaus.org/) library
 
-Installation 
+Installation
 ------------
 Every Finch module is published at Maven Central. Use the following _sbt_ snippet ...
 
 * for the _stable_ release:
- 
+
 ```scala
 libraryDependencies ++= Seq(
   "com.github.finagle" %% "[finch-module]" % "0.6.0"
@@ -66,7 +66,7 @@ Documentation
 -------------
 * A comprehensive documentation may be found in the [`docs/`](docs/index.md) folder
 * The latest Scaladoc is available at [http://finagle.github.io/finch/docs](http://finagle.github.io/finch/docs/#io.finch.package)
- 
+
 Adopters
 --------
 * [Konfettin](http://konfettin.ru)

@@ -29,6 +29,7 @@ import scala.util.parsing.json.JSON
 /**
  * An immutable JSON API.
  */
+@deprecated("Finch Json is deprecated in favor of other Json libraries.", "0.7.0")
 sealed trait Json {
 
   /**
@@ -86,21 +87,25 @@ sealed trait Json {
 /**
  *  A JSON object with underlying `map`.
  */
+@deprecated("JSONObjects are deprecated as part of the Finch JSON deprecation.", "0.7.0")
 case class JsonObject(map: Map[String, Any]) extends Json
 
 /**
  * A JSON array with underlying `list`.
  */
+@deprecated("JSONArrays are deprecated as part of the Finch JSON deprecation.", "0.7.0")
 case class JsonArray(list: List[Any]) extends Json
 
 /**
  * A JSON null value.
  */
+@deprecated("JSONNull is deprecated as part of the Finch JSON deprecation.", "0.7.0")
 case object JsonNull extends Json
 
 /**
  * A JSON companion object, which in an entry point into JSON API.
  */
+@deprecated("Finch Json is deprecated in favor of other Json libraries.", "0.7.0")
 object Json {
 
   /**
