@@ -25,8 +25,11 @@ package io.finch.demo
 import com.twitter.finagle.{Filter, SimpleFilter, Service, Httpx}
 import com.twitter.util.{Future, Await}
 
-import io.finch.{Endpoint => _, _} // import the pipe `!` operator
-import io.finch.json._             // import finch-json classes such as `Json`
+import _root_.argonaut._, _root_.argonaut.Argonaut._
+import io.finch.{Endpoint => _, _}
+
+// import the pipe `!` operator
+import io.finch.argonaut._             // import finch-json classes such as `Json`
 import io.finch.request._          // import request readers such as `RequiredParam`
 import io.finch.request.items._    // import request items for error handling
 import io.finch.response._         // import response builders such as `BadRequest`
@@ -61,33 +64,29 @@ object Demo {
   }
 
   val handleDomainErrors: PartialFunction[Throwable, HttpResponse] = {
-    case UserNotFound(id) => BadRequest(Json.obj("error" -> "user_not_found", "id" -> id))
+    case UserNotFound(id) => BadRequest(Json("error" := "user_not_found", "id" := id))
   }
 
   val handleRequestReaderErrors: PartialFunction[Throwable, HttpResponse] = {
     case NotPresent(ParamItem(p)) => BadRequest(
-      Json.obj("error" -> "param_not_present", "param" -> p)
+      Json("error" := "param_not_present", "param" := p)
     )
 
-    case NotPresent(BodyItem) => BadRequest(
-      Json.obj("error" -> "body_not_present")
-    )
+    case NotPresent(BodyItem) => BadRequest(Json("error" := "body_not_present"))
 
     case NotParsed(ParamItem(p), _, _) => BadRequest(
-      Json.obj("error" -> "param_not_parsed", "param" -> p)
+      Json("error" := "param_not_parsed", "param" := p)
     )
 
-    case NotParsed(BodyItem, _, _) => BadRequest(
-      Json.obj("error" -> "body_not_parsed")
-    )
+    case NotParsed(BodyItem, _, _) => BadRequest(Json("error" := "body_not_parsed"))
 
     case NotValid(ParamItem(p), rule) => BadRequest(
-      Json.obj("error" -> "param_not_valid", "param" -> p, "rule" -> rule)
+      Json("error" := "param_not_valid", "param" := p, "rule" := rule)
     )
   }
 
   val handleRouterErrors: PartialFunction[Throwable, HttpResponse] = {
-    case RouteNotFound(route) => NotFound(Json.obj("error" -> "route_not_found", "route" -> route))
+    case RouteNotFound(route) => NotFound(Json("error" := "route_not_found", "route" := route))
   }
 
   // A simple Finagle filter that handles all the exceptions, which might be thrown by

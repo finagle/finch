@@ -8,6 +8,8 @@
 
 ### Finch-JSON
 
+This library is deprecated in favor of other JSON libraries.
+
 The Finch library is shipped with an immutable JSON API: `finch-json`, an extremely lightweight and simple
 implementation of JSON: [Json.scala][3]. The usage looks as follows:
 

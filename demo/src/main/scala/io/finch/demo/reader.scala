@@ -22,8 +22,9 @@
 
 package io.finch.demo
 
-import io.finch.json._
+import argonaut._, Argonaut._
 import io.finch.request._
+import io.finch.argonaut._
 
 object reader {
 
@@ -33,13 +34,13 @@ object reader {
   // A user is represented by url-encoded param `name`.
   val user: RequestReader[User] =
     param("name") should beLongerThan(5) map { name =>
-      User(Id(), name, Seq.empty[Ticket])
+      User(Id(), name, List.empty[Ticket])
     }
 
   // A request reader that reads ticket object from the http request.
   // A ticket is represented by a JSON object serialized in request body.
   val ticket: RequestReader[Ticket] =
     body.as[Json] map { json =>
-      Ticket(Id(), json[String]("label").getOrElse("N/A"))
+      Ticket(Id(), (json.hcursor -- "label").as[String].getOr("N/A"))
     }
 }

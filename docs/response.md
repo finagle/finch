@@ -18,7 +18,7 @@ The common practice is to not use the `ResponseBuilder` class directly but use t
 `Ok`, `SeeOther`, `NotFound` and so on.
 
 ```scala
-import io.finch.json._
+import io.finch.argonaut._
 import io.finch.response._
 
 val a = Ok() // an empty response with status 200
@@ -29,13 +29,11 @@ val c = Created(Json.obj("id" -> 42)) // 'application/json' response with status
 `ResponseBuilder` may encode any type `A` into the HTTP response body if there is an implicit instance of
 `EncodeResponse[A]` type-class available in the scope. An `EncodeResponse[A]` abstraction may be treated as a function
 `A => String` that also defines a `content-type` value. For example, the implementation of `EncodeResponse[A]` for the
-`finch-json` module looks pretty straightforward.
+`finch-argonaut` module looks pretty straightforward.
 
 ```scala
-implicit val encodeFinchJson = new EncodeResponse[Json] {
-  def apply(json: Json): String = Json.encode(json)
-  def contentType: String = "application/json"
-}
+implicit def encodeArgonaut[A](implicit encode: EncodeJson[A]): EncodeResponse[A] =
+  EncodeResponse("application/json")(encode.encode(_).nospaces)
 ```
 
 HTTP headers may be added to respond instance with `withHeaders` method:

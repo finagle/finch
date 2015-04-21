@@ -22,11 +22,11 @@
 
 package io.finch.demo
 
+import argonaut._, Argonaut._
 import com.twitter.util.Future
 import com.twitter.finagle.Service
 
 import io.finch._
-import io.finch.json._
 
 object model {
 
@@ -35,12 +35,16 @@ object model {
 
   // A ticket object with two fields: `id` and `label`.
   case class Ticket(id: Long, label: String) extends ToJson {
-    override def toJson = Json.obj("id" -> id, "label" -> label)
+    override def toJson = Json.obj("id" := id, "label" := label)
   }
 
   // A user object with three fields: `id`, `name` and a collection of `tickets`.
-  case class User(id: Long, name: String, tickets: Seq[Ticket]) extends ToJson {
-    override def toJson = Json.obj("id" -> id, "name" -> name, "tickets" -> Json.arr(tickets.map(_.toJson) :_*))
+  case class User(id: Long, name: String, tickets: List[Ticket]) extends ToJson {
+    override def toJson = Json(
+      "id" := id,
+      "name" := name,
+      "tickets" := jArray(tickets.map(_.toJson))
+    )
   }
 
   // A helper service that turns a model object into JSON.
@@ -57,7 +61,7 @@ object model {
    */
   implicit class SeqToJson[A](s: Service[A, Seq[ToJson]]) extends Service[A, ToJson] {
     private[demo] def seqToJson(seq: Seq[ToJson]) = new ToJson {
-      def toJson: Json = Json.arr(seq.map { _.toJson }: _*)
+      def toJson: Json = Json.array(seq.map { _.toJson }: _*)
     }
 
     def apply(req: A): Future[ToJson] = s(req) map seqToJson
