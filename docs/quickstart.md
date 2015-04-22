@@ -48,7 +48,7 @@ val title = paramOption("title").withDefault("")
 ```
 
 Finally, we define a service `hello` that actually greets users. The HTTP response `OK 200` is _built_ with
-[response builder](response.md) `Ok` that takes a string and returns a `plain/text` HTTP response.  
+[response builder](response.md) `Ok` that takes a string and returns a `text/plain` HTTP response.  
 
 ```scala
 def hello(name: String) = new Service[HttpRequest, HttpResponse] {

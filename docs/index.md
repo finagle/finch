@@ -38,7 +38,7 @@ of any type. In fact, `ResponseBuilder` is a function that takes some content an
 depending on a content. There are plenty of predefined builders that might be used directly.
 
 ```scala
- val ok: HttpResponse = Ok("Hello, world!") // plain/text HTTP response with status code 200
+ val ok: HttpResponse = Ok("Hello, world!") // text/plain HTTP response with status code 200
 ```
 
 ## Table of Contents
