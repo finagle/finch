@@ -41,7 +41,7 @@ class DecodeSpec extends FlatSpec with Matchers {
       def apply(s: String): Try[BigDecimal] = Try(BigDecimal(s))
     }
 
-    decode[ScalaNumber]("12345.25") shouldBe Return(BigDecimal(12345.25))
+    decode[BigDecimal]("12345.25") shouldBe Return(BigDecimal(12345.25))
   }
   
   "A RequestReader for a String" should "allow for type conversions based on implicit DecodeRequest" in {

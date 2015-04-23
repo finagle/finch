@@ -155,8 +155,8 @@ package object request extends LowPriorityRequestReaderImplicits {
    * The resulting reader will fail when type conversion fails.
    */
   implicit class StringReaderOps[R](val rr: PRequestReader[R, String]) extends AnyVal {
-    def as[A](implicit magnet: DecodeMagnet[A], tag: ClassTag[A]): PRequestReader[R, A] = rr.embedFlatMap { value =>
-      Future.const(magnet()(value).rescue(notParsed[A](rr, tag)))
+    def as[A](implicit decoder: DecodeRequest[A], tag: ClassTag[A]): PRequestReader[R, A] = rr.embedFlatMap { value =>
+      Future.const(decoder(value).rescue(notParsed[A](rr, tag)))
     }
   }
 
@@ -168,8 +168,8 @@ package object request extends LowPriorityRequestReaderImplicits {
    * result is empty or type conversion succeeds.
    */
   implicit class StringOptionReaderOps[R](val rr: PRequestReader[R, Option[String]]) extends AnyVal {
-    def as[A](implicit magnet: DecodeMagnet[A], tag: ClassTag[A]): PRequestReader[R, Option[A]] = rr.embedFlatMap {
-      case Some(value) => Future.const(magnet()(value).rescue(notParsed[A](rr, tag)) map (Some(_)))
+    def as[A](implicit decoder: DecodeRequest[A], tag: ClassTag[A]): PRequestReader[R, Option[A]] = rr.embedFlatMap {
+      case Some(value) => Future.const(decoder(value).rescue(notParsed[A](rr, tag)) map (Some(_)))
       case None => Future.None
     }
 
@@ -196,9 +196,9 @@ package object request extends LowPriorityRequestReaderImplicits {
      * somewhere else. Once we drop support for Scala 2.10, this class can safely extends AnyVal.
      */
 
-    def as[A](implicit magnet: DecodeMagnet[A], tag: ClassTag[A]): PRequestReader[R, Seq[A]] =
+    def as[A](implicit decoder: DecodeRequest[A], tag: ClassTag[A]): PRequestReader[R, Seq[A]] =
       rr.embedFlatMap { items =>
-        val converted = items map (magnet()(_))
+        val converted = items map (decoder(_))
         if (converted.forall(_.isReturn)) converted.map(_.get).toFuture
         else RequestErrors(converted collect { case Throw(e) => NotParsed(rr.item, tag, e) }).toFutureException[Seq[A]]
       }
@@ -509,7 +509,7 @@ package object request extends LowPriorityRequestReaderImplicits {
   /**
    * An abstraction that is responsible for decoding the request of type `A`.
    */
-  trait DecodeRequest[+A] {
+  trait DecodeRequest[A] {
     def apply(req: String): Try[A]
   }
 
@@ -528,21 +528,6 @@ package object request extends LowPriorityRequestReaderImplicits {
   trait DecodeAnyRequest {
     def apply[A: ClassTag](req: String): Try[A]
   }
-
-  /**
-   * A magnet that wraps a [[io.finch.request.DecodeRequest DecodeRequest]].
-   */
-  trait DecodeMagnet[A] {
-    def apply(): DecodeRequest[A]
-  }
-
-  /**
-   * Creates a [[io.finch.request.DecodeMagnet DecodeMagnet]] from [[io.finch.request.DecodeRequest DecodeRequest]].
-   */
-  implicit def magnetFromDecode[A](implicit d: DecodeRequest[A]): DecodeMagnet[A] =
-    new DecodeMagnet[A] {
-      def apply(): DecodeRequest[A] = d
-    }
 
   /**
    * A wrapper for two result values.

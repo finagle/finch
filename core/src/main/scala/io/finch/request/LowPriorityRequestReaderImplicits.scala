@@ -17,12 +17,11 @@ trait LowPriorityRequestReaderImplicits {
    * Creates a [[io.finch.request.DecodeMagnet DecodeMagnet]] from
    * [[io.finch.request.DecodeAnyRequest DecodeAnyRequest]].
    */
-  implicit def magnetFromAnyDecode[A](implicit d: DecodeAnyRequest, tag: ClassTag[A]): DecodeMagnet[A] =
-    new DecodeMagnet[A] {
-      def apply(): DecodeRequest[A] = new DecodeRequest[A] {
-        def apply(req: String): Try[A] = d(req)(tag)
-      }
-    }
+  implicit def decodeRequestFromAnyDecode[A](
+    implicit d: DecodeAnyRequest, tag: ClassTag[A]
+  ): DecodeRequest[A] = new DecodeRequest[A] {
+    def apply(req: String): Try[A] = d(req)(tag)
+  }
 
   /**
    * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of one argument.
