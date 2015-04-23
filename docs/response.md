@@ -10,7 +10,7 @@
 An entry point into the construction of HTTP responses in Finch is the `io.finch.response.ResponseBuilder` class. It
 supports building of three types of responses:
 
-* `plain/text` within string in the response body
+* `text/plain` within string in the response body
 * empty response of given HTTP status
 * a type defined by implicit instance of `EncodeResponse[A]`
 
@@ -22,7 +22,7 @@ import io.finch.argonaut._
 import io.finch.response._
 
 val a = Ok() // an empty response with status 200
-val b = NotFound("body") // 'plain/text' response with status 404
+val b = NotFound("body") // 'text/plain' response with status 404
 val c = Created(Json.obj("id" -> 42)) // 'application/json' response with status 201
 ```
 

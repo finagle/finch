@@ -41,13 +41,13 @@ import com.twitter.util.Future
  *   val ok: HttpResponse = Ok("Hello, World!")
  * }}}
  *
- * In addition to `plain/text` responses, the `ResponseBuilder` is able to build any response, whose `content-type` is
+ * In addition to `text/plain` responses, the `ResponseBuilder` is able to build any response, whose `content-type` is
  * specified by an implicit type-class [[io.finch.response.EncodeResponse EncodeResponse]] instance. In fact, any type
  * `A` may be passed to a `RequestReader` if there is a corresponding `EncodeRequest[A]` instance available in the
  * scope.
  *
  * {{{
- *   implicit val encodeBigInt = EncodeResponse[BigInt]("plain/text") { _.toString }
+ *   implicit val encodeBigInt = EncodeResponse[BigInt]("text/plain") { _.toString }
  *   val ok: HttpResponse = Ok(BigInt(100))
  * }}}
  */
@@ -198,5 +198,5 @@ package object response {
   /**
    * Allows to pass raw strings to [[io.finch.response.ResponseBuilder ResponseBuilder]].
    */
-  implicit val encodeString: EncodeResponse[String] = EncodeResponse("plain/text")(s => s)
+  implicit val encodeString: EncodeResponse[String] = EncodeResponse("text/plain")(s => s)
 }

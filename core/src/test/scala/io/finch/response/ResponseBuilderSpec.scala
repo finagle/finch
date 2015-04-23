@@ -34,10 +34,11 @@ class ResponseBuilderSpec extends FlatSpec with Matchers {
     rep.status shouldBe Status.Ok
   }
 
-  it should "set plain test as its content string" in {
+  it should "set plain text as its content string" in {
     val str = "Some Content!"
     val rep = ResponseBuilder(Status.Ok)(str)
     rep.getContentString() shouldBe str
+    rep.mediaType shouldBe Some("text/plain")
   }
 
   it should "only include that headers that are set on it" in {
