@@ -8,7 +8,7 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.10.5", "2.11.6")
 )
 
-lazy val compilerOptions = scalacOptions ++= Seq(
+lazy val compilerOptions = Seq(
   "-deprecation",
   "-encoding", "UTF-8",
   "-feature",
@@ -20,17 +20,20 @@ lazy val compilerOptions = scalacOptions ++= Seq(
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
   "-Xfuture"
-) ++ (CrossVersion.partialVersion(scalaVersion.value) match {
-  case Some((2, 11)) => Seq("-Ywarn-unused-import")
-  case _ => Seq.empty
-})
+)
 
 val baseSettings = Seq(
   libraryDependencies ++= Seq(
     "com.twitter" %% "finagle-httpx" % "6.25.0",
     "org.scalatest" %% "scalatest" % "2.2.4" % "test"
   ),
-  compilerOptions,
+  scalacOptions ++= compilerOptions ++ (
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, 11)) => Seq("-Ywarn-unused-import")
+      case _ => Seq.empty
+    }
+  ),
+  scalacOptions in (Compile, console) := compilerOptions,
   wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.NoNeedForMonad, Wart.Null, Wart.DefaultArguments)
 )
 
@@ -49,11 +52,13 @@ lazy val publishSettings = Seq(
   homepage := Some(url("https://github.com/finagle/finch")),
   autoAPIMappings := true,
   apiURL := Some(url("https://finagle.github.io/finch/docs/")),
+  scmInfo := Some(
+    ScmInfo(
+      url("https://github.com/finagle/finch"),
+      "scm:git:git@github.com:finagle/finch.git"
+    )
+  ),
   pomExtra := (
-    <scm>
-      <url>git://github.com/finagle/finch.git</url>
-      <connection>scm:git://github.com/finagle/finch.git</connection>
-    </scm>
     <developers>
       <developer>
         <id>vkostyukov</id>
@@ -62,6 +67,11 @@ lazy val publishSettings = Seq(
       </developer>
     </developers>
   )
+)
+
+lazy val noPublish = Seq(
+  publish := {},
+  publishLocal := {}
 )
 
 lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
@@ -76,7 +86,20 @@ lazy val root = project.in(file("."))
   .settings(moduleName := "finch")
   .settings(allSettings)
   .settings(docSettings)
+  .settings(noPublish)
+  .settings(
+    initialCommands in console :=
+      """
+        |import io.finch.{Endpoint => _, _}
+        |import io.finch.argonaut._
+        |import io.finch.request._
+        |import io.finch.request.items._
+        |import io.finch.response._
+        |import io.finch.route._
+      """.stripMargin
+  )
   .aggregate(core, json, demo, playground, jawn, argonaut, jackson, auth)
+  .dependsOn(core, argonaut)
 
 lazy val core = project
   .settings(moduleName := "finch-core")
@@ -92,12 +115,14 @@ lazy val json = project
 lazy val demo = project
   .settings(moduleName := "finch-demo")
   .settings(allSettings)
+  .settings(noPublish)
   .dependsOn(core, argonaut)
   .disablePlugins(CoverallsPlugin)
 
 lazy val playground = project
   .settings(moduleName := "finch-playground")
   .settings(allSettings)
+  .settings(noPublish)
   .dependsOn(core, jackson)
   .disablePlugins(CoverallsPlugin)
 
