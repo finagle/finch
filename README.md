@@ -73,6 +73,7 @@ Adopters
 * [JusBrasil](http://www.jusbrasil.com.br)
 * [Sabre Labs](http://sabrelabs.com)
 * [Spright](http://spright.com)
+* [SoFi] (https://www.sofi.com/)
 * *Submit a pull-request to include your company/project into the list*
 
 Contributing
