@@ -27,8 +27,8 @@ lazy val compilerOptions = scalacOptions ++= Seq(
 
 val baseSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.twitter" %% "finagle-httpx" % "6.24.0",
-    "org.scalatest" %% "scalatest" % "2.2.3" % "test"
+    "com.twitter" %% "finagle-httpx" % "6.25.0",
+    "org.scalatest" %% "scalatest" % "2.2.4" % "test"
   ),
   compilerOptions,
   wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.NoNeedForMonad, Wart.Null, Wart.DefaultArguments)
