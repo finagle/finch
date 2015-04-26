@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/finagle/finch/master/finch-logo.png" width="360px" />
+  <img src="https://raw.githubusercontent.com/finagle/finch/master/finch-logo.png" width="500px" />
 </p>
 
 Finch is a thin layer of purely functional basic blocks atop of [Finagle](http://twitter.github.io/finagle) for
