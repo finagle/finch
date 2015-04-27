@@ -25,10 +25,11 @@
 package io.finch.request
 
 import com.twitter.finagle.httpx.Request
-import com.twitter.util.Await
+import com.twitter.util.{Await, Future, Return, Throw}
 import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.prop.Checkers
 
-class RequestReaderValidationSpec extends FlatSpec with Matchers {
+class RequestReaderValidationSpec extends FlatSpec with Matchers with Checkers {
 
   val request = Request("foo" -> "6", "bar" -> "9")
   val fooReader = param("foo").as[Int]
@@ -69,6 +70,13 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers {
       foo <- fooReader if foo % 2 != 0
     } yield foo
     a [RequestError] shouldBe thrownBy(Await.result(readFoo(request)))
+  }
+
+  it should "be convertible to a single-member case class with a matching type" in {
+    case class Bar(i: Int)
+    val barReader = fooReader.as[Bar]
+
+    Await.result(barReader(request)) shouldBe Bar(6)
   }
 
   "A RequestReader with a predefined validation rule" should "allow valid values" in {
@@ -141,5 +149,49 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers {
 
     a [RequestError] shouldBe thrownBy(Await.result(optInt(request)))
     a [RequestError] shouldBe thrownBy(Await.result(optString(request)))
+  }
+
+  "A composite RequestReader" should "be convertible to an appropriately typed case class" in {
+    case class Qux(i: Int, j: Int)
+    val quxReader = (fooReader :: barReader).as[Qux]
+
+    Await.result(quxReader(request)) shouldBe Qux(6, 9)
+  }
+
+  "A composite RequestReader" should "be convertible to a tuple" in {
+    val tupleReader = (fooReader :: barReader).asTuple
+
+    Await.result(tupleReader(request)).shouldBe((6, 9))
+  }
+
+  it should "be able to have a function with appropriate arity and types applied to it" in {
+    val add: (Int, Int) => Int = _ + _
+    val sumReader = (fooReader :: barReader) ~> add
+
+    check { (foo: Int, bar: Int) =>
+      val req = Request("foo" -> foo.toString, "bar" -> bar.toString)
+
+      Await.result(sumReader(req)) === foo + bar
+    }
+  }
+
+  it should "be able to have an appropriately-typed Future-returning function applied to it" in {
+    val div: (Int, Int) => Future[Int] = (x, y) => Future(x / y)
+    val divReader = (fooReader :: barReader) ~~> div
+
+    check { (foo: Int, bar: Int) =>
+      val req = Request("foo" -> foo.toString, "bar" -> bar.toString)
+
+      Await.result {
+        for {
+          result <- div(foo, bar).liftToTry
+          readResult <- divReader(req).liftToTry
+        } yield (readResult, result) match {
+          case (Return(r1), Return(r2)) => r1 == r2
+          case (Throw(e1), Throw(e2)) => e1.getMessage == e2.getMessage
+          case _ => false
+        }
+      }
+    }
   }
 }

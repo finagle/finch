@@ -24,8 +24,11 @@ lazy val compilerOptions = Seq(
 
 val baseSettings = Seq(
   libraryDependencies ++= Seq(
+    "com.chuusai" %% "shapeless" % "2.2.0-RC4",
     "com.twitter" %% "finagle-httpx" % "6.25.0",
-    "org.scalatest" %% "scalatest" % "2.2.4" % "test"
+    "org.scalacheck" %% "scalacheck" % "1.12.2" % "test",
+    "org.scalatest" %% "scalatest" % "2.2.4" % "test",
+    compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
   ),
   scalacOptions ++= compilerOptions ++ (
     CrossVersion.partialVersion(scalaVersion.value) match {

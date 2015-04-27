@@ -73,9 +73,10 @@ trait PRequestReader[R, A] { self =>
     def apply(req: R): Future[B] = self(req) flatMap fn
   }
 
-  /**
+   /**
    * Composes this request reader with the given `that` request reader.
    */
+  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
   def ~[S, B](that: PRequestReader[S, B])(
     implicit ev: R %> S
   ): PRequestReader[R, A ~ B] = new PRequestReader[R, A ~ B] {

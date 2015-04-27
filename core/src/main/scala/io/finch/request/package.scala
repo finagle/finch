@@ -28,13 +28,17 @@ package io.finch
 
 import com.twitter.io.Buf
 import com.twitter.finagle.httpx.{Cookie, Method}
-import com.twitter.util.{Future, Throw, Try}
+import com.twitter.util.{Future, Return, Throw, Try}
 
 import org.jboss.netty.handler.codec.http.multipart.{HttpPostRequestDecoder, Attribute}
 
 import scala.annotation.implicitNotFound
 import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
+
+import shapeless._
+import shapeless.ops.function.FnToProduct
+import shapeless.ops.hlist.Tupler
 
 /**
  * This package introduces types and functions that enable _request processing_ in Finch. The [[io.finch.request]]
@@ -44,15 +48,16 @@ import scala.reflect.ClassTag
  *
  * The cornerstone abstraction of this package is a `RequestReader`, which is responsible for reading any amount of data
  * from the HTTP request. `RequestReader`s might be composed with each other using either monadic API (`flatMap` method)
- * or applicative API (`~` method). Regardless the API used for `RequestReader`s composition, the main idea behind it is
- * to use primitive readers (i.e., `param`, `paramOption`) in order to _compose_ them together and _map_ to
+ * or applicative API (`::` method). Regardless the API used for `RequestReader`s composition, the main idea behind it
+ * is to use primitive readers (i.e., `param`, `paramOption`) in order to _compose_ them together and _map_ to
  * the application domain data.
  *
  * {{{
  *   case class Complex(r: Double, i: Double)
- *   val complex: RequestReader[Complex] =
- *     param("real").as[Double] ~
- *     paramOption("imaginary").as[Double].withDefault(0.0) ~> Complex
+ *   val complex: RequestReader[Complex] = (
+ *     param("real").as[Double] ::
+ *     paramOption("imaginary").as[Double].withDefault(0.0)
+ *   ).as[Complex]
  * }}}
  *
  * A `ValidationRule` enables a reusable way of defining a validation rules in the application domain. It might be
@@ -61,9 +66,10 @@ import scala.reflect.ClassTag
  *
  * {{{
  *   case class User(name: String, age: Int)
- *   val user: RequestReader[User] =
- *     param("name") should beLongerThan(3) ~
- *     param("age").as[Int] should (beGreaterThan(0) and beLessThan(120)) ~> User
+ *   val user: RequestReader[User] = (
+ *     param("name").should(beLongerThan(3)) ::
+ *     param("age").as[Int].should(beGreaterThan(0) and beLessThan(120))
+ *   ).as[User]
  * }}}
  */
 package object request extends LowPriorityRequestReaderImplicits {
@@ -261,6 +267,7 @@ package object request extends LowPriorityRequestReaderImplicits {
   /**
    * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of two arguments.
    */
+  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
   implicit class RrArrow2[R, A, B](val rr: PRequestReader[R, A ~ B]) extends AnyVal {
     def ~~>[C](fn: (A, B) => Future[C]): PRequestReader[R, C] =
       rr.embedFlatMap { case (a ~ b) => fn(a, b) }
@@ -272,6 +279,7 @@ package object request extends LowPriorityRequestReaderImplicits {
   /**
    * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of three arguments.
    */
+  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
   implicit class RrArrow3[R, A, B, C](val rr: PRequestReader[R, A ~ B ~ C]) extends AnyVal {
     def ~~>[D](fn: (A, B, C) => Future[D]): PRequestReader[R, D] =
       rr.embedFlatMap { case (a ~ b ~ c) => fn(a, b, c) }
@@ -283,6 +291,7 @@ package object request extends LowPriorityRequestReaderImplicits {
   /**
    * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of four arguments.
    */
+  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
   implicit class RrArrow4[R, A, B, C, D](val rr: PRequestReader[R, A ~ B ~ C ~ D]) extends AnyVal {
     def ~~>[E](fn: (A, B, C, D) => Future[E]): PRequestReader[R, E] =
       rr.embedFlatMap { case (a ~ b ~ c ~ d) => fn(a, b, c, d) }
@@ -294,6 +303,7 @@ package object request extends LowPriorityRequestReaderImplicits {
   /**
    * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of five arguments.
    */
+  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
   implicit class RrArrow5[R, A, B, C, D, E](val rr: PRequestReader[R, A ~ B ~ C ~ D ~ E]) extends AnyVal {
     def ~~>[F](fn: (A, B, C, D, E) => Future[F]): PRequestReader[R, F] =
       rr.embedFlatMap { case (a ~ b ~ c ~ d ~ e) => fn(a, b, c, d, e) }
@@ -305,6 +315,7 @@ package object request extends LowPriorityRequestReaderImplicits {
   /**
    * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of six arguments.
    */
+  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
   implicit class RrArrow6[R, A, B, C, D, E, F](val rr: PRequestReader[R, A ~ B ~ C ~ D ~ E ~ F]) extends AnyVal {
     def ~~>[G](fn: (A, B, C, D, E, F) => Future[G]): PRequestReader[R, G] =
       rr.embedFlatMap { case (a ~ b ~ c ~ d ~ e ~ f) => fn(a, b, c, d, e, f) }
@@ -316,6 +327,7 @@ package object request extends LowPriorityRequestReaderImplicits {
   /**
    * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of seven arguments.
    */
+  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
   implicit class RrArrow7[R, A, B, C, D, E, F, G](val rr: PRequestReader[R, A ~ B ~ C ~ D ~ E ~ F ~ G]) extends AnyVal {
     def ~~>[H](fn: (A, B, C, D, E, F, G) => Future[H]): PRequestReader[R, H] =
       rr.embedFlatMap { case (a ~ b ~ c ~ d ~ e ~ f ~ g) => fn(a, b, c, d, e, f, g) }
@@ -327,6 +339,7 @@ package object request extends LowPriorityRequestReaderImplicits {
   /**
    * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of eight arguments.
    */
+  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
   implicit class RrArrow8[R, A, B, C, D, E, F, G, H](
     val rr: PRequestReader[R, A ~ B ~ C ~ D ~ E ~ F ~ G ~ H]
   ) extends AnyVal {
@@ -530,8 +543,95 @@ package object request extends LowPriorityRequestReaderImplicits {
   }
 
   /**
+   * Implicit class that provides `::` and other operations on any request reader that returns a
+   * [[shapeless.HList]].
+   *
+   * See the implementation note on [[StringSeqReaderOps]] for a discussion of why this is not
+   * currently a value class.
+   */
+  final implicit class HListReaderOps[R, L <: HList](val self: PRequestReader[R, L]) {
+
+    /**
+     * Composes this request reader with the given `that` request reader.
+     */
+    def ::[S, A](that: PRequestReader[S, A])(implicit ev: S %> R): PRequestReader[S, A :: L] =
+      new PRequestReader[S, A :: L] {
+        val item = MultipleItems
+        def apply(req: S): Future[A :: L] =
+          Future.join(that(req).liftToTry, self(ev(req)).liftToTry).flatMap {
+            case (Return(a), Return(l)) => (a :: l).toFuture
+            case (Throw(a), Throw(l)) => collectExceptions(a, l).toFutureException[A :: L]
+            case (Throw(e), _) => e.toFutureException[A :: L]
+            case (_, Throw(e)) => e.toFutureException[A :: L]
+          }
+
+        def collectExceptions(a: Throwable, b: Throwable): RequestErrors = {
+          def collect(e: Throwable): Seq[Throwable] = e match {
+            case RequestErrors(errors) => errors
+            case other => Seq(other)
+          }
+
+          RequestErrors(collect(a) ++ collect(b))
+        }
+      }
+
+    /**
+     * Converts this request reader to one that returns any type with this [[shapeless.HList]] as
+     * its representation.
+     */
+    def as[A](implicit gen: Generic.Aux[A, L]): PRequestReader[R, A] = self.map(gen.from)
+
+    /**
+     * Converts this request reader to one that returns a tuple with the same types as this
+     * [[shapeless.HList]].
+     *
+     * Note that this will fail at compile time if this this [[shapeless.HList]] contains more than
+     * 22 elements.
+     */
+    def asTuple(implicit tupler: Tupler[L]): PRequestReader[R, tupler.Out] = self.map(tupler(_))
+
+    /**
+     * Applies a `FunctionN` with the appropriate arity and types and a `Future` return type to
+     * the elements of this [[shapeless.HList]].
+     */
+    def ~~>[F, I, FI](fn: F)(
+      implicit ftp: FnToProduct.Aux[F, L => FI], ev: FI <:< Future[I]
+    ): PRequestReader[R, I] = self.embedFlatMap(value => ev(ftp(fn)(value)))
+
+    /**
+     * Applies a `FunctionN` with the appropriate arity and types to the elements of this
+     * [[shapeless.HList]].
+     */
+    def ~>[F, I](fn: F)(implicit ftp: FnToProduct.Aux[F, L => I]): PRequestReader[R, I] =
+      self.map(ftp(fn))
+  }
+
+  /**
+   * Implicit class that provides `::` on any request reader to support building [[shapeless.HList]]
+   * request readers.
+   */
+  final implicit class ValueReaderOps[R, B](val self: PRequestReader[R, B]) extends AnyVal {
+
+    /**
+     * Lift this request reader into a singleton [[shapeless.HList]] and compose it with the given
+     * `that` request reader.
+     */
+    def ::[S, A](that: PRequestReader[S, A])(implicit ev: S %> R): PRequestReader[S, A :: B :: HNil] =
+      that :: self.map(_ :: HNil)
+
+    /**
+     * Converts this request reader to one that returns any type with `B :: HNil` as
+     * its representation.
+     */
+    def as[A](implicit gen: Generic.Aux[A, B :: HNil]): PRequestReader[R, A] = self.map { value =>
+      gen.from(value :: HNil)
+    }
+  }
+
+  /**
    * A wrapper for two result values.
    */
+  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
   case class ~[+A, +B](_1: A, _2: B)
 
   private[request] val beEmpty: ValidationRule[String] = ValidationRule("be empty")(_.isEmpty)
