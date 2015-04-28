@@ -1,7 +1,7 @@
 ## Endpoints
 
 **WARNING**: `io.finch.Endpoint` is going to be deprecated in the 0.6.0 release. So, it's gently recommended to use the
-[route combinators](routes.md) instead.
+[route combinators](route.md) instead.
 
 One of the most powerful abstractions in Finch is an `Endpoint`, which is a composable router. At the high level
 it might be treated as a usual `PartialFunction` from request to service. Endpoints may be converted to Finagle services.

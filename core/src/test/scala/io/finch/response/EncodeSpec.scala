@@ -31,12 +31,8 @@ class EncodeSpec extends FlatSpec with Matchers {
 
   private def encode[A](obj: A)(implicit e: EncodeResponse[A]): String = e(obj)
   "A EncodeJson" should "be accepted as implicit instance of subclass" in {
-    implicit def seqEncodeJson[A](implicit vEnc: EncodeResponse[A]) = new EncodeResponse[Seq[A]] {
-      def apply(seq: Seq[A]): String = {
-        seq.map(vEnc(_)).mkString("[", ", ", "]")
-      }
-
-      override def contentType: String = "application/json"
+    implicit def seqEncodeJson[A](implicit ea: EncodeResponse[A]): EncodeResponse[Seq[A]] =
+      EncodeResponse("application/json") { seq => seq.map(ea.apply).mkString("[", ", ", "]")
     }
 
     implicit val scalaNumberEncodeJson = EncodeResponse[ScalaNumber]("application/json") { _.toString }
@@ -45,5 +41,4 @@ class EncodeSpec extends FlatSpec with Matchers {
     encode(Vector(BigDecimal(123l), BigDecimal(0l))) shouldBe "[123, 0]"
     encode(List(BigInt(123l), BigInt(0l))) shouldBe "[123, 0]"
   }
-
 }

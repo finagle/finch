@@ -60,4 +60,12 @@ class ResponseBuilderSpec extends FlatSpec with Matchers {
     rep.cookies shouldBe Seq(cookie)
     response.cookies.get("session") shouldBe Some(cookie)
   }
+
+  it should "override the contentType" in {
+    val ok = Ok.withContentType(Some("application/json"))
+    // text/plain is provided but application/json should be used
+    val rep = ok("foo")
+
+    rep.contentType shouldBe Some("application/json;charset=utf-8")
+  }
 }
