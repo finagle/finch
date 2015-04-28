@@ -1,4 +1,5 @@
 import sbtunidoc.Plugin.UnidocKeys._
+import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
@@ -124,6 +125,7 @@ lazy val playground = project
   .settings(moduleName := "finch-playground")
   .settings(allSettings)
   .settings(noPublish)
+  .settings(coverageExcludedPackages := "io\\.finch\\.playground\\..*")
   .dependsOn(core, jackson)
   .disablePlugins(CoverallsPlugin)
 

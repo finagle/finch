@@ -158,10 +158,31 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers with Checkers {
     Await.result(quxReader(request)) shouldBe Qux(6, 9)
   }
 
-  "A composite RequestReader" should "be convertible to a tuple" in {
+  it should "be convertible to a tuple" in {
     val tupleReader = (fooReader :: barReader).asTuple
 
     Await.result(tupleReader(request)).shouldBe((6, 9))
+  }
+
+  it should "correctly fail with a single error" in {
+    val firstBadReader = (fooReader.shouldNot(beEven) :: barReader.shouldNot(beEven)).asTuple
+    val secondBadReader = (fooReader.should(beEven) :: barReader.should(beEven)).asTuple
+
+    Await.result(firstBadReader(request).liftToTry) should matchPattern {
+      case Throw(NotValid(_, _)) =>
+    }
+
+    Await.result(secondBadReader(request).liftToTry) should matchPattern {
+      case Throw(NotValid(_, _)) =>
+    }
+  }
+
+  it should "correctly accumulate errors" in {
+    val tupleReader = (fooReader.shouldNot(beEven) :: barReader.should(beEven)).asTuple
+
+    Await.result(tupleReader(request).liftToTry) should matchPattern {
+      case Throw(RequestErrors(Seq(NotValid(_, _), NotValid(_, _)))) =>
+    }
   }
 
   it should "be able to have a function with appropriate arity and types applied to it" in {
