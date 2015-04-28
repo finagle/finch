@@ -34,12 +34,11 @@ class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
   case class MyReq(http: HttpRequest, i: Int)
   implicit val reqEv: MyReq %> HttpRequest = View(_.http)
 
-  val reader: RequestReader[(Int, Double, Int)] =
-    param("a").as[Int] ~
-    param("b").as[Double] ~
-    param("c").as[Int] map {
-      case a ~ b ~ c => (a, b, c)
-    }
+  val reader: RequestReader[(Int, Double, Int)] = (
+    param("a").as[Int] ::
+    param("b").as[Double] ::
+    param("c").as[Int]
+  ).asTuple
   
   def extractNotParsedTargets (result: Try[(Int, Double, Int)]): AnyRef = {
     (result handle {
@@ -88,7 +87,7 @@ class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
 
   it should "be polymorphic in terms of request type" in {
     val i: PRequestReader[MyReq, Int] = RequestReader(_.i)
-    val a = i ~ param("a") ~> (_ + _)
+    val a = (i :: param("a")) ~> ((_: Int) + (_: String))
     val b = for {
       ii <- i
       aa <- param("a")
