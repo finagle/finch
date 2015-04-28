@@ -103,6 +103,14 @@ trait PRequestReader[R, A] { self =>
   def withFilter(p: A => Boolean): PRequestReader[R, A] = self.should("not fail validation")(p)
 
   /**
+   * Lifts this request reader into one that always succeeds, with an empty option representing failure.
+   */
+  def lift: PRequestReader[R, Option[A]] = new PRequestReader[R, Option[A]] {
+    val item = self.item
+    def apply(req: R): Future[Option[A]] = self(req).liftToTry.map(_.toOption)
+  }
+
+  /**
    * Validates the result of this request reader using a `predicate`. The rule is used for error reporting.
    *
    * @param rule text describing the rule being validated

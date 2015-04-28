@@ -52,6 +52,11 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers {
     a [RequestError] shouldBe thrownBy(Await.result(oddReader(request)))
   }
 
+  it should "be lift-able into an optional reader that always succeeds" in {
+    val oddReader = fooReader.should("be odd") { _ % 2 != 0 }
+    Await.result(oddReader.lift(request)) shouldBe None
+  }
+
   it should "allow valid values in a for-comprehension" in {
     val readFoo: RequestReader[Int] = for {
       foo <- fooReader if foo % 2 == 0
