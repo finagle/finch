@@ -26,26 +26,31 @@ package object micro {
   /**
    * An alias for polymorphic [[PRequestReader]].
    */
+  @deprecated("Micro-style is deprecated in favor of heterogeneous routers.", "0.7.0")
   type PMicro[R, A] = PRequestReader[R, A]
 
   /**
    * A [[PMicro]] with request type fixed to [[HttpRequest]].
    */
+  @deprecated("Micro-style is deprecated in favor of heterogeneous routers.", "0.7.0")
   type Micro[A] = PMicro[HttpRequest, A]
 
   /**
    * A companion object for `Micro`.
    */
+  @deprecated("Micro-style is deprecated in favor of heterogeneous routers.", "0.7.0")
   val Micro = RequestReader
 
   /**
    * A [[Router]] that fetches a [[PMicro]] is called an endpoint.
    */
+  @deprecated("Micro-style is deprecated in favor of heterogeneous routers.", "0.7.0")
   type PEndpoint[R] = Router[PMicro[R, HttpResponse]]
 
   /**
    * A [[PEndpoint]] with request type fixed to [[HttpRequest]].
    */
+  @deprecated("Micro-style is deprecated in favor of heterogeneous routers.", "0.7.0")
   type Endpoint = PEndpoint[HttpRequest]
 
   implicit class MicroRouterOps[R, A](r: Router[PMicro[R, A]]) {

@@ -1,5 +1,4 @@
 import sbtunidoc.Plugin.UnidocKeys._
-import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
@@ -61,7 +60,7 @@ lazy val publishSettings = Seq(
       "scm:git:git@github.com:finagle/finch.git"
     )
   ),
-  pomExtra := (
+  pomExtra :=
     <developers>
       <developer>
         <id>vkostyukov</id>
@@ -69,7 +68,6 @@ lazy val publishSettings = Seq(
         <url>http://vkostyukov.ru</url>
       </developer>
     </developers>
-  )
 )
 
 lazy val noPublish = Seq(
