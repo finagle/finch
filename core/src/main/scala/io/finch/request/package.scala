@@ -110,6 +110,11 @@ package object request extends LowPriorityRequestReaderImplicits {
   type RequestReader[A] = PRequestReader[HttpRequest, A]
 
   /**
+   * A [[io.finch.request.DecodeRequest DecodeRequest]] instance for `String`.
+   */
+  implicit val decodeString: DecodeRequest[String] = DecodeRequest { s => Try(s) }
+
+  /**
    * A [[io.finch.request.DecodeRequest DecodeRequest]] instance for `Int`.
    */
   implicit val decodeInt: DecodeRequest[Int] = DecodeRequest { s => Try(s.toInt) }

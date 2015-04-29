@@ -26,6 +26,7 @@ package io.finch.request
 
 import com.twitter.finagle.httpx.Request
 import com.twitter.util.{Await, Future, Return, Throw}
+import org.scalacheck.Prop.BooleanOperators
 import org.scalatest.{Matchers, FlatSpec}
 import org.scalatest.prop.Checkers
 
@@ -212,6 +213,19 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers with Checkers {
           case (Throw(e1), Throw(e2)) => e1.getMessage == e2.getMessage
           case _ => false
         }
+      }
+    }
+  }
+
+  "RequestReader's generic derivation" should "create valid readers for case classes" in {
+    case class User(id: Long, first: String, last: String)
+
+    val userReader = RequestReader.to[User].fromParams
+
+    check { (id: Long, first: String, last: String) =>
+      (first.nonEmpty && last.nonEmpty) ==> {
+        val req = Request("id" -> id.toString, "first" -> first, "last" -> last)
+        Await.result(userReader(req)) === User(id, first, last)
       }
     }
   }
