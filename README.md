@@ -8,10 +8,10 @@ close as possible to the bare metal Finagle API.
 
 Badges
 ------
-[![Build Status](https://travis-ci.org/finagle/finch.svg?branch=master)](https://travis-ci.org/finagle/finch)
-[![Coverage Status](https://coveralls.io/repos/finagle/finch/badge.svg?branch=master)](https://coveralls.io/r/finagle/finch?branch=master)
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/finagle/finch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.finagle/finch_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.finagle/finch_2.11)
+[![Build Status](https://img.shields.io/travis/finagle/finch/master.svg)](https://travis-ci.org/finagle/finch)
+[![Coverage Status](https://img.shields.io/coveralls/finagle/finch/master.svg)](https://coveralls.io/r/finagle/finch?branch=master)
+[![Gitter](https://img.shields.io/badge/gitter-join%20chat-green.svg)](https://gitter.im/finagle/finch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.finagle/finch_2.11.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.finagle/finch_2.11)
 
 Modules
 -------
