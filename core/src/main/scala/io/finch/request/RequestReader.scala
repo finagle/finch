@@ -26,7 +26,7 @@
 
 package io.finch.request
 
-import com.twitter.util.{Throw, Return, Future}
+import com.twitter.util.{Future, Return, Throw, Try}
 import io.finch._
 import io.finch.request.items._
 
@@ -205,4 +205,36 @@ object RequestReader {
       val item = i
       def apply(req: R): Future[A] = f(req)
     }
+
+  import scala.reflect.ClassTag
+  import shapeless._, labelled.{FieldType, field}
+
+  class GenericDerivation[A] {
+    def fromParams[Repr <: HList](implicit
+      gen: LabelledGeneric.Aux[A, Repr],
+      fp: FromParams[Repr]
+    ): RequestReader[A] = fp.reader.map(gen.from)
+  }
+
+  trait FromParams[L <: HList] {
+    def reader: RequestReader[L]
+  }
+
+  object FromParams {
+    implicit val hnilFromParams: FromParams[HNil] = new FromParams[HNil] {
+      def reader: RequestReader[HNil] = value(HNil)
+    }
+
+    implicit def hconsFromParams[HK <: Symbol, HV, T <: HList](implicit
+      dh: DecodeRequest[HV],
+      ct: ClassTag[HV],
+      key: Witness.Aux[HK],
+      fpt: FromParams[T]
+    ): FromParams[FieldType[HK, HV] :: T] = new FromParams[FieldType[HK, HV] :: T] {
+      def reader: RequestReader[FieldType[HK, HV] :: T] =
+        param(key.value.name).as(dh, ct).map(field[HK](_)) :: fpt.reader
+    }
+  }
+
+  def to[A]: GenericDerivation[A] = new GenericDerivation[A]
 }
