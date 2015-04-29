@@ -196,7 +196,13 @@ package object response {
   }
 
   /**
-   * Allows to pass raw strings to [[io.finch.response.ResponseBuilder ResponseBuilder]].
+   * Allows to pass raw strings to a [[ResponseBuilder]].
    */
   implicit val encodeString: EncodeResponse[String] = EncodeResponse("text/plain")(s => s)
+
+  /**
+   * Allows to pass `Byte[Array]` to a [[ResponseBuilder]].
+   */
+  implicit val encodeByteArray: EncodeResponse[Array[Byte]] =
+    EncodeResponse("application/octet-stream") { a => new String(a, "UTF-8") }
 }

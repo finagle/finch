@@ -37,7 +37,8 @@ import com.twitter.finagle.httpx.{Response, Cookie, Status}
 case class ResponseBuilder(
   status: Status,
   headers: Map[String, String] = Map.empty[String, String],
-  cookies: Seq[Cookie] = Seq.empty[Cookie]
+  cookies: Seq[Cookie] = Seq.empty[Cookie],
+  contentType: Option[String] = None
 ) {
 
   /**
@@ -48,11 +49,18 @@ case class ResponseBuilder(
   def withHeaders(headers: (String, String)*): ResponseBuilder = copy(headers = this.headers ++ headers)
 
   /**
-   * Create a new response builder with the given ''cookies''.
+   * Creates a new response builder with the given `cookies`.
    *
    * @param cookies the [[com.twitter.finagle.httpx.Cookie Cookie]]'s to add to the response
    */
-  def withCookies(cookies: Cookie*): ResponseBuilder= copy(cookies = this.cookies ++ cookies)
+  def withCookies(cookies: Cookie*): ResponseBuilder = copy(cookies = this.cookies ++ cookies)
+
+  /**
+   * Creates a new response builder with given `contentType`.
+   *
+   * @param contentType the content type to be used instead
+   */
+  def withContentType(contentType: Option[String]): ResponseBuilder = copy(contentType = contentType)
 
   /**
    * Builds an HTTP response of the given `body` with content-type according to the implicit
@@ -62,7 +70,7 @@ case class ResponseBuilder(
    */
   def apply[A](body: A)(implicit encode: EncodeResponse[A]): HttpResponse = {
     val rep = Response(status)
-    rep.setContentType(encode.contentType)
+    rep.setContentType(contentType.getOrElse(encode.contentType))
     rep.setContentString(encode(body))
     headers.foreach { case (k, v) => rep.headerMap.add(k, v) }
     cookies.foreach { rep.addCookie }
