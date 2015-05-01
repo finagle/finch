@@ -252,4 +252,16 @@ class RouterSpec extends FlatSpec with Matchers {
     r(route1) shouldBe Some((Nil, "root"))
     r(route2) shouldBe Some((Nil, "foo"))
   }
+
+  it should "support path to string conversion" in {
+    val a = path.as[Int]
+    val b = path("id").as[Long]
+    val c = path
+    val d = path("name")
+
+    a.toString shouldBe ":int"
+    b.toString shouldBe ":id"
+    c.toString shouldBe ":string"
+    d.toString shouldBe ":name"
+  }
 }
