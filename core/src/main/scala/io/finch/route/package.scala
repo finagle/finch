@@ -223,27 +223,28 @@ package object route extends LowPriorityRouterImplicits {
       apply(tag.runtimeClass.getSimpleName.toLowerCase).as[A]
   }
 
+
   /**
    * A [[io.finch.route.RouterN RouterN]] that extract an integer from the route.
    */
-  @deprecated("Use path.as[Int] instead", "0.7.0")
-  object int extends Extractor("int", stringToSomeValue(_.toInt))
+  def int: RouterN[Int] = path.as[Int]
+  def int(name: String): RouterN[Int] = path(name).as[Int]
 
   /**
    * A [[io.finch.route.RouterN RouterN]] that extract a long value from the route.
    */
-  @deprecated("Use path.as[Long] instead", "0.7.0")
-  object long extends Extractor("long", stringToSomeValue(_.toLong))
+  def long: RouterN[Long] = path.as[Long]
+  def long(name: String): RouterN[Long] = path(name).as[Long]
 
   /**
    * A [[io.finch.route.RouterN RouterN]] that extract a string value from the route.
    */
-  @deprecated("Use path instead", "0.7.0")
-  object string extends Extractor("string", Some(_))
+  def string: RouterN[String] = path
+  def string(name: String): RouterN[String] = path(name)
 
   /**
    * A [[io.finch.route.RouterN RouterN]] that extract a boolean value from the route.
    */
-  @deprecated("Use path.as[Boolean] instead", "0.7.0")
-  object boolean extends Extractor("boolean", stringToSomeValue(_.toBoolean))
+  def boolean: RouterN[Boolean] = path.as[Boolean]
+  def boolean(name: String): RouterN[Boolean] = path(name).as[Boolean]
 }
