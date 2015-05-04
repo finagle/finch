@@ -66,7 +66,7 @@ package object demo {
     private val map = new ConcurrentHashMap[Long, User]().asScala
 
     def select(id: Long): Future[Option[User]] = map.get(id).toFuture
-    def all: Future[Seq[User]] = map.values.toSeq.toFuture
+    def all: Future[Users] = new Users(map.values.toList).toFuture
     def insert(id: Long, u: User): Future[User] = {
       map += (id -> u)
       u.toFuture
