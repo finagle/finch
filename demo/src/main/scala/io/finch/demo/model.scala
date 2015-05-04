@@ -35,35 +35,31 @@ object model {
 
   // A ticket object with two fields: `id` and `label`.
   case class Ticket(id: Long, label: String) extends ToJson {
-    override def toJson = Json.obj("id" := id, "label" := label)
+    override def toJson: Json = this.asJson
   }
 
   // A user object with three fields: `id`, `name` and a collection of `tickets`.
   case class User(id: Long, name: String, tickets: List[Ticket]) extends ToJson {
-    override def toJson = Json(
-      "id" := id,
-      "name" := name,
-      "tickets" := jArray(tickets.map(_.toJson))
-    )
+    override def toJson: Json = this.asJson
   }
 
-  // A helper service that turns a model object into JSON.
-  object TurnModelIntoJson extends Service[ToJson, Json] {
-    def apply(model: ToJson): Future[Json] = model.toJson.toFuture
+  case class Users(users: List[User]) extends ToJson {
+    override def toJson: Json = users.asJson
   }
 
   // An exception that indicates missing user with `userId`.
   case class UserNotFound(userId: Long) extends Exception(s"User $userId is not found.")
 
-  /**
-   * An implicit class that converts a service that returns a sequence of `ToJson`
-   * objects into a service that returns `ToJson` object.
-   */
-  implicit class SeqToJson[A](s: Service[A, Seq[ToJson]]) extends Service[A, ToJson] {
-    private[demo] def seqToJson(seq: Seq[ToJson]) = new ToJson {
-      def toJson: Json = Json.array(seq.map { _.toJson }: _*)
-    }
-
-    def apply(req: A): Future[ToJson] = s(req) map seqToJson
+  // A helper service that turns a model object into JSON.
+  object TurnModelIntoJson extends Service[ToJson, Json] {
+    def apply(model: ToJson): Future[Json] = Future.value(model.toJson)
   }
+
+  // Provides an in implementation of the EncodeJson Typeclass from Argonaut
+  private[model] implicit def encodeUserJson: EncodeJson[User] = EncodeJson((u: User) =>
+    ("tickets" := u.tickets) ->: ("name" := u.name) ->: ("id" := u.id) ->: jEmptyObject)
+
+  // Provides an in implementation of the EncodeJson Typeclass from Argonaut
+  private[model] implicit def encodeTicketJson: EncodeJson[Ticket] = EncodeJson((t: Ticket) =>
+    ("label" := t.label) ->: ("id" := t.id) ->: jEmptyObject)
 }
