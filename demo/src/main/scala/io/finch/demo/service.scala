@@ -22,7 +22,6 @@
 
 package io.finch.demo
 
-import argonaut._, Argonaut._
 import com.twitter.finagle.Service
 import com.twitter.util.Future
 
@@ -43,8 +42,8 @@ object service {
   }
 
   // A REST service that fetches all users.
-  object GetAllUsers extends Service[AuthRequest, Users] {
-    def apply(req: AuthRequest): Future[Users] = Db.all
+  object GetAllUsers extends Service[AuthRequest, List[User]] {
+    def apply(req: AuthRequest): Future[List[User]] = Db.all
   }
 
   // A REST service that inserts a new user with `userId`.

@@ -99,10 +99,10 @@ object Demo {
   }
 
   // An API endpoint.
-  val api: Service[AuthRequest, ToJson] = users | tickets
+  val api: Service[AuthRequest, Json] = users | tickets
 
   // An HTTP endpoint with exception handler and Auth filter.
   val backend: Service[HttpRequest, HttpResponse] =
-    handleExceptions ! authorize ! (api ! TurnModelIntoJson ! TurnIntoHttp[Json])
+    handleExceptions ! authorize ! (api ! TurnIntoHttp[Json])
 
 }
