@@ -25,6 +25,7 @@ package io.finch.demo
 import argonaut._, Argonaut._
 import io.finch.request._
 import io.finch.argonaut._
+import io.finch.request.items.JsonItem
 
 object reader {
 
@@ -41,6 +42,7 @@ object reader {
   // A ticket is represented by a JSON object serialized in request body.
   val ticket: RequestReader[Ticket] =
     body.as[Json] map { json =>
-      Ticket(Id(), (json.hcursor -- "label").as[String].getOr("N/A"))
+      val label = json.field("label").flatMap(_.string).getOrElse(throw new NotPresent(JsonItem("label")))
+      Ticket(Id(), label)
     }
 }

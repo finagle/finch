@@ -32,7 +32,7 @@ class DemoSpec extends FlatSpec with Matchers {
   }
 
   it should "allow posting authorized ticket requests" in {
-    val req = POST("/users/0/tickets", "{\"label\": \"foobar\"}")
+    val req = POST("/users/0/tickets", """{"label": "foobar"}""")
 
     await(req).status shouldBe io.finch.response.Ok().status
   }
@@ -51,6 +51,12 @@ class DemoSpec extends FlatSpec with Matchers {
 
   it should "raise BadRequest for params not present" in {
     val req = POST("/users/1/tickets")
+
+    await(req).status shouldBe io.finch.response.BadRequest().status
+  }
+
+  it should "trigger BadRequest for json item not present" in {
+    val req = POST("/users/0/tickets", """{"foo": "bar"}""")
 
     await(req).status shouldBe io.finch.response.BadRequest().status
   }

@@ -144,6 +144,7 @@ package object request extends LowPriorityRequestReaderImplicits {
     case class ParamItem(name: String) extends RequestItem("param", Some(name))
     case class HeaderItem(name: String) extends RequestItem("header", Some(name))
     case class CookieItem(name: String) extends RequestItem("cookie", Some(name))
+    case class JsonItem(name: String) extends RequestItem("json", Some(name))
     case object BodyItem extends RequestItem("body")
     case object MultipleItems extends RequestItem("request")
   }
