@@ -24,7 +24,7 @@ lazy val compilerOptions = Seq(
 
 val baseSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.chuusai" %% "shapeless" % "2.2.0-RC4",
+    "com.chuusai" %% "shapeless" % "2.2.0-RC5",
     "com.twitter" %% "finagle-httpx" % "6.25.0",
     "org.scalacheck" %% "scalacheck" % "1.12.2" % "test",
     "org.scalatest" %% "scalatest" % "2.2.4" % "test",
@@ -144,14 +144,14 @@ lazy val jawn = project
 lazy val argonaut = project
   .settings(moduleName := "finch-argonaut")
   .settings(allSettings)
-  .settings(libraryDependencies += "io.argonaut" %% "argonaut" % "6.0.4")
+  .settings(libraryDependencies += "io.argonaut" %% "argonaut" % "6.1")
   .dependsOn(core)
   .disablePlugins(CoverallsPlugin)
 
 lazy val jackson = project
   .settings(moduleName := "finch-jackson")
   .settings(allSettings)
-  .settings(libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.4.4")
+  .settings(libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.5.2")
   .dependsOn(core)
   .disablePlugins(CoverallsPlugin)
 
