@@ -23,43 +23,29 @@
 package io.finch.demo
 
 import argonaut._, Argonaut._
-import com.twitter.util.Future
-import com.twitter.finagle.Service
-
-import io.finch._
 
 object model {
 
-  // A simple base class for data classes.
-  trait ToJson { def toJson: Json }
-
   // A ticket object with two fields: `id` and `label`.
-  case class Ticket(id: Long, label: String) extends ToJson {
-    override def toJson: Json = this.asJson
+  case class Ticket(id: Long, label: String)
+
+  object Ticket {
+    // Provides an implementation of the EncodeJson type class from Argonaut
+    implicit def ticketEncoding: EncodeJson[Ticket] = jencode2L(
+      (t: Ticket) => (t.id, t.label)
+    )("label", "id")
   }
 
   // A user object with three fields: `id`, `name` and a collection of `tickets`.
-  case class User(id: Long, name: String, tickets: List[Ticket]) extends ToJson {
-    override def toJson: Json = this.asJson
-  }
+  case class User(id: Long, name: String, tickets: List[Ticket])
 
-  case class Users(users: List[User]) extends ToJson {
-    override def toJson: Json = users.asJson
+  object User {
+    // Provides an implementation of the EncodeJson type class from Argonaut
+    implicit def userEncoding: EncodeJson[User] = jencode3L(
+      (u: User) => (u.id, u.name, u.tickets)
+    )("id", "name", "tickets")
   }
 
   // An exception that indicates missing user with `userId`.
   case class UserNotFound(userId: Long) extends Exception(s"User $userId is not found.")
-
-  // A helper service that turns a model object into JSON.
-  object TurnModelIntoJson extends Service[ToJson, Json] {
-    def apply(model: ToJson): Future[Json] = Future.value(model.toJson)
-  }
-
-  // Provides an in implementation of the EncodeJson Typeclass from Argonaut
-  private[model] implicit def encodeUserJson: EncodeJson[User] = EncodeJson((u: User) =>
-    ("tickets" := u.tickets) ->: ("name" := u.name) ->: ("id" := u.id) ->: jEmptyObject)
-
-  // Provides an in implementation of the EncodeJson Typeclass from Argonaut
-  private[model] implicit def encodeTicketJson: EncodeJson[Ticket] = EncodeJson((t: Ticket) =>
-    ("label" := t.label) ->: ("id" := t.id) ->: jEmptyObject)
 }
