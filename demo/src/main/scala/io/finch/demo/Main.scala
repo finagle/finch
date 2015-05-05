@@ -74,6 +74,10 @@ object Demo {
 
     case NotPresent(BodyItem) => BadRequest(Json("error" := "body_not_present"))
 
+    case NotPresent(JsonItem(j)) => BadRequest(
+      Json("error" := "json_not_present", "item" := j)
+    )
+
     case NotParsed(ParamItem(p), _, _) => BadRequest(
       Json("error" := "param_not_parsed", "param" := p)
     )
