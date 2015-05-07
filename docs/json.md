@@ -49,7 +49,21 @@ val ok: HttpResponse = Ok(Foo(10, "foo")) // will be encoded as JSON
 val foo: RequestReader[Foo] = body.as[Foo] // a request reader that reads Foo
 ```
 
+### Json4s
+
+The `finch-json4s` module provides the support for the [JSON4S][7] library. The library usage looks as follows:
+
+```scala
+import io.finch.json4s._
+implicit val formats = DefaultFormats ++ JodaTimeSerializers.all
+case class Bar(x: Int, y: Boolean)
+
+val ok: HttpResponse = Ok(Bar(1, true)) // will be encoded as JSON
+val foo: RequestReader[Bar] = body.as[Bar] // a request reader that reads Bar
+```
+
 [3]: https://github.com/finagle/finch/blob/master/json/src/main/scala/io/finch/json/Json.scala
 [4]: http://argonaut.io
 [5]: https://github.com/non/jawn
 [6]: http://jackson.codehaus.org/
+[7]: http://json4s.org/
