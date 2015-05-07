@@ -155,6 +155,16 @@ lazy val jackson = project
   .dependsOn(core)
   .disablePlugins(CoverallsPlugin)
 
+lazy val json4s = project
+  .settings(moduleName := "finch-json4s")
+  .settings(allSettings)
+  .settings(libraryDependencies ++= Seq(
+    "org.json4s" %% "json4s-jackson" % "3.2.11",
+    "org.json4s" %% "json4s-ext" % "3.2.11")
+  )
+  .dependsOn(core)
+  .disablePlugins(CoverallsPlugin)
+
 lazy val auth = project
   .settings(moduleName := "finch-auth")
   .settings(allSettings)
