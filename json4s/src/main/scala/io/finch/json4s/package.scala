@@ -23,8 +23,8 @@ package object json4s {
    * @tparam A the type of data to encode
    * @return
    */
-  implicit def encodeJson[A <: AnyRef](implicit formats: Formats): EncodeResponse[A] = EncodeResponse("application/json") { out: A =>
-    write(out)
-  }
-
+  implicit def encodeJson[A <: AnyRef](implicit formats: Formats): EncodeResponse[A] =
+    EncodeResponse("application/json") { out: A =>
+      write(out)
+    }
 }

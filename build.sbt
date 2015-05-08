@@ -100,7 +100,7 @@ lazy val root = project.in(file("."))
         |import io.finch.route._
       """.stripMargin
   )
-  .aggregate(core, json, demo, playground, jawn, argonaut, jackson, auth)
+  .aggregate(core, json, demo, playground, jawn, argonaut, jackson, json4s, auth)
   .dependsOn(core, argonaut)
 
 lazy val core = project
