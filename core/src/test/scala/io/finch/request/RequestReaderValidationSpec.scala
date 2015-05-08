@@ -220,7 +220,7 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers with Checkers {
   "RequestReader's generic derivation" should "create valid readers for case classes" in {
     case class User(id: Long, first: String, last: String)
 
-    val userReader = RequestReader.to[User].fromParams
+    val userReader = RequestReader.derive[User].fromParams
 
     check { (id: Long, first: String, last: String) =>
       (first.nonEmpty && last.nonEmpty) ==> {

@@ -236,5 +236,5 @@ object RequestReader {
     }
   }
 
-  def to[A]: GenericDerivation[A] = new GenericDerivation[A]
+  def derive[A]: GenericDerivation[A] = new GenericDerivation[A]
 }
