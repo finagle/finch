@@ -24,7 +24,7 @@ lazy val compilerOptions = Seq(
 
 val baseSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.chuusai" %% "shapeless" % "2.2.0-RC4",
+    "com.chuusai" %% "shapeless" % "2.2.0-RC5",
     "com.twitter" %% "finagle-httpx" % "6.25.0",
     "org.scalacheck" %% "scalacheck" % "1.12.2" % "test",
     "org.scalatest" %% "scalatest" % "2.2.4" % "test",
@@ -100,7 +100,7 @@ lazy val root = project.in(file("."))
         |import io.finch.route._
       """.stripMargin
   )
-  .aggregate(core, json, demo, playground, jawn, argonaut, jackson, auth)
+  .aggregate(core, json, demo, playground, jawn, argonaut, jackson, json4s, auth)
   .dependsOn(core, argonaut)
 
 lazy val core = project
@@ -144,14 +144,24 @@ lazy val jawn = project
 lazy val argonaut = project
   .settings(moduleName := "finch-argonaut")
   .settings(allSettings)
-  .settings(libraryDependencies += "io.argonaut" %% "argonaut" % "6.0.4")
+  .settings(libraryDependencies += "io.argonaut" %% "argonaut" % "6.1")
   .dependsOn(core)
   .disablePlugins(CoverallsPlugin)
 
 lazy val jackson = project
   .settings(moduleName := "finch-jackson")
   .settings(allSettings)
-  .settings(libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.4.4")
+  .settings(libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.5.2")
+  .dependsOn(core)
+  .disablePlugins(CoverallsPlugin)
+
+lazy val json4s = project
+  .settings(moduleName := "finch-json4s")
+  .settings(allSettings)
+  .settings(libraryDependencies ++= Seq(
+    "org.json4s" %% "json4s-jackson" % "3.2.11",
+    "org.json4s" %% "json4s-ext" % "3.2.11")
+  )
   .dependsOn(core)
   .disablePlugins(CoverallsPlugin)
 
