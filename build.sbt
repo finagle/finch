@@ -22,14 +22,17 @@ lazy val compilerOptions = Seq(
   "-Xfuture"
 )
 
+val testDependencies = Seq(
+  "org.scalacheck" %% "scalacheck" % "1.12.2",
+  "org.scalatest" %% "scalatest" % "2.2.4"
+)
+
 val baseSettings = Seq(
   libraryDependencies ++= Seq(
     "com.chuusai" %% "shapeless" % "2.2.0-RC5",
     "com.twitter" %% "finagle-httpx" % "6.25.0",
-    "org.scalacheck" %% "scalacheck" % "1.12.2" % "test",
-    "org.scalatest" %% "scalatest" % "2.2.4" % "test",
     compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
-  ),
+  ) ++ testDependencies.map(_ % "test"),
   scalacOptions ++= compilerOptions ++ (
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 11)) => Seq("-Ywarn-unused-import")
@@ -107,6 +110,15 @@ lazy val core = project
   .settings(moduleName := "finch-core")
   .settings(allSettings)
 
+lazy val test = project
+  .settings(moduleName := "finch-test")
+  .settings(allSettings)
+  .settings(coverageExcludedPackages := "io\\.finch\\.test\\..*")
+  .settings(
+    libraryDependencies ++= "io.argonaut" %% "argonaut" % "6.1" +: testDependencies
+  )
+  .dependsOn(core)
+
 lazy val json = project
   .settings(moduleName := "finch-json")
   .settings(allSettings)
@@ -140,13 +152,13 @@ lazy val argonaut = project
   .settings(moduleName := "finch-argonaut")
   .settings(allSettings)
   .settings(libraryDependencies += "io.argonaut" %% "argonaut" % "6.1")
-  .dependsOn(core)
+  .dependsOn(core, test % "test")
 
 lazy val jackson = project
   .settings(moduleName := "finch-jackson")
   .settings(allSettings)
   .settings(libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.5.2")
-  .dependsOn(core)
+  .dependsOn(core, test % "test")
 
 lazy val json4s = project
   .settings(moduleName := "finch-json4s")
@@ -155,7 +167,7 @@ lazy val json4s = project
     "org.json4s" %% "json4s-jackson" % "3.2.11",
     "org.json4s" %% "json4s-ext" % "3.2.11")
   )
-  .dependsOn(core)
+  .dependsOn(core, test % "test")
 
 lazy val auth = project
   .settings(moduleName := "finch-auth")

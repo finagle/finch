@@ -23,63 +23,17 @@ package io.finch.jackson
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.twitter.finagle.httpx.Request
-import com.twitter.io.Buf.Utf8
-import com.twitter.util.{Await, Future, Return}
-import io.finch.request._
-import io.finch.response.Ok
-import org.jboss.netty.handler.codec.http.HttpHeaders
+import io.finch.test.json.JsonCodecProviderProperties
+import org.scalatest.prop.Checkers
 import org.scalatest.{Matchers, FlatSpec}
 
-class JacksonSpec extends FlatSpec with Matchers {
+class JacksonSpec extends FlatSpec with Matchers with Checkers with JsonCodecProviderProperties {
+
   implicit val objectMapper: ObjectMapper = new ObjectMapper().registerModule(DefaultScalaModule)
 
-  "JacksonEncode" should "encode a case class into JSON" in {
-    val encode = encodeJackson(objectMapper)
-    encode(Foo("bar", 10)) shouldBe "{\"bar\":\"bar\",\"baz\":10}"
-  }
-
-  it should "decode a case class from JSON" in {
-    val json = "{\"bar\":\"bar\",\"baz\":20}"
-    val decode = decodeJackson(objectMapper)
-    decode[Foo](json) shouldBe Return(Foo("bar", 20))
-  }
-  
-  it should "fail given invalid JSON" in {
-    val json = "{\"bar\":\"bar\",\"baz\":20}"
-    val decode = decodeJackson(objectMapper)
-    decode[Foo]("{{{{").isThrow shouldBe true
-  }
-
-  it should "work w/o exceptions with ResponseBuilder" in {
-    val foo = Foo("bar", 42)
-    Ok(foo).getContentString() shouldBe "{\"bar\":\"bar\",\"baz\":42}"
-  }
-
-  it should "work with higher kinded types" in {
-    val list = List(1, 2, 3)
-    val encode = encodeJackson(objectMapper)
-    val decode = decodeJackson(objectMapper)
-
-    encode(list) shouldBe "[1,2,3]"
-    decode[List[Int]]("[1,2,3]") shouldBe Return(List(1, 2, 3))
-  }
-
-  it should "work w/o exceptions with RequestReader" in {
-    val b = Utf8("{\"bar\":\"bar\",\"baz\":42}")
-    val req = Request()
-    req.content = b
-    req.headerMap.update(HttpHeaders.Names.CONTENT_LENGTH, b.length.toString)
-
-    val rFoo: RequestReader[Foo] = body.as[Foo]
-    val foo: Future[Foo] = body.as[Foo].apply(req)
-    val roFoo: RequestReader[Option[Foo]] = bodyOption.as[Foo]
-    val oFoo: Future[Option[Foo]] = bodyOption.as[Foo].apply(req)
-
-    val expectedFoo = Foo("bar", 42)
-    Await.result(rFoo(req)) shouldBe expectedFoo
-    Await.result(foo) shouldBe expectedFoo
-    Await.result(roFoo(req)) shouldBe Some(expectedFoo)
-    Await.result(oFoo) shouldBe Some(expectedFoo)
-  }
+  "The Jackson codec provider" should "encode a case class as JSON" in encodeNestedCaseClass
+  it should "decode a case class from JSON" in decodeNestedCaseClass
+  it should "properly fail to decode invalid JSON into a case class" in failToDecodeInvalidJson
+  it should "encode a list of case class instances as JSON" in encodeCaseClassList
+  it should "provide encoders with the correct content type" in checkContentType
 }
