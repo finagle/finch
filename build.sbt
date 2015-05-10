@@ -106,20 +106,17 @@ lazy val root = project.in(file("."))
 lazy val core = project
   .settings(moduleName := "finch-core")
   .settings(allSettings)
-  .disablePlugins(CoverallsPlugin)
 
 lazy val json = project
   .settings(moduleName := "finch-json")
   .settings(allSettings)
   .dependsOn(core)
-  .disablePlugins(CoverallsPlugin)
 
 lazy val demo = project
   .settings(moduleName := "finch-demo")
   .settings(allSettings)
   .settings(noPublish)
   .dependsOn(core, argonaut)
-  .disablePlugins(CoverallsPlugin)
 
 lazy val playground = project
   .settings(moduleName := "finch-playground")
@@ -127,7 +124,6 @@ lazy val playground = project
   .settings(noPublish)
   .settings(coverageExcludedPackages := "io\\.finch\\.playground\\..*")
   .dependsOn(core, jackson)
-  .disablePlugins(CoverallsPlugin)
 
 lazy val jawn = project
   .settings(moduleName := "finch-jawn")
@@ -139,21 +135,18 @@ lazy val jawn = project
     )
   )
   .dependsOn(core)
-  .disablePlugins(CoverallsPlugin)
 
 lazy val argonaut = project
   .settings(moduleName := "finch-argonaut")
   .settings(allSettings)
   .settings(libraryDependencies += "io.argonaut" %% "argonaut" % "6.1")
   .dependsOn(core)
-  .disablePlugins(CoverallsPlugin)
 
 lazy val jackson = project
   .settings(moduleName := "finch-jackson")
   .settings(allSettings)
   .settings(libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.5.2")
   .dependsOn(core)
-  .disablePlugins(CoverallsPlugin)
 
 lazy val json4s = project
   .settings(moduleName := "finch-json4s")
@@ -163,16 +156,13 @@ lazy val json4s = project
     "org.json4s" %% "json4s-ext" % "3.2.11")
   )
   .dependsOn(core)
-  .disablePlugins(CoverallsPlugin)
 
 lazy val auth = project
   .settings(moduleName := "finch-auth")
   .settings(allSettings)
   .dependsOn(core)
-  .disablePlugins(CoverallsPlugin)
 
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")
   .settings(allSettings)
   .dependsOn(core, argonaut, jackson, json4s)
-  .disablePlugins(CoverallsPlugin)
