@@ -22,9 +22,6 @@
 
 package io
 
-import com.twitter.finagle.httpx.path.Path
-import io.finch.response.{Ok, EncodeResponse}
-
 import com.twitter.finagle.httpx
 import com.twitter.util.Future
 import com.twitter.finagle.Service

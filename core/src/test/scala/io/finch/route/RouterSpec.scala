@@ -298,4 +298,23 @@ class RouterSpec extends FlatSpec with Matchers {
 
     Await.result(s(httpx.Request("/foo"))).contentString shouldBe Ok("bar").contentString
   }
+
+  it should "be viewable as HList Router" in {
+    val ins: (Int, String) => Boolean = (_, _) => true
+
+    val r1: Router[Boolean] = (Get :: int :: string) /> ins
+    val r2: Router[String] =
+      (Get :: "foo" :: int :: 123 :: string) /> { (i: Int, s: String) =>
+        s + i
+      }
+    val r3: Router[Int] = "foo" :: "bar" :: 123 :: int
+
+    val route1 = List(MethodToken(Method.Get), PathToken("123"), PathToken("foo"))
+    val route2 = List(MethodToken(Method.Get), PathToken("foo"), PathToken("123"), PathToken("123"), PathToken("foo"))
+    val route3 = List(PathToken("foo"), PathToken("bar"), PathToken("123"), PathToken("123"))
+
+    r1(route1) shouldBe Some((Nil, true))
+    r2(route2) shouldBe Some((Nil, "foo123"))
+    r3(route3) shouldBe Some((Nil, 123))
+  }
 }
