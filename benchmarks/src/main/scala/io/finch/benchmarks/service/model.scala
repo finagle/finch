@@ -25,7 +25,7 @@ class UserDb {
 
   def all: Future[List[User]] = Future.value(users.synchronized(users.values.toList))
 
-  def delete: Future[Int] = Future.value(
+  def delete(): Future[Int] = Future.value(
     users.synchronized {
       val count = users.size
       users.clear()

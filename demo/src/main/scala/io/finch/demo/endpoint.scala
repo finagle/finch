@@ -25,27 +25,23 @@ package io.finch.demo
 import argonaut.{EncodeJson, Json}
 import com.twitter.finagle.Service
 import com.twitter.util.Future
+import io.finch.HttpResponse
+import io.finch.argonaut._
+import io.finch.demo.model.Ticket
+import io.finch.response._
 import io.finch.route._
 
 object endpoint {
 
   import service._
 
-  implicit class JsonEndpoint[Req, Rep](endpoint: Endpoint[Req, Rep]) {
-    def toJson(implicit encoding: EncodeJson[Rep]): Endpoint[Req, Json] = endpoint.map { service =>
-      new Service[Req, Json] {
-        def apply(req: Req): Future[Json] = service(req).map(encoding(_))
-      }
-    }
-  }
-
   // User endpoint.
-  val users: Endpoint[AuthRequest, Json] =
-    (Get / "users" / long /> GetUser).toJson |
-    (Post / "users" /> PostUser).toJson |
-    (Get / "users" /> GetAllUsers).toJson
+  val users: Endpoint[AuthRequest, HttpResponse] =
+    Get / "users" / long /> GetUser :|:
+    Post / "users" /> PostUser      :|:
+    Get / "users" /> GetAllUsers
 
   // Ticket endpoint.
-  val tickets: Endpoint[AuthRequest, Json] =
-    (Post / "users" / long / "tickets" /> PostUserTicket).toJson
+  val tickets: Endpoint[AuthRequest, Ticket] =
+    Post / "users" / long / "tickets" /> PostUserTicket
 }
