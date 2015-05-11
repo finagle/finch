@@ -531,10 +531,10 @@ package object request extends LowPriorityRequestReaderImplicits {
     def apply(req: String): Try[A]
   }
 
-  /**
-   * Convenience method for creating new [[io.finch.request.DecodeRequest DecodeRequest]] instances.
-   */
   object DecodeRequest {
+    /**
+     * Convenience method for creating new [[io.finch.request.DecodeRequest DecodeRequest]] instances.
+     */
     def apply[A](f: String => Try[A]): DecodeRequest[A] = new DecodeRequest[A] {
       def apply(value: String): Try[A] = f(value)
     }

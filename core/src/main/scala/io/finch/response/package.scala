@@ -155,10 +155,10 @@ package object response {
     def contentType: String
   }
 
-  /**
-   * Convenience method for creating new [[io.finch.response.EncodeResponse EncodeResponse]] instances.
-   */
   object EncodeResponse {
+    /**
+     * Convenience method for creating new [[io.finch.response.EncodeResponse EncodeResponse]] instances.
+     */
     def apply[A](ct: String)(fn: A => String): EncodeResponse[A] = new EncodeResponse[A] {
       def apply(rep: A): String = fn(rep)
       def contentType: String = ct
