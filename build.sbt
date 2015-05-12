@@ -128,6 +128,7 @@ lazy val demo = project
   .settings(moduleName := "finch-demo")
   .settings(allSettings)
   .settings(noPublish)
+  .disablePlugins(JmhPlugin)
   .dependsOn(core, argonaut)
 
 lazy val playground = project
@@ -135,6 +136,7 @@ lazy val playground = project
   .settings(allSettings)
   .settings(noPublish)
   .settings(coverageExcludedPackages := "io\\.finch\\.playground\\..*")
+  .disablePlugins(JmhPlugin)
   .dependsOn(core, jackson)
 
 lazy val jawn = project
