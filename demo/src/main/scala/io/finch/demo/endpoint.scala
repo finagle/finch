@@ -30,16 +30,18 @@ import io.finch.argonaut._
 import io.finch.demo.model.Ticket
 import io.finch.response._
 import io.finch.route._
+import shapeless._
 
 object endpoint {
 
   import service._
 
   // User endpoint.
-  val users: Endpoint[AuthRequest, HttpResponse] =
+  val users: Endpoint[AuthRequest, HttpResponse] = coproductRouterToEndpoint[AuthRequest, GetUser :+: PostUser.type :+: GetAllUsers.type :+: CNil](
     Get / "users" / long /> GetUser :|:
     Post / "users" /> PostUser      :|:
     Get / "users" /> GetAllUsers
+  )
 
   // Ticket endpoint.
   val tickets: Endpoint[AuthRequest, Ticket] =

@@ -25,9 +25,10 @@ package io.finch
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.Method
 import com.twitter.util.Future
+import io.finch.request.RequestReader
 import io.finch.response.{EncodeResponse, Ok}
 import shapeless._
-import shapeless.ops.coproduct.{Mapper, Unifier}
+import shapeless.ops.coproduct.Folder
 
 /**
  * This package contains various of functions and types that enable _router combinators_ in Finch. A Finch
@@ -115,25 +116,37 @@ package object route extends LowPriorityRouterImplicits {
    * response.
    */
   object EncodeAll extends Poly1 {
-    implicit val response: Case.Aux[HttpResponse, HttpResponse] = at(identity)
-    implicit def any[A](implicit encoder: EncodeResponse[A]): Case.Aux[A, HttpResponse] =
-      at[A](Ok(_))
+    implicit val response: Case.Aux[HttpResponse, Service[HttpRequest, HttpResponse]] =
+      at(r => Service.const(r.toFuture))
+
+    implicit def encodeable[A: EncodeResponse]: Case.Aux[A, Service[HttpRequest, HttpResponse]] =
+      at(a => Service.const(Ok(a).toFuture))
+
+    implicit val futureResponse: Case.Aux[
+      Future[HttpResponse],
+      Service[HttpRequest, HttpResponse]
+    ] = at(Service.const(_))
+
+    implicit def futureEncodeable[A: EncodeResponse]: Case.Aux[
+      Future[A],
+      Service[HttpRequest, HttpResponse]
+    ] = at(fa => Service.const(fa.map(Ok(_))))
+
+    implicit def requestReader[A: EncodeResponse]: Case.Aux[
+      RequestReader[A],
+      Service[HttpRequest, HttpResponse]
+    ] = at(reader => Service.mk(req => reader(req).map(Ok(_))))
   }
 
   /**
    * An implicit conversion that turns any coproduct endpoint where all elements
    * can be converted into responses into an endpoint that returns responses.
    */
-  implicit def coproductEndpointToHttpResponse[A, C <: Coproduct, O <: Coproduct](
-    e: Endpoint[A, C]
+  implicit def coproductRouterToEndpoint[R, C <: Coproduct](
+    router: RouterN[C]
   )(implicit
-    mapper: Mapper.Aux[EncodeAll.type, C, O],
-    unifier: Unifier.Aux[O, HttpResponse]
-  ): Endpoint[A, HttpResponse] = e.map { service =>
-    new Service[A, HttpResponse] {
-      def apply(a: A): Future[HttpResponse] = service(a).map(c => unifier(mapper(c)))
-    }
-  }
+    folder: Folder.Aux[EncodeAll.type, C, Service[R, HttpResponse]]
+  ): Endpoint[R, HttpResponse] = router.map(c => folder(c))
 
   /**
    * An implicit conversion that turns any endpoint with an output type that can
@@ -148,46 +161,19 @@ package object route extends LowPriorityRouterImplicits {
   }
 
   /**
-   * A helper method that supports mapping a service's output into the first
-   * element of a coproduct.
+   * Implicit class that provides `:+:` and other operations on any coproduct router.
    */
-  private[this] def intoLeft[A, B, C <: Coproduct](service: Service[A, B]): Service[A, B :+: C] =
-    new Service[A, B :+: C] {
-      def apply(a: A): Future[B :+: C] = service(a).map(Inl(_))
-    }
-
-  /**
-   * A helper method that supports mapping a service's output into the second
-   * element of coproduct.
-   */
-  private[this] def intoSecond[A, B, C](service: Service[A, C]): Service[A, B :+: C :+: CNil] =
-    new Service[A, B :+: C :+: CNil] {
-      def apply(a: A): Future[B :+: C :+: CNil] = service(a).map(c => Inr(Inl(c)))
-    }
-
-  /**
-   * A helper method that supports mapping a service's output into the tail of a
-   * coproduct.
-   */
-  private[this] def intoRight[A, B, C <: Coproduct](service: Service[A, C]): Service[A, B :+: C] =
-    new Service[A, B :+: C] {
-      def apply(a: A): Future[B :+: C] = service(a).map(Inr(_))
-    }
-
-  /**
-   * Implicit class that provides `:|:` and other operations on any coproduct endpoint.
-   */
-  final implicit class CoproductEndpointOps[A, C <: Coproduct](self: Endpoint[A, C]) {
-    def :|:[B](that: Endpoint[A, B]): Endpoint[A, B :+: C] =
-      new RouterN[Service[A, B :+: C]] {
-        def apply(route: Route): Option[(Route, Service[A, B :+: C])] =
+  final implicit class CoproductRouterNOps[C <: Coproduct](self: RouterN[C]) {
+    def :+:[A](that: RouterN[A]): RouterN[A :+: C] =
+      new RouterN[A :+: C] {
+        def apply(route: Route): Option[(Route, A :+: C)] =
           (that(route), self(route)) match {
             case (aa @ Some((ar, av)), cc @ Some((cr, cv))) =>
-              if (ar.length <= cr.length) Some((ar, intoLeft(av))) else Some((cr, intoRight(cv)))
-            case (a, b) => a.map {
-              case (r, v) => (r, intoLeft(v))
-            } orElse b.map {
-              case (r, v) => (r, intoRight(v))
+              if (ar.length <= cr.length) Some((ar, Inl(av))) else Some((cr, Inr(cv)))
+            case (a, c) => a.map {
+              case (r, v) => (r, Inl(v))
+            } orElse c.map {
+              case (r, v) => (r, Inr(v))
             }
           }
 
@@ -196,19 +182,19 @@ package object route extends LowPriorityRouterImplicits {
   }
 
   /**
-   * Implicit class that provides `:|:` on any endpoint.
+   * Implicit class that provides `:+:` on any router.
    */
-  final implicit class ValueEndpointOps[A, C](self: Endpoint[A, C]) {
-    def :|:[B](that: Endpoint[A, B]): Endpoint[A, B :+: C :+: CNil] =
-      new RouterN[Service[A, B :+: C :+: CNil]] {
-        def apply(route: Route): Option[(Route, Service[A, B :+: C :+: CNil])] =
+  final implicit class ValueRouterNOps[C](self: RouterN[C]) {
+    def :+:[A](that: RouterN[A]): RouterN[A :+: C :+: CNil] =
+      new RouterN[A :+: C :+: CNil] {
+        def apply(route: Route): Option[(Route, A :+: C :+: CNil)] =
           (that(route), self(route)) match {
             case (aa @ Some((ar, av)), cc @ Some((cr, cv))) =>
-              if (ar.length <= cr.length) Some((ar, intoLeft(av))) else Some((cr, intoSecond(cv)))
-            case (a, b) => a.map {
-              case (r, v) => (r, intoLeft(v))
-            } orElse b.map {
-              case (r, v) => (r, intoSecond(v))
+              if (ar.length <= cr.length) Some((ar, Inl(av))) else Some((cr, Inr(Inl(cv))))
+            case (a, c) => a.map {
+              case (r, v) => (r, Inl(v))
+            } orElse c.map {
+              case (r, v) => (r, Inr(Inl(v)))
             }
           }
 

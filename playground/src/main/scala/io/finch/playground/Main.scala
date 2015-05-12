@@ -6,9 +6,8 @@ import com.twitter.finagle.{Service, Filter, Httpx}
 import com.twitter.util.{Future, Await}
 
 import io.finch.{Endpoint => _, _}
-import io.finch.micro._
 import io.finch.request._
-import io.finch.route.{Endpoint => _, _}
+import io.finch.route._
 import io.finch.jackson._
 
 /**
@@ -26,39 +25,31 @@ object Main extends App {
   case class User(id: Int, groups: Seq[Group])
 
   case class UnknownUser(id: Int) extends Exception(s"Unknown user with id=$id")
+  case object WrongSecret extends Exception("You shell not pass!")
 
-  case class AuthRequest(userId: Int, httpRequest: HttpRequest)
-  val auth: Filter[HttpRequest, HttpResponse, AuthRequest, HttpResponse] =
-    new Filter[HttpRequest, HttpResponse, AuthRequest, HttpResponse] {
-      def apply(req: HttpRequest, service: Service[AuthRequest, HttpResponse]): Future[HttpResponse] =
-        service(AuthRequest(10, req)) // always auth
+  val currentUser: RequestReader[User] =
+    header("X-Secret").embedFlatMap {
+      case "open sesame" => User(0, Seq.empty[Group]).toFuture
+      case _ => WrongSecret.toFutureException
     }
 
-  // implicit view
-  implicit val authReqIsHttpReq: AuthRequest %> HttpRequest = View(_.httpRequest)
-
-  type AuthMicro[A] = PMicro[AuthRequest, A]
-  type AuthEndpoint = PEndpoint[AuthRequest]
-
-  val currentUser: AuthMicro[Int] = Micro(_.userId)
-
   // GET /user/groups -> Seq[Group]
-  val getUserGroups: AuthMicro[Seq[Group]] =
-    currentUser ~> { userId => Seq(Group(userId, "foo"), Group(userId, "bar")) }
+  val getUserGroups: Router[RequestReader[Seq[Group]]] =
+    Get / "user" / "groups" /> (currentUser ~> { user => Seq(Group(user.id, "foo"), Group(user.id, "bar")) })
 
   // POST /groups?name=foo -> Group
-  val postGroup: AuthMicro[Group] =
-    (currentUser :: param("name")).as[Group]
+  val postGroup: Router[RequestReader[Group]] =
+    Post / "groups" /> (currentUser.map(_.id) :: param("name")).as[Group]
 
   // PUT /user/groups/:group -> User
-  def putUserGroup(group: String): AuthMicro[User] =
-    currentUser ~> { User(_, Seq.empty[Group]) }
+  val putUserGroup: Router[RequestReader[User]] =
+    Put / "user" / "groups" / string /> { group =>
+      currentUser ~> { user => User(user.id, Seq(Group(0, group))) }
+    }
 
   // an API endpoint
-  val api: AuthEndpoint =
-    Get / "user" / "groups" /> getUserGroups |
-    Post / "groups" /> postGroup |
-    Put / "user" / "groups" / string /> putUserGroup
+  val api: Endpoint[HttpRequest, HttpResponse] =
+    getUserGroups :+: postGroup :+: putUserGroup
 
-  Await.ready(Httpx.serve(":8081", auth andThen api))
+  Await.ready(Httpx.serve(":8081", api))
 }
