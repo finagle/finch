@@ -25,6 +25,9 @@ package io.finch
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.Method
 import com.twitter.util.Future
+import io.finch.response.{EncodeResponse, Ok}
+import shapeless._
+import shapeless.ops.coproduct.{Mapper, Unifier}
 
 /**
  * This package contains various of functions and types that enable _router combinators_ in Finch. A Finch
@@ -105,6 +108,112 @@ package object route extends LowPriorityRouterImplicits {
       case Some((Nil, service)) => service(req)
       case _ => RouteNotFound(s"${req.method.toString.toUpperCase} ${req.path}").toFutureException[Rep]
     }
+  }
+
+  /**
+   * A polymorphic function value that accepts types that can be encoded as a
+   * response.
+   */
+  object EncodeAll extends Poly1 {
+    implicit val response: Case.Aux[HttpResponse, HttpResponse] = at(identity)
+    implicit def any[A](implicit encoder: EncodeResponse[A]): Case.Aux[A, HttpResponse] =
+      at[A](Ok(_))
+  }
+
+  /**
+   * An implicit conversion that turns any coproduct endpoint where all elements
+   * can be converted into responses into an endpoint that returns responses.
+   */
+  implicit def coproductEndpointToHttpResponse[A, C <: Coproduct, O <: Coproduct](
+    e: Endpoint[A, C]
+  )(implicit
+    mapper: Mapper.Aux[EncodeAll.type, C, O],
+    unifier: Unifier.Aux[O, HttpResponse]
+  ): Endpoint[A, HttpResponse] = e.map { service =>
+    new Service[A, HttpResponse] {
+      def apply(a: A): Future[HttpResponse] = service(a).map(c => unifier(mapper(c)))
+    }
+  }
+
+  /**
+   * An implicit conversion that turns any endpoint with an output type that can
+   * be converted into a response into an endpoint that returns responses.
+   */
+  implicit def endpointToHttpResponse[A, B](e: Endpoint[A, B])(implicit
+    encoder: EncodeResponse[B]
+  ): Endpoint[A, HttpResponse] = e.map { service =>
+    new Service[A, HttpResponse] {
+      def apply(a: A): Future[HttpResponse] = service(a).map(b => Ok(encoder(b)))
+    }
+  }
+
+  /**
+   * A helper method that supports mapping a service's output into the first
+   * element of a coproduct.
+   */
+  private[this] def intoLeft[A, B, C <: Coproduct](service: Service[A, B]): Service[A, B :+: C] =
+    new Service[A, B :+: C] {
+      def apply(a: A): Future[B :+: C] = service(a).map(Inl(_))
+    }
+
+  /**
+   * A helper method that supports mapping a service's output into the second
+   * element of coproduct.
+   */
+  private[this] def intoSecond[A, B, C](service: Service[A, C]): Service[A, B :+: C :+: CNil] =
+    new Service[A, B :+: C :+: CNil] {
+      def apply(a: A): Future[B :+: C :+: CNil] = service(a).map(c => Inr(Inl(c)))
+    }
+
+  /**
+   * A helper method that supports mapping a service's output into the tail of a
+   * coproduct.
+   */
+  private[this] def intoRight[A, B, C <: Coproduct](service: Service[A, C]): Service[A, B :+: C] =
+    new Service[A, B :+: C] {
+      def apply(a: A): Future[B :+: C] = service(a).map(Inr(_))
+    }
+
+  /**
+   * Implicit class that provides `:|:` and other operations on any coproduct endpoint.
+   */
+  final implicit class CoproductEndpointOps[A, C <: Coproduct](self: Endpoint[A, C]) {
+    def :|:[B](that: Endpoint[A, B]): Endpoint[A, B :+: C] =
+      new RouterN[Service[A, B :+: C]] {
+        def apply(route: Route): Option[(Route, Service[A, B :+: C])] =
+          (that(route), self(route)) match {
+            case (aa @ Some((ar, av)), cc @ Some((cr, cv))) =>
+              if (ar.length <= cr.length) Some((ar, intoLeft(av))) else Some((cr, intoRight(cv)))
+            case (a, b) => a.map {
+              case (r, v) => (r, intoLeft(v))
+            } orElse b.map {
+              case (r, v) => (r, intoRight(v))
+            }
+          }
+
+        override def toString = s"(${that.toString}|${self.toString})"
+      }
+  }
+
+  /**
+   * Implicit class that provides `:|:` on any endpoint.
+   */
+  final implicit class ValueEndpointOps[A, C](self: Endpoint[A, C]) {
+    def :|:[B](that: Endpoint[A, B]): Endpoint[A, B :+: C :+: CNil] =
+      new RouterN[Service[A, B :+: C :+: CNil]] {
+        def apply(route: Route): Option[(Route, Service[A, B :+: C :+: CNil])] =
+          (that(route), self(route)) match {
+            case (aa @ Some((ar, av)), cc @ Some((cr, cv))) =>
+              if (ar.length <= cr.length) Some((ar, intoLeft(av))) else Some((cr, intoSecond(cv)))
+            case (a, b) => a.map {
+              case (r, v) => (r, intoLeft(v))
+            } orElse b.map {
+              case (r, v) => (r, intoSecond(v))
+            }
+          }
+
+        override def toString = s"(${that.toString}|${self.toString})"
+      }
   }
 
   /**

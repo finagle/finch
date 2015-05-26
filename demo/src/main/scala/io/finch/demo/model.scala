@@ -23,47 +23,29 @@
 package io.finch.demo
 
 import argonaut._, Argonaut._
-import com.twitter.util.Future
-import com.twitter.finagle.Service
-
-import io.finch._
 
 object model {
 
-  // A simple base class for data classes.
-  trait ToJson { def toJson: Json }
-
   // A ticket object with two fields: `id` and `label`.
-  case class Ticket(id: Long, label: String) extends ToJson {
-    override def toJson = Json.obj("id" := id, "label" := label)
+  case class Ticket(id: Long, label: String)
+
+  object Ticket {
+    // Provides an implementation of the EncodeJson type class from Argonaut
+    implicit def ticketEncoding: EncodeJson[Ticket] = jencode2L(
+      (t: Ticket) => (t.id, t.label)
+    )("label", "id")
   }
 
   // A user object with three fields: `id`, `name` and a collection of `tickets`.
-  case class User(id: Long, name: String, tickets: List[Ticket]) extends ToJson {
-    override def toJson = Json(
-      "id" := id,
-      "name" := name,
-      "tickets" := jArray(tickets.map(_.toJson))
-    )
-  }
+  case class User(id: Long, name: String, tickets: List[Ticket])
 
-  // A helper service that turns a model object into JSON.
-  object TurnModelIntoJson extends Service[ToJson, Json] {
-    def apply(model: ToJson): Future[Json] = model.toJson.toFuture
+  object User {
+    // Provides an implementation of the EncodeJson type class from Argonaut
+    implicit def userEncoding: EncodeJson[User] = jencode3L(
+      (u: User) => (u.id, u.name, u.tickets)
+    )("id", "name", "tickets")
   }
 
   // An exception that indicates missing user with `userId`.
   case class UserNotFound(userId: Long) extends Exception(s"User $userId is not found.")
-
-  /**
-   * An implicit class that converts a service that returns a sequence of `ToJson`
-   * objects into a service that returns `ToJson` object.
-   */
-  implicit class SeqToJson[A](s: Service[A, Seq[ToJson]]) extends Service[A, ToJson] {
-    private[demo] def seqToJson(seq: Seq[ToJson]) = new ToJson {
-      def toJson: Json = Json.array(seq.map { _.toJson }: _*)
-    }
-
-    def apply(req: A): Future[ToJson] = s(req) map seqToJson
-  }
 }
