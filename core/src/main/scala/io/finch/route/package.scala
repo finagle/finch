@@ -68,6 +68,18 @@ package object route extends LowPriorityRouterImplicits {
 
   private[route] type Route = List[RouteToken]
 
+  trait ToRequest[R] {
+    def apply(r: R): HttpRequest
+  }
+
+  object ToRequest {
+    def apply[R](converter: R => HttpRequest): ToRequest[R] = new ToRequest[R] {
+      def apply(r: R): HttpRequest = converter(r)
+    }
+
+    implicit val requestIdentity: ToRequest[HttpRequest] = apply(identity)
+  }
+
   /**
    * A case class that enables the following syntax:
    *
@@ -116,33 +128,40 @@ package object route extends LowPriorityRouterImplicits {
    * response.
    */
   object EncodeAll extends Poly1 {
-    implicit val response: Case.Aux[HttpResponse, Service[HttpRequest, HttpResponse]] =
+    implicit def response[R: ToRequest]: Case.Aux[HttpResponse, Service[R, HttpResponse]] =
       at(r => Service.const(r.toFuture))
 
-    implicit def encodeable[A: EncodeResponse]: Case.Aux[A, Service[HttpRequest, HttpResponse]] =
+    implicit def encodeable[R: ToRequest, A: EncodeResponse]: Case.Aux[A, Service[R, HttpResponse]] =
       at(a => Service.const(Ok(a).toFuture))
 
-    implicit val futureResponse: Case.Aux[
-      Future[HttpResponse],
-      Service[HttpRequest, HttpResponse]
-    ] = at(Service.const(_))
+    implicit def futureResponse[R: ToRequest]: Case.Aux[Future[HttpResponse], Service[R, HttpResponse]] =
+      at(Service.const(_))
 
-    implicit def futureEncodeable[A: EncodeResponse]: Case.Aux[
-      Future[A],
-      Service[HttpRequest, HttpResponse]
-    ] = at(fa => Service.const(fa.map(Ok(_))))
+    implicit def futureEncodeable[R: ToRequest, A: EncodeResponse]: Case.Aux[Future[A], Service[R, HttpResponse]] =
+      at(fa => Service.const(fa.map(Ok(_))))
 
-    implicit def requestReader[A: EncodeResponse]: Case.Aux[
-      RequestReader[A],
-      Service[HttpRequest, HttpResponse]
-    ] = at(reader => Service.mk(req => reader(req).map(Ok(_))))
+    implicit def requestReader[R: ToRequest, A: EncodeResponse]: Case.Aux[RequestReader[A], Service[R, HttpResponse]] =
+      at(reader => Service.mk(req => reader(implicitly[ToRequest[R]].apply(req)).map(Ok(_))))
+
+    implicit def responseService[S, R](implicit
+      ev: S => Service[R, HttpResponse],
+      tr: ToRequest[R]
+    ): Case.Aux[S, Service[R, HttpResponse]] =
+      at(s => Service.mk(req => ev(s)(req)))
+
+    implicit def service[S, R, A](implicit
+      ev: S => Service[R, A],
+      tr: ToRequest[R],
+      ae: EncodeResponse[A]
+    ): Case.Aux[S, Service[R, HttpResponse]] =
+      at(s => Service.mk(req => ev(s)(req).map(Ok(_))))
   }
 
   /**
    * An implicit conversion that turns any coproduct endpoint where all elements
    * can be converted into responses into an endpoint that returns responses.
    */
-  implicit def coproductRouterToEndpoint[R, C <: Coproduct](
+  implicit def coproductRouterToEndpoint[R: ToRequest, C <: Coproduct](
     router: RouterN[C]
   )(implicit
     folder: Folder.Aux[EncodeAll.type, C, Service[R, HttpResponse]]

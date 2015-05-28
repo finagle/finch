@@ -22,6 +22,8 @@
 
 package io.finch
 
+import io.finch.route.ToRequest
+
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 
@@ -47,6 +49,11 @@ package object demo {
   // A custom request type that wraps an `HttpRequest`.
   // We prefer composition over inheritance.
   case class AuthRequest(http: HttpRequest)
+
+  object AuthRequest {
+    implicit val toRequest: ToRequest[AuthRequest] =
+      ToRequest[AuthRequest](_.http)
+  }
 
   // We define an implicit view from `AuthRequest to `HttpRequest`,
   // so we can get two benefits:

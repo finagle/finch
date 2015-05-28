@@ -24,12 +24,12 @@ lazy val compilerOptions = Seq(
 
 val testDependencies = Seq(
   "org.scalacheck" %% "scalacheck" % "1.12.2",
-  "org.scalatest" %% "scalatest" % "2.2.4"
+  "org.scalatest" %% "scalatest" % "2.2.5"
 )
 
 val baseSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.chuusai" %% "shapeless" % "2.2.0-RC5",
+    "com.chuusai" %% "shapeless" % "2.2.0",
     "com.twitter" %% "finagle-httpx" % "6.25.0",
     compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
   ) ++ testDependencies.map(_ % "test"),
@@ -144,8 +144,8 @@ lazy val jawn = project
   .settings(allSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "org.spire-math" %% "jawn-parser" % "0.7.2",
-      "org.spire-math" %% "jawn-ast" % "0.7.2"
+      "org.spire-math" %% "jawn-parser" % "0.7.4",
+      "org.spire-math" %% "jawn-ast" % "0.7.4"
     )
   )
   .dependsOn(core)
