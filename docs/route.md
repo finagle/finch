@@ -6,21 +6,20 @@
   * [Extractors](route.md#extractors)
 * [Composing Routers](route.md#composing-routers)
 * [Endpoints](route.md#endpoints)
+* [Coproduct Routers](route.md#coproduct-routers)
 * [Filters and Endpoints](route.md#filters-and-endpoints)
 
 --
 
 ### Overview
 
-The `io.finch.route` package provides _combinators_ API for building both _matching_ and _extracting_ routers in
-Finch. There are two main abstractions in the package: `Route0` (matching router) and `RouteN[A]` (extracting router).
-Luckily the compiler figures out the exact type of the router, so you usually don't have to deal with those names.
-Although, since the `RouterN[A]` class is the one that you will likely use in the Finch applications, there is a special
-user-friendly type alias `Router[A]`.
+The `io.finch.route` package provides _combinators_ API for building HTTP routers in Finch.
 
-At the high level, `Router[A]` might be treated as function `Route => Option[(Route, A)]`. It takes an HTTP route, which
-is a pair of HTTP method and HTTP path, and returns an `Option` of both the remaining route and the extracted value. A
-matching `Router0` returns just `Option[Route]` if it's able to match the given route.
+At the high level, `Router[A]` might be treated as a function `Route => Option[(Route, A)]`. It takes an HTTP route,
+which is a pair of HTTP method and HTTP path, and returns an `Option` of both the remaining route and the extracted value.
+Although, there is a special case of the `Router[A]` called `Matcher`, which doesn't extract any value from input but
+matches it. So `Matcher` it's viewed as a function `Route => Option[Route]`. In fact, `Matcher` is just a case of
+`Router[HNil]`, where `HNil` is an empty heterogeneous list from [Shapeless][0].
 
 ### Built-in Routers
 
@@ -33,14 +32,16 @@ All the matchers are available via implicit conversions from strings, integers a
 illustrates this functionality:
 
 ```scala
-val router: Router0 = "users" // matches the current part of path
+val router: Matcher = "users" // matches the current part of path
 ```
+
+Note that in the example above, `Matcher` may be safely substituted with `Router[HNil]`.
 
 There is also an important type of matchers that match the HTTP method of the route. Finch supports _all_ the HTTP
 methods via matchers with the corresponding names: `Post`, `Get`, `Patch`, etc.
 
 ```scala
-val router = Put // matches the HTTP method
+val router: Matcher = Put // matches the HTTP method
 ```
 
 Finally, there two special routers `*` and `**`. The `*` router always matches the current part of the given route,
@@ -57,7 +58,7 @@ Httpx.serve(":8081", proxy)
 ```
 #### Extractors
 
-Things are getting interesting with extractors, i.e, `Router[N]`s. There are just four base extractors available for 
+Things are getting interesting with extractors, i.e, `Router[A]`s. There are just four base extractors available for
 integer, string, boolean and long values.
 
 ```scala
@@ -78,25 +79,27 @@ val b: Router[Boolean] = boolean("flag")
 It's time to catch the beauty of route combinators API by composing the complex routers out of the tiny routers we've
 seen before. There are just three operators you will need to deal with: 
 
-* `/` or `andThen` that sequentially composes two routers together
-* `|` or `orElse` that composes two routers together in terms of boolean `or`
+* `/` or `andThen` that sequentially composes two routers into a `Router[L <: HList]` (see [Shapeless' HList][1])
+* `|` or `orElse` that composes two routers of the same type in terms of boolean `or`
+* `:+:` that composes two routers of different types in terms of boolean `or`
 * `/>` or `map` that maps routers to the given function
 
-Here is an example of router that matches a route `(GET|HEAD) /users/:id` and extracts an integer value `id` from the
-it.
+Here is an example of router that matches a route `(GET|HEAD) /users/:id/tickets/:id` and extracts two integer values
+`userId` and `ticketId` from it.
 
 ```scala
-val router: Router[Int] => (Get | Head) / "users" / int(":id")
+val router: Router[Int :: Int :: HNil] =>
+  (Get | Head) / "users" / int("userId") / "tickets" / int("ticketId")
 ```
 
-The `/` case class may be used in case of complex routers that extracts several values. In the following example, we
-define a `router` that extracts two integer values (i.e., `Int / Int`) out of the route and maps (using the `/>`
-operator) it to `Ticket`. 
-  
+No matter what are the types of left-hand/right-hand routers (`HList`-based router or value router) when applied to `/`
+compositor, the correctly constructed `HList` will be yielded as a result.
+
 ```scala
-def getUserTicket(userId: Int, ticketId: Int): Ticket = ???
-val router: Router[Int / Int] = Get / "users" / int("userId") / "tickets" / int("ticketId")
-val tickets: Router[Ticket] = router /> getUserTicket
+def foo(i: Int, s: String): Foo = ???
+val router: Router[Int :: String :: HNil] =
+  (Get: Router[HNil]) / ("foo": Router[HNil]) / (int: Router[Int]) / (string: Router[String])
+val fooRouter: Router[Foo] = router /> foo
 ```
 
 The `|` (or `orElse`) operator composes two routers in a _greedy_ manner. If both routers are able to match
@@ -111,6 +114,9 @@ val users =
 ```
 
 ### Endpoints
+
+**Important:** endpoints are deprecated in 0.7.0 (and will be removed in 0.8.0) in favour of
+[Coproduct Routers][router.md#coproduct-routers].
 
 A router that extracts `Service[Req, Rep]` out of the route is called an `Endpoint[Req, Rep]`. In, fact it's just a type
 alias `type Endpoint[-A, +B] = Router[Service[A, B]]`, which brings the endpoints to the insane composability level.
@@ -142,7 +148,48 @@ endpoint(request) handle {
 }
 ```
 
+### Coproduct Routers
+
+The `|` compositor is pretty useful for the simple cases when both underlying types `A` and `B` may be substituted with
+a single super type `C` such that `C >: A` and `C >: B` (usually that means that `A =:= B`). Although, it should be also
+possible to compose two routers of completely different types. This is pretty duable the `:+:` compositor that composes
+two routers into a `Router[C <: Coproduct]`, where `Coproduct` [Shapeless' disjoint union type][2].
+
+```scala
+case class Foo(i: Int)
+case class Bar(s: String)
+
+val router: Router[Foo :+: Bar :+: CNil] =
+  Get / "foo" /> Foo(10) :+:
+  Get / "bar" /> Bar("bar")
+```
+
+Coproduct routers are aimed to solve the problem of programming with types that actually matter rather than dealing with
+HTTP types directly. That said, any coproduct router may be converted into a Finagle HTTP service (i.e.,
+`Service[HttpRequest, HttpResponse]`) under the certain circumstances: every type in a coproduct should be one of the
+following.
+
+* An `HttpResponse`
+* A value of a type with an `EncodeResponse` instance
+* A `Future` of `HttpResponse`
+* A `Future` of a value of a type with an `EncodeResponse` instance
+* A `RequestReader` that returns a value of a type with an `EncodeResponse` instance
+* A Finagle service that returns an `HttpResponse`
+* A Finagle service that returns a value of a type with an `EncodeResponse` instance
+
+```scala
+val foo: Router[HttpResponse] = Get / "foo" /> Ok("foo")
+val bar: Router[Future[String]] = Get / "bar" / "bar".toFuture
+val baz: Router[RequestReader[String]] = Get / "baz" /> param("baz")
+
+val service: Service[HttpRequest, HttpResponse] =
+  (foo :+: bar :+: baz).toService
+```
+
 ### Filters and Endpoints
+
+**Important:** endpoints are deprecated in 0.7.0 (and will be removed in 0.8.0) in favour of
+[Coproduct Routers][router.md#coproduct-routers].
 
 It's hard two imagine a Finagle/Finch application without `Filter`s. While they are not really applicable to routers,
 you can always convert `Router` to `Service` and then apply any set of filters. Thus, the common practice is to have
@@ -160,3 +207,7 @@ by `import io.finch.{Endpoint => _, _}`.
 
 --
 Read Next: [Endpoints](endpoint.md)
+
+[0]: https://github.com/milessabin/shapeless
+[1]: https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.0.0#heterogenous-lists
+[2]: https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.0.0#coproducts-and-discriminated-unions

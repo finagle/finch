@@ -52,7 +52,7 @@ libraryDependencies ++= Seq(
 
 Hello World!
 ------------
-This "Hello World!" example is built with the `0.7.0-SNAPSHOT` version of `finch-core`.
+This "Hello World!" example is built with the `0.8.0-SNAPSHOT` version of `finch-core`.
 
 ```scala
 import io.finch.route._

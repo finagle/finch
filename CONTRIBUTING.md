@@ -12,27 +12,30 @@ elsewhere.
 
 * Code and comments should be formatted to a width no greater than 120 columns
 * Files should be exempt of trailing spaces
-* Each abstraction should live in its own Scala file, i.e `RequestReader.scala`
-* Each implementation should live in the package object, i.e, `io.finch.request`
+* Each abstraction with corresponding implementations should live in its own Scala file, i.e `RequestReader.scala`
+* Each implicit conversion (if possible) should be defined in the corresponding companion object
 
 That said, the Scala style checker `sbt scalastyle` should pass on the code. 
 
 ## Write Tests
-Finch uses [ScalaTest][2] with the following settings:
+Finch uses both [ScalaTest][2] and [ScalaCheck][3] with the following settings:
 
-* Every test should be a `FlatSpec` with `Matchers` mixed in
-* An assertion should be done with `x shouldBe y`
+* Every test should be a `FlatSpec` with `Matchers` and `Checkers` mixed in
+* An assertion in tests should be written with `x shouldBe y`
+* An assertion in properties (inside `check`) should be written with `===`
 * Exceptions should be intercepted with `an [Exception] shouldBe thrownBy(x)`
 
 ## Write Docs
-Write clean and simple docs in the `docs.md` file.
+Write clean and simple docs in the `docs` folder.
 
 ## Submit a PR
 * PR should be submitted from a separate branch (use `git checkout -b "fix-123"`)
-* PR should contain only one commit (use `git commit --amend` and `git --force push`)
+* PR should generally contain only one commit (use `git commit --amend` and `git --force push` or [squash][4] existing commits into one)
 * PR should not decrease the code coverage more than by 1%
 * PR's commit message should use present tense and be capitalized properly (i.e., `Fix #123: Add tests for RequestReader`)
 
 [0]: https://help.github.com/articles/using-pull-requests/
 [1]: http://twitter.github.io/effectivescala/
 [2]: http://www.scalatest.org/
+[3]: https://www.scalacheck.org/
+[4]: http://gitready.com/advanced/2009/02/10/squashing-commits-with-rebase.html
