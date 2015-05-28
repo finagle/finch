@@ -22,9 +22,13 @@
 
 package io.finch
 
+import io.finch.request._
+
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.Method
 import com.twitter.util.Future
+
+import scala.reflect.ClassTag
 
 /**
  * This package contains various of functions and types that enable _router combinators_ in Finch. A Finch
@@ -131,45 +135,50 @@ package object route extends LowPriorityRouterImplicits {
       r.map { case a / b / c / d => fn(a, b, c, d) }
   }
 
-  implicit def intToMatcher(i: Int): Router0 = new Matcher(i.toString)
-  implicit def stringToMatcher(s: String): Router0 = new Matcher(s)
-  implicit def booleanToMather(b: Boolean): Router0 = new Matcher(b.toString)
+  implicit def intToMatcher(i: Int): Router0 = new PathMatcher(i.toString)
+  implicit def stringToMatcher(s: String): Router0 = new PathMatcher(s)
+  implicit def booleanToMather(b: Boolean): Router0 = new PathMatcher(b.toString)
 
   /**
    * An universal matcher.
    */
-  case class Matcher(s: String) extends Router0 {
+  private[route] case class PathMatcher(s: String) extends Router0 {
     def apply(route: Route): Option[Route] = for {
       PathToken(ss) <- route.headOption if ss == s
     } yield route.tail
     override def toString = s
   }
 
-  private[route] def stringToSomeValue[A](fn: String => A)(s: String): Option[A] =
-    try Some(fn(s)) catch { case _: IllegalArgumentException => None }
-
   /**
-   * A [[io.finch.route.RouterN RouterN]] that extracts a path token.
+   * An extractor that extracts some string value from the route.
    */
-  object PathTokenExtractor extends RouterN[String] {
-    override def apply(route: Route): Option[(Route, String)] = for {
+  private[route] case class PathExtractor(name: String) extends RouterN[String] {
+    def apply(route: Route): Option[(Route, String)] = for {
       PathToken(ss) <- route.headOption
     } yield (route.tail, ss)
+    override def toString = s":$name"
   }
 
-  /**
-   * An universal extractor that extracts some value of type `A` if it's possible to fetch the value from the string.
-   */
-  case class Extractor[A](name: String, f: String => Option[A]) extends RouterN[A] {
-    def apply(route: Route): Option[(Route, A)] = PathTokenExtractor.embedFlatMap(f)(route)
+  implicit class PathExtractorOps(val e: PathExtractor) extends AnyVal {
+    def as[A](implicit decode: DecodeRequest[A]): RouterN[A] =
+      e.embedFlatMap(decode(_).toOption)
+  }
+
+  private[route] val pathTokenExtractor = PathExtractor("path")
+
+  private[route] case class Extractor[A](name: String, f: String => Option[A]) extends RouterN[A] {
+    def apply(route: Route): Option[(Route, A)] = pathTokenExtractor.embedFlatMap(f)(route)
     def apply(n: String): Extractor[A] = copy[A](name = n)
     override def toString = s":$name"
   }
 
+  private[route] def stringToSomeValue[A](fn: String => A)(s: String): Option[A] =
+    try Some(fn(s)) catch { case _: IllegalArgumentException => None }
+
   /**
    * A [[io.finch.route.Router0 Router0]] that matches the given HTTP method `m` in the route.
    */
-  case class MethodMatcher(m: Method) extends Router0 {
+  private[route] case class MethodMatcher(m: Method) extends Router0 {
     def apply(route: Route): Option[Route] = for {
       MethodToken(mm) <- route.headOption if m == mm
     } yield route.tail
@@ -206,22 +215,35 @@ package object route extends LowPriorityRouterImplicits {
   }
 
   /**
+   * A [[io.finch.route.RouterN RouterN]] that extracts a path token.
+   */
+  object path extends PathExtractor("string") {
+    def apply(name: String): PathExtractor = copy(name = name)
+    def as[A: DecodeRequest](implicit tag: ClassTag[A]): RouterN[A] =
+      apply(tag.runtimeClass.getSimpleName.toLowerCase).as[A]
+  }
+
+  /**
    * A [[io.finch.route.RouterN RouterN]] that extract an integer from the route.
    */
+  @deprecated("Use path.as[Int] instead", "0.7.0")
   object int extends Extractor("int", stringToSomeValue(_.toInt))
 
   /**
    * A [[io.finch.route.RouterN RouterN]] that extract a long value from the route.
    */
+  @deprecated("Use path.as[Long] instead", "0.7.0")
   object long extends Extractor("long", stringToSomeValue(_.toLong))
 
   /**
    * A [[io.finch.route.RouterN RouterN]] that extract a string value from the route.
    */
+  @deprecated("Use path instead", "0.7.0")
   object string extends Extractor("string", Some(_))
 
   /**
    * A [[io.finch.route.RouterN RouterN]] that extract a boolean value from the route.
    */
+  @deprecated("Use path.as[Boolean] instead", "0.7.0")
   object boolean extends Extractor("boolean", stringToSomeValue(_.toBoolean))
 }
