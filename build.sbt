@@ -180,3 +180,12 @@ lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")
   .settings(allSettings)
   .dependsOn(core, argonaut, jackson, json4s)
+
+lazy val client = project
+  .settings(moduleName := "finch-client")
+  .settings(allSettings)
+  .settings(libraryDependencies ++= Seq(
+    "io.argonaut" %% "argonaut" % "6.1",
+    "org.spire-math" %% "cats-std" % "0.1.0-SNAPSHOT")
+  )
+  .dependsOn(core)
