@@ -24,11 +24,6 @@ package io.finch
 
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.Method
-import com.twitter.util.Future
-import io.finch.request.RequestReader
-import io.finch.response.{EncodeResponse, Ok}
-import shapeless._
-import shapeless.ops.coproduct.Folder
 
 /**
  * This package contains various of functions and types that enable _router combinators_ in Finch. A Finch
@@ -53,7 +48,7 @@ import shapeless.ops.coproduct.Folder
  *   )
  * }}}
  */
-package object route extends LowPriorityRouterImplicits {
+package object route {
 
   object tokens {
     //
@@ -67,18 +62,6 @@ package object route extends LowPriorityRouterImplicits {
   import tokens._
 
   private[route] type Route = List[RouteToken]
-
-  trait ToRequest[R] {
-    def apply(r: R): HttpRequest
-  }
-
-  object ToRequest {
-    def apply[R](converter: R => HttpRequest): ToRequest[R] = new ToRequest[R] {
-      def apply(r: R): HttpRequest = converter(r)
-    }
-
-    implicit val requestIdentity: ToRequest[HttpRequest] = apply(identity)
-  }
 
   /**
    * A case class that enables the following syntax:
@@ -110,140 +93,6 @@ package object route extends LowPriorityRouterImplicits {
    */
   private[finch] def requestToRoute[Req](req: HttpRequest): Route =
     (MethodToken(req.method): RouteToken) :: (req.path.split("/").toList.drop(1) map PathToken)
-
-  /**
-   * Implicitly converts the given `Router[Service[_, _]]` into a service.
-   */
-  implicit def endpointToService[Req, Rep](
-    r: RouterN[Service[Req, Rep]]
-  )(implicit ev: Req => HttpRequest): Service[Req, Rep] = new Service[Req, Rep] {
-    def apply(req: Req): Future[Rep] = r(requestToRoute[Req](req)) match {
-      case Some((Nil, service)) => service(req)
-      case _ => RouteNotFound(s"${req.method.toString.toUpperCase} ${req.path}").toFutureException[Rep]
-    }
-  }
-
-  /**
-   * A polymorphic function value that accepts types that can be encoded as a
-   * response.
-   */
-  object EncodeAll extends Poly1 {
-    implicit def response[R: ToRequest]: Case.Aux[HttpResponse, Service[R, HttpResponse]] =
-      at(r => Service.const(r.toFuture))
-
-    implicit def encodeable[R: ToRequest, A: EncodeResponse]: Case.Aux[A, Service[R, HttpResponse]] =
-      at(a => Service.const(Ok(a).toFuture))
-
-    implicit def futureResponse[R: ToRequest]: Case.Aux[Future[HttpResponse], Service[R, HttpResponse]] =
-      at(Service.const(_))
-
-    implicit def futureEncodeable[R: ToRequest, A: EncodeResponse]: Case.Aux[Future[A], Service[R, HttpResponse]] =
-      at(fa => Service.const(fa.map(Ok(_))))
-
-    implicit def requestReader[R: ToRequest, A: EncodeResponse]: Case.Aux[RequestReader[A], Service[R, HttpResponse]] =
-      at(reader => Service.mk(req => reader(implicitly[ToRequest[R]].apply(req)).map(Ok(_))))
-
-    implicit def responseService[S, R](implicit
-      ev: S => Service[R, HttpResponse],
-      tr: ToRequest[R]
-    ): Case.Aux[S, Service[R, HttpResponse]] =
-      at(s => Service.mk(req => ev(s)(req)))
-
-    implicit def service[S, R, A](implicit
-      ev: S => Service[R, A],
-      tr: ToRequest[R],
-      ae: EncodeResponse[A]
-    ): Case.Aux[S, Service[R, HttpResponse]] =
-      at(s => Service.mk(req => ev(s)(req).map(Ok(_))))
-  }
-
-  /**
-   * An implicit conversion that turns any coproduct endpoint where all elements
-   * can be converted into responses into an endpoint that returns responses.
-   */
-  implicit def coproductRouterToEndpoint[R: ToRequest, C <: Coproduct](
-    router: RouterN[C]
-  )(implicit
-    folder: Folder.Aux[EncodeAll.type, C, Service[R, HttpResponse]]
-  ): Endpoint[R, HttpResponse] = router.map(c => folder(c))
-
-  /**
-   * An implicit conversion that turns any endpoint with an output type that can
-   * be converted into a response into an endpoint that returns responses.
-   */
-  implicit def endpointToHttpResponse[A, B](e: Endpoint[A, B])(implicit
-    encoder: EncodeResponse[B]
-  ): Endpoint[A, HttpResponse] = e.map { service =>
-    new Service[A, HttpResponse] {
-      def apply(a: A): Future[HttpResponse] = service(a).map(b => Ok(encoder(b)))
-    }
-  }
-
-  /**
-   * Implicit class that provides `:+:` and other operations on any coproduct router.
-   */
-  final implicit class CoproductRouterNOps[C <: Coproduct](self: RouterN[C]) {
-    def :+:[A](that: RouterN[A]): RouterN[A :+: C] =
-      new RouterN[A :+: C] {
-        def apply(route: Route): Option[(Route, A :+: C)] =
-          (that(route), self(route)) match {
-            case (aa @ Some((ar, av)), cc @ Some((cr, cv))) =>
-              if (ar.length <= cr.length) Some((ar, Inl(av))) else Some((cr, Inr(cv)))
-            case (a, c) => a.map {
-              case (r, v) => (r, Inl(v))
-            } orElse c.map {
-              case (r, v) => (r, Inr(v))
-            }
-          }
-
-        override def toString = s"(${that.toString}|${self.toString})"
-      }
-  }
-
-  /**
-   * Implicit class that provides `:+:` on any router.
-   */
-  final implicit class ValueRouterNOps[C](self: RouterN[C]) {
-    def :+:[A](that: RouterN[A]): RouterN[A :+: C :+: CNil] =
-      new RouterN[A :+: C :+: CNil] {
-        def apply(route: Route): Option[(Route, A :+: C :+: CNil)] =
-          (that(route), self(route)) match {
-            case (aa @ Some((ar, av)), cc @ Some((cr, cv))) =>
-              if (ar.length <= cr.length) Some((ar, Inl(av))) else Some((cr, Inr(Inl(cv))))
-            case (a, c) => a.map {
-              case (r, v) => (r, Inl(v))
-            } orElse c.map {
-              case (r, v) => (r, Inr(Inl(v)))
-            }
-          }
-
-        override def toString = s"(${that.toString}|${self.toString})"
-      }
-  }
-
-  /**
-   * Add `/>` compositor to `RouterN` to compose it with function of two argument.
-   */
-  implicit class RArrow2[A, B](val r: RouterN[A / B]) extends AnyVal {
-    def />[C](fn: (A, B) => C): RouterN[C] =
-      r.map { case a / b => fn(a, b) }
-  }
-
-  /**
-   * Add `/>` compositor to `RouterN` to compose it with function of three argument.
-   */
-  implicit class RArrow3[A, B, C](val r: RouterN[A / B / C]) extends AnyVal {
-    def />[D](fn: (A, B, C) => D): RouterN[D] =
-      r.map { case a / b / c => fn(a, b, c) }
-  }
-
-  /**
-   * Add `/>` compositor to `RouterN` to compose it with function of four argument.
-   */
-  implicit class RArrow4[A, B, C, D](val r: RouterN[A / B / C / D]) extends AnyVal {
-    def />[E](fn: (A, B, C, D) => E): RouterN[E] =
-      r.map { case a / b / c / d => fn(a, b, c, d) }
-  }
 
   implicit def intToMatcher(i: Int): Router0 = new Matcher(i.toString)
   implicit def stringToMatcher(s: String): Router0 = new Matcher(s)

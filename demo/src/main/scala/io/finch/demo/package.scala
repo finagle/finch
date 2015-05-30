@@ -22,7 +22,7 @@
 
 package io.finch
 
-import io.finch.route.ToRequest
+import io.finch.request.ToRequest
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
