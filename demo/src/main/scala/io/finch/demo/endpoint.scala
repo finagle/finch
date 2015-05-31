@@ -33,16 +33,11 @@ import io.finch.route._
 
 object endpoint {
 
-  import model.User
+  import model._
   import service._
 
-  // User endpoint.
-  val users: Endpoint[AuthRequest, HttpResponse] =
-    Get  / "users" / long /> GetUser :+:
-    Post / "users" /> PostUser       :+:
-    Get  / "users" /> GetAllUsers
-
-  // Ticket endpoint.
-  val tickets: Endpoint[AuthRequest, Ticket] =
-    Post / "users" / long / "tickets" /> PostUserTicket
+  val getUser: Endpoint[AuthRequest, User] = Get  / "users" / long /> GetUser
+  val postUser: Endpoint[AuthRequest, User] = Post / "users" /> PostUser
+  val getUsers: Endpoint[AuthRequest, List[User]] = Get  / "users" /> GetAllUsers
+  val postTicket: Endpoint[AuthRequest, Ticket] = Post / "users" / long / "tickets" /> PostUserTicket
 }
