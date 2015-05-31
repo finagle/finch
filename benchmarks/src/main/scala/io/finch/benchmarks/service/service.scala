@@ -30,29 +30,26 @@ class FinchUserService(implicit
 
   def allUsers: Service[HttpRequest, List[User]] = Service.const(db.all)
 
-  val createUser: Service[HttpRequest, Long] = Service.mk { req =>
+  val createUser: Service[HttpRequest, HttpResponse] = Service.mk { req =>
     for {
       NewUserInfo(name, age) <- body.as[NewUserInfo].apply(req)
-      user <- db.add(name, age)
-    } yield user
+      id <- db.add(name, age)
+    } yield Created.withHeaders("Location" -> s"/users/$id")()
   }
 
-  val updateUser: Service[HttpRequest, Unit] = Service.mk { req =>
-    body.as[User].apply(req).flatMap(db.update)
+  val updateUser: Service[HttpRequest, HttpResponse] = Service.mk { req =>
+    body.as[User].apply(req).flatMap(db.update).map(_ => NoContent())
   }
 
-  def deleteUsers: Service[HttpRequest, Int] = Service.const(db.delete)
-
-  def toHttp[A](f: A => HttpResponse): Service[A, HttpResponse] = Service.mk(a => f(a).toFuture)
+  def deleteUsers: Service[HttpRequest, HttpResponse] =
+    Service.const(db.delete().map(count => Ok(s"$count users deleted")))
 
   val users: Endpoint[HttpRequest, HttpResponse] =
-    (Get / "users" / long /> getUser).map(_ ! toHttp(Ok(_))) |
-    (Get / "users" /> allUsers).map(_ ! toHttp(Ok(_))) |
-    (Post / "users" /> createUser).map(
-      _ ! toHttp(id => Created.withHeaders("Location" -> s"/users/$id")())
-    ) |
-    (Put / "users" /> updateUser).map(_ ! toHttp(_ => NoContent())) |
-    (Delete / "users" /> deleteUsers).map(_ ! toHttp(count => Ok(s"$count users deleted")))
+    Get    / "users" / long /> getUser :+:
+    Get    / "users" /> allUsers       :+:
+    Post   / "users" /> createUser     :+:
+    Put    / "users" /> updateUser     :+:
+    Delete / "users" /> deleteUsers
 
   val handleExceptions = new SimpleFilter[HttpRequest, HttpResponse] {
     def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]): Future[HttpResponse] =

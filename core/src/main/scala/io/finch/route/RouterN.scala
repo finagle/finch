@@ -22,6 +22,8 @@
 
 package io.finch.route
 
+import shapeless.{:+:, CNil, Coproduct, Inl, Inr}
+
 /**
  * A router that extracts some value of the type `A` from the given route.
  */
@@ -124,85 +126,73 @@ trait RouterN[+A] { self =>
 }
 
 /**
- * A router that match the given route to some predicate.
+ * Provides extension methods for [[RouterN]] to support coproduct and path
+ * syntax.
  */
-trait Router0 { self =>
-
+object RouterN extends EndpointConversions with LowPriorityRouterImplicits {
   /**
-   * Matches the given `route` to some predicate and returns `Some` of the _rest_ of the route in case of success or
-   * `None` otherwise.
+   * Implicit class that provides `:+:` and other operations on any coproduct router.
    */
-  def apply(route: Route): Option[Route]
+  final implicit class CoproductRouterNOps[C <: Coproduct](self: RouterN[C]) {
+    def :+:[A](that: RouterN[A]): RouterN[A :+: C] =
+      new RouterN[A :+: C] {
+        def apply(route: Route): Option[(Route, A :+: C)] =
+          (that(route), self(route)) match {
+            case (aa @ Some((ar, av)), cc @ Some((cr, cv))) =>
+              if (ar.length <= cr.length) Some((ar, Inl(av))) else Some((cr, Inr(cv)))
+            case (a, c) => a.map {
+              case (r, v) => (r, Inl(v))
+            } orElse c.map {
+              case (r, v) => (r, Inr(v))
+            }
+          }
 
-  /**
-   * Maps this router to the given value `a`.
-   */
-  def map[A](a: => A): RouterN[A] = new RouterN[A] {
-    def apply(route: Route): Option[(Route, A)] = for {
-      r <- self(route)
-    } yield (r, a)
-    override def toString = self.toString
+        override def toString = s"(${that.toString}|${self.toString})"
+      }
   }
 
   /**
-   * Sequentially composes this router with the given `that` [[io.finch.route.RouterN RouterN]].
+   * Implicit class that provides `:+:` on any router.
    */
-  def andThen[A](that: => RouterN[A]): RouterN[A] = new RouterN[A] {
-    def apply(route: Route): Option[(Route, A)] =
-      self(route) flatMap { r => that(r) }
-    override def toString = s"${self.toString}/${that.toString}"
+  final implicit class ValueRouterNOps[C](self: RouterN[C]) {
+    def :+:[A](that: RouterN[A]): RouterN[A :+: C :+: CNil] =
+      new RouterN[A :+: C :+: CNil] {
+        def apply(route: Route): Option[(Route, A :+: C :+: CNil)] =
+          (that(route), self(route)) match {
+            case (aa @ Some((ar, av)), cc @ Some((cr, cv))) =>
+              if (ar.length <= cr.length) Some((ar, Inl(av))) else Some((cr, Inr(Inl(cv))))
+            case (a, c) => a.map {
+              case (r, v) => (r, Inl(v))
+            } orElse c.map {
+              case (r, v) => (r, Inr(Inl(v)))
+            }
+          }
+
+        override def toString = s"(${that.toString}|${self.toString})"
+      }
   }
 
   /**
-   * Sequentially composes this router with the given `that` [[io.finch.route.Router0 Router0]].
+   * Add `/>` compositor to `RouterN` to compose it with function of two argument.
    */
-  def andThen(that: => Router0): Router0 = new Router0 {
-    def apply(route: Route): Option[Route] =
-      self(route) flatMap { r => that(r) }
-    override def toString = s"${self.toString}/${that.toString}"
+  implicit class RArrow2[A, B](val r: RouterN[A / B]) extends AnyVal {
+    def />[C](fn: (A, B) => C): RouterN[C] =
+      r.map { case a / b => fn(a, b) }
   }
 
   /**
-   * Sequentially composes this router with the given `that` router. The resulting router will succeed if either this or
-   * `that` routers are succeed.
-   *
-   * Router composition via `orElse` operator happens in a _greedy_ manner: it minimizes the output route tail. Thus,
-   * if both of the routers can handle the given `route` the router is being chosen is that which eats more.
+   * Add `/>` compositor to `RouterN` to compose it with function of three argument.
    */
-  def orElse(that: Router0): Router0 = new Router0 {
-    def apply(route: Route): Option[Route] = (self(route), that(route)) match {
-      case (aa @ Some(a), bb @ Some(b)) =>
-        if (a.length <= b.length) aa else bb
-      case (a, b) => a orElse b
-    }
-
-    override def toString = s"(${self.toString}|${that.toString})"
+  implicit class RArrow3[A, B, C](val r: RouterN[A / B / C]) extends AnyVal {
+    def />[D](fn: (A, B, C) => D): RouterN[D] =
+      r.map { case a / b / c => fn(a, b, c) }
   }
 
   /**
-   * Sequentially composes this router with the given `that` router. The resulting router will succeed only if both this
-   * and `that` routers are succeed.
+   * Add `/>` compositor to `RouterN` to compose it with function of four argument.
    */
-  def /(that: Router0): Router0 =
-    this andThen that
-
-  /**
-   * Sequentially composes this router with the given `that` router. The resulting router will succeed only if both this
-   * and `that` routers are succeed.
-   */
-  def /[A](that: RouterN[A]): RouterN[A] =
-    this andThen that
-
-  /**
-   * Maps this router to some value.
-   */
-  def />[A](a: => A): RouterN[A] =
-    this map a
-
-  /**
-   * Sequentially composes this router with the given `that` router. The resulting router will succeed if either this or
-   * `that` routers are succeed.
-   */
-  def |(that: Router0): Router0 =
-    this orElse that
+  implicit class RArrow4[A, B, C, D](val r: RouterN[A / B / C / D]) extends AnyVal {
+    def />[E](fn: (A, B, C, D) => E): RouterN[E] =
+      r.map { case a / b / c / d => fn(a, b, c, d) }
+  }
 }

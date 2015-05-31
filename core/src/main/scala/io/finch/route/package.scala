@@ -24,7 +24,6 @@ package io.finch
 
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.Method
-import com.twitter.util.Future
 
 /**
  * This package contains various of functions and types that enable _router combinators_ in Finch. A Finch
@@ -49,7 +48,7 @@ import com.twitter.util.Future
  *   )
  * }}}
  */
-package object route extends LowPriorityRouterImplicits {
+package object route {
 
   object tokens {
     //
@@ -94,42 +93,6 @@ package object route extends LowPriorityRouterImplicits {
    */
   private[finch] def requestToRoute[Req](req: HttpRequest): Route =
     (MethodToken(req.method): RouteToken) :: (req.path.split("/").toList.drop(1) map PathToken)
-
-  /**
-   * Implicitly converts the given `Router[Service[_, _]]` into a service.
-   */
-  implicit def endpointToService[Req, Rep](
-    r: RouterN[Service[Req, Rep]]
-  )(implicit ev: Req => HttpRequest): Service[Req, Rep] = new Service[Req, Rep] {
-    def apply(req: Req): Future[Rep] = r(requestToRoute[Req](req)) match {
-      case Some((Nil, service)) => service(req)
-      case _ => RouteNotFound(s"${req.method.toString.toUpperCase} ${req.path}").toFutureException[Rep]
-    }
-  }
-
-  /**
-   * Add `/>` compositor to `RouterN` to compose it with function of two argument.
-   */
-  implicit class RArrow2[A, B](val r: RouterN[A / B]) extends AnyVal {
-    def />[C](fn: (A, B) => C): RouterN[C] =
-      r.map { case a / b => fn(a, b) }
-  }
-
-  /**
-   * Add `/>` compositor to `RouterN` to compose it with function of three argument.
-   */
-  implicit class RArrow3[A, B, C](val r: RouterN[A / B / C]) extends AnyVal {
-    def />[D](fn: (A, B, C) => D): RouterN[D] =
-      r.map { case a / b / c => fn(a, b, c) }
-  }
-
-  /**
-   * Add `/>` compositor to `RouterN` to compose it with function of four argument.
-   */
-  implicit class RArrow4[A, B, C, D](val r: RouterN[A / B / C / D]) extends AnyVal {
-    def />[E](fn: (A, B, C, D) => E): RouterN[E] =
-      r.map { case a / b / c / d => fn(a, b, c, d) }
-  }
 
   implicit def intToMatcher(i: Int): Router0 = new Matcher(i.toString)
   implicit def stringToMatcher(s: String): Router0 = new Matcher(s)

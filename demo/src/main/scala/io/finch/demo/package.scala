@@ -22,6 +22,8 @@
 
 package io.finch
 
+import io.finch.request.ToRequest
+
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 
@@ -48,6 +50,11 @@ package object demo {
   // We prefer composition over inheritance.
   case class AuthRequest(http: HttpRequest)
 
+  object AuthRequest {
+    implicit val toRequest: ToRequest[AuthRequest] =
+      ToRequest[AuthRequest](_.http)
+  }
+
   // We define an implicit view from `AuthRequest to `HttpRequest`,
   // so we can get two benefits:
   //  1. We can treat an `Endpoint` as a `Service`, since it will be implicitly converted.
@@ -66,7 +73,7 @@ package object demo {
     private val map = new ConcurrentHashMap[Long, User]().asScala
 
     def select(id: Long): Future[Option[User]] = map.get(id).toFuture
-    def all: Future[Seq[User]] = map.values.toSeq.toFuture
+    def all: Future[List[User]] = map.values.toList.toFuture
     def insert(id: Long, u: User): Future[User] = {
       map += (id -> u)
       u.toFuture

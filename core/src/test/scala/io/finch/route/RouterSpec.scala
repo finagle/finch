@@ -22,15 +22,16 @@
 
 package io.finch.route
 
-import com.twitter.util.Await
-
-import io.finch._
-import io.finch.response._
-import io.finch.route.tokens._
-
 import com.twitter.finagle.httpx
 import com.twitter.finagle.httpx.Method
 import com.twitter.finagle.Service
+import com.twitter.util.{Await, Return}
+
+import io.finch._
+import io.finch.request.{DecodeRequest, param}
+import io.finch.response._
+import io.finch.route.tokens._
+
 import org.scalatest.{Matchers, FlatSpec}
 
 class RouterSpec extends FlatSpec with Matchers {
@@ -251,5 +252,51 @@ class RouterSpec extends FlatSpec with Matchers {
 
     r(route1) shouldBe Some((Nil, "root"))
     r(route2) shouldBe Some((Nil, "foo"))
+  }
+
+  it should "convert a coproduct router into an endpoint" in {
+    case class Item(s: String)
+
+    implicit val encodeItem: EncodeResponse[Item] =
+      EncodeResponse("plain/text")(_.s)
+
+    implicit val decodeItem: DecodeRequest[Item] =
+      DecodeRequest(s => Return(Item(s)))
+
+    val responseService: Service[HttpRequest, HttpResponse] =
+      Service.const(Ok("qux").toFuture)
+
+    val itemService: Service[HttpRequest, Item] =
+      Service.const(Item("qux").toFuture)
+
+    val endpoint: Endpoint[HttpRequest, HttpResponse] =
+      // Router returning an [[HttpResponse]].
+      Get / "foo" /> Ok("foo")              :+:
+      // Router returning an encodeable value.
+      Get / "foo" / string /> Item          :+:
+      // Router returning an [[HttpResponse]] in a future.
+      Get / "bar" /> Ok("foo") .toFuture    :+:
+      // Router returning an encodeable value in a future.
+      Get / "baz" /> Item("foo").toFuture   :+:
+      // Router returning a [[RequestReader]].
+      Get / "qux" /> param("p").as[Item]    :+:
+      // Router returning a Finagle service returning a [[HttpResponse]].
+      Get / "qux" / "s1" /> responseService :+:
+      // Router returning a Finagle service returning an encodeable value.
+      Get / "qux" / "s2" /> itemService
+
+    val route1 = List(MethodToken(Method.Get), PathToken("foo"))
+    val route2 = List(MethodToken(Method.Get), PathToken("foo"), PathToken("t"))
+
+    val res1 = endpoint(route1) match {
+      case Some((Nil, service)) => Await.result(service(httpx.Request()))
+    }
+
+    val res2 = endpoint(route2) match {
+      case Some((Nil, service)) => Await.result(service(httpx.Request()))
+    }
+
+    res1.contentString shouldBe Ok("foo").contentString
+    res2.contentString shouldBe Ok("t").contentString
   }
 }
