@@ -2,23 +2,24 @@ package io.finch
 package client
 
 import cats.data.Xor
-import com.twitter.finagle.httpx._
+import com.twitter.finagle.httpx.{Method, Request, RequestBuilder, Response}
 import com.twitter.finagle.{Httpx, Service}
+import com.twitter.io.Buf
 import com.twitter.util.{Future, Promise}
 
-sealed trait Verb extends Service[FinchRequest, Result] {
+sealed trait Verb extends Service[FinchRequest, Result[Buf]] {
 
-  def apply(fReq: FinchRequest): Future[Result] = {
-     val req = RequestBuilder()
-       .url("https://" + fReq.conn.host + fReq.path)
-       .addHeader("Host", fReq.conn.host) 
-       .addHeader("User-Agent", "finch/0.7.0")
-       .build(httpVerb(), None)
+  def apply(fReq: FinchRequest): Future[Result[Buf]] = {
+    val req = RequestBuilder()
+      .url("https://" + fReq.conn.host + fReq.path)
+      .addHeader("Host", fReq.conn.host) 
+      .addHeader("User-Agent", "finch/0.7.0")
+      .build(httpVerb(), None)
   
 
-    val result = Promise[Result]
+    val result = Promise[Result[Buf]]
     fReq.conn(req) onSuccess { resp =>
-      result.setValue(Xor.Right(new Resource(resp.content)))
+      result.setValue(Xor.Right(Resource.fromResponse(resp))) 
     } onFailure { ex =>
       result.setValue(Xor.Left(ex.toString))
     }
@@ -37,5 +38,5 @@ case class Connection(host: String, port: Int = 443) extends Service[Request, Re
     .withTlsWithoutValidation()
     .newService(host + ":" + port.toString, host)
 
-  def apply(req: Request): Future[Response] = client(req); client.close()
+  def apply(req: Request): Future[Response] = client(req)
 }
