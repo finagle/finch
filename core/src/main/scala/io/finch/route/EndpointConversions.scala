@@ -4,27 +4,47 @@ import com.twitter.finagle.Service
 import com.twitter.util.Future
 import io.finch._
 import io.finch.request.{RequestReader, ToRequest}
-import io.finch.response.{EncodeResponse, Ok}
-import shapeless.{Coproduct, Poly1}
+import io.finch.response.{EncodeResponse, Ok, NotFound}
+import shapeless._
 import shapeless.ops.coproduct.Folder
 
 /**
- * Implicit conversions to and from [[Endpoint]].
+ * Implicit conversions to and from [[Endpoint]] and [[Router]].
  */
 trait EndpointConversions {
+
+  private val respondNotFound: Future[HttpResponse] = NotFound().toFuture
+  private def routerToService[R: ToRequest](r: RouterN[Service[R, HttpResponse]]): Service[R, HttpResponse] =
+    Service.mk[R, HttpResponse] { req =>
+      r(requestToRoute[R](implicitly[ToRequest[R]].apply(req))) match {
+        case Some((Nil, service)) => service(req)
+        case _ => respondNotFound
+      }
+    }
+
   /**
-   * An implicit conversion that turns any coproduct endpoint where all elements
-   * can be converted into responses into an endpoint that returns responses.
+   * An implicit conversion that turns any value router where all elements can be converted into responses into an
+   * endpoint that returns responses.
+   */
+  implicit def valueRouterToService[R: ToRequest, A](
+    router: RouterN[A]
+  )(implicit
+    folder: Folder.Aux[EncodeAll.type, A :+: CNil, Service[R, HttpResponse]]
+  ): Service[R, HttpResponse] = routerToService(router.map(a => folder(Inl(a))))
+
+  /**
+   * An implicit conversion that turns any coproduct endpoint where all elements can be converted into responses into
+   * an endpoint that returns responses.
    */
   implicit def coproductRouterToEndpoint[R: ToRequest, C <: Coproduct](
     router: RouterN[C]
   )(implicit
     folder: Folder.Aux[EncodeAll.type, C, Service[R, HttpResponse]]
-  ): Endpoint[R, HttpResponse] = router.map(c => folder(c))
+  ): Service[R, HttpResponse] = routerToService(router.map(c => folder(c)))
 
   /**
-   * An implicit conversion that turns any endpoint with an output type that can
-   * be converted into a response into an endpoint that returns responses.
+   * An implicit conversion that turns any endpoint with an output type that can be converted into a response into an
+   * endpoint that returns responses.
    */
   implicit def endpointToHttpResponse[A, B](e: Endpoint[A, B])(implicit
     encoder: EncodeResponse[B]
@@ -47,8 +67,8 @@ trait EndpointConversions {
   }
 
   /**
-   * A polymorphic function value that accepts types that can be transformed
-   * into a Finagle service from a request-like type to a [[HttpResponse]].
+   * A polymorphic function value that accepts types that can be transformed into a Finagle service from a request-like
+   * type to a [[HttpResponse]].
    */
   object EncodeAll extends Poly1 {
     /**
@@ -58,7 +78,7 @@ trait EndpointConversions {
       at(r => Service.const(r.toFuture))
 
     /**
-     * Transforms an encodable value into a constant service.
+     * Transforms an encodeable value into a constant service.
      */
     implicit def encodeable[R: ToRequest, A: EncodeResponse]: Case.Aux[A, Service[R, HttpResponse]] =
       at(a => Service.const(Ok(a).toFuture))
@@ -67,7 +87,7 @@ trait EndpointConversions {
      * Transforms an [[HttpResponse]] in a future into a constant service.
      */
     implicit def futureResponse[R: ToRequest]: Case.Aux[Future[HttpResponse], Service[R, HttpResponse]] =
-      at(Service.const(_))
+      at(Service.const)
 
     /**
      * Transforms an encodeable value in a future into a constant service.
@@ -83,8 +103,8 @@ trait EndpointConversions {
 
     /**
      * An identity transformation for services that return an [[HttpResponse]].
-     * Note that the service may have a static type that is more specific than
-     * `Service[R, HttpResponse]`.
+     *
+     * Note that the service may have a static type that is more specific than `Service[R, HttpResponse]`.
      */
     implicit def serviceResponse[S, R](implicit
       ev: S => Service[R, HttpResponse],
@@ -93,9 +113,8 @@ trait EndpointConversions {
       at(s => Service.mk(req => ev(s)(req)))
 
     /**
-     * A transformation for services that return an encodeable value. Note that
-     * the service may have a static type that is more specific than
-     * `Service[R, A]`.
+     * A transformation for services that return an encodeable value. Note that the service may have a static type that
+     * is more specific than `Service[R, A]`.
      */
     implicit def serviceEncodeable[S, R, A](implicit
       ev: S => Service[R, A],
