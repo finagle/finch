@@ -25,10 +25,7 @@ package io.finch.demo
 import argonaut.{EncodeJson, Json}
 import com.twitter.finagle.Service
 import com.twitter.util.Future
-import io.finch.HttpResponse
-import io.finch.argonaut._
 import io.finch.demo.model.Ticket
-import io.finch.response._
 import io.finch.route._
 
 object endpoint {
