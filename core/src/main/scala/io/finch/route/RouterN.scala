@@ -129,7 +129,7 @@ trait RouterN[+A] { self =>
  * Provides extension methods for [[RouterN]] to support coproduct and path
  * syntax.
  */
-object RouterN extends EndpointConversions with LowPriorityRouterImplicits {
+object RouterN extends RouterNConversions with LowPriorityRouterImplicits {
   /**
    * Implicit class that provides `:+:` and other operations on any coproduct router.
    */

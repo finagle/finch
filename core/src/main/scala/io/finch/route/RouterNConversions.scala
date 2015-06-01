@@ -5,13 +5,13 @@ import com.twitter.util.Future
 import io.finch._
 import io.finch.request.{RequestReader, ToRequest}
 import io.finch.response.{EncodeResponse, Ok, NotFound}
-import shapeless._
+import shapeless.{Coproduct, Poly1}
 import shapeless.ops.coproduct.Folder
 
 /**
- * Implicit conversions to and from [[Endpoint]] and [[Router]].
+ * Implicit conversions to and from [[RouterN]].
  */
-trait EndpointConversions {
+trait RouterNConversions {
 
   private val respondNotFound: Future[HttpResponse] = NotFound().toFuture
   private def routerToService[R: ToRequest](r: RouterN[Service[R, HttpResponse]]): Service[R, HttpResponse] =
@@ -23,28 +23,28 @@ trait EndpointConversions {
     }
 
   /**
-   * An implicit conversion that turns any value router where all elements can be converted into responses into an
-   * endpoint that returns responses.
+   * An implicit conversion that turns any value router where all elements can be converted into responses into a
+   * service that returns responses.
    */
   implicit def valueRouterToService[R: ToRequest, A](
     router: RouterN[A]
   )(implicit
-    folder: Folder.Aux[EncodeAll.type, A :+: CNil, Service[R, HttpResponse]]
-  ): Service[R, HttpResponse] = routerToService(router.map(a => folder(Inl(a))))
+    polyCase: EncodeAll.Case.Aux[A, Service[R, HttpResponse]]
+  ): Service[R, HttpResponse] = routerToService(router.map(polyCase))
 
   /**
    * An implicit conversion that turns any coproduct endpoint where all elements can be converted into responses into
-   * an endpoint that returns responses.
+   * a service that returns responses.
    */
-  implicit def coproductRouterToEndpoint[R: ToRequest, C <: Coproduct](
+  implicit def coproductRouterToService[R: ToRequest, C <: Coproduct](
     router: RouterN[C]
   )(implicit
     folder: Folder.Aux[EncodeAll.type, C, Service[R, HttpResponse]]
   ): Service[R, HttpResponse] = routerToService(router.map(c => folder(c)))
 
   /**
-   * An implicit conversion that turns any endpoint with an output type that can be converted into a response into an
-   * endpoint that returns responses.
+   * An implicit conversion that turns any endpoint with an output type that can be converted into a response into a
+   * service that returns responses.
    */
   implicit def endpointToHttpResponse[A, B](e: Endpoint[A, B])(implicit
     encoder: EncodeResponse[B]
