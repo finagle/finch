@@ -129,6 +129,11 @@ trait RouterN[+A] { self =>
 
   // A workaround for https://issues.scala-lang.org/browse/SI-1336
   def withFilter(p: A => Boolean): RouterN[A] = self
+
+  /**
+   * Converts this router to a Finagle service from a request-like type `R` to a [[HttpResponse]].
+   */
+  def toService[R: ToRequest](implicit ts: ToService[R, A]): Service[R, HttpResponse] = ts(this)
 }
 
 /**
@@ -136,75 +141,6 @@ trait RouterN[+A] { self =>
  * syntax.
  */
 object RouterN extends LowPriorityRouterImplicits {
-
-  private val respondNotFound: Future[HttpResponse] = NotFound().toFuture
-  private def routerToService[R: ToRequest](r: RouterN[Service[R, HttpResponse]]): Service[R, HttpResponse] =
-    Service.mk[R, HttpResponse] { req =>
-      r(requestToRoute[R](implicitly[ToRequest[R]].apply(req))) match {
-        case Some((Nil, service)) => service(req)
-        case _ => respondNotFound
-      }
-    }
-
-  /**
-   * A polymorphic function value that accepts types that can be transformed into a Finagle service from a request-like
-   * type to a [[HttpResponse]].
-   */
-  private object EncodeAll extends Poly1 {
-    /**
-     * Transforms an [[HttpResponse]] directly into a constant service.
-     */
-    implicit def response[R: ToRequest]: Case.Aux[HttpResponse, Service[R, HttpResponse]] =
-      at(r => Service.const(r.toFuture))
-
-    /**
-     * Transforms an encodeable value into a constant service.
-     */
-    implicit def encodeable[R: ToRequest, A: EncodeResponse]: Case.Aux[A, Service[R, HttpResponse]] =
-      at(a => Service.const(Ok(a).toFuture))
-
-    /**
-     * Transforms an [[HttpResponse]] in a future into a constant service.
-     */
-    implicit def futureResponse[R: ToRequest]: Case.Aux[Future[HttpResponse], Service[R, HttpResponse]] =
-      at(Service.const)
-
-    /**
-     * Transforms an encodeable value in a future into a constant service.
-     */
-    implicit def futureEncodeable[R: ToRequest, A: EncodeResponse]: Case.Aux[Future[A], Service[R, HttpResponse]] =
-      at(fa => Service.const(fa.map(Ok(_))))
-
-    /**
-     * Transforms a [[RequestReader]] into a service.
-     */
-    implicit def requestReader[R: ToRequest, A: EncodeResponse]: Case.Aux[RequestReader[A], Service[R, HttpResponse]] =
-      at(reader => Service.mk(req => reader(implicitly[ToRequest[R]].apply(req)).map(Ok(_))))
-
-    /**
-     * An identity transformation for services that return an [[HttpResponse]].
-     *
-     * Note that the service may have a static type that is more specific than `Service[R, HttpResponse]`.
-     */
-    implicit def serviceResponse[S, R](implicit
-      ev: S => Service[R, HttpResponse],
-      tr: ToRequest[R]
-    ): Case.Aux[S, Service[R, HttpResponse]] =
-      at(s => Service.mk(req => ev(s)(req)))
-
-    /**
-     * A transformation for services that return an encodeable value. Note that the service may have a static type that
-     * is more specific than `Service[R, A]`.
-     */
-    implicit def serviceEncodeable[S, R, A](implicit
-      ev: S => Service[R, A],
-      tr: ToRequest[R],
-      ae: EncodeResponse[A]
-    ): Case.Aux[S, Service[R, HttpResponse]] =
-      at(s => Service.mk(req => ev(s)(req).map(Ok(_))))
-  }
-
-
   /**
    * An implicit conversion that turns any endpoint with an output type that can be converted into a response into a
    * service that returns responses.
@@ -248,10 +184,6 @@ object RouterN extends LowPriorityRouterImplicits {
 
         override def toString = s"(${that.toString}|${self.toString})"
       }
-
-    def toService[R: ToRequest](implicit
-     folder: Folder.Aux[EncodeAll.type, C, Service[R, HttpResponse]]
-    ): Service[R, HttpResponse] = routerToService(self.map(c => folder(c)))
   }
 
   /**
@@ -273,10 +205,6 @@ object RouterN extends LowPriorityRouterImplicits {
 
         override def toString = s"(${that.toString}|${self.toString})"
       }
-
-    def toService[R: ToRequest](implicit
-      folder: Folder.Aux[EncodeAll.type, B :+: CNil, Service[R, HttpResponse]]
-    ): Service[R, HttpResponse] = routerToService(self.map(b => folder(Inl(b))))
   }
 
   /**
