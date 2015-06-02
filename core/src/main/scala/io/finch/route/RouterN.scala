@@ -22,7 +22,13 @@
 
 package io.finch.route
 
-import shapeless.{:+:, CNil, Coproduct, Inl, Inr}
+import com.twitter.finagle.Service
+import com.twitter.util.Future
+import io.finch._
+import io.finch.request._
+import io.finch.response._
+import shapeless._
+import shapeless.ops.coproduct.Folder
 
 /**
  * A router that extracts some value of the type `A` from the given route.
@@ -129,7 +135,100 @@ trait RouterN[+A] { self =>
  * Provides extension methods for [[RouterN]] to support coproduct and path
  * syntax.
  */
-object RouterN extends RouterNConversions with LowPriorityRouterImplicits {
+object RouterN extends LowPriorityRouterImplicits {
+
+  private val respondNotFound: Future[HttpResponse] = NotFound().toFuture
+  private def routerToService[R: ToRequest](r: RouterN[Service[R, HttpResponse]]): Service[R, HttpResponse] =
+    Service.mk[R, HttpResponse] { req =>
+      r(requestToRoute[R](implicitly[ToRequest[R]].apply(req))) match {
+        case Some((Nil, service)) => service(req)
+        case _ => respondNotFound
+      }
+    }
+
+  /**
+   * A polymorphic function value that accepts types that can be transformed into a Finagle service from a request-like
+   * type to a [[HttpResponse]].
+   */
+  private object EncodeAll extends Poly1 {
+    /**
+     * Transforms an [[HttpResponse]] directly into a constant service.
+     */
+    implicit def response[R: ToRequest]: Case.Aux[HttpResponse, Service[R, HttpResponse]] =
+      at(r => Service.const(r.toFuture))
+
+    /**
+     * Transforms an encodeable value into a constant service.
+     */
+    implicit def encodeable[R: ToRequest, A: EncodeResponse]: Case.Aux[A, Service[R, HttpResponse]] =
+      at(a => Service.const(Ok(a).toFuture))
+
+    /**
+     * Transforms an [[HttpResponse]] in a future into a constant service.
+     */
+    implicit def futureResponse[R: ToRequest]: Case.Aux[Future[HttpResponse], Service[R, HttpResponse]] =
+      at(Service.const)
+
+    /**
+     * Transforms an encodeable value in a future into a constant service.
+     */
+    implicit def futureEncodeable[R: ToRequest, A: EncodeResponse]: Case.Aux[Future[A], Service[R, HttpResponse]] =
+      at(fa => Service.const(fa.map(Ok(_))))
+
+    /**
+     * Transforms a [[RequestReader]] into a service.
+     */
+    implicit def requestReader[R: ToRequest, A: EncodeResponse]: Case.Aux[RequestReader[A], Service[R, HttpResponse]] =
+      at(reader => Service.mk(req => reader(implicitly[ToRequest[R]].apply(req)).map(Ok(_))))
+
+    /**
+     * An identity transformation for services that return an [[HttpResponse]].
+     *
+     * Note that the service may have a static type that is more specific than `Service[R, HttpResponse]`.
+     */
+    implicit def serviceResponse[S, R](implicit
+      ev: S => Service[R, HttpResponse],
+      tr: ToRequest[R]
+    ): Case.Aux[S, Service[R, HttpResponse]] =
+      at(s => Service.mk(req => ev(s)(req)))
+
+    /**
+     * A transformation for services that return an encodeable value. Note that the service may have a static type that
+     * is more specific than `Service[R, A]`.
+     */
+    implicit def serviceEncodeable[S, R, A](implicit
+      ev: S => Service[R, A],
+      tr: ToRequest[R],
+      ae: EncodeResponse[A]
+    ): Case.Aux[S, Service[R, HttpResponse]] =
+      at(s => Service.mk(req => ev(s)(req).map(Ok(_))))
+  }
+
+
+  /**
+   * An implicit conversion that turns any endpoint with an output type that can be converted into a response into a
+   * service that returns responses.
+   */
+  implicit def endpointToHttpResponse[A, B](e: Endpoint[A, B])(implicit
+    encoder: EncodeResponse[B]
+  ): Endpoint[A, HttpResponse] = e.map { service =>
+    new Service[A, HttpResponse] {
+      def apply(a: A): Future[HttpResponse] = service(a).map(b => Ok(encoder(b)))
+    }
+  }
+
+  /**
+   * Implicitly converts the given `Router[Service[_, _]]` into a service.
+   */
+  implicit def endpointToService[Req, Rep](
+    r: RouterN[Service[Req, Rep]]
+  )(implicit ev: Req => HttpRequest): Service[Req, Rep] = new Service[Req, Rep] {
+    def apply(req: Req): Future[Rep] = r(requestToRoute[Req](req)) match {
+      case Some((Nil, service)) => service(req)
+      case _ => RouteNotFound(s"${req.method.toString.toUpperCase} ${req.path}").toFutureException[Rep]
+    }
+  }
+
   /**
    * Implicit class that provides `:+:` and other operations on any coproduct router.
    */
@@ -149,27 +248,35 @@ object RouterN extends RouterNConversions with LowPriorityRouterImplicits {
 
         override def toString = s"(${that.toString}|${self.toString})"
       }
+
+    def toService[R: ToRequest](implicit
+     folder: Folder.Aux[EncodeAll.type, C, Service[R, HttpResponse]]
+    ): Service[R, HttpResponse] = routerToService(self.map(c => folder(c)))
   }
 
   /**
    * Implicit class that provides `:+:` on any router.
    */
-  final implicit class ValueRouterNOps[C](self: RouterN[C]) {
-    def :+:[A](that: RouterN[A]): RouterN[A :+: C :+: CNil] =
-      new RouterN[A :+: C :+: CNil] {
-        def apply(route: Route): Option[(Route, A :+: C :+: CNil)] =
+  final implicit class ValueRouterNOps[B](self: RouterN[B]) {
+    def :+:[A](that: RouterN[A]): RouterN[A :+: B :+: CNil] =
+      new RouterN[A :+: B :+: CNil] {
+        def apply(route: Route): Option[(Route, A :+: B :+: CNil)] =
           (that(route), self(route)) match {
-            case (aa @ Some((ar, av)), cc @ Some((cr, cv))) =>
-              if (ar.length <= cr.length) Some((ar, Inl(av))) else Some((cr, Inr(Inl(cv))))
-            case (a, c) => a.map {
+            case (aa @ Some((ar, av)), bb @ Some((br, bv))) =>
+              if (ar.length <= br.length) Some((ar, Inl(av))) else Some((br, Inr(Inl(bv))))
+            case (a, b) => a.map {
               case (r, v) => (r, Inl(v))
-            } orElse c.map {
+            } orElse b.map {
               case (r, v) => (r, Inr(Inl(v)))
             }
           }
 
         override def toString = s"(${that.toString}|${self.toString})"
       }
+
+    def toService[R: ToRequest](implicit
+      folder: Folder.Aux[EncodeAll.type, B :+: CNil, Service[R, HttpResponse]]
+    ): Service[R, HttpResponse] = routerToService(self.map(b => folder(Inl(b))))
   }
 
   /**

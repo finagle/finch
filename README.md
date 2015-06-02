@@ -58,7 +58,7 @@ This "Hello World!" example is built with the `0.7.0-SNAPSHOT` version of `finch
 import io.finch.route._
 import com.twitter.finagle.Httpx
 
-Httpx.serve(":8080", Get / "hello" /> "Hello, World!")
+Httpx.serve(":8080", (Get / "hello" /> "Hello, World!").toService)
 ```
 
 Documentation

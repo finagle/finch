@@ -47,5 +47,5 @@ object Main extends App {
       currentUser ~> { user => User(user.id, Seq(Group(0, group))) }
     }
 
-  Await.ready(Httpx.serve(":8081", getUserGroups :+: postGroup :+: putUserGroup))
+  Await.ready(Httpx.serve(":8081", (getUserGroups :+: postGroup :+: putUserGroup).toService))
 }

@@ -269,7 +269,7 @@ class RouterSpec extends FlatSpec with Matchers {
     val itemService: Service[HttpRequest, Item] =
       Service.const(Item("qux").toFuture)
 
-    val service: Service[HttpRequest, HttpResponse] =
+    val service: Service[HttpRequest, HttpResponse] = (
       // Router returning an [[HttpResponse]].
       Get / "foo" /> Ok("foo")              :+:
       // Router returning an encodeable value.
@@ -284,6 +284,7 @@ class RouterSpec extends FlatSpec with Matchers {
       Get / "qux" / "s1" /> responseService :+:
       // Router returning a Finagle service returning an encodeable value.
       Get / "qux" / "s2" /> itemService
+    ).toService
 
     val res1 = Await.result(service(httpx.Request("/foo")))
     val res2 = Await.result(service(httpx.Request("/foo/t")))
@@ -293,7 +294,7 @@ class RouterSpec extends FlatSpec with Matchers {
   }
 
   it should "convert a value router into an endpoint" in {
-    val s: Service[HttpRequest, HttpResponse] = Get / "foo" /> "bar"
+    val s: Service[HttpRequest, HttpResponse] = (Get / "foo" /> "bar").toService
 
     Await.result(s(httpx.Request("/foo"))).contentString shouldBe Ok("bar").contentString
   }
