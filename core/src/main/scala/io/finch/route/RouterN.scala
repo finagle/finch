@@ -28,7 +28,6 @@ import io.finch._
 import io.finch.request._
 import io.finch.response._
 import shapeless._
-import shapeless.ops.coproduct.Folder
 
 /**
  * A router that extracts some value of the type `A` from the given route.
