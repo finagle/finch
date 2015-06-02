@@ -51,5 +51,5 @@ package object argonaut {
    * @return Create a Finch ''EncodeJson'' from an argonaut ''EncodeJson''
    */
   implicit def encodeArgonaut[A](implicit encode: EncodeJson[A]): EncodeResponse[A] =
-    EncodeResponse("application/json")(encode.encode(_).nospaces)
+    EncodeResponse.fromString[A]("application/json")(encode.encode(_).nospaces)
 }

@@ -24,6 +24,8 @@
 package io.finch.response
 
 import com.twitter.finagle.httpx.{Status, Cookie}
+import com.twitter.io.Buf
+import com.twitter.io.Buf.{Utf8, ByteBuffer}
 import org.scalatest.{Matchers, FlatSpec}
 
 class ResponseBuilderSpec extends FlatSpec with Matchers {
@@ -67,5 +69,29 @@ class ResponseBuilderSpec extends FlatSpec with Matchers {
     val rep = ok("foo")
 
     rep.contentType shouldBe Some("application/json;charset=utf-8")
+  }
+
+  it should "set the charset" in {
+    val rep = Ok.withCharset(Some("utf-7"))("charset")
+
+    rep.contentType shouldBe Some("text/plain;charset=utf-7")
+  }
+
+  it should "override the charset" in {
+    val rep = Ok.withCharset(Some("utf-7")).withContentType(Some("text/html")).withCharset(Some("utf-16"))("foo")
+
+    rep.contentType shouldBe Some("text/html;charset=utf-16")
+  }
+
+  it should "return invalid UTF-8 bytes as is" in {
+    val rep = Ok(Buf.ByteArray.Shared(Array[Byte](0x78, 0xFF.toByte)))
+
+    Buf.ByteArray.Shared.extract(rep.content) shouldBe Array[Byte](0x78, 0xFF.toByte)
+  }
+
+  it should "not set charset if explicitly specified None" in {
+    val rep = Ok.withContentType(Some("application/octet-stream")).withCharset(None)(Utf8("finch"))
+
+    rep.contentType shouldBe Some("application/octet-stream")
   }
 }
