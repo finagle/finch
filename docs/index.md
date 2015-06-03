@@ -88,8 +88,10 @@ depending on a content. There are plenty of predefined builders that might be us
   * [OAuth2](auth.md#authorization-with-oauth2)
   * [Basic Auth](auth.md#basic-http-auth)
 * [JSON](json.md)
-  * [Finch Json](json.md#finch-json)
   * [Argonaut](json.md#argonaut)
-  * [Jawn](json.md#jawn)
+  * [Jackson](json.md#jackson)
+  * [JSON4S](json.md#json4s)
+  * [Finch Json](json.md#finch-json) (deprecated in 0.7.0)
+  * [Jawn](json.md#jawn) (deprecated in 0.7.0)
 
 [1]: http://twitter.github.io/finagle/

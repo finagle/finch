@@ -28,6 +28,8 @@ The `finch-argonaut` module provides the support for the [Argonaut][4] JSON libr
 
 ### Jawn
 
+This library is deprecated in favor of other JSON libraries.
+
 The `finch-jawn` module provides the support for [Jawn][5].
 
 To decode a string with Jawn, you need to import `io.finch.jawn._` and define any Jawn `Facade` as an `implicit val`.
