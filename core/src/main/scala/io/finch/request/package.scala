@@ -236,21 +236,6 @@ package object request extends LowPriorityRequestReaderImplicits {
   }
 
   /**
-   * Implicit conversion that allows the same [[io.finch.request.ValidationRule ValudationRule]] to be used for required
-   * and optional values. If the optional value is non-empty, it gets validated (and validation may fail, producing an
-   * error), but if it is empty, it is always treated as valid.
-   *
-   * @param rule the validation rule to adapt for optional values
-   * @return a new validation rule that applies the specified rule to an optional value in case it is not empty
-   */
-  implicit def toOptionalRule[A](rule: ValidationRule[A]): ValidationRule[Option[A]] = {
-    ValidationRule(rule.description) {
-      case Some(value) => rule(value)
-      case None => true
-    }
-  }
-
-  /**
    * Implicit conversion that allows the same inline rules to be used for required and optional values. If the optional
    * value is non-empty, it gets validated (and validation may fail, producing error), but if it is empty, it is always
    * treated as valid.
