@@ -22,7 +22,12 @@
 
 package io.finch.route
 
-import shapeless.{:+:, CNil, Coproduct, Inl, Inr}
+import com.twitter.finagle.Service
+import com.twitter.util.Future
+import io.finch._
+import io.finch.request._
+import io.finch.response._
+import shapeless._
 
 /**
  * A router that extracts some value of the type `A` from the given route.
@@ -123,13 +128,42 @@ trait RouterN[+A] { self =>
 
   // A workaround for https://issues.scala-lang.org/browse/SI-1336
   def withFilter(p: A => Boolean): RouterN[A] = self
+
+  /**
+   * Converts this router to a Finagle service from a request-like type `R` to a [[HttpResponse]].
+   */
+  def toService[R: ToRequest](implicit ts: ToService[R, A]): Service[R, HttpResponse] = ts(this)
 }
 
 /**
  * Provides extension methods for [[RouterN]] to support coproduct and path
  * syntax.
  */
-object RouterN extends EndpointConversions with LowPriorityRouterImplicits {
+object RouterN extends LowPriorityRouterImplicits {
+  /**
+   * An implicit conversion that turns any endpoint with an output type that can be converted into a response into a
+   * service that returns responses.
+   */
+  implicit def endpointToHttpResponse[A, B](e: Endpoint[A, B])(implicit
+    encoder: EncodeResponse[B]
+  ): Endpoint[A, HttpResponse] = e.map { service =>
+    new Service[A, HttpResponse] {
+      def apply(a: A): Future[HttpResponse] = service(a).map(b => Ok(encoder(b)))
+    }
+  }
+
+  /**
+   * Implicitly converts the given `Router[Service[_, _]]` into a service.
+   */
+  implicit def endpointToService[Req, Rep](
+    r: RouterN[Service[Req, Rep]]
+  )(implicit ev: Req => HttpRequest): Service[Req, Rep] = new Service[Req, Rep] {
+    def apply(req: Req): Future[Rep] = r(requestToRoute[Req](req)) match {
+      case Some((Nil, service)) => service(req)
+      case _ => RouteNotFound(s"${req.method.toString.toUpperCase} ${req.path}").toFutureException[Rep]
+    }
+  }
+
   /**
    * Implicit class that provides `:+:` and other operations on any coproduct router.
    */
@@ -154,16 +188,16 @@ object RouterN extends EndpointConversions with LowPriorityRouterImplicits {
   /**
    * Implicit class that provides `:+:` on any router.
    */
-  final implicit class ValueRouterNOps[C](self: RouterN[C]) {
-    def :+:[A](that: RouterN[A]): RouterN[A :+: C :+: CNil] =
-      new RouterN[A :+: C :+: CNil] {
-        def apply(route: Route): Option[(Route, A :+: C :+: CNil)] =
+  final implicit class ValueRouterNOps[B](self: RouterN[B]) {
+    def :+:[A](that: RouterN[A]): RouterN[A :+: B :+: CNil] =
+      new RouterN[A :+: B :+: CNil] {
+        def apply(route: Route): Option[(Route, A :+: B :+: CNil)] =
           (that(route), self(route)) match {
-            case (aa @ Some((ar, av)), cc @ Some((cr, cv))) =>
-              if (ar.length <= cr.length) Some((ar, Inl(av))) else Some((cr, Inr(Inl(cv))))
-            case (a, c) => a.map {
+            case (aa @ Some((ar, av)), bb @ Some((br, bv))) =>
+              if (ar.length <= br.length) Some((ar, Inl(av))) else Some((br, Inr(Inl(bv))))
+            case (a, b) => a.map {
               case (r, v) => (r, Inl(v))
-            } orElse c.map {
+            } orElse b.map {
               case (r, v) => (r, Inr(Inl(v)))
             }
           }

@@ -25,24 +25,16 @@ package io.finch.demo
 import argonaut.{EncodeJson, Json}
 import com.twitter.finagle.Service
 import com.twitter.util.Future
-import io.finch.HttpResponse
-import io.finch.argonaut._
 import io.finch.demo.model.Ticket
-import io.finch.response._
 import io.finch.route._
 
 object endpoint {
 
-  import model.User
+  import model._
   import service._
 
-  // User endpoint.
-  val users: Endpoint[AuthRequest, HttpResponse] =
-    Get  / "users" / long /> GetUser :+:
-    Post / "users" /> PostUser       :+:
-    Get  / "users" /> GetAllUsers
-
-  // Ticket endpoint.
-  val tickets: Endpoint[AuthRequest, Ticket] =
-    Post / "users" / long / "tickets" /> PostUserTicket
+  val getUser: Endpoint[AuthRequest, User] = Get  / "users" / long /> GetUser
+  val postUser: Endpoint[AuthRequest, User] = Post / "users" /> PostUser
+  val getUsers: Endpoint[AuthRequest, List[User]] = Get  / "users" /> GetAllUsers
+  val postTicket: Endpoint[AuthRequest, Ticket] = Post / "users" / long / "tickets" /> PostUserTicket
 }

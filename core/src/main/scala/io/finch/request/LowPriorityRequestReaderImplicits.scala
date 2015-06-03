@@ -14,8 +14,7 @@ import scala.reflect.ClassTag
 trait LowPriorityRequestReaderImplicits {
 
   /**
-   * Creates a [[io.finch.request.DecodeMagnet DecodeMagnet]] from
-   * [[io.finch.request.DecodeAnyRequest DecodeAnyRequest]].
+   * Creates a [[DecodeRequest]] from [[DecodeAnyRequest ]].
    */
   implicit def decodeRequestFromAnyDecode[A](
     implicit d: DecodeAnyRequest, tag: ClassTag[A]

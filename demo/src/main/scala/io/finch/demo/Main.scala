@@ -99,7 +99,8 @@ object Demo {
   }
 
   // An API endpoint.
-  val api: Endpoint[AuthRequest, HttpResponse] = users | tickets
+  val api: Service[AuthRequest, HttpResponse] =
+    (getUser :+: getUsers :+: postUser :+: postTicket).toService
 
   // An HTTP endpoint with exception handler and Auth filter.
   val backend: Service[HttpRequest, HttpResponse] =

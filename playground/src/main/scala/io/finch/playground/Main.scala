@@ -2,8 +2,8 @@ package io.finch.playground
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.twitter.finagle.{Service, Filter, Httpx}
-import com.twitter.util.{Future, Await}
+import com.twitter.finagle.Httpx
+import com.twitter.util.Await
 
 import io.finch.{Endpoint => _, _}
 import io.finch.request._
@@ -47,9 +47,5 @@ object Main extends App {
       currentUser ~> { user => User(user.id, Seq(Group(0, group))) }
     }
 
-  // an API endpoint
-  val api: Endpoint[HttpRequest, HttpResponse] =
-    getUserGroups :+: postGroup :+: putUserGroup
-
-  Await.ready(Httpx.serve(":8081", api))
+  Await.ready(Httpx.serve(":8081", (getUserGroups :+: postGroup :+: putUserGroup).toService))
 }

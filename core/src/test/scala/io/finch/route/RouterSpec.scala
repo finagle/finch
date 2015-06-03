@@ -258,7 +258,7 @@ class RouterSpec extends FlatSpec with Matchers {
     case class Item(s: String)
 
     implicit val encodeItem: EncodeResponse[Item] =
-      EncodeResponse("plain/text")(_.s)
+      EncodeResponse("text/plain")(_.s)
 
     implicit val decodeItem: DecodeRequest[Item] =
       DecodeRequest(s => Return(Item(s)))
@@ -269,7 +269,7 @@ class RouterSpec extends FlatSpec with Matchers {
     val itemService: Service[HttpRequest, Item] =
       Service.const(Item("qux").toFuture)
 
-    val endpoint: Endpoint[HttpRequest, HttpResponse] =
+    val service: Service[HttpRequest, HttpResponse] = (
       // Router returning an [[HttpResponse]].
       Get / "foo" /> Ok("foo")              :+:
       // Router returning an encodeable value.
@@ -284,19 +284,18 @@ class RouterSpec extends FlatSpec with Matchers {
       Get / "qux" / "s1" /> responseService :+:
       // Router returning a Finagle service returning an encodeable value.
       Get / "qux" / "s2" /> itemService
+    ).toService
 
-    val route1 = List(MethodToken(Method.Get), PathToken("foo"))
-    val route2 = List(MethodToken(Method.Get), PathToken("foo"), PathToken("t"))
-
-    val res1 = endpoint(route1) match {
-      case Some((Nil, service)) => Await.result(service(httpx.Request()))
-    }
-
-    val res2 = endpoint(route2) match {
-      case Some((Nil, service)) => Await.result(service(httpx.Request()))
-    }
+    val res1 = Await.result(service(httpx.Request("/foo")))
+    val res2 = Await.result(service(httpx.Request("/foo/t")))
 
     res1.contentString shouldBe Ok("foo").contentString
     res2.contentString shouldBe Ok("t").contentString
+  }
+
+  it should "convert a value router into an endpoint" in {
+    val s: Service[HttpRequest, HttpResponse] = (Get / "foo" /> "bar").toService
+
+    Await.result(s(httpx.Request("/foo"))).contentString shouldBe Ok("bar").contentString
   }
 }

@@ -41,15 +41,16 @@ class FinchUserService(implicit
     body.as[User].apply(req).flatMap(db.update).map(_ => NoContent())
   }
 
-  def deleteUsers: Service[HttpRequest, HttpResponse] =
+  val deleteUsers: Service[HttpRequest, HttpResponse] =
     Service.const(db.delete().map(count => Ok(s"$count users deleted")))
 
-  val users: Endpoint[HttpRequest, HttpResponse] =
+  val users: Service[HttpRequest, HttpResponse] = (
     Get    / "users" / long /> getUser :+:
     Get    / "users" /> allUsers       :+:
     Post   / "users" /> createUser     :+:
     Put    / "users" /> updateUser     :+:
     Delete / "users" /> deleteUsers
+  ).toService
 
   val handleExceptions = new SimpleFilter[HttpRequest, HttpResponse] {
     def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]): Future[HttpResponse] =

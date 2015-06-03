@@ -56,11 +56,9 @@ This "Hello World!" example is built with the `0.7.0-SNAPSHOT` version of `finch
 
 ```scala
 import io.finch.route._
-import io.finch.micro._
 import com.twitter.finagle.Httpx
 
-// this uses the "REST API as a Monad" mode
-Httpx.serve(":8080", Get / "hello" /> Micro.value("Hello, World!"))
+Httpx.serve(":8080", (Get / "hello" /> "Hello, World!").toService)
 ```
 
 Documentation
