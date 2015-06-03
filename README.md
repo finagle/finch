@@ -23,7 +23,7 @@ Finch uses multi-project structure and contains of the following _modules_:
 * [`finch-auth`](auth) - the Basic HTTP Auth support
 * [`finch-demo`](demo) - the demo project
 * [`finch-playground`](playground) - the playground project
-* [`finch-jawn`](jawn) - the JSON API support for the [Jawn](https://github.com/non/jawn) library
+* [`finch-jawn`](jawn) - the JSON API support for the [Jawn](https://github.com/non/jawn) library __DEPRECATED__
 * [`finch-argonaut`](argonaut) - the JSON API support for the [Argonaut](http://argonaut.io/) library
 * [`finch-jackson`](jackson) - the JSON API support for the [Jackson](http://jackson.codehaus.org/) library
 * [`finch-json4s`](json4s) - the JSON API support for the [JSON4S](http://json4s.org/) library

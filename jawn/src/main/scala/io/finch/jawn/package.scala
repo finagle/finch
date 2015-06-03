@@ -41,6 +41,7 @@ package object jawn {
    * @return Converts a jawn ''Facade'' into a ''DecodeJson''
    *
    */
+  @deprecated("Finch Jawn is deprecated in favor of other JSON libraries.", "0.7.0")
   implicit def decodeJawn[A](implicit facade: Facade[A]): DecodeRequest[A] = DecodeRequest(
     Parser.parseFromString(_) match {
       case Success(value) => Return(value)
@@ -52,6 +53,7 @@ package object jawn {
    * The ''encodeJawn'' object takes a ''JValue'' (part of Jawn's ast package) and
    * returns the string representation of that value.
    */
+  @deprecated("Finch Jawn is deprecated in favor of other JSON libraries.", "0.7.0")
   implicit val encodeJawn: EncodeResponse[JValue] =
     EncodeResponse("application/json")(CanonicalRenderer.render)
 }
