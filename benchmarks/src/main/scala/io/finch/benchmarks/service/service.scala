@@ -41,7 +41,7 @@ class FinchUserService(implicit
     body.as[User].apply(req).flatMap(db.update).map(_ => NoContent())
   }
 
-  val deleteUsers: Service[HttpRequest, HttpResponse] =
+  def deleteUsers: Service[HttpRequest, HttpResponse] =
     Service.const(db.delete().map(count => Ok(s"$count users deleted")))
 
   val users: Service[HttpRequest, HttpResponse] = (

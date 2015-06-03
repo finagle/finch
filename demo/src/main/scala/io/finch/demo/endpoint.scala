@@ -22,17 +22,11 @@
 
 package io.finch.demo
 
-import argonaut.{EncodeJson, Json}
-import com.twitter.finagle.Service
-import com.twitter.util.Future
-import io.finch.demo.model.Ticket
+import io.finch.demo.model.{Ticket, User}
+import io.finch.demo.service._
 import io.finch.route._
 
 object endpoint {
-
-  import model._
-  import service._
-
   val getUser: Endpoint[AuthRequest, User] = Get  / "users" / long /> GetUser
   val postUser: Endpoint[AuthRequest, User] = Post / "users" /> PostUser
   val getUsers: Endpoint[AuthRequest, List[User]] = Get  / "users" /> GetAllUsers
