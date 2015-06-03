@@ -179,4 +179,5 @@ lazy val auth = project
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")
   .settings(allSettings)
+  .settings(coverageExcludedPackages := "io\\.finch\\.benchmarks\\..*")
   .dependsOn(core, argonaut, jackson, json4s)
