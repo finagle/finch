@@ -29,7 +29,7 @@ import com.twitter.util.{Try, Throw, Return}
 
 package object json {
   @deprecated("encodeFinchJson is deprecated as part of the Finch JSON deprecation.", "0.7.0")
-  implicit val encodeFinchJson = EncodeResponse[Json]("application/json")(Json.encode)
+  implicit val encodeFinchJson = EncodeResponse.fromString[Json]("application/json")(Json.encode)
 
   @deprecated("decodeFinchJson is deprecated as part of the Finch JSON deprecation.", "0.7.0")
   implicit val decodeFinchJson = DecodeRequest[Json] { json =>

@@ -25,6 +25,7 @@ package io.finch
 
 import _root_.jawn.ast.{CanonicalRenderer, JValue}
 import _root_.jawn.{Facade, Parser}
+import com.twitter.io.Buf.Utf8
 import io.finch.request.DecodeRequest
 import io.finch.response.EncodeResponse
 import com.twitter.util.{Return, Throw}
@@ -55,5 +56,5 @@ package object jawn {
    */
   @deprecated("Finch Jawn is deprecated in favor of other JSON libraries.", "0.7.0")
   implicit val encodeJawn: EncodeResponse[JValue] =
-    EncodeResponse("application/json")(CanonicalRenderer.render)
+    EncodeResponse("application/json")(Utf8.apply _ compose CanonicalRenderer.render)
 }

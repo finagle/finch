@@ -23,6 +23,8 @@
 package io.finch
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.twitter.io.Buf
+import com.twitter.io.Buf.Utf8
 import io.finch.request.DecodeAnyRequest
 import io.finch.response.EncodeAnyResponse
 import com.twitter.util.Try
@@ -41,7 +43,7 @@ package object jackson {
 
   implicit def encodeJackson(implicit mapper: ObjectMapper): EncodeAnyResponse =
     new EncodeAnyResponse {
-      def apply[A](rep: A): String = mapper.writeValueAsString(rep)
+      def apply[A](rep: A): Buf = Utf8(mapper.writeValueAsString(rep))
       def contentType: String = "application/json"
     }
 }

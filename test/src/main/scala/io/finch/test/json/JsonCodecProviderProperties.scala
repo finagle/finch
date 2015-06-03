@@ -2,6 +2,7 @@ package io.finch.test.json
 
 import argonaut.{CodecJson, DecodeJson, EncodeJson, Parse}
 import argonaut.Argonaut.{casecodec3, casecodec5}
+import com.twitter.io.Buf.Utf8
 import com.twitter.util.Return
 import io.finch.request._
 import io.finch.response._
@@ -54,7 +55,7 @@ trait JsonCodecProviderProperties { self: Matchers with Checkers =>
    */
   def encodeNestedCaseClass(implicit encoder: EncodeResponse[ExampleNestedCaseClass]): Unit =
     check { (e: ExampleNestedCaseClass) =>
-      Parse.decodeOption(encoder(e))(exampleNestedCaseClassCodecJson) === Some(e)
+      Parse.decodeOption(Utf8.unapply(encoder(e)).get)(exampleNestedCaseClassCodecJson) === Some(e)
     }
 
   /**
@@ -84,7 +85,7 @@ trait JsonCodecProviderProperties { self: Matchers with Checkers =>
    */
   def encodeCaseClassList(implicit encoder: EncodeResponse[List[ExampleNestedCaseClass]]): Unit =
     check { (es: List[ExampleNestedCaseClass]) =>
-      Parse.decodeOption(encoder(es))(exampleNestedCaseClassListCodecJson) === Some(es)
+      Parse.decodeOption(Utf8.unapply(encoder(es)).getOrElse(""))(exampleNestedCaseClassListCodecJson) === Some(es)
     }
 
   /**

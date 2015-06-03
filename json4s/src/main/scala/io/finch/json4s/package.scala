@@ -24,7 +24,5 @@ package object json4s {
    * @return
    */
   implicit def encodeJson[A <: AnyRef](implicit formats: Formats): EncodeResponse[A] =
-    EncodeResponse("application/json") { out: A =>
-      write(out)
-    }
+    EncodeResponse.fromString[A]("application/json") { write(_) }
 }

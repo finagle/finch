@@ -38,7 +38,8 @@ case class ResponseBuilder(
   status: Status,
   headers: Map[String, String] = Map.empty[String, String],
   cookies: Seq[Cookie] = Seq.empty[Cookie],
-  contentType: Option[String] = None
+  contentType: Option[String] = None,
+  charset: Option[String] = None
 ) {
 
   /**
@@ -63,6 +64,13 @@ case class ResponseBuilder(
   def withContentType(contentType: Option[String]): ResponseBuilder = copy(contentType = contentType)
 
   /**
+   * Creates a new response builder with given `charset`.
+   *
+   * @param charset the charset to be used instead
+   */
+  def withCharset(charset: Option[String]): ResponseBuilder = copy(charset = charset)
+
+  /**
    * Builds an HTTP response of the given `body` with content-type according to the implicit
    * [[io.finch.response.EncodeResponse EncodeResponse]].
    *
@@ -70,8 +78,9 @@ case class ResponseBuilder(
    */
   def apply[A](body: A)(implicit encode: EncodeResponse[A]): HttpResponse = {
     val rep = Response(status)
-    rep.setContentType(contentType.getOrElse(encode.contentType))
-    rep.setContentString(encode(body))
+    rep.contentType = contentType.getOrElse(encode.contentType)
+    charset.orElse(encode.charset).foreach { c => rep.charset = c }
+    rep.content = encode(body)
     headers.foreach { case (k, v) => rep.headerMap.add(k, v) }
     cookies.foreach { rep.addCookie }
 
