@@ -180,4 +180,6 @@ lazy val auth = project
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")
   .settings(allSettings)
-  .dependsOn(core, argonaut, jackson, json4s)
+  .configs(IntegrationTest)
+  .settings(Defaults.itSettings)
+  .dependsOn(core, argonaut, jackson, json4s, test % "it")
