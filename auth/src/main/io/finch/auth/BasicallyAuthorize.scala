@@ -26,14 +26,13 @@ import io.finch._
 import io.finch.response._
 import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Base64StringEncoder
-import org.jboss.netty.handler.codec.http.HttpHeaders
 
 case class BasicallyAuthorize(user: String, password: String) extends SimpleFilter[HttpRequest, HttpResponse] {
   def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]) = {
     val userInfo = s"$user:$password"
     val expected = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
 
-    req.headerMap.get(HttpHeaders.Names.AUTHORIZATION) match {
+    req.authorization match {
       case Some(actual) if actual == expected => service(req)
       case _ => Unauthorized().toFuture
     }
