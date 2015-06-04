@@ -23,7 +23,6 @@
 package io.finch
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.httpx.Method
 
 /**
  * This package contains various of functions and types that enable _router combinators_ in Finch. A Finch
@@ -49,29 +48,15 @@ import com.twitter.finagle.httpx.Method
  * }}}
  */
 package object route {
-
-  object tokens {
-    //
-    // ADT that describes a route abstraction.
-    //
-    private[route] sealed trait RouteToken
-    private[route] case class MethodToken(m: Method) extends RouteToken
-    private[route] case class PathToken(p: String) extends RouteToken
-  }
-
   import tokens._
 
   private[route] type Route = List[RouteToken]
 
   /**
-   * A case class that enables the following syntax:
-   *
-   * {{{
-   *   val r: Router[Int / String] = Get / int / string
-   *   val s: String = p /> { case i / s => s + i }
-   * }}}
+   * Converts `Req` to `Route`.
    */
-  case class /[+A, +B](_1: A, _2: B)
+  private[finch] def requestToRoute[Req](req: HttpRequest): Route =
+    (MethodToken(req.method): RouteToken) :: (req.path.split("/").toList.drop(1) map PathToken)
 
   /**
    * A user friendly alias for [[io.finch.route.RouterN RouterN]].
@@ -83,108 +68,27 @@ package object route {
    */
   type Endpoint[-A, +B] = Router[Service[A, B]]
 
-  /**
-   * An exception, which is thrown by router in case of missing route `r`.
-   */
-  case class RouteNotFound(r: String) extends Exception(s"Route not found: $r")
-
-  /**
-   * Converts `Req` to `Route`.
-   */
-  private[finch] def requestToRoute[Req](req: HttpRequest): Route =
-    (MethodToken(req.method): RouteToken) :: (req.path.split("/").toList.drop(1) map PathToken)
-
   implicit def intToMatcher(i: Int): Router0 = new Matcher(i.toString)
   implicit def stringToMatcher(s: String): Router0 = new Matcher(s)
   implicit def booleanToMatcher(b: Boolean): Router0 = new Matcher(b.toString)
 
-  /**
-   * An universal matcher.
-   */
-  case class Matcher(s: String) extends Router0 {
-    def apply(route: Route): Option[Route] = for {
-      PathToken(ss) <- route.headOption if ss == s
-    } yield route.tail
-    override def toString = s
-  }
-
   private[route] def stringToSomeValue[A](fn: String => A)(s: String): Option[A] =
     try Some(fn(s)) catch { case _: IllegalArgumentException => None }
+}
+
+package route {
+  /**
+   * A case class that enables the following syntax:
+   *
+   * {{{
+   *   val r: Router[Int / String] = Get / int / string
+   *   val s: String = p /> { case i / s => s + i }
+   * }}}
+   */
+  case class /[+A, +B](_1: A, _2: B)
 
   /**
-   * A [[io.finch.route.RouterN RouterN]] that extracts a path token.
+   * An exception, which is thrown by router in case of missing route `r`.
    */
-  object PathTokenExtractor extends RouterN[String] {
-    override def apply(route: Route): Option[(Route, String)] = for {
-      PathToken(ss) <- route.headOption
-    } yield (route.tail, ss)
-  }
-
-  /**
-   * An universal extractor that extracts some value of type `A` if it's possible to fetch the value from the string.
-   */
-  case class Extractor[A](name: String, f: String => Option[A]) extends RouterN[A] {
-    def apply(route: Route): Option[(Route, A)] = PathTokenExtractor.embedFlatMap(f)(route)
-    def apply(n: String): Extractor[A] = copy[A](name = n)
-    override def toString = s":$name"
-  }
-
-  /**
-   * A [[io.finch.route.Router0 Router0]] that matches the given HTTP method `m` in the route.
-   */
-  case class MethodMatcher(m: Method) extends Router0 {
-    def apply(route: Route): Option[Route] = for {
-      MethodToken(mm) <- route.headOption if m == mm
-    } yield route.tail
-    override def toString = s"${m.toString.toUpperCase}"
-  }
-
-  //
-  // A group of routers that matches HTTP methods.
-  //
-  object Get extends MethodMatcher(Method.Get)
-  object Post extends MethodMatcher(Method.Post)
-  object Patch extends MethodMatcher(Method.Patch)
-  object Delete extends MethodMatcher(Method.Delete)
-  object Head extends MethodMatcher(Method.Head)
-  object Options extends MethodMatcher(Method.Options)
-  object Put extends MethodMatcher(Method.Put)
-  object Connect extends MethodMatcher(Method.Connect)
-  object Trace extends MethodMatcher(Method.Trace)
-
-  /**
-   * A [[io.finch.route.Router0 Router0]] that skips one route token.
-   */
-  object * extends Router0 {
-    def apply(route: Route): Option[Route] = Some(route.drop(1))
-    override def toString = "*"
-  }
-
-  /**
-   * A [[io.finch.route.Router0 Router0]] that skips all route tokens.
-   */
-  object ** extends Router0 {
-    def apply(route: Route): Option[Route] = Some(Nil)
-    override def toString = "**"
-  }
-
-  /**
-   * A [[io.finch.route.RouterN RouterN]] that extract an integer from the route.
-   */
-  object int extends Extractor("int", stringToSomeValue(_.toInt))
-
-  /**
-   * A [[io.finch.route.RouterN RouterN]] that extract a long value from the route.
-   */
-  object long extends Extractor("long", stringToSomeValue(_.toLong))
-
-  /**
-   * A [[io.finch.route.RouterN RouterN]] that extract a string value from the route.
-   */
-  object string extends Extractor("string", Some(_))
-
-  /**
-   * A [[io.finch.route.RouterN RouterN]] that extract a boolean value from the route.
-   */
-  object boolean extends Extractor("boolean", stringToSomeValue(_.toBoolean))
+  case class RouteNotFound(r: String) extends Exception(s"Route not found: $r")
 }

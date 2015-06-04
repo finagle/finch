@@ -193,26 +193,4 @@ package object finch {
     new Service[Req, Rep] {
       def apply(req: Req): Future[Rep] = f
     }
-
-  /**
-   * Allows to use an ''Endpoint'' when ''Service'' is expected. The implicit
-   * conversion is possible if there is an implicit view from ''Req'' to
-   * ''HttpRequest'' available in the scope.
-   *
-   * {{{
-   *   val e: Endpoint[HttpRequest, HttpResponse] = ???
-   *   Httpx.serve(new InetSocketAddress(8081), e)
-   * }}}
-   *
-   * @param e the endpoint to convert
-   * @param ev the evidence of implicit view
-   * @tparam Req the request type
-   * @tparam Rep the response type
-   *
-   * @return a service that delegates the requests to the underlying endpoint
-   */
-  implicit def endpointToService[Req, Rep](e: Endpoint[Req, Rep])(implicit ev: Req => HttpRequest): Service[Req, Rep] =
-    new Service[Req, Rep] {
-      def apply(req: Req): Future[Rep] = e.route(req.method -> Path(req.path))(req)
-    }
 }

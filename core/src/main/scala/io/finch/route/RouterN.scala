@@ -139,7 +139,15 @@ trait RouterN[+A] { self =>
  * Provides extension methods for [[RouterN]] to support coproduct and path
  * syntax.
  */
-object RouterN extends LowPriorityRouterImplicits {
+object RouterN {
+  /**
+   * Add `/>` compositors to `RouterN` to compose it with function of one argument.
+   */
+  implicit class RArrow1[A](r: RouterN[A]) {
+    def />[B](fn: A => B): RouterN[B] = r.map(fn)
+    def |[B >: A](that: RouterN[B]): RouterN[B] = r orElse that
+  }
+
   /**
    * An implicit conversion that turns any endpoint with an output type that can be converted into a response into a
    * service that returns responses.
