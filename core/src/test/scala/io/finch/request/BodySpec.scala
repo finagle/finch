@@ -27,7 +27,6 @@ import com.twitter.finagle.httpx.Request
 import com.twitter.io.Buf.ByteArray
 import com.twitter.util.{Await, Future, Try}
 import io.finch.HttpRequest
-import org.jboss.netty.handler.codec.http.HttpHeaders
 import org.scalatest.{FlatSpec, Matchers}
 import items._
 
@@ -158,7 +157,7 @@ class BodySpec extends FlatSpec with Matchers {
   private[this] def requestWithBody(body: Array[Byte]): HttpRequest = {
     val r = Request()
     r.content = ByteArray.Owned(body)
-    r.headerMap.update(HttpHeaders.Names.CONTENT_LENGTH, body.length.toString)
+    r.contentLength = body.length
     r
   }
 }

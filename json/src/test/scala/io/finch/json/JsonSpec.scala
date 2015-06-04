@@ -27,7 +27,6 @@ import com.twitter.io.Buf.Utf8
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.Request
 import com.twitter.util.{Await, Future}
-import org.jboss.netty.handler.codec.http.HttpHeaders
 
 import org.scalatest.{Matchers, FlatSpec}
 
@@ -196,7 +195,7 @@ class JsonSpec extends FlatSpec with Matchers {
     val jsonBody = Utf8(json.toString)
     val req = Request()
     req.content = jsonBody
-    req.headerMap.update(HttpHeaders.Names.CONTENT_LENGTH, jsonBody.length.toString)
+    req.contentLength = jsonBody.length
 
     val ok: HttpResponse = Ok(json)
     val j: RequestReader[Json] = body.as[Json]
