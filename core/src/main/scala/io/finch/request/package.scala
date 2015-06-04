@@ -32,13 +32,8 @@ import com.twitter.util.{Future, Return, Throw, Try}
 
 import org.jboss.netty.handler.codec.http.multipart.{HttpPostRequestDecoder, Attribute}
 
-import scala.annotation.implicitNotFound
 import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
-
-import shapeless._
-import shapeless.ops.function.FnToProduct
-import shapeless.ops.hlist.Tupler
 
 /**
  * This package introduces types and functions that enable _request processing_ in Finch. The [[io.finch.request]]
@@ -72,7 +67,7 @@ import shapeless.ops.hlist.Tupler
  *   ).as[User]
  * }}}
  */
-package object request extends LowPriorityRequestReaderImplicits {
+package object request {
 
   /**
     * A type alias for a [[org.jboss.netty.handler.codec.http.multipart.FileUpload]]
@@ -80,24 +75,6 @@ package object request extends LowPriorityRequestReaderImplicits {
     */
   type FileUpload = org.jboss.netty.handler.codec.http.multipart.FileUpload
 
-  /**
-   * A sane and safe approach to implicit view `A => B`.
-   */
-  @implicitNotFound("Can not view ${A} as ${B}. You must define an implicit value of type View[${A}, ${B}].")
-  trait View[A, B] {
-    def apply(x: A): B
-  }
-
-  /**
-   * A companion object for [[View]].
-   */
-  object View {
-    def apply[A, B](f: A => B): View[A, B] = new View[A, B] {
-      def apply(x: A): B = f(x)
-    }
-
-    implicit def identityView[A]: View[A, A] = View(x => x)
-  }
 
   /**
    * A symbolic alias for [[View]].
@@ -108,36 +85,6 @@ package object request extends LowPriorityRequestReaderImplicits {
    * A [[PRequestReader]] with request type fixed to [[HttpRequest]].
    */
   type RequestReader[A] = PRequestReader[HttpRequest, A]
-
-  /**
-   * A [[io.finch.request.DecodeRequest DecodeRequest]] instance for `String`.
-   */
-  implicit val decodeString: DecodeRequest[String] = DecodeRequest { s => Try(s) }
-
-  /**
-   * A [[io.finch.request.DecodeRequest DecodeRequest]] instance for `Int`.
-   */
-  implicit val decodeInt: DecodeRequest[Int] = DecodeRequest { s => Try(s.toInt) }
-
-  /**
-   * A [[io.finch.request.DecodeRequest DecodeRequest]] instance for `Long`.
-   */
-  implicit val decodeLong: DecodeRequest[Long] = DecodeRequest { s => Try(s.toLong) }
-
-  /**
-   * A [[io.finch.request.DecodeRequest DecodeRequest]] instance for `Float`.
-   */
-  implicit val decodeFloat: DecodeRequest[Float] = DecodeRequest { s => Try(s.toFloat) }
-
-  /**
-   * A [[DecodeRequest]] instance for `Double`.
-   */
-  implicit val decodeDouble: DecodeRequest[Double] = DecodeRequest { s => Try(s.toDouble) }
-
-  /**
-   * A [[io.finch.request.DecodeRequest DecodeRequest]] instance for `Boolean`.
-   */
-  implicit val decodeBoolean: DecodeRequest[Boolean] = DecodeRequest { s => Try(s.toBoolean) }
 
   /**
    * Representations for the various types that can be processed with [[io.finch.request.RequestReader RequestReader]]s.
@@ -154,86 +101,6 @@ package object request extends LowPriorityRequestReaderImplicits {
   }
 
   import items._
-
-  private[this] def notParsed[A](rr: PRequestReader[_, _], tag: ClassTag[_]): PartialFunction[Throwable, Try[A]] = {
-    case exc => Throw[A](NotParsed(rr.item, tag, exc))
-  }
-
-  /**
-   * Implicit conversion that allows to call `as[A]` on any `RequestReader[String]` to perform a type conversion based
-   * on an implicit `DecodeRequest[A]` which must be in scope.
-   *
-   * The resulting reader will fail when type conversion fails.
-   */
-  implicit class StringReaderOps[R](val rr: PRequestReader[R, String]) extends AnyVal {
-    def as[A](implicit decoder: DecodeRequest[A], tag: ClassTag[A]): PRequestReader[R, A] = rr.embedFlatMap { value =>
-      Future.const(decoder(value).rescue(notParsed[A](rr, tag)))
-    }
-  }
-
-  /**
-   * Implicit conversion that allows to call `as[A]` on any `RequestReader[Option[String]]` to perform a type conversion
-   * based on an implicit `DecodeRequest[A]` which must be in scope.
-   *
-   * The resulting reader will fail when the result is non-empty and type conversion fails. It will succeed if the
-   * result is empty or type conversion succeeds.
-   */
-  implicit class StringOptionReaderOps[R](val rr: PRequestReader[R, Option[String]]) extends AnyVal {
-    def as[A](implicit decoder: DecodeRequest[A], tag: ClassTag[A]): PRequestReader[R, Option[A]] = rr.embedFlatMap {
-      case Some(value) => Future.const(decoder(value).rescue(notParsed[A](rr, tag)) map (Some(_)))
-      case None => Future.None
-    }
-
-    private[request] def noneIfEmpty: PRequestReader[R, Option[String]] = rr.map {
-      case Some(value) if value.isEmpty => None
-      case other => other
-    }
-  }
-
-  /**
-   * Implicit conversion that allows to call `as[A]` on any `RequestReader[Seq[String]]` to perform a type conversion
-   * based on an implicit ''DecodeRequest[A]'' which must be in scope.
-   *
-   * The resulting reader will fail when the result is non-empty and type conversion fails on one or more of the
-   * elements in the `Seq`. It will succeed if the result is empty or type conversion succeeds for all elements.
-   */
-  implicit class StringSeqReaderOps[R](val rr: PRequestReader[R, Seq[String]]) {
-
-    /* IMPLEMENTATION NOTE: This implicit class should extend AnyVal like all the other ones, to avoid instance creation
-     * for each invocation of the extension method. However, this let's us run into a compiler bug when we compile for
-     * Scala 2.10: https://issues.scala-lang.org/browse/SI-8018. The bug is caused by the combination of four things:
-     * 1) an implicit class, 2) extending AnyVal, 3) wrapping a class with type parameters, 4) a partial function in the
-     * body. 2) is the only thing we can easily remove here, otherwise we'd need to move the body of the method
-     * somewhere else. Once we drop support for Scala 2.10, this class can safely extends AnyVal.
-     */
-
-    def as[A](implicit decoder: DecodeRequest[A], tag: ClassTag[A]): PRequestReader[R, Seq[A]] =
-      rr.embedFlatMap { items =>
-        val converted = items map (decoder(_))
-        if (converted.forall(_.isReturn)) converted.map(_.get).toFuture
-        else RequestErrors(converted collect { case Throw(e) => NotParsed(rr.item, tag, e) }).toFutureException[Seq[A]]
-      }
-  }
-
-  /**
-   * Implicit conversion that adds convenience methods to readers for optional values.
-   */
-  implicit class OptionReaderOps[R, A](val rr: PRequestReader[R, Option[A]]) extends AnyVal {
-    private[request] def failIfNone: PRequestReader[R, A] = rr.embedFlatMap {
-      case Some(value) => value.toFuture
-      case None => NotPresent(rr.item).toFutureException[A]
-    }
-
-    /**
-     * If reader is empty it will return provided default value
-     */
-    def withDefault[B >: A](default: => B): PRequestReader[R, B] = rr.map(_.getOrElse(default))
-
-    /**
-     * If reader is empty it will return provided alternative
-     */
-    def orElse[B >: A](alternative: => Option[B]): PRequestReader[R, Option[B]] = rr.map(_.orElse(alternative))
-  }
 
   /**
    * Implicit conversion that allows the same inline rules to be used for required and optional values. If the optional
@@ -252,92 +119,6 @@ package object request extends LowPriorityRequestReaderImplicits {
   implicit def toOptionalInlineRule[A](fn: A => Boolean): Option[A] => Boolean = {
     case Some(value) => fn(value)
     case None => true
-  }
-
-  /**
-   * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of two arguments.
-   */
-  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
-  implicit class RrArrow2[R, A, B](val rr: PRequestReader[R, A ~ B]) extends AnyVal {
-    def ~~>[C](fn: (A, B) => Future[C]): PRequestReader[R, C] =
-      rr.embedFlatMap { case (a ~ b) => fn(a, b) }
-
-    def ~>[C](fn: (A, B) => C): PRequestReader[R, C] =
-      rr.map { case (a ~ b) => fn(a, b) }
-  }
-
-  /**
-   * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of three arguments.
-   */
-  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
-  implicit class RrArrow3[R, A, B, C](val rr: PRequestReader[R, A ~ B ~ C]) extends AnyVal {
-    def ~~>[D](fn: (A, B, C) => Future[D]): PRequestReader[R, D] =
-      rr.embedFlatMap { case (a ~ b ~ c) => fn(a, b, c) }
-
-    def ~>[D](fn: (A, B, C) => D): PRequestReader[R, D] =
-      rr.map { case (a ~ b ~ c) => fn(a, b, c) }
-  }
-
-  /**
-   * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of four arguments.
-   */
-  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
-  implicit class RrArrow4[R, A, B, C, D](val rr: PRequestReader[R, A ~ B ~ C ~ D]) extends AnyVal {
-    def ~~>[E](fn: (A, B, C, D) => Future[E]): PRequestReader[R, E] =
-      rr.embedFlatMap { case (a ~ b ~ c ~ d) => fn(a, b, c, d) }
-
-    def ~>[E](fn: (A, B, C, D) => E): PRequestReader[R, E] =
-      rr.map { case (a ~ b ~ c ~ d) => fn(a, b, c, d) }
-  }
-
-  /**
-   * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of five arguments.
-   */
-  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
-  implicit class RrArrow5[R, A, B, C, D, E](val rr: PRequestReader[R, A ~ B ~ C ~ D ~ E]) extends AnyVal {
-    def ~~>[F](fn: (A, B, C, D, E) => Future[F]): PRequestReader[R, F] =
-      rr.embedFlatMap { case (a ~ b ~ c ~ d ~ e) => fn(a, b, c, d, e) }
-
-    def ~>[F](fn: (A, B, C, D, E) => F): PRequestReader[R, F] =
-      rr.map { case (a ~ b ~ c ~ d ~ e) => fn(a, b, c, d, e) }
-  }
-
-  /**
-   * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of six arguments.
-   */
-  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
-  implicit class RrArrow6[R, A, B, C, D, E, F](val rr: PRequestReader[R, A ~ B ~ C ~ D ~ E ~ F]) extends AnyVal {
-    def ~~>[G](fn: (A, B, C, D, E, F) => Future[G]): PRequestReader[R, G] =
-      rr.embedFlatMap { case (a ~ b ~ c ~ d ~ e ~ f) => fn(a, b, c, d, e, f) }
-
-    def ~>[G](fn: (A, B, C, D, E, F) => G): PRequestReader[R, G] =
-      rr.map { case (a ~ b ~ c ~ d ~ e ~ f) => fn(a, b, c, d, e, f) }
-  }
-
-  /**
-   * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of seven arguments.
-   */
-  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
-  implicit class RrArrow7[R, A, B, C, D, E, F, G](val rr: PRequestReader[R, A ~ B ~ C ~ D ~ E ~ F ~ G]) extends AnyVal {
-    def ~~>[H](fn: (A, B, C, D, E, F, G) => Future[H]): PRequestReader[R, H] =
-      rr.embedFlatMap { case (a ~ b ~ c ~ d ~ e ~ f ~ g) => fn(a, b, c, d, e, f, g) }
-
-    def ~>[H](fn: (A, B, C, D, E, F, G) => H): PRequestReader[R, H] =
-      rr.map { case (a ~ b ~ c ~ d ~ e ~ f ~ g) => fn(a, b, c, d, e, f, g) }
-  }
-
-  /**
-   * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of eight arguments.
-   */
-  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
-  implicit class RrArrow8[R, A, B, C, D, E, F, G, H](
-    val rr: PRequestReader[R, A ~ B ~ C ~ D ~ E ~ F ~ G ~ H]
-  ) extends AnyVal {
-    def ~~>[I](fn: (A, B, C, D, E, F, G, H) => Future[I]): PRequestReader[R, I] =
-      rr.embedFlatMap { case (a ~ b ~ c ~ d ~ e ~ f ~ g ~ h) => fn(a, b, c, d, e, f, g, h) }
-
-    def ~>[I](fn: (A, B, C, D, E, F, G, H) => I): PRequestReader[R, I] =
-      rr.map { case (a ~ b ~ c ~ d ~ e ~ f ~ g ~ h) => fn(a, b, c, d, e, f, g, h) }
   }
 
   // Helper functions.
@@ -508,115 +289,6 @@ package object request extends LowPriorityRequestReaderImplicits {
    * @return the file
    */
   def fileUpload(name: String): RequestReader[FileUpload] = fileUploadOption(name).failIfNone
-
-  /**
-   * An abstraction that is responsible for decoding the request of type `A`.
-   */
-  trait DecodeRequest[A] {
-    def apply(req: String): Try[A]
-  }
-
-  object DecodeRequest {
-    /**
-     * Convenience method for creating new [[io.finch.request.DecodeRequest DecodeRequest]] instances.
-     */
-    def apply[A](f: String => Try[A]): DecodeRequest[A] = new DecodeRequest[A] {
-      def apply(value: String): Try[A] = f(value)
-    }
-  }
-
-  /**
-   * An abstraction that is responsible for decoding the request of general type.
-   */
-  trait DecodeAnyRequest {
-    def apply[A: ClassTag](req: String): Try[A]
-  }
-
-  /**
-   * Implicit class that provides `::` and other operations on any request reader that returns a
-   * [[shapeless.HList]].
-   *
-   * See the implementation note on [[StringSeqReaderOps]] for a discussion of why this is not
-   * currently a value class.
-   */
-  final implicit class HListReaderOps[R, L <: HList](val self: PRequestReader[R, L]) {
-
-    /**
-     * Composes this request reader with the given `that` request reader.
-     */
-    def ::[S, A](that: PRequestReader[S, A])(implicit ev: S %> R): PRequestReader[S, A :: L] =
-      new PRequestReader[S, A :: L] {
-        val item = MultipleItems
-        def apply(req: S): Future[A :: L] =
-          Future.join(that(req).liftToTry, self(ev(req)).liftToTry).flatMap {
-            case (Return(a), Return(l)) => (a :: l).toFuture
-            case (Throw(a), Throw(l)) => collectExceptions(a, l).toFutureException[A :: L]
-            case (Throw(e), _) => e.toFutureException[A :: L]
-            case (_, Throw(e)) => e.toFutureException[A :: L]
-          }
-
-        def collectExceptions(a: Throwable, b: Throwable): RequestErrors = {
-          def collect(e: Throwable): Seq[Throwable] = e match {
-            case RequestErrors(errors) => errors
-            case other => Seq(other)
-          }
-
-          RequestErrors(collect(a) ++ collect(b))
-        }
-      }
-
-    /**
-     * Converts this request reader to one that returns any type with this [[shapeless.HList]] as
-     * its representation.
-     */
-    def as[A](implicit gen: Generic.Aux[A, L]): PRequestReader[R, A] = self.map(gen.from)
-
-    /**
-     * Converts this request reader to one that returns a tuple with the same types as this
-     * [[shapeless.HList]].
-     *
-     * Note that this will fail at compile time if this this [[shapeless.HList]] contains more than
-     * 22 elements.
-     */
-    def asTuple(implicit tupler: Tupler[L]): PRequestReader[R, tupler.Out] = self.map(tupler(_))
-
-    /**
-     * Applies a `FunctionN` with the appropriate arity and types and a `Future` return type to
-     * the elements of this [[shapeless.HList]].
-     */
-    def ~~>[F, I, FI](fn: F)(
-      implicit ftp: FnToProduct.Aux[F, L => FI], ev: FI <:< Future[I]
-    ): PRequestReader[R, I] = self.embedFlatMap(value => ev(ftp(fn)(value)))
-
-    /**
-     * Applies a `FunctionN` with the appropriate arity and types to the elements of this
-     * [[shapeless.HList]].
-     */
-    def ~>[F, I](fn: F)(implicit ftp: FnToProduct.Aux[F, L => I]): PRequestReader[R, I] =
-      self.map(ftp(fn))
-  }
-
-  /**
-   * Implicit class that provides `::` on any request reader to support building [[shapeless.HList]]
-   * request readers.
-   */
-  final implicit class ValueReaderOps[R, B](val self: PRequestReader[R, B]) extends AnyVal {
-
-    /**
-     * Lift this request reader into a singleton [[shapeless.HList]] and compose it with the given
-     * `that` request reader.
-     */
-    def ::[S, A](that: PRequestReader[S, A])(implicit ev: S %> R): PRequestReader[S, A :: B :: HNil] =
-      that :: self.map(_ :: HNil)
-
-    /**
-     * Converts this request reader to one that returns any type with `B :: HNil` as
-     * its representation.
-     */
-    def as[A](implicit gen: Generic.Aux[A, B :: HNil]): PRequestReader[R, A] = self.map { value =>
-      gen.from(value :: HNil)
-    }
-  }
 
   /**
    * A wrapper for two result values.
