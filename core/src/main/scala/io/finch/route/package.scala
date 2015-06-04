@@ -96,7 +96,7 @@ package object route {
 
   implicit def intToMatcher(i: Int): Router0 = new Matcher(i.toString)
   implicit def stringToMatcher(s: String): Router0 = new Matcher(s)
-  implicit def booleanToMather(b: Boolean): Router0 = new Matcher(b.toString)
+  implicit def booleanToMatcher(b: Boolean): Router0 = new Matcher(b.toString)
 
   /**
    * An universal matcher.
