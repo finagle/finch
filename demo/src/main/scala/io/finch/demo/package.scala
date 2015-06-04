@@ -42,7 +42,7 @@ import com.twitter.util.Future
  * - [[demo.service]] - the application services
  * - [[demo.endpoint]] - [[io.finch.route.Router]]s for services (endpoints)
  */
-package object demo {
+package demo {
 
   import model._
 
@@ -53,13 +53,13 @@ package object demo {
   object AuthRequest {
     implicit val toRequest: ToRequest[AuthRequest] =
       ToRequest[AuthRequest](_.http)
-  }
 
-  // We define an implicit view from `AuthRequest to `HttpRequest`,
-  // so we can get two benefits:
-  //  1. We can treat an `Endpoint` as a `Service`, since it will be implicitly converted.
-  //  2. We can treat an `AuthRequest` as ''HttpRequest'' and pass it to `RequestReader`.
-  implicit val authReqEv = (req: AuthRequest) => req.http
+    // We define an implicit view from `AuthRequest to `HttpRequest`,
+    // so we can get two benefits:
+    //  1. We can treat an `Endpoint` as a `Service`, since it will be implicitly converted.
+    //  2. We can treat an `AuthRequest` as ''HttpRequest'' and pass it to `RequestReader`.
+    implicit val authReqEv: AuthRequest => HttpRequest = _.http
+  }
 
   // A thread-safe ids generator.
   object Id {

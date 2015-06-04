@@ -105,3 +105,19 @@ trait Router0 { self =>
   def |(that: Router0): Router0 =
     this orElse that
 }
+
+/**
+ * A [[io.finch.route.Router0 Router0]] that skips one route token.
+ */
+object * extends Router0 {
+  def apply(route: Route): Option[Route] = Some(route.drop(1))
+  override def toString = "*"
+}
+
+/**
+ * A [[io.finch.route.Router0 Router0]] that skips all route tokens.
+ */
+object ** extends Router0 {
+  def apply(route: Route): Option[Route] = Some(Nil)
+  override def toString = "**"
+}
