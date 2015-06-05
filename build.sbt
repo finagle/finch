@@ -182,4 +182,5 @@ lazy val benchmarks = project
   .settings(allSettings)
   .configs(IntegrationTest)
   .settings(Defaults.itSettings)
+  .settings(parallelExecution in IntegrationTest := false)
   .dependsOn(core, argonaut, jackson, json4s, test % "it")
