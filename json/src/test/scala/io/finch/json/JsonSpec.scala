@@ -195,7 +195,7 @@ class JsonSpec extends FlatSpec with Matchers {
     val jsonBody = Utf8(json.toString)
     val req = Request()
     req.content = jsonBody
-    req.contentLength = jsonBody.length
+    req.contentLength = jsonBody.length.toLong
 
     val ok: HttpResponse = Ok(json)
     val j: RequestReader[Json] = body.as[Json]
