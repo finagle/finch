@@ -157,7 +157,7 @@ class BodySpec extends FlatSpec with Matchers {
   private[this] def requestWithBody(body: Array[Byte]): HttpRequest = {
     val r = Request()
     r.content = ByteArray.Owned(body)
-    r.contentLength = body.length
+    r.contentLength = body.length.toLong
     r
   }
 }
