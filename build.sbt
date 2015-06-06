@@ -183,4 +183,25 @@ lazy val benchmarks = project
   .configs(IntegrationTest)
   .settings(Defaults.itSettings)
   .settings(parallelExecution in IntegrationTest := false)
+  .settings(coverageExcludedPackages := "io\\.finch\\.benchmarks\\.service\\.UserServiceBenchmark")
+  .settings(
+    javaOptions in (IntegrationTest, run) ++= Seq(
+      "-Djava.net.preferIPv4Stack=true",
+      "-XX:+AggressiveOpts",
+      "-XX:+UseParNewGC",
+      "-XX:+UseConcMarkSweepGC",
+      "-XX:+CMSParallelRemarkEnabled",
+      "-XX:+CMSClassUnloadingEnabled",
+      "-XX:ReservedCodeCacheSize=128m",
+      "-XX:MaxPermSize=1024m",
+      "-Xss8M",
+      "-Xms512M",
+      "-XX:SurvivorRatio=128",
+      "-XX:MaxTenuringThreshold=0",
+      "-Xss8M",
+      "-Xms512M",
+      "-Xmx2G",
+      "-server"
+    )
+  )
   .dependsOn(core, argonaut, jackson, json4s, test % "it")
