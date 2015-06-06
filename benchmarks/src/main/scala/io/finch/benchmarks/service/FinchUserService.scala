@@ -9,12 +9,6 @@ import io.finch.request._
 import io.finch.response._
 import io.finch.route._
 
-abstract class UserService {
-  val db = new UserDb
-
-  def backend: Service[HttpRequest, HttpResponse]
-}
-
 class FinchUserService(implicit
   userDecoder: DecodeRequest[User],
   newUserInfoDecoder: DecodeRequest[NewUserInfo],
@@ -56,8 +50,6 @@ class FinchUserService(implicit
     def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]): Future[HttpResponse] =
       service(req).handle {
         case notFound @ UserNotFound(_) => BadRequest(notFound.getMessage)
-        case NotPresent(_) => BadRequest("Missing parameter")
-        case NotParsed(_, _, _) => BadRequest("Parameter not parsed")
         case _ => InternalServerError()
       }
   }

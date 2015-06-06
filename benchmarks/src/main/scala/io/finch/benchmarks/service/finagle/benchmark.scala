@@ -76,8 +76,4 @@ class FinagleUserService extends UserService {
   val backend = handleExceptions andThen users
 }
 
-class FinagleBenchmark extends UserServiceBenchmark(new FinagleUserService)
-
-object FinagleBenchmark extends UserServiceApp(new FinagleUserService) {
-  def main(args: Array[String]): Unit = run()
-}
+class FinagleBenchmark extends UserServiceBenchmark(() => userService)

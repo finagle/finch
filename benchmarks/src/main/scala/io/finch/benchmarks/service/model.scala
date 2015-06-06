@@ -23,7 +23,7 @@ class UserDb {
 
   def update(user: User): Future[Unit] = Future.value(users.synchronized(users(user.id) = user))
 
-  def all: Future[List[User]] = Future.value(users.synchronized(users.values.toList))
+  def all: Future[List[User]] = Future.value(users.synchronized(users.values.toList.sortBy(_.id)))
 
   def delete(): Future[Int] = Future.value(
     users.synchronized {
