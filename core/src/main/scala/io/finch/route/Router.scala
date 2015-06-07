@@ -158,20 +158,22 @@ object Router {
   }
 
   /**
-   * Implicit class that provides `:+:` and other operations on any coproduct router.
+   * Base class for implicit classes that support `:+:` syntax for building routers.
    */
-  final implicit class CoproductRouterOps[C <: Coproduct](self: Router[C]) {
+  abstract class CoproductRouterOps[S, C <: Coproduct](self: Router[S]) {
+    protected def right[A](s: S): A :+: C
+
     def :+:[A](that: Router[A]): Router[A :+: C] =
       new Router[A :+: C] {
         def apply(route: Route): Option[(Route, A :+: C)] =
           (that(route), self(route)) match {
-            case (Some((ar, av)), Some((cr, cv))) =>
-              if (ar.length <= cr.length) Some((ar, Inl(av))) else Some((cr, Inr(cv)))
-            case (a, c) =>
+            case (Some((ar, av)), Some((sr, sv))) =>
+              if (ar.size <= sr.size) Some((ar, Inl(av))) else Some((sr, right(sv)))
+            case (a, s) =>
               a.map {
                 case (r, v) => (r, Inl(v))
-              } orElse c.map {
-                case (r, v) => (r, Inr(v))
+              } orElse s.map {
+                case (r, v) => (r, right(v))
               }
           }
 
@@ -180,25 +182,19 @@ object Router {
   }
 
   /**
+   * Implicit class that provides `:+:` and other operations on any coproduct router.
+   */
+  final implicit class CoproductRouterOps1[C <: Coproduct](self: Router[C])
+    extends CoproductRouterOps[C, C](self) {
+    protected def right[A](c: C): A :+: C = Inr(c)
+  }
+
+  /**
    * Implicit class that provides `:+:` on any router.
    */
-  final implicit class ValueRouterOps[B](self: Router[B]) {
-    def :+:[A](that: Router[A]): Router[A :+: B :+: CNil] =
-      new Router[A :+: B :+: CNil] {
-        def apply(route: Route): Option[(Route, A :+: B :+: CNil)] =
-          (that(route), self(route)) match {
-            case (Some((ar, av)), Some((br, bv))) =>
-              if (ar.length <= br.length) Some((ar, Inl(av))) else Some((br, Inr(Inl(bv))))
-            case (a, b) =>
-              a.map {
-                case (r, v) => (r, Inl(v))
-              } orElse b.map {
-                case (r, v) => (r, Inr(Inl(v)))
-              }
-          }
-
-        override def toString = s"(${that.toString}|${self.toString})"
-      }
+  final implicit class CoproductRouterOps0[B](self: Router[B])
+    extends CoproductRouterOps[B, B :+: CNil](self) {
+    protected def right[A](b: B): A :+: B :+: CNil = Inr(Inl(b))
   }
 
   /**
