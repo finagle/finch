@@ -110,6 +110,7 @@ lazy val root = project.in(file("."))
 lazy val core = project
   .settings(moduleName := "finch-core")
   .settings(allSettings)
+  .settings(coverageExcludedPackages := "io\\.finch\\.micro\\..*")
 
 lazy val test = project
   .settings(moduleName := "finch-test")
@@ -123,6 +124,7 @@ lazy val test = project
 lazy val json = project
   .settings(moduleName := "finch-json")
   .settings(allSettings)
+  .settings(coverageExcludedPackages := "io\\.finch\\.json\\..*")
   .dependsOn(core)
 
 lazy val demo = project
@@ -143,6 +145,7 @@ lazy val playground = project
 lazy val jawn = project
   .settings(moduleName := "finch-jawn")
   .settings(allSettings)
+  .settings(coverageExcludedPackages := "io\\.finch\\.jawn\\..*")
   .settings(
     libraryDependencies ++= Seq(
       "org.spire-math" %% "jawn-parser" % "0.7.4",
