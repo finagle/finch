@@ -43,7 +43,7 @@ trait Router[A] { self =>
   /**
    * Attempts to match a route, but only returns any unmatched elements, not the value.
    */
-  def exec(route: Route): Option[Route] = apply(route).map(_._1)
+  private[route] def exec(route: Route): Option[Route] = apply(route).map(_._1)
 
   /**
    * Maps this router to the given function `A => B`.

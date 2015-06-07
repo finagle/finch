@@ -28,10 +28,9 @@ import shapeless.HNil
 /**
  * This package contains various of functions and types that enable _router combinators_ in Finch. A Finch
  * [[io.finch.route.Router Router]] is an abstraction that is responsible for routing the HTTP requests using their
- * method and path information. There are two types of routers in Finch: [[io.finch.route.Router0 Router0]] and
- * [[io.finch.route.Router Router]]. `Router0` matches the route and returns an `Option` of the rest of the route.
- * `Router[A]` (or just `Router[A]`) in addition to the `Router0` behaviour extracts a value of type `A` from the
- * route.
+ * method and path information. There are two types of routers in Finch: [[io.finch.route.Matcher Matcher]] and
+ * [[io.finch.route.Router Router]]. `Matcher` matches the route and returns an `Option` of the rest of the route.
+ * `Router[A]` in addition to the `Matcher` behaviour extracts a value of type `A` from the route.
  *
  * A [[io.finch.route.Router Router]] that maps route to a [[com.twitter.finagle.Service Service]] is called an
  * [[io.finch.route.Endpoint Endpoint]]. An endpoint `Req => Rep` might be implicitly converted into a
@@ -64,10 +63,6 @@ package object route {
    */
   type Endpoint[A, B] = Router[Service[A, B]]
 
-  implicit def intToMatcher(i: Int): Router0 = new Matcher(i.toString)
-  implicit def stringToMatcher(s: String): Router0 = new Matcher(s)
-  implicit def booleanToMatcher(b: Boolean): Router0 = new Matcher(b.toString)
-
   private[route] def stringToSomeValue[A](fn: String => A)(s: String): Option[A] =
     try Some(fn(s)) catch { case _: IllegalArgumentException => None }
 
@@ -77,6 +72,10 @@ package object route {
   implicit class RArrow0[R](r: R)(implicit ev: R => Router[HNil]) {
     def />[B](v: => B): Router[B] = r.map(_ => v)
   }
+
+  implicit def intToMatcher(i: Int): Router[HNil] = StringMatcher(i.toString)
+  implicit def stringToMatcher(s: String): Router[HNil] = StringMatcher(s)
+  implicit def booleanToMatcher(b: Boolean): Router[HNil] = StringMatcher(b.toString)
 }
 
 package route {
