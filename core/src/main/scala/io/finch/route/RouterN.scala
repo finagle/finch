@@ -180,13 +180,14 @@ object RouterN {
       new RouterN[A :+: C] {
         def apply(route: Route): Option[(Route, A :+: C)] =
           (that(route), self(route)) match {
-            case (aa @ Some((ar, av)), cc @ Some((cr, cv))) =>
+            case (Some((ar, av)), Some((cr, cv))) =>
               if (ar.length <= cr.length) Some((ar, Inl(av))) else Some((cr, Inr(cv)))
-            case (a, c) => a.map {
-              case (r, v) => (r, Inl(v))
-            } orElse c.map {
-              case (r, v) => (r, Inr(v))
-            }
+            case (a, c) =>
+              a.map {
+                case (r, v) => (r, Inl(v))
+              } orElse c.map {
+                case (r, v) => (r, Inr(v))
+              }
           }
 
         override def toString = s"(${that.toString}|${self.toString})"
@@ -201,13 +202,14 @@ object RouterN {
       new RouterN[A :+: B :+: CNil] {
         def apply(route: Route): Option[(Route, A :+: B :+: CNil)] =
           (that(route), self(route)) match {
-            case (aa @ Some((ar, av)), bb @ Some((br, bv))) =>
+            case (Some((ar, av)), Some((br, bv))) =>
               if (ar.length <= br.length) Some((ar, Inl(av))) else Some((br, Inr(Inl(bv))))
-            case (a, b) => a.map {
-              case (r, v) => (r, Inl(v))
-            } orElse b.map {
-              case (r, v) => (r, Inr(Inl(v)))
-            }
+            case (a, b) =>
+              a.map {
+                case (r, v) => (r, Inl(v))
+              } orElse b.map {
+                case (r, v) => (r, Inr(Inl(v)))
+              }
           }
 
         override def toString = s"(${that.toString}|${self.toString})"
