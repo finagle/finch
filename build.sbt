@@ -185,7 +185,7 @@ lazy val benchmarks = project
   .settings(parallelExecution in IntegrationTest := false)
   .settings(coverageExcludedPackages := "io\\.finch\\.benchmarks\\.service\\.UserServiceBenchmark")
   .settings(
-    javaOptions in (IntegrationTest, run) ++= Seq(
+    javaOptions in run ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
       "-XX:+AggressiveOpts",
       "-XX:+UseParNewGC",

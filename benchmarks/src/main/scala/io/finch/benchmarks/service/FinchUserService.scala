@@ -15,14 +15,12 @@ class FinchUserService(implicit
   userEncoder: EncodeResponse[User],
   usersEncoder: EncodeResponse[List[User]]
 ) extends UserService {
-  def getUser(id: Long): Service[HttpRequest, User] = Service.const(
-    db.get(id).flatMap {
-      case Some(user) => Future.value(user)
-      case None => Future.exception[User](UserNotFound(id))
-    }
-  )
+  def getUser(id: Long): Future[User] = db.get(id).flatMap {
+    case Some(user) => Future.value(user)
+    case None => Future.exception[User](UserNotFound(id))
+  }
 
-  def allUsers: Service[HttpRequest, List[User]] = Service.const(db.all)
+  val allUsers: Service[HttpRequest, List[User]] = Service.mk(_ => db.all)
 
   val createUser: Service[HttpRequest, HttpResponse] = Service.mk { req =>
     for {
@@ -35,8 +33,8 @@ class FinchUserService(implicit
     body.as[User].apply(req).flatMap(db.update).map(_ => NoContent())
   }
 
-  def deleteUsers: Service[HttpRequest, HttpResponse] =
-    Service.const(db.delete().map(count => Ok(s"$count users deleted")))
+  val deleteUsers: Service[HttpRequest, HttpResponse] =
+    Service.mk(_ => db.delete().map(count => Ok(s"$count users deleted")))
 
   val users: Service[HttpRequest, HttpResponse] = (
     Get    / "users" / long /> getUser :+:
