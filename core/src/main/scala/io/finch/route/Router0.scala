@@ -27,7 +27,7 @@ import shapeless._
 /**
  * A router that match the given route to some predicate.
  */
-trait Router0 extends RouterN[HNil] { self =>
+trait Router0 extends Router[HNil] { self =>
   /**
    * Matches the given `route` to some predicate and returns `Some` of the _rest_ of the route in case of success or
    * `None` otherwise.

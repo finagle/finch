@@ -32,7 +32,7 @@ import shapeless._
 /**
  * A router that extracts some value of the type `A` from the given route.
  */
-trait RouterN[A] { self =>
+trait Router[A] { self =>
 
   /**
    * Extracts some value of type `A` from the given `route`. In case of success it returns `Some` tuple of the _rest_ of
@@ -48,7 +48,7 @@ trait RouterN[A] { self =>
   /**
    * Maps this router to the given function `A => B`.
    */
-  def map[B](fn: A => B): RouterN[B] = new RouterN[B] {
+  def map[B](fn: A => B): Router[B] = new Router[B] {
     def apply(route: Route): Option[(Route, B)] = for {
       (r, a) <- self(route)
     } yield (r, fn(a))
@@ -59,7 +59,7 @@ trait RouterN[A] { self =>
    * Flat-maps the router to the given function `A => Option[B]`. If the given function `None` the resulting router will
    * also return `None`.
    */
-  def embedFlatMap[B](fn: A => Option[B]): RouterN[B] = new RouterN[B] {
+  def embedFlatMap[B](fn: A => Option[B]): Router[B] = new Router[B] {
     def apply(route: Route): Option[(Route, B)] = for {
       (r, a) <- self(route)
       b <- fn(a)
@@ -68,9 +68,9 @@ trait RouterN[A] { self =>
   }
 
   /**
-   * Flat-maps this router to the given function `A => RouterN[B]`.
+   * Flat-maps this router to the given function `A => Router[B]`.
    */
-  def flatMap[B](fn: A => RouterN[B]): RouterN[B] = new RouterN[B] {
+  def flatMap[B](fn: A => Router[B]): Router[B] = new Router[B] {
     def apply(route: Route): Option[(Route, B)] = for {
       (r, a) <- self(route)
       (rr, b) <- fn(a)(r)
@@ -82,7 +82,7 @@ trait RouterN[A] { self =>
    * Sequentially composes this router with the given `that` router. The resulting router will succeed only if both this
    * and `that` routers are succeed.
    */
-  def andThen[B](that: RouterN[B])(implicit smash: Smash[A, B]): RouterN[smash.Out] = new RouterN[smash.Out] {
+  def andThen[B](that: Router[B])(implicit smash: Smash[A, B]): Router[smash.Out] = new Router[smash.Out] {
     val ab = for { a <- self; b <- that } yield smash(a, b)
     def apply(route: Route): Option[(Route, smash.Out)] = ab(route)
     override def toString = s"${self.toString}/${that.toString}"
@@ -95,7 +95,7 @@ trait RouterN[A] { self =>
    * Router composition via `orElse` operator happens in a _greedy_ manner: it minimizes the output route tail. Thus, if
    * both of the routers can handle the given `route` the router is being chosen is that which eats more.
    */
-  def orElse[B >: A](that: RouterN[B]): RouterN[B] = new RouterN[B] {
+  def orElse[B >: A](that: Router[B]): Router[B] = new Router[B] {
     def apply(route: Route): Option[(Route, B)] = (self(route), that(route)) match {
       case (aa @ Some((a, _)), bb @ Some((b, _))) =>
         if (a.length <= b.length) aa else bb
@@ -109,18 +109,18 @@ trait RouterN[A] { self =>
    * Sequentially composes this router with the given `that` router. The resulting router will succeed only if both this
    * and `that` routers are succeed.
    */
-  def /[B](that: RouterN[B])(implicit smash: Smash[A, B]): RouterN[smash.Out] =
+  def /[B](that: Router[B])(implicit smash: Smash[A, B]): Router[smash.Out] =
     this andThen that
 
   /**
    * Sequentially composes this router with the given `that` router. The resulting router will succeed only if both this
    * and `that` routers are succeed.
    */
-  def |[B >: A](that: RouterN[B]): RouterN[B] =
+  def |[B >: A](that: Router[B]): Router[B] =
     this orElse that
 
   // A workaround for https://issues.scala-lang.org/browse/SI-1336
-  def withFilter(p: A => Boolean): RouterN[A] = self
+  def withFilter(p: A => Boolean): Router[A] = self
 
   /**
    * Converts this router to a Finagle service from a request-like type `R` to a [[HttpResponse]].
@@ -129,10 +129,10 @@ trait RouterN[A] { self =>
 }
 
 /**
- * Provides extension methods for [[RouterN]] to support coproduct and path
+ * Provides extension methods for [[Router]] to support coproduct and path
  * syntax.
  */
-object RouterN {
+object Router {
   /**
    * An implicit conversion that turns any endpoint with an output type that can be converted into a response into a
    * service that returns responses.
@@ -149,7 +149,7 @@ object RouterN {
    * Implicitly converts the given `Router[Service[_, _]]` into a service.
    */
   implicit def endpointToService[Req, Rep](
-    r: RouterN[Service[Req, Rep]]
+    r: Router[Service[Req, Rep]]
   )(implicit ev: Req => HttpRequest): Service[Req, Rep] = new Service[Req, Rep] {
     def apply(req: Req): Future[Rep] = r(requestToRoute[Req](req)) match {
       case Some((Nil, service)) => service(req)
@@ -160,9 +160,9 @@ object RouterN {
   /**
    * Implicit class that provides `:+:` and other operations on any coproduct router.
    */
-  final implicit class CoproductRouterNOps[C <: Coproduct](self: RouterN[C]) {
-    def :+:[A](that: RouterN[A]): RouterN[A :+: C] =
-      new RouterN[A :+: C] {
+  final implicit class CoproductRouterOps[C <: Coproduct](self: Router[C]) {
+    def :+:[A](that: Router[A]): Router[A :+: C] =
+      new Router[A :+: C] {
         def apply(route: Route): Option[(Route, A :+: C)] =
           (that(route), self(route)) match {
             case (Some((ar, av)), Some((cr, cv))) =>
@@ -182,9 +182,9 @@ object RouterN {
   /**
    * Implicit class that provides `:+:` on any router.
    */
-  final implicit class ValueRouterNOps[B](self: RouterN[B]) {
-    def :+:[A](that: RouterN[A]): RouterN[A :+: B :+: CNil] =
-      new RouterN[A :+: B :+: CNil] {
+  final implicit class ValueRouterOps[B](self: Router[B]) {
+    def :+:[A](that: Router[A]): Router[A :+: B :+: CNil] =
+      new Router[A :+: B :+: CNil] {
         def apply(route: Route): Option[(Route, A :+: B :+: CNil)] =
           (that(route), self(route)) match {
             case (Some((ar, av)), Some((br, bv))) =>
@@ -202,34 +202,34 @@ object RouterN {
   }
 
   /**
-   * Add `/>` compositors to `RouterN` to compose it with function of one argument.
+   * Add `/>` compositors to `Router` to compose it with function of one argument.
    */
-  implicit class RArrow1[A](r: RouterN[A :: HNil]) {
-    def />[B](fn: A => B): RouterN[B] = r.map { case a :: HNil => fn(a) }
-    //def |[B >: A](that: RouterN[B]): RouterN[B :: HNil] = r orElse that.map(_ :: HNil)
+  implicit class RArrow1[A](r: Router[A :: HNil]) {
+    def />[B](fn: A => B): Router[B] = r.map { case a :: HNil => fn(a) }
+    //def |[B >: A](that: Router[B]): Router[B :: HNil] = r orElse that.map(_ :: HNil)
   }
 
   /**
-   * Add `/>` compositor to `RouterN` to compose it with function of two argument.
+   * Add `/>` compositor to `Router` to compose it with function of two argument.
    */
-  implicit class RArrow2[A, B](val r: RouterN[A :: B :: HNil]) extends AnyVal {
-    def />[C](fn: (A, B) => C): RouterN[C] =
+  implicit class RArrow2[A, B](val r: Router[A :: B :: HNil]) extends AnyVal {
+    def />[C](fn: (A, B) => C): Router[C] =
       r.map { case a :: b :: HNil => fn(a, b) }
   }
 
   /**
-   * Add `/>` compositor to `RouterN` to compose it with function of three argument.
+   * Add `/>` compositor to `Router` to compose it with function of three argument.
    */
-  implicit class RArrow3[A, B, C](val r: RouterN[A :: B :: C :: HNil]) extends AnyVal {
-    def />[D](fn: (A, B, C) => D): RouterN[D] =
+  implicit class RArrow3[A, B, C](val r: Router[A :: B :: C :: HNil]) extends AnyVal {
+    def />[D](fn: (A, B, C) => D): Router[D] =
       r.map { case a :: b :: c :: HNil => fn(a, b, c) }
   }
 
   /**
-   * Add `/>` compositor to `RouterN` to compose it with function of four argument.
+   * Add `/>` compositor to `Router` to compose it with function of four argument.
    */
-  implicit class RArrow4[A, B, C, D](val r: RouterN[A :: B :: C :: D :: HNil]) extends AnyVal {
-    def />[E](fn: (A, B, C, D) => E): RouterN[E] =
+  implicit class RArrow4[A, B, C, D](val r: Router[A :: B :: C :: D :: HNil]) extends AnyVal {
+    def />[E](fn: (A, B, C, D) => E): Router[E] =
       r.map { case a :: b :: c :: d :: HNil => fn(a, b, c, d) }
   }
 }

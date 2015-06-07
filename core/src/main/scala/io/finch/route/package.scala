@@ -29,8 +29,8 @@ import shapeless.HNil
  * This package contains various of functions and types that enable _router combinators_ in Finch. A Finch
  * [[io.finch.route.Router Router]] is an abstraction that is responsible for routing the HTTP requests using their
  * method and path information. There are two types of routers in Finch: [[io.finch.route.Router0 Router0]] and
- * [[io.finch.route.RouterN RouterN]]. `Router0` matches the route and returns an `Option` of the rest of the route.
- * `RouterN[A]` (or just `Router[A]`) in addition to the `Router0` behaviour extracts a value of type `A` from the
+ * [[io.finch.route.Router Router]]. `Router0` matches the route and returns an `Option` of the rest of the route.
+ * `Router[A]` (or just `Router[A]`) in addition to the `Router0` behaviour extracts a value of type `A` from the
  * route.
  *
  * A [[io.finch.route.Router Router]] that maps route to a [[com.twitter.finagle.Service Service]] is called an
@@ -60,11 +60,6 @@ package object route {
     (MethodToken(req.method): RouteToken) :: (req.path.split("/").toList.drop(1) map PathToken)
 
   /**
-   * A user friendly alias for [[io.finch.route.RouterN RouterN]].
-   */
-  type Router[A] = RouterN[A]
-
-  /**
    * An alias for [[io.finch.route.Router Router]] that maps route to a [[com.twitter.finagle.Service Service]].
    */
   type Endpoint[A, B] = Router[Service[A, B]]
@@ -77,10 +72,10 @@ package object route {
     try Some(fn(s)) catch { case _: IllegalArgumentException => None }
 
   /**
-   * Add `/>` compositors to `RouterN` to compose it with function of one argument.
+   * Add `/>` compositors to `Router` to compose it with function of one argument.
    */
-  implicit class RArrow0[R](r: R)(implicit ev: R => RouterN[HNil]) {
-    def />[B](v: => B): RouterN[B] = r.map(_ => v)
+  implicit class RArrow0[R](r: R)(implicit ev: R => Router[HNil]) {
+    def />[B](v: => B): Router[B] = r.map(_ => v)
   }
 }
 

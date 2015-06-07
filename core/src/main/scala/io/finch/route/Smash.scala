@@ -13,7 +13,7 @@ trait Smash[A, B] extends DepFn2[A, B]
 
 trait LowPrioritySmash {
   type Aux[A, B, Out0] = Smash[A, B] { type Out = Out0 }
-  
+
   implicit def smashII[A, B]: Aux[A, B, A :: B :: HNil] = new Smash[A, B] {
     type Out = A :: B :: HNil
     def apply(a: A, b: B): Out = a :: b :: HNil
