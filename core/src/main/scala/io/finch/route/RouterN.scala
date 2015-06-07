@@ -28,6 +28,7 @@ import io.finch._
 import io.finch.request._
 import io.finch.response._
 import shapeless._
+import shapeless.ops.function.FnToProduct
 
 /**
  * A router that extracts some value of the type `A` from the given route.
@@ -176,6 +177,10 @@ object RouterN {
    * Implicit class that provides `:+:` and other operations on any coproduct router.
    */
   final implicit class CoproductRouterNOps[C <: Coproduct](self: RouterN[C]) {
+
+    /**
+     * Composes this [[RouterN]] with the given `that` [[RouterN]] in term of logical **or**.
+     */
     def :+:[A](that: RouterN[A]): RouterN[A :+: C] =
       new RouterN[A :+: C] {
         def apply(route: Route): Option[(Route, A :+: C)] =
@@ -195,9 +200,13 @@ object RouterN {
   }
 
   /**
-   * Implicit class that provides `:+:` on any router.
+   * Implicit class that provides `:+:` and `::` on any router.
    */
   final implicit class ValueRouterNOps[B](self: RouterN[B]) {
+
+    /**
+     * Composes this [[RouterN]] with the given `that` [[RouterN]] in term of logical **or**.
+     */
     def :+:[A](that: RouterN[A]): RouterN[A :+: B :+: CNil] =
       new RouterN[A :+: B :+: CNil] {
         def apply(route: Route): Option[(Route, A :+: B :+: CNil)] =
@@ -214,6 +223,42 @@ object RouterN {
 
         override def toString = s"(${that.toString}|${self.toString})"
       }
+
+    /**
+     * Composes this [[RouterN]] with the given `that` [[RouterN]] in terms of logical **and**.
+     */
+    def ::[A](that: RouterN[A]): RouterN[A :: B :: HNil] =
+      that :: self.map(_ :: HNil)
+
+    /**
+     * Composes this [[RouterN]] with the given `that` [[RouterN]] in terms of logical **and**.
+     */
+    def ::(that: Router0): RouterN[B] =
+      that.andThen(self)
+  }
+
+  /**
+   * Implicit class that provides `::` on any HList router.
+   */
+  final implicit class HListRouterNOps[L <: HList](val self: RouterN[L]) {
+
+    /**
+     * Composes this [[RouterN]] with the given `that` [[RouterN]] in terms of logical **and**.
+     */
+    def ::[A](that: RouterN[A]): RouterN[A :: L] =
+      for { a <- that; b <- self } yield a :: b
+
+    /**
+     * Composes this [[RouterN]] with the given `that` [[Router0]] in terms of logical **and**.
+     */
+    def ::(that: Router0): RouterN[L] =
+      that.andThen(self)
+
+    /**
+     * Applies a `FunctionN` with the appropriate arity and types to the elements of this [[shapeless.HList]].
+     */
+    def />[F, I](fn: F)(implicit ftp: FnToProduct.Aux[F, L => I]): RouterN[I] =
+      self.map(ftp(fn))
   }
 
   /**

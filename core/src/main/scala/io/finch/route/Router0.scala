@@ -121,3 +121,24 @@ object ** extends Router0 {
   def apply(route: Route): Option[Route] = Some(Nil)
   override def toString = "**"
 }
+
+object Router0 {
+
+  /**
+   * Implicit class that provides `::` on any [[Router0]] to support building HList routers.
+   */
+  final implicit class ValueRouter0Ops[B](self: B)(implicit ev: B => Router0) {
+
+    /**
+     * Composes this [[Router0]] with the given `that` [[RouterN]] in terms of logical **and**.
+     */
+    def ::[A](that: RouterN[A]): RouterN[A] =
+      that.andThen(self)
+
+    /**
+     * Composes this [[Router0]] with the given `that` [[Router0]] in terms of logical **and**.
+     */
+    def ::(that: Router0): Router0 =
+      that.andThen(self)
+  }
+}
