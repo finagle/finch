@@ -66,13 +66,6 @@ package object route {
   private[route] def stringToSomeValue[A](fn: String => A)(s: String): Option[A] =
     try Some(fn(s)) catch { case _: IllegalArgumentException => None }
 
-  /**
-   * Add `/>` compositors to `Router` to compose it with function of one argument.
-   */
-  implicit class RArrow0[R](r: R)(implicit ev: R => Router[HNil]) {
-    def />[B](v: => B): Router[B] = r.map(_ => v)
-  }
-
   implicit def intToMatcher(i: Int): Matcher = StringMatcher(i.toString)
   implicit def stringToMatcher(s: String): Matcher = StringMatcher(s)
   implicit def booleanToMatcher(b: Boolean): Matcher = StringMatcher(b.toString)

@@ -199,17 +199,11 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
 
     val r1 = "a" | "b" | ("a" / 10)
     val r2 = ("a" / 10) | "b" |  "a"
-    //val r3 = ("a" / int) | ("b" /> 30) | ("a" /> 20)
-    //val r4 = ("a" /> 20) | ("b" /> 30) | ("a" / int)
 
     r1.exec(a) shouldBe Some(Nil)
     r1.exec(b) shouldBe Some(Nil)
     r2.exec(a) shouldBe Some(Nil)
     r2.exec(b) shouldBe Some(Nil)
-    //r3(a) shouldBe Some((Nil, 10))
-    //r3(b) shouldBe Some((Nil, 20))
-    //r4(a) shouldBe Some((Nil, 10))
-    //r4(b) shouldBe Some((Nil, 20))
   }
 
   it should "allow mix routers that returns futures and services" in {

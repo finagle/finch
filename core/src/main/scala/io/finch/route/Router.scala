@@ -198,34 +198,45 @@ object Router {
   }
 
   /**
+   * Add `/>` compositors to `Router` to compose it with values.
+   */
+  implicit class RArrow0[R](r: R)(implicit ev: R => Router[HNil]) {
+    def />[B](v: => B): Router[B] = r.map(_ => v)
+  }
+
+  /**
    * Add `/>` compositors to `Router` to compose it with function of one argument.
    */
   implicit class RArrow1[A](r: Router[A :: HNil]) {
-    def />[B](fn: A => B): Router[B] = r.map { case a :: HNil => fn(a) }
-    //def |[B >: A](that: Router[B]): Router[B :: HNil] = r orElse that.map(_ :: HNil)
+    def />[B](fn: A => B): Router[B] = r.map {
+      case a :: HNil => fn(a)
+    }
   }
 
   /**
    * Add `/>` compositor to `Router` to compose it with function of two argument.
    */
   implicit class RArrow2[A, B](val r: Router[A :: B :: HNil]) extends AnyVal {
-    def />[C](fn: (A, B) => C): Router[C] =
-      r.map { case a :: b :: HNil => fn(a, b) }
+    def />[C](fn: (A, B) => C): Router[C] = r.map {
+      case a :: b :: HNil => fn(a, b)
+    }
   }
 
   /**
    * Add `/>` compositor to `Router` to compose it with function of three argument.
    */
   implicit class RArrow3[A, B, C](val r: Router[A :: B :: C :: HNil]) extends AnyVal {
-    def />[D](fn: (A, B, C) => D): Router[D] =
-      r.map { case a :: b :: c :: HNil => fn(a, b, c) }
+    def />[D](fn: (A, B, C) => D): Router[D] = r.map {
+      case a :: b :: c :: HNil => fn(a, b, c)
+    }
   }
 
   /**
    * Add `/>` compositor to `Router` to compose it with function of four argument.
    */
   implicit class RArrow4[A, B, C, D](val r: Router[A :: B :: C :: D :: HNil]) extends AnyVal {
-    def />[E](fn: (A, B, C, D) => E): Router[E] =
-      r.map { case a :: b :: c :: d :: HNil => fn(a, b, c, d) }
+    def />[E](fn: (A, B, C, D) => E): Router[E] = r.map {
+      case a :: b :: c :: d :: HNil => fn(a, b, c, d)
+    }
   }
 }
