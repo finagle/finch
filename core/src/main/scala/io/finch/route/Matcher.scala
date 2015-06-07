@@ -29,7 +29,7 @@ import io.finch.route.tokens._
  * A universal matcher.
  */
 case class Matcher(s: String) extends Router0 {
-  def apply(route: Route): Option[Route] = for {
+  def matchRoute(route: Route): Option[Route] = for {
     PathToken(ss) <- route.headOption if ss == s
   } yield route.tail
   override def toString = s
@@ -39,7 +39,7 @@ case class Matcher(s: String) extends Router0 {
  * A [[io.finch.route.Router0 Router0]] that matches the given HTTP method `m` in the route.
  */
 case class MethodMatcher(m: Method) extends Router0 {
-  def apply(route: Route): Option[Route] = for {
+  def matchRoute(route: Route): Option[Route] = for {
     MethodToken(mm) <- route.headOption if m == mm
   } yield route.tail
   override def toString = s"${m.toString.toUpperCase}"

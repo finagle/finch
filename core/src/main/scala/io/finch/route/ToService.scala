@@ -31,7 +31,7 @@ ${A} does not satisfy the requirement. You may need to provide an EncodeResponse
 ${A} (or for some part of ${A}).
 """
 )
-trait ToService[R, -A] {
+trait ToService[R, A] {
   def apply(router: RouterN[A]): Service[R, HttpResponse]
 }
 

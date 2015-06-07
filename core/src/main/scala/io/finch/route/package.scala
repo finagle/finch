@@ -23,6 +23,7 @@
 package io.finch
 
 import com.twitter.finagle.Service
+import shapeless.HNil
 
 /**
  * This package contains various of functions and types that enable _router combinators_ in Finch. A Finch
@@ -61,12 +62,12 @@ package object route {
   /**
    * A user friendly alias for [[io.finch.route.RouterN RouterN]].
    */
-  type Router[+A] = RouterN[A]
+  type Router[A] = RouterN[A]
 
   /**
    * An alias for [[io.finch.route.Router Router]] that maps route to a [[com.twitter.finagle.Service Service]].
    */
-  type Endpoint[-A, +B] = Router[Service[A, B]]
+  type Endpoint[A, B] = Router[Service[A, B]]
 
   implicit def intToMatcher(i: Int): Router0 = new Matcher(i.toString)
   implicit def stringToMatcher(s: String): Router0 = new Matcher(s)
@@ -74,19 +75,16 @@ package object route {
 
   private[route] def stringToSomeValue[A](fn: String => A)(s: String): Option[A] =
     try Some(fn(s)) catch { case _: IllegalArgumentException => None }
+
+  /**
+   * Add `/>` compositors to `RouterN` to compose it with function of one argument.
+   */
+  implicit class RArrow0[R](r: R)(implicit ev: R => RouterN[HNil]) {
+    def />[B](v: => B): RouterN[B] = r.map(_ => v)
+  }
 }
 
 package route {
-  /**
-   * A case class that enables the following syntax:
-   *
-   * {{{
-   *   val r: Router[Int / String] = Get / int / string
-   *   val s: String = p /> { case i / s => s + i }
-   * }}}
-   */
-  case class /[+A, +B](_1: A, _2: B)
-
   /**
    * An exception, which is thrown by router in case of missing route `r`.
    */
