@@ -33,9 +33,10 @@ import io.finch.response._
 import io.finch.route.tokens._
 
 import org.scalatest.{Matchers, FlatSpec}
-import shapeless.{::, HNil}
+import org.scalatest.prop.Checkers
+import shapeless.{:+:, ::, CNil, HNil}
 
-class RouterSpec extends FlatSpec with Matchers {
+class RouterSpec extends FlatSpec with Matchers with Checkers {
 
   val route = List(
     MethodToken(Method.Get), PathToken("a"), PathToken("1"), PathToken("b"), PathToken("2")
@@ -268,7 +269,7 @@ class RouterSpec extends FlatSpec with Matchers {
       Service.const(Ok("qux").toFuture)
 
     val itemService: Service[HttpRequest, Item] =
-      Service.const(Item("qux").toFuture)
+      Service.const(Item("item qux").toFuture)
 
     val service: Service[HttpRequest, HttpResponse] = (
       // Router returning an [[HttpResponse]].
@@ -276,9 +277,9 @@ class RouterSpec extends FlatSpec with Matchers {
       // Router returning an encodeable value.
       Get / "foo" / string /> Item          :+:
       // Router returning an [[HttpResponse]] in a future.
-      Get / "bar" /> Ok("foo") .toFuture    :+:
+      Get / "bar" /> Ok("foo").toFuture     :+:
       // Router returning an encodeable value in a future.
-      Get / "baz" /> Item("foo").toFuture   :+:
+      Get / "baz" /> Item("item foo").toFuture   :+:
       // Router returning a [[RequestReader]].
       Get / "qux" /> param("p").as[Item]    :+:
       // Router returning a Finagle service returning a [[HttpResponse]].
@@ -289,14 +290,79 @@ class RouterSpec extends FlatSpec with Matchers {
 
     val res1 = Await.result(service(httpx.Request("/foo")))
     val res2 = Await.result(service(httpx.Request("/foo/t")))
+    val res3 = Await.result(service(httpx.Request("/bar")))
+    val res4 = Await.result(service(httpx.Request("/baz")))
+    val res5 = Await.result(service(httpx.Request("/qux?p=something")))
+    val res6 = Await.result(service(httpx.Request("/qux/s1")))
+    val res7 = Await.result(service(httpx.Request("/qux/s2")))
 
     res1.contentString shouldBe Ok("foo").contentString
     res2.contentString shouldBe Ok("t").contentString
+    res3.contentString shouldBe Ok("foo").contentString
+    res4.contentString shouldBe Ok("item foo").contentString
+    res5.contentString shouldBe Ok("something").contentString
+    res6.contentString shouldBe Ok("qux").contentString
+    res7.contentString shouldBe Ok("item qux").contentString
   }
 
   it should "convert a value router into an endpoint" in {
     val s: Service[HttpRequest, HttpResponse] = (Get / "foo" /> "bar").toService
 
     Await.result(s(httpx.Request("/foo"))).contentString shouldBe Ok("bar").contentString
+  }
+
+  "A string matcher" should "have the correct string representation" in {
+    check { (s: String) =>
+      val matcher: Router[HNil] = s
+
+      matcher.toString === s
+    }
+  }
+
+  "A router disjunction" should "have the correct string representation" in {
+    check { (s: String, t: String) =>
+      val router: Router[HNil] = s | t
+
+      router.toString === s"($s|$t)"
+    }
+  }
+
+  "A mapped router" should "have the correct string representation" in {
+    check { (s: String, i: Int) =>
+      val matcher: Router[HNil] = s
+      val router: Router[Int] = matcher.map(_ => i)
+
+      router.toString === s
+    }
+  }
+
+  "A flatMapped router" should "have the correct string representation" in {
+    check { (s: String) =>
+      val matcher: Router[HNil] = s
+      val router: Router[String] = matcher.flatMap(_ => string)
+
+      router.toString === s
+    }
+  }
+
+  "An embedFlatMapped router" should "have the correct string representation" in {
+    check { (s: String, t: Option[String]) =>
+      val matcher: Router[HNil] = s
+      val router: Router[String] = matcher.embedFlatMap(_ => t)
+
+      router.toString === s
+    }
+  }
+
+  "An coproduct router with two elements" should "have the correct string representation" in {
+    val router: Router[String :+: Int :+: CNil] = string :+: int
+
+    assert(router.toString === "(:string|:int)")
+  }
+
+  "An coproduct router with more than two elements" should "have the correct string representation" in {
+    val router: Router[String :+: Int :+: Long :+: CNil] = string :+: int :+: long
+
+    assert(router.toString === "(:string|(:int|:long))")
   }
 }

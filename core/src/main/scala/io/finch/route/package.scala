@@ -73,9 +73,9 @@ package object route {
     def />[B](v: => B): Router[B] = r.map(_ => v)
   }
 
-  implicit def intToMatcher(i: Int): Router[HNil] = StringMatcher(i.toString)
-  implicit def stringToMatcher(s: String): Router[HNil] = StringMatcher(s)
-  implicit def booleanToMatcher(b: Boolean): Router[HNil] = StringMatcher(b.toString)
+  implicit def intToMatcher(i: Int): Matcher = StringMatcher(i.toString)
+  implicit def stringToMatcher(s: String): Matcher = StringMatcher(s)
+  implicit def booleanToMatcher(b: Boolean): Matcher = StringMatcher(b.toString)
 }
 
 package route {
