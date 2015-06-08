@@ -1,14 +1,11 @@
 package io.finch.demo
 
-import java.net.InetSocketAddress
-import java.nio.charset.Charset
-
 import com.twitter.finagle.Service
-import com.twitter.finagle.httpx.Request
+import com.twitter.finagle.httpx.Method.{Get, Post}
+import com.twitter.finagle.httpx.{Method, Request}
+import com.twitter.io.Buf
 import com.twitter.util.Await
 import io.finch._
-import org.jboss.netty.buffer.ChannelBuffers
-import org.jboss.netty.handler.codec.http.{DefaultHttpRequest, HttpMethod, HttpVersion}
 import org.scalatest._
 
 class DemoSpec extends FlatSpec with Matchers {
@@ -81,31 +78,23 @@ class DemoSpec extends FlatSpec with Matchers {
   def POST(path: String): Request = POST(path, None)
 
   def POST(path: String, body: Option[String]): Request = {
-    val r = mkSecretHttpRequest(HttpMethod.POST, path)
+    val r = mkSecretHttpRequest(Post, path)
 
     body.foreach { b =>
-      val buf = ChannelBuffers.copiedBuffer(b, Charset.defaultCharset())
-      r.setContent(buf)
-      r.headers().add("content-length", buf.readableBytes())
+      val buf = Buf.Utf8(b)
+      r.content = buf
+      r.contentLength = buf.length.toLong
     }
-
-    request(r)
+    r
   }
 
   def GET(path: String): Request = {
-    val r = mkSecretHttpRequest(HttpMethod.GET, path)
-    request(r)
+    mkSecretHttpRequest(Get, path)
   }
 
-  def request(r: DefaultHttpRequest): Request =
-    new Request {
-      val httpRequest = r
-      lazy val remoteSocketAddress = new InetSocketAddress(0)
-    }
-
-  def mkSecretHttpRequest(m: HttpMethod, p: String): DefaultHttpRequest = {
-    val r = new DefaultHttpRequest(HttpVersion.HTTP_1_1, m, p)
-    r.headers().add("X-Secret", Demo.Secret)
+  def mkSecretHttpRequest(m: Method, p: String): Request = {
+    val r = Request(m, p)
+    r.headerMap.update("X-Secret", Demo.Secret)
     r
   }
 
