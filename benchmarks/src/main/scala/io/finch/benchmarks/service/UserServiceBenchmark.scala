@@ -43,5 +43,5 @@ abstract class UserServiceBenchmark(service: () => UserService)
 
   @Benchmark
   @BenchmarkMode(Array(Mode.AverageTime))
-  def getDeleteUsers(): HttpResponse = Await.result(runDeleteAllUsers)
+  def deleteAllUsers(): HttpResponse = Await.result(runDeleteAllUsers)
 }

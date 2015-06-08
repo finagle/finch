@@ -23,7 +23,7 @@
 
 package io.finch.request
 
-import com.twitter.finagle.httpx.Request
+import com.twitter.finagle.httpx.{Request, RequestBuilder}
 import com.twitter.util.{Await, Future}
 import io.finch.HttpRequest
 import org.scalatest.{FlatSpec, Matchers}
@@ -70,6 +70,12 @@ class MultipartParamSpec extends FlatSpec with Matchers {
     Await.result(futureResult).get.getFilename shouldBe "dealwithit.gif"
   }
 
+  it should "be empty when the upload name exists but is not an upload" in {
+    val request = RequestBuilder().url("http://localhost/").addFormElement("groups" -> "foo").buildFormPost()
+    val futureResult: Future[Option[FileUpload]] = fileUploadOption("groups")(request)
+    Await.result(futureResult) shouldBe None
+  }
+
   "A RequiredMultipartParam" should "be properly parsed if it exists" in {
     val request = requestFromBinaryFile("/upload.bytes")
     val futureResult: Future[String] = param("type")(request)
@@ -97,6 +103,12 @@ class MultipartParamSpec extends FlatSpec with Matchers {
   it should "produce an error if the param is empty" in {
     val request: HttpRequest = requestFromBinaryFile("/upload.bytes")
     val futureResult: Future[Option[String]] = paramOption("foo")(request)
+    Await.result(futureResult) shouldBe None
+  }
+
+  it should "produce an error if the param name is present but not a param" in {
+    val request: HttpRequest = requestFromBinaryFile("/upload.bytes")
+    val futureResult: Future[Option[String]] = paramOption("groups")(request)
     Await.result(futureResult) shouldBe None
   }
 

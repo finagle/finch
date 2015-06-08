@@ -52,6 +52,34 @@ class RequiredParamSpec extends FlatSpec with Matchers {
     param(p).item shouldBe items.ParamItem(p)
   }
 
+  it should "return the correct result when mapped over" in {
+    val request: HttpRequest = Request(("foo", "5"))
+    val reader: RequestReader[String] = param("foo").map(_ * 3)
+    Await.result(reader(request)) shouldBe "555"
+  }
+
+  it should "return the correct result when mapped over with arrow syntax" in {
+    val request: HttpRequest = Request(("foo", "5"))
+    val reader: RequestReader[String] = param("foo") ~> (_ * 3)
+    Await.result(reader(request)) shouldBe "555"
+  }
+
+  it should "return the correct result when embedFlatMapped over" in {
+    val request: HttpRequest = Request(("foo", "5"))
+    val reader: RequestReader[String] = param("foo").embedFlatMap { foo =>
+      Future.value(foo * 4)
+    }
+    Await.result(reader(request)) shouldBe "5555"
+  }
+
+  it should "return the correct result when embedFlatMapped over with arrow syntax" in {
+    val request: HttpRequest = Request(("foo", "5"))
+    val reader: RequestReader[String] = param("foo") ~~> { foo =>
+      Future.value(foo * 4)
+    }
+    Await.result(reader(request)) shouldBe "5555"
+  }
+
   "A RequiredBooleanParam" should "be parsed as a boolean" in {
     val request: HttpRequest = Request(("foo", "true"))
     val futureResult: Future[Boolean] = param("foo").as[Boolean].apply(request)
