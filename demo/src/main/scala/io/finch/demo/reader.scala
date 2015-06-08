@@ -41,6 +41,6 @@ object reader {
   // A ticket is represented by a JSON object serialized in request body.
   val ticket: RequestReader[Ticket] =
     body.as[Json] map { json =>
-      Ticket(Id(), (json.hcursor -- "label").as[String].getOr("N/A"))
+      Ticket(Id(), (json.hcursor --\ "label").as[String].getOr("N/A"))
     }
 }

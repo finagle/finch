@@ -33,7 +33,7 @@ object model {
     // Provides an implementation of the EncodeJson type class from Argonaut
     implicit def ticketEncoding: EncodeJson[Ticket] = jencode2L(
       (t: Ticket) => (t.id, t.label)
-    )("label", "id")
+    )("id", "label")
   }
 
   // A user object with three fields: `id`, `name` and a collection of `tickets`.
