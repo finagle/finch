@@ -89,7 +89,7 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="io.finch.json.Json" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+              <ol><li name="io.finch.json.Json" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="JsonextendsAnyRef"></a>
       <a id="Json:Json"></a>
       <h4 class="signature">
@@ -98,15 +98,19 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="Json.html"><span class="name">Json</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="Json.html"><span class="name deprecated" title="Deprecated: (Since version 0.7.0) Finch Json is deprecated in favor of other Json libraries.">Json</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.json.package@JsonextendsAnyRef" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">An immutable JSON API.</p>
-    </li><li name="io.finch.json.JsonArray" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">An immutable JSON API.</p><div class="fullcomment"><div class="comment cmt"><p>An immutable JSON API.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.7.0)</i> Finch Json is deprecated in favor of other Json libraries.</p></dd></dl></div>
+    </li><li name="io.finch.json.JsonArray" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="JsonArrayextendsJsonwithProductwithSerializable"></a>
       <a id="JsonArray:JsonArray"></a>
       <h4 class="signature">
@@ -115,15 +119,19 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="JsonArray.html"><span class="name">JsonArray</span></a><span class="params">(<span name="list">list: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Any">Any</span>]</span>)</span><span class="result"> extends <a href="Json.html" class="extype" name="io.finch.json.Json">Json</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="JsonArray.html"><span class="name deprecated" title="Deprecated: (Since version 0.7.0) JSONArrays are deprecated as part of the Finch JSON deprecation.">JsonArray</span></a><span class="params">(<span name="list">list: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Any">Any</span>]</span>)</span><span class="result"> extends <a href="Json.html" class="extype" name="io.finch.json.Json">Json</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.json.package@JsonArrayextendsJsonwithProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">A JSON array with underlying <code>list</code>.</p>
-    </li><li name="io.finch.json.JsonObject" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">A JSON array with underlying <code>list</code>.</p><div class="fullcomment"><div class="comment cmt"><p>A JSON array with underlying <code>list</code>.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.7.0)</i> JSONArrays are deprecated as part of the Finch JSON deprecation.</p></dd></dl></div>
+    </li><li name="io.finch.json.JsonObject" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="JsonObjectextendsJsonwithProductwithSerializable"></a>
       <a id="JsonObject:JsonObject"></a>
       <h4 class="signature">
@@ -132,22 +140,30 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="JsonObject.html"><span class="name">JsonObject</span></a><span class="params">(<span name="map">map: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>]</span>)</span><span class="result"> extends <a href="Json.html" class="extype" name="io.finch.json.Json">Json</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="JsonObject.html"><span class="name deprecated" title="Deprecated: (Since version 0.7.0) JSONObjects are deprecated as part of the Finch JSON deprecation.">JsonObject</span></a><span class="params">(<span name="map">map: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>]</span>)</span><span class="result"> extends <a href="Json.html" class="extype" name="io.finch.json.Json">Json</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.json.package@JsonObjectextendsJsonwithProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt"> A JSON object with underlying <code>map</code>.</p>
+      <p class="shortcomment cmt"> A JSON object with underlying <code>map</code>.</p><div class="fullcomment"><div class="comment cmt"><p> A JSON object with underlying <code>map</code>.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.7.0)</i> JSONObjects are deprecated as part of the Finch JSON deprecation.</p></dd></dl></div>
     </li></ol>
             </div>
 
         
 
+        
+
+        
+
         <div id="values" class="values members">
-              <h3>Value Members</h3>
-              <ol><li name="io.finch.json.Json" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="io.finch.json.Json" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="Json"></a>
       <a id="Json:Json"></a>
       <h4 class="signature">
@@ -156,15 +172,19 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Json$.html"><span class="name">Json</span></a>
+        <a href="Json$.html"><span class="name deprecated" title="Deprecated: (Since version 0.7.0) Finch Json is deprecated in favor of other Json libraries.">Json</span></a>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.json.package@Json" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">A JSON companion object, which in an entry point into JSON API.</p>
-    </li><li name="io.finch.json.JsonNull" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">A JSON companion object, which in an entry point into JSON API.</p><div class="fullcomment"><div class="comment cmt"><p>A JSON companion object, which in an entry point into JSON API.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.7.0)</i> Finch Json is deprecated in favor of other Json libraries.</p></dd></dl></div>
+    </li><li name="io.finch.json.JsonNull" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="JsonNull"></a>
       <a id="JsonNull:JsonNull"></a>
       <h4 class="signature">
@@ -173,15 +193,19 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="JsonNull$.html"><span class="name">JsonNull</span></a><span class="result"> extends <a href="Json.html" class="extype" name="io.finch.json.Json">Json</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="JsonNull$.html"><span class="name deprecated" title="Deprecated: (Since version 0.7.0) JSONNull is deprecated as part of the Finch JSON deprecation.">JsonNull</span></a><span class="result"> extends <a href="Json.html" class="extype" name="io.finch.json.Json">Json</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.json.package@JsonNull" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">A JSON null value.</p>
-    </li><li name="io.finch.json#decodeFinchJson" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">A JSON null value.</p><div class="fullcomment"><div class="comment cmt"><p>A JSON null value.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.7.0)</i> JSONNull is deprecated as part of the Finch JSON deprecation.</p></dd></dl></div>
+    </li><li name="io.finch.json#decodeFinchJson" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="decodeFinchJson:io.finch.request.DecodeRequest[io.finch.json.Json]"></a>
       <a id="decodeFinchJson:DecodeRequest[Json]"></a>
       <h4 class="signature">
@@ -190,15 +214,18 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">decodeFinchJson</span><span class="result">: <a href="../request/package$$DecodeRequest.html" class="extype" name="io.finch.request.DecodeRequest">DecodeRequest</a>[<a href="Json.html" class="extype" name="io.finch.json.Json">Json</a>]</span>
+        <span class="name deprecated" title="Deprecated: (Since version 0.7.0) decodeFinchJson is deprecated as part of the Finch JSON deprecation.">decodeFinchJson</span><span class="result">: <a href="../request/DecodeRequest.html" class="extype" name="io.finch.request.DecodeRequest">DecodeRequest</a>[<a href="Json.html" class="extype" name="io.finch.json.Json">Json</a>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.json.package@decodeFinchJson:io.finch.request.DecodeRequest[io.finch.json.Json]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      
-    </li><li name="io.finch.json#encodeFinchJson" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.7.0)</i> decodeFinchJson is deprecated as part of the Finch JSON deprecation.</p></dd></dl></div>
+    </li><li name="io.finch.json#encodeFinchJson" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="encodeFinchJson:io.finch.response.EncodeResponse[io.finch.json.Json]"></a>
       <a id="encodeFinchJson:EncodeResponse[Json]"></a>
       <h4 class="signature">
@@ -207,20 +234,19 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">encodeFinchJson</span><span class="result">: <a href="../response/package$$EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>[<a href="Json.html" class="extype" name="io.finch.json.Json">Json</a>]</span>
+        <span class="name deprecated" title="Deprecated: (Since version 0.7.0) encodeFinchJson is deprecated as part of the Finch JSON deprecation.">encodeFinchJson</span><span class="result">: <a href="../response/EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>[<a href="Json.html" class="extype" name="io.finch.json.Json">Json</a>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.json.package@encodeFinchJson:io.finch.response.EncodeResponse[io.finch.json.Json]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.7.0)</i> encodeFinchJson is deprecated as part of the Finch JSON deprecation.</p></dd></dl></div>
     </li></ol>
             </div>
-
-        
-
-        
         </div>
 
         <div id="inheritedMembers">

@@ -28,11 +28,11 @@
         </head>
         <body class="value">
       <div id="definition">
-        <a href="Endpoint.html" title="Go to companion"><img src="../../lib/object_to_trait_big.png" /></a>
+        <a href="Endpoint.html" title="See companion trait"><img src="../../lib/object_to_trait_big.png" /></a>
         <p id="owner"><a href="../package.html" class="extype" name="io">io</a>.<a href="package.html" class="extype" name="io.finch">finch</a></p>
-        <h1><a href="Endpoint.html" title="Go to companion">Endpoint</a></h1><h3><span class="morelinks"><div>
+        <h1><a href="Endpoint.html" title="See companion trait">Endpoint</a></h1><h3><span class="morelinks"><div>
             Related Docs:
-            <a href="Endpoint.html" title="See companion">trait Endpoint</a>
+            <a href="Endpoint.html" title="See companion trait">trait Endpoint</a>
             | <a href="package.html" class="extype" name="io.finch">package finch</a>
           </div></span></h3><span class="permalink">
       <a href="../../index.html#io.finch.Endpoint$" title="Permalink" target="_top">
@@ -225,6 +225,28 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="io.finch.Endpoint#endpointToService" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="endpointToService[Req,Rep](e:io.finch.Endpoint[Req,Rep])(implicitev:Req=&gt;io.finch.HttpRequest):com.twitter.finagle.Service[Req,Rep]"></a>
+      <a id="endpointToService[Req,Rep](Endpoint[Req,Rep])((Req)⇒HttpRequest):Service[Req,Rep]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">endpointToService</span><span class="tparams">[<span name="Req">Req</span>, <span name="Rep">Rep</span>]</span><span class="params">(<span name="e">e: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.endpointToService.Req">Req</span>, <span class="extype" name="io.finch.Endpoint.endpointToService.Rep">Rep</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: (<span class="extype" name="io.finch.Endpoint.endpointToService.Req">Req</span>) ⇒ <a href="package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a></span>)</span><span class="result">: <span class="extype" name="com.twitter.finagle.Service">Service</span>[<span class="extype" name="io.finch.Endpoint.endpointToService.Req">Req</span>, <span class="extype" name="io.finch.Endpoint.endpointToService.Rep">Rep</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@endpointToService[Req,Rep](e:io.finch.Endpoint[Req,Rep])(implicitev:Req=&gt;io.finch.HttpRequest):com.twitter.finagle.Service[Req,Rep]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Allows to use an <i>Endpoint</i> when <i>Service</i> is expected.</p><div class="fullcomment"><div class="comment cmt"><p>Allows to use an <i>Endpoint</i> when <i>Service</i> is expected. The implicit
+conversion is possible if there is an implicit view from <i>Req</i> to
+<i>HttpRequest</i> available in the scope.</p><pre><span class="kw">val</span> e: Endpoint[HttpRequest, HttpResponse] = ???
+Httpx.serve(<span class="kw">new</span> InetSocketAddress(<span class="num">8081</span>), e)</pre></div><dl class="paramcmts block"><dt class="tparam">Req</dt><dd class="cmt"><p>the request type</p></dd><dt class="tparam">Rep</dt><dd class="cmt"><p>the response type
+</p></dd><dt class="param">e</dt><dd class="cmt"><p>the endpoint to convert</p></dd><dt class="param">ev</dt><dd class="cmt"><p>the evidence of implicit view</p></dd><dt>returns</dt><dd class="cmt"><p>a service that delegates the requests to the underlying endpoint
+</p></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>

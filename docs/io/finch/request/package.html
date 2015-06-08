@@ -52,19 +52,21 @@ primitives allow both to _read_ the various request items (<i>query string param
 the <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> and _validate_ them using the
 <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a>.</p><p>The cornerstone abstraction of this package is a <code>RequestReader</code>, which is responsible for reading any amount of data
 from the HTTP request. <code>RequestReader</code>s might be composed with each other using either monadic API (<code>flatMap</code> method)
-or applicative API (<code>~</code> method). Regardless the API used for <code>RequestReader</code>s composition, the main idea behind it is
-to use primitive readers (i.e., <code>param</code>, <code>paramOption</code>) in order to _compose_ them together and _map_ to
+or applicative API (<code>::</code> method). Regardless the API used for <code>RequestReader</code>s composition, the main idea behind it
+is to use primitive readers (i.e., <code>param</code>, <code>paramOption</code>) in order to _compose_ them together and _map_ to
 the application domain data.</p><pre><span class="kw">case</span> <span class="kw">class</span> Complex(r: <span class="std">Double</span>, i: <span class="std">Double</span>)
-<span class="kw">val</span> complex: RequestReader[Complex] =
-  param(<span class="lit">"real"</span>).as[<span class="std">Double</span>] ~
-  paramOption(<span class="lit">"imaginary"</span>).as[<span class="std">Double</span>].withDefault(<span class="num">0.0</span>) ~&gt; Complex</pre><p>A <code>ValidationRule</code> enables a reusable way of defining a validation rules in the application domain. It might be
+<span class="kw">val</span> complex: RequestReader[Complex] = (
+  param(<span class="lit">"real"</span>).as[<span class="std">Double</span>] ::
+  paramOption(<span class="lit">"imaginary"</span>).as[<span class="std">Double</span>].withDefault(<span class="num">0.0</span>)
+).as[Complex]</pre><p>A <code>ValidationRule</code> enables a reusable way of defining a validation rules in the application domain. It might be
 composed with <code>RequestReader</code>s using either <code>should</code> or <code>shouldNot</code> methods and with other <code>ValidationRule</code>s using
 logical methods <code>and</code> and <code>or</code>.</p><pre><span class="kw">case</span> <span class="kw">class</span> User(name: <span class="std">String</span>, age: <span class="std">Int</span>)
-<span class="kw">val</span> user: RequestReader[User] =
-  param(<span class="lit">"name"</span>) should beLongerThan(<span class="num">3</span>) ~
-  param(<span class="lit">"age"</span>).as[<span class="std">Int</span>] should (beGreaterThan(<span class="num">0</span>) and beLessThan(<span class="num">120</span>)) ~&gt; User</pre></div><div class="toggleContainer block">
+<span class="kw">val</span> user: RequestReader[User] = (
+  param(<span class="lit">"name"</span>).should(beLongerThan(<span class="num">3</span>)) ::
+  param(<span class="lit">"age"</span>).as[<span class="std">Int</span>].should(beGreaterThan(<span class="num">0</span>) and beLessThan(<span class="num">120</span>))
+).as[User]</pre></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="LowPriorityRequestReaderImplicits.html" class="extype" name="io.finch.request.LowPriorityRequestReaderImplicits">LowPriorityRequestReaderImplicits</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -82,7 +84,7 @@ logical methods <code>and</code> and <code>or</code>.</p><pre><span class="kw">c
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="io.finch.request"><span>request</span></li><li class="in" name="io.finch.request.LowPriorityRequestReaderImplicits"><span>LowPriorityRequestReaderImplicits</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="io.finch.request"><span>request</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -105,7 +107,7 @@ logical methods <code>and</code> and <code>or</code>.</p><pre><span class="kw">c
         <div id="types" class="types members">
               <h3>Type Members</h3>
               <ol><li name="io.finch.request.%&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="%&gt;[A,B]=io.finch.request.package.View[A,B]"></a>
+      <a id="%&gt;[A,B]=io.finch.request.View[A,B]"></a>
       <a id="%&gt;[A,B]:%&gt;[A,B]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -113,14 +115,14 @@ logical methods <code>and</code> and <code>or</code>.</p><pre><span class="kw">c
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $percent$greater" class="name">%&gt;</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="result"> = <a href="package$$View.html" class="extype" name="io.finch.request.View">View</a>[<span class="extype" name="io.finch.request.%&gt;.A">A</span>, <span class="extype" name="io.finch.request.%&gt;.B">B</span>]</span>
+        <span title="gt4s: $percent$greater" class="name">%&gt;</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="result"> = <a href="View.html" class="extype" name="io.finch.request.View">View</a>[<span class="extype" name="io.finch.request.%&gt;.A">A</span>, <span class="extype" name="io.finch.request.%&gt;.B">B</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@%&gt;[A,B]=io.finch.request.package.View[A,B]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package@%&gt;[A,B]=io.finch.request.View[A,B]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">A symbolic alias for <a href="package$$View.html" class="extype" name="io.finch.request.View">View</a>.</p>
+      <p class="shortcomment cmt">A symbolic alias for <a href="View.html" class="extype" name="io.finch.request.View">View</a>.</p>
     </li><li name="io.finch.request.DecodeAnyRequest" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="DecodeAnyRequestextendsAnyRef"></a>
       <a id="DecodeAnyRequest:DecodeAnyRequest"></a>
@@ -130,7 +132,7 @@ logical methods <code>and</code> and <code>or</code>.</p><pre><span class="kw">c
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="package$$DecodeAnyRequest.html"><span class="name">DecodeAnyRequest</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="DecodeAnyRequest.html"><span class="name">DecodeAnyRequest</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@DecodeAnyRequestextendsAnyRef" title="Permalink" target="_top">
@@ -138,36 +140,19 @@ logical methods <code>and</code> and <code>or</code>.</p><pre><span class="kw">c
       </a>
     </span>
       <p class="shortcomment cmt">An abstraction that is responsible for decoding the request of general type.</p>
-    </li><li name="io.finch.request.DecodeMagnet" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="DecodeMagnet[A]extendsAnyRef"></a>
-      <a id="DecodeMagnet[A]:DecodeMagnet[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="package$$DecodeMagnet.html"><span class="name">DecodeMagnet</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@DecodeMagnet[A]extendsAnyRef" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A magnet that wraps a <a href="package$$DecodeRequest.html" class="extype" name="io.finch.request.DecodeRequest">DecodeRequest</a>.</p>
     </li><li name="io.finch.request.DecodeRequest" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="DecodeRequest[+A]extendsAnyRef"></a>
-      <a id="DecodeRequest[+A]:DecodeRequest[A]"></a>
+      <a id="DecodeRequest[A]extendsAnyRef"></a>
+      <a id="DecodeRequest[A]:DecodeRequest[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="package$$DecodeRequest.html"><span class="name">DecodeRequest</span></a><span class="tparams">[<span name="A">+A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="DecodeRequest.html"><span class="name">DecodeRequest</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@DecodeRequest[+A]extendsAnyRef" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package@DecodeRequest[A]extendsAnyRef" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
@@ -190,27 +175,6 @@ logical methods <code>and</code> and <code>or</code>.</p><pre><span class="kw">c
     </span>
       <p class="shortcomment cmt">A type alias for a <span class="extype" name="org.jboss.netty.handler.codec.http.multipart.FileUpload">org.jboss.netty.handler.codec.http.multipart.FileUpload</span>
 to prevent imports.</p>
-    </li><li name="io.finch.request.LowPriorityRequestReaderImplicits" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="LowPriorityRequestReaderImplicitsextendsAnyRef"></a>
-      <a id="LowPriorityRequestReaderImplicits:LowPriorityRequestReaderImplicits"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="LowPriorityRequestReaderImplicits.html"><span class="name">LowPriorityRequestReaderImplicits</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@LowPriorityRequestReaderImplicitsextendsAnyRef" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Trait with low-priority implicits to avoid conflicts that would arise from adding implicits that would work with
-any type in the same scope as implicits for concrete types.</p><div class="fullcomment"><div class="comment cmt"><p>Trait with low-priority implicits to avoid conflicts that would arise from adding implicits that would work with
-any type in the same scope as implicits for concrete types.</p><p>Implicits defined in super-types have lower priority than those defined in a sub-type. Therefore we define low-
-priority implicits here and mix this trait into the package object.
-</p></div></div>
     </li><li name="io.finch.request.NotParsed" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="NotParsedextendsRequestErrorwithProductwithSerializable"></a>
       <a id="NotParsed:NotParsed"></a>
@@ -271,23 +235,6 @@ request.
 </a></p><div class="fullcomment"><div class="comment cmt"><p>An exception that indicates a broken <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule]] on the request item.
 </a></p></div><dl class="paramcmts block"><dt class="param">item</dt><dd class="cmt"><p>the invalid request item</p></dd><dt class="param">rule</dt><dd class="cmt"><p>the rule description
 </p></dd></dl></div>
-    </li><li name="io.finch.request.OptionReaderOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="OptionReaderOps[R,A]extendsAnyVal"></a>
-      <a id="OptionReaderOps[R,A]:OptionReaderOps[R,A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit final </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="package$$OptionReaderOps.html"><span class="name">OptionReaderOps</span></a><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@OptionReaderOps[R,A]extendsAnyVal" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Implicit conversion that adds convenience methods to readers for optional values.</p>
     </li><li name="io.finch.request.PRequestReader" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="PRequestReader[R,A]extendsAnyRef"></a>
       <a id="PRequestReader[R,A]:PRequestReader[R,A]"></a>
@@ -358,205 +305,23 @@ request.
       </a>
     </span>
       <p class="shortcomment cmt">A <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a> with request type fixed to <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>.</p>
-    </li><li name="io.finch.request.LowPriorityRequestReaderImplicits.RrArrow1" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="RrArrow1[R,A]extendsAnyRef"></a>
-      <a id="RrArrow1[R,A]:RrArrow1[R,A]"></a>
+    </li><li name="io.finch.request.ToRequest" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ToRequest[R]extendsAnyRef"></a>
+      <a id="ToRequest[R]:ToRequest[R]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">class</span>
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="LowPriorityRequestReaderImplicits$RrArrow1.html"><span class="name">RrArrow1</span></a><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="ToRequest.html"><span class="name">ToRequest</span></a><span class="tparams">[<span name="R">R</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.LowPriorityRequestReaderImplicits@RrArrow1[R,A]extendsAnyRef" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.package@ToRequest[R]extendsAnyRef" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Adds a <code>~&gt;</code> and <code>~~&gt;</code> compositors to <code>RequestReader</code> to compose it with function of one argument.</p><div class="fullcomment"><div class="comment cmt"><p>Adds a <code>~&gt;</code> and <code>~~&gt;</code> compositors to <code>RequestReader</code> to compose it with function of one argument.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityRequestReaderImplicits.html" class="extype" name="io.finch.request.LowPriorityRequestReaderImplicits">LowPriorityRequestReaderImplicits</a></dd></dl></div>
-    </li><li name="io.finch.request.RrArrow2" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RrArrow2[R,A,B]extendsAnyVal"></a>
-      <a id="RrArrow2[R,A,B]:RrArrow2[R,A,B]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit final </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="package$$RrArrow2.html"><span class="name">RrArrow2</span></a><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>, <span name="B">B</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@RrArrow2[R,A,B]extendsAnyVal" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Adds a <code>~&gt;</code> and <code>~~&gt;</code> compositors to <code>RequestReader</code> to compose it with function of two arguments.</p>
-    </li><li name="io.finch.request.RrArrow3" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RrArrow3[R,A,B,C]extendsAnyVal"></a>
-      <a id="RrArrow3[R,A,B,C]:RrArrow3[R,A,B,C]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit final </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="package$$RrArrow3.html"><span class="name">RrArrow3</span></a><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>, <span name="B">B</span>, <span name="C">C</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@RrArrow3[R,A,B,C]extendsAnyVal" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Adds a <code>~&gt;</code> and <code>~~&gt;</code> compositors to <code>RequestReader</code> to compose it with function of three arguments.</p>
-    </li><li name="io.finch.request.RrArrow4" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RrArrow4[R,A,B,C,D]extendsAnyVal"></a>
-      <a id="RrArrow4[R,A,B,C,D]:RrArrow4[R,A,B,C,D]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit final </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="package$$RrArrow4.html"><span class="name">RrArrow4</span></a><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>, <span name="B">B</span>, <span name="C">C</span>, <span name="D">D</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@RrArrow4[R,A,B,C,D]extendsAnyVal" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Adds a <code>~&gt;</code> and <code>~~&gt;</code> compositors to <code>RequestReader</code> to compose it with function of four arguments.</p>
-    </li><li name="io.finch.request.RrArrow5" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RrArrow5[R,A,B,C,D,E]extendsAnyVal"></a>
-      <a id="RrArrow5[R,A,B,C,D,E]:RrArrow5[R,A,B,C,D,E]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit final </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="package$$RrArrow5.html"><span class="name">RrArrow5</span></a><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>, <span name="B">B</span>, <span name="C">C</span>, <span name="D">D</span>, <span name="E">E</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@RrArrow5[R,A,B,C,D,E]extendsAnyVal" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Adds a <code>~&gt;</code> and <code>~~&gt;</code> compositors to <code>RequestReader</code> to compose it with function of five arguments.</p>
-    </li><li name="io.finch.request.RrArrow6" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RrArrow6[R,A,B,C,D,E,F]extendsAnyVal"></a>
-      <a id="RrArrow6[R,A,B,C,D,E,F]:RrArrow6[R,A,B,C,D,E,F]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit final </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="package$$RrArrow6.html"><span class="name">RrArrow6</span></a><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>, <span name="B">B</span>, <span name="C">C</span>, <span name="D">D</span>, <span name="E">E</span>, <span name="F">F</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@RrArrow6[R,A,B,C,D,E,F]extendsAnyVal" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Adds a <code>~&gt;</code> and <code>~~&gt;</code> compositors to <code>RequestReader</code> to compose it with function of six arguments.</p>
-    </li><li name="io.finch.request.RrArrow7" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RrArrow7[R,A,B,C,D,E,F,G]extendsAnyVal"></a>
-      <a id="RrArrow7[R,A,B,C,D,E,F,G]:RrArrow7[R,A,B,C,D,E,F,G]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit final </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="package$$RrArrow7.html"><span class="name">RrArrow7</span></a><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>, <span name="B">B</span>, <span name="C">C</span>, <span name="D">D</span>, <span name="E">E</span>, <span name="F">F</span>, <span name="G">G</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@RrArrow7[R,A,B,C,D,E,F,G]extendsAnyVal" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Adds a <code>~&gt;</code> and <code>~~&gt;</code> compositors to <code>RequestReader</code> to compose it with function of seven arguments.</p>
-    </li><li name="io.finch.request.RrArrow8" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RrArrow8[R,A,B,C,D,E,F,G,H]extendsAnyVal"></a>
-      <a id="RrArrow8[R,A,B,C,D,E,F,G,H]:RrArrow8[R,A,B,C,D,E,F,G,H]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit final </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="package$$RrArrow8.html"><span class="name">RrArrow8</span></a><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>, <span name="B">B</span>, <span name="C">C</span>, <span name="D">D</span>, <span name="E">E</span>, <span name="F">F</span>, <span name="G">G</span>, <span name="H">H</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@RrArrow8[R,A,B,C,D,E,F,G,H]extendsAnyVal" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Adds a <code>~&gt;</code> and <code>~~&gt;</code> compositors to <code>RequestReader</code> to compose it with function of eight arguments.</p>
-    </li><li name="io.finch.request.StringOptionReaderOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="StringOptionReaderOps[R]extendsAnyVal"></a>
-      <a id="StringOptionReaderOps[R]:StringOptionReaderOps[R]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit final </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="package$$StringOptionReaderOps.html"><span class="name">StringOptionReaderOps</span></a><span class="tparams">[<span name="R">R</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@StringOptionReaderOps[R]extendsAnyVal" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Implicit conversion that allows to call <code>as[A]</code> on any <code>RequestReader[Option[String]]</code> to perform a type conversion
-based on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion that allows to call <code>as[A]</code> on any <code>RequestReader[Option[String]]</code> to perform a type conversion
-based on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><p>The resulting reader will fail when the result is non-empty and type conversion fails. It will succeed if the
-result is empty or type conversion succeeds.
-</p></div></div>
-    </li><li name="io.finch.request.StringReaderOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="StringReaderOps[R]extendsAnyVal"></a>
-      <a id="StringReaderOps[R]:StringReaderOps[R]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit final </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="package$$StringReaderOps.html"><span class="name">StringReaderOps</span></a><span class="tparams">[<span name="R">R</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@StringReaderOps[R]extendsAnyVal" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Implicit conversion that allows to call <code>as[A]</code> on any <code>RequestReader[String]</code> to perform a type conversion based
-on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion that allows to call <code>as[A]</code> on any <code>RequestReader[String]</code> to perform a type conversion based
-on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><p>The resulting reader will fail when type conversion fails.
-</p></div></div>
-    </li><li name="io.finch.request.StringSeqReaderOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="StringSeqReaderOps[R]extendsAnyRef"></a>
-      <a id="StringSeqReaderOps[R]:StringSeqReaderOps[R]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="package$$StringSeqReaderOps.html"><span class="name">StringSeqReaderOps</span></a><span class="tparams">[<span name="R">R</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@StringSeqReaderOps[R]extendsAnyRef" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Implicit conversion that allows to call <code>as[A]</code> on any <code>RequestReader[Seq[String]]</code> to perform a type conversion
-based on an implicit <i>DecodeRequest[A]</i> which must be in scope.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion that allows to call <code>as[A]</code> on any <code>RequestReader[Seq[String]]</code> to perform a type conversion
-based on an implicit <i>DecodeRequest[A]</i> which must be in scope.</p><p>The resulting reader will fail when the result is non-empty and type conversion fails on one or more of the
-elements in the <code>Seq</code>. It will succeed if the result is empty or type conversion succeeds for all elements.
-</p></div></div>
+      <p class="shortcomment cmt">A type class that provides a conversion from some type to a <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>.</p>
     </li><li name="io.finch.request.ValidationRule" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="ValidationRule[A]extendsAnyRef"></a>
       <a id="ValidationRule[A]:ValidationRule[A]"></a>
@@ -584,14 +349,14 @@ matching type.</p>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="package$$View.html"><span class="name">View</span></a><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="View.html"><span class="name">View</span></a><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@View[A,B]extendsAnyRef" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">A sane and safe approach to implicit view <code>A =&gt; B</code>.</p><div class="fullcomment"><div class="comment cmt"><p>A sane and safe approach to implicit view <code>A =&gt; B</code>.
+      <p class="shortcomment cmt">A reasonable and safe approach to implicit view <code>A =&gt; B</code>.</p><div class="fullcomment"><div class="comment cmt"><p>A reasonable and safe approach to implicit view <code>A =&gt; B</code>.
 </p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
                 <span class="name">@implicitNotFound</span><span class="args">(<span>
       
@@ -599,7 +364,7 @@ matching type.</p>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.finch.request.~" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.finch.request.~" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="~[+A,+B]extendsProductwithSerializable"></a>
       <a id="~[+A,+B]:~[A,B]"></a>
       <h4 class="signature">
@@ -608,14 +373,18 @@ matching type.</p>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="package$$$tilde.html"><span title="gt4s: $tilde" class="name">~</span></a><span class="tparams">[<span name="A">+A</span>, <span name="B">+B</span>]</span><span class="params">(<span name="_1">_1: <span class="extype" name="io.finch.request.~.A">A</span></span>, <span name="_2">_2: <span class="extype" name="io.finch.request.~.B">B</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="$tilde.html"><span title="gt4s: $tilde. Deprecated: (Since version 0.7.0) ~ is deprecated in favor of HList-based composition" class="name deprecated">~</span></a><span class="tparams">[<span name="A">+A</span>, <span name="B">+B</span>]</span><span class="params">(<span name="_1">_1: <span class="extype" name="io.finch.request.~.A">A</span></span>, <span name="_2">_2: <span class="extype" name="io.finch.request.~.B">B</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@~[+A,+B]extendsProductwithSerializable" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">A wrapper for two result values.</p>
+      <p class="shortcomment cmt">A wrapper for two result values.</p><div class="fullcomment"><div class="comment cmt"><p>A wrapper for two result values.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.7.0)</i> ~ is deprecated in favor of HList-based composition</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -632,14 +401,31 @@ matching type.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$DecodeRequest$.html"><span class="name">DecodeRequest</span></a>
+        <a href="DecodeRequest$.html"><span class="name">DecodeRequest</span></a>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@DecodeRequest" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Convenience method for creating new <a href="package$$DecodeRequest.html" class="extype" name="io.finch.request.DecodeRequest">DecodeRequest</a> instances.</p>
+      
+    </li><li name="io.finch.request.PRequestReader" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PRequestReader"></a>
+      <a id="PRequestReader:PRequestReader"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="PRequestReader$.html"><span class="name">PRequestReader</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.package@PRequestReader" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
     </li><li name="io.finch.request.RequestReader" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="RequestReader"></a>
       <a id="RequestReader:RequestReader"></a>
@@ -657,6 +443,23 @@ matching type.</p>
       </a>
     </span>
       <p class="shortcomment cmt">Convenience methods for creating new reader instances.</p>
+    </li><li name="io.finch.request.ToRequest" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ToRequest"></a>
+      <a id="ToRequest:ToRequest"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ToRequest$.html"><span class="name">ToRequest</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.package@ToRequest" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
     </li><li name="io.finch.request.ValidationRule" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ValidationRule"></a>
       <a id="ValidationRule:ValidationRule"></a>
@@ -683,14 +486,14 @@ matching type.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="package$$View$.html"><span class="name">View</span></a>
+        <a href="View$.html"><span class="name">View</span></a>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@View" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">A companion object for <a href="package$$View.html" class="extype" name="io.finch.request.View">View</a>.</p>
+      <p class="shortcomment cmt">A companion object for <a href="View.html" class="extype" name="io.finch.request.View">View</a>.</p>
     </li><li name="io.finch.request#beGreaterThan" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="beGreaterThan[A](n:A)(implicitev:Numeric[A]):io.finch.request.ValidationRule[A]"></a>
       <a id="beGreaterThan[A](A)(Numeric[A]):ValidationRule[A]"></a>
@@ -874,91 +677,6 @@ when the cookie is missing.
 </p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the cookie to read
 </p></dd><dt>returns</dt><dd class="cmt"><p>an <code>Option</code> that contains a cookie or None if the cookie does not exist on the request.
 </p></dd></dl></div>
-    </li><li name="io.finch.request#decodeBoolean" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="decodeBoolean:io.finch.request.package.DecodeRequest[Boolean]"></a>
-      <a id="decodeBoolean:DecodeRequest[Boolean]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">decodeBoolean</span><span class="result">: <a href="package$$DecodeRequest.html" class="extype" name="io.finch.request.DecodeRequest">DecodeRequest</a>[<span class="extype" name="scala.Boolean">Boolean</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@decodeBoolean:io.finch.request.package.DecodeRequest[Boolean]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A <a href="package$$DecodeRequest.html" class="extype" name="io.finch.request.DecodeRequest">DecodeRequest</a> instance for <code>Boolean</code>.</p>
-    </li><li name="io.finch.request#decodeDouble" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="decodeDouble:io.finch.request.package.DecodeRequest[Double]"></a>
-      <a id="decodeDouble:DecodeRequest[Double]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">decodeDouble</span><span class="result">: <a href="package$$DecodeRequest.html" class="extype" name="io.finch.request.DecodeRequest">DecodeRequest</a>[<span class="extype" name="scala.Double">Double</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@decodeDouble:io.finch.request.package.DecodeRequest[Double]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A <a href="package$$DecodeRequest.html" class="extype" name="io.finch.request.DecodeRequest">DecodeRequest</a> instance for <code>Double</code>.</p>
-    </li><li name="io.finch.request#decodeFloat" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="decodeFloat:io.finch.request.package.DecodeRequest[Float]"></a>
-      <a id="decodeFloat:DecodeRequest[Float]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">decodeFloat</span><span class="result">: <a href="package$$DecodeRequest.html" class="extype" name="io.finch.request.DecodeRequest">DecodeRequest</a>[<span class="extype" name="scala.Float">Float</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@decodeFloat:io.finch.request.package.DecodeRequest[Float]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A <a href="package$$DecodeRequest.html" class="extype" name="io.finch.request.DecodeRequest">DecodeRequest</a> instance for <code>Float</code>.</p>
-    </li><li name="io.finch.request#decodeInt" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="decodeInt:io.finch.request.package.DecodeRequest[Int]"></a>
-      <a id="decodeInt:DecodeRequest[Int]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">decodeInt</span><span class="result">: <a href="package$$DecodeRequest.html" class="extype" name="io.finch.request.DecodeRequest">DecodeRequest</a>[<span class="extype" name="scala.Int">Int</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@decodeInt:io.finch.request.package.DecodeRequest[Int]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A <a href="package$$DecodeRequest.html" class="extype" name="io.finch.request.DecodeRequest">DecodeRequest</a> instance for <code>Int</code>.</p>
-    </li><li name="io.finch.request#decodeLong" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="decodeLong:io.finch.request.package.DecodeRequest[Long]"></a>
-      <a id="decodeLong:DecodeRequest[Long]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">decodeLong</span><span class="result">: <a href="package$$DecodeRequest.html" class="extype" name="io.finch.request.DecodeRequest">DecodeRequest</a>[<span class="extype" name="scala.Long">Long</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@decodeLong:io.finch.request.package.DecodeRequest[Long]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A <a href="package$$DecodeRequest.html" class="extype" name="io.finch.request.DecodeRequest">DecodeRequest</a> instance for <code>Long</code>.</p>
     </li><li name="io.finch.request#fileUpload" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fileUpload(name:String):io.finch.request.package.RequestReader[io.finch.request.package.FileUpload]"></a>
       <a id="fileUpload(String):RequestReader[FileUpload]"></a>
@@ -1056,43 +774,6 @@ exception when the header is missing.
       </a>
     </span>
       <p class="shortcomment cmt">Representations for the various types that can be processed with <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>s.</p>
-    </li><li name="io.finch.request.LowPriorityRequestReaderImplicits#magnetFromAnyDecode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="magnetFromAnyDecode[A](implicitd:io.finch.request.DecodeAnyRequest,implicittag:scala.reflect.ClassTag[A]):io.finch.request.DecodeMagnet[A]"></a>
-      <a id="magnetFromAnyDecode[A](DecodeAnyRequest,ClassTag[A]):DecodeMagnet[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">magnetFromAnyDecode</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="package$$DecodeAnyRequest.html" class="extype" name="io.finch.request.DecodeAnyRequest">DecodeAnyRequest</a></span>, <span name="tag">tag: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[<span class="extype" name="io.finch.request.LowPriorityRequestReaderImplicits.magnetFromAnyDecode.A">A</span>]</span>)</span><span class="result">: <a href="package$$DecodeMagnet.html" class="extype" name="io.finch.request.DecodeMagnet">DecodeMagnet</a>[<span class="extype" name="io.finch.request.LowPriorityRequestReaderImplicits.magnetFromAnyDecode.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@magnetFromAnyDecode[A](implicitd:io.finch.request.DecodeAnyRequest,implicittag:scala.reflect.ClassTag[A]):io.finch.request.DecodeMagnet[A]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Creates a <a href="package$$DecodeMagnet.html" class="extype" name="io.finch.request.DecodeMagnet">DecodeMagnet</a> from
-<a href="package$$DecodeAnyRequest.html" class="extype" name="io.finch.request.DecodeAnyRequest">DecodeAnyRequest</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="package$$DecodeMagnet.html" class="extype" name="io.finch.request.DecodeMagnet">DecodeMagnet</a> from
-<a href="package$$DecodeAnyRequest.html" class="extype" name="io.finch.request.DecodeAnyRequest">DecodeAnyRequest</a>.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityRequestReaderImplicits.html" class="extype" name="io.finch.request.LowPriorityRequestReaderImplicits">LowPriorityRequestReaderImplicits</a></dd></dl></div>
-    </li><li name="io.finch.request#magnetFromDecode" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="magnetFromDecode[A](implicitd:io.finch.request.package.DecodeRequest[A]):io.finch.request.package.DecodeMagnet[A]"></a>
-      <a id="magnetFromDecode[A](DecodeRequest[A]):DecodeMagnet[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">magnetFromDecode</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="package$$DecodeRequest.html" class="extype" name="io.finch.request.DecodeRequest">DecodeRequest</a>[<span class="extype" name="io.finch.request.magnetFromDecode.A">A</span>]</span>)</span><span class="result">: <a href="package$$DecodeMagnet.html" class="extype" name="io.finch.request.DecodeMagnet">DecodeMagnet</a>[<span class="extype" name="io.finch.request.magnetFromDecode.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@magnetFromDecode[A](implicitd:io.finch.request.package.DecodeRequest[A]):io.finch.request.package.DecodeMagnet[A]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Creates a <a href="package$$DecodeMagnet.html" class="extype" name="io.finch.request.DecodeMagnet">DecodeMagnet</a> from <a href="package$$DecodeRequest.html" class="extype" name="io.finch.request.DecodeRequest">DecodeRequest</a>.</p>
     </li><li name="io.finch.request#param" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="param(name:String):io.finch.request.package.RequestReader[String]"></a>
       <a id="param(String):RequestReader[String]"></a>
@@ -1203,28 +884,6 @@ value is non-empty, it gets validated (and validation may fail, producing error)
 treated as valid.</p><p>In order to help the compiler determine the case when inline rule should be converted, the type of the validated
 value should be specified explicitly.</p><pre>OptionalIntParam(<span class="lit">"foo"</span>).should(<span class="lit">"be greater than 50"</span>) { i: <span class="std">Int</span> <span class="kw">=&gt;</span> i &gt; <span class="num">50</span> }</pre></div><dl class="paramcmts block"><dt class="param">fn</dt><dd class="cmt"><p>the underlying function to convert
 </p></dd></dl></div>
-    </li><li name="io.finch.request#toOptionalRule" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toOptionalRule[A](rule:io.finch.request.ValidationRule[A]):io.finch.request.ValidationRule[Option[A]]"></a>
-      <a id="toOptionalRule[A](ValidationRule[A]):ValidationRule[Option[A]]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toOptionalRule</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="rule">rule: <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a>[<span class="extype" name="io.finch.request.toOptionalRule.A">A</span>]</span>)</span><span class="result">: <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="io.finch.request.toOptionalRule.A">A</span>]]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@toOptionalRule[A](rule:io.finch.request.ValidationRule[A]):io.finch.request.ValidationRule[Option[A]]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Implicit conversion that allows the same <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValudationRule</a> to be used for required
-and optional values.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion that allows the same <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValudationRule</a> to be used for required
-and optional values. If the optional value is non-empty, it gets validated (and validation may fail, producing an
-error), but if it is empty, it is always treated as valid.
-</p></div><dl class="paramcmts block"><dt class="param">rule</dt><dd class="cmt"><p>the validation rule to adapt for optional values</p></dd><dt>returns</dt><dd class="cmt"><p>a new validation rule that applies the specified rule to an optional value in case it is not empty
-</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -1234,9 +893,7 @@ error), but if it is empty, it is always treated as valid.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="io.finch.request.LowPriorityRequestReaderImplicits">
-              <h3>Inherited from <a href="LowPriorityRequestReaderImplicits.html" class="extype" name="io.finch.request.LowPriorityRequestReaderImplicits">LowPriorityRequestReaderImplicits</a></h3>
-            </div><div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

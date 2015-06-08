@@ -28,10 +28,12 @@
         </head>
         <body class="type">
       <div id="definition">
-        <img src="../../../lib/trait_big.png" />
+        <a href="PRequestReader$.html" title="See companion object"><img src="../../../lib/trait_to_object_big.png" /></a>
         <p id="owner"><a href="../../package.html" class="extype" name="io">io</a>.<a href="../package.html" class="extype" name="io.finch">finch</a>.<a href="package.html" class="extype" name="io.finch.request">request</a></p>
-        <h1>PRequestReader</h1><h3><span class="morelinks"><div>Related Doc:
-            <a href="package.html" class="extype" name="io.finch.request">package request</a>
+        <h1><a href="PRequestReader$.html" title="See companion object">PRequestReader</a></h1><h3><span class="morelinks"><div>
+            Related Docs:
+            <a href="PRequestReader$.html" title="See companion object">object PRequestReader</a>
+            | <a href="package.html" class="extype" name="io.finch.request">package request</a>
           </div></span></h3><span class="permalink">
       <a href="../../../index.html#io.finch.request.PRequestReader" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
@@ -309,7 +311,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">flatMap</span><span class="tparams">[<span name="S">S</span>, <span name="B">B</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="io.finch.request.PRequestReader.A">A</span>) ⇒ <a href="" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.PRequestReader.flatMap.S">S</span>, <span class="extype" name="io.finch.request.PRequestReader.flatMap.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <a href="package.html#%&gt;[A,B]=io.finch.request.package.View[A,B]" class="extmbr" name="io.finch.request.%&gt;">%&gt;</a>[<span class="extype" name="io.finch.request.PRequestReader.R">R</span>, <span class="extype" name="io.finch.request.PRequestReader.flatMap.S">S</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.PRequestReader.R">R</span>, <span class="extype" name="io.finch.request.PRequestReader.flatMap.B">B</span>]</span>
+        <span class="name">flatMap</span><span class="tparams">[<span name="S">S</span>, <span name="B">B</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="io.finch.request.PRequestReader.A">A</span>) ⇒ <a href="" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.PRequestReader.flatMap.S">S</span>, <span class="extype" name="io.finch.request.PRequestReader.flatMap.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <a href="package.html#%&gt;[A,B]=io.finch.request.View[A,B]" class="extmbr" name="io.finch.request.%&gt;">%&gt;</a>[<span class="extype" name="io.finch.request.PRequestReader.R">R</span>, <span class="extype" name="io.finch.request.PRequestReader.flatMap.S">S</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.PRequestReader.R">R</span>, <span class="extype" name="io.finch.request.PRequestReader.flatMap.B">B</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.PRequestReader@flatMap[S,B](fn:A=&gt;io.finch.request.PRequestReader[S,B])(implicitev:io.finch.request.%&gt;[R,S]):io.finch.request.PRequestReader[R,B]" title="Permalink" target="_top">
@@ -368,6 +370,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.finch.request.PRequestReader#lift" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="lift:io.finch.request.PRequestReader[R,Option[A]]"></a>
+      <a id="lift:PRequestReader[R,Option[A]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">lift</span><span class="result">: <a href="" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.PRequestReader.R">R</span>, <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="io.finch.request.PRequestReader.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.PRequestReader@lift:io.finch.request.PRequestReader[R,Option[A]]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Lifts this request reader into one that always succeeds, with an empty option representing failure.</p>
     </li><li name="io.finch.request.PRequestReader#map" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="map[B](fn:A=&gt;B):io.finch.request.PRequestReader[R,B]"></a>
       <a id="map[B]((A)⇒B):PRequestReader[R,B]"></a>
@@ -644,7 +663,14 @@ across multiple request readers.
       </a>
     </span>
       <p class="shortcomment cmt">Applies the given filter <code>p</code> to this request reader.</p>
-    </li><li name="io.finch.request.PRequestReader#~" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="io.finch.request.PRequestReader#~" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="~[S,B](that:io.finch.request.PRequestReader[S,B])(implicitev:io.finch.request.%&gt;[R,S]):io.finch.request.PRequestReader[R,io.finch.request.~[A,B]]"></a>
       <a id="~[S,B](PRequestReader[S,B])(%&gt;[R,S]):PRequestReader[R,~[A,B]]"></a>
       <h4 class="signature">
@@ -653,20 +679,20 @@ across multiple request readers.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $tilde" class="name">~</span><span class="tparams">[<span name="S">S</span>, <span name="B">B</span>]</span><span class="params">(<span name="that">that: <a href="" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.PRequestReader.~.S">S</span>, <span class="extype" name="io.finch.request.PRequestReader.~.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <a href="package.html#%&gt;[A,B]=io.finch.request.package.View[A,B]" class="extmbr" name="io.finch.request.%&gt;">%&gt;</a>[<span class="extype" name="io.finch.request.PRequestReader.R">R</span>, <span class="extype" name="io.finch.request.PRequestReader.~.S">S</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.PRequestReader.R">R</span>, <a href="package$$$tilde.html" class="extype" name="io.finch.request.~">~</a>[<span class="extype" name="io.finch.request.PRequestReader.A">A</span>, <span class="extype" name="io.finch.request.PRequestReader.~.B">B</span>]]</span>
+        <span title="gt4s: $tilde. Deprecated: (Since version 0.7.0) ~ is deprecated in favor of HList-based composition" class="name deprecated">~</span><span class="tparams">[<span name="S">S</span>, <span name="B">B</span>]</span><span class="params">(<span name="that">that: <a href="" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.PRequestReader.~.S">S</span>, <span class="extype" name="io.finch.request.PRequestReader.~.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <a href="package.html#%&gt;[A,B]=io.finch.request.View[A,B]" class="extmbr" name="io.finch.request.%&gt;">%&gt;</a>[<span class="extype" name="io.finch.request.PRequestReader.R">R</span>, <span class="extype" name="io.finch.request.PRequestReader.~.S">S</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.PRequestReader.R">R</span>, <a href="$tilde.html" class="extype" name="io.finch.request.~">~</a>[<span class="extype" name="io.finch.request.PRequestReader.A">A</span>, <span class="extype" name="io.finch.request.PRequestReader.~.B">B</span>]]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.PRequestReader@~[S,B](that:io.finch.request.PRequestReader[S,B])(implicitev:io.finch.request.%&gt;[R,S]):io.finch.request.PRequestReader[R,io.finch.request.~[A,B]]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Composes this request reader with the given <code>that</code> request reader.</p>
+      <p class="shortcomment cmt">Composes this request reader with the given <code>that</code> request reader.</p><div class="fullcomment"><div class="comment cmt"><p>Composes this request reader with the given <code>that</code> request reader.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.7.0)</i> ~ is deprecated in favor of HList-based composition</p></dd></dl></div>
     </li></ol>
             </div>
-
-        
-
-        
         </div>
 
         <div id="inheritedMembers">

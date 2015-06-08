@@ -28,11 +28,11 @@
         </head>
         <body class="value">
       <div id="definition">
-        <a href="ValidationRule.html" title="Go to companion"><img src="../../../lib/object_to_trait_big.png" /></a>
+        <a href="ValidationRule.html" title="See companion trait"><img src="../../../lib/object_to_trait_big.png" /></a>
         <p id="owner"><a href="../../package.html" class="extype" name="io">io</a>.<a href="../package.html" class="extype" name="io.finch">finch</a>.<a href="package.html" class="extype" name="io.finch.request">request</a></p>
-        <h1><a href="ValidationRule.html" title="Go to companion">ValidationRule</a></h1><h3><span class="morelinks"><div>
+        <h1><a href="ValidationRule.html" title="See companion trait">ValidationRule</a></h1><h3><span class="morelinks"><div>
             Related Docs:
-            <a href="ValidationRule.html" title="See companion">trait ValidationRule</a>
+            <a href="ValidationRule.html" title="See companion trait">trait ValidationRule</a>
             | <a href="package.html" class="extype" name="io.finch.request">package request</a>
           </div></span></h3><span class="permalink">
       <a href="../../../index.html#io.finch.request.ValidationRule$" title="Permalink" target="_top">
@@ -385,6 +385,28 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="io.finch.request.ValidationRule#toOptionalRule" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toOptionalRule[A](rule:io.finch.request.ValidationRule[A]):io.finch.request.ValidationRule[Option[A]]"></a>
+      <a id="toOptionalRule[A](ValidationRule[A]):ValidationRule[Option[A]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toOptionalRule</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="rule">rule: <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a>[<span class="extype" name="io.finch.request.ValidationRule.toOptionalRule.A">A</span>]</span>)</span><span class="result">: <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="io.finch.request.ValidationRule.toOptionalRule.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.ValidationRule$@toOptionalRule[A](rule:io.finch.request.ValidationRule[A]):io.finch.request.ValidationRule[Option[A]]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit conversion that allows the same <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValudationRule</a> to be used for required
+and optional values.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion that allows the same <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValudationRule</a> to be used for required
+and optional values. If the optional value is non-empty, it gets validated (and validation may fail, producing an
+error), but if it is empty, it is always treated as valid.
+</p></div><dl class="paramcmts block"><dt class="param">rule</dt><dd class="cmt"><p>the validation rule to adapt for optional values</p></dd><dt>returns</dt><dd class="cmt"><p>a new validation rule that applies the specified rule to an optional value in case it is not empty
+</p></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>

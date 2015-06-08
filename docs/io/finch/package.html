@@ -49,7 +49,7 @@
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>This is a root package of the Finch library, which provides an immutable layer of functions and types atop of Finagle
 for writing lightweight HTTP services. It roughly contains three packages: <a href="route/package.html" class="extype" name="io.finch.route">io.finch.route</a>, <a href="request/package.html" class="extype" name="io.finch.request">io.finch.request</a>,
-<a href="response/package.html" class="extype" name="io.finch.response">io.finch.response</a>, which correspond to three simple steps to a robust REST/HTTP API:</p><p>Step 1. Routing the HTTP requests to a <code>Service</code>.</p><p>The <a href="route/package.html#Router[+A]=io.finch.route.RouterN[A]" class="extmbr" name="io.finch.route.Router">Router</a> abstraction routes the requests depending on their path and method information.
+<a href="response/package.html" class="extype" name="io.finch.response">io.finch.response</a>, which correspond to three simple steps to a robust REST/HTTP API:</p><p>Step 1. Routing the HTTP requests to a <code>Service</code>.</p><p>The <a href="route/Router.html" class="extype" name="io.finch.route.Router">Router</a> abstraction routes the requests depending on their path and method information.
 <code>Router</code> combinator provides a bunch of predefined routers handling separated parts of a route. <code>Router</code>s might be
 composed with either <code>/</code> (<code>andThen</code>) or <code>/&gt;</code> (<code>map</code>) operator. There is also <code>|</code> (<code>orElse</code>) operator that combines
 two routers in terms of the inclusive or operator.</p><pre><span class="kw">val</span> router: Endpoint[HttpRequest, HttpResponse] =
@@ -257,28 +257,23 @@ view from <i>Req</i> to <i>HttpRequest</i> available in the scope.
     </span>
       <p class="shortcomment cmt">A companion object for <i>Endpoint</i>
 </p>
-    </li><li name="io.finch#endpointToService" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="endpointToService[Req,Rep](e:io.finch.Endpoint[Req,Rep])(implicitev:Req=&gt;io.finch.package.HttpRequest):com.twitter.finagle.Service[Req,Rep]"></a>
-      <a id="endpointToService[Req,Rep](Endpoint[Req,Rep])((Req)⇒HttpRequest):Service[Req,Rep]"></a>
+    </li><li name="io.finch.benchmarks" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="benchmarks"></a>
+      <a id="benchmarks:benchmarks"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
+        <span class="modifier"></span>
+        <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <span class="name">endpointToService</span><span class="tparams">[<span name="Req">Req</span>, <span name="Rep">Rep</span>]</span><span class="params">(<span name="e">e: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.endpointToService.Req">Req</span>, <span class="extype" name="io.finch.endpointToService.Rep">Rep</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: (<span class="extype" name="io.finch.endpointToService.Req">Req</span>) ⇒ <a href="#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a></span>)</span><span class="result">: <span class="extype" name="com.twitter.finagle.Service">Service</span>[<span class="extype" name="io.finch.endpointToService.Req">Req</span>, <span class="extype" name="io.finch.endpointToService.Rep">Rep</span>]</span>
+        <a href="benchmarks/package.html"><span class="name">benchmarks</span></a>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.package@endpointToService[Req,Rep](e:io.finch.Endpoint[Req,Rep])(implicitev:Req=&gt;io.finch.package.HttpRequest):com.twitter.finagle.Service[Req,Rep]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.package@benchmarks" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Allows to use an <i>Endpoint</i> when <i>Service</i> is expected.</p><div class="fullcomment"><div class="comment cmt"><p>Allows to use an <i>Endpoint</i> when <i>Service</i> is expected. The implicit
-conversion is possible if there is an implicit view from <i>Req</i> to
-<i>HttpRequest</i> available in the scope.</p><pre><span class="kw">val</span> e: Endpoint[HttpRequest, HttpResponse] = ???
-Httpx.serve(<span class="kw">new</span> InetSocketAddress(<span class="num">8081</span>), e)</pre></div><dl class="paramcmts block"><dt class="tparam">Req</dt><dd class="cmt"><p>the request type</p></dd><dt class="tparam">Rep</dt><dd class="cmt"><p>the response type
-</p></dd><dt class="param">e</dt><dd class="cmt"><p>the endpoint to convert</p></dd><dt class="param">ev</dt><dd class="cmt"><p>the evidence of implicit view</p></dd><dt>returns</dt><dd class="cmt"><p>a service that delegates the requests to the underlying endpoint
-</p></dd></dl></div>
+      
     </li><li name="io.finch#futureToService" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="futureToService[Req,Rep](f:com.twitter.util.Future[Rep]):com.twitter.finagle.Service[Req,Rep]"></a>
       <a id="futureToService[Req,Rep](Future[Rep]):Service[Req,Rep]"></a>
@@ -361,17 +356,19 @@ primitives allow both to _read_ the various request items (<i>query string param
 the <a href="request/package.html#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> and _validate_ them using the
 <a href="request/ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a>.</p><p>The cornerstone abstraction of this package is a <code>RequestReader</code>, which is responsible for reading any amount of data
 from the HTTP request. <code>RequestReader</code>s might be composed with each other using either monadic API (<code>flatMap</code> method)
-or applicative API (<code>~</code> method). Regardless the API used for <code>RequestReader</code>s composition, the main idea behind it is
-to use primitive readers (i.e., <code>param</code>, <code>paramOption</code>) in order to _compose_ them together and _map_ to
+or applicative API (<code>::</code> method). Regardless the API used for <code>RequestReader</code>s composition, the main idea behind it
+is to use primitive readers (i.e., <code>param</code>, <code>paramOption</code>) in order to _compose_ them together and _map_ to
 the application domain data.</p><pre><span class="kw">case</span> <span class="kw">class</span> Complex(r: <span class="std">Double</span>, i: <span class="std">Double</span>)
-<span class="kw">val</span> complex: RequestReader[Complex] =
-  param(<span class="lit">"real"</span>).as[<span class="std">Double</span>] ~
-  paramOption(<span class="lit">"imaginary"</span>).as[<span class="std">Double</span>].withDefault(<span class="num">0.0</span>) ~&gt; Complex</pre><p>A <code>ValidationRule</code> enables a reusable way of defining a validation rules in the application domain. It might be
+<span class="kw">val</span> complex: RequestReader[Complex] = (
+  param(<span class="lit">"real"</span>).as[<span class="std">Double</span>] ::
+  paramOption(<span class="lit">"imaginary"</span>).as[<span class="std">Double</span>].withDefault(<span class="num">0.0</span>)
+).as[Complex]</pre><p>A <code>ValidationRule</code> enables a reusable way of defining a validation rules in the application domain. It might be
 composed with <code>RequestReader</code>s using either <code>should</code> or <code>shouldNot</code> methods and with other <code>ValidationRule</code>s using
 logical methods <code>and</code> and <code>or</code>.</p><pre><span class="kw">case</span> <span class="kw">class</span> User(name: <span class="std">String</span>, age: <span class="std">Int</span>)
-<span class="kw">val</span> user: RequestReader[User] =
-  param(<span class="lit">"name"</span>) should beLongerThan(<span class="num">3</span>) ~
-  param(<span class="lit">"age"</span>).as[<span class="std">Int</span>] should (beGreaterThan(<span class="num">0</span>) and beLessThan(<span class="num">120</span>)) ~&gt; User</pre></div></div>
+<span class="kw">val</span> user: RequestReader[User] = (
+  param(<span class="lit">"name"</span>).should(beLongerThan(<span class="num">3</span>)) ::
+  param(<span class="lit">"age"</span>).as[<span class="std">Int</span>].should(beGreaterThan(<span class="num">0</span>) and beLessThan(<span class="num">120</span>))
+).as[User]</pre></div></div>
     </li><li name="io.finch.response" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="response"></a>
       <a id="response:response"></a>
@@ -394,10 +391,10 @@ logical methods <code>and</code> and <code>or</code>.</p><pre><span class="kw">c
 of building concrete <span class="extype" name="com.twitter.finagle.httpx.Response">Response</span> instances by specifying their <i>status</i>,
 <i>headers</i> and <i>cookies</i>. There are plenty of predefined builders named by HTTP statuses, i.e., <code>Ok</code>, <code>Created</code>,
 <code>NotFound</code>. Thus, the typical use case of the <code>ResponseBuilder</code> abstraction involves usage of concrete builder
-instead of abstract <code>ResponseBuilder</code> itself.</p><pre><span class="kw">val</span> ok: HttpResponse = Ok(<span class="lit">"Hello, World!"</span>)</pre><p>In addition to <code>plain/text</code> responses, the <code>ResponseBuilder</code> is able to build any response, whose <code>content-type</code> is
-specified by an implicit type-class <a href="response/package$$EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a> instance. In fact, any type
+instead of abstract <code>ResponseBuilder</code> itself.</p><pre><span class="kw">val</span> ok: HttpResponse = Ok(<span class="lit">"Hello, World!"</span>)</pre><p>In addition to <code>text/plain</code> responses, the <code>ResponseBuilder</code> is able to build any response, whose <code>content-type</code> is
+specified by an implicit type-class <a href="response/EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a> instance. In fact, any type
 <code>A</code> may be passed to a <code>RequestReader</code> if there is a corresponding <code>EncodeRequest[A]</code> instance available in the
-scope.</p><pre><span class="kw">implicit</span> <span class="kw">val</span> encodeBigInt = EncodeResponse[BigInt](<span class="lit">"plain/text"</span>) { _.toString }
+scope.</p><pre><span class="kw">implicit</span> <span class="kw">val</span> encodeBigInt = EncodeResponse[BigInt](<span class="lit">"text/plain"</span>) { _.toString }
 <span class="kw">val</span> ok: HttpResponse = Ok(BigInt(<span class="num">100</span>))</pre></div></div>
     </li><li name="io.finch.route" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="route"></a>
@@ -416,12 +413,11 @@ scope.</p><pre><span class="kw">implicit</span> <span class="kw">val</span> enco
       </a>
     </span>
       <p class="shortcomment cmt">This package contains various of functions and types that enable _router combinators_ in Finch.</p><div class="fullcomment"><div class="comment cmt"><p>This package contains various of functions and types that enable _router combinators_ in Finch. A Finch
-<a href="route/package.html#Router[+A]=io.finch.route.RouterN[A]" class="extmbr" name="io.finch.route.Router">Router</a> is an abstraction that is responsible for routing the HTTP requests using their
-method and path information. There are two types of routers in Finch: <a href="route/Router0.html" class="extype" name="io.finch.route.Router0">Router0</a> and
-<a href="route/RouterN.html" class="extype" name="io.finch.route.RouterN">RouterN</a>. <code>Router0</code> matches the route and returns an <code>Option</code> of the rest of the route.
-<code>RouterN[A]</code> (or just <code>Router[A]</code>) in addition to the <code>Router0</code> behaviour extracts a value of type <code>A</code> from the
-route.</p><p>A <a href="route/package.html#Router[+A]=io.finch.route.RouterN[A]" class="extmbr" name="io.finch.route.Router">Router</a> that maps route to a <span class="extype" name="com.twitter.finagle.Service">Service</span> is called an
-<a href="route/package.html#Endpoint[-A,+B]=io.finch.route.package.Router[com.twitter.finagle.Service[A,B]]" class="extmbr" name="io.finch.route.Endpoint">Endpoint</a>. An endpoint <code>Req =&gt; Rep</code> might be implicitly converted into a
+<a href="route/Router.html" class="extype" name="io.finch.route.Router">Router</a> is an abstraction that is responsible for routing the HTTP requests using their
+method and path information. There are two types of routers in Finch: <a href="route/Matcher.html" class="extype" name="io.finch.route.Matcher">Matcher</a> and
+<a href="route/Router.html" class="extype" name="io.finch.route.Router">Router</a>. <code>Matcher</code> matches the route and returns an <code>Option</code> of the rest of the route.
+<code>Router[A]</code> in addition to the <code>Matcher</code> behaviour extracts a value of type <code>A</code> from the route.</p><p>A <a href="route/Router.html" class="extype" name="io.finch.route.Router">Router</a> that maps route to a <span class="extype" name="com.twitter.finagle.Service">Service</span> is called an
+<a href="route/package.html#Endpoint[A,B]=io.finch.route.Router[com.twitter.finagle.Service[A,B]]" class="extmbr" name="io.finch.route.Endpoint">Endpoint</a>. An endpoint <code>Req =&gt; Rep</code> might be implicitly converted into a
 <code>Service[Req, Rep]</code>. Thus, the following example is a valid Finch code:</p><pre><span class="kw">def</span> hello(s: <span class="std">String</span>) = <span class="kw">new</span> Service[HttRequest, HttpResponse] {
   <span class="kw">def</span> apply(req: HttpRequest) = Ok(s<span class="lit">"Hello $name!"</span>).toFuture
 }
@@ -430,6 +426,23 @@ Httpx.serve(
   <span class="kw">new</span> InetSocketAddress(<span class="num">8081</span>),
   Get / string /&gt; hello <span class="cmt">// will be implicitly converted into service</span>
 )</pre></div></div>
+    </li><li name="io.finch.test" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="test"></a>
+      <a id="test:test"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="test/package.html"><span class="name">test</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@test" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
     </li></ol>
             </div>
 

@@ -95,41 +95,7 @@ alias to <code>RequestReader</code>, since it's no longer a reader but _processo
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="io.finch.micro.Endpoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Endpoint=io.finch.micro.package.PEndpoint[io.finch.HttpRequest]"></a>
-      <a id="Endpoint:Endpoint"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">type</span>
-      </span>
-      <span class="symbol">
-        <span class="name">Endpoint</span><span class="result"> = <a href="../route/RouterN.html" class="extype" name="io.finch.route.RouterN">RouterN</a>[<a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a>[<a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.micro.package@Endpoint=io.finch.micro.package.PEndpoint[io.finch.HttpRequest]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A <a href="#PEndpoint[R]=io.finch.route.Router[io.finch.micro.package.PMicro[R,io.finch.HttpResponse]]" class="extmbr" name="io.finch.micro.PEndpoint">PEndpoint</a> with request type fixed to <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>.</p>
-    </li><li name="io.finch.micro.Micro" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Micro[A]=io.finch.micro.package.PMicro[io.finch.HttpRequest,A]"></a>
-      <a id="Micro[A]:Micro[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">type</span>
-      </span>
-      <span class="symbol">
-        <span class="name">Micro</span><span class="tparams">[<span name="A">A</span>]</span><span class="result"> = <a href="../request/PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>, <span class="extype" name="io.finch.micro.Micro.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.micro.package@Micro[A]=io.finch.micro.package.PMicro[io.finch.HttpRequest,A]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a> with request type fixed to <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>.</p>
-    </li><li name="io.finch.micro.MicroRouterOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="io.finch.micro.MicroRouterOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="MicroRouterOps[R,A]extendsAnyRef"></a>
       <a id="MicroRouterOps[R,A]:MicroRouterOps[R,A]"></a>
       <h4 class="signature">
@@ -146,7 +112,49 @@ alias to <code>RequestReader</code>, since it's no longer a reader but _processo
       </a>
     </span>
       
-    </li><li name="io.finch.micro.PEndpoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.finch.micro.Endpoint" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Endpoint=io.finch.micro.package.PEndpoint[io.finch.HttpRequest]"></a>
+      <a id="Endpoint:Endpoint"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.7.0) Micro-style is deprecated in favor of heterogeneous routers.">Endpoint</span><span class="result"> = <a href="../route/Router.html" class="extype" name="io.finch.route.Router">Router</a>[<a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a>[<a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.micro.package@Endpoint=io.finch.micro.package.PEndpoint[io.finch.HttpRequest]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A <a href="#PEndpoint[R]=io.finch.route.Router[io.finch.micro.package.PMicro[R,io.finch.HttpResponse]]" class="extmbr" name="io.finch.micro.PEndpoint">PEndpoint</a> with request type fixed to <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>.</p><div class="fullcomment"><div class="comment cmt"><p>A <a href="#PEndpoint[R]=io.finch.route.Router[io.finch.micro.package.PMicro[R,io.finch.HttpResponse]]" class="extmbr" name="io.finch.micro.PEndpoint">PEndpoint</a> with request type fixed to <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.7.0)</i> Micro-style is deprecated in favor of heterogeneous routers.</p></dd></dl></div>
+    </li><li name="io.finch.micro.Micro" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Micro[A]=io.finch.micro.package.PMicro[io.finch.HttpRequest,A]"></a>
+      <a id="Micro[A]:Micro[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.7.0) Micro-style is deprecated in favor of heterogeneous routers.">Micro</span><span class="tparams">[<span name="A">A</span>]</span><span class="result"> = <a href="../request/PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>, <span class="extype" name="io.finch.micro.Micro.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.micro.package@Micro[A]=io.finch.micro.package.PMicro[io.finch.HttpRequest,A]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a> with request type fixed to <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>.</p><div class="fullcomment"><div class="comment cmt"><p>A <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a> with request type fixed to <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.7.0)</i> Micro-style is deprecated in favor of heterogeneous routers.</p></dd></dl></div>
+    </li><li name="io.finch.micro.PEndpoint" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="PEndpoint[R]=io.finch.route.Router[io.finch.micro.package.PMicro[R,io.finch.HttpResponse]]"></a>
       <a id="PEndpoint[R]:PEndpoint[R]"></a>
       <h4 class="signature">
@@ -155,15 +163,19 @@ alias to <code>RequestReader</code>, since it's no longer a reader but _processo
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span class="name">PEndpoint</span><span class="tparams">[<span name="R">R</span>]</span><span class="result"> = <a href="../route/RouterN.html" class="extype" name="io.finch.route.RouterN">RouterN</a>[<a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a>[<span class="extype" name="io.finch.micro.PEndpoint.R">R</span>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]]</span>
+        <span class="name deprecated" title="Deprecated: (Since version 0.7.0) Micro-style is deprecated in favor of heterogeneous routers.">PEndpoint</span><span class="tparams">[<span name="R">R</span>]</span><span class="result"> = <a href="../route/Router.html" class="extype" name="io.finch.route.Router">Router</a>[<a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a>[<span class="extype" name="io.finch.micro.PEndpoint.R">R</span>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.micro.package@PEndpoint[R]=io.finch.route.Router[io.finch.micro.package.PMicro[R,io.finch.HttpResponse]]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">A <span class="extype" name="Router">Router</span> that fetches a <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a> is called an endpoint.</p>
-    </li><li name="io.finch.micro.PMicro" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">A <span class="extype" name="Router">Router</span> that fetches a <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a> is called an endpoint.</p><div class="fullcomment"><div class="comment cmt"><p>A <span class="extype" name="Router">Router</span> that fetches a <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a> is called an endpoint.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.7.0)</i> Micro-style is deprecated in favor of heterogeneous routers.</p></dd></dl></div>
+    </li><li name="io.finch.micro.PMicro" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="PMicro[R,A]=io.finch.request.PRequestReader[R,A]"></a>
       <a id="PMicro[R,A]:PMicro[R,A]"></a>
       <h4 class="signature">
@@ -172,14 +184,18 @@ alias to <code>RequestReader</code>, since it's no longer a reader but _processo
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span class="name">PMicro</span><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>]</span><span class="result"> = <a href="../request/PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.micro.PMicro.R">R</span>, <span class="extype" name="io.finch.micro.PMicro.A">A</span>]</span>
+        <span class="name deprecated" title="Deprecated: (Since version 0.7.0) Micro-style is deprecated in favor of heterogeneous routers.">PMicro</span><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>]</span><span class="result"> = <a href="../request/PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.micro.PMicro.R">R</span>, <span class="extype" name="io.finch.micro.PMicro.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.micro.package@PMicro[R,A]=io.finch.request.PRequestReader[R,A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">An alias for polymorphic <span class="extype" name="PRequestReader">PRequestReader</span>.</p>
+      <p class="shortcomment cmt">An alias for polymorphic <span class="extype" name="PRequestReader">PRequestReader</span>.</p><div class="fullcomment"><div class="comment cmt"><p>An alias for polymorphic <span class="extype" name="PRequestReader">PRequestReader</span>.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.7.0)</i> Micro-style is deprecated in favor of heterogeneous routers.</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -187,24 +203,7 @@ alias to <code>RequestReader</code>, since it's no longer a reader but _processo
 
         <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol><li name="io.finch.micro#Micro" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Micro:io.finch.request.RequestReader.type"></a>
-      <a id="Micro:RequestReader.type"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">Micro</span><span class="result">: <a href="../request/RequestReader$.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>.type</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.micro.package@Micro:io.finch.request.RequestReader.type" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A companion object for <code>Micro</code>.</p>
-    </li><li name="io.finch.micro#endpointToFinagleService" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="io.finch.micro#endpointToFinagleService" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="endpointToFinagleService[M,R](r:io.finch.route.Router[M])(implicitevM:M=&gt;io.finch.micro.package.PMicro[R,io.finch.HttpResponse],implicitevR:io.finch.request.%&gt;[R,io.finch.HttpRequest]):com.twitter.finagle.Service[R,io.finch.HttpResponse]"></a>
       <a id="endpointToFinagleService[M,R](Router[M])((M)⇒PMicro[R,HttpResponse],%&gt;[R,HttpRequest]):Service[R,HttpResponse]"></a>
       <h4 class="signature">
@@ -213,7 +212,7 @@ alias to <code>RequestReader</code>, since it's no longer a reader but _processo
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">endpointToFinagleService</span><span class="tparams">[<span name="M">M</span>, <span name="R">R</span>]</span><span class="params">(<span name="r">r: <a href="../route/package.html#Router[+A]=io.finch.route.RouterN[A]" class="extmbr" name="io.finch.route.Router">Router</a>[<span class="extype" name="io.finch.micro.endpointToFinagleService.M">M</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evM">evM: (<span class="extype" name="io.finch.micro.endpointToFinagleService.M">M</span>) ⇒ <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a>[<span class="extype" name="io.finch.micro.endpointToFinagleService.R">R</span>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]</span>, <span name="evR">evR: <a href="../request/package.html#%&gt;[A,B]=io.finch.request.package.View[A,B]" class="extmbr" name="io.finch.request.%&gt;">%&gt;</a>[<span class="extype" name="io.finch.micro.endpointToFinagleService.R">R</span>, <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>]</span>)</span><span class="result">: <span class="extype" name="com.twitter.finagle.Service">Service</span>[<span class="extype" name="io.finch.micro.endpointToFinagleService.R">R</span>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]</span>
+        <span class="name">endpointToFinagleService</span><span class="tparams">[<span name="M">M</span>, <span name="R">R</span>]</span><span class="params">(<span name="r">r: <a href="../route/Router.html" class="extype" name="io.finch.route.Router">Router</a>[<span class="extype" name="io.finch.micro.endpointToFinagleService.M">M</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="evM">evM: (<span class="extype" name="io.finch.micro.endpointToFinagleService.M">M</span>) ⇒ <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a>[<span class="extype" name="io.finch.micro.endpointToFinagleService.R">R</span>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]</span>, <span name="evR">evR: <a href="../request/package.html#%&gt;[A,B]=io.finch.request.View[A,B]" class="extmbr" name="io.finch.request.%&gt;">%&gt;</a>[<span class="extype" name="io.finch.micro.endpointToFinagleService.R">R</span>, <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>]</span>)</span><span class="result">: <span class="extype" name="com.twitter.finagle.Service">Service</span>[<span class="extype" name="io.finch.micro.endpointToFinagleService.R">R</span>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.micro.package@endpointToFinagleService[M,R](r:io.finch.route.Router[M])(implicitevM:M=&gt;io.finch.micro.package.PMicro[R,io.finch.HttpResponse],implicitevR:io.finch.request.%&gt;[R,io.finch.HttpRequest]):com.twitter.finagle.Service[R,io.finch.HttpResponse]" title="Permalink" target="_top">
@@ -230,7 +229,7 @@ alias to <code>RequestReader</code>, since it's no longer a reader but _processo
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">microRouterToEndpoint</span><span class="tparams">[<span name="R">R</span>, <span name="M">M</span>]</span><span class="params">(<span name="r">r: <a href="../route/package.html#Router[+A]=io.finch.route.RouterN[A]" class="extmbr" name="io.finch.route.Router">Router</a>[<span class="extype" name="io.finch.micro.microRouterToEndpoint.M">M</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: (<span class="extype" name="io.finch.micro.microRouterToEndpoint.M">M</span>) ⇒ <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a>[<span class="extype" name="io.finch.micro.microRouterToEndpoint.R">R</span>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]</span>)</span><span class="result">: <a href="#PEndpoint[R]=io.finch.route.Router[io.finch.micro.package.PMicro[R,io.finch.HttpResponse]]" class="extmbr" name="io.finch.micro.PEndpoint">PEndpoint</a>[<span class="extype" name="io.finch.micro.microRouterToEndpoint.R">R</span>]</span>
+        <span class="name">microRouterToEndpoint</span><span class="tparams">[<span name="R">R</span>, <span name="M">M</span>]</span><span class="params">(<span name="r">r: <a href="../route/Router.html" class="extype" name="io.finch.route.Router">Router</a>[<span class="extype" name="io.finch.micro.microRouterToEndpoint.M">M</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: (<span class="extype" name="io.finch.micro.microRouterToEndpoint.M">M</span>) ⇒ <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a>[<span class="extype" name="io.finch.micro.microRouterToEndpoint.R">R</span>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]</span>)</span><span class="result">: <a href="#PEndpoint[R]=io.finch.route.Router[io.finch.micro.package.PMicro[R,io.finch.HttpResponse]]" class="extmbr" name="io.finch.micro.PEndpoint">PEndpoint</a>[<span class="extype" name="io.finch.micro.microRouterToEndpoint.R">R</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.micro.package@microRouterToEndpoint[R,M](r:io.finch.route.Router[M])(implicitev:M=&gt;io.finch.micro.package.PMicro[R,io.finch.HttpResponse]):io.finch.micro.package.PEndpoint[R]" title="Permalink" target="_top">
@@ -247,7 +246,7 @@ alias to <code>RequestReader</code>, since it's no longer a reader but _processo
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">microToHttpMicro</span><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>]</span><span class="params">(<span name="m">m: <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a>[<span class="extype" name="io.finch.micro.microToHttpMicro.R">R</span>, <span class="extype" name="io.finch.micro.microToHttpMicro.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="e">e: <a href="../response/package$$EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>[<span class="extype" name="io.finch.micro.microToHttpMicro.A">A</span>]</span>)</span><span class="result">: <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a>[<span class="extype" name="io.finch.micro.microToHttpMicro.R">R</span>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]</span>
+        <span class="name">microToHttpMicro</span><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>]</span><span class="params">(<span name="m">m: <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a>[<span class="extype" name="io.finch.micro.microToHttpMicro.R">R</span>, <span class="extype" name="io.finch.micro.microToHttpMicro.A">A</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="e">e: <a href="../response/EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>[<span class="extype" name="io.finch.micro.microToHttpMicro.A">A</span>]</span>)</span><span class="result">: <a href="#PMicro[R,A]=io.finch.request.PRequestReader[R,A]" class="extmbr" name="io.finch.micro.PMicro">PMicro</a>[<span class="extype" name="io.finch.micro.microToHttpMicro.R">R</span>, <a href="../package.html#HttpResponse=com.twitter.finagle.httpx.Response" class="extmbr" name="io.finch.HttpResponse">HttpResponse</a>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.micro.package@microToHttpMicro[R,A](m:io.finch.micro.package.PMicro[R,A])(implicite:io.finch.response.EncodeResponse[A]):io.finch.micro.package.PMicro[R,io.finch.HttpResponse]" title="Permalink" target="_top">
@@ -260,7 +259,31 @@ alias to <code>RequestReader</code>, since it's no longer a reader but _processo
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="io.finch.micro#Micro" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Micro:io.finch.request.RequestReader.type"></a>
+      <a id="Micro:RequestReader.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.7.0) Micro-style is deprecated in favor of heterogeneous routers.">Micro</span><span class="result">: <a href="../request/RequestReader$.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>.type</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.micro.package@Micro:io.finch.request.RequestReader.type" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A companion object for <code>Micro</code>.</p><div class="fullcomment"><div class="comment cmt"><p>A companion object for <code>Micro</code>.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.7.0)</i> Micro-style is deprecated in favor of heterogeneous routers.</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">
