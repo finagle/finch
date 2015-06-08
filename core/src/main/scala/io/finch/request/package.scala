@@ -111,7 +111,7 @@ package object request {
    * value should be specified explicitly.
    *
    * {{{
-   *   OptionalIntParam("foo").should("be greater than 50") { i: Int => i > 50 }
+   *   paramOption("foo").should("be greater than 50") { i: Int => i > 50 }
    * }}}
    *
    * @param fn the underlying function to convert
@@ -150,7 +150,7 @@ package object request {
   private[request] def requestUpload(upload: String)(req: HttpRequest): Option[FileUpload] = {
     import com.twitter.finagle.httpx.netty.Bijections._
     val decoder = new HttpPostRequestDecoder(from(req))
-    decoder.getBodyHttpDatas.asScala.find(_.getName == upload).flatMap{
+    decoder.getBodyHttpDatas.asScala.find(_.getName == upload).flatMap {
       case file: FileUpload => Some(file)
       case _ => None
     }

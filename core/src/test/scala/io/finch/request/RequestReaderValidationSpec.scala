@@ -136,12 +136,18 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers with Checkers {
     val stringReader = param("baz").should(beLongerThan(10))
     val optLongReader = paramOption("foo").as[Int] should beGreaterThan(100)
 
+    val ltIntReader = param("foo").as[Int] should beLessThan(100)
+    val stStringReader = param("baz").should(beShorterThan(10))
+
     val req = Request("foo" -> "20", "bar" -> "20.0", "baz" -> "baz")
 
     a [RequestError] shouldBe thrownBy(Await.result(intReader(req)))
     a [RequestError] shouldBe thrownBy(Await.result(floatReader(req)))
     a [RequestError] shouldBe thrownBy(Await.result(stringReader(req)))
     a [RequestError] shouldBe thrownBy(Await.result(optLongReader(req)))
+
+    Await.result(ltIntReader(req)) shouldBe 20
+    Await.result(stStringReader(req)) shouldBe "baz"
   }
 
   it should "allow to use inline rules with optional params" in {
@@ -150,6 +156,12 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers with Checkers {
 
     a [RequestError] shouldBe thrownBy(Await.result(optInt(request)))
     a [RequestError] shouldBe thrownBy(Await.result(optString(request)))
+  }
+
+  "An empty optional param RequestReader" should "work correctly with inline rules" in {
+    val optInt = paramOption("baz").as[Int].should("be greater than 50") { i: Int => i > 50 }
+
+    Await.result(optInt(request)) shouldBe None
   }
 
   "A composite RequestReader" should "be convertible to an appropriately typed case class" in {
