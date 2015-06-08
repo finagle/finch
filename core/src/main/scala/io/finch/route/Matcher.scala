@@ -24,22 +24,55 @@ package io.finch.route
 
 import com.twitter.finagle.httpx.Method
 import io.finch.route.tokens._
+import shapeless.HNil
+
+/**
+ * A router that match the given route to some predicate.
+ */
+trait Matcher extends Router[HNil] {
+  /**
+   * Matches the given `route` to some predicate and returns `Some` of the
+   * _rest_ of the route in case of success or `None` otherwise.
+   */
+  def matchRoute(route: Route): Option[Route]
+
+  /**
+   * A default implementation based on `matchRoute`.
+   */
+  def apply(route: Route): Option[(Route, HNil)] = matchRoute(route).map(r => (r, HNil))
+}
+
+/**
+ * A [[io.finch.route.Matcher Matcher]] that skips one route token.
+ */
+object * extends Matcher {
+  def matchRoute(route: Route): Option[Route] = Some(route.drop(1))
+  override def toString = "*"
+}
+
+/**
+ * A [[io.finch.route.Matcher Matcher]] that skips all route tokens.
+ */
+object ** extends Matcher {
+  def matchRoute(route: Route): Option[Route] = Some(Nil)
+  override def toString = "**"
+}
 
 /**
  * A universal matcher.
  */
-case class Matcher(s: String) extends Router0 {
-  def apply(route: Route): Option[Route] = for {
+case class StringMatcher(s: String) extends Matcher {
+  def matchRoute(route: Route): Option[Route] = for {
     PathToken(ss) <- route.headOption if ss == s
   } yield route.tail
   override def toString = s
 }
 
 /**
- * A [[io.finch.route.Router0 Router0]] that matches the given HTTP method `m` in the route.
+ * A [[io.finch.route.Matcher Matcher]] that matches the given HTTP method `m` in the route.
  */
-case class MethodMatcher(m: Method) extends Router0 {
-  def apply(route: Route): Option[Route] = for {
+case class MethodMatcher(m: Method) extends Matcher {
+  def matchRoute(route: Route): Option[Route] = for {
     MethodToken(mm) <- route.headOption if m == mm
   } yield route.tail
   override def toString = s"${m.toString.toUpperCase}"

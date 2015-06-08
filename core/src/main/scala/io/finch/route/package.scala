@@ -23,14 +23,14 @@
 package io.finch
 
 import com.twitter.finagle.Service
+import shapeless.HNil
 
 /**
  * This package contains various of functions and types that enable _router combinators_ in Finch. A Finch
  * [[io.finch.route.Router Router]] is an abstraction that is responsible for routing the HTTP requests using their
- * method and path information. There are two types of routers in Finch: [[io.finch.route.Router0 Router0]] and
- * [[io.finch.route.RouterN RouterN]]. `Router0` matches the route and returns an `Option` of the rest of the route.
- * `RouterN[A]` (or just `Router[A]`) in addition to the `Router0` behaviour extracts a value of type `A` from the
- * route.
+ * method and path information. There are two types of routers in Finch: [[io.finch.route.Matcher Matcher]] and
+ * [[io.finch.route.Router Router]]. `Matcher` matches the route and returns an `Option` of the rest of the route.
+ * `Router[A]` in addition to the `Matcher` behaviour extracts a value of type `A` from the route.
  *
  * A [[io.finch.route.Router Router]] that maps route to a [[com.twitter.finagle.Service Service]] is called an
  * [[io.finch.route.Endpoint Endpoint]]. An endpoint `Req => Rep` might be implicitly converted into a
@@ -59,34 +59,19 @@ package object route {
     (MethodToken(req.method): RouteToken) :: (req.path.split("/").toList.drop(1) map PathToken)
 
   /**
-   * A user friendly alias for [[io.finch.route.RouterN RouterN]].
-   */
-  type Router[+A] = RouterN[A]
-
-  /**
    * An alias for [[io.finch.route.Router Router]] that maps route to a [[com.twitter.finagle.Service Service]].
    */
-  type Endpoint[-A, +B] = Router[Service[A, B]]
-
-  implicit def intToMatcher(i: Int): Router0 = new Matcher(i.toString)
-  implicit def stringToMatcher(s: String): Router0 = new Matcher(s)
-  implicit def booleanToMatcher(b: Boolean): Router0 = new Matcher(b.toString)
+  type Endpoint[A, B] = Router[Service[A, B]]
 
   private[route] def stringToSomeValue[A](fn: String => A)(s: String): Option[A] =
     try Some(fn(s)) catch { case _: IllegalArgumentException => None }
+
+  implicit def intToMatcher(i: Int): Matcher = StringMatcher(i.toString)
+  implicit def stringToMatcher(s: String): Matcher = StringMatcher(s)
+  implicit def booleanToMatcher(b: Boolean): Matcher = StringMatcher(b.toString)
 }
 
 package route {
-  /**
-   * A case class that enables the following syntax:
-   *
-   * {{{
-   *   val r: Router[Int / String] = Get / int / string
-   *   val s: String = p /> { case i / s => s + i }
-   * }}}
-   */
-  case class /[+A, +B](_1: A, _2: B)
-
   /**
    * An exception, which is thrown by router in case of missing route `r`.
    */

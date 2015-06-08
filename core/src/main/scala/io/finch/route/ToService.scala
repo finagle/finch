@@ -31,8 +31,8 @@ ${A} does not satisfy the requirement. You may need to provide an EncodeResponse
 ${A} (or for some part of ${A}).
 """
 )
-trait ToService[R, -A] {
-  def apply(router: RouterN[A]): Service[R, HttpResponse]
+trait ToService[R, A] {
+  def apply(router: Router[A]): Service[R, HttpResponse]
 }
 
 object ToService extends LowPriorityToServiceInstances {
@@ -42,7 +42,7 @@ object ToService extends LowPriorityToServiceInstances {
   implicit def coproductRouterToService[R: ToRequest, C <: Coproduct](implicit
     folder: Folder.Aux[EncodeAll.type, C, Service[R, HttpResponse]]
   ): ToService[R, C] = new ToService[R, C] {
-    def apply(router: RouterN[C]): Service[R, HttpResponse] = routerToService(router.map(folder(_)))
+    def apply(router: Router[C]): Service[R, HttpResponse] = routerToService(router.map(folder(_)))
   }
 }
 
@@ -53,11 +53,11 @@ trait LowPriorityToServiceInstances {
   implicit def valueRouterToService[R: ToRequest, A](implicit
     polyCase: EncodeAll.Case.Aux[A, Service[R, HttpResponse]]
   ): ToService[R, A] = new ToService[R, A] {
-    def apply(router: RouterN[A]): Service[R, HttpResponse] =
+    def apply(router: Router[A]): Service[R, HttpResponse] =
       routerToService(router.map(polyCase(_)))
   }
 
-  protected def routerToService[R: ToRequest](r: RouterN[Service[R, HttpResponse]]): Service[R, HttpResponse] =
+  protected def routerToService[R: ToRequest](r: Router[Service[R, HttpResponse]]): Service[R, HttpResponse] =
     Service.mk[R, HttpResponse] { req =>
       r(requestToRoute[R](implicitly[ToRequest[R]].apply(req))) match {
         case Some((Nil, service)) => service(req)
