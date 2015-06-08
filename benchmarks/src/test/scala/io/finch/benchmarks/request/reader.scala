@@ -13,10 +13,6 @@ class SuccessfulRequestReaderBenchmarkSpec extends FlatSpec with Matchers {
     benchmark.monadicReader shouldBe benchmark.goodFooResult
   }
 
-  "The applicative ~ reader" should "parse the input correctly" in {
-    benchmark.tildeReader shouldBe benchmark.goodFooResult
-  }
-
   "The generic applicative HList-based reader" should "parse the input correctly" in {
     benchmark.hlistGenericReader shouldBe benchmark.goodFooResult
   }
@@ -51,10 +47,6 @@ class FailingRequestReaderBenchmarkSpec extends FlatSpec with Matchers {
         NotParsed(ParamItem("d"), tag, _: NumberFormatException)
       ) if tag == classTag[Double] =>
     }
-  }
-
-  "The applicative ~ reader" should "fail correctly on invalid input" in {
-    matchesAggregatedErrors(benchmark.tildeReader)
   }
 
   "The generic applicative HList-based reader" should "fail correctly on invalid input" in {

@@ -78,31 +78,6 @@ trait PRequestReader[R, A] { self =>
     def apply(req: R): Future[B] = self(req) flatMap fn
   }
 
-   /**
-   * Composes this request reader with the given `that` request reader.
-   */
-  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
-  def ~[S, B](that: PRequestReader[S, B])(
-    implicit ev: R %> S
-  ): PRequestReader[R, A ~ B] = new PRequestReader[R, A ~ B] {
-    val item = MultipleItems
-    def apply(req: R): Future[A ~ B] = Future.join(self(req).liftToTry, that(ev(req)).liftToTry).flatMap {
-      case (Return(a), Return(b)) => new ~(a, b).toFuture
-      case (Throw(a), Throw(b)) => collectExceptions(a, b).toFutureException[A ~ B]
-      case (Throw(e), _) => e.toFutureException[A ~ B]
-      case (_, Throw(e)) => e.toFutureException[A ~ B]
-    }
-
-    def collectExceptions(a: Throwable, b: Throwable): RequestErrors = {
-      def collect(e: Throwable): Seq[Throwable] = e match {
-        case RequestErrors(errors) => errors
-        case other => Seq(other)
-      }
-
-      RequestErrors(collect(a) ++ collect(b))
-    }
-  }
-
   /**
    * Applies the given filter `p` to this request reader.
    */
@@ -312,8 +287,8 @@ object PRequestReader {
   }
 
   /**
-   * Implicit class that provides `::` on any request reader to support building [[shapeless.HList]]
-   * request readers.
+   * Implicit class that provides `::` and other operations on any request reader to support
+   * building [[shapeless.HList]] request readers.
    */
   final implicit class ValueReaderOps[R, B](val self: PRequestReader[R, B]) extends AnyVal {
 
@@ -331,102 +306,15 @@ object PRequestReader {
     def as[A](implicit gen: Generic.Aux[A, B :: HNil]): PRequestReader[R, A] = self.map { value =>
       gen.from(value :: HNil)
     }
-  }
 
-  /**
-   * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of two arguments.
-   */
-  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
-  implicit class RrArrow2[R, A, B](val rr: PRequestReader[R, A ~ B]) extends AnyVal {
-    def ~~>[C](fn: (A, B) => Future[C]): PRequestReader[R, C] =
-      rr.embedFlatMap { case (a ~ b) => fn(a, b) }
+    /**
+     * Applies a function returning a future to the result of this reader.
+     */
+    def ~~>[A](fn: B => Future[A]): PRequestReader[R, A] = self.embedFlatMap(fn)
 
-    def ~>[C](fn: (A, B) => C): PRequestReader[R, C] =
-      rr.map { case (a ~ b) => fn(a, b) }
-  }
-
-  /**
-   * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of three arguments.
-   */
-  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
-  implicit class RrArrow3[R, A, B, C](val rr: PRequestReader[R, A ~ B ~ C]) extends AnyVal {
-    def ~~>[D](fn: (A, B, C) => Future[D]): PRequestReader[R, D] =
-      rr.embedFlatMap { case (a ~ b ~ c) => fn(a, b, c) }
-
-    def ~>[D](fn: (A, B, C) => D): PRequestReader[R, D] =
-      rr.map { case (a ~ b ~ c) => fn(a, b, c) }
-  }
-
-  /**
-   * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of four arguments.
-   */
-  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
-  implicit class RrArrow4[R, A, B, C, D](val rr: PRequestReader[R, A ~ B ~ C ~ D]) extends AnyVal {
-    def ~~>[E](fn: (A, B, C, D) => Future[E]): PRequestReader[R, E] =
-      rr.embedFlatMap { case (a ~ b ~ c ~ d) => fn(a, b, c, d) }
-
-    def ~>[E](fn: (A, B, C, D) => E): PRequestReader[R, E] =
-      rr.map { case (a ~ b ~ c ~ d) => fn(a, b, c, d) }
-  }
-
-  /**
-   * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of five arguments.
-   */
-  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
-  implicit class RrArrow5[R, A, B, C, D, E](val rr: PRequestReader[R, A ~ B ~ C ~ D ~ E]) extends AnyVal {
-    def ~~>[F](fn: (A, B, C, D, E) => Future[F]): PRequestReader[R, F] =
-      rr.embedFlatMap { case (a ~ b ~ c ~ d ~ e) => fn(a, b, c, d, e) }
-
-    def ~>[F](fn: (A, B, C, D, E) => F): PRequestReader[R, F] =
-      rr.map { case (a ~ b ~ c ~ d ~ e) => fn(a, b, c, d, e) }
-  }
-
-  /**
-   * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of six arguments.
-   */
-  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
-  implicit class RrArrow6[R, A, B, C, D, E, F](val rr: PRequestReader[R, A ~ B ~ C ~ D ~ E ~ F]) extends AnyVal {
-    def ~~>[G](fn: (A, B, C, D, E, F) => Future[G]): PRequestReader[R, G] =
-      rr.embedFlatMap { case (a ~ b ~ c ~ d ~ e ~ f) => fn(a, b, c, d, e, f) }
-
-    def ~>[G](fn: (A, B, C, D, E, F) => G): PRequestReader[R, G] =
-      rr.map { case (a ~ b ~ c ~ d ~ e ~ f) => fn(a, b, c, d, e, f) }
-  }
-
-  /**
-   * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of seven arguments.
-   */
-  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
-  implicit class RrArrow7[R, A, B, C, D, E, F, G](val rr: PRequestReader[R, A ~ B ~ C ~ D ~ E ~ F ~ G]) extends AnyVal {
-    def ~~>[H](fn: (A, B, C, D, E, F, G) => Future[H]): PRequestReader[R, H] =
-      rr.embedFlatMap { case (a ~ b ~ c ~ d ~ e ~ f ~ g) => fn(a, b, c, d, e, f, g) }
-
-    def ~>[H](fn: (A, B, C, D, E, F, G) => H): PRequestReader[R, H] =
-      rr.map { case (a ~ b ~ c ~ d ~ e ~ f ~ g) => fn(a, b, c, d, e, f, g) }
-  }
-
-  /**
-   * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with function of eight arguments.
-   */
-  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
-  implicit class RrArrow8[R, A, B, C, D, E, F, G, H](
-    val rr: PRequestReader[R, A ~ B ~ C ~ D ~ E ~ F ~ G ~ H]
-  ) extends AnyVal {
-    def ~~>[I](fn: (A, B, C, D, E, F, G, H) => Future[I]): PRequestReader[R, I] =
-      rr.embedFlatMap { case (a ~ b ~ c ~ d ~ e ~ f ~ g ~ h) => fn(a, b, c, d, e, f, g, h) }
-
-    def ~>[I](fn: (A, B, C, D, E, F, G, H) => I): PRequestReader[R, I] =
-      rr.map { case (a ~ b ~ c ~ d ~ e ~ f ~ g ~ h) => fn(a, b, c, d, e, f, g, h) }
-  }
-
-  /**
-   * Adds a `~>` and `~~>` compositors to `RequestReader` to compose it with functions of one argument.
-   */
-  implicit class RrArrow1[R, A](rr: PRequestReader[R, A]) {
-    def ~~>[B](fn: A => Future[B]): PRequestReader[R, B] =
-      rr.embedFlatMap(fn)
-
-    def ~>[B](fn: A => B): PRequestReader[R, B] =
-      rr.map(fn)
+    /**
+     * Applies a function to the result of this reader.
+     */
+    def ~>[A](fn: B => A): PRequestReader[R, A] = self.map(fn)
   }
 }

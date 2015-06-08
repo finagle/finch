@@ -316,11 +316,3 @@ package object request {
   def beShorterThan(n: Int): ValidationRule[String] =
     ValidationRule(s"be shorter than $n symbols")(_.length < n)
 }
-
-package request {
-  /**
-   * A wrapper for two result values.
-   */
-  @deprecated("~ is deprecated in favor of HList-based composition", "0.7.0")
-  case class ~[+A, +B](_1: A, _2: B)
-}
