@@ -90,6 +90,5 @@ depending on a content. There are plenty of predefined builders that might be us
   * [Argonaut](json.md#argonaut)
   * [Jackson](json.md#jackson)
   * [JSON4S](json.md#json4s)
-  * [Jawn](json.md#jawn) (deprecated in 0.7.0)
 
 [1]: http://twitter.github.io/finagle/
