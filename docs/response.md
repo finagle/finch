@@ -26,37 +26,6 @@ val b = NotFound("body") // 'text/plain' response with status 404
 val c = Created(Json.obj("id" -> 42)) // 'application/json' response with status 201
 ```
 
-`ResponseBuilder` may encode any type `A` into the HTTP response body if there is an implicit instance of
-`EncodeResponse[A]` type-class available in the scope. An `EncodeResponse[A]` abstraction may be treated as a function
-`A => com.twitter.io.Buf` that also defines a `content-type` value. For example, the implementation of `EncodeResponse[A]` for the
-`finch-argonaut` module looks pretty straightforward.
-
-```scala
-implicit def encodeArgonaut[A](implicit encode: EncodeJson[A]): EncodeResponse[A] =
-  EncodeResponse("application/json")(Utf8(encode.encode(_).nospaces))
-```
-
-For convenience to encode `String`, we have `fromString` method. With this, above sample would be:
-
-```scala
-implicit def encodeArgonaut[A](implicit encode: EncodeJson[A]): EncodeResponse[A] =
-  EncodeResponse.fromString("application/json")(encode.encode(_).nospaces)
-```
-
-As a HTTP response's default charset which is appended to the `Content-Type` header value is `utf-8` in Finch, you might need to set charset `None` explicitly when treating binary content. For example:
-
-```scala
-implicit def encodeMsgPack[A](implicit encode: EncodeMsgPack[A]): EncodeRseponse[A] =
-  EncodeResponse("application/msgpack", None)(encode.encode)
-```
-
-HTTP headers may be added to respond instance with `withHeaders` method:
-
-```scala
-val seeOther: ResponseBuilder = SeeOther.withHeaders("Some-Header-A" -> "a", "Some-Header-B" -> "b")
-val rep: HttpResponse = seeOther(Json.obj("a" -> 10))
-```
-
 You might be surprised but Finch has response builders for _all_ the HTTP statuses: just import `io.finch.response._`
 and start typing.
 
@@ -70,6 +39,59 @@ object Hello extends Service[HttpRequest, HttpResponse] {
     name <- param("name")(req)
   } yield Ok(s"Hello, $name!")
 }
+```
+
+#### An `EncodeResponse` Type-Class
+
+`ResponseBuilder` may encode any type `A` into the HTTP response body if there is an implicit instance of
+`EncodeResponse[A]` type-class available in the scope. An `EncodeResponse[A]` abstraction may be treated as a function
+`A => com.twitter.io.Buf` that also defines a `content-type` value. For example, the implementation of `EncodeResponse[A]`
+for the `finch-argonaut` module looks pretty straightforward.
+
+```scala
+implicit def encodeArgonaut[A](implicit encode: EncodeJson[A]): EncodeResponse[A] =
+  EncodeResponse("application/json")(Utf8(encode.encode(_).nospaces))
+```
+
+For convenience to encode `String`, we have `fromString` method. With this, above sample would be:
+
+```scala
+implicit def encodeArgonaut[A](implicit encode: EncodeJson[A]): EncodeResponse[A] =
+  EncodeResponse.fromString("application/json")(encode.encode(_).nospaces)
+```
+
+#### Charset
+
+As a HTTP response's default charset which is appended to the `Content-Type` header value is `utf-8` in Finch, you might
+need to set charset `None` explicitly when treating binary content. For example:
+
+```scala
+implicit def encodeMsgPack[A](implicit encode: EncodeMsgPack[A]): EncodeResponse[A] =
+  EncodeResponse("application/msgpack", None)(encode.encode)
+```
+
+The charset may be overridden by `withCharset(charset: Option[String])` method on `ResponseBuilder`.
+
+```scala
+val ok: HttpResponse = Ok.withCharset(None)
+```
+
+#### Content Type
+
+While the `content-type` is implicitly defined by the `EncodeResponse` instance it is possible to override its value
+with `withContentType(contentType: Option[String])` method:
+
+```scala
+val ok: HttpResponse = Ok.withContentType("application/octet-stream")("byte string")
+```
+
+#### HTTP Headers
+
+HTTP headers may be added to respond instance with `withHeaders` method:
+
+```scala
+val seeOther: ResponseBuilder = SeeOther.withHeaders("Some-Header-A" -> "a", "Some-Header-B" -> "b")
+val rep: HttpResponse = seeOther(Json.obj("a" -> 10))
 ```
 
 ### Redirects

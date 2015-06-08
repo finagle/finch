@@ -1,6 +1,5 @@
 ## Requests
 
-* [Custom Request Types](request.md#custom-request-types)
 * [Request Reader](request.md#request-reader) 
   * [Overview](request.md#overview)
   * [API](request.md#api)
@@ -20,39 +19,68 @@
   * [Inline Validation](request.md#inline-validation)
   * [Reusable Rules](request.md#reusable-validators)
   * [Built-in Rules](request.md#built-in-rules)
+* [A Note about Custom Request Types](request.md#a-note-about-custom-request-types)
 
 --
 
-### Custom Request Types
-
-An `Endpoint` doesn't have any constraints on its type parameters. In fact any `Req` and `Rep` types may be used in 
-`Endpoint` with just one requirement: there should be an implicit view `Req => HttpRequest` available in the scope.  
-This approach allows to define custom request types using composition but not inheritance. More precisely, the
-user-defined request `MyReq` may be smoothly integrated into the Finch stack just by its implicit view to an
-`HttpRequest`.
- 
-```scala
-case class MyRequest(http: HttpRequest)
-implicit val myReqEv = (req: MyRequest) => req.http
-val e: Endpoint[MyReq, HttpResponse]
-val req: MyReq = ???
-val s = RequiredParam("foo")(req)
-```
-
-In the example above, the `MyRequest` type may be used in both `Endpoint` and `RequestReader` without any exceptions, 
-since there is an implicit view `myReqEv` defined. See [Demo][1] for the complete example of custom request types.
-
 ### Request Reader
 
-Finch has a built-in request reader that implements the [Reader Monad][2] functional design pattern:
+Finch's `RequestReader` is an implementation of the [reader monad][2], a common design pattern in functional programming.
+A `RequestReader[A]` is just a wrapper for a function `HttpRequest => Future[A]` that provides `map` and `flatMap`
+implementations, together with a few other combinators.
 
-* `io.finch.request.RequestReader` reads `Future[A]`
+The purpose of the reader monad is to avoid repetitive boilerplate when composing operations that read from a common
+environment of some kind. For example, we might find ourselves writing something like this when processing an HTTP
+request in a Finagle application:
 
-Since the request readers read futures they may be chained together with regular Finagle services in a single
-for-comprehension. Thus, reading the request params is an additional monad-transformation in the program's data flow.
-This is extremely useful when a service should fetch and validate the request params before doing the real job and not
-do the job at all if the params are not valid. Request reader might throw a future exception and no further
-transformations will be performed. The Reader Monad is a famous abstraction that is heavily used in Finch.
+```scala
+import io.finch._
+
+def param(req: HttpRequest)(key: String): Option[String] =
+  req.params.get(key) orElse {
+    ??? // try to get parameter from multipart form
+  }
+
+def doSomethingWithRequest(req: HttpRequest): Result =
+  for {
+    foo <- param(req)("foo")
+    bar <- param(req)("bar")
+    baz <- req.headerMap.get("baz")
+    qux <- req.headerMap.get("qux")
+    content <- Some(req.contentString)
+  } yield Result(...)
+```
+
+This works, but it's often useful to be able to make each of these _reading_ operations independent and composable pieces
+(not expressions built around a `req` variable that happens to be in scope). The reader monad makes this easy. For example,
+we could rewrite our `doSomethingWithRequest` operation as follows using Finch's `RequestReader`:
+
+```scala
+val doSomethingWithRequest: RequestReader[Result] =
+  for {
+    foo <- param("foo")
+    bar <- param("bar")
+    baz <- header("baz")
+    qux <- header("qux")
+    content <- body
+  } yield Result(...)
+```
+
+We could then "run" the request reader by passing it a `HttpRequest`:
+
+```scala
+val result: Future[Result] = doSomethingWithRequest(myReq)
+```
+
+What's happening here is that we're building up a large `HttpRequest => A` function out of smaller `HttpRequest => A`
+pieces. `param("foo")`, `header("baz")` and `body`, for example, are all values of type `RequestReader[String]`, where
+`param`, `header`, and `body` are generally useful readers that are provided by Finch.
+
+Note that the result of running a request reader is a value in a future (not an `Option`, as in our original example).
+This makes it possible to chain readers together with Finagle services in a single `for`-comprehension. This can be
+extremely useful when a service should fetch and validate the request parameters before doing the real job, and not do
+the job at all if the parameters are not valid. A request reader can just return a failed future and no further
+operations in the `for`-comprehension will be performed.
 
 #### Overview
 
@@ -63,25 +91,28 @@ import io.finch.request._
 
 case class User(name: String, age: Int, city: String)
     
-val user: RequestReader[User] =
-  param("name") ~
-  param("age").as[Int].shouldNot(beLessThan(18)) ~
-  paramOption("city").withDefault("Novosibirsk") ~> User
+val user: RequestReader[User] = (
+  param("name") ::
+  param("age").as[Int].shouldNot(beLessThan(18)) ::
+  paramOption("city").withDefault("Novosibirsk")
+).as[User]
 ```
 
-A `RequestReader` is responsible for the following typical tasks of request processing:
+A `RequestReader` is responsible for the following typical tasks in request
+processing:
 
 * reading parameters, header, cookies or the body of the request (see [Base Readers](request.md#base-readers)).
 * declaring these artifacts as either required or optional (see [Required and Optional Readers](request.md#required-and-optional-readers)).
-* converting string-based input to other types with the `as[A]` method (see [Type Conversion](request.md#type-conversion)).
+* converting `String`-based and composite inputs to other types with the `as[A]` method (see [Type Conversion](request.md#type-conversion)).
 * validating one or more readers with `should` or `shouldNot` (see [Validation](request.md#validation)).
-* combining multiple readers with the `~` combinator method (see [Combining and Reusing Readers](request.md#combining-and-reusing-readers)).
+* combining multiple readers with the `::` combinator method (see [Combining and Reusing Readers](request.md#combining-and-reusing-readers)).
 
 #### API
 
-The `RequestReader` API is fairly simple. It allows one to apply the reader to a request instance with `apply` to transform
-the reader with `map` (or `~>`), `flatMap` and `embedFlatMap` (or `~~>`), to combine it with other readers with the `~`
-combinator and to validate it with `should` or `shouldNot`:
+The `RequestReader` API is fairly simple. It allows the user to apply the reader to a request instance with `apply`, to
+transform the reader with `map` (or `~>`), to transform the reader in a `RequestReader` or `Future` context (`flatMap`
+and `embedFlatMap` respectively), to combine it with other readers with the `::` combinator, and to validate it with
+`should` or `shouldNot`:
 
 ```scala
 trait RequestReader[A] {
@@ -90,7 +121,7 @@ trait RequestReader[A] {
   def map[B](fn: A => B): RequestReader[B]
   def flatMap[B](fn: A => RequestReader[B]): RequestReader[B]
 
-  def ~[B](that: RequestReader[B]): RequestReader[A ~ B]
+  def ::[B](that: RequestReader[B]): RequestReader[A :: B :: HNil]
   
   def should(rule: String)(predicate: A => Boolean): RequestReader[A]
   def shouldNot(rule: String)(predicate: A => Boolean): RequestReader[A]
@@ -99,26 +130,28 @@ trait RequestReader[A] {
 }
 ```
 
-In addition there are implicit `as[A]` methods available for type conversion on string-based readers:
+In addition there are implicit `as[A]` methods available for type conversion on `String`-based and composite
+(`HList`-based) readers. See [Type Conversion](request.md#type-conversion) for more details.
 
 ```scala
 // for all `RequestReader[String]`
-def as[A](implicit magnet: DecodeMagnet[A], tag: ClassTag[A]): RequestReader[A]
+def as[A](implicit decode: DecodeRequest[A], tag: ClassTag[A]): RequestReader[A]
 
 // for all `RequestReader[Option[String]]`
-def as[A](implicit magnet: DecodeMagnet[A], tag: ClassTag[A]): RequestReader[Option[A]]
+def as[A](implicit decode: DecodeRequest[A], tag: ClassTag[A]): RequestReader[Option[A]]
 
 // for all `RequestReader[Seq[String]]`
-def as[A](implicit magnet: DecodeMagnet[A], tag: ClassTag[A]): RequestReader[Seq[A]]
+def as[A](implicit decode: DecodeRequest[A], tag: ClassTag[A]): RequestReader[Seq[A]]
+
+// for all `RequestReader[L <: HList]`
+def as[A](implicit gen: Generic.Aux[A, L]): RequestReader[A]
 ```
 
-Don't think too much about these type signatures, it is all explained in [Type Conversion](request.md#type-conversion).
+The following sections cover all these features in more detail. All sample code assumes that you have imported
+`io.finch.request._`.
 
-The following sections cover all these features in more detail. All sample code assumes
-that you have imported `io.finch.request._`.
-
-Finally, `RequestReader`s that return `Option` has a couple useful method: `withDefault(value: A)` and
-`orElse(alternative: Option[A])`.
+Finally, `RequestReader`s that return `Option` values have a couple of additional useful methods:
+`withDefault(value: A)` and `orElse(alternative: Option[A])`.
 
 ### Base Readers
 
@@ -138,11 +171,11 @@ File Upload           | `fileUpload`/`fileUploadOption`      | `FileUpload`/`Opt
 
 #### Required and Optional Readers
 
-As you can see in the table above, the 6 base readers all come in two flavors, allowing one to declare a request item as
-either required or optional.
+As you can see in the table above, the six base readers all come in two flavors, allowing one to declare a request item
+as either required or optional.
 
-* A `x` reader fails with a `NotPresent` exception if the item is not found in the request
-* An `xOption` reader succeeds, producing a `None` if the item is not found in the request
+* An `x` reader fails with a `NotPresent` exception if the item is not found in the request
+* An `xOption` reader always succeeds, producing a `None` if the item is not found in the request
 * If you apply type conversions or validations to an optional item, the behaviour is as follows:
   * If the result is `None`, all type conversions and validations are skipped and the reader succeeds with a `None` result
   * If the result is non-empty, all type conversions and validations have to succeed or otherwise the reader will fail
@@ -157,11 +190,11 @@ The `paramsNonEmpty` and `params` readers read multi-value parameters in the fol
 Thus, the following HTTP params `a=1,2,3&b=4&b=5` might be fetched with the `paramsNonEmpty` reader like this:
 
 ```scala
-val reader: RequestReader[(Seq[Int], Seq[Int])] =
-  paramsNonEmpty("a").as[Int] ~
-  paramsNonEmpty("b").as[Int] map {
-    case a ~ b => (a, b)
-  }
+// asTuple method is available on HList-based readers
+val reader: RequestReader[(Seq[Int], Seq[Int])] = (
+  paramsNonEmpty("a").as[Int] ::
+  paramsNonEmpty("b").as[Int]
+).asTuple
 
 val (a, b): (Seq[Int], Seq[Int]) = reader(request)
 // a = Seq(1, 2, 3)
@@ -190,7 +223,7 @@ def apply[A](f: HttpRequest => A): RequestReader[A]
 
 #### Error Handling
 
-The exceptions from a request reader might be handled just like other future exceptions in Finagle:
+The exceptions from a request reader might be handled just like other failed futures in Finagle:
 
 ```scala
 val user: Future[Json] = service(...) handle {
@@ -201,9 +234,9 @@ val user: Future[Json] = service(...) handle {
 }
 ```
 
-All the exceptions throw by `RequestReader` are case classes. Therefore pattern matching may be used to handle them.
+All the exceptions thrown by `RequestReader` are case classes. Therefore pattern matching may be used to handle them.
 
-These are all error types produced by Finch (which all extend `RequestError`):
+These are all error types produced by Finch (note that all extend `RequestError`):
 
 ```scala
  // when multiple request items were invalid or missing
@@ -242,10 +275,11 @@ You then perform type conversions or validations on these readers as required an
 ```scala
 case class Address(street: String, city: String, postCode: String)
 
-val address: RequestReader[Address] =
-  param("street") ~
-  param("city") ~
-  param("postCode").shouldNot(beLongerThan(5)) ~> Address(street, city, postCode)
+val address: RequestReader[Address] = (
+  param("street") ::
+  param("city") ::
+  param("postCode").shouldNot(beLongerThan(5))
+).as[Address]
 ```
 
 These new readers can then themselves be combined with other readers:
@@ -253,48 +287,44 @@ These new readers can then themselves be combined with other readers:
 ```scala
 case class User(name: String, address: Address)
 
-val user: RequestReader[User] = (
-  param("name") ~ address ~> User
+val user: RequestReader[User] =
+  (param("name") :: address).as[User]
 ```
 
-Note that `~>` combinator is a user-friendly alias for `map` that allows one to treat an underlying type `A ~ B ~ .. ~ Z` as
-`(A, B, ..., Z)`. That said, it allows one to pass a regular function into `map` rather than use pattern-matching to convert
-function `A ~ B ~ .. ~ Z => Out` to `(A, B, ..., Z) => Out`.
-
-The example above may be rewritten with `map` and pattern-matching.
+The example above may be rewritten with `map` over the `HList` and pattern-matching:
 
 ```scala
 case class User(name: String, address: Address)
 
 val user: RequestReader[User] = (
-  param("name") ~ address map {
-    case name ~ address => User(name, address)
+  (param("name") :: address).map {
+    case name :: address :: HNil  => User(name, address)
   }
 ```
 
-Combinator `~~>` does the same magic for asynchronous functions like `(A, B, ..., Z) => Future[Out]`.
-
-The following sections explain the difference between the applicative style based on the `~` combinator you see in
-the examples above and the monadic style that you will only need in exceptional cases.
+The following sections explain the difference between the applicative style (`HList` style) based on the `::` combinator
+you see in the examples above and the monadic style that you will only need in exceptional cases.
 
 #### Applicative Syntax
 
-Almost all the examples in this documentation show the applicative syntax based on the `~` combinator for composing
-readers. It is roughly equivalent to the  Applicative Builder `|@|` in scalaz, with a few subtle differences.
+Almost all the examples in this documentation show the applicative syntax based on the `::` combinator for composing
+readers. It is similar to [scodec's][3] `::` compositor.
 
 ```scala
 case class User(name: String, age: Int)
     
-val user: RequestReader[User] =
-  param("name") ~
-  param("age").as[Int] map {
-    case name ~ age => User(name, age)
-  }
+val user: RequestReader[User] = (
+  param("name") ::
+  param("age").as[Int]
+).as[User]
 ```
 
-The main advantage of this style is that errors will be collected. If the name parameter is missing and the age
-parameter cannot be converted to an integer, both errors will be included in the failure of the `Future`,  in an
-exception class `RequestErrors` that has an `errors` property of type `Seq[Throwable]`:
+The `::` operator composes two request readers into a `RequestReader[L <: HList]`, where the `HList` type is provided by
+[Shapeless][4].
+
+The main advantage of this style is that errors will be collected. If the name parameter is missing and the age parameter
+cannot be converted to an integer, both errors will be included in the failed future, in an exception class
+`RequestErrors` that has an `errors` property of type `Seq[Throwable]`:
 
 ```scala
 user(Request("age" -> "broken"))
@@ -308,7 +338,8 @@ RequestErrors(Seq(
 
 #### Monadic Syntax
 
-Since the `RequestReader` is a Reader Monad you can alternatively combine readers in for-comprehensions:
+Since the `RequestReader` is a reader monad, you can alternatively combine readers in `for`-comprehensions (using `map`
+and `flatMap`):
 
 ```scala
 case class User(name: String, age: Int)
@@ -320,7 +351,7 @@ val user: RequestReader[User] = for {
 ```
 
 But while this syntax may look familiar and intuitive, it has the major disadvantage that it is fail-fast. If both
-parameters are invalid, only one error will be returned. A fact your users and client developers probably won't fancy
+parameters are invalid, only one error will be returned—a fact your users and client developers probably won't fancy
 much.
 
 The monadic style might still be useful for the rare cases where one reader depends on the result of another reader.
@@ -330,7 +361,7 @@ The applicative style has been introduced in version 0.5.0 and is the recommende
 
 ### Type Conversion
 
-For all string based readers, Finch provides an `as[A]` method to perform  type conversions. It is available for any
+For all `String`-based readers, Finch provides an `as[A]` method to perform type conversions. It is available for any
 `RequestReader[String]`, `RequestReader[Option[String]]` or `RequestReader[Seq[String]]` as long as a matching implicit
 `DecodeRequest[A]` type-class is in scope. 
 
@@ -343,9 +374,22 @@ paramOption("foo").as[Int]  // RequestReader[Option[Int]]
 params("foo").as[Int]       // RequestReader[Seq[Int]]
 ```
 
-Note that the method signatures for `as[A]` show `DecodeMagnet[A]` as the required implicit, but you can ignore this
-indirection as an implementation detail. All you ever have to deal with yourself is bringing existing implicits for
-`DecodeRequest[A]` into scope or implement such a decoder yourself.
+The same method `as[A]` is also available on any `RequestReader[L <: HList]` to perform [Shapeless][4]-powered generic
+conversions from `HList`s to case classes with appropriately typed members.
+
+```scala
+case class Foo(i: Int, s: String)
+
+val hlist: RequestReader[Int :: String :: HNil] =
+  param("i").as[Int] :: param("s") // uses Finch's DecodeRequest to convert String to Int
+
+val user: RequestReader[User] =
+  hlist.as[User] // uses Shapeless' Generic.Aux to convert HList to User
+```
+
+Note that while both methods take different implicit params and use different techniques to perform type-conversions,
+they're basically doing the same thing: transforming the underlying type `A` into some type `B` (that's why they have
+similar names.
 
 #### Built-in Decoders
 
@@ -356,10 +400,13 @@ Finch comes with predefined decoders for `Int`, `Long`, `Float`, `Double` and `B
 val reader: RequestReader[Int] = param("foo").as[Int]
 ```
 
+[Shapeless][4] supplies `Generic.Aux` instances for any case class, so `as[A]` may also be used to convert an underlying
+`HList` into any case class if their arity and types are the same.
+
 #### Custom Decoders
 
 Writing a new decoder for a type not supported out of the box is very easy, too. The following example shows a decoder
-for a Joda `DateTime` from a `Long` representing the milliseconds since the epoch:
+for a Joda `DateTime` from a `Long` representing the number of milliseconds since the epoch:
 
 ```scala
 implicit val dateTimeDecoder: DecodeRequest[DateTime] = 
@@ -375,13 +422,13 @@ def apply[A](f: String => Try[A]): DecodeRequest[A]
 
 All you need to implement is a simple function from `String` to `Try[A]`.
 
-As long as the implicit declared above is in scope you can then use your custom decoder the same way as one of the
+As long as the implicit declared above is in scope, you can then use your custom decoder in the same way as any of the
 built-in decoders (in this case for creating a JodaTime `Interval`:
 
 ```scala
-val user: RequestReader[Interval] =
-  param("start").as[DateTime] ~
-  param("end").as[DateTime] ~> Interval
+val user: RequestReader[Interval] = (
+  param("start").as[DateTime] ::
+  param("end").as[DateTime]).as[Interval]
 ```
 
 #### Integration with JSON Libraries
@@ -390,8 +437,8 @@ A third way of using the `as[A]` type conversion facility is to use one of the J
 Finch comes with support for [Argonaut](json.md#argonaut), [Jawn](json.md#jawn), [Jackson](json.md#jackson) and its own
 JSON support [Finch Json](json.md#finch-json).
 
-All these integration modules do is making the library-specific JSON decoders available for use as a `DecodeRequest[A]`.
-To take Argonaut as an example, you only have to import `io.finch.argonaut._` and then have the implicit Argonaut
+All these integration modules do is make the library-specific JSON decoders available for use as a `DecodeRequest[A]`.
+To take Argonaut as an example, you only have to import `io.finch.argonaut._` to have implicit Argonaut
 `DecodeJSON` instances in scope:
 
 ```scala
@@ -412,9 +459,9 @@ The integration for the other JSON libraries works in a similar way.
 
 ### Validation
 
-The `should` and `shouldNot` methods on `RequestReader` allow to perform validation logic. If the specified predicate
-does not hold the reader will fail with a `NotValid(item, rule)` exception. The `rule` is a description that you pass to
-the `should` or `shouldNot` methods as a string.
+The `should` and `shouldNot` methods on `RequestReader` allow the user to perform validation logic. If the specified
+predicate does not hold, the reader will fail with a `NotValid(item, rule)` exception. The `rule` is a description that
+you pass to the `should` or `shouldNot` methods as a string.
 
 Note that for an optional reader, the validation will be skipped for `None` results, but if the value is non-empty then
 all validation must succeed for the reader to succeed. 
@@ -449,11 +496,26 @@ As you can see in the example above, predefined rules can also be logically comb
 
 #### Built-in Rules
 
-Finch comes with a small set of predefined rules. For readers producing numeric results you can use `beLessThan(n: Int)`
-or `beGreaterThan(n: Int)`, for strings you can use `beLongerThan(n: Int)` or `beShorterThan(n: Int)`.
+Finch comes with a small set of predefined rules. For readers producing numeric results, you can use `beLessThan(n: Int)`
+or `beGreaterThan(n: Int)`, and for strings you can use `beLongerThan(n: Int)` or `beShorterThan(n: Int)`.
+
+### A Note about Custom Request Types
+
+**Important:** Custom request types are supported via the `PRequestReader` type (which `RequestReader` extends), but are
+not generally recommended, since the don't fit well into Finch's philosophy, which is based on the concepts of functional
+programming (programming with functions). Finch's idiomatic style is built on the idea that ["your server is a function"][0]
+and promotes using simple functions `HttpRequest => A` (i.e., `RequestReader`s) instead of overriding the request types.
+
+A common pattern (now discouraged in Finch) is to implement authorization using Finagle filters and custom request types
+(i.e. an `AuthRequest`). In Finch, the same effect may be achieved using `RequestReader[AuthorizedUser]` composed in
+every endpoint that requires information about current user. Custom request types will likely be deprecated in favour of
+`RequestReader`s in 0.8.0.
 
 --
 Read Next: [Responses](response.md)
 
+[0]: http://monkey.org/~marius/funsrv.pdf
 [1]: https://github.com/finagle/finch/blob/master/demo/src/main/scala/io/finch/demo/Main.scala
 [2]: http://www.haskell.org/haskellwiki/All_About_Monads#The_Reader_monad
+[3]: https://github.com/scodec/scodec
+[4]: https://github.com/milessabin/shapeless

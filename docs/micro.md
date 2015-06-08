@@ -8,6 +8,8 @@
 
 --
 
+**The `micro` package is deprecated since 0.7.0 and will be removed in 0.8.0**
+
 ### Finch in Action
 
 The ["Finch in Action"][1] problem is about using types that matter rather than dealing with raw HTTP types directly.
@@ -132,9 +134,6 @@ val getSum: SMicro[Int] = Micro[SumReq, Int](_.a) ~ Micro[SumReq, Int](_.b) ~> s
 ```
 
 There is a [playground project][3] that uses custom request type and polymorphic micros.
-
---
-Read Next: [Routes](route.md)
 
 [0]: http://monkey.org/~marius/funsrv.pdf
 [1]: https://gist.github.com/vkostyukov/e0e952c28b87563b2383
