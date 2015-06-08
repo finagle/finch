@@ -434,7 +434,7 @@ val user: RequestReader[Interval] = (
 #### Integration with JSON Libraries
 
 A third way of using the `as[A]` type conversion facility is to use one of the JSON library integrations Finch offers.
-Finch comes with support for [Argonaut](json.md#argonaut), [Jawn](json.md#jawn), [Jackson](json.md#jackson) and [JSON4S](json.md#json4s).
+Finch comes with support for [Argonaut](json.md#argonaut), [Jackson](json.md#jackson) and [JSON4S](json.md#json4s).
 
 All these integration modules do is make the library-specific JSON decoders available for use as a `DecodeRequest[A]`.
 To take Argonaut as an example, you only have to import `io.finch.argonaut._` to have implicit Argonaut

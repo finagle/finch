@@ -110,7 +110,7 @@ lazy val root = project.in(file("."))
         |import io.finch.route._
       """.stripMargin
   )
-  .aggregate(core, demo, playground, jawn, argonaut, jackson, json4s, auth, benchmarks)
+  .aggregate(core, demo, playground, argonaut, jackson, json4s, auth, benchmarks)
   .dependsOn(core, argonaut)
 
 lazy val core = project
@@ -141,18 +141,6 @@ lazy val playground = project
   .settings(coverageExcludedPackages := "io\\.finch\\.playground\\..*")
   .disablePlugins(JmhPlugin)
   .dependsOn(core, jackson)
-
-lazy val jawn = project
-  .settings(moduleName := "finch-jawn")
-  .settings(allSettings)
-  .settings(coverageExcludedPackages := "io\\.finch\\.jawn\\..*")
-  .settings(
-    libraryDependencies ++= Seq(
-      "org.spire-math" %% "jawn-parser" % "0.7.4",
-      "org.spire-math" %% "jawn-ast" % "0.7.4"
-    )
-  )
-  .dependsOn(core)
 
 lazy val argonaut = project
   .settings(moduleName := "finch-argonaut")
