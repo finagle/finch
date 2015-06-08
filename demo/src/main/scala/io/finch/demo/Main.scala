@@ -39,8 +39,43 @@ import io.finch.route._            // import route combinators
  * To run the demo from console use:
  *
  * > sbt 'project demo' 'run io.finch.demo.Main'
+ *
+ * Or just:
+ *
+ * > sbt demo/run
+ *
+ * You can then access the service using curl, for example:
+ *
+ * > # List users
+ * > curl -i -H "X-Secret: open sesame" http://localhost:8080/users
+ * > # Get a user
+ * > curl -i -H "X-Secret: open sesame" http://localhost:8080/users/1
+ * > # Add a user
+ * > curl -i -H "X-Secret: open sesame" -X POST http://localhost:8080/users?name=Foo%20McBar
+ * > # Add a ticket for a user
+ * > curl -i -H "X-Secret: open sesame" -d '{"label": "ORF -> DCA"}' http://localhost:8080/users/0/tickets
  */
 object Main extends App {
+  import model._
+
+  val exampleUser1: User = User(Id(), "Tom Paine", Nil)
+
+  val exampleUser2: User = User(
+    Id(),
+    "Benjamin Franklin",
+    List(Ticket(Id(), "PHL -> CDG"), Ticket(Id(), "PHL -> LHR"))
+  )
+
+  val exampleUser3: User = User(
+    Id(),
+    "Betsy Ross",
+    List(Ticket(Id(), "PHL -> DCA"))
+  )
+
+  // Pre-load the database with some examples.
+  Await.ready(Db.insert(exampleUser1.id, exampleUser1))
+  Await.ready(Db.insert(exampleUser2.id, exampleUser2))
+  Await.ready(Db.insert(exampleUser3.id, exampleUser3))
 
   // Serve the backend using the Httpx protocol.
   val _ = Await.ready(Httpx.serve(":8080", Demo.backend))
