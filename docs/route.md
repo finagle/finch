@@ -152,8 +152,8 @@ endpoint(request) handle {
 
 The `|` compositor is pretty useful for the simple cases when both underlying types `A` and `B` may be substituted with
 a single super type `C` such that `C >: A` and `C >: B` (usually that means that `A =:= B`). Although, it should be also
-possible to compose two routers of completely different types. This is pretty duable the `:+:` compositor that composes
-two routers into a `Router[C <: Coproduct]`, where `Coproduct` [Shapeless' disjoint union type][2].
+possible to compose two routers of completely different types. This is pretty doable with the `:+:` compositor that
+composes two routers into a `Router[C <: Coproduct]`, where `Coproduct` is [Shapeless' disjoint union type][2].
 
 ```scala
 case class Foo(i: Int)
