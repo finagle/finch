@@ -36,7 +36,7 @@ Every Finch module is published at Maven Central. Use the following _sbt_ snippe
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "[finch-module]" % "0.6.0"
+  "com.github.finagle" %% "[finch-module]" % "0.7.0"
 )
 ```
 
@@ -46,7 +46,7 @@ libraryDependencies ++= Seq(
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "[finch-module]" % "0.7.0-SNAPSHOT" changing()
+  "com.github.finagle" %% "[finch-module]" % "0.8.0-SNAPSHOT" changing()
 )
 ```
 

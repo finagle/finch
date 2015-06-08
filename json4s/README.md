@@ -6,7 +6,7 @@ Use the following _sbt_ snippet:
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "finch-json4s" % "0.6.0"
+  "com.github.finagle" %% "finch-json4s" % "0.7.0"
 )
 ```
 

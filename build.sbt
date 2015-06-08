@@ -3,7 +3,7 @@ import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  version := "0.7.0-SNAPSHOT",
+  version := "0.7.0",
   scalaVersion := "2.11.6",
   crossScalaVersions := Seq("2.10.5", "2.11.6")
 )
@@ -72,6 +72,11 @@ lazy val publishSettings = Seq(
         <id>vkostyukov</id>
         <name>Vladimir Kostyukov</name>
         <url>http://vkostyukov.ru</url>
+      </developer>
+      <developer>
+        <id>travisbrown</id>
+        <name>Travis Brown</name>
+        <url>https://meta.plasm.us/</url>
       </developer>
     </developers>
 )
