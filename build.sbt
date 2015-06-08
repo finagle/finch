@@ -110,7 +110,7 @@ lazy val root = project.in(file("."))
         |import io.finch.route._
       """.stripMargin
   )
-  .aggregate(core, json, demo, playground, jawn, argonaut, jackson, json4s, auth, benchmarks)
+  .aggregate(core, demo, playground, jawn, argonaut, jackson, json4s, auth, benchmarks)
   .dependsOn(core, argonaut)
 
 lazy val core = project
@@ -125,12 +125,6 @@ lazy val test = project
   .settings(
     libraryDependencies ++= "io.argonaut" %% "argonaut" % "6.1" +: testDependencies
   )
-  .dependsOn(core)
-
-lazy val json = project
-  .settings(moduleName := "finch-json")
-  .settings(allSettings)
-  .settings(coverageExcludedPackages := "io\\.finch\\.json\\..*")
   .dependsOn(core)
 
 lazy val demo = project

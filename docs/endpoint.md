@@ -13,7 +13,7 @@ written.
 
 The common sense of using the Finch library is to have an `Endpoint` representing the domain. For example, the typical
 use case would be to have an `Endpoint` from `OAuth2Request` (see [OAuth2 section](auth.md#authorization-with-oauth2))
-to `Json` (see section [Json](json.md#finch-json)). Since, all the endpoints have the same type (i.e.,
+to `Json` (see section [Json](json.md#argonaut)). Since, all the endpoints have the same type (i.e.,
 `Endpoint[OAuth2Request, Json]`) they may be composed together into a single entry point with either `Endpoint.join()`
 or `orElse` operators. The following example shows the discussed example in details:
 

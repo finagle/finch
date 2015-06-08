@@ -56,7 +56,7 @@ depending on a content. There are plenty of predefined builders that might be us
   * [Filters and Endpoints](route.md#filters-and-endpoints)
 * [Endpoints](endpoint.md)
 * [Requests](request.md)
-  * [Request Reader](request.md#request-reader) 
+  * [Request Reader](request.md#request-reader)
     * [Overview](request.md#overview)
     * [API](request.md#api)
   * [Base Readers](request.md#base-readers)
@@ -90,7 +90,6 @@ depending on a content. There are plenty of predefined builders that might be us
   * [Argonaut](json.md#argonaut)
   * [Jackson](json.md#jackson)
   * [JSON4S](json.md#json4s)
-  * [Finch Json](json.md#finch-json) (deprecated in 0.7.0)
   * [Jawn](json.md#jawn) (deprecated in 0.7.0)
 
 [1]: http://twitter.github.io/finagle/

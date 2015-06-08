@@ -1,6 +1,6 @@
 ## Requests
 
-* [Request Reader](request.md#request-reader) 
+* [Request Reader](request.md#request-reader)
   * [Overview](request.md#overview)
   * [API](request.md#api)
 * [Base Readers](request.md#base-readers)
@@ -90,7 +90,7 @@ A typical `RequestReader` might look like this:
 import io.finch.request._
 
 case class User(name: String, age: Int, city: String)
-    
+
 val user: RequestReader[User] = (
   param("name") ::
   param("age").as[Int].shouldNot(beLessThan(18)) ::
@@ -117,12 +117,12 @@ and `embedFlatMap` respectively), to combine it with other readers with the `::`
 ```scala
 trait RequestReader[A] {
   def apply(req: HttpRequest): Future[A]
-  
+
   def map[B](fn: A => B): RequestReader[B]
   def flatMap[B](fn: A => RequestReader[B]): RequestReader[B]
 
   def ::[B](that: RequestReader[B]): RequestReader[A :: B :: HNil]
-  
+
   def should(rule: String)(predicate: A => Boolean): RequestReader[A]
   def shouldNot(rule: String)(predicate: A => Boolean): RequestReader[A]
   def should(rule: ValidationRule[A]): RequestReader[A]
@@ -210,7 +210,7 @@ methods:
 ```scala
 // Creates a new reader that always succeeds, producing the specified value.
 def value[A](value: A): RequestReader[A]
-    
+
 // Creates a new reader that always fails, producing the specified exception.
 def exception[A](exc: Throwable): RequestReader[A]
 
@@ -227,9 +227,9 @@ The exceptions from a request reader might be handled just like other failed fut
 
 ```scala
 val user: Future[Json] = service(...) handle {
-  case NotFound(ParamItem(param)) => 
+  case NotFound(ParamItem(param)) =>
     Json.obj("error" -> "param_not_found", "param" -> param)
-  case NotValid(ParamItem(param), rule) => 
+  case NotValid(ParamItem(param), rule) =>
     Json.obj("error" -> "validation_failed", "param" -> param, "rule" -> rule)
 }
 ```
@@ -246,10 +246,10 @@ case class RequestErrors(errors: Seq[Throwable])
 case class NotFound(item: RequestItem)
 
 // when type conversion failed
-case class NotParsed(item: RequestItem, targetType: ClassTag[_], cause: Throwable) 
+case class NotParsed(item: RequestItem, targetType: ClassTag[_], cause: Throwable)
 
 // when a validation rule did not pass for a request item
-case class NotValid(item: RequestItem, rule: String) 
+case class NotValid(item: RequestItem, rule: String)
 ```
 
 The `RequestItem` is a following ADT:
@@ -283,7 +283,7 @@ val address: RequestReader[Address] = (
 ```
 
 These new readers can then themselves be combined with other readers:
- 
+
 ```scala
 case class User(name: String, address: Address)
 
@@ -312,7 +312,7 @@ readers. It is similar to [scodec's][3] `::` compositor.
 
 ```scala
 case class User(name: String, age: Int)
-    
+
 val user: RequestReader[User] = (
   param("name") ::
   param("age").as[Int]
@@ -343,7 +343,7 @@ and `flatMap`):
 
 ```scala
 case class User(name: String, age: Int)
-    
+
 val user: RequestReader[User] = for {
   name <- param("name")
   age <- param("age").as[Int]
@@ -363,7 +363,7 @@ The applicative style has been introduced in version 0.5.0 and is the recommende
 
 For all `String`-based readers, Finch provides an `as[A]` method to perform type conversions. It is available for any
 `RequestReader[String]`, `RequestReader[Option[String]]` or `RequestReader[Seq[String]]` as long as a matching implicit
-`DecodeRequest[A]` type-class is in scope. 
+`DecodeRequest[A]` type-class is in scope.
 
 This facility is designed to be intuitive, meaning that you do not have to provide a `DecodeRequest[Seq[MyType]]` for
 converting a sequence. A decoder for a single item will allow you to convert `Option[String]` and `Seq[String]`, too:
@@ -409,7 +409,7 @@ Writing a new decoder for a type not supported out of the box is very easy, too.
 for a Joda `DateTime` from a `Long` representing the number of milliseconds since the epoch:
 
 ```scala
-implicit val dateTimeDecoder: DecodeRequest[DateTime] = 
+implicit val dateTimeDecoder: DecodeRequest[DateTime] =
   DecodeRequest(s => Try(new DateTime(s.toLong)))
 ```
 
@@ -434,8 +434,7 @@ val user: RequestReader[Interval] = (
 #### Integration with JSON Libraries
 
 A third way of using the `as[A]` type conversion facility is to use one of the JSON library integrations Finch offers.
-Finch comes with support for [Argonaut](json.md#argonaut), [Jawn](json.md#jawn), [Jackson](json.md#jackson) and its own
-JSON support [Finch Json](json.md#finch-json).
+Finch comes with support for [Argonaut](json.md#argonaut), [Jawn](json.md#jawn), [Jackson](json.md#jackson) and [JSON4S](json.md#json4s).
 
 All these integration modules do is make the library-specific JSON decoders available for use as a `DecodeRequest[A]`.
 To take Argonaut as an example, you only have to import `io.finch.argonaut._` to have implicit Argonaut
@@ -443,7 +442,7 @@ To take Argonaut as an example, you only have to import `io.finch.argonaut._` to
 
 ```scala
 case class Person(name: String, age: Int)
- 
+
 implicit def PersonDecodeJson: DecodeJson[Person] =
   jdecode2L(Person.apply)("name", "age")
 ```
@@ -464,16 +463,16 @@ predicate does not hold, the reader will fail with a `NotValid(item, rule)` exce
 you pass to the `should` or `shouldNot` methods as a string.
 
 Note that for an optional reader, the validation will be skipped for `None` results, but if the value is non-empty then
-all validation must succeed for the reader to succeed. 
+all validation must succeed for the reader to succeed.
 
 Validation can happen inline or based on predefined validation rules, as shown in the next two sections.
-  
+
 #### Inline Validation
 
 For validation logic only needed in one place, the most convenient way is to declare it inline:
 
 ```scala
-val adult2: RequestReader[User] = 
+val adult2: RequestReader[User] =
   param("name") ~
   param("age").as[Int].shouldNot("be less than 18") { _ < 18 } ~> User
 ```
@@ -486,8 +485,8 @@ them wherever needed:
 ```scala
 val bePositive = ValidationRule[Int]("be positive") { _ > 0 }
 def beLessThan(value: Int) = ValidationRule[Int](s"be less than $value") { _ < value }
-  
-val child: RequestReader[User] = 
+
+val child: RequestReader[User] =
   param("name") ~
   param("age").as[Int].should(bePositive and beLessThan(18)) ~> User
 ```
