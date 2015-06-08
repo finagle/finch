@@ -25,9 +25,6 @@ class SuccessfulRequestReaderBenchmark extends FooReadersAndRequests {
   def monadicReader: Foo = Await.result(monadicFooReader(goodFooRequest))
 
   @Benchmark
-  def tildeReader: Foo = Await.result(tildeFooReader(goodFooRequest))
-
-  @Benchmark
   def hlistGenericReader: Foo = Await.result(hlistGenericFooReader(goodFooRequest))
 
   @Benchmark
@@ -52,9 +49,6 @@ class FailingRequestReaderBenchmark extends FooReadersAndRequests {
   def monadicReader: Try[Foo] = Await.result(monadicFooReader(badFooRequest).liftToTry)
 
   @Benchmark
-  def tildeReader: Try[Foo] = Await.result(tildeFooReader(badFooRequest).liftToTry)
-
-  @Benchmark
   def hlistGenericReader: Try[Foo] = Await.result(hlistGenericFooReader(badFooRequest).liftToTry)
 
   @Benchmark
@@ -75,14 +69,6 @@ class FooReadersAndRequests {
     l <- param("l").as[Long]
     b <- param("b").as[Boolean]
   } yield Foo(s, d, i, l, b)
-
-  val tildeFooReader: RequestReader[Foo] =
-    param("s") ~
-    param("d").as[Double] ~
-    param("i").as[Int] ~
-    param("l").as[Long] ~
-    param("b").as[Boolean] ~>
-    Foo
 
   val hlistGenericFooReader: RequestReader[Foo] = (
     param("s") ::
