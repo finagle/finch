@@ -23,14 +23,13 @@
 package io.finch.route
 
 import com.twitter.finagle.httpx
-import com.twitter.finagle.httpx.Method
+import com.twitter.finagle.httpx.Request
 import com.twitter.finagle.Service
 import com.twitter.util.{Await, Return}
 
 import io.finch._
 import io.finch.request.{DecodeRequest, param}
 import io.finch.response._
-import io.finch.route.tokens._
 
 import org.scalatest.{Matchers, FlatSpec}
 import org.scalatest.prop.Checkers
@@ -38,43 +37,31 @@ import shapeless.{:+:, ::, CNil, HNil, Inl}
 
 class RouterSpec extends FlatSpec with Matchers with Checkers {
 
-  val route = List(
-    MethodToken(Method.Get), PathToken("a"), PathToken("1"), PathToken("b"), PathToken("2")
-  )
-
-  val emptyRoute = List(MethodToken(Method.Get))
+  val route = RouterInput(Request("/a/1/b/2"))
+  val emptyRoute = RouterInput(Request())
 
   "A Router" should "extract single string" in {
-    val r: Router[String] = Get / string
-    r(route) shouldBe Some((route.drop(2), "a"))
+    val r: Router[String] = get(string)
+    r(route) shouldBe Some((route.drop(1), "a"))
   }
 
   it should "extract multiple strings" in {
-    val r: Router2[String, String] = Get / string / "1" / string
-    r(route) shouldBe Some((route.drop(4), "a" :: "b" :: HNil))
-  }
-
-  it should "match method" in {
-    Get.exec(route) shouldBe Some(route.tail)
-  }
-
-  it should "match method only once" in {
-    val r: Router0 = Get / Get
-    r(route) shouldBe None
+    val r: Router2[String, String] = get(string / "1" / string)
+    r(route) shouldBe Some((route.drop(3), "a" :: "b" :: HNil))
   }
 
   it should "match string" in {
-    val r: Router0 = Get / "a"
-    r.exec(route) shouldBe Some(route.drop(2))
+    val r: Router0 = get("a")
+    r.exec(route) shouldBe Some(route.drop(1))
   }
 
   it should "match 2 or more strings" in {
-    val r: Router0 = Get / "a" / 1 / "b"
-    r.exec(route) shouldBe Some(route.drop(4))
+    val r: Router0 = get("a" / 1 / "b")
+    r.exec(route) shouldBe Some(route.drop(3))
   }
 
   it should "not match if one of the routers failed" in {
-    val r: Router0 = Get / "a" / 2
+    val r: Router0 = get("a" / 2)
     r(route) shouldBe None
   }
 
@@ -84,52 +71,50 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
   }
 
   it should "be able to skip route tokens" in {
-    val r: Router0 = * / "a"
-    r.exec(route) shouldBe Some(route.drop(2))
+    val r: Router0 =  "a" / "1" / *
+    r.exec(route) shouldBe Some(route.drop(4))
   }
 
   it should "match either one or other matcher" in {
-    val r: Router0 = (Get | Post) / ("a" | "b")
-    r.exec(route) shouldBe Some(route.drop(2))
+    val r: Router0 = get("a" | "b")
+    r.exec(route) shouldBe Some(route.drop(1))
   }
 
   it should "match int" in {
-    val r: Router0 = Get / "a" / 1
-    r.exec(route) shouldBe Some(route.drop(3))
-  }
-
-  it should "be able to not match int if it's a different value" in {
-    val r: Router0 = Get / "a" / 2
-    r(route) shouldBe None
-  }
-
-  it should "be able to skip one route tokens" in {
-    val r: Router0 = Get / *
+    val r: Router0 = get("a" / 1)
     r.exec(route) shouldBe Some(route.drop(2))
   }
 
+  it should "be able to not match int if it's a different value" in {
+    val r: Router0 = get("a" / 2)
+    r(route) shouldBe None
+  }
+
+  it should "be able to match method" in {
+    val r: Router0 = get(/)
+    r.exec(route) shouldBe Some(route)
+  }
+
   it should "be able to match the whole route" in {
-    val r1: Router0 = Get / *
-    val r2: Router0 = Get / * / * / * / *
-    r1.exec(route) shouldBe Some(route.drop(2))
-    r2.exec(route) shouldBe Some(Nil)
+    val r1: Router0 = *
+    r1.exec(route) shouldBe Some(route.drop(4))
   }
 
   it should "support DSL for string and int extractors" in {
-    val r1: Router2[Int, String] = Get / "a" / int / string
-    val r2: Router2[Int, Int] = Get / "a" / int("1") / "b" / int("2")
+    val r1: Router2[Int, String] = get("a" / int / string)
+    val r2: Router2[Int, Int] = get("a" / int("1") / "b" / int("2"))
 
-    r1(route) shouldBe Some((route.drop(4), 1 :: "b" :: HNil))
-    r2(route) shouldBe Some((Nil, 1 :: 2 :: HNil))
+    r1(route) shouldBe Some((route.drop(3), 1 :: "b" :: HNil))
+    r2(route) shouldBe Some((route.drop(4), 1 :: 2 :: HNil))
   }
 
   it should "support DSL for boolean marchers and extractors" in {
-    val route = List(PathToken("flag"), PathToken("true"))
+    val route = RouterInput(Request("/flag/true"))
     val r1: Router[Boolean] = "flag" / boolean
     val r2: Router0 = "flag" / true
 
-    r1(route) shouldBe Some((Nil, true))
-    r2.exec(route) shouldBe Some(Nil)
+    r1(route) shouldBe Some((route.drop(2), true))
+    r2.exec(route) shouldBe Some(route.drop(2))
   }
 
   it should "be implicitly converted into a service" in {
@@ -137,49 +122,49 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
       def apply(request: HttpRequest) = s.toFuture
     }
 
-    val service: Service[HttpRequest, String] = Get / string /> echo
+    val service: Service[HttpRequest, String] = get(string /> echo)
     Await.result(service(httpx.Request("/foo"))) shouldBe "foo"
   }
 
   it should "be composable as an endpoint" in {
-    val r1: Router[Int] = Get / "a" / int /> { _ + 10 }
-    val r2: Router[Int] = Get / "b" / int / int /> { _ + _ }
+    val r1: Router[Int] = get("a" / int /> { _ + 10 })
+    val r2: Router[Int] = get("b" / int / int /> { _ + _ })
     val r3: Router[Int] = r1 | r2
 
-    r3(route) shouldBe Some((route.drop(3), 11))
+    r3(route) shouldBe Some((route.drop(2), 11))
   }
 
   it should "maps to value" in {
-    val r: Router[Int] = Get /> 10
-    r(route) shouldBe Some((route.tail, 10))
+    val r: Router[Int] = get(*) /> 10
+    r(route) shouldBe Some((route.drop(4), 10))
   }
 
   it should "skip all the route tokens" in {
-    val r: Router0 = Get / "a" / **
-    r.exec(route) shouldBe Some(Nil)
+    val r: Router0 = get("a" / *)
+    r.exec(route) shouldBe Some(route.drop(4))
   }
 
   it should "converts into a string" in {
-    val r1: Router0 = Get
-    val r2: Router0 = Get / "a" / true / 1
-    val r3: Router3[Int, Long, String] = Get / ("a" | "b") / int / long / string
-    val r4: Router3[String, Int, Boolean] = Get / string("name") / int("id") / boolean("flag") / "foo"
-    val r5: Router0 = Post / *
+    val r1: Router0 = get(/)
+    val r2: Router0 = get("a" / true / 1)
+    val r3: Router3[Int, Long, String] = get(("a" | "b") / int / long / string)
+    val r4: Router3[String, Int, Boolean] = get(string("name") / int("id") / boolean("flag") / "foo")
+    val r5: Router0 = post(*)
 
-    r1.toString shouldBe "GET"
-    r2.toString shouldBe "GET/a/true/1"
-    r3.toString shouldBe "GET/(a|b)/:int/:long/:string"
-    r4.toString shouldBe "GET/:name/:id/:flag/foo"
-    r5.toString shouldBe "POST/*"
+    r1.toString shouldBe "GET /"
+    r2.toString shouldBe "GET /a/true/1"
+    r3.toString shouldBe "GET /(a|b)/:int/:long/:string"
+    r4.toString shouldBe "GET /:name/:id/:flag/foo"
+    r5.toString shouldBe "POST /*"
   }
 
   it should "support the for-comprehension syntax" in {
-    val r1: Router[String] = for { a :: b :: HNil <- Get / string / int } yield a + b
-    val r2: Router[String] = for { a :: b :: c :: HNil <- Get / "a" / int / string / int } yield b + c + a
+    val r1: Router[String] = for { a :: b :: HNil <- get(string / int) } yield a + b
+    val r2: Router[String] = for { a :: b :: c :: HNil <- get("a" / int / string / int) } yield b + c + a
     val r3: Router[String] = r1 | r2
 
-    r1(route) shouldBe Some((route.drop(3), "a1"))
-    r2(route) shouldBe Some((Nil, "b21"))
+    r1(route) shouldBe Some((route.drop(2), "a1"))
+    r2(route) shouldBe Some((route.drop(4), "b21"))
     r3(route) shouldBe r2(route)
   }
 
@@ -194,16 +179,16 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
   }
 
   it should "be greedy" in {
-    val a = List(PathToken("a"), PathToken("10"))
-    val b = List(PathToken("a"))
+    val a = RouterInput(Request("/a/10"))
+    val b = RouterInput(Request("/a"))
 
     val r1: Router0 = "a" | "b" | ("a" / 10)
     val r2: Router0 = ("a" / 10) | "b" |  "a"
 
-    r1.exec(a) shouldBe Some(Nil)
-    r1.exec(b) shouldBe Some(Nil)
-    r2.exec(a) shouldBe Some(Nil)
-    r2.exec(b) shouldBe Some(Nil)
+    r1.exec(a) shouldBe Some(a.drop(2))
+    r1.exec(b) shouldBe Some(b.drop(2))
+    r2.exec(a) shouldBe Some(a.drop(2))
+    r2.exec(b) shouldBe Some(b.drop(2))
   }
 
   it should "allow mix routers that returns futures and services" in {
@@ -227,12 +212,12 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
   }
 
   it should "handle the empty route well" in {
-    val r1: Router0 = Get / * / * / **
-    val r2: Router3[Int, String, Boolean] = Get / int / string / boolean
-    val r3: Router0 = Get / "a" / "b" / "c"
-    val r4: Router0 = Post
+    val r1: Router0 = get(*)
+    val r2: Router3[Int, String, Boolean] = get(int / string / boolean)
+    val r3: Router0 = get("a" / "b" / "c")
+    val r4: Router0 = post(*)
 
-    r1.exec(emptyRoute) shouldBe Some(Nil)
+    r1.exec(emptyRoute) shouldBe Some(emptyRoute)
     r2.exec(emptyRoute) shouldBe None
     r3.exec(emptyRoute) shouldBe None
     r4.exec(emptyRoute) shouldBe None
@@ -240,14 +225,14 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
 
   it should "use the first router if both eat the same number of tokens" in {
     val r: Router[String]=
-      Get /> "root" |
-      Get / "foo" /> "foo"
+      get(/) /> "root" |
+      get("foo") /> "foo"
 
-    val route1 = List(MethodToken(Method.Get))
-    val route2 = List(MethodToken(Method.Get), PathToken("foo"))
+    val route1 = RouterInput(Request())
+    val route2 = RouterInput(Request("/foo"))
 
-    r(route1) shouldBe Some((Nil, "root"))
-    r(route2) shouldBe Some((Nil, "foo"))
+    r(route1) shouldBe Some((route1, "root"))
+    r(route2) shouldBe Some((route2.drop(1), "foo"))
   }
 
   it should "combine coproduct routers appropriately" in {
@@ -256,7 +241,8 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
 
     val r: Router[Int :+: String :+: String :+: Long :+: CNil] = r1 :+: r2
 
-    r(PathToken("100") :: Nil) shouldBe Some((Nil, Inl(100)))
+    val route = RouterInput(Request("/100"))
+    r(route) shouldBe Some((route.drop(1), Inl(100)))
   }
 
   it should "convert a coproduct router into an endpoint" in {
@@ -276,19 +262,19 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
 
     val service: Service[HttpRequest, HttpResponse] = (
       // Router returning an [[HttpResponse]].
-      Get / "foo" /> Ok("foo")              :+:
+      get("foo") /> Ok("foo")              :+:
       // Router returning an encodeable value.
-      Get / "foo" / string /> Item          :+:
+      get("foo" / string) /> Item          :+:
       // Router returning an [[HttpResponse]] in a future.
-      Get / "bar" /> Ok("foo").toFuture     :+:
+      get("bar") /> Ok("foo").toFuture     :+:
       // Router returning an encodeable value in a future.
-      Get / "baz" /> Item("item foo").toFuture   :+:
+      get("baz") /> Item("item foo").toFuture   :+:
       // Router returning a [[RequestReader]].
-      Get / "qux" /> param("p").as[Item]    :+:
+      get("qux") /> param("p").as[Item]    :+:
       // Router returning a Finagle service returning a [[HttpResponse]].
-      Get / "qux" / "s1" /> responseService :+:
+      get("qux" / "s1") /> responseService :+:
       // Router returning a Finagle service returning an encodeable value.
-      Get / "qux" / "s2" /> itemService
+      get("qux" / "s2") /> itemService
     ).toService
 
     val res1 = Await.result(service(httpx.Request("/foo")))

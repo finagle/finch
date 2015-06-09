@@ -38,22 +38,22 @@ import shapeless.ops.adjoin.Adjoin
 trait Router[A] { self =>
 
   /**
-   * Extracts some value of type `A` from the given `route`. In case of success it returns `Some` tuple of the _rest_ of
+   * Extracts some value of type `A` from the given `input`. In case of success it returns `Some` tuple of the _rest_ of
    * the route and the fetched _value_. In case of failure it returns `None`.
    */
-  def apply(route: Route): Option[(Route, A)]
+  def apply(input: RouterInput): Option[(RouterInput, A)]
 
   /**
    * Attempts to match a route, but only returns any unmatched elements, not the value.
    */
-  private[route] def exec(route: Route): Option[Route] = apply(route).map(_._1)
+  private[route] def exec(input: RouterInput): Option[RouterInput] = apply(input).map(_._1)
 
   /**
    * Maps this router to the given function `A => B`.
    */
   def map[B](fn: A => B): Router[B] = new Router[B] {
-    def apply(route: Route): Option[(Route, B)] = for {
-      (r, a) <- self(route)
+    def apply(input: RouterInput): Option[(RouterInput, B)] = for {
+      (r, a) <- self(input)
     } yield (r, fn(a))
     override def toString = self.toString
   }
@@ -63,8 +63,8 @@ trait Router[A] { self =>
    * also return `None`.
    */
   def embedFlatMap[B](fn: A => Option[B]): Router[B] = new Router[B] {
-    def apply(route: Route): Option[(Route, B)] = for {
-      (r, a) <- self(route)
+    def apply(input: RouterInput): Option[(RouterInput, B)] = for {
+      (r, a) <- self(input)
       b <- fn(a)
     } yield (r, b)
     override def toString = self.toString
@@ -74,8 +74,8 @@ trait Router[A] { self =>
    * Flat-maps this router to the given function `A => Router[B]`.
    */
   def flatMap[B](fn: A => Router[B]): Router[B] = new Router[B] {
-    def apply(route: Route): Option[(Route, B)] = for {
-      (r, a) <- self(route)
+    def apply(input: RouterInput): Option[(RouterInput, B)] = for {
+      (r, a) <- self(input)
       (rr, b) <- fn(a)(r)
     } yield (rr, b)
     override def toString = self.toString
@@ -88,7 +88,7 @@ trait Router[A] { self =>
   def andThen[B](that: Router[B])(implicit adjoin: PairAdjoin[A, B]): Router[adjoin.Out] =
     new Router[adjoin.Out] {
       val ab = for { a <- self; b <- that } yield adjoin(a, b)
-      def apply(route: Route): Option[(Route, adjoin.Out)] = ab(route)
+      def apply(route: RouterInput): Option[(RouterInput, adjoin.Out)] = ab(route)
       override def toString = s"${self.toString}/${that.toString}"
     }
 
@@ -100,9 +100,9 @@ trait Router[A] { self =>
    * both of the routers can handle the given `route` the router is being chosen is that which eats more.
    */
   def orElse[B >: A](that: Router[B]): Router[B] = new Router[B] {
-    def apply(route: Route): Option[(Route, B)] = (self(route), that(route)) match {
+    def apply(input: RouterInput): Option[(RouterInput, B)] = (self(input), that(input)) match {
       case (aa @ Some((a, _)), bb @ Some((b, _))) =>
-        if (a.length <= b.length) aa else bb
+        if (a.path.length <= b.path.length) aa else bb
       case (a, b) => a orElse b
     }
 
@@ -161,8 +161,8 @@ object Router {
   implicit def endpointToService[Req, Rep](
     r: Router[Service[Req, Rep]]
   )(implicit ev: Req => HttpRequest): Service[Req, Rep] = new Service[Req, Rep] {
-    def apply(req: Req): Future[Rep] = r(requestToRoute[Req](req)) match {
-      case Some((Nil, service)) => service(req)
+    def apply(req: Req): Future[Rep] = r(RouterInput(req)) match {
+      case Some((input, service)) if input.path.isEmpty => service(req)
       case _ => RouteNotFound(s"${req.method.toString.toUpperCase} ${req.path}").toFutureException[Rep]
     }
   }

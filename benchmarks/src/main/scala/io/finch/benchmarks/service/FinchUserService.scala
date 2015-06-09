@@ -37,11 +37,11 @@ class FinchUserService(implicit
     Service.mk(_ => db.delete().map(count => Ok(s"$count users deleted")))
 
   val users: Service[HttpRequest, HttpResponse] = (
-    Get    / "users" / long /> getUser :+:
-    Get    / "users" /> allUsers       :+:
-    Post   / "users" /> createUser     :+:
-    Put    / "users" /> updateUser     :+:
-    Delete / "users" /> deleteUsers
+    get("users" / long) /> getUser :+:
+    get("users") /> allUsers       :+:
+    post("users") /> createUser    :+:
+    put("users") /> updateUser     :+:
+    delete("users") /> deleteUsers
   ).toService
 
   val handleExceptions = new SimpleFilter[HttpRequest, HttpResponse] {
