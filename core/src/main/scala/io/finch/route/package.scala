@@ -48,16 +48,7 @@ import shapeless.ops.adjoin.Adjoin
  *   )
  * }}}
  */
-package object route {
-  import tokens._
-
-  private[route] type Route = List[RouteToken]
-
-  /**
-   * Converts `Req` to `Route`.
-   */
-  private[finch] def requestToRoute[Req](req: HttpRequest): Route =
-    (MethodToken(req.method): RouteToken) :: (req.path.split("/").toList.drop(1) map PathToken)
+package object route extends RouterCombinators {
 
   /**
    * An alias for [[io.finch.route.Router Router]] that maps route to a [[com.twitter.finagle.Service Service]].
@@ -68,12 +59,9 @@ package object route {
   type Router2[A, B] = Router[A :: B :: HNil]
   type Router3[A, B, C] = Router[A :: B :: C :: HNil]
 
-  private[route] def stringToSomeValue[A](fn: String => A)(s: String): Option[A] =
-    try Some(fn(s)) catch { case _: IllegalArgumentException => None }
-
-  implicit def intToMatcher(i: Int): Matcher = StringMatcher(i.toString)
-  implicit def stringToMatcher(s: String): Matcher = StringMatcher(s)
-  implicit def booleanToMatcher(b: Boolean): Matcher = StringMatcher(b.toString)
+  implicit def stringToMatcher(s: String): Router0 = Matcher(s)
+  implicit def intToMatcher(i: Int): Router0 = Matcher(i.toString)
+  implicit def booleanToMatcher(b: Boolean): Router0 = Matcher(b.toString)
 }
 
 package route {

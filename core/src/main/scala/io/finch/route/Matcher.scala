@@ -22,71 +22,30 @@
 
 package io.finch.route
 
-import com.twitter.finagle.httpx.Method
-import io.finch.route.tokens._
 import shapeless.HNil
 
 /**
- * A router that match the given route to some predicate.
+ * An universal [[Router]] that matches the given string.
  */
-trait Matcher extends Router[HNil] {
-  /**
-   * Matches the given `route` to some predicate and returns `Some` of the
-   * _rest_ of the route in case of success or `None` otherwise.
-   */
-  def matchRoute(route: Route): Option[Route]
-
-  /**
-   * A default implementation based on `matchRoute`.
-   */
-  def apply(route: Route): Option[(Route, HNil)] = matchRoute(route).map(r => (r, HNil))
-}
-
-/**
- * A [[io.finch.route.Matcher Matcher]] that skips one route token.
- */
-object * extends Matcher {
-  def matchRoute(route: Route): Option[Route] = Some(route.drop(1))
-  override def toString = "*"
-}
-
-/**
- * A [[io.finch.route.Matcher Matcher]] that skips all route tokens.
- */
-object ** extends Matcher {
-  def matchRoute(route: Route): Option[Route] = Some(Nil)
-  override def toString = "**"
-}
-
-/**
- * A universal matcher.
- */
-case class StringMatcher(s: String) extends Matcher {
-  def matchRoute(route: Route): Option[Route] = for {
-    PathToken(ss) <- route.headOption if ss == s
-  } yield route.tail
+case class Matcher(s: String) extends Router[HNil] {
+  def apply(input: RouterInput): Option[(RouterInput, HNil)] = for {
+    ss <- input.headOption if ss == s
+  } yield (input.drop(1), HNil)
   override def toString = s
 }
 
 /**
- * A [[io.finch.route.Matcher Matcher]] that matches the given HTTP method `m` in the route.
+ * A [[Router]] that skips all path parts.
  */
-case class MethodMatcher(m: Method) extends Matcher {
-  def matchRoute(route: Route): Option[Route] = for {
-    MethodToken(mm) <- route.headOption if m == mm
-  } yield route.tail
-  override def toString = s"${m.toString.toUpperCase}"
+object * extends Router[HNil] {
+  def apply(input: RouterInput): Option[(RouterInput, HNil)] = Some((input.copy(path = Nil), HNil))
+  override def toString = "*"
 }
 
-//
-// A group of routers that matches HTTP methods.
-//
-object Get extends MethodMatcher(Method.Get)
-object Post extends MethodMatcher(Method.Post)
-object Patch extends MethodMatcher(Method.Patch)
-object Delete extends MethodMatcher(Method.Delete)
-object Head extends MethodMatcher(Method.Head)
-object Options extends MethodMatcher(Method.Options)
-object Put extends MethodMatcher(Method.Put)
-object Connect extends MethodMatcher(Method.Connect)
-object Trace extends MethodMatcher(Method.Trace)
+/**
+ * An identity [[Router]].
+ */
+object / extends Router[HNil] {
+  def apply(input: RouterInput): Option[(RouterInput, HNil)] = Some((input, HNil))
+  override def toString = ""
+}

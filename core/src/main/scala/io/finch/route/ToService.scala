@@ -59,8 +59,8 @@ trait LowPriorityToServiceInstances {
 
   protected def routerToService[R: ToRequest](r: Router[Service[R, HttpResponse]]): Service[R, HttpResponse] =
     Service.mk[R, HttpResponse] { req =>
-      r(requestToRoute[R](implicitly[ToRequest[R]].apply(req))) match {
-        case Some((Nil, service)) => service(req)
+      r(RouterInput(implicitly[ToRequest[R]].apply(req))) match {
+        case Some((output, service)) if output.path.isEmpty => service(req)
         case _ => NotFound().toFuture
       }
     }
