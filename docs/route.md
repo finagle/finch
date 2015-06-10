@@ -116,7 +116,7 @@ val users =
 ### Endpoints
 
 **Important:** endpoints are deprecated in 0.7.0 (and will be removed in 0.8.0) in favour of
-[Coproduct Routers][router.md#coproduct-routers].
+[Coproduct Routers](#coproduct-routers).
 
 A router that extracts `Service[Req, Rep]` out of the route is called an `Endpoint[Req, Rep]`. In, fact it's just a type
 alias `type Endpoint[-A, +B] = Router[Service[A, B]]`, which brings the endpoints to the insane composability level.
@@ -189,7 +189,7 @@ val service: Service[HttpRequest, HttpResponse] =
 ### Filters and Endpoints
 
 **Important:** endpoints are deprecated in 0.7.0 (and will be removed in 0.8.0) in favour of
-[Coproduct Routers][router.md#coproduct-routers].
+[Coproduct Routers](#coproduct-routers).
 
 It's hard two imagine a Finagle/Finch application without `Filter`s. While they are not really applicable to routers,
 you can always convert `Router` to `Service` and then apply any set of filters. Thus, the common practice is to have
