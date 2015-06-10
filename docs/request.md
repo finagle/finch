@@ -41,7 +41,7 @@ def param(req: HttpRequest)(key: String): Option[String] =
     ??? // try to get parameter from multipart form
   }
 
-def doSomethingWithRequest(req: HttpRequest): Result =
+def doSomethingWithRequest(req: HttpRequest): Option[Result] =
   for {
     foo <- param(req)("foo")
     bar <- param(req)("bar")
