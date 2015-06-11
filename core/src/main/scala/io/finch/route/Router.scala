@@ -28,6 +28,7 @@ import io.finch._
 import io.finch.request._
 import io.finch.response._
 import shapeless._
+import shapeless.ops.function.FnToProduct
 
 /**
  * A router that extracts some value of the type `A` from the given route.
@@ -198,45 +199,42 @@ object Router {
   }
 
   /**
-   * Add `/>` compositors to `Router` to compose it with values.
+   * Add `/>` compositor to `Router` to compose it with function of one argument.
    */
-  implicit class RArrow0[R](r: R)(implicit ev: R => Router[HNil]) {
+  implicit class RArrow1[A](r: Router[A]) {
+    def />[B](fn: A => B): Router[B] = r.map(fn)
+  }
+
+  /**
+   * Add `/>` compositor to `Router` to compose it with values.
+   */
+  implicit class RArrow0(r: Router0) {
     def />[B](v: => B): Router[B] = r.map(_ => v)
   }
 
   /**
-   * Add `/>` compositors to `Router` to compose it with function of one argument.
+   * Add `/>` compositor to `Router` to compose it with function of two arguments.
    */
-  implicit class RArrow1[A](r: Router[A :: HNil]) {
-    def />[B](fn: A => B): Router[B] = r.map {
-      case a :: HNil => fn(a)
-    }
-  }
-
-  /**
-   * Add `/>` compositor to `Router` to compose it with function of two argument.
-   */
-  implicit class RArrow2[A, B](val r: Router[A :: B :: HNil]) extends AnyVal {
+  implicit class RArrow2[A, B](r: Router2[A, B]) {
     def />[C](fn: (A, B) => C): Router[C] = r.map {
       case a :: b :: HNil => fn(a, b)
     }
   }
 
   /**
-   * Add `/>` compositor to `Router` to compose it with function of three argument.
+   * Add `/>` compositor to `Router` to compose it with function of three arguments.
    */
-  implicit class RArrow3[A, B, C](val r: Router[A :: B :: C :: HNil]) extends AnyVal {
+  implicit class RArrow3[A, B, C](r: Router3[A, B, C]) {
     def />[D](fn: (A, B, C) => D): Router[D] = r.map {
       case a :: b :: c :: HNil => fn(a, b, c)
     }
   }
 
   /**
-   * Add `/>` compositor to `Router` to compose it with function of four argument.
+   * Add `/>` compositor to `Router` to compose it with function of N arguments.
    */
-  implicit class RArrow4[A, B, C, D](val r: Router[A :: B :: C :: D :: HNil]) extends AnyVal {
-    def />[E](fn: (A, B, C, D) => E): Router[E] = r.map {
-      case a :: b :: c :: d :: HNil => fn(a, b, c, d)
-    }
+  implicit class RArrowN[L <: HList](r: Router[L]) {
+    def />[F, I](fn: F)(implicit ftp: FnToProduct.Aux[F, L => I]): Router[I] =
+      r.map(ftp(fn))
   }
 }
