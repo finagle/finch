@@ -34,7 +34,19 @@ trait MidPrioritySmash extends LowPrioritySmash {
   }
 }
 
-object Smash extends MidPrioritySmash {
+trait HighPrioritySmash extends MidPrioritySmash {
+  implicit def smashIHNil[A]: Aux[A, HNil, A] = new Smash[A, HNil] {
+    type Out = A
+    def apply(a: A, b: HNil): Out = a
+  }
+
+  implicit def smashHNIlI[B]: Aux[HNil, B, B] = new Smash[HNil, B] {
+    type Out = B
+    def apply(a: HNil, b: B): Out = b
+  }
+}
+
+object Smash extends HighPrioritySmash {
   def apply[A, B](implicit smash: Smash[A, B]): Aux[A, B, smash.Out] = smash
 
   def smash[A, B](a: A, b: B)(implicit smash: Smash[A, B]): smash.Out =

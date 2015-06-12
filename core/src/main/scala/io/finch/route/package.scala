@@ -23,7 +23,7 @@
 package io.finch
 
 import com.twitter.finagle.Service
-import shapeless.HNil
+import shapeless._
 
 /**
  * This package contains various of functions and types that enable _router combinators_ in Finch. A Finch
@@ -62,6 +62,10 @@ package object route {
    * An alias for [[io.finch.route.Router Router]] that maps route to a [[com.twitter.finagle.Service Service]].
    */
   type Endpoint[A, B] = Router[Service[A, B]]
+
+  type Router0 = Router[HNil]
+  type Router2[A, B] = Router[A :: B :: HNil]
+  type Router3[A, B, C] = Router[A :: B :: C :: HNil]
 
   private[route] def stringToSomeValue[A](fn: String => A)(s: String): Option[A] =
     try Some(fn(s)) catch { case _: IllegalArgumentException => None }
