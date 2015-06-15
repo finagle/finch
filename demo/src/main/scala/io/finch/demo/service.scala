@@ -36,7 +36,8 @@ object service {
   // A REST service that fetches a user with `userId`.
   case class GetUser(userId: Long) extends Service[AuthRequest, User] {
     def apply(req: AuthRequest): Future[User] = Db.select(userId) flatMap {
-      case Some(user) => user.toFuture
+      case Some(inputUser) => inputUser.toFuture //changed var name to be clearer
+      //"inputUser" assigned to whatever Db.select(userId) returns as long as it's not None
       case None => UserNotFound(userId).toFutureException[User]
     }
   }
@@ -49,7 +50,7 @@ object service {
   // A REST service that inserts a new user with `userId`.
   object PostUser extends Service[AuthRequest, User] {
     def apply(req: AuthRequest): Future[User] = for {
-      in <- user(req)
+      in <- user(req.http) //THIS ISN'T A CLASS! IT'S ACTUALLY PART OF READER.SCALA!
       out <- Db.insert(in.id, in)
     } yield out
   }
@@ -57,7 +58,7 @@ object service {
   // A REST service that add a ticket to a given user `userId`.
   case class PostUserTicket(userId: Long) extends Service[AuthRequest, Ticket] {
     def apply(req: AuthRequest): Future[Ticket] = for {
-      t <- ticket(req)
+      t <- ticket(req.http)
       u <- GetUser(userId)(req) // fetch exist user
       updatedU = u.copy(tickets = u.tickets :+ t) // modify its tickets
       _ <- Db.insert(userId, updatedU)

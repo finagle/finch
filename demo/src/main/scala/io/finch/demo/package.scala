@@ -58,7 +58,7 @@ package demo {
     // so we can get two benefits:
     //  1. We can treat an `Endpoint` as a `Service`, since it will be implicitly converted.
     //  2. We can treat an `AuthRequest` as ''HttpRequest'' and pass it to `RequestReader`.
-    implicit val authReqEv: AuthRequest => HttpRequest = _.http
+//    implicit val authReqEv: AuthRequest => HttpRequest = _.http
   }
 
   // A thread-safe ids generator.
