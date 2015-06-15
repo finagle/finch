@@ -22,18 +22,29 @@
 
 package io.finch.demo
 
-import com.twitter.finagle.{Filter, SimpleFilter, Service, Httpx}
+import com.twitter.finagle._
 import com.twitter.util.{Future, Await}
 
-import _root_.argonaut._, _root_.argonaut.Argonaut._
+import argonaut._, _root_.argonaut.Argonaut._
+import io.finch.demo.endpoint._
+import io.finch.demo.model.Ticket
+import io.finch.demo._
+import io.finch.demo.model.User
+import io.finch.demo.model.UserNotFound
+import io.finch.request.items.BodyItem
+import io.finch.request.items.ParamItem
 import io.finch.{Endpoint => _, _}
 
 // import the pipe `!` operator
 import io.finch.argonaut._             // import finch-json classes such as `Json`
-import io.finch.request._          // import request readers such as `RequiredParam`
+import io.finch.request._
+
+// import request readers such as `RequiredParam`
 import io.finch.request.items._    // import request items for error handling
 import io.finch.response._         // import response builders such as `BadRequest`
-import io.finch.route._            // import route combinators
+import io.finch.route._
+
+// import route combinators
 
 /**
  * To run the demo from console use:
@@ -60,23 +71,7 @@ object Main extends App {
 
   val exampleUser1: User = User(Id(), "Tom Paine", Nil)
 
-  val exampleUser2: User = User(
-    Id(),
-    "Benjamin Franklin",
-    List(Ticket(Id(), "PHL -> CDG"), Ticket(Id(), "PHL -> LHR"))
-  )
-
-  val exampleUser3: User = User(
-    Id(),
-    "Betsy Ross",
-    List(Ticket(Id(), "PHL -> DCA"))
-  )
-
-  val exampleUser4: User = User(
-    Id(),
-    "Sakata Gintoki",
-    List(Ticket(Id(), "SFO -> SAN"))
-  )
+  val pet1: Pet = Pet()
 
   // Pre-load the database with some examples.
   Await.ready(Db.insert(exampleUser1.id, exampleUser1))
@@ -97,8 +92,8 @@ object Demo {
 
   // A Finagle filter that authorizes a request: performs conversion `HttpRequest` => `AuthRequest`.
   val authorize = new Filter[HttpRequest, HttpResponse, AuthRequest, HttpResponse] {
-//      def apply(req: HttpRequest, service: Service[AuthRequest, HttpResponse]): Future[HttpResponse] =
-//        service(AuthRequest(req))
+    //      def apply(req: HttpRequest, service: Service[AuthRequest, HttpResponse]): Future[HttpResponse] =
+    //        service(AuthRequest(req))
     def apply(req: HttpRequest, service: Service[AuthRequest, HttpResponse]): Future[HttpResponse] = for {
       `X-Secret` <- headerOption("X-Secret")(req)
       rep <- `X-Secret` collect {
@@ -137,9 +132,9 @@ object Demo {
   // a request reader of one of the REST services.
   val handleExceptions = new SimpleFilter[HttpRequest, HttpResponse] {
     def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]): Future[HttpResponse] = service(req) handle
-      (handleDomainErrors orElse handleRequestReaderErrors orElse handleRouterErrors orElse {
-        case _ => InternalServerError()
-      })
+        (handleDomainErrors orElse handleRequestReaderErrors orElse handleRouterErrors orElse {
+          case _ => InternalServerError()
+        })
   }
 
   // An API endpoint.
