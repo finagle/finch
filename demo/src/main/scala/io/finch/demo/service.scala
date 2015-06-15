@@ -49,7 +49,7 @@ object service {
   // A REST service that inserts a new user with `userId`.
   object PostUser extends Service[AuthRequest, User] {
     def apply(req: AuthRequest): Future[User] = for {
-      in <- user(req)
+      in <- user(req.http)
       out <- Db.insert(in.id, in)
     } yield out
   }
@@ -57,7 +57,7 @@ object service {
   // A REST service that add a ticket to a given user `userId`.
   case class PostUserTicket(userId: Long) extends Service[AuthRequest, Ticket] {
     def apply(req: AuthRequest): Future[Ticket] = for {
-      t <- ticket(req)
+      t <- ticket(req.http)
       u <- GetUser(userId)(req) // fetch exist user
       updatedU = u.copy(tickets = u.tickets :+ t) // modify its tickets
       _ <- Db.insert(userId, updatedU)
