@@ -29,6 +29,8 @@ import io.finch.request._
 import io.finch.response._
 import shapeless._
 import shapeless.ops.function.FnToProduct
+import shapeless.ops.adjoin.Adjoin
+
 
 /**
  * A router that extracts some value of the type `A` from the given route.
@@ -125,6 +127,12 @@ trait Router[A] { self =>
   def withFilter(p: A => Boolean): Router[A] = self
 
   /**
+   * Compose this router with another in such a way that coproducts are flattened.
+   */
+  def :+:[B](that: Router[B])(implicit adjoin: Adjoin[B :+: A :+: CNil]): Router[adjoin.Out] =
+    that.map(b => adjoin(Inl(b))) orElse map(a => adjoin(Inr(Inl(a))))
+
+  /**
    * Converts this router to a Finagle service from a request-like type `R` to a [[HttpResponse]].
    */
   def toService[R: ToRequest](implicit ts: ToService[R, A]): Service[R, HttpResponse] = ts(this)
@@ -157,46 +165,6 @@ object Router {
       case Some((Nil, service)) => service(req)
       case _ => RouteNotFound(s"${req.method.toString.toUpperCase} ${req.path}").toFutureException[Rep]
     }
-  }
-
-  /**
-   * Base class for implicit classes that support `:+:` syntax for building routers.
-   */
-  abstract class CoproductRouterOps[S, C <: Coproduct](self: Router[S]) {
-    protected def right[A](s: S): A :+: C
-
-    def :+:[A](that: Router[A]): Router[A :+: C] =
-      new Router[A :+: C] {
-        def apply(route: Route): Option[(Route, A :+: C)] =
-          (that(route), self(route)) match {
-            case (Some((ar, av)), Some((sr, sv))) =>
-              if (ar.size <= sr.size) Some((ar, Inl(av))) else Some((sr, right(sv)))
-            case (a, s) =>
-              a.map {
-                case (r, v) => (r, Inl(v))
-              } orElse s.map {
-                case (r, v) => (r, right(v))
-              }
-          }
-
-        override def toString = s"(${that.toString}|${self.toString})"
-      }
-  }
-
-  /**
-   * Implicit class that provides `:+:` and other operations on any coproduct router.
-   */
-  final implicit class CoproductRouterOps1[C <: Coproduct](self: Router[C])
-    extends CoproductRouterOps[C, C](self) {
-    protected def right[A](c: C): A :+: C = Inr(c)
-  }
-
-  /**
-   * Implicit class that provides `:+:` on any router.
-   */
-  final implicit class CoproductRouterOps0[B](self: Router[B])
-    extends CoproductRouterOps[B, B :+: CNil](self) {
-    protected def right[A](b: B): A :+: B :+: CNil = Inr(Inl(b))
   }
 
   /**

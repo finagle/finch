@@ -34,7 +34,7 @@ import io.finch.route.tokens._
 
 import org.scalatest.{Matchers, FlatSpec}
 import org.scalatest.prop.Checkers
-import shapeless.{:+:, ::, CNil, HNil}
+import shapeless.{:+:, ::, CNil, HNil, Inl}
 
 class RouterSpec extends FlatSpec with Matchers with Checkers {
 
@@ -238,7 +238,7 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     r4.exec(emptyRoute) shouldBe None
   }
 
-  it should "use the first router if both eats the same number of tokens" in {
+  it should "use the first router if both eat the same number of tokens" in {
     val r: Router[String]=
       Get /> "root" |
       Get / "foo" /> "foo"
@@ -248,6 +248,15 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
 
     r(route1) shouldBe Some((Nil, "root"))
     r(route2) shouldBe Some((Nil, "foo"))
+  }
+
+  it should "combine coproduct routers appropriately" in {
+    val r1: Router[Int :+: String :+: CNil] = int :+: string
+    val r2: Router[String :+: Long :+: CNil] = string :+: long
+
+    val r: Router[Int :+: String :+: String :+: Long :+: CNil] = r1 :+: r2
+
+    r(PathToken("100") :: Nil) shouldBe Some((Nil, Inl(100)))
   }
 
   it should "convert a coproduct router into an endpoint" in {
