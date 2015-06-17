@@ -46,6 +46,7 @@ object Id {
 }
 
 // An abstraction that represents an async interface to a database of users.
+
 object UserDb {
   // An underlying map.
   private val map = new ConcurrentHashMap[Long, User]().asScala
