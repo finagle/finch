@@ -34,7 +34,7 @@ Every Finch module is published at Maven Central. Use the following _sbt_ snippe
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "[finch-module]" % "0.7.0"
+  "com.github.finagle" %% "[finch-module]" % "0.7.1"
 )
 ```
 
