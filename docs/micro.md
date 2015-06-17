@@ -133,9 +133,6 @@ type SEndpoint = PEndpoint[SumReq]
 val getSum: SMicro[Int] = Micro[SumReq, Int](_.a) ~ Micro[SumReq, Int](_.b) ~> sum
 ```
 
-There is a [playground project][3] that uses custom request type and polymorphic micros.
-
 [0]: http://monkey.org/~marius/funsrv.pdf
 [1]: https://gist.github.com/vkostyukov/e0e952c28b87563b2383
 [2]: https://twitter.com/ID_AA_Carmack/status/53512300451201024
-[3]: https://github.com/finagle/finch/blob/master/playground/src/main/scala/io/finch/playground/Main.scala

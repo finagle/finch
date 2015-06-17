@@ -30,7 +30,7 @@ val testDependencies = Seq(
 
 val baseSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.chuusai" %% "shapeless" % "2.2.1",
+    "com.chuusai" %% "shapeless" % "2.2.2",
     "com.twitter" %% "finagle-httpx" % "6.25.0",
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
     compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
@@ -91,7 +91,7 @@ lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
 lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Seq(
   site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "docs"),
   git.remoteRepo := s"git@github.com:finagle/finch.git",
-  unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(demo, playground)
+  unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(demo)
 )
 
 lazy val root = project.in(file("."))
@@ -110,7 +110,7 @@ lazy val root = project.in(file("."))
         |import io.finch.route._
       """.stripMargin
   )
-  .aggregate(core, demo, playground, argonaut, jackson, json4s, auth, benchmarks)
+  .aggregate(core, demo, argonaut, jackson, json4s, auth, benchmarks)
   .dependsOn(core, argonaut)
 
 lazy val core = project
@@ -133,14 +133,6 @@ lazy val demo = project
   .settings(noPublish)
   .disablePlugins(JmhPlugin)
   .dependsOn(core, argonaut)
-
-lazy val playground = project
-  .settings(moduleName := "finch-playground")
-  .settings(allSettings)
-  .settings(noPublish)
-  .settings(coverageExcludedPackages := "io\\.finch\\.playground\\..*")
-  .disablePlugins(JmhPlugin)
-  .dependsOn(core, jackson)
 
 lazy val argonaut = project
   .settings(moduleName := "finch-argonaut")
