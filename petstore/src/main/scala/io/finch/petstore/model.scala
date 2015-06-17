@@ -8,19 +8,31 @@ object model{
   /*
   Category case class for Pet object
    */
-  case class Category(id: Long, name: String)
+  case class Category(id: Long, name: String) //Not sure if this needs to be a class....
 
   /*
   Tag case class for Pet object
    */
-  case class Tag(id: Long, name: String)
+//  case class Tag(id: Long, name: String)
+
+  /*
+  Status case class for Pet object
+   */
+//  case class Status(state: String)
 
   /*
     A pet object with the following fields:
       id, category, name, photoUrls, tags, and status (available, pending, adopted)
    */
 
-  case class Pet(id: Long, category: Category, name: String, photoUrls: String, tags: Tag, status: String)
+  case class Pet(
+      id: Long,
+      category: Category,
+      name: String,
+      photoUrls: Seq[String],
+      tags: Seq[String],
+      status: String
+      )
 
   object Pet{
     // Provides an implementation of the EncodeJson type class from Argonaut
