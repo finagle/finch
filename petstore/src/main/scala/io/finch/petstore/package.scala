@@ -21,7 +21,7 @@ import com.twitter.util.Future
  * - [[petstore.endpoint]] - [[io.finch.route.Router]]s for services (endpoints)
  */
 
-package demo {
+package petstoreDemo {
 
 import com.twitter.util.Future
 import io.finch._
@@ -46,7 +46,7 @@ object Id {
 }
 
 // An abstraction that represents an async interface to a database of users.
-object Db {
+object UserDb {
   // An underlying map.
   private val map = new ConcurrentHashMap[Long, User]().asScala
 
@@ -56,5 +56,20 @@ object Db {
     map += (id -> u)
     u.toFuture
   }
+  def delete(id: Long): None = map.remove(id)
+}
+
+// An abstraction that represents an async interface to a database of users.
+object PetDb {
+  // An underlying map.
+  private val map = new ConcurrentHashMap[Long, Pet]().asScala
+
+  def select(id: Long): Future[Option[Pet]] = map.get(id).toFuture
+  def all: Future[List[Pet]] = map.values.toList.toFuture
+  def insert(id: Long, u: Pet): Future[Pet] = {
+    map += (id -> u)
+    u.toFuture
+  }
+  def delete(id: Long): None = map.remove(id)
 }
 }

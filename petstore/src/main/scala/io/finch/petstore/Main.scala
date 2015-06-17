@@ -20,7 +20,7 @@
  * Contributor(s): -
  */
 
-package io.finch.demo
+package io.finch.petstore
 
 import com.twitter.finagle._
 import com.twitter.util.{Future, Await}
@@ -46,102 +46,85 @@ import io.finch.route._
 
 // import route combinators
 
-/**
- * To run the demo from console use:
- *
- * > sbt 'project demo' 'run io.finch.demo.Main'
- *
- * Or just:
- *
- * > sbt demo/run
- *
- * You can then access the service using curl, for example:
- *
- * > # List users
- * > curl -i -H "X-Secret: open sesame" http://localhost:8080/users <--- X-Secret is a "header"!!
- * > # Get a user
- * > curl -i -H "X-Secret: open sesame" http://localhost:8080/users/1
- * > # Add a user
- * > curl -i -H "X-Secret: open sesame" -X POST http://localhost:8080/users?name=Foo%20McBar
- * > # Add a ticket for a user
- * > curl -i -H "X-Secret: open sesame" -d '{"label": "ORF -> DCA"}' http://localhost:8080/users/0/tickets
  */
 object Main extends App {
   import model._
 
-  val exampleUser1: User = User(Id(), "Tom Paine", Nil)
-
-  val pet1: Pet = Pet()
-
-  // Pre-load the database with some examples.
-  Await.ready(Db.insert(exampleUser1.id, exampleUser1))
-  Await.ready(Db.insert(exampleUser2.id, exampleUser2))
-  Await.ready(Db.insert(exampleUser3.id, exampleUser3))
-  Await.ready(Db.insert(exampleUser4.id, exampleUser4))
-
-  // Serve the backend using the Httpx protocol.
-  val _ = Await.ready(Httpx.serve(":8080", Demo.backend))
+//  val exampleUser1: User = User(Id(), "Tom Paine", Nil)
+//
+//  val pet1: Pet = Pet()
+//
+//  // Pre-load the database with some examples.
+//  Await.ready(Db.insert(exampleUser1.id, exampleUser1))
+//  Await.ready(Db.insert(exampleUser2.id, exampleUser2))
+//  Await.ready(Db.insert(exampleUser3.id, exampleUser3))
+//  Await.ready(Db.insert(exampleUser4.id, exampleUser4))
+//
+//  // Serve the backend using the Httpx protocol.
+//  val _ = Await.ready(Httpx.serve(":8080", Demo.backend))
 }
 
-object Demo {
+//object Demo {
 
-  import model._
-  import endpoint._
+//  import model._
+//  import endpoint._
 
-  val Secret = "open sesame"
+  /////////////////////
 
-  // A Finagle filter that authorizes a request: performs conversion `HttpRequest` => `AuthRequest`.
-  val authorize = new Filter[HttpRequest, HttpResponse, AuthRequest, HttpResponse] {
-    //      def apply(req: HttpRequest, service: Service[AuthRequest, HttpResponse]): Future[HttpResponse] =
-    //        service(AuthRequest(req))
-    def apply(req: HttpRequest, service: Service[AuthRequest, HttpResponse]): Future[HttpResponse] = for {
-      `X-Secret` <- headerOption("X-Secret")(req)
-      rep <- `X-Secret` collect {
-        case Secret => service(AuthRequest(req))
-      } getOrElse Unauthorized().toFuture
-    } yield rep
-  }
-
-  val handleDomainErrors: PartialFunction[Throwable, HttpResponse] = {
-    case UserNotFound(id) => BadRequest(Json("error" := "user_not_found", "id" := id))
-  }
-
-  val handleRequestReaderErrors: PartialFunction[Throwable, HttpResponse] = {
-    case NotPresent(ParamItem(p)) => BadRequest(
-      Json("error" := "param_not_present", "param" := p)
-    )
-
-    case NotPresent(BodyItem) => BadRequest(Json("error" := "body_not_present"))
-
-    case NotParsed(ParamItem(p), _, _) => BadRequest(
-      Json("error" := "param_not_parsed", "param" := p)
-    )
-
-    case NotParsed(BodyItem, _, _) => BadRequest(Json("error" := "body_not_parsed"))
-
-    case NotValid(ParamItem(p), rule) => BadRequest(
-      Json("error" := "param_not_valid", "param" := p, "rule" := rule)
-    )
-  }
-
-  val handleRouterErrors: PartialFunction[Throwable, HttpResponse] = {
-    case RouteNotFound(route) => NotFound(Json("error" := "route_not_found", "route" := route))
-  }
-
-  // A simple Finagle filter that handles all the exceptions, which might be thrown by
-  // a request reader of one of the REST services.
-  val handleExceptions = new SimpleFilter[HttpRequest, HttpResponse] {
-    def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]): Future[HttpResponse] = service(req) handle
-        (handleDomainErrors orElse handleRequestReaderErrors orElse handleRouterErrors orElse {
-          case _ => InternalServerError()
-        })
-  }
-
-  // An API endpoint.
-  val api: Service[AuthRequest, HttpResponse] =
-    (getUser :+: getUsers :+: postUser :+: postTicket).toService
-
-  // An HTTP endpoint with exception handler and Auth filter.
-  val backend: Service[HttpRequest, HttpResponse] =
-    handleExceptions ! authorize ! api
-}
+//  val Secret = "open sesame"
+//
+//  // A Finagle filter that authorizes a request: performs conversion `HttpRequest` => `AuthRequest`.
+//  val authorize = new Filter[HttpRequest, HttpResponse, AuthRequest, HttpResponse] {
+//    //      def apply(req: HttpRequest, service: Service[AuthRequest, HttpResponse]): Future[HttpResponse] =
+//    //        service(AuthRequest(req))
+//    def apply(req: HttpRequest, service: Service[AuthRequest, HttpResponse]): Future[HttpResponse] = for {
+//      `X-Secret` <- headerOption("X-Secret")(req)
+//      rep <- `X-Secret` collect {
+//        case Secret => service(AuthRequest(req))
+//      } getOrElse Unauthorized().toFuture
+//    } yield rep
+//  }
+//
+//  val handleDomainErrors: PartialFunction[Throwable, HttpResponse] = {
+//    case UserNotFound(id) => BadRequest(Json("error" := "user_not_found", "id" := id))
+//  }
+//
+//  val handleRequestReaderErrors: PartialFunction[Throwable, HttpResponse] = {
+//    case NotPresent(ParamItem(p)) => BadRequest(
+//      Json("error" := "param_not_present", "param" := p)
+//    )
+//
+//    case NotPresent(BodyItem) => BadRequest(Json("error" := "body_not_present"))
+//
+//    case NotParsed(ParamItem(p), _, _) => BadRequest(
+//      Json("error" := "param_not_parsed", "param" := p)
+//    )
+//
+//    case NotParsed(BodyItem, _, _) => BadRequest(Json("error" := "body_not_parsed"))
+//
+//    case NotValid(ParamItem(p), rule) => BadRequest(
+//      Json("error" := "param_not_valid", "param" := p, "rule" := rule)
+//    )
+//  }
+//
+//  val handleRouterErrors: PartialFunction[Throwable, HttpResponse] = {
+//    case RouteNotFound(route) => NotFound(Json("error" := "route_not_found", "route" := route))
+//  }
+//
+//  // A simple Finagle filter that handles all the exceptions, which might be thrown by
+//  // a request reader of one of the REST services.
+//  val handleExceptions = new SimpleFilter[HttpRequest, HttpResponse] {
+//    def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]): Future[HttpResponse] = service(req) handle
+//        (handleDomainErrors orElse handleRequestReaderErrors orElse handleRouterErrors orElse {
+//          case _ => InternalServerError()
+//        })
+//  }
+//
+//  // An API endpoint.
+//  val api: Service[AuthRequest, HttpResponse] =
+//    (getUser :+: getUsers :+: postUser :+: postTicket).toService
+//
+//  // An HTTP endpoint with exception handler and Auth filter.
+//  val backend: Service[HttpRequest, HttpResponse] =
+//    handleExceptions ! authorize ! api
+//}
