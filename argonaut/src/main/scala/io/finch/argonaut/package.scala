@@ -27,7 +27,7 @@ package io.finch
 import _root_.argonaut.{EncodeJson, Json, Parse, DecodeJson}
 import io.finch.request.DecodeRequest
 import io.finch.request.RequestError
-import io.finch.response.EncodeResponse
+import io.finch.response.{ EncodeJsonResponse, EncodeResponse }
 import com.twitter.util.{Try, Throw, Return}
 
 package object argonaut {
@@ -50,6 +50,6 @@ package object argonaut {
    * @tparam A The type of data that the ''EncodeJson'' will encode use to create the json string
    * @return Create a Finch ''EncodeJson'' from an argonaut ''EncodeJson''
    */
-  implicit def encodeArgonaut[A](implicit encode: EncodeJson[A]): EncodeResponse[A] =
-    EncodeResponse.fromString[A]("application/json")(encode.encode(_).nospaces)
+  implicit def encodeArgonaut[A](implicit encode: EncodeJson[A]): EncodeJsonResponse[A] =
+    EncodeResponse("application/json").fromString[A](encode.encode(_).nospaces)
 }
