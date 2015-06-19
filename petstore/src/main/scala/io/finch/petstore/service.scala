@@ -4,9 +4,6 @@ import com.twitter.finagle.Service
 import com.twitter.util.Future
 
 import io.finch._
-import io.finch.petstore.model.UserNotFound
-import io.finch.petstore.{Db, AuthRequest}
-import io.finch.petstore.model.User
 
 object service{
   import model._
