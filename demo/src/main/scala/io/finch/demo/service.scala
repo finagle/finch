@@ -36,7 +36,8 @@ object service {
   // A REST service that fetches a user with `userId`.
   case class GetUser(userId: Long) extends Service[AuthRequest, User] {
     def apply(req: AuthRequest): Future[User] = Db.select(userId) flatMap {
-      case Some(user) => user.toFuture
+      case Some(inputUser) => inputUser.toFuture //changed var name to be clearer
+      //"inputUser" assigned to whatever Db.select(userId) returns as long as it's not None
       case None => UserNotFound(userId).toFutureException[User]
     }
   }
