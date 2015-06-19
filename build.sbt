@@ -134,6 +134,13 @@ lazy val demo = project
   .disablePlugins(JmhPlugin)
   .dependsOn(core, argonaut)
 
+lazy val petstore = project
+    .settings(moduleName := "finch-petstore")
+    .settings(allSettings)
+    .settings(noPublish)
+    .disablePlugins(JmhPlugin)
+    .dependsOn(core, argonaut)
+
 lazy val argonaut = project
   .settings(moduleName := "finch-argonaut")
   .settings(allSettings)
