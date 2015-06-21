@@ -83,11 +83,12 @@ trait Router[A] { self =>
    * Sequentially composes this router with the given `that` router. The resulting router will succeed only if both this
    * and `that` routers are succeed.
    */
-  def andThen[B](that: Router[B])(implicit smash: Smash[A, B]): Router[smash.Out] = new Router[smash.Out] {
-    val ab = for { a <- self; b <- that } yield smash(a, b)
-    def apply(route: Route): Option[(Route, smash.Out)] = ab(route)
-    override def toString = s"${self.toString}/${that.toString}"
-  }
+  def andThen[B](that: Router[B])(implicit adjoin: PairAdjoin[A, B]): Router[adjoin.Out] =
+    new Router[adjoin.Out] {
+      val ab = for { a <- self; b <- that } yield adjoin(a, b)
+      def apply(route: Route): Option[(Route, adjoin.Out)] = ab(route)
+      override def toString = s"${self.toString}/${that.toString}"
+    }
 
   /**
    * Sequentially composes this router with the given `that` router. The resulting router will succeed if either this or
@@ -110,7 +111,7 @@ trait Router[A] { self =>
    * Sequentially composes this router with the given `that` router. The resulting router will succeed only if both this
    * and `that` routers are succeed.
    */
-  def /[B](that: Router[B])(implicit smash: Smash[A, B]): Router[smash.Out] =
+  def /[B](that: Router[B])(implicit adjoin: PairAdjoin[A, B]): Router[adjoin.Out] =
     this andThen that
 
   /**
