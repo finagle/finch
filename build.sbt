@@ -41,7 +41,7 @@ val baseSettings = Seq(
       case _ => Seq.empty
     }
   ),
-  scalacOptions in (Compile, console) := compilerOptions,
+  scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
   wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.NoNeedForMonad, Wart.Null, Wart.DefaultArguments)
 )
 
