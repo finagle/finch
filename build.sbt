@@ -30,7 +30,7 @@ val testDependencies = Seq(
 
 val baseSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.chuusai" %% "shapeless" % "2.2.2",
+    "com.chuusai" %% "shapeless" % "2.2.3",
     "com.twitter" %% "finagle-httpx" % "6.25.0",
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
     compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
@@ -41,7 +41,7 @@ val baseSettings = Seq(
       case _ => Seq.empty
     }
   ),
-  scalacOptions in (Compile, console) := compilerOptions,
+  scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
   wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.NoNeedForMonad, Wart.Null, Wart.DefaultArguments)
 )
 
