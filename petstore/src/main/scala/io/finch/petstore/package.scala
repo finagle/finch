@@ -25,19 +25,8 @@ package petstoreDemo {
 
 import com.twitter.util.Future
 import io.finch._
-import io.finch.demo.model
-import io.finch.demo.model.User
+import io.finch.petstore.model._
 import io.finch.request.ToRequest
-import model._
-
-// A custom request type that wraps an `HttpRequest`.
-// We prefer composition over inheritance.
-case class AuthRequest(http: HttpRequest)
-
-object AuthRequest {
-  implicit val toRequest: ToRequest[AuthRequest] =
-    ToRequest[AuthRequest](_.http)
-}
 
 // A thread-safe ids generator.
 object Id {
@@ -60,17 +49,58 @@ object UserDb {
   def delete(id: Long): None = map.remove(id)
 }
 
-// An abstraction that represents an async interface to a database of users.
+// An abstraction that represents an async interface to a database of pets.
 object PetDb {
   // An underlying map.
   private val map = new ConcurrentHashMap[Long, Pet]().asScala
 
   def select(id: Long): Future[Option[Pet]] = map.get(id).toFuture
   def all: Future[List[Pet]] = map.values.toList.toFuture
-  def insert(id: Long, u: Pet): Future[Pet] = {
-    map += (id -> u)
-    u.toFuture
+  def insert(id: Long, p: Pet): Future[Pet] = {
+    map += (id -> p)
+    p.toFuture
   }
   def delete(id: Long): None = map.remove(id)
 }
+
+// An abstraction that represents an async interface to a database of stores.
+object StoreDb {
+  // An underlying map.
+  private val map = new ConcurrentHashMap[Long, Store]().asScala
+
+  def select(id: Long): Future[Option[Store]] = map.get(id).toFuture
+  def all: Future[List[Store]] = map.values.toList.toFuture
+  def insert(id: Long, s: Store): Future[Store] = {
+    map += (id -> s)
+    s.toFuture
+  }
+  def delete(id: Long): None = map.remove(id)
+}
+
+object TagDb {
+  // An underlying map.
+  private val map = new ConcurrentHashMap[Long, Tag]().asScala
+
+  def select(id: Long): Future[Option[Tag]] = map.get(id).toFuture
+  def all: Future[List[Tag]] = map.values.toList.toFuture
+  def insert(id: Long, t: Tag): Future[Tag] = {
+    map += (id -> t)
+    t.toFuture
+  }
+  def delete(id: Long): None = map.remove(id)
+}
+
+object CategoryDb {
+  // An underlying map.
+  private val map = new ConcurrentHashMap[Long, Category]().asScala
+
+  def select(id: Long): Future[Option[Category]] = map.get(id).toFuture
+  def all: Future[List[Category]] = map.values.toList.toFuture
+  def insert(id: Long, c: Category): Future[Category] = {
+    map += (id -> c)
+    c.toFuture
+  }
+  def delete(id: Long): None = map.remove(id)
+}
+
 }

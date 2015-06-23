@@ -50,6 +50,8 @@ import io.finch.route._
 object Main extends App {
   import model._
 
+//  val sadaharu: Pet = Pet(Id(), "Sadaharu", )
+
 //  val exampleUser1: User = User(Id(), "Tom Paine", Nil)
 //
 //  val pet1: Pet = Pet()
