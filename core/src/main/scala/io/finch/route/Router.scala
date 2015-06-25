@@ -130,7 +130,9 @@ trait Router[A] { self =>
    * Compose this router with another in such a way that coproducts are flattened.
    */
   def :+:[B](that: Router[B])(implicit adjoin: Adjoin[B :+: A :+: CNil]): Router[adjoin.Out] =
-    that.map(b => adjoin(Inl(b))) orElse map(a => adjoin(Inr(Inl(a))))
+    that.map(b => adjoin(Inl[B, A :+: CNil](b))).orElse(
+      map(a => adjoin(Inr[B, A :+: CNil](Inl[A, CNil](a))))
+    )
 
   /**
    * Converts this router to a Finagle service from a request-like type `R` to a [[HttpResponse]].
