@@ -4,8 +4,8 @@ import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   version := "0.8.0-SNAPSHOT",
-  scalaVersion := "2.11.6",
-  crossScalaVersions := Seq("2.10.5", "2.11.6")
+  scalaVersion := "2.11.7",
+  crossScalaVersions := Seq("2.10.5", "2.11.7")
 )
 
 lazy val compilerOptions = Seq(
@@ -24,14 +24,14 @@ lazy val compilerOptions = Seq(
 )
 
 val testDependencies = Seq(
-  "org.scalacheck" %% "scalacheck" % "1.12.2",
+  "org.scalacheck" %% "scalacheck" % "1.12.4",
   "org.scalatest" %% "scalatest" % "2.2.5"
 )
 
 val baseSettings = Seq(
   libraryDependencies ++= Seq(
     "com.chuusai" %% "shapeless" % "2.2.3",
-    "com.twitter" %% "finagle-httpx" % "6.25.0",
+    "com.twitter" %% "finagle-httpx" % "6.26.0",
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
     compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
   ) ++ testDependencies.map(_ % "test"),
@@ -143,7 +143,7 @@ lazy val argonaut = project
 lazy val jackson = project
   .settings(moduleName := "finch-jackson")
   .settings(allSettings)
-  .settings(libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.5.2")
+  .settings(libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.5.3")
   .dependsOn(core, test % "test")
 
 lazy val json4s = project
