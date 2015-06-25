@@ -11,25 +11,41 @@ object service{
   import reader._
   import io.finch.petstore._
 
+  //begin example--these are almost the same thing
+
+  //      val p: Future[Pet] = for {
+  //        p <- petReader(req)
+  //        d <- PetDb.insert(p.id.getOrElse(1230), p)
+  //      } yield d
+  //
+  //      val d: Future[Pet] = petReader(req).flatMap { p =>
+  //        PetDb.insert(p.id.getOrElse(1230), p)
+  //      }
+
+  //end example
+
+
   //PET METHODS/////////////////////////////////////////////////////////
   /*
   POST: Adds a new pet to the store
    */
   case class AddPet() extends Service[HttpRequest, Pet]{
     def apply(req: HttpRequest): Future[Pet] = {
-      var futurePet: Future[Pet] = petReader(req)
-      var p: Pet = Await.result(futurePet)
-      var id: Long = if (p.id == None) Id() else p.id.to[Long] //sketchy conversion....
-      PetDb.insert(id, p)
-      //Add new tags to TagDb
-      for (t <- p.tags.get){ //?? Why does this one need to be assured it's getting a Seq[Tag] but Category doesn't??
-        if (TagDb.select(t.id) == None) TagDb.insert(t.id, t)
-      }
-      //Add new categories to CategoryDb
-      for (c <- p.category){
-        if (CategoryDb.select(c.id) == None) CategoryDb.insert(c.id, c)
-      }
-      futurePet
+
+      val newPet: Future[Pet] = for{
+        petInfo <- petReader(req) //future
+        petInfo.status match{
+          case "available" => Store.inventory.available += 1
+          case "pending" => Store.inventory.pending += 1
+          case "adopted" => Store.inventory.adopted += 1
+        }
+      } PetDb.insert(petInfo.id, Pet(petInfo.id,
+                                        petInfo.category,
+                                        petInfo.name,
+                                        petInfo.photoUrls,
+                                        petInfo.tags,
+                                        petInfo.status))
+      newPet
     }
   }
 
@@ -38,27 +54,28 @@ object service{
    */
   case class UpdatePet() extends Service[HttpRequest, Pet]{
     def apply(req: HttpRequest): Future[Pet] = {
-      val futurePet: Future[Pet] = petReader(req) //don't use this
-      val modInfo: Pet = Await.result(futurePet)
-//      val longId: Long = modInfo.id.getOrElse(-1L)
-      val id = modInfo.id match{
-        case Some(x) => Future.value(x)
-        case None => Future.exception(new Exception("Pet to modify does not have an id."))
-      }
+      val betterPet: Future[Pet] = for{
+        modInfo <- petReader(req)
+        oldPetFut <- PetDb.select(modInfo.id)
+        oldPet <- oldPetFut
+        oldCategory <- oldPet.category
+        oldStatus <- oldPet.status
 
+        modCategory <- modInfo.category
+        modStatus <- modInfo.status
 
+        betterStatus: String = if(modStatus == None) oldStatus else modStatus
 
-      val oldPet: Pet = Await.result(PetDb.select(id)).get //deprecated?
-      //Getting updated params
-      val category = if (modInfo.tags == None) oldPet.category else modInfo.category
-      val name = if (modInfo.name == None) oldPet.name else modInfo.name
-      val photoUrls = if (modInfo.photoUrls == None) oldPet.photoUrls else modInfo.photoUrls
-      val tags = if (modInfo.tags == None) oldPet.tags else modInfo.tags
-      val status = if (modInfo.status == None) oldPet.status else modInfo.status
-      //End getting updated params
-      val betterPet = Pet(modInfo.id, category, name, photoUrls, tags, status)
-      PetDb.insert(id, betterPet) //override old pet with a new, updated one
-      futurePet
+      } yield PetDb.insert(modInfo.id,
+          Pet(modInfo.id,
+          if(modCategory == None) Option(oldCategory) else Option(modCategory),
+          if(modInfo.name == None) oldPet.name else modInfo.name,
+          if(modInfo.photoUrls == None) oldPet.photoUrls else modInfo.photoUrls,
+          if(modInfo.tags == None) oldPet.tags else modInfo.tags,
+          Option(betterStatus)
+        ))
+
+      betterPet
     }
   }
 
@@ -68,56 +85,44 @@ object service{
   case class GetPetsByStatus() extends Service[HttpRequest, Seq[Pet]]{
     def apply(req: HttpRequest): Future[Seq[Pet]] = {
       val allMatches = Seq[Pet]()
-      val getStat = statusReader(req)
-      for( p <- Await.result(PetDb.all)){
-        if (p.status.equals(getStat)) allMatches :+ p
-      }
-      Future(allMatches)
+      for{
+        getStat <- statusReader(req)
+        pList <- PetDb.all
+        p <- pList
+        if(p.status.equals(getStat))
+      } yield allMatches :+ p //will this work? I'm assuming allMatches stays Seq[Pet] until its actually returned
     }
   }
 
   /*
   GET: Finds pets by tags
-    Given: Sequence of Strings representing tags
-    -> Go through each tag in input list and find its corresponding actual TagDb Tag
-    -> Create a list of these actual tags
-    -> Go through all existing Pets and check if List is a subset of its tag list (must be some method...)
+  Muliple tags can be provided with comma seperated strings.
    */
-  case class GetAllPetsOfTag() extends Service[HttpRequest, Seq[Pet]]{
+  case class FindPetsByTag() extends Service[HttpRequest, Seq[Pet]]{
     def apply(req: HttpRequest): Future[Seq[Pet]] = {
-      val tagStrings = tagReader(req)
-      val matchTags = Seq[Tag]()
-
+//      val tagStrings = tagReader(req)
+      val allMatches = Seq[Pet]()
+      val actualTags = Seq[Tag]()
+      for{matchTags <- tagReader(req) //Seq[String]
+        t <- matchTags //String
+        allTags <- TagDb.all //Seq[Tag]
+        singleTag <- allTags //Tag
+        if(singleTag.name.equals(t))
+      }yield actualTags :+ singleTag
+      //actualTags should now be populated with the tags we want to match
+      for{petList <- PetDb.all //List[Pet]
+        p <- petList //Pet
+        if (actualTags.forall(p.tags.contains)) //if actualTags is subset of p.tags
+      }yield allMatches :+ p
     }
   }
-
-//  case class GetAllOfCertainTag(getTag: String) extends Service[AuthRequest, Pet]{
-//    def apply(req: AuthRequest): Future[Seq[Pet]] = {
-//      var allMatches = Seq[Pet]()
-//      for(p <- PetDb.all){
-//        var tagList = p.tags
-//        if(tagList.contains(getTag)) allMatches :+ p
-//      }
-//      allMatches
-//    }
-//  }
-
-  /*
-  GET: Finds all the tags connected to a certain pet, given the pet's ID
-   */
-//  case class GetAllTags(inputId:Long) extends Service[AuthRequest, Seq[String]]{
-//    def apply(req: AuthRequest): Future[Seq[String]] = {
-//      var animal = PetDb.select(inputId)
-//      animal.tags
-//    }
-//  }
 
   /*
   DELETE: Deletes a pet, given its ID
    */
-  case class DeletePet(inputId: Long) extends Service[HttpRequest, Unit]{
-    def apply(req: HttpRequest): Future[Unit] = { //not actually sure how to return nothing...
-      PetDb.delete(inputId)
+  case class DeletePet(inputId: Long) extends Service[HttpRequest, Unit]{ //correct type?
+    def apply(req: HttpRequest): Future[Unit] = {
+      Future(PetDb.delete(inputId))
     }
   }
 
@@ -126,33 +131,69 @@ object service{
    */
   case class GetPet(inputId: Long) extends Service[HttpRequest, Pet]{
     def apply(req: HttpRequest): Future[Pet] = {
-      PetDb.select(inputId)
+      val tempPet:Future[Option[Pet]] = PetDb.select(inputId)
+      for{
+        petOpt <- tempPet //Option[Pet]
+        pet <- petOpt //Pet (looks like it works...somehow)
+      }yield pet
     }
   }
 
+  //===========================NEEDS CHECKING. NAME AND STATUS ARE FORMDATA PARAMS. HOW TO GET?===========================
   /*
-  POST: Updates a pet in the store from form data
+  POST: Updates a pet in the store from form data (only name and status can be updated)
+  name and status come from form data
    */
+  case class UpdatePetStoreStatus(inputId: Long) extends Service[HttpRequest, Pet]{
+    def apply(req: HttpRequest): Future[Pet] = {
+      val orgPetFut: Future[Option[Pet]] = PetDb.select(inputId)
+      val betterPet: Future[Pet] = for{
+        petOpt <- orgPetFut //Option[Pet]
+        pet <- petOpt //Pet
+        n <- nameReader(req) //String
+        s <- statusReader(req) //String
+        PetDb.delete(inputId)
+      }yield PetDb.insert(inputId, Pet(inputId, pet.category, n, pet.photoUrls, pet.tags, Option(s)))
+      betterPet //why is this needed? O_o
+    }
+  }
+  //=============================================================================================================
 
+  //============================UNFINISHED======================================================================================
   /*
   POST: Uploads an image of a pet, by adding a new url to the pet's list of images
    */
-  case class PostImage(inputId: Long, url: String) extends Service[HttpRequest, Seq[String]]{
+  case class UploadImage(inputId: Long, url: String) extends Service[HttpRequest, Seq[String]]{
     def apply(req: HttpRequest): Future[Seq[String]] = {
-      val doubutsu = PetDb.select(inputId)
-      doubutsu.photoUrls :+ url
+      //what is additional metadata??
+      //actually not too sure how this is supposed to work....
+
+//      val doubutsu = PetDb.select(inputId)
+//      doubutsu.photoUrls :+ url
     }
   }
+  //=====================================================================================================================
+
+
 
   //STORE METHODS/////////////////////////////////////////////////////////
+  //Note that in this api there is only one store in existance.
 
   /*
   GET: Returns pet inventories of the store. Inventory is organized by the pets' status attributes
    */
+  case class GetInventory() extends Service[HttpRequest, Store]{
+    def apply(req: HttpRequest): Future[Store] = {
+      //how to return a body??? what?
+      //Return a list of available, adopted, and pending?
+
+    }
+  }
 
   /*
   POST: Places an order for a pet
    */
+  case class
 
   /*
   DELETE: Deletes a purchase order by ID

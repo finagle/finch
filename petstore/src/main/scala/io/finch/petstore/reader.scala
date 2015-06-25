@@ -12,6 +12,8 @@ object reader{
     tags.split(",").map(_.trim)
   }
 
+  implicit val nameReader: RequestReader[String] = param("name")
+
   /*
   A request reader that reads user objects from the http request.
   - A user is represented by url-encoded param "username"

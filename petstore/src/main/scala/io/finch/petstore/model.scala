@@ -27,10 +27,10 @@ object model{
    */
 
   case class Pet(
-      id: Option[Long],
+      id: Long,
       category: Option[Category],
-      name: Future[String],
-      photoUrls: Future[Seq[String]],
+      name: String,
+      photoUrls: Seq[String],
       tags: Option[Seq[Tag]],
       status: Option[String] //available, pending, adopted
       )
@@ -61,16 +61,18 @@ object model{
 
   /*
     A store object with the following fields:
-      id, name, inventory
+      name, inventory
    */
 
-  case class Store(id: Long, name: String, inventory: List[Pet])
+  case class Inventory(available: Long, pending: Long, adopted: Long)
+
+  case class Store(name: String, inventory: Inventory)
 
   object Store {
     // Provides an implementation of the EncodeJson type class from Argonaut
-    implicit def profileEncoding: EncodeJson[Store] = jencode3L(
-      (s: Store) => (s.id, s.name, s.inventory)
-    )("id", "name", "inventory")
+    implicit def profileEncoding: EncodeJson[Store] = jencode2L(
+      (s: Store) => (s.name, s.inventory)
+    )("name", "inventory")
   }
 
   /*

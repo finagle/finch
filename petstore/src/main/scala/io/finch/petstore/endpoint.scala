@@ -4,19 +4,18 @@ import com.twitter.finagle.httpx.Method._
 import io.finch.HttpRequest
 import io.finch.petstore.model._
 import io.finch.petstore.service._
-import io.finch.route.Endpoint //right import?
+import io.finch.route.{long, Endpoint}
+
+//right import?
 
 object endpoint{
   val addPet: Endpoint[HttpRequest, Pet] = Post / "pet" /> AddPet
   val updatePet: Endpoint[HttpRequest, Pet] = Put / "pet" /> UpdatePet
   val getPetsByStatus: Endpoint[HttpRequest, Seq[Pet]] = Get / "pet" / "findByStatus" /> GetPetsByStatus //tentative
-
-
-//  val getAllTags: Endpoint[AuthRequest, Seq[String]] = Get / "tags" / long /> GetAllTags
-//  val deletePet: Endpoint[AuthRequest, Pet] = Delete / "pet" / long /> DeletePet
-//  val getAllOfCertainTag: Endpoint[AuthRequest, Seq[Pet]] = Get / "allCertainTag" / String /> GetAllOfCertainTag
-//  val getPet: Endpoint[AuthRequest, Pet] = Get / "pet" / long /> GetPet
-//  val getPetsByStatus: Endpoint[AuthRequest, Seq[Pet]] = Get / "pet" / "status" / String /> GetPetsByStatus
-//  val postImage: Endpoint[AuthRequest, Seq[String]] = Post / "pet" / long / "img" / String /> PostImage
-
+  val findPetsByTag: Endpoint[HttpRequest, Pet] = Get / "pet" / "findByTags" /> FindPetsByTag
+  val deletePet: Endpoint[HttpRequest, Unit] = Delete / "pet" / long /> DeletePet
+  val getPet: Endpoint[HttpRequest, Pet] = Get / "pet" / long /> GetPet
+  val updatePetStoreStatus: Endpoint[HttpRequest, Pet] = Post / "pet" / long /> UpdatePetStoreStatus
+  val uploadImage: Endpoint[HttpRequest, Unit] = Post / "pet" / long / "uploadImage" /> UploadImage
 }
+
