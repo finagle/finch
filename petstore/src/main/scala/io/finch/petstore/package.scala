@@ -61,21 +61,28 @@ object PetDb {
     p.toFuture
   }
   def delete(id: Long): None = map.remove(id)
+//  def statusCodes: Future[Map[Status, Int]] = Future.value(
+//    pets.synchronized {
+//      pets.groupBy(_._2.status).map {
+//        case (status, kvs) => (status, kvs.size)
+//      }
+//    }
+//  )
 }
 
 // An abstraction that represents an async interface to a database of stores.
-object StoreDb {
-  // An underlying map.
-  private val map = new ConcurrentHashMap[Long, Store]().asScala
-
-  def select(id: Long): Future[Option[Store]] = map.get(id).toFuture
-  def all: Future[List[Store]] = map.values.toList.toFuture
-  def insert(id: Long, s: Store): Future[Store] = {
-    map += (id -> s)
-    s.toFuture
-  }
-  def delete(id: Long): None = map.remove(id)
-}
+//object StoreDb {
+//  // An underlying map.
+//  private val map = new ConcurrentHashMap[Long, Store]().asScala
+//
+//  def select(id: Long): Future[Option[Store]] = map.get(id).toFuture
+//  def all: Future[List[Store]] = map.values.toList.toFuture
+//  def insert(id: Long, s: Store): Future[Store] = {
+//    map += (id -> s)
+//    s.toFuture
+//  }
+//  def delete(id: Long): None = map.remove(id)
+//}
 
 object TagDb {
   // An underlying map.

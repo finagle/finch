@@ -6,20 +6,53 @@ import com.twitter.util.Future
 
 object model{
 
-  /*
-  Category case class for Pet object
-   */
   case class Category(id: Long, name: String) //Not sure if this needs to be a class....
 
-  /*
-  Tag case class for Pet object
-   */
   case class Tag(id: Long, name: String)
 
-  /*
-  Status case class for Pet object
-   */
-//  case class Status(state: String)
+  //Begin Status
+
+  sealed trait Status {
+    def code: String
+  }
+
+  case object Available extends Status {
+    def code: String = "available"
+  }
+
+  case object Pending extends Status {
+    def code: String = "pending"
+  }
+
+  case object Sold extends Status {
+    def code: String = "sold"
+  }
+
+  object Status {
+    def fromString(s: String): Status = s match {
+      case "available" => Available
+      case "pending" => Pending
+      case "sold" => Sold
+    }
+
+    val statusEncode: EncodeJson[Status] =
+      EncodeJson.jencode1[Status, String](_.code)
+
+    val statusDecode: DecodeJson[Status] =
+      DecodeJson { c =>
+        c.as[String].flatMap[Status] {
+          case "available" => DecodeResult.ok(Available)
+          case "pending" => DecodeResult.ok(Pending)
+          case "sold" => DecodeResult.ok(Sold)
+          case other => DecodeResult.fail(s"Unknown status: $other", c.history)
+        }
+      }
+
+    implicit val statusCodec: CodecJson[Status] =
+      CodecJson.derived(statusEncode, statusDecode)
+  }
+
+  //End Status
 
   /*
     A pet object with the following fields:
@@ -32,38 +65,17 @@ object model{
       name: String,
       photoUrls: Seq[String],
       tags: Option[Seq[Tag]],
-      status: Option[String] //available, pending, adopted
+      status: Option[Status] //available, pending, adopted
       )
 
   object Pet{
-    // Provides an implementation of the EncodeJson type class from Argonaut
-//    implicit def profileEncoding: EncodeJson[Pet] = jencode6L(
-//      (t: Pet) => (t.id, t.category, t.name, t.photoUrls, t.tags, t.status)
-//    )("id", "category", "name", "photoUrls", "tags", "status")
-
     implicit def petCodec: CodecJson[Pet] = //instance of a type class
       casecodec6(Pet.apply, Pet.unapply)("id", "category", "name", "photoUrls", "tags", "status")
-
-    //you get apply and unapply for free remember? When you have companion objects
-
-//    def apply(idIn:Long,
-//        catIn: Category,
-//        nameIn: String,
-//        photoIn: Seq[String],
-//        tagsIn: Seq[String],
-//        statusIn: String) = new Pet(idIn, catIn, nameIn, photoIn, tagsIn, statusIn)
-//
-//    def unapply(p:Pet) = {
-//      if (p == null) None
-//      else Some(p.id, p.category, p.name, p.photoUrls, p.tags, p.status)
-//    }
   }
 
   /*
-    A store object with the following fields:
-      name, inventory
+  Store attributes
    */
-
   case class Inventory(available: Long, pending: Long, adopted: Long)
 
   case class Store(name: String, inventory: Inventory)
