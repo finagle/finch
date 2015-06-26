@@ -29,45 +29,50 @@ import io.finch._
 import io.finch.request._
 import io.finch.response._
 import shapeless._
-import shapeless.ops.function.FnToProduct
 import shapeless.ops.adjoin.Adjoin
+import shapeless.ops.function.FnToProduct
 
 
 /**
  * A router that extracts some value of the type `A` from the given route.
  */
 trait Router[A] { self =>
+  import Router._
 
   /**
-   * Extracts some value of type `A` from the given `input`. In case of success it returns `Some` tuple of the _rest_ of
-   * the route and the fetched _value_. In case of failure it returns `None`.
+   * Extracts some value of type `A` from the given `input`.
    */
-  def apply(input: RouterInput): Option[(RouterInput, A)]
+  def apply(input: Input): Future[Output[A]]
 
   /**
    * Attempts to match a route, but only returns any unmatched elements, not the value.
    */
-  private[route] def exec(input: RouterInput): Option[RouterInput] = apply(input).map(_._1)
+  private[route] def exec(input: Input): Future[Option[Input]] = apply(input).map {
+    case Output.Accepted(r, a) => Some(r)
+    case Output.Dropped => None
+  }
 
   /**
    * Maps this router to the given function `A => B`.
    */
   def map[B](fn: A => B): Router[B] = new Router[B] {
-    def apply(input: RouterInput): Option[(RouterInput, B)] = for {
-      (r, a) <- self(input)
-    } yield (r, fn(a))
+    def apply(input: Input): Future[Output[B]] =
+      self(input).map(_.map(fn))
+
     override def toString = self.toString
   }
 
   /**
-   * Flat-maps the router to the given function `A => Option[B]`. If the given function `None` the resulting router will
+   * Flat-maps the router to the given function `A => Future[B]`. If the given function `None` the resulting router will
    * also return `None`.
    */
-  def embedFlatMap[B](fn: A => Option[B]): Router[B] = new Router[B] {
-    def apply(input: RouterInput): Option[(RouterInput, B)] = for {
-      (r, a) <- self(input)
-      b <- fn(a)
-    } yield (r, b)
+  def embedFlatMap[B](fn: A => Future[B]): Router[B] = new Router[B] {
+    def apply(input: Input): Future[Output[B]] =
+      self(input).flatMap {
+        case Output.Accepted(r, a) => fn(a).map(b => Output.accepted[B](r, b))
+        case Output.Dropped => Output.dropped[B].toFuture
+      }
+
     override def toString = self.toString
   }
 
@@ -75,54 +80,54 @@ trait Router[A] { self =>
    * Flat-maps this router to the given function `A => Router[B]`.
    */
   def flatMap[B](fn: A => Router[B]): Router[B] = new Router[B] {
-    def apply(input: RouterInput): Option[(RouterInput, B)] = for {
-      (r, a) <- self(input)
-      (rr, b) <- fn(a)(r)
-    } yield (rr, b)
+    def apply(input: Input): Future[Output[B]] =
+      self(input).flatMap {
+        case Output.Accepted(r, a) => fn(a)(r)
+        case Output.Dropped => Output.dropped[B].toFuture
+      }
+
     override def toString = self.toString
   }
 
   /**
-   * Sequentially composes this router with the given `that` router. The resulting router will succeed only if both this
-   * and `that` routers are succeed.
+   * Composes this router with the given `that` router. The resulting router will succeed only if both this and `that`
+   * routers are succeed.
    */
-  def andThen[B](that: Router[B])(implicit adjoin: PairAdjoin[A, B]): Router[adjoin.Out] =
+  def /[B](that: Router[B])(implicit adjoin: PairAdjoin[A, B]): Router[adjoin.Out] =
     new Router[adjoin.Out] {
       val ab = for { a <- self; b <- that } yield adjoin(a, b)
-      def apply(route: RouterInput): Option[(RouterInput, adjoin.Out)] = ab(route)
+      def apply(input: Input): Future[Output[adjoin.Out]] = ab(input)
+
       override def toString = s"${self.toString}/${that.toString}"
+    }
+
+  /**
+   * Composes this router with the given [[RequestReader]].
+   */
+  def ?[B](that: RequestReader[B])(implicit adjoin: PairAdjoin[A, B]): Router[adjoin.Out] =
+    new Router[adjoin.Out] {
+      def apply(input: Input): Future[Output[adjoin.Out]] =
+        self(input).flatMap {
+          case Output.Accepted(r, a) => that(input.request).map(b => Output.accepted[adjoin.Out](r, adjoin(a, b)))
+          case Output.Dropped => Output.dropped[adjoin.Out].toFuture
+        }
+
+      override def toString = s"${self.toString}?${that.toString}"
     }
 
   /**
    * Sequentially composes this router with the given `that` router. The resulting router will succeed if either this or
    * `that` routers are succeed.
-   *
-   * Router composition via `orElse` operator happens in a _greedy_ manner: it minimizes the output route tail. Thus, if
-   * both of the routers can handle the given `route` the router is being chosen is that which eats more.
    */
-  def orElse[B >: A](that: Router[B]): Router[B] = new Router[B] {
-    def apply(input: RouterInput): Option[(RouterInput, B)] = (self(input), that(input)) match {
-      case (aa @ Some((a, _)), bb @ Some((b, _))) =>
-        if (a.path.length <= b.path.length) aa else bb
-      case (a, b) => a orElse b
-    }
+  def |[B >: A](that: Router[B]): Router[B] = new Router[B] {
+    def apply(input: Input): Future[Output[B]] =
+      self(input).flatMap {
+        case Output.Dropped => that(input)
+        case accepted => accepted.toFuture
+      }
 
     override def toString = s"(${self.toString}|${that.toString})"
   }
-
-  /**
-   * Sequentially composes this router with the given `that` router. The resulting router will succeed only if both this
-   * and `that` routers are succeed.
-   */
-  def /[B](that: Router[B])(implicit adjoin: PairAdjoin[A, B]): Router[adjoin.Out] =
-    this andThen that
-
-  /**
-   * Sequentially composes this router with the given `that` router. The resulting router will succeed only if both this
-   * and `that` routers are succeed.
-   */
-  def |[B >: A](that: Router[B]): Router[B] =
-    this orElse that
 
   // A workaround for https://issues.scala-lang.org/browse/SI-1336
   def withFilter(p: A => Boolean): Router[A] = self
@@ -131,9 +136,8 @@ trait Router[A] { self =>
    * Compose this router with another in such a way that coproducts are flattened.
    */
   def :+:[B](that: Router[B])(implicit adjoin: Adjoin[B :+: A :+: CNil]): Router[adjoin.Out] =
-    that.map(b => adjoin(Inl[B, A :+: CNil](b))).orElse(
-      map(a => adjoin(Inr[B, A :+: CNil](Inl[A, CNil](a))))
-    )
+    that.map(b => adjoin(Inl[B, A :+: CNil](b))) |
+    self.map(a => adjoin(Inr[B, A :+: CNil](Inl[A, CNil](a))))
 
   /**
    * Converts this router to a Finagle service from a request-like type `R` to a [[Response]].
@@ -146,6 +150,73 @@ trait Router[A] { self =>
  * syntax.
  */
 object Router {
+
+  /**
+   * An input for [[Router]].
+   */
+  final case class Input(request: Request, path: Seq[String]) {
+    def headOption: Option[String] = path.headOption
+    def drop(n: Int): Input = copy(path = path.drop(n))
+    def isEmpty: Boolean = path.isEmpty
+  }
+
+  /**
+   * Creates an input for [[Router]] from [[Request]].
+   */
+  def Input(req: Request): Input = Input(req, req.path.split("/").toList.drop(1))
+
+  /**
+   * An output from [[Router]] that carries some value of type [[A]].
+   */
+  sealed trait Output[+A] {
+    def map[B](fn: A => B): Output[B]
+    def orElse[B >: A](that: Output[B]): Output[B]
+  }
+
+  object Output {
+
+    /**
+     * Creates the [[Router]]s [[Output]] identifying that request was accepted.
+     */
+    def accepted[A](r: Input, v: A): Output[A] = Accepted(r, v)
+
+    /**
+     * Creates the [[Router]]s [[Output]] identifying that request was dropped.
+     */
+    def dropped[A]: Output[A] = Dropped
+
+    /**
+     * Creates [[Output]] from [[Option]].
+     */
+    def fromOption[A](r: Input, o: Option[A]): Output[A] = o match {
+      case Some(a) => accepted[A](r, a)
+      case None => dropped[A]
+    }
+
+    /**
+     * An [[Output]] identifying that request was accepted.
+     */
+    final case class Accepted[+A](remainder: Input, value: A) extends Output[A] {
+      def map[B](fn: A => B): Output[B] = Accepted(remainder, fn(value))
+      def orElse[B >: A](that: Output[B]): Output[B] = this
+    }
+
+    /**
+     * An [[Output]] identifying that request was dropped.
+     */
+    case object Dropped extends Output[Nothing] {
+      def map[B](fn: Nothing => B): Output[B] = this
+      def orElse[B >: Nothing](that: Output[B]): Output[B] = that
+    }
+  }
+
+  /**
+   * Creates a [[Router]] from the given function `Input => Output[A]`.
+   */
+  def apply[A](fn: Input => Output[A]): Router[A] = new Router[A] {
+    def apply(input: Input): Future[Output[A]] = fn(input).toFuture
+  }
+
   /**
    * An implicit conversion that turns any endpoint with an output type that can be converted into a response into a
    * service that returns responses.
@@ -163,51 +234,65 @@ object Router {
    * Implicitly converts the given `Router[Service[_, _]]` into a service.
    */
   implicit def endpointToService[Req, Rep](
-    r: Router[Service[Req, Rep]]
+    router: Router[Service[Req, Rep]]
   )(implicit ev: Req => Request): Service[Req, Rep] = new Service[Req, Rep] {
-    def apply(req: Req): Future[Rep] = r(RouterInput(req)) match {
-      case Some((input, service)) if input.path.isEmpty => service(req)
+    def apply(req: Req): Future[Rep] = router(Input(req)).flatMap {
+      case Output.Accepted(r, s) if r.isEmpty => s(req)
       case _ => RouteNotFound(s"${req.method.toString.toUpperCase} ${req.path}").toFutureException[Rep]
     }
   }
 
   /**
-   * Add `/>` compositor to `Router` to compose it with function of one argument.
+   * Add `/>` and `/>>` compositors to `Router` to compose it with function of one argument.
    */
   implicit class RArrow1[A](r: Router[A]) {
     def />[B](fn: A => B): Router[B] = r.map(fn)
+    def />>[B](fn: A => Future[B]): Router[B] = r.embedFlatMap(fn)
   }
 
   /**
-   * Add `/>` compositor to `Router` to compose it with values.
+   * Add `/>` and `/>>` compositors to `Router` to compose it with values.
    */
   implicit class RArrow0(r: Router0) {
     def />[B](v: => B): Router[B] = r.map(_ => v)
+    def />>[B](v: => Future[B]): Router[B] = r.embedFlatMap(_ => v)
   }
 
   /**
-   * Add `/>` compositor to `Router` to compose it with function of two arguments.
+   * Add `/>` and `/>>` compositors to `Router` to compose it with function of two arguments.
    */
   implicit class RArrow2[A, B](r: Router2[A, B]) {
     def />[C](fn: (A, B) => C): Router[C] = r.map {
       case a :: b :: HNil => fn(a, b)
     }
+
+    def />>[C](fn: (A, B) => Future[C]): Router[C] = r.embedFlatMap {
+      case a :: b :: HNil => fn(a, b)
+    }
   }
 
   /**
-   * Add `/>` compositor to `Router` to compose it with function of three arguments.
+   * Add `/>` and `/>>` compositors to `Router` to compose it with function of three arguments.
    */
   implicit class RArrow3[A, B, C](r: Router3[A, B, C]) {
     def />[D](fn: (A, B, C) => D): Router[D] = r.map {
       case a :: b :: c :: HNil => fn(a, b, c)
     }
+
+    def />>[D](fn: (A, B, C) => Future[D]): Router[D] = r.embedFlatMap {
+      case a :: b :: c :: HNil => fn(a, b, c)
+    }
   }
 
   /**
-   * Add `/>` compositor to `Router` to compose it with function of N arguments.
+   * Add `/>` and `/>>` compositors to `Router` to compose it with function of N arguments.
    */
   implicit class RArrowN[L <: HList](r: Router[L]) {
     def />[F, I](fn: F)(implicit ftp: FnToProduct.Aux[F, L => I]): Router[I] =
       r.map(ftp(fn))
+
+    def />>[F, I, FI](fn: F)(
+      implicit ftp: FnToProduct.Aux[F, L => FI], ev: FI <:< Future[I]
+    ): Router[I] = r.embedFlatMap(value => ev(ftp(fn)(value)))
   }
 }

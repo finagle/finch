@@ -22,30 +22,37 @@
 
 package io.finch.route
 
+import com.twitter.util.Future
 import shapeless.HNil
 
 /**
  * An universal [[Router]] that matches the given string.
  */
-case class Matcher(s: String) extends Router[HNil] {
-  def apply(input: RouterInput): Option[(RouterInput, HNil)] = for {
-    ss <- input.headOption if ss == s
-  } yield (input.drop(1), HNil)
-  override def toString = s
+private[route] class Matcher(s: String) extends Router[HNil] {
+  import Router._
+  def apply(input: Input): Future[Output[HNil]] = Future.value(
+    Output.fromOption(input.drop(1), input.headOption.collect({ case `s` => HNil }))
+  )
+
+  override def toString: String = s
 }
 
 /**
  * A [[Router]] that skips all path parts.
  */
 object * extends Router[HNil] {
-  def apply(input: RouterInput): Option[(RouterInput, HNil)] = Some((input.copy(path = Nil), HNil))
-  override def toString = "*"
+  import Router._
+  def apply(input: Input): Future[Output[HNil]] = Future.value(Output.accepted(input.copy(path = Nil), HNil))
+
+  override def toString: String = "*"
 }
 
 /**
  * An identity [[Router]].
  */
 object / extends Router[HNil] {
-  def apply(input: RouterInput): Option[(RouterInput, HNil)] = Some((input, HNil))
-  override def toString = ""
+  import Router._
+  def apply(input: Input): Future[Output[HNil]] = Future.value(Output.accepted(input, HNil))
+
+  override def toString: String = ""
 }
