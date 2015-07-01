@@ -22,22 +22,17 @@
 
 package io.finch.route
 
-import io.finch.route.tokens.PathToken
-
-/**
- * A [[io.finch.route.Router Router]] that extracts a path token.
- */
-object PathTokenExtractor extends Router[String] {
-  override def apply(route: Route): Option[(Route, String)] = for {
-    PathToken(ss) <- route.headOption
-  } yield (route.tail, ss)
-}
+import com.twitter.util.Try
 
 /**
  * An universal extractor that extracts some value of type `A` if it's possible to fetch the value from the string.
  */
-case class Extractor[A](name: String, f: String => Option[A]) extends Router[A] {
-  def apply(route: Route): Option[(Route, A)] = PathTokenExtractor.embedFlatMap(f)(route)
+case class Extractor[A](name: String, f: String => A) extends Router[A] {
+  def apply(input: RouterInput): Option[(RouterInput, A)] = for {
+    ss <- input.headOption
+    a <- Try(f(ss)).toOption
+  } yield (input.drop(1), a)
+
   def apply(n: String): Extractor[A] = copy[A](name = n)
   override def toString = s":$name"
 }
@@ -45,19 +40,19 @@ case class Extractor[A](name: String, f: String => Option[A]) extends Router[A] 
 /**
  * A [[io.finch.route.Router Router]] that extract an integer from the route.
  */
-object int extends Extractor("int", stringToSomeValue(_.toInt))
+object int extends Extractor("int", _.toInt)
 
 /**
  * A [[io.finch.route.Router Router]] that extract a long value from the route.
  */
-object long extends Extractor("long", stringToSomeValue(_.toLong))
+object long extends Extractor("long", _.toLong)
 
 /**
  * A [[io.finch.route.Router Router]] that extract a string value from the route.
  */
-object string extends Extractor("string", Some(_))
+object string extends Extractor("string", identity)
 
 /**
  * A [[io.finch.route.Router Router]] that extract a boolean value from the route.
  */
-object boolean extends Extractor("boolean", stringToSomeValue(_.toBoolean))
+object boolean extends Extractor("boolean", _.toBoolean)

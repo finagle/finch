@@ -27,8 +27,8 @@ import io.finch.demo.service._
 import io.finch.route._
 
 object endpoint {
-  val getUser: Endpoint[AuthRequest, User] = Get  / "users" / long /> GetUser
-  val postUser: Endpoint[AuthRequest, User] = Post / "users" /> PostUser
-  val getUsers: Endpoint[AuthRequest, List[User]] = Get  / "users" /> GetAllUsers
-  val postTicket: Endpoint[AuthRequest, Ticket] = Post / "users" / long / "tickets" /> PostUserTicket
+  val getUser: Endpoint[AuthRequest, User] = get("users" / long) /> GetUser
+  val postUser: Endpoint[AuthRequest, User] = post("users") /> PostUser
+  val getUsers: Endpoint[AuthRequest, List[User]] = get("users") /> GetAllUsers
+  val postTicket: Endpoint[AuthRequest, Ticket] = post("users" / long / "tickets") /> PostUserTicket
 }
