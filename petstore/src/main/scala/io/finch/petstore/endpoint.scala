@@ -5,25 +5,22 @@ import io.finch.request._
 import io.finch.route.{Put, Router, long}
 
 object endpoint{
+  /*
+  Writing the getPet endpoint
+  -
+   */
 
-  def failIfEmpty(o: Option[Pet]): Future[Pet] = o match {
-    case Some(pet) => Future.value(pet)
-    case None => Future.exception(MissingPet("No pet!"))
-  }
 
   val updatePet: Router[RequestReader[Pet]] = Put / "pet" / long /> { id : Long =>
     (reader.nameReader :: reader.statusReader).asTuple.embedFlatMap {
       case (n, s) => println(s"$n, $s, $id")
         for {
-          maybePet <- PetstoreApp.db.getPet(id)
-          pet <- failIfEmpty(maybePet)
+          pet <- PetstoreApp.db.getPet(id)
           _ <- PetstoreApp.db.updatePet(pet.copy(name = n, status = Some(s)))
-          maybeNewPet <- PetstoreApp.db.getPet(id)
-          newPet <- failIfEmpty(maybeNewPet)
+          newPet <- PetstoreApp.db.getPet(id)
         } yield newPet
     }
   }
-
 
 //  val getPetEndpt: Endpoint[HttpRequest, Pet] = Get / "pet" / long /> getPet
 //  val addPetEndpt: Endpoint[HttpRequest, Pet] = Post / "pet" /> addPet

@@ -11,8 +11,27 @@ case class Pet(
     tags: Option[Seq[Tag]],
     status: Option[Status] //available, pending, adopted
     )
+//{
+//  println("pet created!")
+//  println("name = " + name)
+//}
 
 object Pet {
+//  implicit val petEncode: EncodeJson[Pet] =
+//    jencode6L { (p: Pet) =>
+//        if (p.name == None) throw NoName("NoName: Every pet needs a name!") else{
+//          (p.id, p.name, p.photoUrls, p.category, p.tags, p.status)
+//        }
+//    }("id", "name", "photoUrls", "category", "tags", "status")
+//
+//  implicit val petDecode = Pet.unapply
+//
+//  implicit val petCodec: CodecJson[Pet] =
+//    CodecJson.derived(petEncode, petDecode)
+//
+//
+
+  //THIS WORKS:
   implicit val petCodec: CodecJson[Pet] = //instance of a type class
     casecodec6(Pet.apply, Pet.unapply)("id", "category", "name", "photoUrls", "tags", "status")
 }

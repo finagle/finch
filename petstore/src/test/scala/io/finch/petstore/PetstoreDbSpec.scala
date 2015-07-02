@@ -4,7 +4,7 @@ import com.twitter.util.Await
 import io.finch._
 import org.scalatest.prop.Checkers
 import org.scalatest.{FlatSpec, Matchers}
-import io.finch.petstore.endpoint.failIfEmpty
+//import io.finch.petstore.endpoint.failIfEmpty
 
 /*
 Tests for the PetstoreDb class methods
@@ -25,7 +25,7 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
   //GET: getPet
 
   "The Petstore DB" should "allow pet lookup by id" in new DbContext {
-    assert(Await.result(db.getPet(0)) === Some(rover))
+    assert(Await.result(db.getPet(0)) === rover)
   }
 
   //POST: add pet
@@ -34,14 +34,15 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
       val result = for {
         petId <- db.addPet(pet)
         newPet <- db.getPet(petId)
-      } yield newPet === Some(pet.copy(id = Some(petId)))
+      } yield newPet === pet.copy(id = Some(petId))
 
       Await.result(result)
     }
   }
 
   it should "fail appropriately for pet ids that don't exist" in new DbContext {
-    assert(Await.result(db.getPet(1001)) === None)
+//    assert(Await.result(db.getPet(1001)) === None)
+    Await.result(db.getPet(1001).liftToTry).isThrow shouldBe true//CHECK THIS
   }
 
   //PUT: Update pet
@@ -51,9 +52,7 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
       db.updatePet(betterPet)
       val result = for{
         optPet <- db.getPet(0)
-
-        petPet <- failIfEmpty(optPet)
-      } yield petPet === betterPet
+      } yield optPet === betterPet
 
       Await.result(result)
     }
@@ -63,7 +62,7 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
     check{(pet: Pet) =>
       val noPet = pet.copy(id = Some(10))
       val f = db.updatePet(noPet)
-      Await.result(f.liftToTry).isReturn
+      Await.result(f.liftToTry).isThrow//CHECK THIS
     }
   }
 
