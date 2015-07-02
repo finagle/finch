@@ -1,8 +1,9 @@
 package io.finch.petstore
 
-import com.twitter.util.Future
+import com.twitter.util.{Await, Future}
 
 import scala.collection.mutable
+//import scala.concurrent.Await
 
 class PetstoreDb {
   private[this] val pets = mutable.Map.empty[Long, Pet]
@@ -10,8 +11,16 @@ class PetstoreDb {
   private[this] val cat = mutable.Map.empty[Long, Category]
   //how efficient is this? compared to hashtable/map? I would think fetching from a hash*** would be faster
 
-  def getPet(id: Long): Future[Option[Pet]] = Future.value(
-    pets.synchronized(pets.get(id))
+  def failIfEmpty(o: Option[Pet]): Future[Pet] = o match {
+    case Some(pet) => Future.value(pet)
+    case None => Future.exception(MissingPet("No pet!"))
+  } //move this inside getPet
+
+
+  def getPet(id: Long): Future[Pet] = Future(
+    pets.synchronized {
+      pets.getOrElse(id, throw MissingPet("Your pet doesn't exist! :("))
+    }
   )
 
   //POST: Add pet
@@ -24,14 +33,18 @@ class PetstoreDb {
   )
 
   //PUT: Update existing pet given a pet object
-  def updatePet(inputPet: Pet): Future[Unit] = inputPet.id match {
-    case Some(id) => Future.value(
-      if(pets.contains(id)) pets.synchronized(pets(id) = inputPet) else {
+  //@return: updated pet
+
+  def updatePet(inputPet: Pet): Future[Pet] = inputPet.id match {
+    case Some(id) =>
+      if(pets.contains(id)) pets.synchronized{
+        pets(id) = inputPet
+        Future.value(inputPet)
+      } else {
         Future.exception(MissingPet("Invalid id: doesn't exist"))
       }
-    )
     case None => Future.exception(MissingIdentifier(s"Missing id for pet: $inputPet"))
-//    case None => Future.exception(MissingIdentifier(s"Missing id for pet: $inputPet"))
+    //    case None => Future.exception(MissingIdentifier(s"Missing id for pet: $inputPet"))
   }
 
   def allPets: Future[List[Pet]] = Future.value(

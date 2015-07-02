@@ -24,7 +24,7 @@ package object petstore {
   implicit val petArbitrary: Arbitrary[Pet] = Arbitrary(
     for {
       id <- arbitrary[Option[Long]]
-      name <- arbitrary[String]
+      name <- arbitrary[String] suchThat (s=> s != null && s.nonEmpty)
       photoUrls <- arbitrary[Seq[String]]
       category <- arbitrary[Category]
       tags <- arbitrary[Seq[Tag]]

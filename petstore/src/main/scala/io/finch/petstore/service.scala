@@ -8,6 +8,7 @@ import io.finch.petstore.endpoint._
 
 object PetstoreApp extends App {
 
+//  println("WELCOME TO PETSTOREAPP!")
   val db = new PetstoreDb()
   db.addPet(Pet(None, "Sadaharu", Nil, Option(Category(1, "inugami")), Option(Nil), Option(Available)))
   db.addPet(Pet(None, "Despereaux", Nil, Option(Category(1, "mouse")), Option(Nil), Option(Available)))
