@@ -1,10 +1,9 @@
 package io.finch.petstore
 
-import com.twitter.util.Await
-import io.finch._
+import com.twitter.util.{Future, Await}
+import org.scalatest._
 import org.scalatest.prop.Checkers
 import org.scalatest.{FlatSpec, Matchers}
-//import io.finch.petstore.endpoint.failIfEmpty
 
 /*
 Tests for the PetstoreDb class methods
@@ -14,12 +13,24 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
   val rover = Pet(Some(0), "Rover", Nil, Option(Category(1, "dog")), Option(Nil), Option(Available))
   val jack = Pet(Some(1), "Jack", Nil, Option(Category(1, "dog")), Option(Nil), Option(Available))
   val sue = Pet(None, "Sue", Nil, Option(Category(1, "dog")), Option(Nil), Option(Adopted))
+  val sadaharu = Pet(None, "Sadaharu", Nil, Option(Category(1, "inugami")), Option(Nil), Option(Available))
+  val despereaux = Pet(None, "Despereaux", Nil, Option(Category(1, "mouse")), Option(Nil), Option(Available))
+  val alexander = Pet(None, "Alexander", Nil, Option(Category(1, "mouse")), Option(Nil), Option(Pending))
+  val wilbur = Pet(None, "Wilbur", Nil, Option(Category(1, "pig")), Option(Nil), Option(Adopted))
+  val cheshire = Pet(None, "Cheshire Cat", Nil, Option(Category(1, "cat")), Option(Nil), Option(Available))
+  val crookshanks = Pet(None, "Crookshanks", Nil, Option(Category(1, "cat")), Option(Nil), Option(Available))
 
   trait DbContext {
     val db = new PetstoreDb()
     Await.ready(db.addPet(rover.copy(id = None)))
     Await.ready(db.addPet(jack.copy(id = None)))
     Await.ready(db.addPet(sue.copy(id = None)))
+    db.addPet(sadaharu)
+    db.addPet(despereaux)
+    db.addPet(alexander)
+    db.addPet(wilbur)
+    db.addPet(cheshire)
+    db.addPet(crookshanks)
   }
 
   //GET: getPet
@@ -67,5 +78,12 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
   }
 
   //GET: find pets by status
+//  it should "allow the lookup of pets by status" in new DbContext{
+//    val avail = List(rover, jack, sadaharu, despereaux, cheshire, crookshanks)
+//    val pend = List(alexander)
+//    val adopt = List(sue, wilbur)
+//    assert(Await.result(db.getPetsByStatus(Available) === avail))
+//    assert(Await.result(db.getPetsByStatus(Pending) === pend))
+//  }
 
 }

@@ -33,7 +33,7 @@ object Pet {
 
   //THIS WORKS:
   implicit val petCodec: CodecJson[Pet] = //instance of a type class
-    casecodec6(Pet.apply, Pet.unapply)("id", "category", "name", "photoUrls", "tags", "status")
+    casecodec6(Pet.apply, Pet.unapply)("id", "name", "photoUrls", "category", "tags", "status")
 }
 
 /*

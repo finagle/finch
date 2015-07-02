@@ -27,8 +27,10 @@ class PetstoreDb {
   def addPet(inputPet: Pet): Future[Long] = Future.value(
     pets.synchronized {
       val genId = if (pets.isEmpty) 0 else pets.keys.max + 1
-      val inputId = inputPet.id
-      val id: Long = inputId.getOrElse(genId)
+      val inputId: Option[Long] = inputPet.id
+      val id: Long = if (inputId != None) {
+        if (pets.exists(_._1 == inputId)) genId else inputId.getOrElse(genId) //repetition guard
+      } else{genId}
       pets(id) = inputPet.copy(id = Some(id))
       id
     }
@@ -58,7 +60,7 @@ class PetstoreDb {
     val allMatchesFut = for{
       petList <- allPets //List[Pet]
       allBool = petList.map(_.status)
-    } yield petList.filter(_.status.map(_.code.equals(s.code)).getOrElse(false)) //This better be legal...
+    } yield petList.filter(_.status.map(_.code.equals(s.code)).getOrElse(false))
    allMatchesFut
   }
 
