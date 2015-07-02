@@ -26,7 +26,9 @@ class PetstoreDb {
   //POST: Add pet
   def addPet(inputPet: Pet): Future[Long] = Future.value(
     pets.synchronized {
-      val id = if (pets.isEmpty) 0 else pets.keys.max + 1
+      val genId = if (pets.isEmpty) 0 else pets.keys.max + 1
+      val inputId = inputPet.id
+      val id: Long = inputId.getOrElse(genId)
       pets(id) = inputPet.copy(id = Some(id))
       id
     }
