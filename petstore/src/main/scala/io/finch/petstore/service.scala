@@ -8,7 +8,6 @@ import io.finch.petstore.endpoint._
 
 object PetstoreApp extends App {
 
-//  println("WELCOME TO PETSTOREAPP!")
   val db = new PetstoreDb()
   db.addPet(Pet(None, "Sadaharu", Nil, Option(Category(1, "inugami")), Option(Nil), Option(Available)))
   db.addPet(Pet(None, "Despereaux", Nil, Option(Category(1, "mouse")), Option(Nil), Option(Available)))
@@ -17,17 +16,16 @@ object PetstoreApp extends App {
   db.addPet(Pet(None, "Cheshire Cat", Nil, Option(Category(1, "cat")), Option(Nil), Option(Available)))
   db.addPet(Pet(None, "Crookshanks", Nil, Option(Category(1, "cat")), Option(Nil), Option(Available)))
 
-//  val nameReader: RequestReader[String] = param("name")
-//  val statusReader: RequestReader[Status] = param("status").map(Status.fromString)
-
-
 //  val store = Get / "store" / "inventory" /> (
 //      db.statusCodes.map {
 //        _.map { case (k, v) => (k.code, v) }
 //      }
 //      )
 
-  val server = Httpx.serve(":8080", (updatePet).toService)
+//  val server = Httpx.serve(":8080", (updatePet).toService)
+  val server = Httpx.serve(":8080", (updatePetEndpt :+: getPetEndpt).toService)
+
+  Await.ready(server)
 
   def close() = {
     Await.ready(server.close())

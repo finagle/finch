@@ -2,16 +2,19 @@ package io.finch.petstore
 
 import com.twitter.util.Future
 import io.finch.request._
-import io.finch.route.{Put, Router, long}
+import io.finch.route._
 
 object endpoint{
-  /*
-  Writing the getPet endpoint
-  -
-   */
 
+  val getPetEndpt: Router[Future[Pet]] = Get / "pet" / long /> { id: Long =>
+    PetstoreApp.db.getPet(id)
+  }
 
-  val updatePet: Router[RequestReader[Pet]] = Put / "pet" / long /> { id : Long =>
+//  val addPetEndpt: Router[RequestReader[Pet]] = Post / "pet" /> {
+//    PetstoreApp.db.addPet(reader.petReader)
+//  }
+
+  val updatePetEndpt: Router[RequestReader[Pet]] = Put / "pet" / long /> { id : Long =>
     (reader.nameReader :: reader.statusReader).asTuple.embedFlatMap {
       case (n, s) => println(s"$n, $s, $id")
         for {
