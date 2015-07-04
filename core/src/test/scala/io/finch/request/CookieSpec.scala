@@ -25,7 +25,6 @@ package io.finch.request
 
 import com.twitter.finagle.httpx.{Request, Cookie}
 import com.twitter.util.{Await, Future}
-import io.finch.HttpRequest
 import org.scalatest.{Matchers, FlatSpec}
 
 class CookieSpec extends FlatSpec with Matchers {
@@ -34,7 +33,7 @@ class CookieSpec extends FlatSpec with Matchers {
   val c = new Cookie(name, "some-random-value")
 
   "A ResponseBuilder" should "read a required cookie" in {
-    val request: HttpRequest = Request()
+    val request: Request = Request()
     request.addCookie(c)
     val futureResult: Future[Cookie] = cookie(name)(request)
 
@@ -42,7 +41,7 @@ class CookieSpec extends FlatSpec with Matchers {
   }
 
   it should "throw an exception if the require cookie does not exist" in {
-    val request: HttpRequest = Request()
+    val request: Request = Request()
     request.addCookie(c)
     val futureResult: Future[Cookie] = cookie("another-cookie")(request)
 
@@ -50,7 +49,7 @@ class CookieSpec extends FlatSpec with Matchers {
   }
 
   it should "read an optional cookie if it exists" in {
-    val request: HttpRequest = Request()
+    val request: Request = Request()
     request.addCookie(c)
     val futureResult: Future[Option[Cookie]] = cookieOption(name)(request)
 
@@ -58,7 +57,7 @@ class CookieSpec extends FlatSpec with Matchers {
   }
 
   it should "read None if the cookie name does not exist" in {
-    val request: HttpRequest = Request()
+    val request: Request = Request()
     val futureResult: Future[Option[Cookie]] = cookieOption(name)(request)
 
     Await.result(futureResult) shouldBe None

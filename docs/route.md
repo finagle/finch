@@ -124,17 +124,17 @@ This gives us the ability to compose several endpoints together with the `|` or 
 group endpoints by the resource that they work with.
    
 ```scala
-val users: Endpoint[HttpRequest, HttpResponse] =
+val users: Endpoint[Request, Response] =
   (Get / "users" / long /> GetUser) |
   (Post / "users" /> PostUser) |
   (Get / "users" /> GetAllUsers)
 ```
 
-Endpoints are implicitly convertible to Finagle `Service`s if there is an implicit view `Req => HttpRequest` available
+Endpoints are implicitly convertible to Finagle `Service`s if there is an implicit view `Req => Request` available
 in the scope. This means, that you can usually pass an endpoint into a `Httpx.serve` method call.
 
 ```scala
-val endpoint: Endpoint[HttpRequest, HttpResponse] = users | tickets
+val endpoint: Endpoint[Request, Response] = users | tickets
 Httpx.serve(":8081", endpoint)
 ```
 
@@ -142,7 +142,7 @@ Httpx.serve(":8081", endpoint)
 it's not possible. The following code shows how to handle a router exception.
   
 ```scala
-val endpoint: Service[HttpRequest, HttpResponse] = users
+val endpoint: Service[Request, Response] = users
 endpoint(request) handle {
   case RouteNotFound(route) => NotFound(route)
 }
@@ -166,23 +166,23 @@ val router: Router[Foo :+: Bar :+: CNil] =
 
 Coproduct routers are aimed to solve the problem of programming with types that actually matter rather than dealing with
 HTTP types directly. That said, any coproduct router may be converted into a Finagle HTTP service (i.e.,
-`Service[HttpRequest, HttpResponse]`) under the certain circumstances: every type in a coproduct should be one of the
+`Service[Request, Response]`) under the certain circumstances: every type in a coproduct should be one of the
 following.
 
-* An `HttpResponse`
+* An `Response`
 * A value of a type with an `EncodeResponse` instance
-* A `Future` of `HttpResponse`
+* A `Future` of `Response`
 * A `Future` of a value of a type with an `EncodeResponse` instance
 * A `RequestReader` that returns a value of a type with an `EncodeResponse` instance
-* A Finagle service that returns an `HttpResponse`
+* A Finagle service that returns an `Response`
 * A Finagle service that returns a value of a type with an `EncodeResponse` instance
 
 ```scala
-val foo: Router[HttpResponse] = Get / "foo" /> Ok("foo")
+val foo: Router[Response] = Get / "foo" /> Ok("foo")
 val bar: Router[Future[String]] = Get / "bar" / "bar".toFuture
 val baz: Router[RequestReader[String]] = Get / "baz" /> param("baz")
 
-val service: Service[HttpRequest, HttpResponse] =
+val service: Service[Request, Response] =
   (foo :+: bar :+: baz).toService
 ```
 
@@ -196,8 +196,8 @@ you can always convert `Router` to `Service` and then apply any set of filters. 
 a joint endpoint converted into service as shown below.
  
 ```scala
-val api: Service[HttpRequest, HttpResponse] = users | tickets
-val backend: Service[HttpRequest, HttpResponse] = handleExceptions andThen doOtherAwesomeThings andThen api
+val api: Service[Request, Response] = users | tickets
+val backend: Service[Request, Response] = handleExceptions andThen doOtherAwesomeThings andThen api
 ```
 
 **Important**: Please, note that route combinators along with `io.finch.route.Endpoint` type were introduced in 0.5.0

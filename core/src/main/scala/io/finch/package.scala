@@ -22,10 +22,6 @@
 
 package io
 
-import com.twitter.finagle.httpx.path.Path
-import io.finch.response.{Ok, EncodeResponse}
-
-import com.twitter.finagle.httpx
 import com.twitter.util.Future
 import com.twitter.finagle.Service
 import com.twitter.finagle.Filter
@@ -43,7 +39,7 @@ import com.twitter.finagle.Filter
  * two routers in terms of the inclusive or operator.
  *
  * {{{
- *   val router: Endpoint[HttpRequest, HttpResponse] =
+ *   val router: Endpoint[Request, Response] =
  *     Get / ("users" | "user") / int /> GetUser
  * }}}
  *
@@ -68,20 +64,10 @@ import com.twitter.finagle.Filter
  * type depending on a content. There are plenty of predefined builders that might be used directly.
  *
  * {{{
- *   val ok: HttpResponse = Ok("Hello, world!") // plain/text HTTP response with status code 200
+ *   val ok: Response = Ok("Hello, world!") // plain/text HTTP response with status code 200
  * }}}
  */
 package object finch {
-
-  /**
-   * An alias for [[com.twitter.finagle.httpx.Request httpx.Request]].
-   */
-  type HttpRequest = httpx.Request
-
-  /**
-   * An alias for [[com.twitter.finagle.httpx.Response httpx.Response]].
-   */
-  type HttpResponse = httpx.Response
 
   /**
    * Alters any object within a `toFuture` method.

@@ -44,11 +44,12 @@ import com.twitter.util.Future
  */
 package demo {
 
-  import model._
+import com.twitter.finagle.httpx.Request
+import model._
 
-  // A custom request type that wraps an `HttpRequest`.
+  // A custom request type that wraps an `Request`.
   // We prefer composition over inheritance.
-  case class AuthRequest(http: HttpRequest)
+  case class AuthRequest(http: Request)
 
   object AuthRequest {
     implicit val toRequest: ToRequest[AuthRequest] =

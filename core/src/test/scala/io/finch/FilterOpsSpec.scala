@@ -23,23 +23,20 @@
 
 package io.finch
 
-
 import com.twitter.finagle.{SimpleFilter, Service}
 import com.twitter.finagle.httpx.Request
 import com.twitter.util.{Await, Future}
-import io.finch.response.Ok
 import org.scalatest.{Matchers, FlatSpec}
-
 
 class FilterOpsSpec extends FlatSpec with Matchers {
 
-  private[finch] class PrefixFilter(val prefix: String) extends SimpleFilter[HttpRequest, String] {
-    def apply(req: HttpRequest, service: Service[HttpRequest, String]): Future[String] = {
+  private[finch] class PrefixFilter(val prefix: String) extends SimpleFilter[Request, String] {
+    def apply(req: Request, service: Service[Request, String]): Future[String] = {
       service(req) map { rep => prefix ++ rep }
     }
   }
 
-  val bar = Service.mk { (_: HttpRequest) => Future.value("bar") }
+  val bar = Service.mk { (_: Request) => Future.value("bar") }
   val req = Request("/")
 
   "FilterOps" should "allow for chaining a filter to a service" in {

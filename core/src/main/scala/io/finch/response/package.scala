@@ -33,7 +33,7 @@ package io.finch
  * instead of abstract `ResponseBuilder` itself.
  *
  * {{{
- *   val ok: HttpResponse = Ok("Hello, World!")
+ *   val ok: Response = Ok("Hello, World!")
  * }}}
  *
  * In addition to `text/plain` responses, the `ResponseBuilder` is able to build any response, whose `content-type` is
@@ -43,7 +43,7 @@ package io.finch
  *
  * {{{
  *   implicit val encodeBigInt = EncodeResponse[BigInt]("text/plain") { _.toString }
- *   val ok: HttpResponse = Ok(BigInt(100))
+ *   val ok: Response = Ok(BigInt(100))
  * }}}
  */
 package object response

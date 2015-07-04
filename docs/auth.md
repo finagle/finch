@@ -16,7 +16,7 @@ Finch.
 `finch.io.auth.BasicallyAuthorize` filter.
 
 ```scala
-object ProtectedEndpoint extends Endpoint[HttpRequest, HttpResponse] {
+object ProtectedEndpoint extends Endpoint[Request, Response] {
   def route = {
     case Method.Get -> Root / "users" => BasicallyAuthorize("user", "password") ! GetUsers
   }
