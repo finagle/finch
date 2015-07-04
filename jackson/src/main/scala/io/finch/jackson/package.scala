@@ -25,11 +25,11 @@ package io.finch
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.twitter.io.Buf
 import com.twitter.io.Buf.Utf8
-import io.finch.request.DecodeAnyRequest
-import io.finch.response.EncodeAnyResponse
 import com.twitter.util.Try
-
+import io.finch.request.DecodeAnyRequest
+import io.finch.response.{ EncodeAnyResponse, EncodeAnyJsonResponse }
 import scala.reflect.ClassTag
+import shapeless.Witness
 
 package object jackson {
 
@@ -41,9 +41,8 @@ package object jackson {
       }
     }
 
-  implicit def encodeJackson(implicit mapper: ObjectMapper): EncodeAnyResponse =
-    new EncodeAnyResponse {
+  implicit def encodeJackson(implicit mapper: ObjectMapper): EncodeAnyJsonResponse =
+    new EncodeAnyResponse.Aux[Witness.`"application/json"`.T] {
       def apply[A](rep: A): Buf = Utf8(mapper.writeValueAsString(rep))
-      def contentType: String = "application/json"
     }
 }

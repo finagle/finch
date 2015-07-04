@@ -249,7 +249,7 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     case class Item(s: String)
 
     implicit val encodeItem: EncodeResponse[Item] =
-      EncodeResponse.fromString("text/plain")(_.s)
+      EncodeResponse("text/plain").fromString(_.s)
 
     implicit val decodeItem: DecodeRequest[Item] =
       DecodeRequest(s => Return(Item(s)))

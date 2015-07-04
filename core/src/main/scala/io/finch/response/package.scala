@@ -24,6 +24,8 @@
 
 package io.finch
 
+import shapeless.Witness
+
 /**
  * This package enables a reasonable approach of building HTTP responses using the
  * [[io.finch.response.ResponseBuilder ResponseBuilder]] abstraction. The `ResponseBuilder` provides an immutable way
@@ -46,4 +48,10 @@ package io.finch
  *   val ok: HttpResponse = Ok(BigInt(100))
  * }}}
  */
-package object response
+package object response {
+  type EncodeTextResponse[-A] = EncodeResponse.Aux[A, Witness.`"text/plain"`.T]
+  type EncodeJsonResponse[-A] = EncodeResponse.Aux[A, Witness.`"application/json"`.T]
+  type EncodeBinaryResponse[-A] = EncodeResponse.Aux[A, Witness.`"application/octet-stream"`.T]
+
+  type EncodeAnyJsonResponse = EncodeAnyResponse.Aux[Witness.`"application/json"`.T]
+}

@@ -29,40 +29,61 @@ import com.twitter.io.Buf
 import com.twitter.io.Buf.Utf8
 import com.twitter.util.Future
 import io.finch._
+import shapeless.Witness
 
 /**
  * An abstraction that is responsible for encoding the response of type `A`.
  */
 trait EncodeResponse[-A] {
+  type C <: String
+
   def apply(rep: A): Buf
   def contentType: String
   def charset: Option[String] = Some("utf-8")
 }
 
 object EncodeResponse {
+  type Aux[A, C0] = EncodeResponse[A] { type C = C0 }
+
+  /**
+   * This is a convenience class that lets us work around the fact that Scala
+   * doesn't support partial application of type parameters.
+   */
+  class Builder[C0 <: String](implicit w: Witness.Aux[C0]) {
+    /**
+     * Convenience method for creating new [[io.finch.response.EncodeResponse EncodeResponse]] instances
+     * that treat `Buf` contents.
+     */
+    def fromBuf[A](cs: Option[String] = Some("utf-8"))(fn: A => Buf): Aux[A, C0] =
+      new EncodeResponse[A] {
+        type C = C0
+
+        override def apply(rep: A): Buf = fn(rep)
+        override def contentType: String = w.value
+        override def charset: Option[String] = cs
+      }
+
+    /**
+     * Convenience method for creating new [[io.finch.response.EncodeResponse EncodeResponse]] instances
+     * that treat String contents.
+     */
+    def fromString[A](fn: A => String): Aux[A, C0] =
+      fromBuf(Some("utf-8"))(fn andThen Utf8.apply)
+  }
+
   /**
    * Convenience method for creating new [[io.finch.response.EncodeResponse EncodeResponse]] instances.
    */
-  def apply[A](ct: String, cs: Option[String] = Some("utf-8"))(fn: A => Buf): EncodeResponse[A] =
-    new EncodeResponse[A] {
-      override def apply(rep: A): Buf = fn(rep)
-      override def contentType: String = ct
-      override def charset: Option[String] = cs
-    }
-
-  /**
-   * Convenience method for creating new [[io.finch.response.EncodeResponse EncodeResponse]] instances
-   * that treat String contents.
-   */
-  def fromString[A](ct: String, cs: Option[String] = Some("utf-8"))(fn: A => String): EncodeResponse[A] =
-    apply(ct, cs)(fn andThen Utf8.apply)
+  def apply[C <: String](implicit w: Witness.Aux[C]): Builder[C] = new Builder[C]
 
   /**
    * Converts [[io.finch.response.EncodeAnyResponse EncodeAnyResponse]] into
    * [[io.finch.response.EncodeResponse EncodeResponse]].
    */
-  implicit def anyToConcreteEncode[A](implicit e: EncodeAnyResponse): EncodeResponse[A] =
+  implicit def anyToConcreteEncode[A, C0 <: String](implicit e: EncodeAnyResponse.Aux[C0]): Aux[A, C0] =
     new EncodeResponse[A] {
+      type C = C0
+
       def apply(rep: A): Buf = e(rep)
       def contentType: String = e.contentType
     }
@@ -70,21 +91,32 @@ object EncodeResponse {
   /**
    * Allows to pass raw strings to a [[ResponseBuilder]].
    */
-  implicit val encodeString: EncodeResponse[String] = EncodeResponse.fromString[String]("text/plain")(identity)
+  implicit val encodeString: EncodeTextResponse[String] =
+    EncodeResponse("text/plain").fromString[String](identity)
 
   /**
    * Allows to pass `Buf` to a [[ResponseBuilder]].
    */
-  implicit val encodeBuf: EncodeResponse[Buf] =
-    EncodeResponse("application/octet-stream", None)(identity)
+  implicit val encodeBuf: EncodeBinaryResponse[Buf] =
+    EncodeResponse("application/octet-stream").fromBuf(None)(identity)
 }
 
 /**
  * An abstraction that is responsible for encoding the response of a generic type.
  */
 trait EncodeAnyResponse {
+  type C <: String
+
   def apply[A](rep: A): Buf
   def contentType: String
+}
+
+object EncodeAnyResponse {
+  abstract class Aux[C0 <: String](implicit w: Witness.Aux[C0]) extends EncodeAnyResponse {
+    type C = C0
+
+    val contentType: String = w.value
+  }
 }
 
 class TurnIntoHttp[A](val e: EncodeResponse[A]) extends Service[A, HttpResponse] {
