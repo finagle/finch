@@ -10,8 +10,8 @@ Tests for the PetstoreDb class methods
  */
 
 class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
-  val rover = Pet(Some(0), "Rover", Nil, Option(Category(1, "dog")), Option(Nil), Option(Available))
-  val jack = Pet(None, "Jack", Nil, Option(Category(1, "dog")), Option(Nil), Option(Available))
+  val rover = Pet(Some(0), "Rover", Nil, Option(Category(1, "dog")), Option(Seq(Tag(1, "puppy"), Tag(2, "white"))), Option(Available))
+  val jack = Pet(None, "Jack", Nil, Option(Category(1, "dog")), Option(Seq(Tag(1, "puppy"))), Option(Available))
   val sue = Pet(None, "Sue", Nil, Option(Category(1, "dog")), Option(Nil), Option(Adopted))
   val sadaharu = Pet(None, "Sadaharu", Nil, Option(Category(1, "inugami")), Option(Nil), Option(Available))
   val despereaux = Pet(None, "Despereaux", Nil, Option(Category(1, "mouse")), Option(Nil), Option(Pending))
@@ -109,6 +109,24 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
 
   it should "fail appropriately if user tries to delete a nonexistant pet" in new DbContext{
 
+  }
+
+  it should "find pets by tags" in new DbContext{
+    val puppies = Await.result(db.findPetsByTag(Seq("puppy")))
+
+    puppies shouldBe Seq(rover.copy(id = Some(0)), jack.copy(id = Some(1)))
+  }
+
+  it should "find pets by multiple tags" in new DbContext{
+    val puppies = Await.result(db.findPetsByTag(Seq("puppy", "white")))
+
+    puppies shouldBe Seq(rover.copy(id = Some(0)))
+  }
+
+  it should "return status counts" in new DbContext{
+    val statuses = Await.result(db.getInventory)
+
+    statuses shouldBe Map(Available -> 5, Pending -> 2, Adopted -> 2)
   }
 
 }

@@ -9,7 +9,7 @@ class PetstoreDb {
   private[this] val pets = mutable.Map.empty[Long, Pet]
   private[this] val tags = mutable.Map.empty[Long, Tag]
   private[this] val cat = mutable.Map.empty[Long, Category]
-  //how efficient is this? compared to hashtable/map? I would think fetching from a hash*** would be faster
+  //how efficient is this? compared to hashtabl e/map? I would think fetching from a hash*** would be faster
 
   def failIfEmpty(o: Option[Pet]): Future[Pet] = o match {
     case Some(pet) => Future.value(pet)
@@ -74,7 +74,7 @@ class PetstoreDb {
 
   //GET: find pets by tags
   //Muliple tags can be provided with comma seperated strings.
-  def findPetsByTag(findTags: Seq[String]): Future[List[Pet]] = {
+  def findPetsByTag(findTags: Seq[String]): Future[Seq[Pet]] = {
 
     //map, filter, flatMap is safer----fix this, stay away from mutable collections
     //filter, exists
@@ -94,10 +94,18 @@ class PetstoreDb {
 //    val realTags =
 
 
+    val matchPets = for {
+      p <- pets.values
+      tagList <- p.tags
+      pTagStr = tagList.map(_.name)
+      if(findTags.forall(pTagStr.contains))
+    } yield p
+    
+    Future(matchPets.toSeq.sortBy(_.id))
 
 
 
-    val realTags = mutable.ListBuffer.empty[Tag]
+    /*val realTags = mutable.ListBuffer.empty[Tag]
     val allMatches = mutable.ListBuffer.empty[Pet]
     for{
       t <- tags.values
@@ -109,7 +117,7 @@ class PetstoreDb {
       if (findTags.forall(p.tags.contains))
     } yield allMatches += p
 
-    Future(allMatches.toList)
+    Future(allMatches.toList)*/
   }
 
   //DELETE
@@ -119,6 +127,15 @@ class PetstoreDb {
         pets.remove(id)
         true
       } else false
+    }
+  )
+
+  def getInventory: Future[Map[Status, Int]] = Future.value(
+    pets.synchronized {
+      pets.groupBy(_._2.status).flatMap {
+        case (Some(status), keyVal) => Some(status -> keyVal.size)
+        case (None, _) => None
+      }
     }
   )
 
