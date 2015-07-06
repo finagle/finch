@@ -5,9 +5,8 @@ import com.twitter.util.Await
 import io.finch.argonaut._
 import io.finch.petstore.endpoint._
 
-
-object PetstoreApp extends App {
-
+class PetstoreApp {
+//  println("WELCOME TO PETSTOREAPP!")
   val db = new PetstoreDb()
   db.addPet(Pet(None, "Sadaharu", Nil, Option(Category(1, "inugami")), Option(Nil), Option(Available)))
   db.addPet(Pet(None, "Despereaux", Nil, Option(Category(1, "mouse")), Option(Nil), Option(Available)))
@@ -30,4 +29,8 @@ object PetstoreApp extends App {
   def close() = {
     Await.ready(server.close())
   }
+}
+
+object PetstoreApp extends PetstoreApp with App {
+  Await.ready(server)
 }
