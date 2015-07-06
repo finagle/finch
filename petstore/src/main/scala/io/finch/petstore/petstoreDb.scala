@@ -16,7 +16,7 @@ class PetstoreDb {
     case None => Future.exception(MissingPet("No pet!"))
   } //move this inside getPet
 
-
+  //GET: Find pet by ID
   def getPet(id: Long): Future[Pet] = Future(
     pets.synchronized {
       pets.getOrElse(id, throw MissingPet("Your pet doesn't exist! :("))
@@ -32,6 +32,14 @@ class PetstoreDb {
         if (pets.exists(_._1 == inputId)) genId else inputId.getOrElse(genId) //repetition guard
       } else{genId}
       pets(id) = inputPet.copy(id = Some(id))
+      //Add tags into tag map
+      /*
+      ======  ===    ||====     ===
+        ||  ||   ||  ||    || ||   ||
+        ||  ||   ||  ||    || ||   ||
+        ||    ===    ||====     ====
+       */
+      //End add tags
       id
     }
   )
@@ -66,31 +74,43 @@ class PetstoreDb {
 
   //GET: find pets by tags
   //Muliple tags can be provided with comma seperated strings.
-//  def findPetsByTag(req: HttpRequest): Future[List[Pet]] = {
-//
-//  }
+  def findPetsByTag(findTags: Seq[String]): Future[List[Pet]] = {
+
+    //map, filter, flatMap is safer----fix this, stay away from mutable collections
+    //filter, exists
+
+    //create true/false
+
+    //What do we know?
+    //findTags = Sequence of Strings
+    //All pets have a Sequence of Tags
+    //We need to find the pets that have findTags in their sequence of tags
+    //You cannot simply create a tag without giving it a valid id first => Cannot just turn all strings into tags and compare
+    //To do that, we could:
+    /*
+      - Turn findTags into a sequence of Tags --> use findTags.forall(p.tags.contains) as a filter method
+     */
+
+//    val realTags =
 
 
-//  case class FindPetsByTag() extends Service[HttpRequest, Seq[Pet]]{
-//    def apply(req: HttpRequest): Future[Seq[Pet]] = {
-//      val allMatches = Seq[Pet]()
-//      val actualTags = Seq[Tag]()
 
 
-//
-//      for{matchTags <- tagReader(req) //Seq[String]
-//        t <- matchTags //String
-//        allTags <- TagDb.all //Seq[Tag]
-//        singleTag <- allTags //Tag
-//        if(singleTag.name.equals(t))
-//      }yield actualTags :+ singleTag
-//      //actualTags should now be populated with the tags we want to match
-//      for{petList <- PetDb.all //List[Pet]
-//        p <- petList //Pet
-//        if (actualTags.forall(p.tags.contains)) //if actualTags is subset of p.tags
-//      }yield allMatches :+ p
-//    }
-//  }
+
+    val realTags = mutable.ListBuffer.empty[Tag]
+    val allMatches = mutable.ListBuffer.empty[Pet]
+    for{
+      t <- tags.values
+      if (findTags.contains(t.name))
+    } yield realTags += t
+
+    for{
+      p <- pets.values
+      if (findTags.forall(p.tags.contains))
+    } yield allMatches += p
+
+    Future(allMatches.toList)
+  }
 
   //DELETE
   def deletePet(id: Long): Future[Boolean] = Future.value(
@@ -102,11 +122,12 @@ class PetstoreDb {
     }
   )
 
-  //GET: Find pet by ID
-
   //POST: Update a pet in the store with form data
+//  def updatePet()
 
   //POST: Upload an image
+
+  //+++++++++++++++++++++++++++++STORE METHODS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++
 
   //Returns the current inventory
 //  def statusCodes: Future[Map[Status, Int]] = Future.value(
@@ -119,3 +140,5 @@ class PetstoreDb {
 }
 
 //object PetstoreDb{}
+
+//============================STORE METHODS END HERE================================================
