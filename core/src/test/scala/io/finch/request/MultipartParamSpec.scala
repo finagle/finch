@@ -25,7 +25,6 @@ package io.finch.request
 
 import com.twitter.finagle.httpx.{Request, RequestBuilder}
 import com.twitter.util.{Await, Future}
-import io.finch.HttpRequest
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -95,24 +94,24 @@ class MultipartParamSpec extends FlatSpec with Matchers {
   }
 
   "An OptionalMultipartParam" should "be properly parsed when it exists" in {
-    val request: HttpRequest = requestFromBinaryFile("/upload.bytes")
+    val request: Request = requestFromBinaryFile("/upload.bytes")
     val futureResult: Future[Option[String]] = paramOption("type")(request)
     Await.result(futureResult) shouldBe Some("text")
   }
 
   it should "produce an error if the param is empty" in {
-    val request: HttpRequest = requestFromBinaryFile("/upload.bytes")
+    val request: Request = requestFromBinaryFile("/upload.bytes")
     val futureResult: Future[Option[String]] = paramOption("foo")(request)
     Await.result(futureResult) shouldBe None
   }
 
   it should "produce an error if the param name is present but not a param" in {
-    val request: HttpRequest = requestFromBinaryFile("/upload.bytes")
+    val request: Request = requestFromBinaryFile("/upload.bytes")
     val futureResult: Future[Option[String]] = paramOption("groups")(request)
     Await.result(futureResult) shouldBe None
   }
 
-  private[this] def requestFromBinaryFile(resourceName: String): HttpRequest = {
+  private[this] def requestFromBinaryFile(resourceName: String): Request = {
     val s = getClass.getResourceAsStream(resourceName)
     val b = Stream.continually(s.read).takeWhile(_ != -1).map(_.toByte).toArray
     Request.decodeBytes(b)

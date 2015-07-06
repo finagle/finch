@@ -31,7 +31,7 @@ import io.finch.response.Ok
 import org.scalatest.{Matchers, FlatSpec}
 
 class ServiceOpsSpec extends FlatSpec with Matchers {
-  val foo = Service.mk { (_: HttpRequest) => Future.value("foo") }
+  val foo = Service.mk { (_: Request) => Future.value("foo") }
   val bar = Service.mk {
     (req: String) => {
       Future.value(Ok(req ++ "bar"))

@@ -25,14 +25,16 @@ import io.finch.response._
 import io.finch.route._
 ```
 
-In addition to the Finch API we will also need a couple of Finagle basic blocks, such as `Service` and `Httpx`.
+In addition to the Finch API we will also need a couple of Finagle basic blocks, such as `Service`, `Httpx`,
+`Request` and `Response`.
 
 ```scala
 import com.twitter.finagle.Service
-import com.twitter.finagle.httpx.Httpx
+import com.twitter.finagle.Httpx
+import com.twitter.finagle.httpx.{Request, Response}
 ```
 
-Using the [route combinators](route.md), we may define a _route_ for our `hello` service. In the code bellow `endpoint`
+Using the [route combinators](route.md), we may define a _route_ for our `hello` service. In the code below `endpoint`
 accepts GET request with path `/(hello|hi)/:name` and routes them to the underling service.
 
 ```scala
@@ -51,8 +53,8 @@ Finally, we define a service `hello` that actually greets users. The HTTP respon
 [response builder](response.md) `Ok` that takes a string and returns a `text/plain` HTTP response.  
 
 ```scala
-def hello(name: String) = new Service[HttpRequest, HttpResponse] {
-  def apply(req: HttpRequest) = for {
+def hello(name: String) = new Service[Request, Response] {
+  def apply(req: Request) = for {
     t <- title(req)
   } yield Ok(s"Hello, $t $name!")
 }

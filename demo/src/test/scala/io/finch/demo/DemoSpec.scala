@@ -2,10 +2,9 @@ package io.finch.demo
 
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.Method.{Get, Post}
-import com.twitter.finagle.httpx.{Method, Request}
+import com.twitter.finagle.httpx.{Method, Request, Response}
 import com.twitter.io.Buf
 import com.twitter.util.Await
-import io.finch._
 import org.scalatest._
 
 class DemoSpec extends FlatSpec with Matchers {
@@ -70,7 +69,7 @@ class DemoSpec extends FlatSpec with Matchers {
     await(req).status shouldBe io.finch.response.BadRequest().status
   }
 
-  def mkAwait(service: Service[HttpRequest, HttpResponse]): Request => HttpResponse =
+  def mkAwait(service: Service[Request, Response]): Request => Response =
     (req) => Await.result(service(req))
 
   def POST(path: String, body: String): Request = POST(path, Option(body))

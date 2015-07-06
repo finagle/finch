@@ -84,7 +84,6 @@ TAG THINGS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 case class Tag(id: Long, name: String)
 
 object Tag {
-
   implicit val tagCodec: CodecJson[Tag] =
     casecodec2(Tag.apply, Tag.unapply)("id", "name")
 }
@@ -108,4 +107,72 @@ object UploadResponse {
 }
 /*
 UPLOAD THINGS END HERE========================================================
+ */
+
+/*
+ORDERSTATUS THINGS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ */
+sealed trait OrderStatus {
+  def code: String
+}
+
+case object Placed extends OrderStatus {
+  def code: String = "placed"
+}
+
+case object Approved extends OrderStatus {
+  def code: String = "approved"
+}
+
+case object Delivered extends OrderStatus {
+  def code: String = "delivered"
+}
+
+object OrderStatus {
+  def fromString(s: String): OrderStatus = s match {
+    case "placed" => Placed
+    case "approved" => Approved
+    case "delivered" => Delivered
+  }
+
+  val orderStatusEncode: EncodeJson[OrderStatus] =
+    EncodeJson.jencode1[OrderStatus, String](_.code)
+
+  val orderStatusDecode: DecodeJson[OrderStatus] =
+    DecodeJson { c =>
+      c.as[String].flatMap[OrderStatus] {
+        case "placed" => DecodeResult.ok(Placed)
+        case "approved" => DecodeResult.ok(Approved)
+        case "delivered" => DecodeResult.ok(Delivered)
+        case other => DecodeResult.fail(s"Unknown status: $other", c.history)
+      }
+    }
+
+  implicit val orderStatusCodec: CodecJson[OrderStatus] =
+    CodecJson.derived(orderStatusEncode, orderStatusDecode)
+}
+
+/*
+ORDERSTATUS THINGS END HERE========================================================
+ */
+
+/*
+ORDER THINGS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ */
+
+case class Order(
+    id: Option[Long],
+    petId: Option[Long],
+    quantity: Option[Long],
+    shipDate: Option[String],
+    status: Option[OrderStatus], //placed, approved, delivered
+    complete: Option[Boolean]
+    )
+
+object Order {
+  implicit val orderCodec: CodecJson[Order] =
+    casecodec6(Order.apply, Order.unapply)("id", "petId", "quantity", "shipDate", "status", "complete")
+}
+/*
+ORDER THINGS END HERE========================================================
  */

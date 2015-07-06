@@ -24,7 +24,6 @@
 
 package io.finch.response
 
-import io.finch._
 import com.twitter.finagle.httpx.{Cookie, Response, Status}
 
 /**
@@ -76,7 +75,7 @@ case class ResponseBuilder(
    *
    * @param body the response body
    */
-  def apply[A](body: A)(implicit encode: EncodeResponse[A]): HttpResponse = {
+  def apply[A](body: A)(implicit encode: EncodeResponse[A]): Response = {
     val rep = Response(status)
     rep.contentType = contentType.getOrElse(encode.contentType)
     charset.orElse(encode.charset).foreach { c => rep.charset = c }
@@ -90,7 +89,7 @@ case class ResponseBuilder(
   /**
    * Builds an empty HTTP response.
    */
-  def apply(): HttpResponse = {
+  def apply(): Response = {
     val rep = Response(status)
     headers.foreach { case (k, v) => rep.headerMap.add(k, v) }
     cookies.foreach { rep.addCookie }

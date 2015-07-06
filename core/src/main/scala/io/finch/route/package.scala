@@ -38,8 +38,8 @@ import shapeless.ops.adjoin.Adjoin
  * `Service[Req, Rep]`. Thus, the following example is a valid Finch code:
  *
  * {{{
- *   def hello(s: String) = new Service[HttRequest, HttpResponse] {
- *     def apply(req: HttpRequest) = Ok(s"Hello $name!").toFuture
+ *   def hello(s: String) = new Service[HttRequest, Response] {
+ *     def apply(req: Request) = Ok(s"Hello $name!").toFuture
  *   }
  *
  *   Httpx.serve(

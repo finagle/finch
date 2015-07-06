@@ -19,7 +19,7 @@ import io.finch.jackson._
 implicit val objectMapper: ObjectMapper = new ObjectMapper().registerModule(DefaultScalaModule)
 case class Foo(id: Int, s: String)
 
-val ok: HttpResponse = Ok(Foo(10, "foo")) // will be encoded as JSON
+val ok: Response = Ok(Foo(10, "foo")) // will be encoded as JSON
 val foo: RequestReader[Foo] = body.as[Foo] // a request reader that reads Foo
 ```
 
@@ -32,7 +32,7 @@ import io.finch.json4s._
 implicit val formats = DefaultFormats ++ JodaTimeSerializers.all
 case class Bar(x: Int, y: Boolean)
 
-val ok: HttpResponse = Ok(Bar(1, true)) // will be encoded as JSON
+val ok: Response = Ok(Bar(1, true)) // will be encoded as JSON
 val foo: RequestReader[Bar] = body.as[Bar] // a request reader that reads Bar
 ```
 

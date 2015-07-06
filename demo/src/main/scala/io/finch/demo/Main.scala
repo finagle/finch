@@ -22,14 +22,15 @@
 
 package io.finch.demo
 
-import com.twitter.finagle.{Filter, SimpleFilter, Service, Httpx}
-import com.twitter.util.{Future, Await}
-
-import _root_.argonaut._, _root_.argonaut.Argonaut._
+import _root_.argonaut.Argonaut._
+import _root_.argonaut._
+import com.twitter.finagle.httpx.{Request, Response}
+import com.twitter.finagle.{Filter, Httpx, Service, SimpleFilter}
+import com.twitter.util.{Await, Future}
 import io.finch.{Endpoint => _, _}
 
 // import the pipe `!` operator
-import io.finch.argonaut._             // import finch-json classes such as `Json`
+import io.finch.argonaut._         // import finch-json classes such as `Json`
 import io.finch.request._          // import request readers such as `RequiredParam`
 import io.finch.request.items._    // import request items for error handling
 import io.finch.response._         // import response builders such as `BadRequest`
@@ -90,16 +91,22 @@ object Main extends App {
 
 object Demo {
 
-  import model._
   import endpoint._
+  import model._
 
   val Secret = "open sesame"
 
+<<<<<<< HEAD
   // A Finagle filter that authorizes a request: performs conversion `HttpRequest` => `AuthRequest`.
   val authorize = new Filter[HttpRequest, HttpResponse, AuthRequest, HttpResponse] {
 //      def apply(req: HttpRequest, service: Service[AuthRequest, HttpResponse]): Future[HttpResponse] =
 //        service(AuthRequest(req))
     def apply(req: HttpRequest, service: Service[AuthRequest, HttpResponse]): Future[HttpResponse] = for {
+=======
+  // A Finagle filter that authorizes a request: performs conversion `Request` => `AuthRequest`.
+  val authorize = new Filter[Request, Response, AuthRequest, Response] {
+    def apply(req: Request, service: Service[AuthRequest, Response]): Future[Response] = for {
+>>>>>>> 100a723... Remove type aliases `HttpRequest` and `HttpResponse`
       `X-Secret` <- headerOption("X-Secret")(req)
       rep <- `X-Secret` collect {
         case Secret => service(AuthRequest(req))
@@ -107,11 +114,11 @@ object Demo {
     } yield rep
   }
 
-  val handleDomainErrors: PartialFunction[Throwable, HttpResponse] = {
+  val handleDomainErrors: PartialFunction[Throwable, Response] = {
     case UserNotFound(id) => BadRequest(Json("error" := "user_not_found", "id" := id))
   }
 
-  val handleRequestReaderErrors: PartialFunction[Throwable, HttpResponse] = {
+  val handleRequestReaderErrors: PartialFunction[Throwable, Response] = {
     case NotPresent(ParamItem(p)) => BadRequest(
       Json("error" := "param_not_present", "param" := p)
     )
@@ -129,24 +136,24 @@ object Demo {
     )
   }
 
-  val handleRouterErrors: PartialFunction[Throwable, HttpResponse] = {
+  val handleRouterErrors: PartialFunction[Throwable, Response] = {
     case RouteNotFound(route) => NotFound(Json("error" := "route_not_found", "route" := route))
   }
 
   // A simple Finagle filter that handles all the exceptions, which might be thrown by
   // a request reader of one of the REST services.
-  val handleExceptions = new SimpleFilter[HttpRequest, HttpResponse] {
-    def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]): Future[HttpResponse] = service(req) handle
+  val handleExceptions = new SimpleFilter[Request, Response] {
+    def apply(req: Request, service: Service[Request, Response]): Future[Response] = service(req) handle
       (handleDomainErrors orElse handleRequestReaderErrors orElse handleRouterErrors orElse {
         case _ => InternalServerError()
       })
   }
 
   // An API endpoint.
-  val api: Service[AuthRequest, HttpResponse] =
+  val api: Service[AuthRequest, Response] =
     (getUser :+: getUsers :+: postUser :+: postTicket).toService
 
   // An HTTP endpoint with exception handler and Auth filter.
-  val backend: Service[HttpRequest, HttpResponse] =
+  val backend: Service[Request, Response] =
     handleExceptions ! authorize ! api
 }

@@ -9,7 +9,7 @@ class PetstoreDb {
   private[this] val pets = mutable.Map.empty[Long, Pet]
   private[this] val tags = mutable.Map.empty[Long, Tag]
   private[this] val cat = mutable.Map.empty[Long, Category]
-  //how efficient is this? compared to hashtable/map? I would think fetching from a hash*** would be faster
+  private[this] val orders = mutable.Map.empty[Long, Order]
 
   def failIfEmpty(o: Option[Pet]): Future[Pet] = o match {
     case Some(pet) => Future.value(pet)
@@ -23,6 +23,39 @@ class PetstoreDb {
     }
   )
 
+  //Helper: Generates a default id if not given a valid one
+//  def idGenerator(obj: Any, mapper: Map[Long, Any]): Future[Long] = Future.value{
+    //Assume first param is always the id param
+//    val genId = if (mapper.isEmpty) 0 else mapper.keys.max + 1
+//    val inputId: Long = obj.id
+//    obj match{
+//      case (Some(givenId), _*) => {
+//        val genId = if(mapper.isEmpty) 0 else mapper.keys.max + 1
+//        val inputId: Long = givenId
+//        val id: Long = if (inputId != None){
+//        if (mapper.exists(_._1 == inputId)) genId else inputId.getOrElse(genId)
+//        } else{genId}
+//      }
+//
+//      case (None, _*) => None
+//    }
+//  }
+
+  //Helper: Adds tag to tag map
+  def addTag(inputTag: Tag): Future[Tag] = Future.value(
+    tags.synchronized {
+      val genId = if (tags.isEmpty) 0 else tags.keys.max + 1
+      val inputId: Long = inputTag.id
+      val realId: Long = if (inputId != None) {
+        if (tags.exists(_._1 == inputId)) genId else inputId
+      } else {
+        genId
+      }
+      tags(realId) = inputTag.copy(id = realId)
+      inputTag
+    }
+  )
+
   //POST: Add pet
   def addPet(inputPet: Pet): Future[Long] = Future.value(
     pets.synchronized {
@@ -30,16 +63,17 @@ class PetstoreDb {
       val inputId: Option[Long] = inputPet.id
       val id: Long = if (inputId != None) {
         if (pets.exists(_._1 == inputId)) genId else inputId.getOrElse(genId) //repetition guard
-      } else{genId}
+      } else genId
       pets(id) = inputPet.copy(id = Some(id))
       //Add tags into tag map
-      /*
-      ======  ===    ||====     ===
-        ||  ||   ||  ||    || ||   ||
-        ||  ||   ||  ||    || ||   ||
-        ||    ===    ||====     ====
-       */
-      //End add tags
+//        for{
+//          tagList <- inputPet.tags
+//          t <- tagList
+//        } yield addTag(t)
+      inputPet.tags match{
+        case Some(tagList) => tagList.map(addTag(_))
+        case None => None
+      }
       id
     }
   )
@@ -64,6 +98,13 @@ class PetstoreDb {
   )
 
   //GET: find pets by status
+//  def getPetsByStatus(s: Status): Future[Seq[Pet]] = {
+//    val allMatchesFut = for{
+//      petList <- allPets //List[Pet]
+//    } yield petList.filter(_.status.flatMap(_.code.equals(s.code)))
+//    allMatchesFut
+//  }
+  //This works:
   def getPetsByStatus(s: Status): Future[Seq[Pet]] = {
     val allMatchesFut = for{
       petList <- allPets //List[Pet]
@@ -74,42 +115,24 @@ class PetstoreDb {
 
   //GET: find pets by tags
   //Muliple tags can be provided with comma seperated strings.
-  def findPetsByTag(findTags: Seq[String]): Future[List[Pet]] = {
-
-    //map, filter, flatMap is safer----fix this, stay away from mutable collections
-    //filter, exists
-
-    //create true/false
-
-    //What do we know?
-    //findTags = Sequence of Strings
-    //All pets have a Sequence of Tags
-    //We need to find the pets that have findTags in their sequence of tags
-    //You cannot simply create a tag without giving it a valid id first => Cannot just turn all strings into tags and compare
-    //To do that, we could:
-    /*
-      - Turn findTags into a sequence of Tags --> use findTags.forall(p.tags.contains) as a filter method
-     */
-
-//    val realTags =
-
-
-
-
-
-    val realTags = mutable.ListBuffer.empty[Tag]
-    val allMatches = mutable.ListBuffer.empty[Pet]
-    for{
-      t <- tags.values
-      if (findTags.contains(t.name))
-    } yield realTags += t
-
-    for{
+  def findPetsByTag(findTags: Seq[String]): Future[Seq[Pet]] = {
+    val matchPets = for {
       p <- pets.values
-      if (findTags.forall(p.tags.contains))
-    } yield allMatches += p
+      tagList <- p.tags
+      pTagStr = tagList.map(_.name)
+      if(findTags.forall(pTagStr.contains))
+    } yield p
+    
+    Future(matchPets.toSeq.sortBy(_.id))
 
-    Future(allMatches.toList)
+//    val matchPets = for{
+//      p <- pets.values
+//      tagList <- p.tags
+//      pTagStr = tagList.map(_.name)
+//      if(findTags.forall(pTagStr.contains))
+//    } yield p
+//
+//    Future(matchPets.toSeq.sortBy(_.id))
   }
 
   //DELETE
@@ -123,22 +146,73 @@ class PetstoreDb {
   )
 
   //POST: Update a pet in the store with form data
-//  def updatePet()
+  /*
+     ======  ===    ||====     ===
+       ||  ||   ||  ||    || ||   ||
+       ||  ||   ||  ||    || ||   ||
+       ||    ===    ||====     ====
+      */
+
 
   //POST: Upload an image
-
+  /*
+     ======  ===    ||====     ===
+       ||  ||   ||  ||    || ||   ||
+       ||  ||   ||  ||    || ||   ||
+       ||    ===    ||====     ====
+      */
   //+++++++++++++++++++++++++++++STORE METHODS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++
 
-  //Returns the current inventory
-//  def statusCodes: Future[Map[Status, Int]] = Future.value(
+  //GET: Returns the current inventory
+  def getInventory: Future[Map[Status, Int]] = Future.value(
+    pets.synchronized {
+      pets.groupBy(_._2.status).flatMap {
+        case (Some(status), keyVal) => Some(status -> keyVal.size)
+        case (None, _) => None
+      }
+    }
+  )
+//  def getInventory: Future[Map[Status, Int]] = Future.value(
 //    pets.synchronized {
 //      pets.groupBy(_._2.status).map {
-//        case (status, kvs) => (status, kvs.size)
+//        case (status, keyVal) => (status.getOrElse(Available), keyVal.size)
+//        case (None, _) => None
 //      }
 //    }
 //  )
+
+  //POST: Place an order for a pet
+//  def postOrder(order: Order): Future[Order] = Future.value{
+//    orders.synchronized{
+//      orders.
+//    }
+//  }
+
+  //DELETE: Delete purchase order by ID
+
+  //GET: Find purchase order by ID
+
+  //============================STORE METHODS END HERE================================================
+
+  //+++++++++++++++++++++++++++++USER METHODS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++
+
+  //POST: Create user
+
+  //POST: Create list of users with given input array
+
+  //POST: Create list of users with given input list
+
+  //GET: Logs user into system
+
+  //GET: Logs out current logged in user session
+
+  //DELETE: Delete user
+
+  //GET: Get user by username
+
+  //PUT: Update user
+
+  //============================USER METHODS END HERE================================================
+
 }
 
-//object PetstoreDb{}
-
-//============================STORE METHODS END HERE================================================

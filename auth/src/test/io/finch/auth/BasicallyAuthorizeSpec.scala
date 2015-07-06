@@ -23,10 +23,10 @@
 package io.finch.auth
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.httpx.{Request, Status}
+import com.twitter.finagle.httpx.{Response, Request, Status}
 import com.twitter.util.{Await, Base64StringEncoder, Future}
 import io.finch.response.Ok
-import io.finch.{HttpRequest, HttpResponse, _}
+import io.finch.auth.BasicallyAuthorize
 import org.scalatest.{Matchers, FlatSpec}
 
 class BasicallyAuthorizeSpec extends FlatSpec with Matchers {
@@ -53,7 +53,7 @@ class BasicallyAuthorizeSpec extends FlatSpec with Matchers {
 
   private def encode(user: String, password: String) = "Basic " + Base64StringEncoder.encode(s"$user:$password".getBytes)
 
-  private def okService() = new Service[HttpRequest, HttpResponse] {
-    override def apply(request: HttpRequest): Future[HttpResponse] = Ok().toFuture
+  private def okService() = new Service[Request, Response] {
+    override def apply(request: Request): Future[Response] = Ok().toFuture
   }
 }
