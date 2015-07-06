@@ -109,3 +109,71 @@ object UploadResponse {
 /*
 UPLOAD THINGS END HERE========================================================
  */
+
+/*
+ORDERSTATUS THINGS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ */
+sealed trait Status {
+  def code: String
+}
+
+case object Available extends Status {
+  def code: String = "available"
+}
+
+case object Pending extends Status {
+  def code: String = "pending"
+}
+
+case object Adopted extends Status {
+  def code: String = "adopted"
+}
+
+object Status {
+  def fromString(s: String): Status = s match {
+    case "available" => Available
+    case "pending" => Pending
+    case "adopted" => Adopted
+  }
+
+  val statusEncode: EncodeJson[Status] =
+    EncodeJson.jencode1[Status, String](_.code)
+
+  val statusDecode: DecodeJson[Status] =
+    DecodeJson { c =>
+      c.as[String].flatMap[Status] {
+        case "available" => DecodeResult.ok(Available)
+        case "pending" => DecodeResult.ok(Pending)
+        case "adopted" => DecodeResult.ok(Adopted)
+        case other => DecodeResult.fail(s"Unknown status: $other", c.history)
+      }
+    }
+
+  implicit val statusCodec: CodecJson[Status] =
+    CodecJson.derived(statusEncode, statusDecode)
+}
+
+/*
+ORDERSTATUS THINGS END HERE========================================================
+ */
+
+/*
+ORDER THINGS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ */
+
+case class Order(
+    id: Option[Long],
+    petId: Option[Long],
+    quantity: Option[Long],
+    shipDate: Option[String],
+    status: Option[OrderStatus], //placed, approved, delivered
+    complete: Option[Boolean]
+    )
+
+object Order {
+  implicit val orderCodec: CodecJson[Order] =
+    casecodec6(Order.apply, Option.unapply)("id", "petId", "quantity", "shipDate", "status", "complete")
+}
+/*
+ORDER THINGS END HERE========================================================
+ */

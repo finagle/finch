@@ -9,7 +9,7 @@ class PetstoreDb {
   private[this] val pets = mutable.Map.empty[Long, Pet]
   private[this] val tags = mutable.Map.empty[Long, Tag]
   private[this] val cat = mutable.Map.empty[Long, Category]
-  //how efficient is this? compared to hashtable/map? I would think fetching from a hash*** would be faster
+  private[this] val orders = mutable.Map.empty[Long, Order]
 
   def failIfEmpty(o: Option[Pet]): Future[Pet] = o match {
     case Some(pet) => Future.value(pet)
@@ -74,7 +74,7 @@ class PetstoreDb {
 
   //GET: find pets by tags
   //Muliple tags can be provided with comma seperated strings.
-  def findPetsByTag(findTags: Seq[String]): Future[List[Pet]] = {
+  def findPetsByTag(findTags: Seq[String]): Future[Seq[Pet]] = {
 
     //map, filter, flatMap is safer----fix this, stay away from mutable collections
     //filter, exists
@@ -89,27 +89,25 @@ class PetstoreDb {
     //To do that, we could:
     /*
       - Turn findTags into a sequence of Tags --> use findTags.forall(p.tags.contains) as a filter method
+
+      val testcopy = for{(k,v) <- testMap;if (v.name.length > 6)} yield v
+        - Gives back arrayBuffer...which is mutable
      */
 
-//    val realTags =
+//    val realTags: Map[Long,Tag] = tags.retain((k,v) => findTags.contains(v.name))
+    //this won't work, since tags is private. Operating directly on it returns PetstoreDb.this.tags.type....need another way
+    //Try this: go through each pet's list of tags and turn THAT into a list of strings
+    //pet.tags.map(_.name)
+    //New menace: p.tags = Option(p.tags)
 
-
-
-
-
-    val realTags = mutable.ListBuffer.empty[Tag]
-    val allMatches = mutable.ListBuffer.empty[Pet]
-    for{
-      t <- tags.values
-      if (findTags.contains(t.name))
-    } yield realTags += t
-
-    for{
+    val matchPets = for{
       p <- pets.values
-      if (findTags.forall(p.tags.contains))
-    } yield allMatches += p
+      tagList <- p.tags
+      pTagStr = tagList.map(_.name)
+      if(findTags.forall(pTagStr.contains))
+    } yield p
 
-    Future(allMatches.toList)
+    Future(matchPets.toList)
   }
 
   //DELETE
@@ -123,13 +121,20 @@ class PetstoreDb {
   )
 
   //POST: Update a pet in the store with form data
-//  def updatePet()
 
   //POST: Upload an image
 
   //+++++++++++++++++++++++++++++STORE METHODS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++
 
-  //Returns the current inventory
+  //GET: Returns the current inventory
+//  def getInventory: Future[Map[Status, Int]] = Future.value(
+//    pets.synchronized {
+//      pets.groupBy(_._2.status).map {
+//        case (status, keyVal) => (status.getOrElse(Available), keyVal.size)
+//        case (None, _) => None
+//      }
+//    }
+//  )
 //  def statusCodes: Future[Map[Status, Int]] = Future.value(
 //    pets.synchronized {
 //      pets.groupBy(_._2.status).map {
@@ -137,8 +142,35 @@ class PetstoreDb {
 //      }
 //    }
 //  )
+
+  //POST: Place an order for a pet
+
+
+  //DELETE: Delete purchase order by ID
+
+  //GET: Find purchase order by ID
+
+  //============================STORE METHODS END HERE================================================
+
+  //+++++++++++++++++++++++++++++USER METHODS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++
+
+  //POST: Create user
+
+  //POST: Create list of users with given input array
+
+  //POST: Create list of users with given input list
+
+  //GET: Logs user into system
+
+  //GET: Logs out current logged in user session
+
+  //DELETE: Delete user
+
+  //GET: Get user by username
+
+  //PUT: Update user
+
+  //============================USER METHODS END HERE================================================
+
 }
 
-//object PetstoreDb{}
-
-//============================STORE METHODS END HERE================================================

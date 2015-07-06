@@ -25,12 +25,12 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
     Await.ready(db.addPet(rover))
     Await.ready(db.addPet(jack))
     Await.ready(db.addPet(sue))
-    db.addPet(sadaharu)
-    db.addPet(despereaux)
-    db.addPet(alexander)
-    db.addPet(wilbur)
-    db.addPet(cheshire)
-    db.addPet(crookshanks)
+    Await.ready(db.addPet(sadaharu))
+    Await.ready(db.addPet(despereaux))
+    Await.ready(db.addPet(alexander))
+    Await.ready(db.addPet(wilbur))
+    Await.ready(db.addPet(cheshire))
+    Await.ready(db.addPet(crookshanks))
   }
 
   //GET: getPet
