@@ -80,7 +80,7 @@ Tests for the Tag class
 class TagSpec extends FlatSpec with Matchers with Checkers{
   "The Tag codec" should "correctly decode JSON" in {
     check{ (id: Long, name: String) =>
-      (!name.contains("\"")) ==> {
+      (!name.contains("\"") && !name.contains("\\")) ==> {
         val json = s"""{ "id": $id, "name": "$name" }"""
         Parse.decodeOption[Tag](json) === Some(Tag(id, name))
       }

@@ -11,7 +11,7 @@ import org.scalatest.{FlatSpec, Matchers}
 trait PetstoreServiceTests extends Matchers { this: ServiceTest =>
   def createService(): Service[Request, Response] = {
     val db = new PetstoreDb()
-    db.addPet(Pet(None, "Sadaharu", Nil, Option(Category(1, "inugami")), Option(Nil), Option(Available)))
+    db.addPet(Pet(None, "Sadaharu", Nil, Some(Category(1, "inugami")), Option(Nil), Option(Available)))
     db.addPet(Pet(None, "Despereaux", Nil, Option(Category(1, "mouse")), Option(Nil), Option(Available)))
     db.addPet(Pet(None, "Alexander", Nil, Option(Category(1, "mouse")), Option(Nil), Option(Pending)))
     db.addPet(Pet(None, "Wilbur", Nil, Option(Category(1, "pig")), Option(Nil), Option(Adopted)))
@@ -25,14 +25,12 @@ trait PetstoreServiceTests extends Matchers { this: ServiceTest =>
     val request = Request("/pet/1")
     val result = Await.result(f.service(request))
 
-
     result.statusCode shouldBe 200
   }
 
-  it should "return valid pets 2" in { f =>
+  it should "fail to return invalid pets" in { f =>
     val request = Request("/pet/2")
     val result = Await.result(f.service(request))
-
 
     result.statusCode shouldBe 200
   }

@@ -89,10 +89,23 @@ class PetstoreDb {
     //To do that, we could:
     /*
       - Turn findTags into a sequence of Tags --> use findTags.forall(p.tags.contains) as a filter method
-
-      val testcopy = for{(k,v) <- testMap;if (v.name.length > 6)} yield v
-        - Gives back arrayBuffer...which is mutable
      */
+
+//    val realTags =
+
+
+    val matchPets = for {
+      p <- pets.values
+      tagList <- p.tags
+      pTagStr = tagList.map(_.name)
+      if(findTags.forall(pTagStr.contains))
+    } yield p
+    
+    Future(matchPets.toSeq.sortBy(_.id))
+
+//      val testcopy = for{(k,v) <- testMap;if (v.name.length > 6)} yield v
+//        - Gives back arrayBuffer...which is mutable
+//     */
 
 //    val realTags: Map[Long,Tag] = tags.retain((k,v) => findTags.contains(v.name))
     //this won't work, since tags is private. Operating directly on it returns PetstoreDb.this.tags.type....need another way
@@ -106,8 +119,9 @@ class PetstoreDb {
       pTagStr = tagList.map(_.name)
       if(findTags.forall(pTagStr.contains))
     } yield p
-
+    
     Future(matchPets.toList)
+//    Future(allMatches.toList)*/
   }
 
   //DELETE
@@ -117,6 +131,15 @@ class PetstoreDb {
         pets.remove(id)
         true
       } else false
+    }
+  )
+
+  def getInventory: Future[Map[Status, Int]] = Future.value(
+    pets.synchronized {
+      pets.groupBy(_._2.status).flatMap {
+        case (Some(status), keyVal) => Some(status -> keyVal.size)
+        case (None, _) => None
+      }
     }
   )
 
