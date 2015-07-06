@@ -22,17 +22,14 @@
 
 package io.finch.route
 
-import com.twitter.finagle.httpx
-import com.twitter.finagle.httpx.Request
-import com.twitter.finagle.Service
+import com.twitter.finagle.{Service, httpx}
+import com.twitter.finagle.httpx.{Request, Response}
 import com.twitter.util.{Await, Return}
-
 import io.finch._
 import io.finch.request.{DecodeRequest, param}
 import io.finch.response._
-
-import org.scalatest.{Matchers, FlatSpec}
 import org.scalatest.prop.Checkers
+import org.scalatest.{FlatSpec, Matchers}
 import shapeless.{:+:, ::, CNil, HNil, Inl}
 
 class RouterSpec extends FlatSpec with Matchers with Checkers {
@@ -118,11 +115,11 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
   }
 
   it should "be implicitly converted into a service" in {
-    def echo(s: String) = new Service[HttpRequest, String] {
-      def apply(request: HttpRequest) = s.toFuture
+    def echo(s: String) = new Service[Request, String] {
+      def apply(request: Request) = s.toFuture
     }
 
-    val service: Service[HttpRequest, String] = get(string /> echo)
+    val service: Service[Request, String] = get(string /> echo)
     Await.result(service(httpx.Request("/foo"))) shouldBe "foo"
   }
 
@@ -169,8 +166,8 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
   }
 
   it should "be implicitly convertible into service from future" in {
-    val e: Endpoint[HttpRequest, HttpResponse] =
-      (Get / "foo" /> Ok("bar").toFuture: Endpoint[HttpRequest, HttpResponse]) |
+    val e: Endpoint[Request, Response] =
+      (Get / "foo" /> Ok("bar").toFuture: Endpoint[Request, Response]) |
       (Get / "bar" /> Ok("foo").toFuture)
 
     Await.result(e(httpx.Request("/foo"))).contentString shouldBe "bar"
@@ -192,11 +189,11 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
   }
 
   it should "allow mix routers that returns futures and services" in {
-    val service = new Service[HttpRequest, HttpResponse] {
-      def apply(req: HttpRequest) = Ok("foo").toFuture
+    val service = new Service[Request, Response] {
+      def apply(req: Request) = Ok("foo").toFuture
     }
-    val e: Endpoint[HttpRequest, HttpResponse] =
-      (Get / "bar" /> Ok("bar").toFuture: Endpoint[HttpRequest, HttpResponse]) |
+    val e: Endpoint[Request, Response] =
+      (Get / "bar" /> Ok("bar").toFuture: Endpoint[Request, Response]) |
       (Get / "foo" /> service)
 
     Await.result(e(httpx.Request("/foo"))).contentString shouldBe "foo"
@@ -204,8 +201,8 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
   }
 
   it should "convert Router[Future[_]] to both endpoint and service" in {
-    val s: Service[HttpRequest, HttpResponse] = Get / "foo" /> Ok("foo").toFuture: Endpoint[HttpRequest, HttpResponse]
-    val e: Endpoint[HttpRequest, HttpResponse] = Get / "bar" /> Ok("bar").toFuture
+    val s: Service[Request, Response] = Get / "foo" /> Ok("foo").toFuture: Endpoint[Request, Response]
+    val e: Endpoint[Request, Response] = Get / "bar" /> Ok("bar").toFuture
 
     Await.result(s(httpx.Request("/foo"))).contentString shouldBe "foo"
     Await.result(e(httpx.Request("/bar"))).contentString shouldBe "bar"
@@ -254,24 +251,24 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     implicit val decodeItem: DecodeRequest[Item] =
       DecodeRequest(s => Return(Item(s)))
 
-    val responseService: Service[HttpRequest, HttpResponse] =
+    val responseService: Service[Request, Response] =
       Service.const(Ok("qux").toFuture)
 
-    val itemService: Service[HttpRequest, Item] =
+    val itemService: Service[Request, Item] =
       Service.const(Item("item qux").toFuture)
 
-    val service: Service[HttpRequest, HttpResponse] = (
-      // Router returning an [[HttpResponse]].
+    val service: Service[Request, Response] = (
+      // Router returning an [[Response]].
       get("foo") /> Ok("foo")              :+:
       // Router returning an encodeable value.
       get("foo" / string) /> Item          :+:
-      // Router returning an [[HttpResponse]] in a future.
+      // Router returning an [[Response]] in a future.
       get("bar") /> Ok("foo").toFuture     :+:
       // Router returning an encodeable value in a future.
       get("baz") /> Item("item foo").toFuture   :+:
       // Router returning a [[RequestReader]].
       get("qux") /> param("p").as[Item]    :+:
-      // Router returning a Finagle service returning a [[HttpResponse]].
+      // Router returning a Finagle service returning a [[Response]].
       get("qux" / "s1") /> responseService :+:
       // Router returning a Finagle service returning an encodeable value.
       get("qux" / "s2") /> itemService
@@ -295,7 +292,7 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
   }
 
   it should "convert a value router into an endpoint" in {
-    val s: Service[HttpRequest, HttpResponse] = (Get / "foo" /> "bar").toService
+    val s: Service[Request, Response] = (Get / "foo" /> "bar").toService
 
     Await.result(s(httpx.Request("/foo"))).contentString shouldBe Ok("bar").contentString
   }

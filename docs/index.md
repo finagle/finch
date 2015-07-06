@@ -14,7 +14,7 @@ either `/` (`flatMap`) or `/>` (`map`) operator. There is also `|` (`orElse`) op
 terms of the inclusive or operator.
 
 ```scala
-val router: Endpoint[HttpRequest, HttpResponse] = Get / ("users" | "user") / int /> GetUser
+val router: Endpoint[Request, Response] = Get / ("users" | "user") / int /> GetUser
 ```
 
 #### Step 2: Reading the HTTP requests in a `Service`
@@ -38,7 +38,7 @@ of any type. In fact, `ResponseBuilder` is a function that takes some content an
 depending on a content. There are plenty of predefined builders that might be used directly.
 
 ```scala
- val ok: HttpResponse = Ok("Hello, world!") // text/plain HTTP response with status code 200
+ val ok: Response = Ok("Hello, world!") // text/plain HTTP response with status code 200
 ```
 
 ## Table of Contents

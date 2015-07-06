@@ -26,7 +26,6 @@ package io.finch.request
 import com.twitter.finagle.httpx.Request
 import com.twitter.io.Buf.ByteArray
 import com.twitter.util.{Await, Future, Try}
-import io.finch.HttpRequest
 import org.scalatest.{FlatSpec, Matchers}
 import items._
 
@@ -35,13 +34,13 @@ class BodySpec extends FlatSpec with Matchers {
   val fooBytes = foo.getBytes("UTF-8")
 
   "A RequiredArrayBody" should "be properly read if it exists" in {
-    val request: HttpRequest = requestWithBody(fooBytes)
+    val request: Request = requestWithBody(fooBytes)
     val futureResult: Future[Array[Byte]] = binaryBody(request)
     Await.result(futureResult) shouldBe fooBytes
   }
 
   it should "produce an error if the body is empty" in {
-    val request: HttpRequest = requestWithBody(Array[Byte]())
+    val request: Request = requestWithBody(Array[Byte]())
     val futureResult: Future[Array[Byte]] = binaryBody(request)
     a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
@@ -51,13 +50,13 @@ class BodySpec extends FlatSpec with Matchers {
   }
 
   "An OptionalArrayBody" should "be properly read if it exists" in {
-    val request: HttpRequest = requestWithBody(fooBytes)
+    val request: Request = requestWithBody(fooBytes)
     val futureResult: Future[Option[Array[Byte]]] = binaryBodyOption(request)
     Await.result(futureResult).get shouldBe fooBytes
   }
 
   it should "produce an error if the body is empty" in {
-    val request: HttpRequest = requestWithBody(Array[Byte]())
+    val request: Request = requestWithBody(Array[Byte]())
     val futureResult: Future[Option[Array[Byte]]] = binaryBodyOption(request)
     Await.result(futureResult) shouldBe None
   }
@@ -67,25 +66,25 @@ class BodySpec extends FlatSpec with Matchers {
   }
 
   "A RequiredStringBody" should "be properly read if it exists" in {
-    val request: HttpRequest = requestWithBody(foo)
+    val request: Request = requestWithBody(foo)
     val futureResult: Future[String] = body(request)
     Await.result(futureResult) shouldBe foo
   }
 
   it should "produce an error if the body is empty" in {
-    val request: HttpRequest = requestWithBody("")
+    val request: Request = requestWithBody("")
     val futureResult: Future[String] = body(request)
     a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
 
   "An OptionalStringBody" should "be properly read if it exists" in {
-    val request: HttpRequest = requestWithBody(foo)
+    val request: Request = requestWithBody(foo)
     val futureResult: Future[Option[String]] = bodyOption(request)
     Await.result(futureResult) shouldBe Some(foo)
   }
 
   it should "produce an error if the body is empty" in {
-    val request: HttpRequest = requestWithBody("")
+    val request: Request = requestWithBody("")
     val futureResult: Future[Option[String]] = bodyOption(request)
     Await.result(futureResult) shouldBe None
   }
@@ -95,7 +94,7 @@ class BodySpec extends FlatSpec with Matchers {
       body <- binaryBody
     } yield body
 
-    val request: HttpRequest = requestWithBody(fooBytes)
+    val request: Request = requestWithBody(fooBytes)
     Await.result(reader(request)) shouldBe fooBytes
   }
 
@@ -115,11 +114,11 @@ class BodySpec extends FlatSpec with Matchers {
     Await.result(o) shouldBe Some(123)
   }
 
-  it should "work with custom request and its implicit view to HttpRequest" in {
+  it should "work with custom request and its implicit view to Request" in {
     implicit val decodeDouble = new DecodeRequest[Double] { // custom encoder
       def apply(req: String): Try[Double] = Try(req.toDouble)
     }
-    case class CReq(http: HttpRequest) // custom request
+    case class CReq(http: Request) // custom request
     implicit val cReqEv = (req: CReq) => req.http // implicit view
 
     val req = CReq(requestWithBody("42.0"))
@@ -150,11 +149,11 @@ class BodySpec extends FlatSpec with Matchers {
     a [NotParsed] shouldBe thrownBy(Await.result(o))
   }
 
-  private[this] def requestWithBody(body: String): HttpRequest = {
+  private[this] def requestWithBody(body: String): Request = {
     requestWithBody(body.getBytes("UTF-8"))
   }
 
-  private[this] def requestWithBody(body: Array[Byte]): HttpRequest = {
+  private[this] def requestWithBody(body: Array[Byte]): Request = {
     val r = Request()
     r.content = ByteArray.Owned(body)
     r.contentLength = body.length.toLong

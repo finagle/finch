@@ -24,14 +24,14 @@ package io.finch
 
 import com.twitter.util.Future
 import com.twitter.finagle.Service
-import com.twitter.finagle.httpx.Method
+import com.twitter.finagle.httpx.{Response, Request, Method}
 import com.twitter.finagle.httpx.path.Path
 import com.twitter.finagle.httpx.service.NotFoundService
 
 /**
  * A REST API endpoint that primary defines a ''route'' and might be implicitly
  * converted into Finagle service ''Service[Req, Rep]'' if there is an implicit
- * view from ''Req'' to ''HttpRequest'' available in the scope.
+ * view from ''Req'' to ''Request'' available in the scope.
  *
  * @tparam Req the request type
  * @tparam Rep the response type
@@ -117,8 +117,8 @@ object Endpoint {
   /**
    * A robust 404 respond for missing endpoints.
    */
-  val NotFound: Endpoint[HttpRequest, HttpResponse] = new Endpoint[HttpRequest, HttpResponse] {
-    private val underlying = new NotFoundService[HttpRequest]
+  val NotFound: Endpoint[Request, Response] = new Endpoint[Request, Response] {
+    private val underlying = new NotFoundService[Request]
     override def route = { case _ => underlying }
   }
 
@@ -133,10 +133,10 @@ object Endpoint {
   /**
    * Allows to use an ''Endpoint'' when ''Service'' is expected. The implicit
    * conversion is possible if there is an implicit view from ''Req'' to
-   * ''HttpRequest'' available in the scope.
+   * ''Request'' available in the scope.
    *
    * {{{
-   *   val e: Endpoint[HttpRequest, HttpResponse] = ???
+   *   val e: Endpoint[Request, Response] = ???
    *   Httpx.serve(new InetSocketAddress(8081), e)
    * }}}
    *
@@ -147,7 +147,7 @@ object Endpoint {
    *
    * @return a service that delegates the requests to the underlying endpoint
    */
-  implicit def endpointToService[Req, Rep](e: Endpoint[Req, Rep])(implicit ev: Req => HttpRequest): Service[Req, Rep] =
+  implicit def endpointToService[Req, Rep](e: Endpoint[Req, Rep])(implicit ev: Req => Request): Service[Req, Rep] =
     new Service[Req, Rep] {
       def apply(req: Req): Future[Rep] = e.route(req.method -> Path(req.path))(req)
     }

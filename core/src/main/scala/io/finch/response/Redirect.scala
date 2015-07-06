@@ -25,6 +25,7 @@
 package io.finch.response
 
 import com.twitter.finagle.Service
+import com.twitter.finagle.httpx.{Response, Request}
 import com.twitter.finagle.httpx.path.Path
 import io.finch._
 
@@ -39,8 +40,8 @@ object Redirect {
    *
    * @return A Service that generates a redirect to the given url
    */
-  def apply(url: String): Service[HttpRequest, HttpResponse] = new Service[HttpRequest, HttpResponse] {
-    override def apply(req: HttpRequest) = SeeOther.withHeaders(("Location", url))().toFuture
+  def apply(url: String): Service[Request, Response] = new Service[Request, Response] {
+    override def apply(req: Request) = SeeOther.withHeaders(("Location", url))().toFuture
   }
 
   /**
@@ -50,5 +51,5 @@ object Redirect {
    *
    * @return A Service that generates a redirect to the given path
    */
-  def apply(path: Path): Service[HttpRequest, HttpResponse] = this(path.toString)
+  def apply(path: Path): Service[Request, Response] = this(path.toString)
 }

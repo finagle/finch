@@ -1,7 +1,7 @@
 package io.finch.benchmarks.service
 
+import com.twitter.finagle.httpx.Response
 import com.twitter.util.Await
-import io.finch.HttpResponse
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations._
 
@@ -27,21 +27,21 @@ abstract class UserServiceBenchmark(service: () => UserService)
 
   @Benchmark
   @BenchmarkMode(Array(Mode.SingleShotTime))
-  def createUsers(): Seq[HttpResponse] = Await.result(runCreateUsers)
+  def createUsers(): Seq[Response] = Await.result(runCreateUsers)
 
   @Benchmark
   @BenchmarkMode(Array(Mode.AverageTime))
-  def getUsers(): Seq[HttpResponse] = Await.result(runGetUsers)
+  def getUsers(): Seq[Response] = Await.result(runGetUsers)
 
   @Benchmark
   @BenchmarkMode(Array(Mode.SingleShotTime))
-  def updateUsers(): Seq[HttpResponse] = Await.result(runUpdateUsers)
+  def updateUsers(): Seq[Response] = Await.result(runUpdateUsers)
 
   @Benchmark
   @BenchmarkMode(Array(Mode.AverageTime))
-  def getAllUsers(): HttpResponse = Await.result(runGetAllUsers)
+  def getAllUsers(): Response = Await.result(runGetAllUsers)
 
   @Benchmark
   @BenchmarkMode(Array(Mode.AverageTime))
-  def deleteAllUsers(): HttpResponse = Await.result(runDeleteAllUsers)
+  def deleteAllUsers(): Response = Await.result(runDeleteAllUsers)
 }

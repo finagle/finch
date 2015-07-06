@@ -1,13 +1,12 @@
 package io.finch.benchmarks.service
 
-import com.twitter.finagle.{Httpx, Service, SimpleFilter}
-import com.twitter.finagle.httpx.RequestBuilder
-import com.twitter.io.Buf
-import com.twitter.util.{Closable, Future, Await}
-import io.finch.{Endpoint => _, _}
+import com.twitter.finagle.httpx.{Request, Response}
+import com.twitter.finagle.{Service, SimpleFilter}
+import com.twitter.util.Future
 import io.finch.request._
 import io.finch.response._
 import io.finch.route._
+import io.finch.{Endpoint => _}
 
 class FinchUserService(implicit
   userDecoder: DecodeRequest[User],
@@ -20,23 +19,23 @@ class FinchUserService(implicit
     case None => Future.exception[User](UserNotFound(id))
   }
 
-  val allUsers: Service[HttpRequest, List[User]] = Service.mk(_ => db.all)
+  val allUsers: Service[Request, List[User]] = Service.mk(_ => db.all)
 
-  val createUser: Service[HttpRequest, HttpResponse] = Service.mk { req =>
+  val createUser: Service[Request, Response] = Service.mk { req =>
     for {
       NewUserInfo(name, age) <- body.as[NewUserInfo].apply(req)
       id <- db.add(name, age)
     } yield Created.withHeaders("Location" -> s"/users/$id")()
   }
 
-  val updateUser: Service[HttpRequest, HttpResponse] = Service.mk { req =>
+  val updateUser: Service[Request, Response] = Service.mk { req =>
     body.as[User].apply(req).flatMap(db.update).map(_ => NoContent())
   }
 
-  val deleteUsers: Service[HttpRequest, HttpResponse] =
+  val deleteUsers: Service[Request, Response] =
     Service.mk(_ => db.delete().map(count => Ok(s"$count users deleted")))
 
-  val users: Service[HttpRequest, HttpResponse] = (
+  val users: Service[Request, Response] = (
     get("users" / long) /> getUser :+:
     get("users") /> allUsers       :+:
     post("users") /> createUser    :+:
@@ -44,8 +43,8 @@ class FinchUserService(implicit
     delete("users") /> deleteUsers
   ).toService
 
-  val handleExceptions = new SimpleFilter[HttpRequest, HttpResponse] {
-    def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]): Future[HttpResponse] =
+  val handleExceptions = new SimpleFilter[Request, Response] {
+    def apply(req: Request, service: Service[Request, Response]): Future[Response] =
       service(req).handle {
         case notFound @ UserNotFound(_) => BadRequest(notFound.getMessage)
         case _ => InternalServerError()

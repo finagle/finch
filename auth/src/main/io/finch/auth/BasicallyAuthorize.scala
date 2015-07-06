@@ -24,11 +24,12 @@ package io.finch.auth
 
 import io.finch._
 import io.finch.response._
+import com.twitter.finagle.httpx.{Response, Request}
 import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Base64StringEncoder
 
-case class BasicallyAuthorize(user: String, password: String) extends SimpleFilter[HttpRequest, HttpResponse] {
-  def apply(req: HttpRequest, service: Service[HttpRequest, HttpResponse]) = {
+case class BasicallyAuthorize(user: String, password: String) extends SimpleFilter[Request, Response] {
+  def apply(req: Request, service: Service[Request, Response]) = {
     val userInfo = s"$user:$password"
     val expected = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
 

@@ -33,9 +33,10 @@ and start typing.
 import io.finch._
 import io.finch.request._
 import io.finch.response._
+import com.twitter.finagle.httpx.{Request, Response}
 
-object Hello extends Service[HttpRequest, HttpResponse] {
-  def apply(req: HttpRequest) = for {
+object Hello extends Service[Request, Response] {
+  def apply(req: Request) = for {
     name <- param("name")(req)
   } yield Ok(s"Hello, $name!")
 }
@@ -73,7 +74,7 @@ implicit def encodeMsgPack[A](implicit encode: EncodeMsgPack[A]): EncodeResponse
 The charset may be overridden by `withCharset(charset: Option[String])` method on `ResponseBuilder`.
 
 ```scala
-val ok: HttpResponse = Ok.withCharset(None)
+val ok: Response = Ok.withCharset(None)
 ```
 
 #### Content Type
@@ -82,7 +83,7 @@ While the `content-type` is implicitly defined by the `EncodeResponse` instance 
 with `withContentType(contentType: Option[String])` method:
 
 ```scala
-val ok: HttpResponse = Ok.withContentType("application/octet-stream")("byte string")
+val ok: Response = Ok.withContentType("application/octet-stream")("byte string")
 ```
 
 #### HTTP Headers
@@ -91,7 +92,7 @@ HTTP headers may be added to respond instance with `withHeaders` method:
 
 ```scala
 val seeOther: ResponseBuilder = SeeOther.withHeaders("Some-Header-A" -> "a", "Some-Header-B" -> "b")
-val rep: HttpResponse = seeOther(Json.obj("a" -> 10))
+val rep: Response = seeOther(Json.obj("a" -> 10))
 ```
 
 ### Redirects
@@ -100,7 +101,7 @@ There is a tiny factory object `io.finch.response.Redirect` that may be used for
 the example:
 
 ```scala
-val e = new Endpoint[HttpRequest, HttpResponse] = {
+val e = new Endpoint[Request, Response] = {
   def route = {
     case Method.Get -> Root / "users" / name => GetUser(name)
     case Method.Get -> Root / "Bob" => Redirect("/users/Bob") // or with path object

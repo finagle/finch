@@ -26,6 +26,7 @@
 
 package io.finch.request
 
+import com.twitter.finagle.httpx.Request
 import com.twitter.util.Future
 import io.finch._
 import io.finch.request.items._
@@ -59,7 +60,7 @@ object RequestReader {
    * @param value the value the new reader should produce
    * @return a new reader that always produces the specified value
    */
-  def const[A](value: Future[A]): RequestReader[A] = embed[HttpRequest, A](MultipleItems)(_ => value)
+  def const[A](value: Future[A]): RequestReader[A] = embed[Request, A](MultipleItems)(_ => value)
 
   /**
    * Creates a new [[io.finch.request.RequestReader RequestReader]] that reads the result from the request.
