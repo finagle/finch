@@ -23,7 +23,7 @@ object PetstoreApp extends App {
 //      )
 
 //  val server = Httpx.serve(":8080", (updatePet).toService)
-  val server = Httpx.serve(":8080", (updatePetEndpt :+: getPetEndpt).toService)
+  val server = Httpx.serve(":8080", (updatePetEndpt :+: getPetEndpt).toService) //creates service
 
   Await.ready(server)
 

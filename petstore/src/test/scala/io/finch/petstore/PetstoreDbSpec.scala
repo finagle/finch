@@ -11,10 +11,10 @@ Tests for the PetstoreDb class methods
 
 class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
   val rover = Pet(Some(0), "Rover", Nil, Option(Category(1, "dog")), Option(Nil), Option(Available))
-  val jack = Pet(Some(1), "Jack", Nil, Option(Category(1, "dog")), Option(Nil), Option(Available))
+  val jack = Pet(None, "Jack", Nil, Option(Category(1, "dog")), Option(Nil), Option(Available))
   val sue = Pet(None, "Sue", Nil, Option(Category(1, "dog")), Option(Nil), Option(Adopted))
   val sadaharu = Pet(None, "Sadaharu", Nil, Option(Category(1, "inugami")), Option(Nil), Option(Available))
-  val despereaux = Pet(None, "Despereaux", Nil, Option(Category(1, "mouse")), Option(Nil), Option(Available))
+  val despereaux = Pet(None, "Despereaux", Nil, Option(Category(1, "mouse")), Option(Nil), Option(Pending))
   val alexander = Pet(None, "Alexander", Nil, Option(Category(1, "mouse")), Option(Nil), Option(Pending))
   val wilbur = Pet(None, "Wilbur", Nil, Option(Category(1, "pig")), Option(Nil), Option(Adopted))
   val cheshire = Pet(None, "Cheshire Cat", Nil, Option(Category(1, "cat")), Option(Nil), Option(Available))
@@ -22,9 +22,9 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
 
   trait DbContext {
     val db = new PetstoreDb()
-    Await.ready(db.addPet(rover.copy(id = None)))
-    Await.ready(db.addPet(jack.copy(id = None)))
-    Await.ready(db.addPet(sue.copy(id = None)))
+    Await.ready(db.addPet(rover))
+    Await.ready(db.addPet(jack))
+    Await.ready(db.addPet(sue))
     db.addPet(sadaharu)
     db.addPet(despereaux)
     db.addPet(alexander)
@@ -78,12 +78,37 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
   }
 
   //GET: find pets by status
-//  it should "allow the lookup of pets by status" in new DbContext{
-//    val avail = List(rover, jack, sadaharu, despereaux, cheshire, crookshanks)
-//    val pend = List(alexander)
-//    val adopt = List(sue, wilbur)
-//    assert(Await.result(db.getPetsByStatus(Available) === avail))
-//    assert(Await.result(db.getPetsByStatus(Pending) === pend))
+  it should "allow the lookup of pets by status" in new DbContext{
+    var avail: Seq[Pet] = Await.result(db.getPetsByStatus(Available))
+    var pend: Seq[Pet] = Await.result(db.getPetsByStatus(Pending))
+    var adopt: Seq[Pet] = Await.result(db.getPetsByStatus(Adopted))
+    for(p <- avail){
+      assert(p.status.getOrElse("Invalid Status").equals(Available))
+    }
+    for(p <- pend){
+      assert(p.status.getOrElse("Invalid Status").equals(Pending))
+    }
+    for(p <- adopt){
+      assert(p.status.getOrElse("Invalid Status").equals(Adopted))
+    }
+  }
+
+  //Shouldn't have to test for this because invalid Statuses can't be created (tested in PetSpec)??
+//  it should "fail appropriately when using an invalid Status to look up pets" in new DbContext{
+//    //Stuff here
 //  }
+
+  //DELETE: Delete pets from the database
+  it should "allow the deletion of existing pets from the database" in new DbContext{
+    val sadPet = Pet(None, "Blue", Nil, Option(Category(1, "dog")), Option(Nil), Option(Available))
+    db.addPet(sadPet)
+
+    db.deletePet(sadPet.id.getOrElse(-1)) //There WILL be an ID
+
+  }
+
+  it should "fail appropriately if user tries to delete a nonexistant pet" in new DbContext{
+
+  }
 
 }
