@@ -28,6 +28,14 @@ trait PetstoreServiceTests extends Matchers { this: ServiceTest =>
 
     result.statusCode shouldBe 200
   }
+
+  it should "return valid pets 2" in { f =>
+    val request = Request("/pet/2")
+    val result = Await.result(f.service(request))
+
+
+    result.statusCode shouldBe 200
+  }
 }
 
 class PetstoreServiceTest extends ServiceTest with PetstoreServiceTests
