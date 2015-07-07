@@ -139,6 +139,6 @@ object Demo {
     (getUser :+: getUsers :+: postUser :+: postTicket).toService
 
   // An HTTP endpoint with exception handler and Auth filter.
-  val backend: Service[Request, Response] =
+  def backend: Service[Request, Response] =
     handleExceptions ! authorize ! api
 }
