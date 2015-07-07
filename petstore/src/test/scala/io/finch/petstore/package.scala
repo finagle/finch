@@ -7,6 +7,9 @@ package object petstore {
   implicit val statusArbitrary: Arbitrary[Status] =
     Arbitrary(Gen.oneOf(Available, Pending, Adopted))
 
+  implicit val orderStatArbitrary: Arbitrary[OrderStatus] =
+    Arbitrary(Gen.oneOf(Placed, Approved, Delivered))
+
   implicit val categoryArbitrary: Arbitrary[Category] = Arbitrary(
     for {
       id <- arbitrary[Long]
@@ -30,5 +33,28 @@ package object petstore {
       tags <- arbitrary[Seq[Tag]]
       status <- arbitrary[Status]
     } yield Pet(id, name, photoUrls, Option(category), Option(tags), Option(status))
+  )
+
+  implicit val userArbitrary: Arbitrary[User] = Arbitrary(
+    for{
+      id <- arbitrary[Option[Long]]
+      username <- arbitrary[String] suchThat (s => s != null && s.nonEmpty)
+      firstName <- arbitrary[Option[String]]
+      lastName <- arbitrary[Option[String]]
+      email <- arbitrary[Option[String]]
+      password <- arbitrary[String] suchThat (s => s != null && s.nonEmpty)
+      phone <- arbitrary[Option[String]]
+    } yield User(id, username, firstName, lastName, email, password, phone)
+  )
+
+  implicit val orderArbitrary: Arbitrary[Order] = Arbitrary(
+    for{
+      id <- arbitrary[Option[Long]]
+      petId <- arbitrary[Option[Long]]
+      quantity <- arbitrary[Option[Long]]
+      shipDate <- arbitrary[Option[String]]
+      status <- arbitrary[OrderStatus]
+      complete <- arbitrary[Option[Boolean]]
+    } yield Order(id, petId, quantity, shipDate, Option(status), complete)
   )
 }

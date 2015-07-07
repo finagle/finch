@@ -1,12 +1,11 @@
 package io.finch.petstore
 
 import com.twitter.finagle.Httpx
-import com.twitter.util.Await
+import com.twitter.util.{Future, Await}
 import io.finch.argonaut._
 import io.finch.petstore.endpoint._
 
 class PetstoreApp {
-//  println("WELCOME TO PETSTOREAPP!")
   val db = new PetstoreDb()
   db.addPet(Pet(None, "Sadaharu", Nil, Some(Category(1, "inugami")), Some(Nil), Some(Available)))
   db.addPet(Pet(None, "Despereaux", Nil, Some(Category(1, "mouse")), Some(Nil), Some(Available)))
@@ -15,20 +14,12 @@ class PetstoreApp {
   db.addPet(Pet(None, "Cheshire Cat", Nil, Some(Category(1, "cat")), Some(Nil), Some(Available)))
   db.addPet(Pet(None, "Crookshanks", Nil, Some(Category(1, "cat")), Some(Nil), Some(Available)))
 
-//  val store = Get / "store" / "inventory" /> (
-//      db.statusCodes.map {
-//        _.map { case (k, v) => (k.code, v) }
-//      }
-//      )
-
-//  val server = Httpx.serve(":8080", (updatePet).toService)
-
-  val service = (updatePet(db) :+: getPetEndpt(db) :+: uploadImage(db)).toService
+  val service = (updatePetEndpt(db) :+: getPetEndpt(db) :+: uploadImageEndpt(db) :+: addUsersViaList(db)).toService
   val server = Httpx.serve(":8080", service) //creates service
 
   Await.ready(server)
 
-  def close() = {
+  def close(): Future[Unit] = {
     Await.ready(server.close())
   }
 }

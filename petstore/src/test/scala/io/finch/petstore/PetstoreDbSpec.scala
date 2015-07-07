@@ -10,7 +10,7 @@ Tests for the PetstoreDb class methods
  */
 
 class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
-  val rover = Pet(Some(0), "Rover", Nil, Option(Category(1, "dog")), Option(Seq(Tag(1, "puppy"),
+  val rover = Pet(None, "Rover", Nil, Option(Category(1, "dog")), Option(Seq(Tag(1, "puppy"),
     Tag(2, "white"))), Option(Available))
   val jack = Pet(None, "Jack", Nil, Option(Category(1, "dog")), Option(Seq(Tag(1, "puppy"))),
     Option(Available))
@@ -38,14 +38,16 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
   //GET: getPet
 
   "The Petstore DB" should "allow pet lookup by id" in new DbContext {
-    assert(Await.result(db.getPet(0)) === rover)
+    assert(Await.result(db.getPet(0)) === rover.copy(id = Some(0)))
   }
 
   //POST: add pet
   it should "allow adding pets" in new DbContext {
     check { (pet: Pet) =>
+      val petInput = pet.copy(id = None)
+
       val result = for {
-        petId <- db.addPet(pet)
+        petId <- db.addPet(petInput)
         newPet <- db.getPet(petId)
       } yield newPet === pet.copy(id = Some(petId))
 
@@ -79,6 +81,17 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
     }
   }
 
+  //GET: find all pets
+  it should "allow the lookup of all pets" in new DbContext{
+    val allAnimals: Seq[Pet] = Await.result(db.allPets)
+    val containsAll: Seq[Future[Boolean]] = for{
+      p <- allAnimals
+      id <- p.id
+    } yield db.petExists(id)
+    val flatContainsAll: Seq[Boolean] = Await.result(Future.collect(containsAll))
+    !flatContainsAll.contains(false)
+  }
+
   //GET: find pets by status
   it should "allow the lookup of pets by status" in new DbContext{
     var avail: Seq[Pet] = Await.result(db.getPetsByStatus(Available))
@@ -95,24 +108,7 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
     }
   }
 
-  //Shouldn't have to test for this because invalid Statuses can't be created (tested in PetSpec)??
-//  it should "fail appropriately when using an invalid Status to look up pets" in new DbContext{
-//    //Stuff here
-//  }
-
-  //DELETE: Delete pets from the database
-  it should "allow the deletion of existing pets from the database" in new DbContext{
-    val sadPet = Pet(None, "Blue", Nil, Option(Category(1, "dog")), Option(Nil), Option(Available))
-    db.addPet(sadPet)
-
-    db.deletePet(sadPet.id.getOrElse(-1)) //There WILL be an ID
-
-  }
-
-  it should "fail appropriately if user tries to delete a nonexistant pet" in new DbContext{
-
-  }
-
+  //GET: find pets by tags
   it should "find pets by tags" in new DbContext{
     val puppies = Await.result(db.findPetsByTag(Seq("puppy")))
 
@@ -125,10 +121,149 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
     puppies shouldBe Seq(rover.copy(id = Some(0)))
   }
 
+  //DELETE: Delete pets from the database
+  it should "allow the deletion of existing pets from the database" in new DbContext{
+    val sadPet = Pet(None, "Blue", Nil, Option(Category(1, "dog")), Option(Nil), Option(Available))
+    val genId: Long = Await.result(db.addPet(sadPet))
+
+    val success: Future[Boolean] = db.deletePet(genId) //There WILL be an ID
+    assert(Await.result(success))
+  }
+
+  it should "fail appropriately if user tries to delete a nonexistant pet" in new DbContext{
+    val ghostPet1 = Pet(Option(10), "Teru", Nil, Option(Category(1, "dog")), Option(Nil), Option(Available))
+    assert(!Await.result(db.deletePet(ghostPet1.id.getOrElse(-1))))
+    val ghostPet2 = Pet(None, "Bozu", Nil, Option(Category(1, "dog")), Option(Nil), Option(Available))
+    assert(!Await.result(db.deletePet(ghostPet2.id.getOrElse(-1)))) //Used getOrElse(-1) for endpoints later
+  }
+
+  //POST: Update a pet in the store with form data
+  it should "be able to update existing pets with form data" in new DbContext {
+    db.updatePetViaForm(0, Option("Clifford"), Option(Pending))
+    var p: Pet = Await.result(db.getPet(0))
+    assert(if (p.name.equals("Clifford")) true else false)
+    assert(if (p.status == Option(Pending)) true else false)
+
+    db.updatePetViaForm(0, Option("Rover"), Option(Available))
+    db.updatePetViaForm(0, None, Option(Pending))
+    p = Await.result(db.getPet(0))
+    assert(if (p.name.equals("Rover")) true else false)
+    assert(if (p.status == Option(Pending)) true else false)
+
+    db.updatePetViaForm(0, Option("Rover"), Option(Available))
+    db.updatePetViaForm(0, Option("Clifford"), None)
+    p = Await.result(db.getPet(0))
+    assert(if (p.name.equals("Clifford")) true else false)
+    assert(if (p.status == Option(Available)) true else false)
+
+    db.updatePetViaForm(0, Option("Rover"), Option(Available)) //reset for other tests
+  }
+
+  //============================PET TESTS END HERE================================================
+
+  //+++++++++++++++++++++++++++++STORE TESTS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++
+  //GET: returns the current inventory
   it should "return status counts" in new DbContext{
     val statuses = Await.result(db.getInventory)
-
     statuses shouldBe Map(Available -> 5, Pending -> 2, Adopted -> 2)
   }
+
+  //POST: Place an order for a pet
+  it should "place pet orders" in new DbContext{
+    val mouseCircusOrder: Order = Order(None, Some(4), Some(100), Some("2015-07-01T17:36:58.190Z"), Option(Placed), Option(false))
+    val idFuture: Future[Long] = db.addOrder(mouseCircusOrder)
+    val success: Future[Boolean] = for{
+      id <- idFuture
+      o <- db.findOrder(id)
+    } yield o.equals(mouseCircusOrder.copy(id = Option(id)))
+    Await.result(success)
+  }
+
+  //DELETE: Delete purchase order by ID
+  it should "be able to delete orders by ID" in new DbContext{
+    val catOrder: Order = Order(None, Some(8), Some(100), Some("2015-07-01T17:36:58.190Z"), Option(Placed), Option(false))
+    val idFuture: Future[Long] = db.addOrder(catOrder)
+    val success: Future[Boolean] = for{
+      id <- idFuture
+    } yield Await.result(db.deleteOrder(id))
+    Await.result(success)
+
+    //For non-existent orders...
+    assert(!Await.result(db.deleteOrder(100)))
+  }
+
+  //GET: Find purchase order by ID
+  it should "be able to find an order by its ID" in new DbContext{
+    check{(order: Order) =>
+      val inputOrder: Order = order.copy(id = None)
+      val idFuture: Future[Long] = db.addOrder(inputOrder)
+      val retOrder: Future[Order] = db.findOrder(Await.result(idFuture))
+      Await.result(retOrder).equals(inputOrder.copy(id = Option(Await.result(idFuture))))
+    }
+  }
+
+  //============================STORE TESTS END HERE================================================
+
+  //+++++++++++++++++++++++++++++USER TESTS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++
+
+  //POST: Create user
+  it should "be able to add new users" in new DbContext{
+    check{(u: User) =>
+      val inputUser: User = u.copy(id = None)
+      val name: String = Await.result(db.addUser(inputUser))
+      Await.result(db.getUser(name)).copy(id = None) === inputUser
+    }
+  }
+
+  //POST: Create list of users with given input array
+  //Moved to endpoint
+
+  //POST: Create list of users with given input list
+  //Moved to endpoint
+
+  //GET: Logs user into system
+  /*
+   ======  ===    ||====     ===
+     ||  ||   ||  ||    || ||   ||
+     ||  ||   ||  ||    || ||   ||
+     ||    ===    ||====     ====
+    */
+
+  //GET: Logs out current logged in user session
+  /*
+   ======  ===    ||====     ===
+     ||  ||   ||  ||    || ||   ||
+     ||  ||   ||  ||    || ||   ||
+     ||    ===    ||====     ====
+    */
+
+  //DELETE: Delete user
+  /*
+   ======  ===    ||====     ===
+     ||  ||   ||  ||    || ||   ||
+     ||  ||   ||  ||    || ||   ||
+     ||    ===    ||====     ====
+    */
+
+  //GET: Get user by username, assume all usernames are unique
+  it should "facillitate searching for users via username" in new DbContext{
+    val eSwan: User = User(None, "pirateKing", Some("Elizabeth"), Some("Swan"), Some("eswan@potc.com"),
+      "hoistTheColours", None)
+    db.addUser(eSwan)
+    assert(Await.result(db.getUser("pirateKing")).copy(id = None).equals(eSwan))
+  }
+
+  //PUT: Update user
+  it should "allow the updating of existing users" in new DbContext{
+    val updateMe: User = User(None, "chrysanthemum", Some("Jay"), Some("Chou"), Some("jchou@jay.com"),
+    "terrace", None)
+    db.addUser(updateMe)
+    check{(u:User) =>
+      val inputUser: User = u.copy(id = None, username = updateMe.username)
+      Await.result(db.updateUser(inputUser)).copy(id = None).equals(inputUser)
+    }
+  }
+
+  //============================USER TESTS END HERE================================================
 
 }
