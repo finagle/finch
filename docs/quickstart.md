@@ -30,10 +30,11 @@ In addition to the Finch API we will also need a couple of Finagle basic blocks,
 
 ```scala
 import com.twitter.finagle.Service
-import com.twitter.finagle.httpx.{Httpx, Request, Response}
+import com.twitter.finagle.Httpx
+import com.twitter.finagle.httpx.{Request, Response}
 ```
 
-Using the [route combinators](route.md), we may define a _route_ for our `hello` service. In the code bellow `endpoint`
+Using the [route combinators](route.md), we may define a _route_ for our `hello` service. In the code below `endpoint`
 accepts GET request with path `/(hello|hi)/:name` and routes them to the underling service.
 
 ```scala
