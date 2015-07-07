@@ -5,10 +5,11 @@ import com.twitter.finagle.httpx.{Request, RequestBuilder, Response}
 import com.twitter.util.Await
 import io.finch.argonaut._
 import io.finch.petstore.endpoint._
-import io.finch.petstore.test.ServiceTest
-import org.scalatest.{FlatSpec, Matchers}
+import io.finch.test.ServiceSuite
+import org.scalatest.Matchers
+import org.scalatest.fixture.FlatSpec
 
-trait PetstoreServiceTests extends Matchers { this: ServiceTest =>
+trait PetstoreServiceSuite { this: FlatSpec with ServiceSuite with Matchers =>
   def createService(): Service[Request, Response] = {
     val db = new PetstoreDb()
     db.addPet(Pet(None, "Sadaharu", Nil, Some(Category(1, "inugami")), Some(Nil), Some(Available)))
@@ -36,4 +37,4 @@ trait PetstoreServiceTests extends Matchers { this: ServiceTest =>
   }
 }
 
-class PetstoreServiceTest extends ServiceTest with PetstoreServiceTests
+class PetstoreServiceSpec extends FlatSpec with ServiceSuite with PetstoreServiceSuite with Matchers

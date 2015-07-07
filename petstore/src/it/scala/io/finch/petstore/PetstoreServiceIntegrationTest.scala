@@ -1,5 +1,8 @@
 package io.finch.petstore
 
-import io.finch.petstore.test.ServiceIntegrationTest
+import io.finch.test.ServiceIntegrationSuite
+import org.scalatest.Matchers
+import org.scalatest.fixture.FlatSpec
 
-class PetstoreServiceIntegrationTest extends ServiceIntegrationTest with PetstoreServiceTests
+class PetstoreServiceIntegrationTest extends FlatSpec with Matchers
+  with ServiceIntegrationSuite with PetstoreServiceSuite
