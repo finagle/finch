@@ -129,10 +129,13 @@ lazy val test = project
 
 lazy val demo = project
   .settings(moduleName := "finch-demo")
+  .configs(IntegrationTest.extend(Test))
   .settings(allSettings)
   .settings(noPublish)
+  .settings(Defaults.itSettings)
+  .settings(parallelExecution in IntegrationTest := false)
   .disablePlugins(JmhPlugin)
-  .dependsOn(core, argonaut)
+  .dependsOn(core, argonaut, test % "test,it")
 
 lazy val petstore = project
     .settings(moduleName := "finch-petstore")

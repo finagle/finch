@@ -43,7 +43,4 @@ object reader {
     body.as[Json] map { json =>
       Ticket(Id(), (json.hcursor --\ "label").as[String].getOr("N/A"))
     }
-
-  val a = param("a").as[Int]
-  val b = body.as[Pet]
 }
