@@ -2,7 +2,7 @@ package io.finch.demo
 
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.Method.{Get, Post}
-import com.twitter.finagle.httpx.{Response, Method, Request}
+import com.twitter.finagle.httpx.{Method, Request, Response}
 import com.twitter.io.Buf
 import com.twitter.util.Await
 import org.scalatest._
