@@ -23,6 +23,39 @@ class PetstoreDb {
     }
   )
 
+  //Helper: Generates a default id if not given a valid one
+//  def idGenerator(obj: Any, mapper: Map[Long, Any]): Future[Long] = Future.value{
+    //Assume first param is always the id param
+//    val genId = if (mapper.isEmpty) 0 else mapper.keys.max + 1
+//    val inputId: Long = obj.id
+//    obj match{
+//      case (Some(givenId), _*) => {
+//        val genId = if(mapper.isEmpty) 0 else mapper.keys.max + 1
+//        val inputId: Long = givenId
+//        val id: Long = if (inputId != None){
+//        if (mapper.exists(_._1 == inputId)) genId else inputId.getOrElse(genId)
+//        } else{genId}
+//      }
+//
+//      case (None, _*) => None
+//    }
+//  }
+
+  //Helper: Adds tag to tag map
+  def addTag(inputTag: Tag): Future[Tag] = Future.value(
+    tags.synchronized {
+      val genId = if (tags.isEmpty) 0 else tags.keys.max + 1
+      val inputId: Long = inputTag.id
+      val realId: Long = if (inputId != None) {
+        if (tags.exists(_._1 == inputId)) genId else inputId
+      } else {
+        genId
+      }
+      tags(realId) = inputTag.copy(id = realId)
+      inputTag
+    }
+  )
+
   //POST: Add pet
   def addPet(inputPet: Pet): Future[Long] = Future.value(
     pets.synchronized {
@@ -30,16 +63,17 @@ class PetstoreDb {
       val inputId: Option[Long] = inputPet.id
       val id: Long = if (inputId != None) {
         if (pets.exists(_._1 == inputId)) genId else inputId.getOrElse(genId) //repetition guard
-      } else{genId}
+      } else genId
       pets(id) = inputPet.copy(id = Some(id))
       //Add tags into tag map
-      /*
-      ======  ===    ||====     ===
-        ||  ||   ||  ||    || ||   ||
-        ||  ||   ||  ||    || ||   ||
-        ||    ===    ||====     ====
-       */
-      //End add tags
+//        for{
+//          tagList <- inputPet.tags
+//          t <- tagList
+//        } yield addTag(t)
+      inputPet.tags match{
+        case Some(tagList) => tagList.map(addTag(_))
+        case None => None
+      }
       id
     }
   )
@@ -64,6 +98,13 @@ class PetstoreDb {
   )
 
   //GET: find pets by status
+//  def getPetsByStatus(s: Status): Future[Seq[Pet]] = {
+//    val allMatchesFut = for{
+//      petList <- allPets //List[Pet]
+//    } yield petList.filter(_.status.flatMap(_.code.equals(s.code)))
+//    allMatchesFut
+//  }
+  //This works:
   def getPetsByStatus(s: Status): Future[Seq[Pet]] = {
     val allMatchesFut = for{
       petList <- allPets //List[Pet]
@@ -75,25 +116,6 @@ class PetstoreDb {
   //GET: find pets by tags
   //Muliple tags can be provided with comma seperated strings.
   def findPetsByTag(findTags: Seq[String]): Future[Seq[Pet]] = {
-
-    //map, filter, flatMap is safer----fix this, stay away from mutable collections
-    //filter, exists
-
-    //create true/false
-
-    //What do we know?
-    //findTags = Sequence of Strings
-    //All pets have a Sequence of Tags
-    //We need to find the pets that have findTags in their sequence of tags
-    //You cannot simply create a tag without giving it a valid id first => Cannot just turn all strings into tags and compare
-    //To do that, we could:
-    /*
-      - Turn findTags into a sequence of Tags --> use findTags.forall(p.tags.contains) as a filter method
-     */
-
-//    val realTags =
-
-
     val matchPets = for {
       p <- pets.values
       tagList <- p.tags
@@ -103,25 +125,14 @@ class PetstoreDb {
     
     Future(matchPets.toSeq.sortBy(_.id))
 
-//      val testcopy = for{(k,v) <- testMap;if (v.name.length > 6)} yield v
-//        - Gives back arrayBuffer...which is mutable
-//     */
-
-//    val realTags: Map[Long,Tag] = tags.retain((k,v) => findTags.contains(v.name))
-    //this won't work, since tags is private. Operating directly on it returns PetstoreDb.this.tags.type....need another way
-    //Try this: go through each pet's list of tags and turn THAT into a list of strings
-    //pet.tags.map(_.name)
-    //New menace: p.tags = Option(p.tags)
-
-    val matchPets = for{
-      p <- pets.values
-      tagList <- p.tags
-      pTagStr = tagList.map(_.name)
-      if(findTags.forall(pTagStr.contains))
-    } yield p
-    
-    Future(matchPets.toList)
-//    Future(allMatches.toList)*/
+//    val matchPets = for{
+//      p <- pets.values
+//      tagList <- p.tags
+//      pTagStr = tagList.map(_.name)
+//      if(findTags.forall(pTagStr.contains))
+//    } yield p
+//
+//    Future(matchPets.toSeq.sortBy(_.id))
   }
 
   //DELETE
@@ -134,6 +145,25 @@ class PetstoreDb {
     }
   )
 
+  //POST: Update a pet in the store with form data
+  /*
+     ======  ===    ||====     ===
+       ||  ||   ||  ||    || ||   ||
+       ||  ||   ||  ||    || ||   ||
+       ||    ===    ||====     ====
+      */
+
+
+  //POST: Upload an image
+  /*
+     ======  ===    ||====     ===
+       ||  ||   ||  ||    || ||   ||
+       ||  ||   ||  ||    || ||   ||
+       ||    ===    ||====     ====
+      */
+  //+++++++++++++++++++++++++++++STORE METHODS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++
+
+  //GET: Returns the current inventory
   def getInventory: Future[Map[Status, Int]] = Future.value(
     pets.synchronized {
       pets.groupBy(_._2.status).flatMap {
@@ -142,14 +172,6 @@ class PetstoreDb {
       }
     }
   )
-
-  //POST: Update a pet in the store with form data
-
-  //POST: Upload an image
-
-  //+++++++++++++++++++++++++++++STORE METHODS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++
-
-  //GET: Returns the current inventory
 //  def getInventory: Future[Map[Status, Int]] = Future.value(
 //    pets.synchronized {
 //      pets.groupBy(_._2.status).map {
@@ -158,16 +180,13 @@ class PetstoreDb {
 //      }
 //    }
 //  )
-//  def statusCodes: Future[Map[Status, Int]] = Future.value(
-//    pets.synchronized {
-//      pets.groupBy(_._2.status).map {
-//        case (status, kvs) => (status, kvs.size)
-//      }
-//    }
-//  )
 
   //POST: Place an order for a pet
-
+//  def postOrder(order: Order): Future[Order] = Future.value{
+//    orders.synchronized{
+//      orders.
+//    }
+//  }
 
   //DELETE: Delete purchase order by ID
 

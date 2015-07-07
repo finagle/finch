@@ -8,12 +8,12 @@ import io.finch.petstore.endpoint._
 class PetstoreApp {
 //  println("WELCOME TO PETSTOREAPP!")
   val db = new PetstoreDb()
-  db.addPet(Pet(None, "Sadaharu", Nil, Option(Category(1, "inugami")), Option(Nil), Option(Available)))
-  db.addPet(Pet(None, "Despereaux", Nil, Option(Category(1, "mouse")), Option(Nil), Option(Available)))
-  db.addPet(Pet(None, "Alexander", Nil, Option(Category(1, "mouse")), Option(Nil), Option(Pending)))
-  db.addPet(Pet(None, "Wilbur", Nil, Option(Category(1, "pig")), Option(Nil), Option(Adopted)))
-  db.addPet(Pet(None, "Cheshire Cat", Nil, Option(Category(1, "cat")), Option(Nil), Option(Available)))
-  db.addPet(Pet(None, "Crookshanks", Nil, Option(Category(1, "cat")), Option(Nil), Option(Available)))
+  db.addPet(Pet(None, "Sadaharu", Nil, Some(Category(1, "inugami")), Some(Nil), Some(Available)))
+  db.addPet(Pet(None, "Despereaux", Nil, Some(Category(1, "mouse")), Some(Nil), Some(Available)))
+  db.addPet(Pet(None, "Alexander", Nil, Some(Category(1, "mouse")), Some(Nil), Some(Pending)))
+  db.addPet(Pet(None, "Wilbur", Nil, Some(Category(1, "pig")), Some(Nil), Some(Adopted)))
+  db.addPet(Pet(None, "Cheshire Cat", Nil, Some(Category(1, "cat")), Some(Nil), Some(Available)))
+  db.addPet(Pet(None, "Crookshanks", Nil, Some(Category(1, "cat")), Some(Nil), Some(Available)))
 
 //  val store = Get / "store" / "inventory" /> (
 //      db.statusCodes.map {

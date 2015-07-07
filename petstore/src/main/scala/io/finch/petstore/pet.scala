@@ -84,7 +84,6 @@ TAG THINGS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 case class Tag(id: Long, name: String)
 
 object Tag {
-
   implicit val tagCodec: CodecJson[Tag] =
     casecodec2(Tag.apply, Tag.unapply)("id", "name")
 }
@@ -113,44 +112,44 @@ UPLOAD THINGS END HERE========================================================
 /*
 ORDERSTATUS THINGS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  */
-sealed trait Status {
+sealed trait OrderStatus {
   def code: String
 }
 
-case object Available extends Status {
-  def code: String = "available"
+case object Placed extends OrderStatus {
+  def code: String = "placed"
 }
 
-case object Pending extends Status {
-  def code: String = "pending"
+case object Approved extends OrderStatus {
+  def code: String = "approved"
 }
 
-case object Adopted extends Status {
-  def code: String = "adopted"
+case object Delivered extends OrderStatus {
+  def code: String = "delivered"
 }
 
-object Status {
-  def fromString(s: String): Status = s match {
-    case "available" => Available
-    case "pending" => Pending
-    case "adopted" => Adopted
+object OrderStatus {
+  def fromString(s: String): OrderStatus = s match {
+    case "placed" => Placed
+    case "approved" => Approved
+    case "delivered" => Delivered
   }
 
-  val statusEncode: EncodeJson[Status] =
-    EncodeJson.jencode1[Status, String](_.code)
+  val orderStatusEncode: EncodeJson[OrderStatus] =
+    EncodeJson.jencode1[OrderStatus, String](_.code)
 
-  val statusDecode: DecodeJson[Status] =
+  val orderStatusDecode: DecodeJson[OrderStatus] =
     DecodeJson { c =>
-      c.as[String].flatMap[Status] {
-        case "available" => DecodeResult.ok(Available)
-        case "pending" => DecodeResult.ok(Pending)
-        case "adopted" => DecodeResult.ok(Adopted)
+      c.as[String].flatMap[OrderStatus] {
+        case "placed" => DecodeResult.ok(Placed)
+        case "approved" => DecodeResult.ok(Approved)
+        case "delivered" => DecodeResult.ok(Delivered)
         case other => DecodeResult.fail(s"Unknown status: $other", c.history)
       }
     }
 
-  implicit val statusCodec: CodecJson[Status] =
-    CodecJson.derived(statusEncode, statusDecode)
+  implicit val orderStatusCodec: CodecJson[OrderStatus] =
+    CodecJson.derived(orderStatusEncode, orderStatusDecode)
 }
 
 /*
@@ -172,7 +171,7 @@ case class Order(
 
 object Order {
   implicit val orderCodec: CodecJson[Order] =
-    casecodec6(Order.apply, Option.unapply)("id", "petId", "quantity", "shipDate", "status", "complete")
+    casecodec6(Order.apply, Order.unapply)("id", "petId", "quantity", "shipDate", "status", "complete")
 }
 /*
 ORDER THINGS END HERE========================================================
