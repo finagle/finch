@@ -10,6 +10,7 @@ class PetstoreDb {
   private[this] val tags = mutable.Map.empty[Long, Tag]
   private[this] val cat = mutable.Map.empty[Long, Category]
   private[this] val orders = mutable.Map.empty[Long, Order]
+  private[this] val photos = mutable.Map.empty[Long, Array[Byte]]
 
   def failIfEmpty(o: Option[Pet]): Future[Pet] = o match {
     case Some(pet) => Future.value(pet)
@@ -153,7 +154,6 @@ class PetstoreDb {
        ||    ===    ||====     ====
       */
 
-
   //POST: Upload an image
   /*
      ======  ===    ||====     ===
@@ -161,6 +161,20 @@ class PetstoreDb {
        ||  ||   ||  ||    || ||   ||
        ||    ===    ||====     ====
       */
+  def addImage(petId: Long, data: Array[Byte]): Future[String] =
+    pets.synchronized {
+      for {
+        pet <- getPet(petId)
+        photoId = photos.synchronized {
+          val nextId = if (photos.isEmpty) 0 else photos.keys.max + 1
+          photos(nextId) = data
+          nextId
+        }
+        url = s"/photos/$photoId"
+        _ <- updatePet(pet.copy(photoUrls = pet.photoUrls :+ url))
+      } yield url
+    }
+
   //+++++++++++++++++++++++++++++STORE METHODS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++
 
   //GET: Returns the current inventory

@@ -1,9 +1,10 @@
 package io.finch.petstore
 
+import com.twitter.finagle.httpx.Response
 import com.twitter.util.Future
 import io.finch.argonaut._
 import io.finch.request._
-import io.finch.route.{Get, Put, Router, long}
+import io.finch.route.{Get, Post, Put, Router, long}
 
 object endpoint{
 
@@ -36,6 +37,11 @@ object endpoint{
 //  val findPetsByTagEndpt: Endpoint[HttpRequest, Pet] = Get / "pet" / "findByTags" /> FindPetsByTag
 //  val deletePetEndpt: Endpoint[HttpRequest, Unit] = Delete / "pet" / long /> deletePet
 //  val updatePetStoreStatus: Endpoint[HttpRequest, Pet] = Post / "pet" / long /> UpdatePetStoreStatus
-//  val uploadImage: Endpoint[HttpRequest, Unit] = Post / "pet" / long / "uploadImage" /> UploadImage
+  def uploadImage(db: PetstoreDb): Router[RequestReader[String]] =
+    Post / "pet" / long / "uploadImage" /> { petId: Long =>
+      fileUpload("file").embedFlatMap { upload =>
+        db.addImage(petId, upload.get())
+      }
+    }
 }
 
