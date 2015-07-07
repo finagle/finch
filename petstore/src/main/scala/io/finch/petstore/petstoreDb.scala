@@ -11,6 +11,7 @@ class PetstoreDb {
   private[this] val cat = mutable.Map.empty[Long, Category]
   private[this] val orders = mutable.Map.empty[Long, Order]
   private[this] val photos = mutable.Map.empty[Long, Array[Byte]]
+  private[this] val users = mutable.Map.empty[Long, User]
 
   def failIfEmpty(o: Option[Pet]): Future[Pet] = o match {
     case Some(pet) => Future.value(pet)
@@ -125,15 +126,6 @@ class PetstoreDb {
     } yield p
     
     Future(matchPets.toSeq.sortBy(_.id))
-
-//    val matchPets = for{
-//      p <- pets.values
-//      tagList <- p.tags
-//      pTagStr = tagList.map(_.name)
-//      if(findTags.forall(pTagStr.contains))
-//    } yield p
-//
-//    Future(matchPets.toSeq.sortBy(_.id))
   }
 
   //DELETE
@@ -186,33 +178,57 @@ class PetstoreDb {
       }
     }
   )
-//  def getInventory: Future[Map[Status, Int]] = Future.value(
-//    pets.synchronized {
-//      pets.groupBy(_._2.status).map {
-//        case (status, keyVal) => (status.getOrElse(Available), keyVal.size)
-//        case (None, _) => None
-//      }
-//    }
-//  )
 
   //POST: Place an order for a pet
-//  def postOrder(order: Order): Future[Order] = Future.value{
-//    orders.synchronized{
-//      orders.
-//    }
-//  }
+  def addOrder(order: Order): Future[Order] = Future.value(
+    orders.synchronized{
+      val genId = if (orders.isEmpty) 0 else orders.keys.max + 1
+      val inputId: Option[Long] = order.id
+      val realId: Long = if (inputId != None) {
+        if (order.id == inputId) genId else inputId.getOrElse(genId) //repetition guard
+      } else genId
+      orders(realId) = order.copy(id = Option(realId))
+      orders(realId)
+    }
+  )
 
   //DELETE: Delete purchase order by ID
+  def deleteOrder(id: Long): Future[Boolean] = Future.value(
+    orders.synchronized{
+      if (orders.contains(id)) {
+        orders.remove(id)
+        true
+      } else false
+    }
+  )
 
   //GET: Find purchase order by ID
+  def findOrder(id: Long): Future[Order] = Future.value(
+    orders.synchronized{
+      orders.getOrElse(id, throw OrderNotFound("Your order doesn't exist! :("))
+    }
+  )
 
   //============================STORE METHODS END HERE================================================
 
   //+++++++++++++++++++++++++++++USER METHODS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++
 
   //POST: Create user
+  def addUser(newGuy: User): Future[User] = Future.value(
+    users.synchronized {
+      val genId = if (users.isEmpty) 0 else users.keys.max + 1
+      val inputId: Option[ Long ] = newGuy.id
+      val realId: Long = if (inputId != None) {
+        if (newGuy.id == inputId) genId else inputId.getOrElse(genId) //repetition guard
+      } else genId
+      users(realId) = newGuy.copy(id = Some(realId))
+      users(realId)
+    }
+  )
 
   //POST: Create list of users with given input array
+  //In: List of user objects
+//  def addUsersViaArray(userList: Seq[User]):
 
   //POST: Create list of users with given input list
 
@@ -223,8 +239,27 @@ class PetstoreDb {
   //DELETE: Delete user
 
   //GET: Get user by username
+  def getUser(name: String): Future[Seq[User]] = Future.value(
+    users.synchronized{
+//      val allNames: Seq[String] = users.values.toSeq.map(_.username)
+      val matches: Iterable[User] = for{
+        u <- users.values
+        if(u.username.equals(name))
+      } yield u
+      matches.toSeq
+    }
+  )
 
   //PUT: Update user
+  def updateUser(betterUser: User): Future[User] = Future.value(
+    users.synchronized{
+      val id: Long = betterUser.id.getOrElse(-1)
+      if(users.contains(id)){
+        users(id) = betterUser
+      }
+      users(id)
+    }
+  )
 
   //============================USER METHODS END HERE================================================
 
