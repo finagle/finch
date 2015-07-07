@@ -176,3 +176,26 @@ object Order {
 /*
 ORDER THINGS END HERE========================================================
  */
+
+/*
+USER THINGS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ */
+
+case class User(
+    id: Option[Long],
+    username: String,
+    firstName: Option[String],
+    lastName: Option[String],
+    email: Option[String],
+    password: String,
+    phone: Option[String]
+    )
+
+object User{
+  implicit val userCodec: CodecJson[User] =
+    casecodec7(User.apply, User.unapply)("id", "username", "firstName", "lastName", "email", "password", "phone")
+}
+
+/*
+USER THINGS END HERE========================================================
+ */
