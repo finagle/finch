@@ -25,6 +25,7 @@
 package io.finch.response
 
 import com.twitter.finagle.Service
+import com.twitter.finagle.httpx.Response
 import com.twitter.io.Buf
 import com.twitter.io.Buf.Utf8
 import com.twitter.util.Future
@@ -87,8 +88,8 @@ trait EncodeAnyResponse {
   def contentType: String
 }
 
-class TurnIntoHttp[A](val e: EncodeResponse[A]) extends Service[A, HttpResponse] {
-  def apply(req: A): Future[HttpResponse] = Ok(req)(e).toFuture
+class TurnIntoHttp[A](val e: EncodeResponse[A]) extends Service[A, Response] {
+  def apply(req: A): Future[Response] = Ok(req)(e).toFuture
 }
 
 /**
@@ -96,5 +97,5 @@ class TurnIntoHttp[A](val e: EncodeResponse[A]) extends Service[A, HttpResponse]
  * [[io.finch.response.EncodeResponse EncodeResponse]].
  */
 object TurnIntoHttp {
-  def apply[A](implicit e: EncodeResponse[A]): Service[A, HttpResponse] = new TurnIntoHttp[A](e)
+  def apply[A](implicit e: EncodeResponse[A]): Service[A, Response] = new TurnIntoHttp[A](e)
 }

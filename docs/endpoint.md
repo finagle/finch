@@ -18,13 +18,13 @@ to `Json` (see section [Json](json.md#argonaut)). Since, all the endpoints have 
 or `orElse` operators. The following example shows the discussed example in details:
 
 ```scala
-val auth: Filter[HttpRequest, HttpResponse, OAuth2Request, HttpResponse] = ???
+val auth: Filter[Request, Response, OAuth2Request, Response] = ???
 val users: Endpoint[OAuth2Request, Json] = ???
 val groups: Endpoint[OAuth2Request, Json] = ???
-val endpoint: Endpoint[OAuth2Request, HttpResponse] = (users orElse groups) ! TurnIntoHttp[Json]
+val endpoint: Endpoint[OAuth2Request, Response] = (users orElse groups) ! TurnIntoHttp[Json]
 
 // An HTTP endpoint that may be served with `Httpx`
-val httpEndpoint: Endpoint[HttpRequest, HttpResponse] = auth ! endpoint
+val httpEndpoint: Endpoint[Request, Response] = auth ! endpoint
 ```
 
 The best practices on what to choose for data transformation are following:
@@ -36,7 +36,7 @@ An `Endpoint[Req, Rep]` may be implicitly converted into `Service[Req, Rep]` by 
 the following code is correct.
 
 ```scala
-val e: Endpoint[MyRequest, HttpResponse] = ???
+val e: Endpoint[MyRequest, Response] = ???
 // an endpoint `e` will be converted to service implicitly
 Httpx.serve(new InetSocketAddress(8081), e)
 ```

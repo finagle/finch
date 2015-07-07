@@ -26,7 +26,7 @@
 ### Request Reader
 
 Finch's `RequestReader` is an implementation of the [reader monad][2], a common design pattern in functional programming.
-A `RequestReader[A]` is just a wrapper for a function `HttpRequest => Future[A]` that provides `map` and `flatMap`
+A `RequestReader[A]` is just a wrapper for a function `Request => Future[A]` that provides `map` and `flatMap`
 implementations, together with a few other combinators.
 
 The purpose of the reader monad is to avoid repetitive boilerplate when composing operations that read from a common
@@ -35,13 +35,14 @@ request in a Finagle application:
 
 ```scala
 import io.finch._
+import com.twitter.finagle.httpx.{Request, Response}
 
-def param(req: HttpRequest)(key: String): Option[String] =
+def param(req: Request)(key: String): Option[String] =
   req.params.get(key) orElse {
     ??? // try to get parameter from multipart form
   }
 
-def doSomethingWithRequest(req: HttpRequest): Option[Result] =
+def doSomethingWithRequest(req: Request): Option[Result] =
   for {
     foo <- param(req)("foo")
     bar <- param(req)("bar")
@@ -66,13 +67,13 @@ val doSomethingWithRequest: RequestReader[Result] =
   } yield Result(...)
 ```
 
-We could then "run" the request reader by passing it a `HttpRequest`:
+We could then "run" the request reader by passing it a `Request`:
 
 ```scala
 val result: Future[Result] = doSomethingWithRequest(myReq)
 ```
 
-What's happening here is that we're building up a large `HttpRequest => A` function out of smaller `HttpRequest => A`
+What's happening here is that we're building up a large `Request => A` function out of smaller `Request => A`
 pieces. `param("foo")`, `header("baz")` and `body`, for example, are all values of type `RequestReader[String]`, where
 `param`, `header`, and `body` are generally useful readers that are provided by Finch.
 
@@ -116,7 +117,7 @@ and `embedFlatMap` respectively), to combine it with other readers with the `::`
 
 ```scala
 trait RequestReader[A] {
-  def apply(req: HttpRequest): Future[A]
+  def apply(req: Request): Future[A]
 
   def map[B](fn: A => B): RequestReader[B]
   def flatMap[B](fn: A => RequestReader[B]): RequestReader[B]
@@ -218,7 +219,7 @@ def exception[A](exc: Throwable): RequestReader[A]
 def const[A](value: Future[A]): RequestReader[A]
 
 // Creates a new reader that reads the result from the request.
-def apply[A](f: HttpRequest => A): RequestReader[A]
+def apply[A](f: Request => A): RequestReader[A]
 ```
 
 #### Error Handling
@@ -503,7 +504,7 @@ or `beGreaterThan(n: Int)`, and for strings you can use `beLongerThan(n: Int)` o
 **Important:** Custom request types are supported via the `PRequestReader` type (which `RequestReader` extends), but are
 not generally recommended, since the don't fit well into Finch's philosophy, which is based on the concepts of functional
 programming (programming with functions). Finch's idiomatic style is built on the idea that ["your server is a function"][0]
-and promotes using simple functions `HttpRequest => A` (i.e., `RequestReader`s) instead of overriding the request types.
+and promotes using simple functions `Request => A` (i.e., `RequestReader`s) instead of overriding the request types.
 
 A common pattern (now discouraged in Finch) is to implement authorization using Finagle filters and custom request types
 (i.e. an `AuthRequest`). In Finch, the same effect may be achieved using `RequestReader[AuthorizedUser]` composed in

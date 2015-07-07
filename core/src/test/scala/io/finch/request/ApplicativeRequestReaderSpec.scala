@@ -22,7 +22,6 @@
  */
 package io.finch.request
 
-import io.finch.HttpRequest
 import org.scalatest.{FlatSpec, Matchers}
 
 import com.twitter.finagle.httpx.Request
@@ -31,8 +30,8 @@ import items._
 
 class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
 
-  case class MyReq(http: HttpRequest, i: Int)
-  implicit val reqEv: MyReq %> HttpRequest = View(_.http)
+  case class MyReq(http: Request, i: Int)
+  implicit val reqEv: MyReq %> Request = View(_.http)
 
   val reader: RequestReader[(Int, Double, Int)] = (
     param("a").as[Int] ::

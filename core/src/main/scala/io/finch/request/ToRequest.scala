@@ -1,12 +1,12 @@
 package io.finch.request
 
-import io.finch.HttpRequest
+import com.twitter.finagle.httpx.Request
 
 /**
- * A type class that provides a conversion from some type to a [[HttpRequest]].
+ * A type class that provides a conversion from some type to a [[Request]].
  */
 trait ToRequest[R] {
-  def apply(r: R): HttpRequest
+  def apply(r: R): Request
 }
 
 object ToRequest {
@@ -14,12 +14,12 @@ object ToRequest {
    * A convenience method that supports creating a [[ToRequest]] instance from
    * a function.
    */
-  def apply[R](converter: R => HttpRequest): ToRequest[R] = new ToRequest[R] {
-    def apply(r: R): HttpRequest = converter(r)
+  def apply[R](converter: R => Request): ToRequest[R] = new ToRequest[R] {
+    def apply(r: R): Request = converter(r)
   }
 
   /**
-   * An identity instance for [[HttpRequest]] itself.
+   * An identity instance for [[Request]] itself.
    */
-  implicit val requestIdentity: ToRequest[HttpRequest] = apply(identity)
+  implicit val requestIdentity: ToRequest[Request] = apply(identity)
 }

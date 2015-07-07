@@ -13,13 +13,13 @@
 ### Finch in Action
 
 The ["Finch in Action"][1] problem is about using types that matter rather than dealing with raw HTTP types directly.
-Before version 0.6.0, it wasn't possible to avoid HTTP types (i.e., `HttpRequest`, `HttpResponse`) in the code, since
-the typical use-case is to create a Finch `RequestReader[A]` and call it from `Service[HttpRequest, HttpResponse]`, like
+Before version 0.6.0, it wasn't possible to avoid HTTP types (i.e., `Request`, `Response`) in the code, since
+the typical use-case is to create a Finch `RequestReader[A]` and call it from `Service[Request, Response]`, like
 this:
 
 ```scala
-val sum = new Service[HttpRequest, HttpResponse] {
-  def apply(req: HttpRequest) = for {
+val sum = new Service[Request, Response] {
+  def apply(req: Request) = for {
     a <- param("a")(req)
     b <- param("b")(req)
   } yield Ok("a + b = ${a + b}")
@@ -27,7 +27,7 @@ val sum = new Service[HttpRequest, HttpResponse] {
 ```
 
 The code above has a lot of boilerplate that makes no sense in the domain application, since the sum of two integer
-numbers [is just a function][2] `(Int, Int) => Int` but not a `Service[HttpRequest, HttpResponse]`. Ideally, it should
+numbers [is just a function][2] `(Int, Int) => Int` but not a `Service[Request, Response]`. Ideally, it should
 look like:
 
 ```scala
@@ -65,7 +65,7 @@ val getSum: M[Int] = for {
 ### Micro
 
 The `io.finch.micro` introduces a higher-kinded type `Micro[_]` that implements a monad from the previous section. In
-fact, `Micro` is just an alias for `RequestReader` that does all the magic (i.e., converting the `HttpRequest` into an
+fact, `Micro` is just an alias for `RequestReader` that does all the magic (i.e., converting the `Request` into an
 arbitrary type `A`).
 
 The example below defines a new `Micro[Int]` that sums up two given numbers passed via query-string params "a" and "b".
@@ -80,7 +80,7 @@ Note that `getSum` wires params reading (request decoding) and business logic (f
 
 ### Endpoint
 
-An `Endpoint` (`io.finch.micro.Endpoint`) is a `Router` that fetches a `Micro[HttpResponse]` from the request. Thus,
+An `Endpoint` (`io.finch.micro.Endpoint`) is a `Router` that fetches a `Micro[Response]` from the request. Thus,
 any endpoint may be implicitly converted into a Finagle service. In fact, any `Router[Micro[A]]` may be implicitly
 converted into `Endpoint` if there is an implicit value of type `EncodeResponse[A]` available in the scope. So, it
 implies the third transformation of the request lifecycle from the previous section (i.e, response encoding).
@@ -104,7 +104,7 @@ trait PMicro[R, A] {
 }
 ```
 
-It implies to be _polymorphic_ in terms of request type. Thus, `Micro[A]` is just an alias to `PMicro[HttpRequest, A]`.
+It implies to be _polymorphic_ in terms of request type. Thus, `Micro[A]` is just an alias to `PMicro[Request, A]`.
 That said, it's possible to create an instance of `Micro` that curry a custom request type. There is a factory method
 in companion object that allows it.
 
@@ -115,7 +115,7 @@ object Micro {
 ```
 
 So far so good, but it's not clear yet how to compose `PMicro`s with just `Micro`s since they have different request
-types (in `Micro` it's always fixed to `HttpRequest`). `PMicro` is flexible enough to allow it with one constrain. It's
+types (in `Micro` it's always fixed to `Request`). `PMicro` is flexible enough to allow it with one constrain. It's
 possible to compose (using `flatMap` or `~`) `PMicro[R, _]` with `PMicro[S, _]` if there is an implicit view `R %> S`
 available in the scope. Note, that it uses it's own version of implicit view `io.finch.request.View`, which is just a
 safe alternative to a standard implementation via function.
@@ -123,8 +123,8 @@ safe alternative to a standard implementation via function.
 The following example show usage of a custom request type `SumReq` that curries both values we need to sum.
 
 ```scala
-case class SumReq(a: Int, b: Int, http: HttpRequest)
-implicit val sumReqIsHttp: SumReq %> HttpRequest = View(_.http)
+case class SumReq(a: Int, b: Int, http: Request)
+implicit val sumReqIsHttp: SumReq %> Request = View(_.http)
 
 // It makes sense to create these aliases and do not write the full signature every time
 type SMicro[A] = PMicro[SumReq, A]

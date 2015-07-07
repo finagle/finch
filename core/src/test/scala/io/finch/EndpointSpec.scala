@@ -30,8 +30,8 @@ import org.scalatest.{Matchers, FlatSpec}
 
 class EndpointSpec extends FlatSpec with Matchers {
 
-  def mockService(response: String) = new Service[HttpRequest, String] {
-    def apply(req: HttpRequest) = response.toFuture
+  def mockService(response: String) = new Service[Request, String] {
+    def apply(req: Request) = response.toFuture
   }
 
   def mockRequest(uri: String) = Request(uri)
@@ -71,8 +71,8 @@ class EndpointSpec extends FlatSpec with Matchers {
     }
     val pipeEndpoint = endpoint ! service
     val andThenEndpoint = endpoint andThen { underlying =>
-      new Service[HttpRequest, Int] {
-        def apply(req: HttpRequest) = 42.toFuture
+      new Service[Request, Int] {
+        def apply(req: Request) = 42.toFuture
       }
     }
 
@@ -82,8 +82,8 @@ class EndpointSpec extends FlatSpec with Matchers {
 
   it should "be composable with Filter" in {
     val endpoint = mockEndpoint("a" -> "a")
-    val filter = new Filter[HttpRequest, Int, HttpRequest, String] {
-      def apply(req: HttpRequest, service: Service[HttpRequest, String]) =
+    val filter = new Filter[Request, Int, Request, String] {
+      def apply(req: Request, service: Service[Request, String]) =
         service(req) map { _ => 42 }
     }
     val filterEndpoint = filter ! endpoint
@@ -97,15 +97,15 @@ class EndpointSpec extends FlatSpec with Matchers {
   }
 
   it should "allow for endpoint creation from futures" in {
-    val endpoint: Endpoint[HttpRequest, String] = Endpoint {
+    val endpoint: Endpoint[Request, String] = Endpoint {
       case Method.Get -> Root / "a" => "a".toFuture
     }
-    val service: Service[HttpRequest, String] = endpoint
+    val service: Service[Request, String] = endpoint
     Await.result(service(mockRequest("a"))) shouldBe "a"
   }
 
   it should "convert to service using the implicits" in {
-    case class Req(r: HttpRequest)
+    case class Req(r: Request)
     implicit val reqEv = (req: Req) => req.r
     val endpoint = Endpoint[Req, String] {
       case Method.Get -> Root / "a" => "a".toFuture

@@ -26,14 +26,11 @@
 
 package io.finch
 
+import com.twitter.finagle.httpx.{Cookie, Method, Request}
 import com.twitter.io.Buf
-import com.twitter.finagle.httpx.{Cookie, Method}
-import com.twitter.util.{Future, Return, Throw, Try}
-
-import org.jboss.netty.handler.codec.http.multipart.{HttpPostRequestDecoder, Attribute}
+import org.jboss.netty.handler.codec.http.multipart.{Attribute, HttpPostRequestDecoder}
 
 import scala.collection.JavaConverters._
-import scala.reflect.ClassTag
 
 /**
  * This package introduces types and functions that enable _request processing_ in Finch. The [[io.finch.request]]
@@ -82,9 +79,9 @@ package object request {
   type %>[A, B] = View[A, B]
 
   /**
-   * A [[PRequestReader]] with request type fixed to [[HttpRequest]].
+   * A [[PRequestReader]] with request type fixed to [[Request]].
    */
-  type RequestReader[A] = PRequestReader[HttpRequest, A]
+  type RequestReader[A] = PRequestReader[Request, A]
 
   /**
    * Representations for the various types that can be processed with [[io.finch.request.RequestReader RequestReader]]s.
@@ -100,7 +97,7 @@ package object request {
     case object MultipleItems extends RequestItem("request")
   }
 
-  import items._
+  import io.finch.request.items._
 
   /**
    * Implicit conversion that allows the same inline rules to be used for required and optional values. If the optional
@@ -122,7 +119,7 @@ package object request {
   }
 
   // Helper functions.
-  private[request] def requestParam(param: String)(req: HttpRequest): Option[String] =
+  private[request] def requestParam(param: String)(req: Request): Option[String] =
     req.params.get(param) orElse {
       import com.twitter.finagle.httpx.netty.Bijections._
       val nettyReq = from(req)
@@ -135,19 +132,19 @@ package object request {
       } else None
     }
 
-  private[request] def requestParams(params: String)(req: HttpRequest): Seq[String] =
+  private[request] def requestParams(params: String)(req: Request): Seq[String] =
     req.params.getAll(params).toList.flatMap(_.split(","))
 
-  private[request] def requestHeader(header: String)(req: HttpRequest): Option[String] =
+  private[request] def requestHeader(header: String)(req: Request): Option[String] =
     req.headerMap.get(header)
 
-  private[request] def requestBody(req: HttpRequest): Array[Byte] =
+  private[request] def requestBody(req: Request): Array[Byte] =
     Buf.ByteArray.Shared.extract(req.content)
 
-  private[request] def requestCookie(cookie: String)(req: HttpRequest): Option[Cookie] =
+  private[request] def requestCookie(cookie: String)(req: Request): Option[Cookie] =
     req.cookies.get(cookie)
 
-  private[request] def requestUpload(upload: String)(req: HttpRequest): Option[FileUpload] = {
+  private[request] def requestUpload(upload: String)(req: Request): Option[FileUpload] = {
     import com.twitter.finagle.httpx.netty.Bijections._
     val decoder = new HttpPostRequestDecoder(from(req))
     decoder.getBodyHttpDatas.asScala.find(_.getName == upload).flatMap {
@@ -157,8 +154,8 @@ package object request {
   }
 
   // A convenient method for internal needs.
-  private[request] def rr[A](i: RequestItem)(f: HttpRequest => A): RequestReader[A] =
-    RequestReader.embed[HttpRequest, A](i)(f(_).toFuture)
+  private[request] def rr[A](i: RequestItem)(f: Request => A): RequestReader[A] =
+    RequestReader.embed[Request, A](i)(f(_).toFuture)
 
   /**
    * Creates a [[RequestReader]] that reads a required query-string param `name` from the request or raises a
