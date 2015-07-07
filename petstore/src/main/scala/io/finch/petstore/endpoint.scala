@@ -12,6 +12,10 @@ object endpoint{
 //    PetstoreApp.db.addPet(reader.petReader)
 //  }
 
+  //body.as[Pet]: RequestReader[Pet]
+  //body.as[Pet].flatMap { pet => param("petId") }: RequestReader[String]
+  //body.as[Pet].embedFlatMap { pet => Future(pet.id) }: RequestReader[Long]
+
   def updatePet(db: PetstoreDb): Router[RequestReader[Pet]] = Put / "pet" / long /> { petId : Long =>
     body.as[Pet].embedFlatMap { pet =>
       for {
@@ -29,6 +33,11 @@ object endpoint{
     }*/
 
   }
+
+  //def createUsersReader: RequestReader[Seq[User]] = ???
+
+  //def createUsers(db: PetstoreDb) = Post / "user" / "createWithList" /> createUsersReader
+  //def createUsers(db: PetstoreDb) = Post / "user" / "createWithArray" /> createUsersReader
 
   def getPetEndpt(db: PetstoreDb) = Get / "pet" / long /> db.getPet
 //  val addPetEndpt: Endpoint[HttpRequest, Pet] = Post / "pet" /> addPet
