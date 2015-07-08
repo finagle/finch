@@ -43,7 +43,7 @@ class PetstoreDb {
 //    }
 //  }
 
-  //Helper: Adds tag to tag map
+  //Helper Method: Adds tag to tag map
   def addTag(inputTag: Tag): Future[Tag] = Future.value(
     tags.synchronized {
       val genId = if (tags.isEmpty) 0 else tags.keys.max + 1
@@ -95,18 +95,12 @@ class PetstoreDb {
     //    case None => Future.exception(MissingIdentifier(s"Missing id for pet: $inputPet"))
   }
 
+  //Helper Method: Get all the pets in the database
   def allPets: Future[List[Pet]] = Future.value(
     pets.synchronized(pets.toList.sortBy(_._1).map(_._2))
   )
 
   //GET: find pets by status
-//  def getPetsByStatus(s: Status): Future[Seq[Pet]] = {
-//    val allMatchesFut = for{
-//      petList <- allPets //List[Pet]
-//    } yield petList.filter(_.status.flatMap(_.code.equals(s.code)))
-//    allMatchesFut
-//  }
-  //This works:
   def getPetsByStatus(s: Status): Future[Seq[Pet]] = {
     val allMatchesFut = for{
       petList <- allPets //List[Pet]
@@ -139,20 +133,14 @@ class PetstoreDb {
   )
 
   //POST: Update a pet in the store with form data
-  /*
-     ======  ===    ||====     ===
-       ||  ||   ||  ||    || ||   ||
-       ||  ||   ||  ||    || ||   ||
-       ||    ===    ||====     ====
-      */
+  def updatePetViaForm(petId: Long, n: String, s: Status): Future[Pet] = {
+      if(pets.contains(petId)) pets.synchronized{
+        pets(petId) = pets(petId).copy(name = n, status = Some(s))
+        Future.value(pets(petId))
+      } else Future.exception(MissingPet("Invalid id: doesn't exist"))
+    }
 
   //POST: Upload an image
-  /*
-     ======  ===    ||====     ===
-       ||  ||   ||  ||    || ||   ||
-       ||  ||   ||  ||    || ||   ||
-       ||    ===    ||====     ====
-      */
   def addImage(petId: Long, data: Array[Byte]): Future[String] =
     pets.synchronized {
       for {
@@ -228,25 +216,51 @@ class PetstoreDb {
 
   //POST: Create list of users with given input array
   //In: List of user objects
-//  def addUsersViaArray(userList: Seq[User]):
+  def addUsersViaArray(addAll: Seq[User]): Future[Seq[User]] = {
+    addAll.map(addUser(_))
+    Future.value(addAll)
+  }
 
   //POST: Create list of users with given input list
+  def addUsersViaList(addAll: Seq[User]): Future[Seq[User]] = {
+    addAll.map(addUser(_))
+    Future.value(addAll)
+  }
 
   //GET: Logs user into system
+  /*
+   ======  ===    ||====     ===
+     ||  ||   ||  ||    || ||   ||
+     ||  ||   ||  ||    || ||   ||
+     ||    ===    ||====     ====
+    */
 
   //GET: Logs out current logged in user session
+  /*
+   ======  ===    ||====     ===
+     ||  ||   ||  ||    || ||   ||
+     ||  ||   ||  ||    || ||   ||
+     ||    ===    ||====     ====
+    */
 
   //DELETE: Delete user
+  /*
+   ======  ===    ||====     ===
+     ||  ||   ||  ||    || ||   ||
+     ||  ||   ||  ||    || ||   ||
+     ||    ===    ||====     ====
+    */
 
-  //GET: Get user by username
-  def getUser(name: String): Future[Seq[User]] = Future.value(
+  //GET: Get user by username, assume all usernames are unique
+  def getUser(name: String): Future[User] = Future.value(
     users.synchronized{
-//      val allNames: Seq[String] = users.values.toSeq.map(_.username)
-      val matches: Iterable[User] = for{
+      val pickMeIter: Iterable[User] = for{
         u <- users.values
-        if(u.username.equals(name))
+        if u.username.equals(name)
       } yield u
-      matches.toSeq
+      if(pickMeIter.toSeq.length > 1) Future.exception(RedundantUsername("Two users can't have the same username. " +
+          "Something's wrong!"))
+      pickMeIter.toSeq.head
     }
   )
 

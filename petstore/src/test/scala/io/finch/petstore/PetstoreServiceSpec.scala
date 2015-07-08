@@ -21,7 +21,7 @@ trait PetstoreServiceSuite { this: FlatSpec with ServiceSuite with Matchers =>
     db.addPet(Pet(None, "Crookshanks", Nil, Some(Category(1, "cat")), Some(Nil), Some(Available)))
 
     // Add your endpoint here
-    (updatePet(db) :+: getPetEndpt(db) :+: uploadImage(db)).toService
+    (updatePetEndpt(db) :+: getPetEndpt(db) :+: uploadImageEndpt(db)).toService
   }
 
   "The petstore app" should "return valid pets" in { f =>

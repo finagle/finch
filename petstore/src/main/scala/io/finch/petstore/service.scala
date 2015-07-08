@@ -15,15 +15,9 @@ class PetstoreApp {
   db.addPet(Pet(None, "Cheshire Cat", Nil, Some(Category(1, "cat")), Some(Nil), Some(Available)))
   db.addPet(Pet(None, "Crookshanks", Nil, Some(Category(1, "cat")), Some(Nil), Some(Available)))
 
-//  val store = Get / "store" / "inventory" /> (
-//      db.statusCodes.map {
-//        _.map { case (k, v) => (k.code, v) }
-//      }
-//      )
-
 //  val server = Httpx.serve(":8080", (updatePet).toService)
 
-  val service = (updatePet(db) :+: getPetEndpt(db) :+: uploadImage(db)).toService
+  val service = (updatePetEndpt(db) :+: getPetEndpt(db) :+: uploadImageEndpt(db)).toService
   val server = Httpx.serve(":8080", service) //creates service
 
   Await.ready(server)
