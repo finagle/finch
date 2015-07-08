@@ -95,11 +95,6 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
     }
   }
 
-  //Shouldn't have to test for this because invalid Statuses can't be created (tested in PetSpec)??
-//  it should "fail appropriately when using an invalid Status to look up pets" in new DbContext{
-//    //Stuff here
-//  }
-
   //DELETE: Delete pets from the database
   it should "allow the deletion of existing pets from the database" in new DbContext{
     val sadPet = Pet(None, "Blue", Nil, Option(Category(1, "dog")), Option(Nil), Option(Available))
@@ -110,9 +105,37 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
   }
 
   it should "fail appropriately if user tries to delete a nonexistant pet" in new DbContext{
-
+    val ghostPet1 = Pet(Option(10), "Teru", Nil, Option(Category(1, "dog")), Option(Nil), Option(Available))
+//    println("ghostPet1")
+    assert(!Await.result(db.deletePet(ghostPet1.id.getOrElse(-1))))
+//    println("ghostPet2")
+    val ghostPet2 = Pet(None, "Bozu", Nil, Option(Category(1, "dog")), Option(Nil), Option(Available))
+    assert(!Await.result(db.deletePet(ghostPet2.id.getOrElse(-1)))) //Used getOrElse(-1) for endpoints later
   }
 
+  //POST: Update a pet in the store with form data
+  it should "be able to update existing pets with form data" in new DbContext {
+    db.updatePetViaForm(0, Option("Clifford"), Option(Pending))
+    var p: Pet = Await.result(db.getPet(0))
+    assert(if (p.name.equals("Clifford")) true else false)
+    assert(if (p.status == Option(Pending)) true else false)
+
+    db.updatePetViaForm(0, Option("Rover"), Option(Available))
+    db.updatePetViaForm(0, None, Option(Pending))
+    p = Await.result(db.getPet(0))
+    assert(if (p.name.equals("Rover")) true else false)
+    assert(if (p.status == Option(Pending)) true else false)
+
+    db.updatePetViaForm(0, Option("Rover"), Option(Available))
+    db.updatePetViaForm(0, Option("Clifford"), None)
+    p = Await.result(db.getPet(0))
+    assert(if (p.name.equals("Clifford")) true else false)
+    assert(if (p.status == Option(Available)) true else false)
+  }
+
+
+
+  //GET: find pets by tags
   it should "find pets by tags" in new DbContext{
     val puppies = Await.result(db.findPetsByTag(Seq("puppy")))
 
@@ -125,6 +148,7 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
     puppies shouldBe Seq(rover.copy(id = Some(0)))
   }
 
+  //GET: returns the current inventory
   it should "return status counts" in new DbContext{
     val statuses = Await.result(db.getInventory)
 

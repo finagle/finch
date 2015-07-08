@@ -125,17 +125,21 @@ class PetstoreDb {
   //DELETE
   def deletePet(id: Long): Future[Boolean] = Future.value(
     pets.synchronized {
-      if (pets.contains(id)) {
-        pets.remove(id)
-        true
-      } else false
+      if (id == None) false else{
+        if (pets.contains(id)) {
+          pets.remove(id)
+          true
+        } else false
+      }
     }
   )
 
   //POST: Update a pet in the store with form data
-  def updatePetViaForm(petId: Long, n: String, s: Status): Future[Pet] = {
+  def updatePetViaForm(petId: Long, n: Option[String], s: Option[Status]): Future[Pet] = {
       if(pets.contains(petId)) pets.synchronized{
-        pets(petId) = pets(petId).copy(name = n, status = Some(s))
+        if (s != None) {pets(petId) = pets(petId).copy(status = s)}
+        if (n != None) {pets(petId) = pets(petId).copy(name = n.get)}
+//        pets(petId) = pets(petId).copy(name = n, status = Some(s))
         Future.value(pets(petId))
       } else Future.exception(MissingPet("Invalid id: doesn't exist"))
     }

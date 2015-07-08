@@ -84,7 +84,6 @@ class TagSpec extends FlatSpec with Matchers with Checkers{
         val json = s"""{ "id": $id, "name": "$name" }"""
         Parse.decodeOption[Tag](json) === Some(Tag(id, name))
       }
-
     }
   }
 

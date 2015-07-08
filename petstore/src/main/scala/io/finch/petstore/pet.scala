@@ -84,6 +84,16 @@ TAG THINGS BEGIN HERE+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 case class Tag(id: Long, name: String)
 
 object Tag {
+//  val tagDecode: DecodeJson[Tag] =
+//    DecodeJson {t =>
+//      t.as[String].flatMap[Tag] {
+//        case """""" => DecodeResult.fail("""Unknown tag: " """, t.history)
+//        case """\""" => DecodeResult.fail("""Unknown tag: \""", t.history)
+//        case """/""" => DecodeResult.fail("""Unknown tag: /""", t.history)
+//        case x => DecodeResult.ok(Tag())
+//      }
+//    }
+
   implicit val tagCodec: CodecJson[Tag] =
     casecodec2(Tag.apply, Tag.unapply)("id", "name")
 }

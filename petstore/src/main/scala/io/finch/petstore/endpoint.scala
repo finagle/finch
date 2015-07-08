@@ -57,7 +57,7 @@ object endpoint{
       case (n, s) =>
         for{
           pet:Pet <- db.getPet(petId)
-          newPet: Pet <- db.updatePetViaForm(petId, n, s)
+          newPet: Pet <- db.updatePetViaForm(petId, Option(n), Option(s))
         } yield newPet
     }
   }
