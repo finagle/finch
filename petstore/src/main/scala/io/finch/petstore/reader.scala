@@ -16,23 +16,6 @@ object reader {
 
   implicit val nameReader: RequestReader[ String ] = param("name")
 
-//  implicit val createUsersReader: RequestReader[ Seq[ User ] ] = {
-//    val uSeq: RequestReader[Seq[User]] = body.as[Seq[User]]
-//    val newSeq: Seq[User] = Seq.empty[User]
-        /*
-     ======  ===    ||====     ===
-       ||  ||   ||  ||    || ||   ||
-       ||  ||   ||  ||    || ||   ||
-       ||    ===    ||====     ====
-      */
-//    for{
-//      u <- uSeq
-//      u.as[User]
-//    } yield u
-//    uSeq.embedFlatMap{
-//      _.as[User]
-//    }
-
 //    body.as[Seq].map(_.as[User])
 //  }
 

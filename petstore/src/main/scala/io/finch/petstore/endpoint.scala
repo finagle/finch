@@ -102,20 +102,18 @@ object endpoint{
     }
   }
 
-//  def createUsers(db: PetstoreDb) = Post / "user" / "createWithList" /> createUsersReader
-  /*
- ======  ===    ||====     ===
-   ||  ||   ||  ||    || ||   ||
-   ||  ||   ||  ||    || ||   ||
-   ||    ===    ||====     ====
-  */
-//  def createUsers(db: PetstoreDb) = Post / "user" / "createWithArray" /> createUsersReader
-  /*
- ======  ===    ||====     ===
-   ||  ||   ||  ||    || ||   ||
-   ||  ||   ||  ||    || ||   ||
-   ||    ===    ||====     ====
-  */
+  def addUsersViaList(db: PetstoreDb) = Post / "user" / "createWithList" /> {
+    body.as[Seq[User]].embedFlatMap{uList =>
+      db.addUsersViaList(uList)
+    }
+  }
+
+  def addUsersViaArray(db: PetstoreDb) = Post / "user" / "createWithArray" /> {
+    body.as[Seq[User]].embedFlatMap { uList =>
+      db.addUsersViaArray(uList)
+    }
+  }
+
 
   //login endpoint
   /*
