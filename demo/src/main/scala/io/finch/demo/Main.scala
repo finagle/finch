@@ -48,7 +48,7 @@ import io.finch.route._            // import route combinators
  * You can then access the service using curl, for example:
  *
  * > # List users
- * > curl -i -H "X-Secret: open sesame" http://localhost:8080/users
+ * > curl -i -H "X-Secret: open sesame" http://localhost:8080/users <--- X-Secret is a "header"!!
  * > # Get a user
  * > curl -i -H "X-Secret: open sesame" http://localhost:8080/users/1
  * > # Add a user
@@ -73,10 +73,17 @@ object Main extends App {
     List(Ticket(Id(), "PHL -> DCA"))
   )
 
+  val exampleUser4: User = User(
+    Id(),
+    "Sakata Gintoki",
+    List(Ticket(Id(), "SFO -> SAN"))
+  )
+
   // Pre-load the database with some examples.
   Await.ready(Db.insert(exampleUser1.id, exampleUser1))
   Await.ready(Db.insert(exampleUser2.id, exampleUser2))
   Await.ready(Db.insert(exampleUser3.id, exampleUser3))
+  Await.ready(Db.insert(exampleUser4.id, exampleUser4))
 
   // Serve the backend using the Httpx protocol.
   val _ = Await.ready(Httpx.serve(":8080", Demo.backend))
