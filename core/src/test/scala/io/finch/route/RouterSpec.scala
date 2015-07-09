@@ -24,7 +24,7 @@ package io.finch.route
 
 import com.twitter.finagle.{Service, httpx}
 import com.twitter.finagle.httpx.{Request, Response}
-import com.twitter.util.{Await, Return}
+import com.twitter.util.{Base64StringEncoder, Await, Return}
 import io.finch._
 import io.finch.request.{DecodeRequest, param}
 import io.finch.response._
@@ -350,5 +350,25 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     val router: Router[String :+: Int :+: Long :+: CNil] = string :+: int :+: long
 
     assert(router.toString === "(:string|(:int|:long))")
+  }
+
+  "A basicAuth combinator" should "auth the router" in {
+    def encode(user: String, password: String) = "Basic " + Base64StringEncoder.encode(s"$user:$password".getBytes)
+    val r: Router[String] = get(/) /> "foo"
+
+    check { (u: String, p: String) =>
+      val req = Request()
+      req.headerMap.update("Authorization", encode(u, p))
+
+      val rr = basicAuth(u, p)(r)
+
+      rr.toString === s"BasicAuth($r)"
+      rr(RouterInput(req)) === Some((RouterInput(req), "foo"))
+    }
+  }
+
+  it should "drop the request if auth is failed" in {
+    val r: Router0 = basicAuth("foo", "bar")(/)
+    r(RouterInput(Request())) shouldBe None
   }
 }
