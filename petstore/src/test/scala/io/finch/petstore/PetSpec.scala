@@ -30,16 +30,18 @@ class PetSpec extends FlatSpec with Matchers with Checkers {
 Tests for the Status class
  */
 class StatusSpec extends FlatSpec with Matchers with Checkers {
-
-  "The Status codec" should "correctly fail to decode irrelevant JSON" in {
+  "The Status codec" should "correctly decode JSON" in {
     Parse.decodeOption[Status]("\"available\"") shouldBe Some(Available)
     Parse.decodeOption[Status]("\"pending\"") shouldBe Some(Pending)
     Parse.decodeOption[Status]("\"adopted\"") shouldBe Some(Adopted)
-    Parse.decodeOption[Status]("") shouldBe None
+  }
+
+  it should "fail to decode irrelevant JSON" in {
+    Parse.decodeOption[Status]("\"foo\"") shouldBe None
 
     check{(randString: String) =>
-      (!List("available", "pending", "adopted)").contains(randString)) ==> {
-        Parse.decodeOption[Status](randString) === None
+      !List("available", "pending", "adopted)").contains(randString) ==> {
+        Parse.decodeOption[Status]("\"randString\"") === None
       }
     }
   }
@@ -59,10 +61,10 @@ class CategorySpec extends FlatSpec with Matchers with Checkers {
   "The Category codec" should "correctly decode JSON" in {
     val slash = """\"""
     check { (id: Long, name: String) =>
-      (!name.contains(slash)) ==> {
+      (!name.contains(slash) && name != "\"") ==> {
         val json = s"""{ "id": $id, "name": "$name" }"""
 
-        Parse.decodeOption[Category](json) === Some(Category(id, name))
+        Parse.decodeOption[Category](json) === Some(Category(Option(id), name))
       }
     }
   }
@@ -82,7 +84,7 @@ class TagSpec extends FlatSpec with Matchers with Checkers{
     check{ (id: Long, name: String) =>
       (!name.contains("\"") && !name.contains("\\")) ==> {
         val json = s"""{ "id": $id, "name": "$name" }"""
-        Parse.decodeOption[Tag](json) === Some(Tag(id, name))
+        Parse.decodeOption[Tag](json) === Some(Tag(Option(id), name))
       }
     }
   }
@@ -99,13 +101,13 @@ Tests for OrderStatus
  */
 class OrderStatusSpec extends FlatSpec with Matchers with Checkers{
   "The OrderStatus codec" should "correctly fail to decode irrelevant JSON" in {
-    Parse.decodeOption[OrderStatus]("placed") === Placed
-    Parse.decodeOption[OrderStatus]("approved") === Approved
-    Parse.decodeOption[OrderStatus]("delivered") === Delivered
-    Parse.decodeOption[OrderStatus]("") === None
+    Parse.decodeOption[OrderStatus]("\"placed\"") === Placed
+    Parse.decodeOption[OrderStatus]("\"approved\"") === Approved
+    Parse.decodeOption[OrderStatus]("\"delivered\"") === Delivered
+//    Parse.decodeOption[OrderStatus]("") === None
       check{(randString: String) =>
         (!List("placed", "approved", "delivered").contains(randString)) ==> {
-          Parse.decodeOption[OrderStatus](randString) === None
+          Parse.decodeOption[OrderStatus]("\"randString\"") === None
         }
       }
   }
@@ -155,3 +157,19 @@ class UserSpec extends FlatSpec with Matchers with Checkers{
   }
 }
 
+/*
+Tests for Inventory
+ */
+class InventorySpec extends FlatSpec with Matchers with Checkers{
+  "The Inventory codec" should "correctly decode JSON to Inventory" in {
+    check {i: Inventory =>
+      val json = i.asJson.toString
+      Parse.decodeOption[Inventory](json) === Some(i)
+    }
+  }
+   it should "correctly encode an Inventory to JSON" in {
+    check{i: Inventory =>
+      Parse.decodeOption[Inventory](i.asJson.nospaces) === Some(i)
+    }
+   }
+}

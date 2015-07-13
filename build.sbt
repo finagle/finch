@@ -144,6 +144,7 @@ lazy val petstore = project
     .settings(noPublish)
     .settings(Defaults.itSettings)
     .settings(parallelExecution in IntegrationTest := false)
+    .settings(coverageExcludedPackages := "io\\.finch\\.petstore\\.PetstoreApp.*")
     .disablePlugins(JmhPlugin)
     .dependsOn(core, argonaut, test % "test,it")
 
