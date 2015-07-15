@@ -1,5 +1,8 @@
 package io.finch.petstore
 
+/**
+ * The parent error from which most PetstoreAPI errors extend. Thrown whenever something in the api goes wrong.
+ */
 sealed abstract class PetstoreError(msg: String) extends Exception(msg) {
   def message: String
 }

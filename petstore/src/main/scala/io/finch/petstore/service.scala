@@ -2,8 +2,6 @@ package io.finch.petstore
 
 import com.twitter.finagle.Httpx
 import com.twitter.util.{Future, Await}
-import io.finch.argonaut._
-import io.finch.petstore.endpoint._
 
 /**
  * PetstoreApp runs the PetstoreAPI service. It is the hub where all the endpoints that give users access to API

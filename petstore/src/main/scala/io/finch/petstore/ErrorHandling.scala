@@ -10,7 +10,13 @@ import io.finch.request.items._
 import io.finch.response._
 import io.finch.route._
 
+/**
+ * Tells the API how to respond when certain exceptions are thrown.
+ */
 trait ErrorHandling {
+  /**
+   * Tells the service how to handle certain types of servable errors (i.e. PetstoreError)
+   */
   def errorHandler: PartialFunction[Throwable, Response] = {
     case RouteNotFound(route) => NotFound(
       Map("error" -> "route_not_found", "route" -> route).asJson
@@ -36,8 +42,10 @@ trait ErrorHandling {
     )
   }
 
-  // A simple Finagle filter that handles all the exceptions, which might be thrown by
-  // a request reader of one of the REST services.
+  /**
+   * A simple Finagle filter that handles all the exceptions, which might be thrown by
+   * a request reader of one of the REST services.
+   */
   def handleExceptions: SimpleFilter[Request,Response] = new SimpleFilter[Request, Response] {
     def apply(req: Request, service: Service[Request, Response]): Future[Response] =
       service(req).handle(errorHandler)

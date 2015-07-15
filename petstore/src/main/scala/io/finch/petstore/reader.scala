@@ -1,6 +1,5 @@
 package io.finch.petstore
 
-import io.finch.argonaut._
 import io.finch.request._
 
 /**

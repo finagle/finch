@@ -1,7 +1,6 @@
 package io.finch.petstore
 
 import com.twitter.util.{Future, Await}
-import org.scalatest._
 import org.scalatest.prop.Checkers
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -10,17 +9,17 @@ Tests for the PetstoreDb class methods
  */
 
 class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
-  val rover = Pet(None, "Rover", Nil, Option(Category(None, "dog")), Option(Seq(Tag(None, "puppy"),
-    Tag(None, "white"))), Option(Available))
-  val jack = Pet(None, "Jack", Nil, Option(Category(None, "dog")), Option(Seq(Tag(None, "puppy"))),
-    Option(Available))
-  val sue = Pet(None, "Sue", Nil, Option(Category(None, "dog")), Option(Nil), Option(Adopted))
-  val sadaharu = Pet(None, "Sadaharu", Nil, Option(Category(None, "inugami")), Option(Nil), Option(Available))
-  val despereaux = Pet(None, "Despereaux", Nil, Option(Category(None, "mouse")), Option(Nil), Option(Pending))
-  val alexander = Pet(None, "Alexander", Nil, Option(Category(None, "mouse")), Option(Nil), Option(Pending))
-  val wilbur = Pet(None, "Wilbur", Nil, Option(Category(None, "pig")), Option(Nil), Option(Adopted))
-  val cheshire = Pet(None, "Cheshire Cat", Nil, Option(Category(None, "cat")), Option(Nil), Option(Available))
-  val crookshanks = Pet(None, "Crookshanks", Nil, Option(Category(None, "cat")), Option(Nil), Option(Available))
+  val rover = Pet(None, "Rover", Nil, Some(Category(None, "dog")), Some(Seq(Tag(None, "puppy"), Tag(None, "white"))),
+    Some(Available))
+  val jack = Pet(None, "Jack", Nil, Some(Category(None, "dog")), Some(Seq(Tag(None, "puppy"))), Some(Available))
+  val sue = Pet(None, "Sue", Nil, Some(Category(None, "dog")), Some(Nil), Some(Adopted))
+  val sadaharu = Pet(None, "Sadaharu", Nil, Some(Category(None, "inugami")), Some(Nil), Some(Available))
+  val despereaux = Pet(None, "Despereaux", Nil, Some(Category(None, "mouse")), Some(Nil), Some(Pending))
+  val alexander = Pet(None, "Alexander", Nil, Some(Category(None, "mouse")), Some(Nil), Some(Pending))
+  val wilbur = Pet(None, "Wilbur", Nil, Some(Category(None, "pig")), Some(Nil), Some(Adopted))
+  val cheshire = Pet(None, "Cheshire Cat", Nil, Some(Category(None, "cat")), Some(Nil), Some(Available))
+  val crookshanks = Pet(None, "Crookshanks", Nil, Some(Category(None, "cat")), Some(Nil), Some(Available))
+  val coraline: User = User(None, "coraline", Some("Coraline"), Some("Jones"), None, "becarefulwhatyouwishfor", None)
 
   trait DbContext {
     val db = new PetstoreDb()
@@ -33,10 +32,10 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
     Await.ready(db.addPet(wilbur))
     Await.ready(db.addPet(cheshire))
     Await.ready(db.addPet(crookshanks))
+    Await.ready(db.addUser(coraline))
   }
 
   //GET: getPet
-
   "The Petstore DB" should "allow pet lookup by id" in new DbContext {
     assert(Await.result(db.getPet(0)) === rover.copy(id = Some(0)))
   }
@@ -56,7 +55,7 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
       } yield newPet === pet.copy(id = Some(petId))
 
       Await.result(result)
-    }
+     }
   }
 
   it should "allow adding pets with no category" in new DbContext {
@@ -69,7 +68,7 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
       } yield newPet === pet.copy(id = Some(petId), category = None)
 
       Await.result(result)
-    }
+     }
   }
 
   it should "allow adding pets with no tags" in new DbContext {
@@ -82,7 +81,7 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
       } yield newPet === pet.copy(id = Some(petId), tags = None)
 
       Await.result(result)
-    }
+     }
   }
 
   it should "fail appropriately when asked to add invalid pets" in new DbContext{
@@ -92,7 +91,7 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
 
   //PUT: Update pet
   it should "allow for the updating of existing pets via new Pet object" in new DbContext {
-    check{(pet:Pet) =>
+    check{ (pet:Pet) =>
       val betterPet = pet.copy(id = Some(0))
       db.updatePet(betterPet)
       val result = for{
@@ -100,35 +99,24 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
       } yield optPet === betterPet
 
       Await.result(result)
-    }
+     }
   }
 
   it should "fail appropriately for the updating of nonexistant pets" in new DbContext{
-    check{(pet: Pet) =>
+    check{ (pet: Pet) =>
       val noPet = pet.copy(id = Some(10))
       val f = db.updatePet(noPet)
       Await.result(f.liftToTry).isThrow
-    }
+     }
   }
 
   it should "fail to update pets when replacements are passed with no ID" in new DbContext {
-    check{(pet: Pet) =>
+    check{ (pet: Pet) =>
       val noPet = pet.copy(id = None)
       val f = db.updatePet(noPet)
       Await.result(f.liftToTry).isThrow
-    }
+     }
   }
-
-//  //GET: find all pets
-//  it should "allow the lookup of all pets" in new DbContext{
-//    val allAnimals: Seq[Pet] = Await.result(db.allPets)
-//    val containsAll: Seq[Future[Boolean]] = for{
-//      p <- allAnimals
-//      id <- p.id
-//    } yield db.petExists(id)
-//    val flatContainsAll: Seq[Boolean] = Await.result(Future.collect(containsAll))
-//    !flatContainsAll.contains(false)
-//  }
 
   //GET: find pets by status
   it should "allow the lookup of pets by status" in new DbContext{
@@ -161,7 +149,7 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
 
   //DELETE: Delete pets from the database
   it should "allow the deletion of existing pets from the database" in new DbContext{
-    val sadPet = Pet(None, "Blue", Nil, Option(Category(None, "dog")), Option(Nil), Option(Available))
+    val sadPet = Pet(None, "Blue", Nil, Some(Category(None, "dog")), Some(Nil), Some(Available))
     val genId: Long = Await.result(db.addPet(sadPet))
 
     val success: Future[Unit] = db.deletePet(genId) //There WILL be an ID
@@ -169,32 +157,32 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
   }
 
   it should "fail appropriately if user tries to delete a nonexistant pet" in new DbContext{
-    val ghostPet1 = Pet(Option(10), "Teru", Nil, Option(Category(None, "dog")), Option(Nil), Option(Available))
+    val ghostPet1 = Pet(Some(10), "Teru", Nil, Some(Category(None, "dog")), Some(Nil), Some(Available))
     assert(Await.result(db.deletePet(ghostPet1.id.getOrElse(-1)).liftToTry).isThrow)
-    val ghostPet2 = Pet(None, "Bozu", Nil, Option(Category(None, "dog")), Option(Nil), Option(Available))
-    assert(Await.result(db.deletePet(ghostPet2.id.getOrElse(-1)).liftToTry).isThrow) //Used getOrElse(-1) for endpoints later
+    val ghostPet2 = Pet(None, "Bozu", Nil, Some(Category(None, "dog")), Some(Nil), Some(Available))
+    assert(Await.result(db.deletePet(ghostPet2.id.getOrElse(-1)).liftToTry).isThrow)
   }
 
   //POST: Update a pet in the store with form data
   it should "be able to update existing pets with form data" in new DbContext {
-    db.updatePetViaForm(0, Option("Clifford"), Option(Pending))
+    db.updatePetViaForm(0, Some("Clifford"), Some(Pending))
     var p: Pet = Await.result(db.getPet(0))
     assert(if (p.name.equals("Clifford")) true else false)
-    assert(if (p.status == Option(Pending)) true else false)
+    assert(if (p.status == Some(Pending)) true else false)
 
-    db.updatePetViaForm(0, Option("Rover"), Option(Available))
-    db.updatePetViaForm(0, None, Option(Pending))
+    db.updatePetViaForm(0, Some("Rover"), Some(Available))
+    db.updatePetViaForm(0, None, Some(Pending))
     p = Await.result(db.getPet(0))
     assert(if (p.name.equals("Rover")) true else false)
-    assert(if (p.status == Option(Pending)) true else false)
+    assert(if (p.status == Some(Pending)) true else false)
 
-    db.updatePetViaForm(0, Option("Rover"), Option(Available))
-    db.updatePetViaForm(0, Option("Clifford"), None)
+    db.updatePetViaForm(0, Some("Rover"), Some(Available))
+    db.updatePetViaForm(0, Some("Clifford"), None)
     p = Await.result(db.getPet(0))
     assert(if (p.name.equals("Clifford")) true else false)
-    assert(if (p.status == Option(Available)) true else false)
+    assert(if (p.status == Some(Available)) true else false)
 
-    db.updatePetViaForm(0, Option("Rover"), Option(Available)) //reset for other tests
+    db.updatePetViaForm(0, Some("Rover"), Some(Available)) //reset for other tests
   }
 
   it should "fail when a pet to be updated via form data isn't passed with a valid ID" in new DbContext {
@@ -212,7 +200,7 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
     assert(statuses.pending === 2)
     assert(statuses.adopted === 2)
 
-    val noStatusPet = Pet(None, "Sweeping Dog", Nil, Option(Category(None, "cat")), Option(Nil), None)
+    val noStatusPet = Pet(None, "Sweeping Dog", Nil, Some(Category(None, "cat")), Some(Nil), None)
     db.addPet(noStatusPet)
     val stati = Await.result(db.getInventory)
     assert(stati.available === 5)
@@ -222,47 +210,46 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
 
   //POST: Place an order for a pet
   it should "place pet orders" in new DbContext{
-    val mouseCircusOrder: Order = Order(None, Some(4), Some(100), Some("2015-07-01T17:36:58.190Z"), Option(Placed), Option(false))
+    val mouseCircusOrder: Order = Order(None, Some(4), Some(100), Some("2015-07-01T17:36:58.190Z"), Some(Placed),
+      Some(false))
     val idFuture: Future[Long] = db.addOrder(mouseCircusOrder)
     val success: Future[Boolean] = for{
       id <- idFuture
       o <- db.findOrder(id)
-    } yield o.equals(mouseCircusOrder.copy(id = Option(id)))
+    } yield o.equals(mouseCircusOrder.copy(id = Some(id)))
     Await.result(success)
   }
 
   it should "fail to place orders that are passed with an order ID" in new DbContext {
-    val mouseCircusOrder: Order = Order(Some(1), Some(4), Some(100), Some("2015-07-01T17:36:58.190Z"), Option(Placed), Option(false))
+    val mouseCircusOrder: Order = Order(Some(1), Some(4), Some(100), Some("2015-07-01T17:36:58.190Z"), Some(Placed),
+      Some(false))
     val idFuture: Future[Long] = db.addOrder(mouseCircusOrder)
     Await.result(idFuture.liftToTry).isThrow
   }
 
   //DELETE: Delete purchase order by ID
   it should "be able to delete orders by ID" in new DbContext{
-    val catOrder: Order = Order(None, Some(8), Some(100), Some("2015-07-01T17:36:58.190Z"), Option(Placed), Option(false))
+    val catOrder: Order = Order(None, Some(8), Some(100), Some("2015-07-01T17:36:58.190Z"), Some(Placed), Some(false))
     val idFuture: Future[Long] = db.addOrder(catOrder)
     val success: Future[Boolean] = for{
       id <- idFuture
     } yield Await.result(db.deleteOrder(id))
     Await.result(success)
+  }
 
-    //For non-existent orders...
+  it should "fail appropriately when trying to delete nonexistent orders by ID" in new DbContext {
     assert(!Await.result(db.deleteOrder(100)))
   }
 
   //GET: Find purchase order by ID
   it should "be able to find an order by its ID" in new DbContext{
-    check{(order: Order) =>
+    check{ (order: Order) =>
       val inputOrder: Order = order.copy(id = None)
       val idFuture: Future[Long] = db.addOrder(inputOrder)
       val retOrder: Future[Order] = db.findOrder(Await.result(idFuture))
-      Await.result(retOrder).equals(inputOrder.copy(id = Option(Await.result(idFuture))))
-    }
+      Await.result(retOrder).equals(inputOrder.copy(id = Some(Await.result(idFuture))))
+     }
   }
-
-//  it should "throw an exception when searching for an order that doesn't exist" in new DbContext {
-//    Await.result(db.findOrder(1000).liftToTry).isThrow
-//  }
 
   //============================STORE TESTS END HERE================================================
 
@@ -270,42 +257,23 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
 
   //POST: Create user
   it should "be able to add new users" in new DbContext{
-    check{(u: User) =>
+    check{ (u: User) =>
       val inputUser: User = u.copy(id = None)
       val name: String = Await.result(db.addUser(inputUser))
       Await.result(db.getUser(name)).copy(id = None) === inputUser
-    }
+     }
   }
 
   it should "fail when trying to create a new user that's passed with an ID" in new DbContext {
-      val inputUser: User = User(Some(1), "coraline", Some("Coraline"), Some("Jones"), None,
-        "becarefulwhatyouwishfor", None)
-      Await.result(db.addUser(inputUser).liftToTry).isThrow
-    }
-
-  //GET: Logs user into system
-  /*
-   ======  ===    ||====     ===
-     ||  ||   ||  ||    || ||   ||
-     ||  ||   ||  ||    || ||   ||
-     ||    ===    ||====     ====
-    */
-
-  //GET: Logs out current logged in user session
-  /*
-   ======  ===    ||====     ===
-     ||  ||   ||  ||    || ||   ||
-     ||  ||   ||  ||    || ||   ||
-     ||    ===    ||====     ====
-    */
+    val inputUser: User = User(Some(1), "theCat", Some("Cat"), None, None,
+      "butyouarewrong", None)
+    Await.result(db.addUser(inputUser).liftToTry).isThrow
+  }
 
   //DELETE: Delete user
-  /*
-   ======  ===    ||====     ===
-     ||  ||   ||  ||    || ||   ||
-     ||  ||   ||  ||    || ||   ||
-     ||    ===    ||====     ====
-    */
+  it should "be able to delete users" in new DbContext {
+    Await.ready(db.deleteUser("coraline"))
+  }
 
   //GET: Get user by username, assume all usernames are unique
   it should "facillitate searching for users via username" in new DbContext{
@@ -320,10 +288,10 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
     val updateMe: User = User(None, "chrysanthemum", Some("Jay"), Some("Chou"), Some("jchou@jay.com"),
     "terrace", None)
     db.addUser(updateMe)
-    check{(u:User) =>
+    check{ (u:User) =>
       val inputUser: User = u.copy(id = None, username = updateMe.username)
       Await.result(db.updateUser(inputUser)).copy(id = None).equals(inputUser)
-    }
+     }
   }
 
   //============================USER TESTS END HERE================================================
