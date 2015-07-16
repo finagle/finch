@@ -110,7 +110,7 @@ lazy val root = project.in(file("."))
         |import io.finch.route._
       """.stripMargin
   )
-  .aggregate(core, demo, argonaut, jackson, json4s, auth, benchmarks)
+  .aggregate(core, demo, argonaut, jackson, json4s, benchmarks, petstore)
   .dependsOn(core, argonaut)
 
 lazy val core = project
@@ -137,6 +137,17 @@ lazy val demo = project
   .disablePlugins(JmhPlugin)
   .dependsOn(core, argonaut, test % "test,it")
 
+lazy val petstore = project
+    .settings(moduleName := "finch-petstore")
+    .configs(IntegrationTest.extend(Test))
+    .settings(allSettings)
+    .settings(noPublish)
+    .settings(Defaults.itSettings)
+    .settings(parallelExecution in IntegrationTest := false)
+    .settings(coverageExcludedPackages := "io\\.finch\\.petstore\\.PetstoreApp.*")
+    .disablePlugins(JmhPlugin)
+    .dependsOn(core, argonaut, test % "test,it")
+
 lazy val argonaut = project
   .settings(moduleName := "finch-argonaut")
   .settings(allSettings)
@@ -157,11 +168,6 @@ lazy val json4s = project
     "org.json4s" %% "json4s-ext" % "3.2.11")
   )
   .dependsOn(core, test % "test")
-
-lazy val auth = project
-  .settings(moduleName := "finch-auth")
-  .settings(allSettings)
-  .dependsOn(core)
 
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")

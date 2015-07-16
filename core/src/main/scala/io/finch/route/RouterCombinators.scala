@@ -1,6 +1,7 @@
 package io.finch.route
 
 import com.twitter.finagle.httpx.Method
+import com.twitter.util.Base64StringEncoder
 
 /**
  * A collection of [[Router]] combinators.
@@ -66,4 +67,23 @@ trait RouterCombinators {
    * succeeds on the request only if its method is `TRACE` and the underlying router succeeds on it.
    */
   def trace[A]: Router[A] => Router[A] = method(Method.Trace)
+
+  /**
+   * A combinator that wraps the given [[Router]] with Basic HTTP Auth, configured with credentials `user` and
+   * `password`.
+   */
+  def basicAuth[A](user: String, password: String)(r: Router[A]): Router[A] = {
+    val userInfo = s"$user:$password"
+    val expected = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
+
+    new Router[A] {
+      def apply(input: RouterInput): Option[(RouterInput, A)] =
+        input.request.authorization match {
+          case Some(actual) if actual == expected => r(input)
+          case _ => None
+        }
+
+      override def toString: String = s"BasicAuth($r)"
+    }
+  }
 }
