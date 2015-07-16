@@ -17,23 +17,37 @@ object endpoint extends ErrorHandling {
    * Private method that compiles all pet service endpoints.
    * @return Bundled compilation of all pet service endpoints.
    */
-  private def petEndpts(db: PetstoreDb) = getPetEndpt(db) :+: addPetEndpt(db) :+: updatePetEndpt(db) :+:
-      getPetsByStatusEndpt(db) :+: findPetsByTagEndpt(db) :+: deletePetEndpt(db) :+: updatePetViaFormEndpt(db) :+:
-      uploadImageEndpt(db)
+  private def petEndpts(db: PetstoreDb) =
+    getPetEndpt(db) :+:
+    addPetEndpt(db) :+:
+    updatePetEndpt(db) :+:
+    getPetsByStatusEndpt(db) :+:
+    findPetsByTagEndpt(db) :+:
+    deletePetEndpt(db) :+:
+    updatePetViaFormEndpt(db) :+:
+    uploadImageEndpt(db)
 
   /**
    * Private method that compiles all store service endpoints.
    * @return Bundled compilation of all store service endpoints.
    */
-  private def storeEndpts(db: PetstoreDb) = getInventoryEndpt(db) :+: addOrderEndpt(db) :+: deleteOrderEndpt(db) :+:
-      findOrderEndpt(db)
+  private def storeEndpts(db: PetstoreDb) =
+    getInventoryEndpt(db) :+:
+    addOrderEndpt(db) :+:
+    deleteOrderEndpt(db) :+:
+    findOrderEndpt(db)
 
   /**
    * Private method that compiles all user service endpoints.
    * @return Bundled compilation of all user service endpoints.
    */
-  private def userEndpts(db: PetstoreDb) = addUserEndpt(db) :+: addUsersViaList(db) :+: addUsersViaArray(db) :+:
-      getUserEndpt(db) :+: deleteUserEndpt(db) :+: updateUserEndpt(db)
+  private def userEndpts(db: PetstoreDb) =
+    addUserEndpt(db) :+:
+    addUsersViaList(db) :+:
+    addUsersViaArray(db) :+:
+    getUserEndpt(db) :+:
+    deleteUserEndpt(db) :+:
+    updateUserEndpt(db)
 
   /**
    * Compiles together all the endpoints relating to public service methods.
@@ -59,9 +73,8 @@ object endpoint extends ErrorHandling {
    */
   def addPetEndpt(db: PetstoreDb): Router[RequestReader[Long]] = Post / "pet" />{
     body.as[Pet].embedFlatMap {pet =>
-      val p: Future[Long] = db.addPet(pet)
       for{
-        realId <- p
+        realId <- db.addPet(pet)
       }yield realId
     }
   }
@@ -71,14 +84,12 @@ object endpoint extends ErrorHandling {
    * @return A Router that contains a RequestReader of the updated Pet.
    */
   def updatePetEndpt(db: PetstoreDb): Router[RequestReader[Pet]] = Put / "pet" /> {
-    val rr: RequestReader[Pet] = body.as[Pet].embedFlatMap { pet =>
-      val f: Future[Pet] = for {
+    body.as[Pet].embedFlatMap { pet =>
+      for {
         _ <- db.updatePet(pet.copy(id = Some(pet.id.getOrElse(-1))))
         newPet <- db.getPet(pet.id.getOrElse(-1))
       } yield newPet
-      f
     }
-    rr
   }
 
   /**
