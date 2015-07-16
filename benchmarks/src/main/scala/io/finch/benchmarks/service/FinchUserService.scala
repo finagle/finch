@@ -6,7 +6,6 @@ import com.twitter.util.Future
 import io.finch.request._
 import io.finch.response._
 import io.finch.route._
-import io.finch.{Endpoint => _}
 
 class FinchUserService(implicit
   userDecoder: DecodeRequest[User],

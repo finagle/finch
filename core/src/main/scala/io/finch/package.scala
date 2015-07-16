@@ -112,6 +112,7 @@ package object finch {
      *
      * @return an endpoint composed with filter
      */
+    @deprecated(message = "Endpoint is deprecated in favor of coproduct routers", since = "0.8.0")
     def !(next: Endpoint[ReqOut, RepIn]): Endpoint[ReqIn, RepOut] =
       next andThen { service =>
         filter andThen service
