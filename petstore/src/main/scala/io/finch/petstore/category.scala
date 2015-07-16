@@ -15,7 +15,7 @@ case class Category(id: Option[Long], name: String)
  */
 object Category {
   /**
-   * Creates the codec for Category objects.
+   * Represents the codec for Category objects.
    */
   implicit val categoryCodec: CodecJson[Category] =
     casecodec2(Category.apply, Category.unapply)("id", "name")
