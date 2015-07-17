@@ -17,73 +17,65 @@ object endpoint extends ErrorHandling {
    * Private method that compiles all pet service endpoints.
    * @return Bundled compilation of all pet service endpoints.
    */
-  private def petEndpts(db: PetstoreDb) =
-    getPetEndpt(db) :+:
-    addPetEndpt(db) :+:
-    updatePetEndpt(db) :+:
-    getPetsByStatusEndpt(db) :+:
-    findPetsByTagEndpt(db) :+:
-    deletePetEndpt(db) :+:
-    updatePetViaFormEndpt(db) :+:
-    uploadImageEndpt(db)
+  private def pets(db: PetstoreDb) =
+    getPet(db) :+:
+    addPet(db) :+:
+    updatePet(db) :+:
+    getPetsByStatus(db) :+:
+    findPetsByTag(db) :+:
+    deletePet(db) :+:
+    updatePetViaForm(db) :+:
+    uploadImage(db)
 
   /**
    * Private method that compiles all store service endpoints.
    * @return Bundled compilation of all store service endpoints.
    */
-  private def storeEndpts(db: PetstoreDb) =
-    getInventoryEndpt(db) :+:
-    addOrderEndpt(db) :+:
-    deleteOrderEndpt(db) :+:
-    findOrderEndpt(db)
+  private def store(db: PetstoreDb) =
+    getInventory(db) :+:
+    addOrder(db) :+:
+    deleteOrder(db) :+:
+    findOrder(db)
 
   /**
    * Private method that compiles all user service endpoints.
    * @return Bundled compilation of all user service endpoints.
    */
-  private def userEndpts(db: PetstoreDb) =
-    addUserEndpt(db) :+:
+  private def users(db: PetstoreDb) =
+    addUser(db) :+:
     addUsersViaList(db) :+:
     addUsersViaArray(db) :+:
-    getUserEndpt(db) :+:
-    deleteUserEndpt(db) :+:
-    updateUserEndpt(db)
+    getUser(db) :+:
+    deleteUser(db) :+:
+    updateUser(db)
 
   /**
    * Compiles together all the endpoints relating to public service methods.
    * @return A service that contains all provided endpoints of the API.
    */
   def makeService(db: PetstoreDb): Service[Request, Response] = handleExceptions andThen (
-    petEndpts(db) :+:
-    storeEndpts(db) :+:
-    userEndpts(db)
+    pets(db) :+:
+    store(db) :+:
+    users(db)
   ).toService
 
   /**
    * The long passed in the path becomes the ID of the Pet fetched.
    * @return A Router that contains the Pet fetched.
    */
-  def getPetEndpt(db: PetstoreDb): Router[Future[Pet]] = Get / "pet" / long /> {petId: Long =>
-    db.getPet(petId)
-  }
+  def getPet(db: PetstoreDb): Router[Future[Pet]] = Get / "pet" / long /> db.getPet
 
   /**
    * The pet to be added must be passed in the body.
    * @return A Router that contains a RequestReader of the ID of the Pet added.
    */
-  def addPetEndpt(db: PetstoreDb): Router[RequestReader[Long]] = Post / "pet" />{
-    body.as[Pet].embedFlatMap {pet =>
-      for{
-        realId <- db.addPet(pet)
-      }yield realId
-    }
-  }
+  def addPet(db: PetstoreDb): Router[RequestReader[Long]] = Post / "pet" /> body.as[Pet].embedFlatMap(db.addPet)
 
   /**
    * The updated, better version of the current pet must be passed in the body.
    * @return A Router that contains a RequestReader of the updated Pet.
    */
-  def updatePetEndpt(db: PetstoreDb): Router[RequestReader[Pet]] = Put / "pet" /> {
+  def updatePet(db: PetstoreDb): Router[RequestReader[Pet]] = Put / "pet" /> {
     body.as[Pet].embedFlatMap { pet =>
       for {
         _ <- db.updatePet(pet.copy(id = Some(pet.id.getOrElse(-1))))
@@ -96,27 +88,21 @@ object endpoint extends ErrorHandling {
    * The status is passed as a query parameter.
    * @return A Router that contains a RequestReader of the sequence of all Pets with the Status in question.
    */
-  def getPetsByStatusEndpt(db: PetstoreDb): Router[RequestReader[Seq[Pet]]] = Get / "pet" / "findByStatus" />{
-    (reader.statusReader).embedFlatMap{
-      case s => db.getPetsByStatus(s)
-    }
-  }
+  def getPetsByStatus(db: PetstoreDb): Router[RequestReader[Seq[Pet]]] = Get / "pet" / "findByStatus" />
+    (reader.statusReader).embedFlatMap(db.getPetsByStatus)
 
   /**
    * The tags are passed as query parameters.
    * @return A Router that contains a RequestReader of the sequence of all Pets with the given Tags.
    */
-  def findPetsByTagEndpt(db: PetstoreDb): Router[RequestReader[Seq[Pet]]] = Get / "pet" / "findByTags" /> {
-    reader.tagReader.embedFlatMap{
-      db.findPetsByTag(_)
-    }
-  }
+  def findPetsByTag(db: PetstoreDb): Router[RequestReader[Seq[Pet]]] = Get / "pet" / "findByTags" />
+    reader.tagReader.embedFlatMap(db.findPetsByTag)
 
   /**
    * The ID of the pet to delete is passed in the path.
    * @return A Router that contains a RequestReader of the deletePet result (true for success, false otherwise).
    */
-  def deletePetEndpt(db: PetstoreDb): Router[Future[Response]] = Delete / "pet" / long /> { petId: Long =>
+  def deletePet(db: PetstoreDb): Router[Future[Response]] = Delete / "pet" / long /> { petId: Long =>
     db.deletePet(petId).map(_ => NoContent())
   }
 
@@ -124,12 +110,12 @@ object endpoint extends ErrorHandling {
    * Endpoint for the updatePetViaForm (form data) service method. The pet's ID is passed in the path.
    * @return A Router that contains a RequestReader of the Pet that was updated.
    */
-  def updatePetViaFormEndpt(db: PetstoreDb): Router[RequestReader[Pet]] = Post / "pet" / long /> {petId: Long =>
+  def updatePetViaForm(db: PetstoreDb): Router[RequestReader[Pet]] = Post / "pet" / long /> { petId: Long =>
     (reader.nameReader :: reader.statusReader).asTuple.embedFlatMap{
       case (n, s) =>
-        for{
-          pet:Pet <- db.getPet(petId)
-          newPet: Pet <- db.updatePetViaForm(petId, Some(n), Some(s))
+        for {
+          pet <- db.getPet(petId)
+          newPet <- db.updatePetViaForm(petId, Some(n), Some(s))
         } yield newPet
     }
   }
@@ -139,7 +125,7 @@ object endpoint extends ErrorHandling {
    * file is passed as form data.
    * @return A Router that contains a RequestReader of the uploaded image's url.
    */
-  def uploadImageEndpt(db: PetstoreDb): Router[RequestReader[String]] =
+  def uploadImage(db: PetstoreDb): Router[RequestReader[String]] =
     Post / "pet" / long / "uploadImage" /> { petId: Long =>
       fileUpload("file").embedFlatMap { upload =>
         db.addImage(petId, upload.get())
@@ -149,52 +135,40 @@ object endpoint extends ErrorHandling {
   /**
    * @return A Router that contains a RequestReader of a Map reflecting the inventory.
    */
-  def getInventoryEndpt(db: PetstoreDb): Router[Future[Inventory]] = Get / "store" / "inventory" /> {
-    db.getInventory
-  }
+  def getInventory(db: PetstoreDb): Router[Future[Inventory]] = Get / "store" / "inventory" /> db.getInventory
 
   /**
    * The order to be added is passed in the body.
    * @return A Router that contains a RequestReader of the autogenerated ID for the added Order.
    */
-  def addOrderEndpt(db: PetstoreDb): Router[RequestReader[Long]] = Post / "store" / "order" /> {
-    body.as[Order].embedFlatMap{order =>
-      db.addOrder(order)
-    }
-  }
+  def addOrder(db: PetstoreDb): Router[RequestReader[Long]] = Post / "store" / "order" />
+    body.as[Order].embedFlatMap(db.addOrder)
 
   /**
    * The ID of the order to be deleted is passed in the path.
    * @return A Router that contains a RequestReader of result of the deleteOrder method (true for success, false else).
    */
-  def deleteOrderEndpt(db: PetstoreDb): Router[Future[Boolean]] = Delete / "store" / "order" / long /> {orderId: Long =>
-    db.deleteOrder(orderId)
-  }
+  def deleteOrder(db: PetstoreDb): Router[Future[Boolean]] = Delete / "store" / "order" / long /> db.deleteOrder
 
   /**
    * The ID of the order to be found is passed in the path.
    * @return A Router that contains a RequestReader of the Order in question.
    */
-  def findOrderEndpt(db: PetstoreDb): Router[Future[Order]] = Get / "store" / "order" / long /> {orderId: Long =>
-    db.findOrder(orderId)
-  }
+  def findOrder(db: PetstoreDb): Router[Future[Order]] = Get / "store" / "order" / long /> db.findOrder
+
 
   /**
    * The information of the added User is passed in the body.
    * @return A Router that contains a RequestReader of the username of the added User.
    */
-  def addUserEndpt(db: PetstoreDb): Router[RequestReader[String]] = Post / "user" /> {
-    body.as[User].embedFlatMap{newUser =>
-      db.addUser(newUser)
-    }
-  }
+  def addUser(db: PetstoreDb): Router[RequestReader[String]] = Post / "user" /> body.as[User].embedFlatMap(db.addUser)
 
   /**
    * The list of Users is passed in the body.
    * @return A Router that contains a RequestReader of a sequence of the usernames of the Users added.
    */
   def addUsersViaList(db: PetstoreDb): Router[RequestReader[Seq[String]]] = Post / "user" / "createWithList" /> {
-    body.as[Seq[User]].embedFlatMap{uList =>
+    body.as[Seq[User]].embedFlatMap { uList =>
       Future.collect(uList.map(db.addUser))
     }
   }
@@ -204,7 +178,7 @@ object endpoint extends ErrorHandling {
    * @return A Router that contains a RequestReader of a sequence of the usernames of the Users added.
    */
   def addUsersViaArray(db: PetstoreDb): Router[RequestReader[Seq[String]]] = Post / "user" / "createWithArray" /> {
-    body.as[Seq[User]].embedFlatMap{uList =>
+    body.as[Seq[User]].embedFlatMap { uList =>
       Future.collect(uList.map(db.addUser))
     }
   }
@@ -213,26 +187,20 @@ object endpoint extends ErrorHandling {
    * The username of the User to be deleted is passed in the path.
    * @return A Router that contains essentially nothing unless an error is thrown.
    */
-  def deleteUserEndpt(db: PetstoreDb): Router[Future[Unit]] = Delete / "user" / string />{n: String =>
-    db.deleteUser(n)
-  }
+  def deleteUser(db: PetstoreDb): Router[Future[Unit]] = Delete / "user" / string /> db.deleteUser
 
   /**
    * The username of the User to be found is passed in the path.
    * @return A Router that contains the User in question.
    */
-  def getUserEndpt(db: PetstoreDb): Router[Future[User]] = Get / "user" / string /> {n: String =>
-    db.getUser(n)
-  }
+  def getUser(db: PetstoreDb): Router[Future[User]] = Get / "user" / string /> db.getUser
 
   /**
    * The username of the User to be updated is passed in the path.
    * @return A Router that contains a RequestReader of the User updated.
    */
-  def updateUserEndpt(db: PetstoreDb): Router[RequestReader[User]] = Put / "user" / string /> {n: String =>
-    body.as[User].embedFlatMap{betterUser =>
-      db.updateUser(betterUser)
-    }
+  def updateUser(db: PetstoreDb): Router[RequestReader[User]] = Put / "user" / string /> {n: String =>
+    body.as[User].embedFlatMap(db.updateUser)
   }
 }
 
