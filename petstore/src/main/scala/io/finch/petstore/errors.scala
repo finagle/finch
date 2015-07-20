@@ -24,16 +24,19 @@ case class MissingIdentifier(message: String) extends PetstoreError(message)
  * @param message An error message
  */
 case class MissingPet(message: String) extends PetstoreError(message)
+
 /**
  * Thrown when the User given does not exist in the database.
  * @param message An error message
  */
 case class MissingUser(message: String) extends PetstoreError(message)
+
 /**
  * Thrown when the given Order does not exist in the database.
  * @param message An error message
  */
 case class OrderNotFound(message: String) extends PetstoreError(message)
+
 /**
  * Thrown when a new User has the same username as an existing User. (Usernames must be unique.)
  * @param message An error message

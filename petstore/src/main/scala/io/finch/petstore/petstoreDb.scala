@@ -96,14 +96,14 @@ class PetstoreDb {
     }
 
   /**
-   * PUT: Updates an existing [[Pet]], while validating that a current version of
+   * PUT: Updates an existing [[Pet]], while validating that a c urrent version of
    * the [[Pet]] exists (a.k.a. an existing [[Pet]] has the same id as inputPet).
    * @param inputPet The [[Pet]] we want to replace the current [[Pet]] with. Must be passed with the original Pet's ID.
    * @return The updated pet
    */
   def updatePet(inputPet: Pet): Future[Pet] = inputPet.id match {
     case Some(id) =>
-      if(pets.contains(id)) pets.synchronized{
+      if (pets.contains(id)) pets.synchronized {
         pets(id) = inputPet
         Future.value(inputPet)
       } else {
@@ -171,8 +171,8 @@ class PetstoreDb {
    * @return The updated Pet.
    */
   def updatePetViaForm(petId: Long, n: Option[String], s: Option[Status]): Future[Pet] = {
-      if (pets.contains(petId)) pets.synchronized{
-        s.foreach { stat => pets(petId) = pets(petId).copy(status = Some(stat))}
+      if (pets.contains(petId)) pets.synchronized {
+        s.foreach { stat => pets(petId) = pets(petId).copy(status = Some(stat)) }
         n.foreach { name => pets(petId) = pets(petId).copy(name = name) }
         Future.value(pets(petId))
       } else Future.exception(MissingPet("Invalid id: doesn't exist"))
