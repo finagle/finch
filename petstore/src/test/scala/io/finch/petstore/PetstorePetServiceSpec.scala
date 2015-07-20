@@ -1,9 +1,9 @@
 package io.finch.petstore
 
-import com.twitter.finagle.{Service}
+import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.{FileElement, Request, RequestBuilder, Response}
 import com.twitter.io.{Buf, Reader}
-import com.twitter.util.{Await}
+import com.twitter.util.Await
 import io.finch.test.ServiceSuite
 import org.scalatest.Matchers
 import org.scalatest.fixture.FlatSpec
@@ -40,7 +40,7 @@ trait PetstorePetServiceSuite { this: FlatSpec with ServiceSuite with Matchers =
 
   it should "fail to return invalid pets" in { f =>
     val request = Request("/pet/100")
-    val result = Await.result(f.service(request))
+    val result = f(request)
     result.statusCode shouldBe 404
    }
 
@@ -86,14 +86,14 @@ trait PetstorePetServiceSuite { this: FlatSpec with ServiceSuite with Matchers =
     val request: Request = RequestBuilder()
         .url("http://localhost:8080/pet").buildPut(
           Buf.Utf8(s"""
-            |{
-            |  "id": 0,
-            |  "name": "A-Through-L",
-            |  "photoUrls":[],
-            |  "category":{"name":"Wyverary"},
-            |  "tags":[{"name":"Wyvern"}, {"name":"Library"}],
-            |  "status":"pending"
-            |}
+            |  {
+            |    "id": 0,
+            |    "name": "A-Through-L",
+            |    "photoUrls":[],
+            |    "category":{"name":"Wyverary"},
+            |    "tags":[{"name":"Wyvern"}, {"name":"Library"}],
+            |    "status":"pending"
+            |  }
            """.stripMargin))
     val result: Response = f(request)
 
@@ -104,13 +104,13 @@ trait PetstorePetServiceSuite { this: FlatSpec with ServiceSuite with Matchers =
     val request: Request = RequestBuilder()
         .url("http://localhost:8080/pet").buildPut(
           Buf.Utf8(s"""
-            |{
-            |  "name": "A-Through-L",
-            |  "photoUrls":[],
-            |  "category":{"name":"Wyverary"},
-            |  "tags":[{"name":"Wyvern"}, {"name":"Library"}],
-            |  "status":"pending"
-            |}
+            |  {
+            |    "name": "A-Through-L",
+            |    "photoUrls":[],
+            |    "category":{"name":"Wyverary"},
+            |    "tags":[{"name":"Wyvern"}, {"name":"Library"}],
+            |    "status":"pending"
+            |  }
            """.stripMargin))
     val result: Response = f(request)
 
@@ -120,7 +120,7 @@ trait PetstorePetServiceSuite { this: FlatSpec with ServiceSuite with Matchers =
   //getPetsByStatusEndpt test
   it should "successfully find pets by status" in { f =>
     val request: Request = RequestBuilder()
-        .url("http://localhost:8080/pet/findByStatus?status=available")
+        .url("http://localhost:8080/pet/findByStatus?status=available%2C%20pending")
         .buildGet
     val result: Response = f(request)
     result.statusCode shouldBe 200

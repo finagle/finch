@@ -38,9 +38,9 @@ class PetstoreDb {
    */
   private def addTag(inputTag: Tag): Future[Tag] =
     tags.synchronized {
-      inputTag.id match{
+      inputTag.id match {
         case Some(x) => Future.exception(InvalidInput("New tag should not contain an id"))
-        case _ => tags.synchronized{
+        case _ => tags.synchronized {
           val genId = if (tags.isEmpty) 0 else tags.keys.max + 1
           tags(genId) = inputTag.copy(id = Some(genId))
           Future(tags(genId))
@@ -82,7 +82,7 @@ class PetstoreDb {
         pets(id) = inputPet.copy(id = Some(id))
 
         inputPet.tags match{
-          case Some(tagList) => tagList.map(addTag(_))
+          case Some(tagList) => tagList.map(addTag)
           case None => None
         }
 
@@ -121,16 +121,16 @@ class PetstoreDb {
   )
 
   /**
-   * GET: Find pets by status
-   * @param s The status to filter Pets by.
-   * @return A sequence of all Pets with the given status.
+   * GET: Find pets by status. Multiple statuses can be provided with comma-separated strings.
+   * @param findStati The status(es) to filter Pets by.
+   * @return A sequence of all Pets with the given status(es).
    */
-  def getPetsByStatus(s: Status): Future[Seq[Pet]] = {
-    val allMatchesFut = for{
-      petList <- allPets //List[Pet]
-      allBool = petList.map(_.status)
-    } yield petList.filter(_.status.map(_.code.equals(s.code)).getOrElse(false))
-   allMatchesFut
+  def getPetsByStatus(findStati: Seq[String]): Future[Seq[Pet]] = {
+    pets.synchronized(
+      for {
+        petList <- allPets
+      } yield petList.filter(p => p.status.exists(c => findStati.contains(c.code)))
+    )
   }
 
   /**
@@ -143,7 +143,7 @@ class PetstoreDb {
       p <- pets.values
       tagList <- p.tags
       pTagStr = tagList.map(_.name)
-      if(findTags.forall(pTagStr.contains))
+      if findTags.forall(pTagStr.contains)
     } yield p
     Future(matchPets.toSeq.sortBy(_.id))
   }
@@ -171,9 +171,9 @@ class PetstoreDb {
    * @return The updated Pet.
    */
   def updatePetViaForm(petId: Long, n: Option[String], s: Option[Status]): Future[Pet] = {
-      if(pets.contains(petId)) pets.synchronized{
-        if (s != None) {pets(petId) = pets(petId).copy(status = s)}
-        if (n != None) {pets(petId) = pets(petId).copy(name = n.get)}
+      if (pets.contains(petId)) pets.synchronized{
+        s.foreach { stat => pets(petId) = pets(petId).copy(status = Some(stat))}
+        n.foreach { name => pets(petId) = pets(petId).copy(name = name) }
         Future.value(pets(petId))
       } else Future.exception(MissingPet("Invalid id: doesn't exist"))
     }
@@ -227,7 +227,7 @@ class PetstoreDb {
         case None => orders.synchronized{
           val genId = if (orders.isEmpty) 0 else orders.keys.max + 1
           orders(genId) = order.copy(id = Some(genId))
-          Future(genId)
+          Future.value(genId)
         }
       }
     }
@@ -238,7 +238,7 @@ class PetstoreDb {
    * @return true if deletion was successful. false otherwise.
    */
   def deleteOrder(id: Long): Future[Boolean] = Future.value(
-    orders.synchronized{
+    orders.synchronized {
       if (orders.contains(id)) {
         orders.remove(id)
         true
@@ -252,7 +252,7 @@ class PetstoreDb {
    * @return The Order object in question.
    */
   def findOrder(id: Long): Future[Order] = Future.value(
-    orders.synchronized{
+    orders.synchronized {
       orders.getOrElse(id, throw OrderNotFound("Your order doesn't exist! :("))
     }
   )
@@ -265,11 +265,12 @@ class PetstoreDb {
   def addUser(newGuy: User): Future[String] =
     users.synchronized {
       val inputName: String = newGuy.username
-      if(users.values.exists(_.username == inputName)) throw RedundantUsername(s"Username $inputName is already taken.")
-      else{
-        newGuy.id match{
+      if (users.values.exists(_.username == inputName))
+        throw RedundantUsername(s"Username $inputName is already taken.")
+      else {
+        newGuy.id match {
           case Some(_) => Future.exception(InvalidInput("New user should not contain an id"))
-          case None => users.synchronized{
+          case None => users.synchronized {
             val genId = if (users.isEmpty) 0 else users.keys.max + 1
             users(genId) = newGuy.copy(id = Some(genId))
             Future(newGuy.username)
@@ -283,15 +284,13 @@ class PetstoreDb {
    * @param name The username of the User we want to find.
    * @return The User in question.
    */
-  def getUser(name: String): Future[User] = Future.value(
-    users.synchronized{
-      val pickMeIter: Iterable[User] = for{
-        u <- users.values
-        if u.username.equals(name)
-      } yield u
-      if (pickMeIter.size == 0) throw MissingUser("This user doesn't exist!")  else pickMeIter.toSeq(0)
+  def getUser(name: String): Future[User] =
+    users.synchronized {
+      users.values.find(_.username == name) match {
+        case Some(user) => Future.value(user)
+        case None => Future.exception(MissingUser("This user doesn't exist!"))
+      }
     }
-  )
 
   /**
    * DELETE: Delete a [[User]] by their username.
@@ -299,9 +298,12 @@ class PetstoreDb {
    */
   def deleteUser(name: String): Future[Unit] =
     users.synchronized {
-      val id: Long = Await.result(getUser(name)).id.get
-      users.remove(id)
-      Future.Unit //Nonexistant users will be caught by getUser
+      getUser(name).flatMap {u:User =>
+        u.id.foreach{ num =>
+          users.remove(num)
+        }
+        Future.Unit
+      }
     }
 
   /**
@@ -311,12 +313,17 @@ class PetstoreDb {
    * @param betterUser The better, updated version of the old User.
    * @return The betterUser.
    */
-  def updateUser(betterUser: User): Future[User] = Future.value(
-    users.synchronized{
-      val realId: Long = Await.result(getUser(betterUser.username)).id.get
-      users(realId) = betterUser.copy(id = Some(realId))
-      users(realId)
+  def updateUser(betterUser: User): Future[User] =
+    users.synchronized {
+      for {
+        user <- getUser(betterUser.username)
+        u = betterUser.copy(id = user.id)
+      } yield {
+        u.id.foreach { id =>
+          users(id) = u
+        }
+        u
+      }
     }
-  )
 }
 

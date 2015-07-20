@@ -120,9 +120,9 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
 
   //GET: find pets by status
   it should "allow the lookup of pets by status" in new DbContext{
-    var avail: Seq[Pet] = Await.result(db.getPetsByStatus(Available))
-    var pend: Seq[Pet] = Await.result(db.getPetsByStatus(Pending))
-    var adopt: Seq[Pet] = Await.result(db.getPetsByStatus(Adopted))
+    var avail: Seq[Pet] = Await.result(db.getPetsByStatus(Seq("Available")))
+    var pend: Seq[Pet] = Await.result(db.getPetsByStatus(Seq("Pending")))
+    var adopt: Seq[Pet] = Await.result(db.getPetsByStatus(Seq("Adopted")))
     for(p <- avail){
       assert(p.status.getOrElse("Invalid Status").equals(Available))
     }
