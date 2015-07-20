@@ -34,13 +34,13 @@ trait PetstorePetServiceSuite { this: FlatSpec with ServiceSuite with Matchers =
   //getPetEndpt test
   "The PetstoreApp" should "return valid pets" in { f =>
     val request = Request("/pet/1")
-    val result = f(request)
+    val result: Response = f(request)
     result.statusCode shouldBe 200
    }
 
   it should "fail to return invalid pets" in { f =>
     val request = Request("/pet/100")
-    val result = f(request)
+    val result: Response = f(request)
     result.statusCode shouldBe 404
    }
 

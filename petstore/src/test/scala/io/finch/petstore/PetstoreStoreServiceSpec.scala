@@ -43,13 +43,12 @@ trait PetstoreStoreServiceSuite { this: FlatSpec with ServiceSuite with Matchers
   it should "be able to add new orders to the store" in { f =>
     val request: Request = RequestBuilder()
         .url("http://localhost:8080/store/order").buildPost(
-          Buf.Utf8(
-            s"""
-               |{
-               |  "petId":0,
-               |  "quantity":5,
-               |  "status":"placed"
-               |}
+          Buf.Utf8(s"""
+           |  {
+           |    "petId":0,
+           |    "quantity":5,
+           |    "status":"placed"
+           |  }
              """.stripMargin
           )
         )
