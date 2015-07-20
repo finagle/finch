@@ -7,12 +7,19 @@ import io.finch.request._
  */
 object reader {
   /**
-   *  Reads JSON representing a Status from a given query parameter.
+   *  Reads JSON representing a single Status from a given query parameter.
    */
   implicit val statusReader: RequestReader[Status] = param("status").map(Status.fromString)
 
   /**
-   *  Reads JSON representing a Tag from a given query parameter.
+   * Reads JSON representing a sequence of Status(es) from a given query parameter.
+   */
+  implicit val findByStatusReader: RequestReader[Seq[String]] = param("status").map { statuses =>
+    statuses.split(",").map(_.trim)
+  }
+
+  /**
+   *  Reads JSON representing Tag(s) from a given query parameter.
    */
   implicit val tagReader: RequestReader[Seq[String]] = param("tags").map { tags =>
     tags.split(",").map(_.trim)

@@ -14,14 +14,14 @@ package object petstore {
     for {
       id <- arbitrary[Long]
       name <- Gen.alphaStr
-    } yield Category(Option(id), name)
+    } yield Category(Some(id), name)
   )
 
   implicit val tagArbitrary: Arbitrary[Tag] = Arbitrary(
     for {
       id <- arbitrary[Long]
       name <- Gen.alphaStr
-    } yield Tag(Option(id), name)
+    } yield Tag(Some(id), name)
   )
 
   implicit val petArbitrary: Arbitrary[Pet] = Arbitrary(
@@ -32,7 +32,7 @@ package object petstore {
       category <- arbitrary[Category]
       tags <- arbitrary[Seq[Tag]]
       status <- arbitrary[Status]
-    } yield Pet(id, name, photoUrls, Option(category), Option(tags), Option(status))
+    } yield Pet(id, name, photoUrls, Some(category), Some(tags), Some(status))
   )
 
   implicit val userArbitrary: Arbitrary[User] = Arbitrary(
@@ -55,7 +55,7 @@ package object petstore {
       shipDate <- arbitrary[Option[String]]
       status <- arbitrary[OrderStatus]
       complete <- arbitrary[Option[Boolean]]
-    } yield Order(id, petId, quantity, shipDate, Option(status), complete)
+    } yield Order(id, petId, quantity, shipDate, Some(status), complete)
   )
 
   implicit val inventoryArbitrary: Arbitrary[Inventory] = Arbitrary(

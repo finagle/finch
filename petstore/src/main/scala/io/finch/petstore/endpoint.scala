@@ -89,7 +89,7 @@ object endpoint extends ErrorHandling {
    * @return A Router that contains a RequestReader of the sequence of all Pets with the Status in question.
    */
   def getPetsByStatus(db: PetstoreDb): Router[RequestReader[Seq[Pet]]] = Get / "pet" / "findByStatus" />
-    (reader.statusReader).embedFlatMap(db.getPetsByStatus)
+      reader.findByStatusReader.embedFlatMap(db.getPetsByStatus)
 
   /**
    * The tags are passed as query parameters.
