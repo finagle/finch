@@ -3,7 +3,7 @@ package io.finch.petstore
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.{FileElement, Request, RequestBuilder, Response}
 import com.twitter.io.{Buf, Reader}
-import com.twitter.util.Await
+import com.twitter.util.{Duration, Await}
 import io.finch.test.ServiceSuite
 import org.scalatest.Matchers
 import org.scalatest.fixture.FlatSpec
@@ -34,13 +34,13 @@ trait PetstorePetServiceSuite { this: FlatSpec with ServiceSuite with Matchers =
   //getPetEndpt test
   "The PetstoreApp" should "return valid pets" in { f =>
     val request = Request("/pet/1")
-    val result: Response = f(request)
+    val result: Response = f(request, Duration.fromSeconds(10))
     result.statusCode shouldBe 200
    }
 
   it should "fail to return invalid pets" in { f =>
     val request = Request("/pet/100")
-    val result: Response = f(request)
+    val result: Response = f(request, Duration.fromSeconds(10))
     result.statusCode shouldBe 404
    }
 
@@ -58,7 +58,7 @@ trait PetstorePetServiceSuite { this: FlatSpec with ServiceSuite with Matchers =
             |  }
            """.stripMargin)
         )
-    val result: Response = f(request)
+    val result: Response = f(request, Duration.fromSeconds(10))
     result.statusCode shouldBe 200
    }
 
