@@ -4,6 +4,7 @@ import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.Method.{Get, Post}
 import com.twitter.finagle.httpx.{Method, Request, Response}
 import com.twitter.io.Buf
+import com.twitter.util.Duration
 import io.finch.test.ServiceSuite
 import org.scalatest.Matchers
 import org.scalatest.fixture.FlatSpec
@@ -24,7 +25,7 @@ trait DemoSuite { this: ServiceSuite with FlatSpec with Matchers =>
   it should "allow posting authorized requests" in { f =>
     val req = POST("/users?name=foobar")
 
-    f(req).status shouldBe io.finch.response.Ok().status
+    f(req, Duration.fromSeconds(10)).status shouldBe io.finch.response.Ok().status
   }
 
   it should "allow posting authorized ticket requests" in { f =>
