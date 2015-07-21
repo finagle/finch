@@ -77,10 +77,11 @@ object endpoint extends ErrorHandling {
    */
   def updatePet(db: PetstoreDb): Router[RequestReader[Pet]] = Put / "pet" /> {
     body.as[Pet].embedFlatMap { pet =>
-      for {
-        _ <- db.updatePet(pet.copy(id = Some(pet.id.getOrElse(-1))))
-        newPet <- db.getPet(pet.id.getOrElse(-1))
-      } yield newPet
+      val identifier: Long = pet.id match {
+        case Some(num) => num
+        case None => throw MissingIdentifier("The updated pet must have a valid id.")
+      }
+      db.updatePet(pet.copy(id = Some(identifier)))
     }
   }
 

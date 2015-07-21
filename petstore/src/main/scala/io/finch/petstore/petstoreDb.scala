@@ -96,7 +96,7 @@ class PetstoreDb {
     }
 
   /**
-   * PUT: Updates an existing [[Pet]], while validating that a c urrent version of
+   * PUT: Updates an existing [[Pet]], while validating that a current version of
    * the [[Pet]] exists (a.k.a. an existing [[Pet]] has the same id as inputPet).
    * @param inputPet The [[Pet]] we want to replace the current [[Pet]] with. Must be passed with the original Pet's ID.
    * @return The updated pet
