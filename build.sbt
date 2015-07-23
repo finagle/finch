@@ -42,7 +42,7 @@ val baseSettings = Seq(
     }
   ),
   scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
-  wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.NoNeedForMonad, Wart.Null, Wart.DefaultArguments)
+  wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.NoNeedForMonad, Wart.Null, Wart.Nothing, Wart.DefaultArguments)
 )
 
 lazy val publishSettings = Seq(
@@ -91,7 +91,7 @@ lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
 lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Seq(
   site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "docs"),
   git.remoteRepo := s"git@github.com:finagle/finch.git",
-  unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(demo)
+  unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject
 )
 
 lazy val root = project.in(file("."))
@@ -110,7 +110,7 @@ lazy val root = project.in(file("."))
         |import io.finch.route._
       """.stripMargin
   )
-  .aggregate(core, demo, argonaut, jackson, json4s, benchmarks, petstore)
+  .aggregate(core, argonaut, jackson, json4s, benchmarks, petstore)
   .dependsOn(core, argonaut)
 
 lazy val core = project
@@ -126,16 +126,6 @@ lazy val test = project
     libraryDependencies ++= "io.argonaut" %% "argonaut" % "6.1" +: testDependencies
   )
   .dependsOn(core)
-
-lazy val demo = project
-  .settings(moduleName := "finch-demo")
-  .configs(IntegrationTest.extend(Test))
-  .settings(allSettings)
-  .settings(noPublish)
-  .settings(Defaults.itSettings)
-  .settings(parallelExecution in IntegrationTest := false)
-  .disablePlugins(JmhPlugin)
-  .dependsOn(core, argonaut, test % "test,it")
 
 lazy val petstore = project
     .settings(moduleName := "finch-petstore")
