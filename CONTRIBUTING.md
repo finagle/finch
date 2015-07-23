@@ -1,10 +1,17 @@
 Generally, Finch follows a standard [fork and pull][0] model for contributions via GitHub pull requests. Thus, the
 _contributing process_ looks as follows:
 
+0. [Pick an issue](#pick-an-issue)
 1. [Write code](#write-code)
 2. [Write tests](#write-tests)
 3. [Write docs](#write-docs)
 4. [Submit a PR](#submit-a-pr)
+
+## Pick an issue
+
+* On [Waffle][5], pick any issue from column "Ready"
+* On Github, leave a comment on the issue you picked to notify others that the issues is taken
+* On [Gitter][6] or Github, ask any question you may have while working on the issue
 
 ## Write Code
 Finch follows the [Effective Scala][1] code style guide. When in doubt, look around the codebase and see how it's done
@@ -39,3 +46,5 @@ Write clean and simple docs in the `docs` folder.
 [2]: http://www.scalatest.org/
 [3]: https://www.scalacheck.org/
 [4]: http://gitready.com/advanced/2009/02/10/squashing-commits-with-rebase.html
+[5]: https://waffle.io/finagle/finch
+[6]: https://gitter.im/finagle/finch
