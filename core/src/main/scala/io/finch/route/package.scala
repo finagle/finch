@@ -53,6 +53,7 @@ package object route extends RouterCombinators {
   /**
    * An alias for [[io.finch.route.Router Router]] that maps route to a [[com.twitter.finagle.Service Service]].
    */
+  @deprecated(message = "Endpoint is deprecated in favor of coproduct routers", since = "0.8.0")
   type Endpoint[A, B] = Router[Service[A, B]]
 
   type Router0 = Router[HNil]

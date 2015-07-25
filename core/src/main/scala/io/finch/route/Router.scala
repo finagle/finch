@@ -150,6 +150,7 @@ object Router {
    * An implicit conversion that turns any endpoint with an output type that can be converted into a response into a
    * service that returns responses.
    */
+  @deprecated(message = "Endpoint is deprecated in favor of coproduct routers", since = "0.8.0")
   implicit def endpointToResponse[A, B](e: Endpoint[A, B])(implicit
     encoder: EncodeResponse[B]
   ): Endpoint[A, Response] = e.map { service =>
