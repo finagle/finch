@@ -9,9 +9,9 @@ import shapeless.HNil
  */
 private[route] class MethodMatcher(m: Method) extends Router[HNil] {
   import Router._
-  def apply(input: Input): Future[Output[HNil]] =
-    if (input.request.method == m) Future.value(Output.accepted[HNil](input, HNil))
-    else Future.value(Output.dropped[HNil])
+  def apply(input: Input): Option[(Input, Future[HNil])] =
+    if (input.request.method == m) Some((input, Future.value(HNil)))
+    else None
 
   override def toString: String = s"${m.toString.toUpperCase}"
 }

@@ -42,22 +42,21 @@ trait Router[A] { self =>
   /**
    * Extracts some value of type `A` from the given `input`.
    */
-  def apply(input: Input): Future[Output[A]]
+  def apply(input: Input): Option[(Input, Future[A])]
 
   /**
    * Attempts to match a route, but only returns any unmatched elements, not the value.
    */
-  private[route] def exec(input: Input): Future[Option[Input]] = apply(input).map {
-    case Output.Accepted(r, a) => Some(r)
-    case Output.Dropped => None
-  }
+  private[route] def exec(input: Input): Option[Input] = apply(input).map(_._1)
 
   /**
    * Maps this router to the given function `A => B`.
    */
   def map[B](fn: A => B): Router[B] = new Router[B] {
-    def apply(input: Input): Future[Output[B]] =
-      self(input).map(_.map(fn))
+    def apply(input: Input): Option[(Input, Future[B])] =
+      self(input).map {
+        case (input, result) => (input, result.map(fn))
+      }
 
     override def toString = self.toString
   }
@@ -67,10 +66,9 @@ trait Router[A] { self =>
    * also return `None`.
    */
   def embedFlatMap[B](fn: A => Future[B]): Router[B] = new Router[B] {
-    def apply(input: Input): Future[Output[B]] =
-      self(input).flatMap {
-        case Output.Accepted(r, a) => fn(a).map(b => Output.accepted[B](r, b))
-        case Output.Dropped => Output.dropped[B].toFuture
+    def apply(input: Input): Option[(Input, Future[B])] =
+      self(input).map {
+        case (input, result) => (input, result.flatMap(fn))
       }
 
     override def toString = self.toString
@@ -79,11 +77,17 @@ trait Router[A] { self =>
   /**
    * Flat-maps this router to the given function `A => Router[B]`.
    */
-  def flatMap[B](fn: A => Router[B]): Router[B] = new Router[B] {
-    def apply(input: Input): Future[Output[B]] =
+  def ap[B](fn: Router[A => B]): Router[B] = new Router[B] {
+    def apply(input: Input): Option[(Input, Future[B])] =
       self(input).flatMap {
-        case Output.Accepted(r, a) => fn(a)(r)
-        case Output.Dropped => Output.dropped[B].toFuture
+        case (input1, resultA) => fn(input1).map {
+          case (input2, resultF) => (
+            input2,
+            resultA.join(resultF).map {
+              case (a, f) => f(a)
+            }
+          )
+        }
       }
 
     override def toString = self.toString
@@ -91,12 +95,14 @@ trait Router[A] { self =>
 
   /**
    * Composes this router with the given `that` router. The resulting router will succeed only if both this and `that`
-   * routers are succeed.
+   * routers succeed.
    */
   def /[B](that: Router[B])(implicit adjoin: PairAdjoin[A, B]): Router[adjoin.Out] =
     new Router[adjoin.Out] {
-      val ab = for { a <- self; b <- that } yield adjoin(a, b)
-      def apply(input: Input): Future[Output[adjoin.Out]] = ab(input)
+      val inner = self.ap(
+        that.map { b => (a: A) => adjoin(a, b) }
+      )
+      def apply(input: Input): Option[(Input, Future[adjoin.Out])] = inner(input)
 
       override def toString = s"${self.toString}/${that.toString}"
     }
@@ -106,10 +112,14 @@ trait Router[A] { self =>
    */
   def ?[B](that: RequestReader[B])(implicit adjoin: PairAdjoin[A, B]): Router[adjoin.Out] =
     new Router[adjoin.Out] {
-      def apply(input: Input): Future[Output[adjoin.Out]] =
-        self(input).flatMap {
-          case Output.Accepted(r, a) => that(input.request).map(b => Output.accepted[adjoin.Out](r, adjoin(a, b)))
-          case Output.Dropped => Output.dropped[adjoin.Out].toFuture
+      def apply(input: Input): Option[(Input, Future[adjoin.Out])] =
+        self(input).map {
+          case (input, result) => (
+            input,
+            result.join(that(input.request)).map {
+              case (a, b) => adjoin(a, b)
+            }
+          )
         }
 
       override def toString = s"${self.toString}?${that.toString}"
@@ -120,11 +130,11 @@ trait Router[A] { self =>
    * `that` routers are succeed.
    */
   def |[B >: A](that: Router[B]): Router[B] = new Router[B] {
-    def apply(input: Input): Future[Output[B]] =
-      self(input).flatMap {
-        case Output.Dropped => that(input)
-        case accepted => accepted.toFuture
-      }
+    def apply(input: Input): Option[(Input, Future[B])] = (self(input), that(input)) match {
+      case (aa @ Some((a, _)), bb @ Some((b, _))) =>
+        if (a.path.length <= b.path.length) aa else bb
+      case (a, b) => a orElse b
+    }
 
     override def toString = s"(${self.toString}|${that.toString})"
   }
@@ -166,55 +176,10 @@ object Router {
   def Input(req: Request): Input = Input(req, req.path.split("/").toList.drop(1))
 
   /**
-   * An output from [[Router]] that carries some value of type [[A]].
-   */
-  sealed trait Output[+A] {
-    def map[B](fn: A => B): Output[B]
-    def orElse[B >: A](that: Output[B]): Output[B]
-  }
-
-  object Output {
-
-    /**
-     * Creates the [[Router]]s [[Output]] identifying that request was accepted.
-     */
-    def accepted[A](r: Input, v: A): Output[A] = Accepted(r, v)
-
-    /**
-     * Creates the [[Router]]s [[Output]] identifying that request was dropped.
-     */
-    def dropped[A]: Output[A] = Dropped
-
-    /**
-     * Creates [[Output]] from [[Option]].
-     */
-    def fromOption[A](r: Input, o: Option[A]): Output[A] = o match {
-      case Some(a) => accepted[A](r, a)
-      case None => dropped[A]
-    }
-
-    /**
-     * An [[Output]] identifying that request was accepted.
-     */
-    final case class Accepted[+A](remainder: Input, value: A) extends Output[A] {
-      def map[B](fn: A => B): Output[B] = Accepted(remainder, fn(value))
-      def orElse[B >: A](that: Output[B]): Output[B] = this
-    }
-
-    /**
-     * An [[Output]] identifying that request was dropped.
-     */
-    case object Dropped extends Output[Nothing] {
-      def map[B](fn: Nothing => B): Output[B] = this
-      def orElse[B >: Nothing](that: Output[B]): Output[B] = that
-    }
-  }
-
-  /**
    * Creates a [[Router]] from the given function `Input => Output[A]`.
    */
-  def apply[A](fn: Input => Output[A]): Router[A] = new Router[A] {
-    def apply(input: Input): Future[Output[A]] = fn(input).toFuture
+  def apply[A](fn: Input => Option[(Input, Future[A])]): Router[A] = new Router[A] {
+    def apply(input: Input): Option[(Input, Future[A])] = fn(input)
   }
 
   /**
@@ -236,8 +201,8 @@ object Router {
   implicit def endpointToService[Req, Rep](
     router: Router[Service[Req, Rep]]
   )(implicit ev: Req => Request): Service[Req, Rep] = new Service[Req, Rep] {
-    def apply(req: Req): Future[Rep] = router(Input(req)).flatMap {
-      case Output.Accepted(r, s) if r.isEmpty => s(req)
+    def apply(req: Req): Future[Rep] = router(Input(req)) match {
+      case Some((input, result)) => result.flatMap(_(req))
       case _ => RouteNotFound(s"${req.method.toString.toUpperCase} ${req.path}").toFutureException[Rep]
     }
   }

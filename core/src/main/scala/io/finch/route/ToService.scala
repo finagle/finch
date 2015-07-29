@@ -57,8 +57,8 @@ trait LowPriorityToServiceInstances {
   protected def routerToService[R: ToRequest](router: Router[Service[R, Response]]): Service[R, Response] =
     new Service[R, Response] {
        import Router._
-       def apply(req: R): Future[Response] = router(Input(implicitly[ToRequest[R]].apply(req))).flatMap {
-         case Output.Accepted(r, s) if r.isEmpty => s(req)
+       def apply(req: R): Future[Response] = router(Input(implicitly[ToRequest[R]].apply(req))) match {
+         case Some((input, result)) if input.isEmpty => result.flatMap(_(req))
          case _ => NotFound().toFuture
        }
     }

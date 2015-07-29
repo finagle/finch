@@ -39,72 +39,79 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
   val route = Input(Request("/a/1/b/2"))
   val emptyRoute = Input(Request())
 
+  def runRouter[A](router: Router[A], input: Input = route): Option[(Input, A)] =
+    router(input).map {
+      case (input, result) => (input, Await.result(result))
+    }
+
+  def execRouter[A](router: Router[A], input: Input = route): Option[Input] = router(input).map(_._1)
+
   "A Router" should "extract single string" in {
     val r: Router[String] = get(string)
-    Await.result(r(route)) shouldBe Output.accepted(route.drop(1), "a")
+    runRouter(r) shouldBe Some((route.drop(1), "a"))
   }
 
   it should "extract multiple strings" in {
     val r: Router2[String, String] = get(string / "1" / string)
-    Await.result(r(route)) shouldBe Output.accepted(route.drop(3), "a" :: "b" :: HNil)
+    runRouter(r) shouldBe Some((route.drop(3), "a" :: "b" :: HNil))
   }
 
   it should "match string" in {
     val r: Router0 = get("a")
-    Await.result(r.exec(route)) shouldBe Some(route.drop(1))
+    execRouter(r) shouldBe Some(route.drop(1))
   }
 
   it should "match 2 or more strings" in {
     val r: Router0 = get("a" / 1 / "b")
-    Await.result(r.exec(route)) shouldBe Some(route.drop(3))
+    execRouter(r) shouldBe Some(route.drop(3))
   }
 
   it should "not match if one of the routers failed" in {
     val r: Router0 = get("a" / 2)
-    Await.result(r(route)) shouldBe Output.dropped
+    runRouter(r) shouldBe None
   }
 
   it should "not match if the method is missing" in {
     val r: Router0 = "a" / "b"
-    Await.result(r(route)) shouldBe Output.dropped
+    runRouter(r) shouldBe None
   }
 
   it should "be able to skip route tokens" in {
     val r: Router0 =  "a" / "1" / *
-    Await.result(r.exec(route)) shouldBe Some(route.drop(4))
+    execRouter(r) shouldBe Some(route.drop(4))
   }
 
   it should "match either one or other matcher" in {
     val r: Router0 = get("a" | "b")
-    Await.result(r.exec(route)) shouldBe Some(route.drop(1))
+    execRouter(r) shouldBe Some(route.drop(1))
   }
 
   it should "match int" in {
     val r: Router0 = get("a" / 1)
-    Await.result(r.exec(route)) shouldBe Some(route.drop(2))
+    execRouter(r) shouldBe Some(route.drop(2))
   }
 
   it should "be able to not match int if it's a different value" in {
     val r: Router0 = get("a" / 2)
-    Await.result(r(route)) shouldBe Output.dropped
+    runRouter(r) shouldBe None
   }
 
   it should "be able to match method" in {
     val r: Router0 = get(/)
-    Await.result(r.exec(route)) shouldBe Some(route)
+    execRouter(r) shouldBe Some(route)
   }
 
   it should "be able to match the whole route" in {
     val r1: Router0 = *
-    Await.result(r1.exec(route)) shouldBe Some(route.drop(4))
+    execRouter(r1) shouldBe Some(route.drop(4))
   }
 
   it should "support DSL for string and int extractors" in {
     val r1: Router2[Int, String] = get("a" / int / string)
     val r2: Router2[Int, Int] = get("a" / int("1") / "b" / int("2"))
 
-    Await.result(r1(route)) shouldBe Output.accepted(route.drop(3), 1 :: "b" :: HNil)
-    Await.result(r2(route)) shouldBe Output.accepted(route.drop(4), 1 :: 2 :: HNil)
+    runRouter(r1) shouldBe Some((route.drop(3), 1 :: "b" :: HNil))
+    runRouter(r2) shouldBe Some((route.drop(4), 1 :: 2 :: HNil))
   }
 
   it should "support DSL for boolean marchers and extractors" in {
@@ -112,8 +119,8 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     val r1: Router[Boolean] = "flag" / boolean
     val r2: Router0 = "flag" / true
 
-    Await.result(r1(route)) shouldBe Output.accepted(route.drop(2), true)
-    Await.result(r2.exec(route)) shouldBe Some(route.drop(2))
+    runRouter(r1, route) shouldBe Some((route.drop(2), true))
+    execRouter(r2, route) shouldBe Some(route.drop(2))
   }
 
   it should "be implicitly converted into a service" in {
@@ -130,17 +137,17 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     val r2: Router[Int] = get("b" / int / int /> { _ + _ })
     val r3: Router[Int] = r1 | r2
 
-    Await.result(r3(route)) shouldBe Output.accepted(route.drop(2), 11)
+    runRouter(r3) shouldBe Some((route.drop(2), 11))
   }
 
   it should "maps to value" in {
     val r: Router[Int] = get(*) /> 10
-    Await.result(r(route)) shouldBe Output.accepted(route.drop(4), 10)
+    runRouter(r) shouldBe Some((route.drop(4), 10))
   }
 
   it should "skip all the route tokens" in {
     val r: Router0 = get("a" / *)
-    Await.result(r.exec(route)) shouldBe Some(route.drop(4))
+    execRouter(r) shouldBe Some(route.drop(4))
   }
 
   it should "converts into a string" in {
@@ -162,9 +169,9 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     val r2: Router[String] = for { a :: b :: c :: HNil <- get("a" / int / string / int) } yield b + c + a
     val r3: Router[String] = r1 | r2
 
-    Await.result(r1(route)) shouldBe Output.accepted(route.drop(2), "a1")
-    Await.result(r2(route)) shouldBe Output.accepted(route.drop(4), "b21")
-    Await.result(r3(route)) shouldBe Await.result(r1(route))
+    runRouter(r1) shouldBe Some((route.drop(2), "a1"))
+    runRouter(r2) shouldBe Some((route.drop(4), "b21"))
+    runRouter(r3) shouldBe runRouter(r2)
   }
 
   it should "be implicitly convertible into service from future" in {
@@ -177,17 +184,17 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     a [RouteNotFound] shouldBe thrownBy(Await.result(e(Request("/baz"))))
   }
 
-  ignore should "be greedy" in {
+  it should "be greedy" in {
     val a = Input(Request("/a/10"))
     val b = Input(Request("/a"))
 
     val r1: Router0 = "a" | "b" | ("a" / 10)
     val r2: Router0 = ("a" / 10) | "b" |  "a"
 
-    Await.result(r1.exec(a)) shouldBe Some(a.drop(2))
-    Await.result(r1.exec(b)) shouldBe Some(b.drop(2))
-    Await.result(r2.exec(a)) shouldBe Some(a.drop(2))
-    Await.result(r2.exec(b)) shouldBe Some(b.drop(2))
+    execRouter(r1, a) shouldBe Some(a.drop(2))
+    execRouter(r1, b) shouldBe Some(b.drop(2))
+    execRouter(r2, a) shouldBe Some(a.drop(2))
+    execRouter(r2, b) shouldBe Some(b.drop(2))
   }
 
   it should "allow mix routers that returns futures and services" in {
@@ -216,10 +223,10 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     val r3: Router0 = get("a" / "b" / "c")
     val r4: Router0 = post(*)
 
-    Await.result(r1.exec(emptyRoute)) shouldBe Some(emptyRoute)
-    Await.result(r2.exec(emptyRoute)) shouldBe None
-    Await.result(r3.exec(emptyRoute)) shouldBe None
-    Await.result(r4.exec(emptyRoute)) shouldBe None
+    execRouter(r1, emptyRoute) shouldBe Some(emptyRoute)
+    execRouter(r2, emptyRoute) shouldBe None
+    execRouter(r3, emptyRoute) shouldBe None
+    execRouter(r4, emptyRoute) shouldBe None
   }
 
   it should "use the first router if both eat the same number of tokens" in {
@@ -230,8 +237,8 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     val route1 = Input(Request())
     val route2 = Input(Request("/foo"))
 
-    Await.result(r(route1)) shouldBe Output.accepted(route1, "root")
-    Await.result(r(route2)) shouldBe Output.accepted(route2.drop(1), "foo")
+    runRouter(r, route1) shouldBe Some((route1, "root"))
+    runRouter(r, route2) shouldBe Some((route2.drop(1), "foo"))
   }
 
   it should "combine coproduct routers appropriately" in {
@@ -241,7 +248,7 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     val r: Router[Int :+: String :+: String :+: Long :+: CNil] = r1 :+: r2
 
     val route = Input(Request("/100"))
-    Await.result(r(route)) shouldBe Output.accepted(route.drop(1), Inl(100))
+    runRouter(r, route) shouldBe Some((route.drop(1), Inl(100)))
   }
 
   it should "convert a coproduct router into an endpoint" in {
@@ -304,7 +311,7 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     val router: Router[Int] = get("a" / int / "b" ? pagination) /> { (i, p) => i + p._1 + p._2 }
     val route = Input(Request("/a/10/b", "from" -> "100", "to" -> "200"))
 
-    Await.result(router(route)) shouldBe Output.accepted(route.drop(3), 310)
+    runRouter(router, route) shouldBe Some((route.drop(3), 310))
   }
 
   "A string matcher" should "have the correct string representation" in {
@@ -332,10 +339,11 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     }
   }
 
-  "A flatMapped router" should "have the correct string representation" in {
+  "An ap'd router" should "have the correct string representation" in {
     check { (s: String) =>
       val matcher: Router[HNil] = s
-      val router: Router[String] = matcher.flatMap(_ => string)
+      val fr: Router[HNil => String] = *.map(_ => _ => "foo")
+      val router: Router[String] = matcher.ap(fr)
 
       router.toString === s
     }
@@ -374,12 +382,12 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
       val input = Input(req)
 
       rr.toString === s"BasicAuth($r)"
-      Await.result(rr(input)) === Output.accepted(input, "foo")
+      runRouter(rr, input) === Some((input, "foo"))
     }
   }
 
   it should "drop the request if auth is failed" in {
     val r: Router0 = basicAuth("foo", "bar")(/)
-    Await.result(r(Input(Request()))) shouldBe Output.dropped
+    runRouter(r, Input(Request())) shouldBe None
   }
 }

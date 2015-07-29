@@ -29,14 +29,11 @@ import com.twitter.util.{Future, Try}
  */
 case class Extractor[A](name: String, f: String => A) extends Router[A] {
   import Router._
-  def apply(input: Input): Future[Output[A]] = Future.value(
-    Output.fromOption(input.drop(1),
-      for {
-        ss <- input.headOption
-        aa <- Try(f(ss)).toOption
-      } yield aa
-    )
-  )
+  def apply(input: Input): Option[(Input, Future[A])] =
+    for {
+      ss <- input.headOption
+      aa <- Try(f(ss)).toOption
+    } yield (input.drop(1), Future.value(aa))
 
   def apply(n: String): Extractor[A] = copy[A](name = n)
 

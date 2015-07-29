@@ -30,9 +30,8 @@ import shapeless.HNil
  */
 private[route] class Matcher(s: String) extends Router[HNil] {
   import Router._
-  def apply(input: Input): Future[Output[HNil]] = Future.value(
-    Output.fromOption(input.drop(1), input.headOption.collect({ case `s` => HNil }))
-  )
+  def apply(input: Input): Option[(Input, Future[HNil])] =
+    input.headOption.collect({ case `s` => Future.value(HNil: HNil) }).map((input.drop(1), _))
 
   override def toString: String = s
 }
@@ -42,7 +41,8 @@ private[route] class Matcher(s: String) extends Router[HNil] {
  */
 object * extends Router[HNil] {
   import Router._
-  def apply(input: Input): Future[Output[HNil]] = Future.value(Output.accepted(input.copy(path = Nil), HNil))
+  def apply(input: Input): Option[(Input, Future[HNil])] =
+    Some((input.copy(path = Nil), Future.value(HNil)))
 
   override def toString: String = "*"
 }
@@ -52,7 +52,7 @@ object * extends Router[HNil] {
  */
 object / extends Router[HNil] {
   import Router._
-  def apply(input: Input): Future[Output[HNil]] = Future.value(Output.accepted(input, HNil))
+  def apply(input: Input): Option[(Input, Future[HNil])] = Some((input, Future.value(HNil)))
 
   override def toString: String = ""
 }
