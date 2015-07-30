@@ -11,7 +11,7 @@ trait RouterCombinators {
 
   private[route] def method[A](m: Method)(r: Router[A]): Router[A] = new Router[A] {
     import Router._
-    def apply(input: Input): Option[(Input, Future[A])] =
+    def apply(input: Input): Option[(Input, () => Future[A])] =
       if (input.request.method == m) r(input)
       else None
 
@@ -82,7 +82,7 @@ trait RouterCombinators {
 
     new Router[A] {
       import Router._
-      def apply(input: Input): Option[(Input, Future[A])] =
+      def apply(input: Input): Option[(Input, () => Future[A])] =
         input.request.authorization.flatMap {
           case `expected` => r(input)
         }

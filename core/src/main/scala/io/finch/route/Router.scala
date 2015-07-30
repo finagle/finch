@@ -42,20 +42,15 @@ trait Router[A] { self =>
   /**
    * Extracts some value of type `A` from the given `input`.
    */
-  def apply(input: Input): Option[(Input, Future[A])]
-
-  /**
-   * Attempts to match a route, but only returns any unmatched elements, not the value.
-   */
-  private[route] def exec(input: Input): Option[Input] = apply(input).map(_._1)
+  def apply(input: Input): Option[(Input, () => Future[A])]
 
   /**
    * Maps this router to the given function `A => B`.
    */
   def map[B](fn: A => B): Router[B] = new Router[B] {
-    def apply(input: Input): Option[(Input, Future[B])] =
+    def apply(input: Input): Option[(Input, () => Future[B])] =
       self(input).map {
-        case (input, result) => (input, result.map(fn))
+        case (input, result) => (input, () => result().map(fn))
       }
 
     override def toString = self.toString
@@ -66,9 +61,9 @@ trait Router[A] { self =>
    * also return `None`.
    */
   def embedFlatMap[B](fn: A => Future[B]): Router[B] = new Router[B] {
-    def apply(input: Input): Option[(Input, Future[B])] =
+    def apply(input: Input): Option[(Input, () => Future[B])] =
       self(input).map {
-        case (input, result) => (input, result.flatMap(fn))
+        case (input, result) => (input, () => result().flatMap(fn))
       }
 
     override def toString = self.toString
@@ -78,12 +73,12 @@ trait Router[A] { self =>
    * Flat-maps this router to the given function `A => Router[B]`.
    */
   def ap[B](fn: Router[A => B]): Router[B] = new Router[B] {
-    def apply(input: Input): Option[(Input, Future[B])] =
+    def apply(input: Input): Option[(Input, () => Future[B])] =
       self(input).flatMap {
         case (input1, resultA) => fn(input1).map {
           case (input2, resultF) => (
             input2,
-            resultA.join(resultF).map {
+            () => resultA().join(resultF()).map {
               case (a, f) => f(a)
             }
           )
@@ -102,7 +97,7 @@ trait Router[A] { self =>
       val inner = self.ap(
         that.map { b => (a: A) => adjoin(a, b) }
       )
-      def apply(input: Input): Option[(Input, Future[adjoin.Out])] = inner(input)
+      def apply(input: Input): Option[(Input, () => Future[adjoin.Out])] = inner(input)
 
       override def toString = s"${self.toString}/${that.toString}"
     }
@@ -112,11 +107,11 @@ trait Router[A] { self =>
    */
   def ?[B](that: RequestReader[B])(implicit adjoin: PairAdjoin[A, B]): Router[adjoin.Out] =
     new Router[adjoin.Out] {
-      def apply(input: Input): Option[(Input, Future[adjoin.Out])] =
+      def apply(input: Input): Option[(Input, () => Future[adjoin.Out])] =
         self(input).map {
           case (input, result) => (
             input,
-            result.join(that(input.request)).map {
+            () => result().join(that(input.request)).map {
               case (a, b) => adjoin(a, b)
             }
           )
@@ -130,7 +125,7 @@ trait Router[A] { self =>
    * `that` routers are succeed.
    */
   def |[B >: A](that: Router[B]): Router[B] = new Router[B] {
-    def apply(input: Input): Option[(Input, Future[B])] = (self(input), that(input)) match {
+    def apply(input: Input): Option[(Input, () => Future[B])] = (self(input), that(input)) match {
       case (aa @ Some((a, _)), bb @ Some((b, _))) =>
         if (a.path.length <= b.path.length) aa else bb
       case (a, b) => a orElse b
@@ -178,8 +173,8 @@ object Router {
   /**
    * Creates a [[Router]] from the given function `Input => Output[A]`.
    */
-  def apply[A](fn: Input => Option[(Input, Future[A])]): Router[A] = new Router[A] {
-    def apply(input: Input): Option[(Input, Future[A])] = fn(input)
+  def apply[A](fn: Input => Option[(Input, () => Future[A])]): Router[A] = new Router[A] {
+    def apply(input: Input): Option[(Input, () => Future[A])] = fn(input)
   }
 
   /**
@@ -202,7 +197,7 @@ object Router {
     router: Router[Service[Req, Rep]]
   )(implicit ev: Req => Request): Service[Req, Rep] = new Service[Req, Rep] {
     def apply(req: Req): Future[Rep] = router(Input(req)) match {
-      case Some((input, result)) => result.flatMap(_(req))
+      case Some((input, result)) => result().flatMap(_(req))
       case _ => RouteNotFound(s"${req.method.toString.toUpperCase} ${req.path}").toFutureException[Rep]
     }
   }

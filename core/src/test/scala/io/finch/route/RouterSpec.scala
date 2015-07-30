@@ -41,7 +41,7 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
 
   def runRouter[A](router: Router[A], input: Input = route): Option[(Input, A)] =
     router(input).map {
-      case (input, result) => (input, Await.result(result))
+      case (input, result) => (input, Await.result(result()))
     }
 
   def execRouter[A](router: Router[A], input: Input = route): Option[Input] = router(input).map(_._1)
@@ -195,6 +195,23 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     execRouter(r1, b) shouldBe Some(b.drop(2))
     execRouter(r2, a) shouldBe Some(a.drop(2))
     execRouter(r2, b) shouldBe Some(b.drop(2))
+  }
+
+  it should "not evaluate futures until matched" in {
+    val a = Input(Request("/a/10"))
+    var flag = false
+
+    val routerWithFailedFuture: Router0 = "a".embedFlatMap { hnil =>
+      Future {
+        flag = true
+        hnil
+      }
+    }
+
+    val router: Router0 = ("a" / 10) | routerWithFailedFuture
+
+    runRouter(router, a) shouldBe Some((a.drop(2), HNil))
+    flag shouldBe false
   }
 
   it should "allow mix routers that returns futures and services" in {
