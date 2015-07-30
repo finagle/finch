@@ -12,7 +12,7 @@ import shapeless.ops.coproduct.Folder
 
 /**
  * Represents a conversion from a router returning a result type `A` to a
- * Finagle service from a request-like type `R` to a [[Response]].
+ * Finagle service from a request-like type `R` to a [[com.twitter.finagle.httpx.Response]].
  */
 @implicitNotFound(
 """You can only convert a router into a Finagle service from ${R} to an Response if ${R} can be
@@ -65,11 +65,11 @@ trait LowPriorityToServiceInstances {
 
   /**
    * A polymorphic function value that accepts types that can be transformed into a Finagle service from a request-like
-   * type to a [[Response]].
+   * type to a [[com.twitter.finagle.httpx.Response]].
    */
   protected object EncodeAll extends Poly1 {
     /**
-     * Transforms an [[Response]] directly into a constant service.
+     * Transforms an [[com.twitter.finagle.httpx.Response]] directly into a constant service.
      */
     implicit def response[R: ToRequest]: Case.Aux[Response, Service[R, Response]] =
       at(r => Service.const(r.toFuture))
@@ -81,7 +81,7 @@ trait LowPriorityToServiceInstances {
       at(a => Service.const(Ok(a).toFuture))
 
     /**
-     * Transforms an [[Response]] in a future into a constant service.
+     * Transforms an [[com.twitter.finagle.httpx.Response]] in a future into a constant service.
      */
     implicit def futureResponse[R: ToRequest]: Case.Aux[Future[Response], Service[R, Response]] =
       at(Service.const)
@@ -93,13 +93,13 @@ trait LowPriorityToServiceInstances {
       at(fa => Service.const(fa.map(Ok(_))))
 
     /**
-     * Transforms a [[RequestReader]] into a service.
+     * Transforms a [[io.finch.request.RequestReader]] into a service.
      */
     implicit def requestReader[R: ToRequest, A: EncodeResponse]: Case.Aux[RequestReader[A], Service[R, Response]] =
       at(reader => Service.mk(req => reader(implicitly[ToRequest[R]].apply(req)).map(Ok(_))))
 
     /**
-     * An identity transformation for services that return an [[Response]].
+     * An identity transformation for services that return a [[com.twitter.finagle.httpx.Response]].
      *
      * Note that the service may have a static type that is more specific than `Service[R, Response]`.
      */
