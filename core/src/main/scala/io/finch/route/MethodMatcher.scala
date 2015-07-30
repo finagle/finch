@@ -1,15 +1,19 @@
 package io.finch.route
 
+import com.twitter.util.Future
 import com.twitter.finagle.httpx.Method
 import shapeless.HNil
 
 /**
  * A [[Router]] that matches the given HTTP method.
  */
-case class MethodMatcher(m: Method) extends Router[HNil] {
-  def apply(input: RouterInput): Option[(RouterInput, HNil)] =
-    if (input.request.method == m) Some((input, HNil)) else None
-  override def toString = s"${m.toString.toUpperCase}"
+private[route] class MethodMatcher(m: Method) extends Router[HNil] {
+  import Router._
+  def apply(input: Input): Option[(Input, () => Future[HNil])] =
+    if (input.request.method == m) Some((input, () => Future.value(HNil)))
+    else None
+
+  override def toString: String = s"${m.toString.toUpperCase}"
 }
 
 //

@@ -2,15 +2,19 @@ package io.finch.route
 
 import com.twitter.finagle.httpx.Method
 import com.twitter.util.Base64StringEncoder
+import com.twitter.util.Future
 
 /**
  * A collection of [[Router]] combinators.
  */
 trait RouterCombinators {
 
-  private def method[A](m: Method)(r: Router[A]): Router[A] = new Router[A] {
-    def apply(input: RouterInput): Option[(RouterInput, A)] =
-      if (input.request.method == m) r(input) else None
+  private[route] def method[A](m: Method)(r: Router[A]): Router[A] = new Router[A] {
+    import Router._
+    def apply(input: Input): Option[(Input, () => Future[A])] =
+      if (input.request.method == m) r(input)
+      else None
+
     override def toString: String = s"${m.toString.toUpperCase} /${r.toString}"
   }
 
@@ -77,10 +81,10 @@ trait RouterCombinators {
     val expected = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
 
     new Router[A] {
-      def apply(input: RouterInput): Option[(RouterInput, A)] =
-        input.request.authorization match {
-          case Some(actual) if actual == expected => r(input)
-          case _ => None
+      import Router._
+      def apply(input: Input): Option[(Input, () => Future[A])] =
+        input.request.authorization.flatMap {
+          case `expected` => r(input)
         }
 
       override def toString: String = s"BasicAuth($r)"

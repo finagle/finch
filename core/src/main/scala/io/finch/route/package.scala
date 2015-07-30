@@ -60,9 +60,9 @@ package object route extends RouterCombinators {
   type Router2[A, B] = Router[A :: B :: HNil]
   type Router3[A, B, C] = Router[A :: B :: C :: HNil]
 
-  implicit def stringToMatcher(s: String): Router0 = Matcher(s)
-  implicit def intToMatcher(i: Int): Router0 = Matcher(i.toString)
-  implicit def booleanToMatcher(b: Boolean): Router0 = Matcher(b.toString)
+  implicit def stringToMatcher(s: String): Router0 = new Matcher(s)
+  implicit def intToMatcher(i: Int): Router0 = new Matcher(i.toString)
+  implicit def booleanToMatcher(b: Boolean): Router0 = new Matcher(b.toString)
 }
 
 package route {
@@ -72,7 +72,7 @@ package route {
   case class RouteNotFound(r: String) extends Exception(s"Route not found: $r")
 
   /**
-   * We need a version of [[shapeless.adjoin.Adjoin]] that provides slightly different behavior in
+   * We need a version of [[shapeless.ops.adjoin.Adjoin]] that provides slightly different behavior in
    * the case of singleton results (we simply return the value, not a singleton `HList`).
    */
   trait PairAdjoin[A, B] extends DepFn2[A, B]

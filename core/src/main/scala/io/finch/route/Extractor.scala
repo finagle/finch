@@ -22,19 +22,22 @@
 
 package io.finch.route
 
-import com.twitter.util.Try
+import com.twitter.util.{Future, Try}
 
 /**
  * An universal extractor that extracts some value of type `A` if it's possible to fetch the value from the string.
  */
 case class Extractor[A](name: String, f: String => A) extends Router[A] {
-  def apply(input: RouterInput): Option[(RouterInput, A)] = for {
-    ss <- input.headOption
-    a <- Try(f(ss)).toOption
-  } yield (input.drop(1), a)
+  import Router._
+  def apply(input: Input): Option[(Input, () => Future[A])] =
+    for {
+      ss <- input.headOption
+      aa <- Try(f(ss)).toOption
+    } yield (input.drop(1), () => Future.value(aa))
 
   def apply(n: String): Extractor[A] = copy[A](name = n)
-  override def toString = s":$name"
+
+  override def toString: String = s":$name"
 }
 
 /**

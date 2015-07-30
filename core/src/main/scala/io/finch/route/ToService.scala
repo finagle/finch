@@ -20,9 +20,6 @@ converted into an Request, and if the result type of the router is one of the fo
 
   * An Response
   * A value of a type with an EncodeResponse instance
-  * A future of an Response
-  * A future of a value of a type with an EncodeResponse instance
-  * A RequestReader that returns a value of a type with an EncodeResponse instance
   * A Finagle service that returns an Response
   * A Finagle service that returns a value of a type with an EncodeResponse instance
   * A coproduct made up of some combination of the above
@@ -57,12 +54,13 @@ trait LowPriorityToServiceInstances {
       routerToService(router.map(polyCase(_)))
   }
 
-  protected def routerToService[R: ToRequest](r: Router[Service[R, Response]]): Service[R, Response] =
-    Service.mk[R, Response] { req =>
-      r(RouterInput(implicitly[ToRequest[R]].apply(req))) match {
-        case Some((output, service)) if output.path.isEmpty => service(req)
-        case _ => NotFound().toFuture
-      }
+  protected def routerToService[R: ToRequest](router: Router[Service[R, Response]]): Service[R, Response] =
+    new Service[R, Response] {
+       import Router._
+       def apply(req: R): Future[Response] = router(Input(implicitly[ToRequest[R]].apply(req))) match {
+         case Some((input, result)) if input.isEmpty => result().flatMap(_(req))
+         case _ => NotFound().toFuture
+       }
     }
 
   /**
