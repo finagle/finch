@@ -30,8 +30,8 @@ val testDependencies = Seq(
 
 val baseSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.chuusai" %% "shapeless" % "2.2.3",
-    "com.twitter" %% "finagle-httpx" % "6.26.0",
+    "com.chuusai" %% "shapeless" % "2.2.5",
+    "com.twitter" %% "finagle-httpx" % "6.27.0",
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
     compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
   ) ++ testDependencies.map(_ % "test"),
