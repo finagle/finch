@@ -103,7 +103,7 @@ trait Router[A] { self =>
     }
 
   /**
-   * Composes this router with the given [[RequestReader]].
+   * Composes this router with the given [[io.finch.request.RequestReader]].
    */
   def ?[B](that: RequestReader[B])(implicit adjoin: PairAdjoin[A, B]): Router[adjoin.Out] =
     new Router[adjoin.Out] {
@@ -145,7 +145,8 @@ trait Router[A] { self =>
     self.map(a => adjoin(Inr[B, A :+: CNil](Inl[A, CNil](a))))
 
   /**
-   * Converts this router to a Finagle service from a request-like type `R` to a [[Response]].
+   * Converts this router to a Finagle service from a request-like type `R` to a
+   * [[com.twitter.finagle.httpx.Response]].
    */
   def toService[R: ToRequest](implicit ts: ToService[R, A]): Service[R, Response] = ts(this)
 }
@@ -166,7 +167,7 @@ object Router {
   }
 
   /**
-   * Creates an input for [[Router]] from [[Request]].
+   * Creates an input for [[Router]] from [[com.twitter.finagle.httpx.Request]].
    */
   def Input(req: Request): Input = Input(req, req.path.split("/").toList.drop(1))
 

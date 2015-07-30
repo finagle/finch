@@ -79,7 +79,7 @@ package object request {
   type %>[A, B] = View[A, B]
 
   /**
-   * A [[PRequestReader]] with request type fixed to [[Request]].
+   * A [[PRequestReader]] with request type fixed to [[com.twitter.finagle.httpx.Request]].
    */
   type RequestReader[A] = PRequestReader[Request, A]
 

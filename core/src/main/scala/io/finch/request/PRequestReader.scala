@@ -36,7 +36,8 @@ import shapeless.ops.hlist.Tupler
 
 
 /**
- * A polymorphic request reader (a reader monad) that reads a [[Future]] of `A` from the request of type `R`.
+ * A polymorphic request reader (a reader monad) that reads a
+ * [[com.twitter.util.Future]] of `A` from the request of type `R`.
  */
 trait PRequestReader[R, A] { self =>
 

@@ -3,7 +3,7 @@ package io.finch.request
 import com.twitter.finagle.httpx.Request
 
 /**
- * A type class that provides a conversion from some type to a [[Request]].
+ * A type class that provides a conversion from some type to a [[com.twitter.finagle.httpx.Request]].
  */
 trait ToRequest[R] {
   def apply(r: R): Request
@@ -19,7 +19,7 @@ object ToRequest {
   }
 
   /**
-   * An identity instance for [[Request]] itself.
+   * An identity instance for [[com.twitter.finagle.httpx.Request]] itself.
    */
   implicit val requestIdentity: ToRequest[Request] = apply(identity)
 }
