@@ -1,5 +1,6 @@
 import sbtunidoc.Plugin.UnidocKeys._
 import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages
+import de.heikoseeberger.sbtheader.license.Apache2_0
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
@@ -42,7 +43,10 @@ val baseSettings = Seq(
     }
   ),
   scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
-  wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.NoNeedForMonad, Wart.Null, Wart.Nothing, Wart.DefaultArguments)
+  wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.NoNeedForMonad, Wart.Null, Wart.Nothing, Wart.DefaultArguments),
+  headers := Map(
+    "scala" -> Apache2_0("2015", "Vladimir Kostyukov")
+  )
 )
 
 lazy val publishSettings = Seq(
