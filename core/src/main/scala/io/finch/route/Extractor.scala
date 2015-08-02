@@ -27,7 +27,7 @@ import com.twitter.util.{Future, Try}
 /**
  * An universal extractor that extracts some value of type `A` if it's possible to fetch the value from the string.
  */
-case class Extractor[A](name: String, f: String => A) extends Router[A] {
+case class Extractor[A](name: String, f: String => A) extends Router[A] { self =>
   import Router._
   def apply(input: Input): Option[(Input, () => Future[A])] =
     for {
@@ -36,6 +36,16 @@ case class Extractor[A](name: String, f: String => A) extends Router[A] {
     } yield (input.drop(1), () => Future.value(aa))
 
   def apply(n: String): Extractor[A] = copy[A](name = n)
+
+  def * : Router[Seq[A]] = new Router[Seq[A]] {
+    override def apply(input: Input): Option[(Input, () => Future[Seq[A]])] =
+      Some((input.copy(path = Nil), () => Future.value(for {
+        s <- input.path
+        a <- Try(self.f(s)).toOption
+      } yield a)))
+
+    override def toString = self.toString + ".*"
+  }
 
   override def toString: String = s":$name"
 }
