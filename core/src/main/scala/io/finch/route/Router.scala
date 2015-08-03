@@ -18,6 +18,11 @@ trait Router[A] { self =>
   import Router._
 
   /**
+   * Maps this [[Router]] to either `A => B` or `A => Future[B]`.
+   */
+  def apply(mapper: Mapper[A]): Router[mapper.Out] = mapper(self)
+
+  /**
    * Extracts some value of type `A` from the given `input`.
    */
   def apply(input: Input): Option[(Input, () => Future[A])]
@@ -150,9 +155,24 @@ object Router {
   def Input(req: Request): Input = Input(req, req.path.split("/").toList.drop(1))
 
   /**
+   * Creates a [[Router]] from the given [[Future]] `f`.
+   */
+  def const[A](f: Future[A]): Router[A] = embed(input => Some((input, () => f)))
+
+  /**
+   * Creates a [[Router]] from the given value `v`.
+   */
+  def value[A](v: A): Router[A] = const(Future.value(v))
+
+  /**
+   * Creates a [[Router]] from the given exception `exc`.
+   */
+  def exception[A](exc: Throwable): Router[A] = const(Future.exception(exc))
+
+  /**
    * Creates a [[Router]] from the given function `Input => Output[A]`.
    */
-  def apply[A](fn: Input => Option[(Input, () => Future[A])]): Router[A] = new Router[A] {
+  private[route] def embed[A](fn: Input => Option[(Input, () => Future[A])]): Router[A] = new Router[A] {
     def apply(input: Input): Option[(Input, () => Future[A])] = fn(input)
   }
 
