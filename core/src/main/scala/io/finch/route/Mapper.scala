@@ -1,6 +1,7 @@
 package io.finch.route
 
 import com.twitter.util.Future
+import shapeless.HNil
 import shapeless.ops.function.FnToProduct
 
 /**
@@ -42,5 +43,15 @@ object Mapper extends MidPriorityMapperConversions {
   ): Mapper.Aux[A, B] = new Mapper[A] {
     type Out = B
     def apply(r: Router[A]): Router[Out] = r.embedFlatMap(value => ev(ftp(f)(value)))
+  }
+
+  implicit def mapperFromValue[A](v: A): Mapper.Aux[HNil, A] = new Mapper[HNil] {
+    type Out = A
+    def apply(r: Router[HNil]): Router[Out] = r.map(_ => v)
+  }
+
+  implicit def mapperFromFutureValue[A](f: Future[A]): Mapper.Aux[HNil, A] = new Mapper[HNil] {
+    type Out = A
+    def apply(r: Router[HNil]): Router[Out] = r.embedFlatMap(_ => f)
   }
 }
