@@ -128,18 +128,50 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     execRouter(r) shouldBe Some(route.drop(4))
   }
 
+  it should "extract the tail of the route" in {
+    val r: Router[Seq[String]] = get("a" / string.*)
+    runRouter(r, route) shouldBe Some((route.drop(4), Seq("1", "b", "2")))
+  }
+
+  it should "extract ints from the tail of the route" in {
+    val route1 = Input(Request("/a/1/4/42"))
+
+    val r1: Router[Seq[Int]] = get("a" / int.*)
+    val r2: Router[Int :: Seq[Int] :: HNil] = get("a" / int("1") / int.*)
+
+    runRouter(r1, route1) shouldBe Some((route1.drop(4), Seq(1, 4, 42)))
+    runRouter(r1, route) shouldBe Some((route.drop(4), Seq(1, 2)))
+
+    runRouter(r2, route1) shouldBe Some((route1.drop(4), 1 :: Seq(4, 42) :: HNil))
+    runRouter(r2, route) shouldBe Some((route.drop(4), 1 :: Seq(2) :: HNil))
+  }
+
+  it should "extract booleans from the tail of the route" in {
+    val route = Input(Request("/flag/true/false/true"))
+    val r: Router[Seq[Boolean]] = get("flag" / boolean.*)
+    runRouter(r, route) shouldBe Some((route.drop(4), Seq(true, false, true)))
+  }
+
+  it should "extract the tail of the route in case it's empty" in {
+    val route = Input(Request("/a"))
+    val r: Router[Seq[String]] = get("a" / string.*)
+    runRouter(r, route) shouldBe Some((route.drop(4), Nil))
+  }
+
   it should "converts into a string" in {
     val r1: Router0 = get(/)
     val r2: Router0 = get("a" / true / 1)
     val r3: Router3[Int, Long, String] = get(("a" | "b") / int / long / string)
     val r4: Router3[String, Int, Boolean] = get(string("name") / int("id") / boolean("flag") / "foo")
     val r5: Router0 = post(*)
+    val r6: Router[Seq[String]] = post(string.*)
 
     r1.toString shouldBe "GET /"
     r2.toString shouldBe "GET /a/true/1"
     r3.toString shouldBe "GET /(a|b)/:int/:long/:string"
     r4.toString shouldBe "GET /:name/:id/:flag/foo"
     r5.toString shouldBe "POST /*"
+    r6.toString shouldBe "POST /:string.*"
   }
 
   it should "support the for-comprehension syntax" in {
