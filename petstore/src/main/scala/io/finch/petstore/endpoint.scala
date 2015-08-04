@@ -116,7 +116,7 @@ object endpoint extends ErrorHandling {
       case (n, s) =>
         for {
           pet <- db.getPet(petId)
-          newPet <- db.updatePetViaForm(petId, Some(n), Some(s))
+          newPet <- db.updatePetNameStatus(petId, Some(n), Some(s))
         } yield newPet
     }
   }
