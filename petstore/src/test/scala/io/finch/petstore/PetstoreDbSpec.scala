@@ -165,28 +165,28 @@ class PetstoreDbSpec extends FlatSpec with Matchers with Checkers {
 
   //POST: Update a pet in the store with form data
   it should "be able to update existing pets with form data" in new DbContext {
-    db.updatePetViaForm(0, Some("Clifford"), Some(Pending))
+    db.updatePetNameStatus(0, Some("Clifford"), Some(Pending))
     var p: Pet = Await.result(db.getPet(0))
     assert(if (p.name.equals("Clifford")) true else false)
     assert(if (p.status == Some(Pending)) true else false)
 
-    db.updatePetViaForm(0, Some("Rover"), Some(Available))
-    db.updatePetViaForm(0, None, Some(Pending))
+    db.updatePetNameStatus(0, Some("Rover"), Some(Available))
+    db.updatePetNameStatus(0, None, Some(Pending))
     p = Await.result(db.getPet(0))
     assert(if (p.name.equals("Rover")) true else false)
     assert(if (p.status == Some(Pending)) true else false)
 
-    db.updatePetViaForm(0, Some("Rover"), Some(Available))
-    db.updatePetViaForm(0, Some("Clifford"), None)
+    db.updatePetNameStatus(0, Some("Rover"), Some(Available))
+    db.updatePetNameStatus(0, Some("Clifford"), None)
     p = Await.result(db.getPet(0))
     assert(if (p.name.equals("Clifford")) true else false)
     assert(if (p.status == Some(Available)) true else false)
 
-    db.updatePetViaForm(0, Some("Rover"), Some(Available)) //reset for other tests
+    db.updatePetNameStatus(0, Some("Rover"), Some(Available)) //reset for other tests
   }
 
   it should "fail when a pet to be updated via form data isn't passed with a valid ID" in new DbContext {
-    val f = db.updatePetViaForm(1000, Some("September"), Some(Available))
+    val f = db.updatePetNameStatus(1000, Some("September"), Some(Available))
     Await.result(f.liftToTry).isThrow
   }
 

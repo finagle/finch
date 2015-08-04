@@ -170,7 +170,7 @@ class PetstoreDb {
    * @param s New status of the Pet.
    * @return The updated Pet.
    */
-  def updatePetViaForm(petId: Long, n: Option[String], s: Option[Status]): Future[Pet] = {
+  def updatePetNameStatus(petId: Long, n: Option[String], s: Option[Status]): Future[Pet] = {
       if (pets.contains(petId)) pets.synchronized {
         s.foreach { stat => pets(petId) = pets(petId).copy(status = Some(stat)) }
         n.foreach { name => pets(petId) = pets(petId).copy(name = name) }
