@@ -46,6 +46,7 @@ package object request {
     */
   type FileUpload = org.jboss.netty.handler.codec.http.multipart.FileUpload
 
+  @deprecated(message = "Custom request are deprecated", since = "0.8.0")
   type %>[A, B] = View[A, B]
 
   /**
