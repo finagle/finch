@@ -365,6 +365,20 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     runRouter(r9, route) shouldBe Some((route, "foo"))
   }
 
+  it should "maps lazily to values" in {
+    var i: Int = 0
+    val r1: Router[Int] = get(/) { i = i + 1; i }
+    val r2: Router[Int] = get(/) { i = i + 1; Future.value(i) }
+
+    val route = Input(Request())
+    runRouter(r1, route) shouldBe Some((route, 1))
+    runRouter(r1, route) shouldBe Some((route, 2))
+    runRouter(r1, route) shouldBe Some((route, 3))
+    runRouter(r2, route) shouldBe Some((route, 4))
+    runRouter(r2, route) shouldBe Some((route, 5))
+    runRouter(r2, route) shouldBe Some((route, 6))
+  }
+
   "A string matcher" should "have the correct string representation" in {
     check { (s: String) =>
       val matcher: Router[HNil] = s
