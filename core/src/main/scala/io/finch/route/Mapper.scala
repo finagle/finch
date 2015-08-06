@@ -45,12 +45,12 @@ object Mapper extends MidPriorityMapperConversions {
     def apply(r: Router[A]): Router[Out] = r.embedFlatMap(value => ev(ftp(f)(value)))
   }
 
-  implicit def mapperFromValue[A](v: A): Mapper.Aux[HNil, A] = new Mapper[HNil] {
+  implicit def mapperFromValue[A](v: => A): Mapper.Aux[HNil, A] = new Mapper[HNil] {
     type Out = A
     def apply(r: Router[HNil]): Router[Out] = r.map(_ => v)
   }
 
-  implicit def mapperFromFutureValue[A](f: Future[A]): Mapper.Aux[HNil, A] = new Mapper[HNil] {
+  implicit def mapperFromFutureValue[A](f: => Future[A]): Mapper.Aux[HNil, A] = new Mapper[HNil] {
     type Out = A
     def apply(r: Router[HNil]): Router[Out] = r.embedFlatMap(_ => f)
   }
