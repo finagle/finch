@@ -15,11 +15,9 @@ Badges
 
 Modules
 -------
-
 Finch uses multi-project structure and contains of the following _modules_:
 
 * [`finch-core`](core) - the core classes/functions
-* [`finch-demo`](demo) - the demo project
 * [`finch-argonaut`](argonaut) - the JSON API support for the [Argonaut](http://argonaut.io/) library
 * [`finch-jackson`](jackson) - the JSON API support for the [Jackson](http://jackson.codehaus.org/) library
 * [`finch-json4s`](json4s) - the JSON API support for the [JSON4S](http://json4s.org/) library
@@ -54,8 +52,14 @@ This "Hello World!" example is built with the `0.8.0-SNAPSHOT` version of `finch
 import io.finch.route._
 import com.twitter.finagle.Httpx
 
-Httpx.serve(":8080", (Get / "hello" /> "Hello, World!").toService)
+val api: Router[String] = get("hello") { "Hello, World!" }
+
+Httpx.serve(":8080", api.toService)
 ```
+
+Demo
+----
+The [`petstore`](petstore) project implements the [Petstore](http://petstore.swagger.io/) Swagger example.
 
 Documentation
 -------------
@@ -74,7 +78,6 @@ Adopters
 
 Contributing
 ------------
-
 There are plenty of ways to contribute into Finch:
 
 * Give it a star
@@ -84,7 +87,6 @@ There are plenty of ways to contribute into Finch:
 
 License
 -------
-
 Licensed under the **[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)** (the "License");
 you may not use this software except in compliance with the License.
 

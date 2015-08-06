@@ -8,20 +8,22 @@
 ### Authorization with OAuth2
 
 There is [finagle-oauth2](https://github.com/finagle/finagle-oauth2) server-side provider that is 100% compatible with
-Finch.
+Finch. There is no Finch-specific abstractions available in Finch, but this work is [in progress][1].
 
 ### Basic HTTP Auth
 
-[Basic HTTP Auth](http://en.wikipedia.org/wiki/Basic_access_authentication) is implemented in the `finch-auth` module as
-`finch.io.auth.BasicallyAuthorize` filter.
+[Basic HTTP Auth](http://en.wikipedia.org/wiki/Basic_access_authentication) is implemented as `basicAuth` combinator
+available in `finch-core`. The `basicAuth` takes two param lists: 1) username and password and 2) a `Router` that has to
+be authorized.
 
 ```scala
-object ProtectedEndpoint extends Endpoint[Request, Response] {
-  def route = {
-    case Method.Get -> Root / "users" => BasicallyAuthorize("user", "password") ! GetUsers
-  }
-}
+import io.finch.route._
+
+val router: Router[String] = Router.value("42")
+val authRouter: Router[String] = basicAuth("username", "password")(router)
 ```
 
 --
 Read Next: [JSON](json.md)
+
+[1]: https://github.com/finagle/finch/issues/136
