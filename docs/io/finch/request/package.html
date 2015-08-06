@@ -28,11 +28,11 @@
         </head>
         <body class="value">
       <div id="definition">
-        <img src="../../../lib/package_big.png" />
+        <img alt="Package" src="../../../lib/package_big.png" />
         <p id="owner"><a href="../../package.html" class="extype" name="io">io</a>.<a href="../package.html" class="extype" name="io.finch">finch</a></p>
         <h1>request</h1><span class="permalink">
       <a href="../../../index.html#io.finch.request.package" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       </div>
@@ -49,7 +49,7 @@
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>This package introduces types and functions that enable _request processing_ in Finch. The <a href="" class="extype" name="io.finch.request">io.finch.request</a>
 primitives allow both to _read_ the various request items (<i>query string param</i>, <i>header</i> and <i>cookie</i>) using
-the <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> and _validate_ them using the
+the <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> and _validate_ them using the
 <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a>.</p><p>The cornerstone abstraction of this package is a <code>RequestReader</code>, which is responsible for reading any amount of data
 from the HTTP request. <code>RequestReader</code>s might be composed with each other using either monadic API (<code>flatMap</code> method)
 or applicative API (<code>::</code> method). Regardless the API used for <code>RequestReader</code>s composition, the main idea behind it
@@ -66,7 +66,7 @@ logical methods <code>and</code> and <code>or</code>.</p><pre><span class="kw">c
   param(<span class="lit">"age"</span>).as[<span class="std">Int</span>].should(beGreaterThan(<span class="num">0</span>) and beLessThan(<span class="num">120</span>))
 ).as[User]</pre></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
         
 
@@ -92,7 +92,6 @@ logical methods <code>and</code> and <code>or</code>.</p><pre><span class="kw">c
               <li class="hideall out"><span>Hide All</span></li>
               <li class="showall in"><span>Show all</span></li>
             </ol>
-            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
           </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
@@ -106,24 +105,7 @@ logical methods <code>and</code> and <code>or</code>.</p><pre><span class="kw">c
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="io.finch.request.%&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="%&gt;[A,B]=io.finch.request.View[A,B]"></a>
-      <a id="%&gt;[A,B]:%&gt;[A,B]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">type</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $percent$greater" class="name">%&gt;</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="result"> = <a href="View.html" class="extype" name="io.finch.request.View">View</a>[<span class="extype" name="io.finch.request.%&gt;.A">A</span>, <span class="extype" name="io.finch.request.%&gt;.B">B</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@%&gt;[A,B]=io.finch.request.View[A,B]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A symbolic alias for <a href="View.html" class="extype" name="io.finch.request.View">View</a>.</p>
-    </li><li name="io.finch.request.DecodeAnyRequest" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+              <ol><li name="io.finch.request.DecodeAnyRequest" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="DecodeAnyRequestextendsAnyRef"></a>
       <a id="DecodeAnyRequest:DecodeAnyRequest"></a>
       <h4 class="signature">
@@ -132,11 +114,11 @@ logical methods <code>and</code> and <code>or</code>.</p><pre><span class="kw">c
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="DecodeAnyRequest.html"><span class="name">DecodeAnyRequest</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="DecodeAnyRequest.html"><span class="name">DecodeAnyRequest</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@DecodeAnyRequestextendsAnyRef" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">An abstraction that is responsible for decoding the request of general type.</p>
@@ -149,11 +131,11 @@ logical methods <code>and</code> and <code>or</code>.</p><pre><span class="kw">c
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="DecodeRequest.html"><span class="name">DecodeRequest</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="DecodeRequest.html"><span class="name">DecodeRequest</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@DecodeRequest[A]extendsAnyRef" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">An abstraction that is responsible for decoding the request of type <code>A</code>.</p>
@@ -170,7 +152,7 @@ logical methods <code>and</code> and <code>or</code>.</p><pre><span class="kw">c
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@FileUpload=org.jboss.netty.handler.codec.http.multipart.FileUpload" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">A type alias for a <span class="extype" name="org.jboss.netty.handler.codec.http.multipart.FileUpload">org.jboss.netty.handler.codec.http.multipart.FileUpload</span>
@@ -184,16 +166,15 @@ to prevent imports.</p>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="NotParsed.html"><span class="name">NotParsed</span></a><span class="params">(<span name="item">item: <a href="package$$items$$RequestItem.html" class="extype" name="io.finch.request.items.RequestItem">RequestItem</a></span>, <span name="targetType">targetType: <span class="extype" name="scala.reflect.ClassTag">ClassTag</span>[_]</span>, <span name="cause">cause: <span class="extype" name="scala.Throwable">Throwable</span></span>)</span><span class="result"> extends <a href="RequestError.html" class="extype" name="io.finch.request.RequestError">RequestError</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="NotParsed.html"><span class="name">NotParsed</span></a><span class="params">(<span name="item">item: <a href="package$$items$$RequestItem.html" class="extype" name="io.finch.request.items.RequestItem">RequestItem</a></span>, <span name="targetType">targetType: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[_]</span>, <span name="cause">cause: <span class="extype" name="scala.Throwable">Throwable</span></span>)</span><span class="result"> extends <a href="RequestError.html" class="extype" name="io.finch.request.RequestError">RequestError</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@NotParsedextendsRequestErrorwithProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">An exception that indicates that a request item could be parsed.</p><div class="fullcomment"><div class="comment cmt"><p>An exception that indicates that a request item could be parsed.
-</p></div><dl class="paramcmts block"><dt class="param">item</dt><dd class="cmt"><p>the invalid request item</p></dd><dt class="param">targetType</dt><dd class="cmt"><p>the type the item should be converted into</p></dd><dt class="param">cause</dt><dd class="cmt"><p>the cause of the parsing error
-</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">item</dt><dd class="cmt"><p>the invalid request item</p></dd><dt class="param">targetType</dt><dd class="cmt"><p>the type the item should be converted into</p></dd><dt class="param">cause</dt><dd class="cmt"><p>the cause of the parsing error</p></dd></dl></div>
     </li><li name="io.finch.request.NotPresent" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="NotPresentextendsRequestErrorwithProductwithSerializable"></a>
       <a id="NotPresent:NotPresent"></a>
@@ -203,18 +184,17 @@ to prevent imports.</p>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="NotPresent.html"><span class="name">NotPresent</span></a><span class="params">(<span name="item">item: <a href="package$$items$$RequestItem.html" class="extype" name="io.finch.request.items.RequestItem">RequestItem</a></span>)</span><span class="result"> extends <a href="RequestError.html" class="extype" name="io.finch.request.RequestError">RequestError</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="NotPresent.html"><span class="name">NotPresent</span></a><span class="params">(<span name="item">item: <a href="package$$items$$RequestItem.html" class="extype" name="io.finch.request.items.RequestItem">RequestItem</a></span>)</span><span class="result"> extends <a href="RequestError.html" class="extype" name="io.finch.request.RequestError">RequestError</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@NotPresentextendsRequestErrorwithProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">An exception that indicates a required request item (<i>header</i>, <i>param</i>, <i>cookie</i>, <i>body</i>) was missing in the
 request.</p><div class="fullcomment"><div class="comment cmt"><p>An exception that indicates a required request item (<i>header</i>, <i>param</i>, <i>cookie</i>, <i>body</i>) was missing in the
 request.
-</p></div><dl class="paramcmts block"><dt class="param">item</dt><dd class="cmt"><p>the missing request item
-</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">item</dt><dd class="cmt"><p>the missing request item</p></dd></dl></div>
     </li><li name="io.finch.request.NotValid" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="NotValidextendsRequestErrorwithProductwithSerializable"></a>
       <a id="NotValid:NotValid"></a>
@@ -224,17 +204,16 @@ request.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="NotValid.html"><span class="name">NotValid</span></a><span class="params">(<span name="item">item: <a href="package$$items$$RequestItem.html" class="extype" name="io.finch.request.items.RequestItem">RequestItem</a></span>, <span name="rule">rule: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="RequestError.html" class="extype" name="io.finch.request.RequestError">RequestError</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="NotValid.html"><span class="name">NotValid</span></a><span class="params">(<span name="item">item: <a href="package$$items$$RequestItem.html" class="extype" name="io.finch.request.items.RequestItem">RequestItem</a></span>, <span name="rule">rule: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="RequestError.html" class="extype" name="io.finch.request.RequestError">RequestError</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@NotValidextendsRequestErrorwithProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">An exception that indicates a broken <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule]] on the request item.
 </a></p><div class="fullcomment"><div class="comment cmt"><p>An exception that indicates a broken <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule]] on the request item.
-</a></p></div><dl class="paramcmts block"><dt class="param">item</dt><dd class="cmt"><p>the invalid request item</p></dd><dt class="param">rule</dt><dd class="cmt"><p>the rule description
-</p></dd></dl></div>
+</a></p></div><dl class="paramcmts block"><dt class="param">item</dt><dd class="cmt"><p>the invalid request item</p></dd><dt class="param">rule</dt><dd class="cmt"><p>the rule description</p></dd></dl></div>
     </li><li name="io.finch.request.PRequestReader" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="PRequestReader[R,A]extendsAnyRef"></a>
       <a id="PRequestReader[R,A]:PRequestReader[R,A]"></a>
@@ -244,14 +223,15 @@ request.
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="PRequestReader.html"><span class="name">PRequestReader</span></a><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="PRequestReader.html"><span class="name">PRequestReader</span></a><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@PRequestReader[R,A]extendsAnyRef" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">A polymorphic request reader (a reader monad) that reads a <span class="extype" name="Future">Future</span> of <code>A</code> from the request of type <code>R</code>.</p>
+      <p class="shortcomment cmt">A polymorphic request reader (a reader monad) that reads a
+<a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">com.twitter.util.Future</a> of <code>A</code> from the request of type <code>R</code>.</p>
     </li><li name="io.finch.request.RequestError" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="RequestErrorextendsException"></a>
       <a id="RequestError:RequestError"></a>
@@ -265,7 +245,7 @@ request.
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@RequestErrorextendsException" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">A base exception of request reader.</p>
@@ -278,18 +258,17 @@ request.
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="RequestErrors.html"><span class="name">RequestErrors</span></a><span class="params">(<span name="errors">errors: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Throwable">Throwable</span>]</span>)</span><span class="result"> extends <a href="RequestError.html" class="extype" name="io.finch.request.RequestError">RequestError</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="RequestErrors.html"><span class="name">RequestErrors</span></a><span class="params">(<span name="errors">errors: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Throwable">Throwable</span>]</span>)</span><span class="result"> extends <a href="RequestError.html" class="extype" name="io.finch.request.RequestError">RequestError</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@RequestErrorsextendsRequestErrorwithProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">An exception that collects multiple request reader errors.</p><div class="fullcomment"><div class="comment cmt"><p>An exception that collects multiple request reader errors.
-</p></div><dl class="paramcmts block"><dt class="param">errors</dt><dd class="cmt"><p>the errors collected from various request readers
-</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">errors</dt><dd class="cmt"><p>the errors collected from various request readers</p></dd></dl></div>
     </li><li name="io.finch.request.RequestReader" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]"></a>
+      <a id="RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]"></a>
       <a id="RequestReader[A]:RequestReader[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -297,31 +276,14 @@ request.
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span class="name">RequestReader</span><span class="tparams">[<span name="A">A</span>]</span><span class="result"> = <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>, <span class="extype" name="io.finch.request.RequestReader.A">A</span>]</span>
+        <span class="name">RequestReader</span><span class="tparams">[<span name="A">A</span>]</span><span class="result"> = <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Request" class="extype" target="_top">Request</a>, <span class="extype" name="io.finch.request.RequestReader.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+      <a href="../../../index.html#io.finch.request.package@RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">A <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a> with request type fixed to <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>.</p>
-    </li><li name="io.finch.request.ToRequest" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="ToRequest[R]extendsAnyRef"></a>
-      <a id="ToRequest[R]:ToRequest[R]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="ToRequest.html"><span class="name">ToRequest</span></a><span class="tparams">[<span name="R">R</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@ToRequest[R]extendsAnyRef" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A type class that provides a conversion from some type to a <a href="../package.html#HttpRequest=com.twitter.finagle.httpx.Request" class="extmbr" name="io.finch.HttpRequest">HttpRequest</a>.</p>
+      <p class="shortcomment cmt">A <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a> with request type fixed to <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Request" class="extype" target="_top">com.twitter.finagle.httpx.Request</a>.</p>
     </li><li name="io.finch.request.ValidationRule" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="ValidationRule[A]extendsAnyRef"></a>
       <a id="ValidationRule[A]:ValidationRule[A]"></a>
@@ -331,15 +293,56 @@ request.
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="ValidationRule.html"><span class="name">ValidationRule</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="ValidationRule.html"><span class="name">ValidationRule</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@ValidationRule[A]extendsAnyRef" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">A reusable validation rule that can be applied to any <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> with a
+      <p class="shortcomment cmt">A reusable validation rule that can be applied to any <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> with a
 matching type.</p>
+    </li><li name="io.finch.request.%&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="%&gt;[A,B]=io.finch.request.View[A,B]"></a>
+      <a id="%&gt;[A,B]:%&gt;[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $percent$greater. Deprecated: (Since version 0.8.0) Custom request are deprecated" class="name deprecated">%&gt;</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="result"> = <a href="View.html" class="extype" name="io.finch.request.View">View</a>[<span class="extype" name="io.finch.request.%&gt;.A">A</span>, <span class="extype" name="io.finch.request.%&gt;.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.package@%&gt;[A,B]=io.finch.request.View[A,B]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.0)</i> Custom request are deprecated</p></dd></dl></div>
+    </li><li name="io.finch.request.ToRequest" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ToRequest[R]extendsAnyRef"></a>
+      <a id="ToRequest[R]:ToRequest[R]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ToRequest.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.0) Custom request are deprecated">ToRequest</span></a><span class="tparams">[<span name="R">R</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.package@ToRequest[R]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A type class that provides a conversion from some type to a <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Request" class="extype" target="_top">com.twitter.finagle.httpx.Request</a>.</p><div class="fullcomment"><div class="comment cmt"><p>A type class that provides a conversion from some type to a <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Request" class="extype" target="_top">com.twitter.finagle.httpx.Request</a>.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.0)</i> Custom request are deprecated</p></dd></dl></div>
     </li><li name="io.finch.request.View" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="View[A,B]extendsAnyRef"></a>
       <a id="View[A,B]:View[A,B]"></a>
@@ -349,11 +352,11 @@ matching type.</p>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="View.html"><span class="name">View</span></a><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="View.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.0) Custom request are deprecated">View</span></a><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@View[A,B]extendsAnyRef" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">A reasonable and safe approach to implicit view <code>A =&gt; B</code>.</p><div class="fullcomment"><div class="comment cmt"><p>A reasonable and safe approach to implicit view <code>A =&gt; B</code>.
@@ -363,28 +366,9 @@ matching type.</p>
       <span class="defval" name="&quot;Can not view ${A} as ${B}. You must define an implicit value of type View[${A}, ${B}].&quot;">...</span>
     </span>)</span>
               
-        </dd></dl></div>
-    </li><li name="io.finch.request.~" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="~[+A,+B]extendsProductwithSerializable"></a>
-      <a id="~[+A,+B]:~[A,B]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="$tilde.html"><span title="gt4s: $tilde. Deprecated: (Since version 0.7.0) ~ is deprecated in favor of HList-based composition" class="name deprecated">~</span></a><span class="tparams">[<span name="A">+A</span>, <span name="B">+B</span>]</span><span class="params">(<span name="_1">_1: <span class="extype" name="io.finch.request.~.A">A</span></span>, <span name="_2">_2: <span class="extype" name="io.finch.request.~.B">B</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@~[+A,+B]extendsProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A wrapper for two result values.</p><div class="fullcomment"><div class="comment cmt"><p>A wrapper for two result values.
-</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
                 <span class="name">@deprecated</span>
               
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.7.0)</i> ~ is deprecated in favor of HList-based composition</p></dd></dl></div>
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.0)</i> Custom request are deprecated</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -405,7 +389,7 @@ matching type.</p>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@DecodeRequest" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
@@ -422,7 +406,7 @@ matching type.</p>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@PRequestReader" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
@@ -439,27 +423,10 @@ matching type.</p>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@RequestReader" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Convenience methods for creating new reader instances.</p>
-    </li><li name="io.finch.request.ToRequest" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ToRequest"></a>
-      <a id="ToRequest:ToRequest"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="ToRequest$.html"><span class="name">ToRequest</span></a>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@ToRequest" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      
     </li><li name="io.finch.request.ValidationRule" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ValidationRule"></a>
       <a id="ValidationRule:ValidationRule"></a>
@@ -473,27 +440,10 @@ matching type.</p>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@ValidationRule" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Allows the creation of reusable validation rules for <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>s.</p>
-    </li><li name="io.finch.request.View" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="View"></a>
-      <a id="View:View"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="View$.html"><span class="name">View</span></a>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.package@View" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A companion object for <a href="View.html" class="extype" name="io.finch.request.View">View</a>.</p>
+      <p class="shortcomment cmt">Allows the creation of reusable validation rules for <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>s.</p>
     </li><li name="io.finch.request#beGreaterThan" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="beGreaterThan[A](n:A)(implicitev:Numeric[A]):io.finch.request.ValidationRule[A]"></a>
       <a id="beGreaterThan[A](A)(Numeric[A]):ValidationRule[A]"></a>
@@ -507,7 +457,7 @@ matching type.</p>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@beGreaterThan[A](n:A)(implicitev:Numeric[A]):io.finch.request.ValidationRule[A]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">A <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a> that makes sure the numeric value is greater than given <code>n</code>.</p>
@@ -524,7 +474,7 @@ matching type.</p>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@beLessThan[A](n:A)(implicitev:Numeric[A]):io.finch.request.ValidationRule[A]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">A <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule]] that makes sure the numeric value is less than given <code>n</code>.
@@ -538,11 +488,11 @@ matching type.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">beLongerThan</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">beLongerThan</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@beLongerThan(n:Int):io.finch.request.ValidationRule[String]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">A <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule]] that makes sure the string value is longer than <code>n</code> symbols.
@@ -556,11 +506,11 @@ matching type.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">beShorterThan</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">beShorterThan</span><span class="params">(<span name="n">n: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@beShorterThan(n:Int):io.finch.request.ValidationRule[String]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">A <a href="ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule]] that makes sure the string value is shorter than <code>n</code> symbols.
@@ -574,14 +524,14 @@ matching type.</p>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">binaryBody</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]]</span>
+        <span class="name">binaryBody</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Array" class="extype" target="_top">Array</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Byte" class="extype" target="_top">Byte</a>]]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@binaryBody:io.finch.request.package.RequestReader[Array[Byte]]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">A <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required binary request body, interpreted as a <code>Array[Byte]</code>, or throws a
+      <p class="shortcomment cmt">A <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required binary request body, interpreted as a <code>Array[Byte]</code>, or throws a
 <a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a> exception.</p>
     </li><li name="io.finch.request#binaryBodyOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="binaryBodyOption:io.finch.request.package.RequestReader[Option[Array[Byte]]]"></a>
@@ -592,14 +542,14 @@ matching type.</p>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">binaryBodyOption</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]]]</span>
+        <span class="name">binaryBodyOption</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Array" class="extype" target="_top">Array</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Byte" class="extype" target="_top">Byte</a>]]]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@binaryBodyOption:io.finch.request.package.RequestReader[Option[Array[Byte]]]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">A <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a binary request body, interpreted as a <code>Array[Byte]</code>, into an <code>Option</code>.</p>
+      <p class="shortcomment cmt">A <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a binary request body, interpreted as a <code>Array[Byte]</code>, into an <code>Option</code>.</p>
     </li><li name="io.finch.request#body" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="body:io.finch.request.package.RequestReader[String]"></a>
       <a id="body:RequestReader[String]"></a>
@@ -609,14 +559,14 @@ matching type.</p>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">body</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">body</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@body:io.finch.request.package.RequestReader[String]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">A <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads the required request body, interpreted as a <code>String</code>, or throws a <a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a>
+      <p class="shortcomment cmt">A <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads the required request body, interpreted as a <code>String</code>, or throws a <a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a>
 exception.</p>
     </li><li name="io.finch.request#bodyOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="bodyOption:io.finch.request.package.RequestReader[Option[String]]"></a>
@@ -627,14 +577,14 @@ exception.</p>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">bodyOption</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="name">bodyOption</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@bodyOption:io.finch.request.package.RequestReader[Option[String]]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">A <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional request body, interpreted as a <code>String</code>, into an <code>Option</code>.</p>
+      <p class="shortcomment cmt">A <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional request body, interpreted as a <code>String</code>, into an <code>Option</code>.</p>
     </li><li name="io.finch.request#cookie" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="cookie(name:String):io.finch.request.package.RequestReader[com.twitter.finagle.httpx.Cookie]"></a>
       <a id="cookie(String):RequestReader[Cookie]"></a>
@@ -644,19 +594,17 @@ exception.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">cookie</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="com.twitter.finagle.httpx.Cookie">Cookie</span>]</span>
+        <span class="name">cookie</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Cookie" class="extype" target="_top">Cookie</a>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@cookie(name:String):io.finch.request.package.RequestReader[com.twitter.finagle.httpx.Cookie]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required cookie from the request or raises a <a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a> exception
-when the cookie is missing.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required cookie from the request or raises a <a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a> exception
+      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required cookie from the request or raises a <a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a> exception
+when the cookie is missing.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required cookie from the request or raises a <a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a> exception
 when the cookie is missing.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the cookie to read
-</p></dd><dt>returns</dt><dd class="cmt"><p>the cookie
-</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the cookie to read</p></dd><dt>returns</dt><dd class="cmt"><p>the cookie</p></dd></dl></div>
     </li><li name="io.finch.request#cookieOption" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="cookieOption(name:String):io.finch.request.package.RequestReader[Option[com.twitter.finagle.httpx.Cookie]]"></a>
       <a id="cookieOption(String):RequestReader[Option[Cookie]]"></a>
@@ -666,17 +614,15 @@ when the cookie is missing.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">cookieOption</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="com.twitter.finagle.httpx.Cookie">Cookie</span>]]</span>
+        <span class="name">cookieOption</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Cookie" class="extype" target="_top">Cookie</a>]]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@cookieOption(name:String):io.finch.request.package.RequestReader[Option[com.twitter.finagle.httpx.Cookie]]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional HTTP cookie from the request into an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional HTTP cookie from the request into an <code>Option</code>.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the cookie to read
-</p></dd><dt>returns</dt><dd class="cmt"><p>an <code>Option</code> that contains a cookie or None if the cookie does not exist on the request.
-</p></dd></dl></div>
+      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional HTTP cookie from the request into an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional HTTP cookie from the request into an <code>Option</code>.
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the cookie to read</p></dd><dt>returns</dt><dd class="cmt"><p>an <code>Option</code> that contains a cookie or None if the cookie does not exist on the request.</p></dd></dl></div>
     </li><li name="io.finch.request#fileUpload" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fileUpload(name:String):io.finch.request.package.RequestReader[io.finch.request.package.FileUpload]"></a>
       <a id="fileUpload(String):RequestReader[FileUpload]"></a>
@@ -686,16 +632,15 @@ when the cookie is missing.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fileUpload</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<a href="#FileUpload=org.jboss.netty.handler.codec.http.multipart.FileUpload" class="extmbr" name="io.finch.request.FileUpload">FileUpload</a>]</span>
+        <span class="name">fileUpload</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<a href="#FileUpload=org.jboss.netty.handler.codec.http.multipart.FileUpload" class="extmbr" name="io.finch.request.FileUpload">FileUpload</a>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@fileUpload(name:String):io.finch.request.package.RequestReader[io.finch.request.package.FileUpload]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required file upload from a multipart/form-data request.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required file upload from a multipart/form-data request.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the parameter to read</p></dd><dt>returns</dt><dd class="cmt"><p>the file
-</p></dd></dl></div>
+      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required file upload from a multipart/form-data request.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required file upload from a multipart/form-data request.
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the parameter to read</p></dd><dt>returns</dt><dd class="cmt"><p>the file</p></dd></dl></div>
     </li><li name="io.finch.request#fileUploadOption" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fileUploadOption(name:String):io.finch.request.package.RequestReader[Option[io.finch.request.package.FileUpload]]"></a>
       <a id="fileUploadOption(String):RequestReader[Option[FileUpload]]"></a>
@@ -705,16 +650,15 @@ when the cookie is missing.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fileUploadOption</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<a href="#FileUpload=org.jboss.netty.handler.codec.http.multipart.FileUpload" class="extmbr" name="io.finch.request.FileUpload">FileUpload</a>]]</span>
+        <span class="name">fileUploadOption</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="#FileUpload=org.jboss.netty.handler.codec.http.multipart.FileUpload" class="extmbr" name="io.finch.request.FileUpload">FileUpload</a>]]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@fileUploadOption(name:String):io.finch.request.package.RequestReader[Option[io.finch.request.package.FileUpload]]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional file upload from a multipart/form-data request into an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional file upload from a multipart/form-data request into an <code>Option</code>.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the parameter to read</p></dd><dt>returns</dt><dd class="cmt"><p>an <code>Option</code> that contains the file or <code>None</code> is the parameter does not exist on the request.
-</p></dd></dl></div>
+      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional file upload from a multipart/form-data request into an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional file upload from a multipart/form-data request into an <code>Option</code>.
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the parameter to read</p></dd><dt>returns</dt><dd class="cmt"><p>an <code>Option</code> that contains the file or <code>None</code> is the parameter does not exist on the request.</p></dd></dl></div>
     </li><li name="io.finch.request#header" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="header(name:String):io.finch.request.package.RequestReader[String]"></a>
       <a id="header(String):RequestReader[String]"></a>
@@ -724,19 +668,17 @@ when the cookie is missing.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">header</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">header</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@header(name:String):io.finch.request.package.RequestReader[String]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required HTTP header <code>name</code> from the request or raises a <a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a>
-exception when the header is missing.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required HTTP header <code>name</code> from the request or raises a <a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a>
+      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required HTTP header <code>name</code> from the request or raises a <a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a>
+exception when the header is missing.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required HTTP header <code>name</code> from the request or raises a <a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a>
 exception when the header is missing.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the header to read
-</p></dd><dt>returns</dt><dd class="cmt"><p>a header
-</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the header to read</p></dd><dt>returns</dt><dd class="cmt"><p>a header</p></dd></dl></div>
     </li><li name="io.finch.request#headerOption" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="headerOption(name:String):io.finch.request.package.RequestReader[Option[String]]"></a>
       <a id="headerOption(String):RequestReader[Option[String]]"></a>
@@ -746,17 +688,15 @@ exception when the header is missing.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">headerOption</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="name">headerOption</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@headerOption(name:String):io.finch.request.package.RequestReader[Option[String]]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional HTTP header <code>name</code> from the request into an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional HTTP header <code>name</code> from the request into an <code>Option</code>.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the header to read
-</p></dd><dt>returns</dt><dd class="cmt"><p>an <code>Option</code> that contains a header value or <code>None</code> if the header is not present in the request
-</p></dd></dl></div>
+      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional HTTP header <code>name</code> from the request into an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional HTTP header <code>name</code> from the request into an <code>Option</code>.
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the header to read</p></dd><dt>returns</dt><dd class="cmt"><p>an <code>Option</code> that contains a header value or <code>None</code> if the header is not present in the request</p></dd></dl></div>
     </li><li name="io.finch.request.items" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="items"></a>
       <a id="items:items"></a>
@@ -770,10 +710,10 @@ exception when the header is missing.
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@items" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Representations for the various types that can be processed with <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>s.</p>
+      <p class="shortcomment cmt">Representations for the various types that can be processed with <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>s.</p>
     </li><li name="io.finch.request#param" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="param(name:String):io.finch.request.package.RequestReader[String]"></a>
       <a id="param(String):RequestReader[String]"></a>
@@ -783,19 +723,17 @@ exception when the header is missing.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">param</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">param</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@param(name:String):io.finch.request.package.RequestReader[String]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required query-string param <code>name</code> from the request or raises a
-<a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a> exception when the param is missing; a <a href="NotValid.html" class="extype" name="io.finch.request.NotValid">NotValid</a> exception is the param is empty.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required query-string param <code>name</code> from the request or raises a
+      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required query-string param <code>name</code> from the request or raises a
+<a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a> exception when the param is missing; a <a href="NotValid.html" class="extype" name="io.finch.request.NotValid">NotValid</a> exception is the param is empty.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required query-string param <code>name</code> from the request or raises a
 <a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a> exception when the param is missing; a <a href="NotValid.html" class="extype" name="io.finch.request.NotValid">NotValid</a> exception is the param is empty.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the param name to read
-</p></dd><dt>returns</dt><dd class="cmt"><p>a param value
-</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the param name to read</p></dd><dt>returns</dt><dd class="cmt"><p>a param value</p></dd></dl></div>
     </li><li name="io.finch.request#paramOption" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="paramOption(name:String):io.finch.request.package.RequestReader[Option[String]]"></a>
       <a id="paramOption(String):RequestReader[Option[String]]"></a>
@@ -805,17 +743,15 @@ exception when the header is missing.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">paramOption</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="name">paramOption</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@paramOption(name:String):io.finch.request.package.RequestReader[Option[String]]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional query-string param <code>name</code> from the request into an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional query-string param <code>name</code> from the request into an <code>Option</code>.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the param to read
-</p></dd><dt>returns</dt><dd class="cmt"><p>an <code>Option</code> that contains a param value or <code>None</code> if the param is empty
-</p></dd></dl></div>
+      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional query-string param <code>name</code> from the request into an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional query-string param <code>name</code> from the request into an <code>Option</code>.
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the param to read</p></dd><dt>returns</dt><dd class="cmt"><p>an <code>Option</code> that contains a param value or <code>None</code> if the param is empty</p></dd></dl></div>
     </li><li name="io.finch.request#params" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="params(name:String):io.finch.request.package.RequestReader[Seq[String]]"></a>
       <a id="params(String):RequestReader[Seq[String]]"></a>
@@ -825,20 +761,18 @@ exception when the header is missing.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">params</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="name">params</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@params(name:String):io.finch.request.package.RequestReader[Seq[String]]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional (in a meaning that a resulting <code>Seq</code> may be empty) multi-value
-query-string param <code>name</code> from the request into a <code>Seq</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional (in a meaning that a resulting <code>Seq</code> may be empty) multi-value
+      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional (in a meaning that a resulting <code>Seq</code> may be empty) multi-value
+query-string param <code>name</code> from the request into a <code>Seq</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads an optional (in a meaning that a resulting <code>Seq</code> may be empty) multi-value
 query-string param <code>name</code> from the request into a <code>Seq</code>.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the param to read
-</p></dd><dt>returns</dt><dd class="cmt"><p>a <code>Seq</code> that contains all the values of multi-value param or an empty seq <code>Nil</code> if the params are missing
-        or empty.
-</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the param to read</p></dd><dt>returns</dt><dd class="cmt"><p>a <code>Seq</code> that contains all the values of multi-value param or an empty seq <code>Nil</code> if the params are missing
+        or empty.</p></dd></dl></div>
     </li><li name="io.finch.request#paramsNonEmpty" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="paramsNonEmpty(name:String):io.finch.request.package.RequestReader[Seq[String]]"></a>
       <a id="paramsNonEmpty(String):RequestReader[Seq[String]]"></a>
@@ -848,21 +782,19 @@ query-string param <code>name</code> from the request into a <code>Seq</code>.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">paramsNonEmpty</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="name">paramsNonEmpty</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@paramsNonEmpty(name:String):io.finch.request.package.RequestReader[Seq[String]]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required (in a meaning that a resulting <code>Seq</code> will have at least one
+      <p class="shortcomment cmt">Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required (in a meaning that a resulting <code>Seq</code> will have at least one
 element) multi-value query-string param <code>name</code> from the request into a <code>Seq</code> or raises a <a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a> exception
-when the params are missing or empty.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required (in a meaning that a resulting <code>Seq</code> will have at least one
+when the params are missing or empty.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads a required (in a meaning that a resulting <code>Seq</code> will have at least one
 element) multi-value query-string param <code>name</code> from the request into a <code>Seq</code> or raises a <a href="NotPresent.html" class="extype" name="io.finch.request.NotPresent">NotPresent</a> exception
 when the params are missing or empty.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the param to read
-</p></dd><dt>returns</dt><dd class="cmt"><p>a <code>Seq</code> that contains all the values of multi-value param
-</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the param to read</p></dd><dt>returns</dt><dd class="cmt"><p>a <code>Seq</code> that contains all the values of multi-value param</p></dd></dl></div>
     </li><li name="io.finch.request#toOptionalInlineRule" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toOptionalInlineRule[A](fn:A=&gt;Boolean):Option[A]=&gt;Boolean"></a>
       <a id="toOptionalInlineRule[A]((A)⇒Boolean):(Option[A])⇒Boolean"></a>
@@ -872,31 +804,74 @@ when the params are missing or empty.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toOptionalInlineRule</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="io.finch.request.toOptionalInlineRule.A">A</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: (<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="io.finch.request.toOptionalInlineRule.A">A</span>]) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">toOptionalInlineRule</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="io.finch.request.toOptionalInlineRule.A">A</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: (<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.request.toOptionalInlineRule.A">A</span>]) ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.package@toOptionalInlineRule[A](fn:A=&gt;Boolean):Option[A]=&gt;Boolean" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" />
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Implicit conversion that allows the same inline rules to be used for required and optional values.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion that allows the same inline rules to be used for required and optional values. If the optional
 value is non-empty, it gets validated (and validation may fail, producing error), but if it is empty, it is always
 treated as valid.</p><p>In order to help the compiler determine the case when inline rule should be converted, the type of the validated
-value should be specified explicitly.</p><pre>OptionalIntParam(<span class="lit">"foo"</span>).should(<span class="lit">"be greater than 50"</span>) { i: <span class="std">Int</span> <span class="kw">=&gt;</span> i &gt; <span class="num">50</span> }</pre></div><dl class="paramcmts block"><dt class="param">fn</dt><dd class="cmt"><p>the underlying function to convert
-</p></dd></dl></div>
+value should be specified explicitly.</p><pre>paramOption(<span class="lit">"foo"</span>).should(<span class="lit">"be greater than 50"</span>) { i: <span class="std">Int</span> <span class="kw">=&gt;</span> i &gt; <span class="num">50</span> }</pre></div><dl class="paramcmts block"><dt class="param">fn</dt><dd class="cmt"><p>the underlying function to convert</p></dd></dl></div>
     </li></ol>
             </div>
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="io.finch.request.ToRequest" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ToRequest"></a>
+      <a id="ToRequest:ToRequest"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ToRequest$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.0) Custom request are deprecated">ToRequest</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.package@ToRequest" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.0)</i> Custom request are deprecated</p></dd></dl></div>
+    </li><li name="io.finch.request.View" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="View"></a>
+      <a id="View:View"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="View$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.0) Custom request are deprecated">View</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.package@View" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A companion object for <a href="View.html" class="extype" name="io.finch.request.View">View</a>.</p><div class="fullcomment"><div class="comment cmt"><p>A companion object for <a href="View.html" class="extype" name="io.finch.request.View">View</a>.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.0)</i> Custom request are deprecated</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">
         <div class="parent" name="scala.AnyRef">
-              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
-              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
             </div>
         
         </div>

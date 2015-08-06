@@ -28,11 +28,11 @@
         </head>
         <body class="value">
       <div id="definition">
-        <img src="../../lib/package_big.png" />
+        <img alt="Package" src="../../lib/package_big.png" />
         <p id="owner"><a href="../package.html" class="extype" name="io">io</a></p>
         <h1>finch</h1><span class="permalink">
       <a href="../../index.html#io.finch.package" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       </div>
@@ -49,21 +49,10 @@
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>This is a root package of the Finch library, which provides an immutable layer of functions and types atop of Finagle
 for writing lightweight HTTP services. It roughly contains three packages: <a href="route/package.html" class="extype" name="io.finch.route">io.finch.route</a>, <a href="request/package.html" class="extype" name="io.finch.request">io.finch.request</a>,
-<a href="response/package.html" class="extype" name="io.finch.response">io.finch.response</a>, which correspond to three simple steps to a robust REST/HTTP API:</p><p>Step 1. Routing the HTTP requests to a <code>Service</code>.</p><p>The <a href="route/Router.html" class="extype" name="io.finch.route.Router">Router</a> abstraction routes the requests depending on their path and method information.
-<code>Router</code> combinator provides a bunch of predefined routers handling separated parts of a route. <code>Router</code>s might be
-composed with either <code>/</code> (<code>andThen</code>) or <code>/&gt;</code> (<code>map</code>) operator. There is also <code>|</code> (<code>orElse</code>) operator that combines
-two routers in terms of the inclusive or operator.</p><pre><span class="kw">val</span> router: Endpoint[HttpRequest, HttpResponse] =
-  Get / (<span class="lit">"users"</span> | <span class="lit">"user"</span>) / int /&gt; GetUser</pre><p>Step 2. Reading the HTTP requests in a <code>Service</code>.</p><p>The <a href="request/package.html#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> abstraction is responsible for reading any details form the HTTP
-request. <code>RequestReader</code> is composable in both ways: via the monadic API (using the for-comprehension, i.e.,
-<code>flatMap</code>) and via the applicative API (using the <code>~</code> operator). These approaches define an unlimited number of
-readers out the plenty of predefined ones.</p><pre><span class="kw">val</span> pagination: RequestReader[(<span class="std">Int</span>, <span class="std">Int</span>)] =
-  paramOption(<span class="lit">"offset"</span>).as[<span class="std">Int</span>].withDefault(<span class="num">0</span>) ~
-  paramOption(<span class="lit">"limit"</span>).as[<span class="std">Int</span>].withDefault(<span class="num">0</span>) ~&gt; { (_, _) }
-<span class="kw">val</span> p: Future[(<span class="std">Int</span>, <span class="std">Int</span>)] = pagination(request)</pre><p>Step 3. Building the HTTP responses in a <code>Service</code>.</p><p>The <a href="response/ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a> abstraction provides a convenient way of building the HTTP
-responses any type. In fact, <code>ResponseBuilder</code> is a function that takes some content and builds an HTTP response of a
-type depending on a content. There are plenty of predefined builders that might be used directly.</p><pre><span class="kw">val</span> ok: HttpResponse = Ok(<span class="lit">"Hello, world!"</span>) <span class="cmt">// plain/text HTTP response with status code 200</span></pre></div><div class="toggleContainer block">
+<a href="response/package.html" class="extype" name="io.finch.response">io.finch.response</a>.
+</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
         
 
@@ -89,7 +78,6 @@ type depending on a content. There are plenty of predefined builders that might 
               <li class="hideall out"><span>Hide All</span></li>
               <li class="showall in"><span>Show all</span></li>
             </ol>
-            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
           </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
@@ -112,39 +100,15 @@ type depending on a content. There are plenty of predefined builders that might 
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="package$$AnyOps.html"><span class="name">AnyOps</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
+        <a href="package$$AnyOps.html"><span class="name">AnyOps</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.finch.package@AnyOps[A]extendsAnyVal" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Alters any object within a <code>toFuture</code> method.</p><div class="fullcomment"><div class="comment cmt"><p>Alters any object within a <code>toFuture</code> method.
-</p></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>an object type
-</p></dd></dl></div>
-    </li><li name="io.finch.Endpoint" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="Endpoint[Req,Rep]extendsAnyRef"></a>
-      <a id="Endpoint[Req,Rep]:Endpoint[Req,Rep]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="Endpoint.html"><span class="name">Endpoint</span></a><span class="tparams">[<span name="Req">Req</span>, <span name="Rep">Rep</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.package@Endpoint[Req,Rep]extendsAnyRef" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A REST API endpoint that primary defines a <i>route</i> and might be implicitly
-converted into Finagle service <i>Service[Req, Rep]</i> if there is an implicit
-view from <i>Req</i> to <i>HttpRequest</i> available in the scope.</p><div class="fullcomment"><div class="comment cmt"><p>A REST API endpoint that primary defines a <i>route</i> and might be implicitly
-converted into Finagle service <i>Service[Req, Rep]</i> if there is an implicit
-view from <i>Req</i> to <i>HttpRequest</i> available in the scope.
-</p></div><dl class="paramcmts block"><dt class="tparam">Req</dt><dd class="cmt"><p>the request type</p></dd><dt class="tparam">Rep</dt><dd class="cmt"><p>the response type
-</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>an object type</p></dd></dl></div>
     </li><li name="io.finch.FilterOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="FilterOps[ReqIn,ReqOut,RepIn,RepOut]extendsAnyVal"></a>
       <a id="FilterOps[ReqIn,ReqOut,RepIn,RepOut]:FilterOps[ReqIn,ReqOut,RepIn,RepOut]"></a>
@@ -154,48 +118,14 @@ view from <i>Req</i> to <i>HttpRequest</i> available in the scope.
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="package$$FilterOps.html"><span class="name">FilterOps</span></a><span class="tparams">[<span name="ReqIn">ReqIn</span>, <span name="ReqOut">ReqOut</span>, <span name="RepIn">RepIn</span>, <span name="RepOut">RepOut</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
+        <a href="package$$FilterOps.html"><span class="name">FilterOps</span></a><span class="tparams">[<span name="ReqIn">ReqIn</span>, <span name="ReqOut">ReqOut</span>, <span name="RepIn">RepIn</span>, <span name="RepOut">RepOut</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.finch.package@FilterOps[ReqIn,ReqOut,RepIn,RepOut]extendsAnyVal" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Alters underlying filter within <code>!</code> methods composing a filter with a given endpoint or withing a next filter.</p>
-    </li><li name="io.finch.HttpRequest" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="HttpRequest=com.twitter.finagle.httpx.Request"></a>
-      <a id="HttpRequest:HttpRequest"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">type</span>
-      </span>
-      <span class="symbol">
-        <span class="name">HttpRequest</span><span class="result"> = <span class="extype" name="com.twitter.finagle.httpx.Request">Request</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.package@HttpRequest=com.twitter.finagle.httpx.Request" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">An alias for <span class="extype" name="com.twitter.finagle.httpx.Request">httpx.Request</span>.</p>
-    </li><li name="io.finch.HttpResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="HttpResponse=com.twitter.finagle.httpx.Response"></a>
-      <a id="HttpResponse:HttpResponse"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">type</span>
-      </span>
-      <span class="symbol">
-        <span class="name">HttpResponse</span><span class="result"> = <span class="extype" name="com.twitter.finagle.httpx.Response">Response</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.package@HttpResponse=com.twitter.finagle.httpx.Response" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">An alias for <span class="extype" name="com.twitter.finagle.httpx.Response">httpx.Response</span>.</p>
     </li><li name="io.finch.ServiceOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ServiceOps[Req,RepIn]extendsAnyRef"></a>
       <a id="ServiceOps[Req,RepIn]:ServiceOps[Req,RepIn]"></a>
@@ -205,16 +135,15 @@ view from <i>Req</i> to <i>HttpRequest</i> available in the scope.
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="package$$ServiceOps.html"><span class="name">ServiceOps</span></a><span class="tparams">[<span name="Req">Req</span>, <span name="RepIn">RepIn</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="package$$ServiceOps.html"><span class="name">ServiceOps</span></a><span class="tparams">[<span name="Req">Req</span>, <span name="RepIn">RepIn</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.finch.package@ServiceOps[Req,RepIn]extendsAnyRef" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Alters underlying service within <i>afterThat</i> method composing a service with a given filter.</p><div class="fullcomment"><div class="comment cmt"><p>Alters underlying service within <i>afterThat</i> method composing a service with a given filter.
-</p></div><dl class="paramcmts block"><dt class="tparam">RepIn</dt><dd class="cmt"><p>a input response type
-</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="tparam">RepIn</dt><dd class="cmt"><p>a input response type</p></dd></dl></div>
     </li><li name="io.finch.ThrowableOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ThrowableOpsextendsAnyVal"></a>
       <a id="ThrowableOps:ThrowableOps"></a>
@@ -224,14 +153,39 @@ view from <i>Req</i> to <i>HttpRequest</i> available in the scope.
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="package$$ThrowableOps.html"><span class="name">ThrowableOps</span></a><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
+        <a href="package$$ThrowableOps.html"><span class="name">ThrowableOps</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.finch.package@ThrowableOpsextendsAnyVal" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Alters any throwable with a <code>toFutureException</code> method.</p>
+    </li><li name="io.finch.Endpoint" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="Endpoint[Req,Rep]extendsAnyRef"></a>
+      <a id="Endpoint[Req,Rep]:Endpoint[Req,Rep]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoint.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.0) Endpoint is deprecated in favor of coproduct routers">Endpoint</span></a><span class="tparams">[<span name="Req">Req</span>, <span name="Rep">Rep</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@Endpoint[Req,Rep]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A REST API endpoint that primary defines a <i>route</i> and might be implicitly
+converted into Finagle service <i>Service[Req, Rep]</i> if there is an implicit
+view from <i>Req</i> to <i>Request</i> available in the scope.</p><div class="fullcomment"><div class="comment cmt"><p>A REST API endpoint that primary defines a <i>route</i> and might be implicitly
+converted into Finagle service <i>Service[Req, Rep]</i> if there is an implicit
+view from <i>Req</i> to <i>Request</i> available in the scope.
+</p></div><dl class="paramcmts block"><dt class="tparam">Req</dt><dd class="cmt"><p>the request type</p></dd><dt class="tparam">Rep</dt><dd class="cmt"><p>the response type</p></dd></dl><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.0)</i> Endpoint is deprecated in favor of coproduct routers</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -239,103 +193,7 @@ view from <i>Req</i> to <i>HttpRequest</i> available in the scope.
 
         <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol><li name="io.finch.Endpoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Endpoint"></a>
-      <a id="Endpoint:Endpoint"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Endpoint$.html"><span class="name">Endpoint</span></a>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.package@Endpoint" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A companion object for <i>Endpoint</i>
-</p>
-    </li><li name="io.finch.benchmarks" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="benchmarks"></a>
-      <a id="benchmarks:benchmarks"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a href="benchmarks/package.html"><span class="name">benchmarks</span></a>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.package@benchmarks" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      
-    </li><li name="io.finch#futureToService" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="futureToService[Req,Rep](f:com.twitter.util.Future[Rep]):com.twitter.finagle.Service[Req,Rep]"></a>
-      <a id="futureToService[Req,Rep](Future[Rep]):Service[Req,Rep]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">futureToService</span><span class="tparams">[<span name="Req">Req</span>, <span name="Rep">Rep</span>]</span><span class="params">(<span name="f">f: <span class="extype" name="com.twitter.util.Future">Future</span>[<span class="extype" name="io.finch.futureToService.Rep">Rep</span>]</span>)</span><span class="result">: <span class="extype" name="com.twitter.finagle.Service">Service</span>[<span class="extype" name="io.finch.futureToService.Req">Req</span>, <span class="extype" name="io.finch.futureToService.Rep">Rep</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.package@futureToService[Req,Rep](f:com.twitter.util.Future[Rep]):com.twitter.finagle.Service[Req,Rep]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Allows for the creation of <i>Endpoint</i>s without an explicit service.</p><div class="fullcomment"><div class="comment cmt"><p>Allows for the creation of <i>Endpoint</i>s without an explicit service.</p><pre>Endpoint {
-  Method.Get -&gt; Root / <span class="lit">"hello"</span> <span class="kw">=&gt;</span> Ok(<span class="lit">"world"</span>).toFuture
-}</pre></div><dl class="paramcmts block"><dt class="param">f</dt><dd class="cmt"><p>a future to implicitly convert
-</p></dd><dt>returns</dt><dd class="cmt"><p>a service generated by ignoring the <i>Req</i> and returning the <i>Future[Rep]</i>
-</p></dd></dl></div>
-    </li><li name="io.finch.json" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="json"></a>
-      <a id="json:json"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a href="json/package.html"><span class="name">json</span></a>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.package@json" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      
-    </li><li name="io.finch.micro" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="micro"></a>
-      <a id="micro:micro"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a href="micro/package.html"><span class="name">micro</span></a>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.package@micro" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">An experimental package that enables a secret Finch mode: &quot;Your REST API as a Monad&quot;.</p><div class="fullcomment"><div class="comment cmt"><p>An experimental package that enables a secret Finch mode: &quot;Your REST API as a Monad&quot;. The idea is to replace
-<code>Service</code> with <code>RequestReader</code>. Both <code>RequestReader</code> and <code>Service</code> do similar things, process request (they both
-functions <code>Req =&gt; Future[Rep]</code>), but the <code>RequestReader</code> is insanely composable (being a monad), so it makes sense
-to route request directly to <code>RequestReader</code>. Thus, an <code>Endpoint</code> is <code>Router[RequestReader[HttpResponse]]</code>.</p><p>The high-level idea behind this package is to allow users to work the domain types that matter rather than deal with
-raw HTTP types directly.</p><p>In order to make things clear, this package introduces a new type <code>Micro</code> (from &quot;microservice&quot;), which is actually an
-alias to <code>RequestReader</code>, since it's no longer a reader but _processor_.</p><p>See <a href="https://gist.github.com/vkostyukov/e0e952c28b87563b2383">this gist<a/> for more details.
-</p></div></div>
-    </li><li name="io.finch.request" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+              <ol><li name="io.finch.request" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="request"></a>
       <a id="request:request"></a>
       <h4 class="signature">
@@ -348,12 +206,12 @@ alias to <code>RequestReader</code>, since it's no longer a reader but _processo
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.finch.package@request" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">This package introduces types and functions that enable _request processing_ in Finch.</p><div class="fullcomment"><div class="comment cmt"><p>This package introduces types and functions that enable _request processing_ in Finch. The <a href="request/package.html" class="extype" name="io.finch.request">io.finch.request</a>
 primitives allow both to _read_ the various request items (<i>query string param</i>, <i>header</i> and <i>cookie</i>) using
-the <a href="request/package.html#RequestReader[A]=io.finch.request.PRequestReader[io.finch.HttpRequest,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> and _validate_ them using the
+the <a href="request/package.html#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> and _validate_ them using the
 <a href="request/ValidationRule.html" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a>.</p><p>The cornerstone abstraction of this package is a <code>RequestReader</code>, which is responsible for reading any amount of data
 from the HTTP request. <code>RequestReader</code>s might be composed with each other using either monadic API (<code>flatMap</code> method)
 or applicative API (<code>::</code> method). Regardless the API used for <code>RequestReader</code>s composition, the main idea behind it
@@ -382,20 +240,20 @@ logical methods <code>and</code> and <code>or</code>.</p><pre><span class="kw">c
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.finch.package@response" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">This package enables a reasonable approach of building HTTP responses using the
 <a href="response/ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a> abstraction.</p><div class="fullcomment"><div class="comment cmt"><p>This package enables a reasonable approach of building HTTP responses using the
 <a href="response/ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a> abstraction. The <code>ResponseBuilder</code> provides an immutable way
-of building concrete <span class="extype" name="com.twitter.finagle.httpx.Response">Response</span> instances by specifying their <i>status</i>,
+of building concrete <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Response" class="extype" target="_top">Response</a> instances by specifying their <i>status</i>,
 <i>headers</i> and <i>cookies</i>. There are plenty of predefined builders named by HTTP statuses, i.e., <code>Ok</code>, <code>Created</code>,
 <code>NotFound</code>. Thus, the typical use case of the <code>ResponseBuilder</code> abstraction involves usage of concrete builder
-instead of abstract <code>ResponseBuilder</code> itself.</p><pre><span class="kw">val</span> ok: HttpResponse = Ok(<span class="lit">"Hello, World!"</span>)</pre><p>In addition to <code>text/plain</code> responses, the <code>ResponseBuilder</code> is able to build any response, whose <code>content-type</code> is
+instead of abstract <code>ResponseBuilder</code> itself.</p><pre><span class="kw">val</span> ok: Response = Ok(<span class="lit">"Hello, World!"</span>)</pre><p>In addition to <code>text/plain</code> responses, the <code>ResponseBuilder</code> is able to build any response, whose <code>content-type</code> is
 specified by an implicit type-class <a href="response/EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a> instance. In fact, any type
 <code>A</code> may be passed to a <code>RequestReader</code> if there is a corresponding <code>EncodeRequest[A]</code> instance available in the
 scope.</p><pre><span class="kw">implicit</span> <span class="kw">val</span> encodeBigInt = EncodeResponse[BigInt](<span class="lit">"text/plain"</span>) { _.toString }
-<span class="kw">val</span> ok: HttpResponse = Ok(BigInt(<span class="num">100</span>))</pre></div></div>
+<span class="kw">val</span> ok: Response = Ok(BigInt(<span class="num">100</span>))</pre></div></div>
     </li><li name="io.finch.route" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="route"></a>
       <a id="route:route"></a>
@@ -409,23 +267,13 @@ scope.</p><pre><span class="kw">implicit</span> <span class="kw">val</span> enco
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.finch.package@route" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">This package contains various of functions and types that enable _router combinators_ in Finch.</p><div class="fullcomment"><div class="comment cmt"><p>This package contains various of functions and types that enable _router combinators_ in Finch. A Finch
-<a href="route/Router.html" class="extype" name="io.finch.route.Router">Router</a> is an abstraction that is responsible for routing the HTTP requests using their
-method and path information. There are two types of routers in Finch: <a href="route/Matcher.html" class="extype" name="io.finch.route.Matcher">Matcher</a> and
-<a href="route/Router.html" class="extype" name="io.finch.route.Router">Router</a>. <code>Matcher</code> matches the route and returns an <code>Option</code> of the rest of the route.
-<code>Router[A]</code> in addition to the <code>Matcher</code> behaviour extracts a value of type <code>A</code> from the route.</p><p>A <a href="route/Router.html" class="extype" name="io.finch.route.Router">Router</a> that maps route to a <span class="extype" name="com.twitter.finagle.Service">Service</span> is called an
-<a href="route/package.html#Endpoint[A,B]=io.finch.route.Router[com.twitter.finagle.Service[A,B]]" class="extmbr" name="io.finch.route.Endpoint">Endpoint</a>. An endpoint <code>Req =&gt; Rep</code> might be implicitly converted into a
-<code>Service[Req, Rep]</code>. Thus, the following example is a valid Finch code:</p><pre><span class="kw">def</span> hello(s: <span class="std">String</span>) = <span class="kw">new</span> Service[HttRequest, HttpResponse] {
-  <span class="kw">def</span> apply(req: HttpRequest) = Ok(s<span class="lit">"Hello $name!"</span>).toFuture
-}
-
-Httpx.serve(
-  <span class="kw">new</span> InetSocketAddress(<span class="num">8081</span>),
-  Get / string /&gt; hello <span class="cmt">// will be implicitly converted into service</span>
-)</pre></div></div>
+      <p class="shortcomment cmt">This package contains various of functions and types that enable _router combinators_ in Finch.</p><div class="fullcomment"><div class="comment cmt"><p>This package contains various of functions and types that enable _router combinators_ in Finch. Finch's
+<a href="route/Router.html" class="extype" name="io.finch.route.Router">route.Router</a> is an abstraction that is responsible for routing the HTTP requests using their
+method and path information.
+</p></div></div>
     </li><li name="io.finch.test" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="test"></a>
       <a id="test:test"></a>
@@ -439,7 +287,7 @@ Httpx.serve(
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.finch.package@test" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
+        <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
@@ -448,14 +296,61 @@ Httpx.serve(
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="io.finch.Endpoint" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Endpoint"></a>
+      <a id="Endpoint:Endpoint"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoint$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.0) Endpoint is deprecated in favor of coproduct routers">Endpoint</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@Endpoint" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A companion object for <i>Endpoint</i>
+</p><div class="fullcomment"><div class="comment cmt"><p>A companion object for <i>Endpoint</i>
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.0)</i> Endpoint is deprecated in favor of coproduct routers</p></dd></dl></div>
+    </li><li name="io.finch#futureToService" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="futureToService[Req,Rep](f:com.twitter.util.Future[Rep]):com.twitter.finagle.Service[Req,Rep]"></a>
+      <a id="futureToService[Req,Rep](Future[Rep]):Service[Req,Rep]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.8.0) Endpoint is deprecated in favor of coproduct routers">futureToService</span><span class="tparams">[<span name="Req">Req</span>, <span name="Rep">Rep</span>]</span><span class="params">(<span name="f">f: <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<span class="extype" name="io.finch.futureToService.Rep">Rep</span>]</span>)</span><span class="result">: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.Service" class="extype" target="_top">Service</a>[<span class="extype" name="io.finch.futureToService.Req">Req</span>, <span class="extype" name="io.finch.futureToService.Rep">Rep</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@futureToService[Req,Rep](f:com.twitter.util.Future[Rep]):com.twitter.finagle.Service[Req,Rep]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Allows for the creation of <i>Endpoint</i>s without an explicit service.</p><div class="fullcomment"><div class="comment cmt"><p>Allows for the creation of <i>Endpoint</i>s without an explicit service.</p><pre>Endpoint {
+  Method.Get -&gt; Root / <span class="lit">"hello"</span> <span class="kw">=&gt;</span> Ok(<span class="lit">"world"</span>).toFuture
+}</pre></div><dl class="paramcmts block"><dt class="param">f</dt><dd class="cmt"><p>a future to implicitly convert</p></dd><dt>returns</dt><dd class="cmt"><p>a service generated by ignoring the <i>Req</i> and returning the <i>Future[Rep]</i></p></dd></dl><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.0)</i> Endpoint is deprecated in favor of coproduct routers</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">
         <div class="parent" name="scala.AnyRef">
-              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
-              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
             </div>
         
         </div>
