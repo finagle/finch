@@ -427,9 +427,10 @@ As long as the implicit declared above is in scope, you can then use your custom
 built-in decoders (in this case for creating a JodaTime `Interval`:
 
 ```scala
-val user: RequestReader[Interval] = (
+val interval: RequestReader[Interval] = (
   param("start").as[DateTime] ::
-  param("end").as[DateTime]).as[Interval]
+  param("end").as[DateTime]
+).as[Interval]
 ```
 
 #### Integration with JSON Libraries
@@ -473,9 +474,10 @@ Validation can happen inline or based on predefined validation rules, as shown i
 For validation logic only needed in one place, the most convenient way is to declare it inline:
 
 ```scala
-val adult2: RequestReader[User] =
-  param("name") ~
-  param("age").as[Int].shouldNot("be less than 18") { _ < 18 } ~> User
+val adult2: RequestReader[User] = (
+  param("name") ::
+  param("age").as[Int].shouldNot("be less than 18") { _ < 18 }
+).as[User]
 ```
 
 #### Reusable Rules
@@ -487,9 +489,10 @@ them wherever needed:
 val bePositive = ValidationRule[Int]("be positive") { _ > 0 }
 def beLessThan(value: Int) = ValidationRule[Int](s"be less than $value") { _ < value }
 
-val child: RequestReader[User] =
-  param("name") ~
-  param("age").as[Int].should(bePositive and beLessThan(18)) ~> User
+val child: RequestReader[User] = (
+  param("name") ::
+  param("age").as[Int].should(bePositive and beLessThan(18))
+).as[User]
 ```
 
 As you can see in the example above, predefined rules can also be logically combined with `and` or `or`.
@@ -505,6 +508,8 @@ or `beGreaterThan(n: Int)`, and for strings you can use `beLongerThan(n: Int)` o
 not generally recommended, since the don't fit well into Finch's philosophy, which is based on the concepts of functional
 programming (programming with functions). Finch's idiomatic style is built on the idea that ["your server is a function"][0]
 and promotes using simple functions `Request => A` (i.e., `RequestReader`s) instead of overriding the request types.
+
+With that said, a custom request types **are deprecated since 0.8.0**.
 
 A common pattern (now discouraged in Finch) is to implement authorization using Finagle filters and custom request types
 (i.e. an `AuthRequest`). In Finch, the same effect may be achieved using `RequestReader[AuthorizedUser]` composed in

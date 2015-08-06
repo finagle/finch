@@ -5,26 +5,9 @@ import shapeless._
 import shapeless.ops.adjoin.Adjoin
 
 /**
- * This package contains various of functions and types that enable _router combinators_ in Finch. A Finch
- * [[io.finch.route.Router Router]] is an abstraction that is responsible for routing the HTTP requests using their
- * method and path information. There are two types of routers in Finch: [[io.finch.route.Matcher Matcher]] and
- * [[io.finch.route.Router Router]]. `Matcher` matches the route and returns an `Option` of the rest of the route.
- * `Router[A]` in addition to the `Matcher` behaviour extracts a value of type `A` from the route.
- *
- * A [[io.finch.route.Router Router]] that maps route to a [[com.twitter.finagle.Service Service]] is called an
- * [[io.finch.route.Endpoint Endpoint]]. An endpoint `Req => Rep` might be implicitly converted into a
- * `Service[Req, Rep]`. Thus, the following example is a valid Finch code:
- *
- * {{{
- *   def hello(s: String) = new Service[HttRequest, Response] {
- *     def apply(req: Request) = Ok(s"Hello $name!").toFuture
- *   }
- *
- *   Httpx.serve(
- *     new InetSocketAddress(8081),
- *     Get / string /> hello // will be implicitly converted into service
- *   )
- * }}}
+ * This package contains various of functions and types that enable _router combinators_ in Finch. Finch's
+ * [[route.Router]] is an abstraction that is responsible for routing the HTTP requests using their
+ * method and path information.
  */
 package object route extends RouterCombinators {
 

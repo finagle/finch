@@ -7,43 +7,7 @@ import com.twitter.finagle.Filter
 /**
  * This is a root package of the Finch library, which provides an immutable layer of functions and types atop of Finagle
  * for writing lightweight HTTP services. It roughly contains three packages: [[io.finch.route]], [[io.finch.request]],
- * [[io.finch.response]], which correspond to three simple steps to a robust REST/HTTP API:
- *
- * Step 1. Routing the HTTP requests to a `Service`.
- *
- * The [[io.finch.route.Router Router]] abstraction routes the requests depending on their path and method information.
- * `Router` combinator provides a bunch of predefined routers handling separated parts of a route. `Router`s might be
- * composed with either `/` (`andThen`) or `/>` (`map`) operator. There is also `|` (`orElse`) operator that combines
- * two routers in terms of the inclusive or operator.
- *
- * {{{
- *   val router: Endpoint[Request, Response] =
- *     Get / ("users" | "user") / int /> GetUser
- * }}}
- *
- * Step 2. Reading the HTTP requests in a `Service`.
- *
- * The [[io.finch.request.RequestReader RequestReader]] abstraction is responsible for reading any details form the HTTP
- * request. `RequestReader` is composable in both ways: via the monadic API (using the for-comprehension, i.e.,
- * `flatMap`) and via the applicative API (using the `~` operator). These approaches define an unlimited number of
- * readers out the plenty of predefined ones.
- *
- * {{{
- *   val pagination: RequestReader[(Int, Int)] =
- *     paramOption("offset").as[Int].withDefault(0) ~
- *     paramOption("limit").as[Int].withDefault(0) ~> { (_, _) }
- *   val p: Future[(Int, Int)] = pagination(request)
- * }}}
- *
- * Step 3. Building the HTTP responses in a `Service`.
- *
- * The [[io.finch.response.ResponseBuilder ResponseBuilder]] abstraction provides a convenient way of building the HTTP
- * responses any type. In fact, `ResponseBuilder` is a function that takes some content and builds an HTTP response of a
- * type depending on a content. There are plenty of predefined builders that might be used directly.
- *
- * {{{
- *   val ok: Response = Ok("Hello, world!") // plain/text HTTP response with status code 200
- * }}}
+ * [[io.finch.response]].
  */
 package object finch {
 

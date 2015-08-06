@@ -2,8 +2,8 @@
 
 * [Overview](route.md#overview)
 * [Built-in Routers](route.md#built-in-routers)
-  * [Matchers](route.md#matchers)
-  * [Extractors](route.md#extractors)
+  * [Matching Routers](route.md#matching-routers)
+  * [Extracting Routers](route.md#extracting-routers)
 * [Composing Routers](route.md#composing-routers)
 * [Endpoints](route.md#endpoints)
 * [Coproduct Routers](route.md#coproduct-routers)
@@ -15,56 +15,66 @@
 
 The `io.finch.route` package provides _combinators_ API for building HTTP routers in Finch.
 
-At the high level, `Router[A]` might be treated as a function `Route => Option[(Route, A)]`. It takes an HTTP route,
-which is a pair of HTTP method and HTTP path, and returns an `Option` of both the remaining route and the extracted value.
-Although, there is a special case of the `Router[A]` called `Matcher`, which doesn't extract any value from input but
-matches it. So `Matcher` it's viewed as a function `Route => Option[Route]`. In fact, `Matcher` is just a case of
-`Router[HNil]`, where `HNil` is an empty heterogeneous list from [Shapeless][0].
+At the high level, `Router[A]` might be treated as a function `Request => Option[A]`. It takes an HTTP request and tries
+to _route_ it in the meaning of extracting some value of type `A` from the given request. `Router`s that extract nothing
+is represented as `Router[HNil]`, where `HNil` is an empty heterogeneous list from [Shapeless][0].
+
+`Router`s are able to extract several values of the different types from the request. In this case `Router` is
+represented as `Router[L <: HList]`. For the sake of simplicity, there are user-friendly aliases available that allow to
+avoid typing `HList` types (and imports).
+
+```scala
+type Router0 = Router[HNil]
+type Router2[A, B] = Router[A :: B :: HNil]
+type Router3[A, B, C] = Router[A :: B :: C :: HNil]
+```
+
+Although, the `Router[L <: HList]` usually represents an _intermediate_ result, which is then mapped (transformed) into
+some meaningful type.
 
 ### Built-in Routers
 
 There are plenty of predefined routers that match the simple part of the route or extract some value from it. You can
 get of all them by importing `io.finch.route._`. 
 
-#### Matchers
+#### Matching Routers
 
-All the matchers are available via implicit conversions from strings, integers and booleans. The following code
-illustrates this functionality:
-
-```scala
-val router: Matcher = "users" // matches the current part of path
-```
-
-Note that in the example above, `Matcher` may be safely substituted with `Router[HNil]`.
-
-There is also an important type of matchers that match the HTTP method of the route. Finch supports _all_ the HTTP
-methods via matchers with the corresponding names: `Post`, `Get`, `Patch`, etc.
+All the matching routers (i.e., `Router0`s) are available via implicit conversions from strings, integers and booleans.
 
 ```scala
-val router: Matcher = Put // matches the HTTP method
+val router: Router0 = "users" // matches the current part of path
 ```
 
-Finally, there two special routers `*` and `**`. The `*` router always matches the current part of the given route,
-while the `**` router always matches the whole route. Using both `*` and `**` routers you can build something like
-fan-out proxy for the underlying services. In the example above, we redirect all the requests (with any method) like
-`/users` to the `usersBackend` and requests like `/tickets` to the `ticketsBackend`.
+Note that in the example above, `Router0` may be safely substituted with `Router[HNil]`.
+
+Matching the HTTP methods is done in a bit different way. There are functions of type `Router[A] => Router[A]` that
+take some `Router` and wrap it with an anonymous `Router` that also matches the HTTP method.
 
 ```scala
-val proxy = 
-  (* / "users" / ** /> usersBackend) |
-  (* / "tickets" / ** /> ticketsBackend)
-
-Httpx.serve(":8081", proxy)
+val router: Router0 = get("users")
 ```
-#### Extractors
 
-Things are getting interesting with extractors, i.e, `Router[A]`s. There are just four base extractors available for
-integer, string, boolean and long values.
+Note that string  `"users"` in the example above, is implicitly converted into a `Router0`.
+
+Finally, there two special routers `*` and `/`. The `*` router always matches the tail of the route. The `/` router
+represents an _identity router_.
+
+```scala
+val r: Router0 = get(/) // matches all the GET requests
+```
+
+#### Extracting Routers
+
+Things are getting interesting with extracting routers, i.e, `Router[A]`s. There are just four base extractors available
+for integer, string, boolean and long values.
 
 ```scala
 val s: Router[String] = string
 val l: Router[Long] = long
 ```
+
+There are also tail extracting routers available out of the box. For example, the `strings` router has type
+`Router[Seq[String]]` and extracts the tail value from the path.
 
 By default, extractors named be their types, i.e., `"string"`, `"boolean"`, etc. But you can specify the custom name for
 the extractor by calling the `apply` method on it. In the example below, the string representation of the router `b` is
@@ -79,43 +89,45 @@ val b: Router[Boolean] = boolean("flag")
 It's time to catch the beauty of route combinators API by composing the complex routers out of the tiny routers we've
 seen before. There are just three operators you will need to deal with: 
 
-* `/` or `andThen` that sequentially composes two routers into a `Router[L <: HList]` (see [Shapeless' HList][1])
-* `|` or `orElse` that composes two routers of the same type in terms of boolean `or`
+* `/` that sequentially composes two routers into a `Router[L <: HList]` (see [Shapeless' HList][1])
+* `|` that composes two routers of the same type in terms of boolean `or`
 * `:+:` that composes two routers of different types in terms of boolean `or`
-* `/>` or `map` that maps routers to the given function
 
-Here is an example of router that matches a route `(GET|HEAD) /users/:id/tickets/:id` and extracts two integer values
+Here is an example of router that matches a route `GET /users/:id/tickets/:id` and extracts two integer values
 `userId` and `ticketId` from it.
 
 ```scala
 val router: Router[Int :: Int :: HNil] =>
-  (Get | Head) / "users" / int("userId") / "tickets" / int("ticketId")
+   get("users" / int("userId") / "tickets" / int("ticketId"))
 ```
 
 No matter what are the types of left-hand/right-hand routers (`HList`-based router or value router) when applied to `/`
 compositor, the correctly constructed `HList` will be yielded as a result.
 
+It's also possible to compose the `Router` with either function `A => B` or `A => Future[B]`. To do so, simple pass a
+function to the `apply` method on `Router`.
+
 ```scala
-def foo(i: Int, s: String): Foo = ???
-val router: Router[Int :: String :: HNil] =
-  (Get: Router[HNil]) / ("foo": Router[HNil]) / (int: Router[Int]) / (string: Router[String])
-val fooRouter: Router[Foo] = router /> foo
+val i: Router[Int] = Router.value(100)
+val s: Router[String] = i { x: Int => x.toString }
+val l: Router[Long] = s { x: String => Future.value(x.toLong) }
 ```
 
-The `|` (or `orElse`) operator composes two routers in a _greedy_ manner. If both routers are able to match
-the given route, the router chosen by the `orElse` operator is that which consumes more route tokens. In the example
-above, the `GET /users/100` request will be routed to the `GetUser` service since in this case, the route (i.e. path)
-matched by the second router (`"GET /users/100"`) is longer than the matched route of the first router (`"GET /users"`).
+The only downside of this feature is that you have to always specify all the types in the functions you're passing to
+the `apply` method.
+
+Finally, it's possible to compose `Router`s with `RequestReader`s. Such composition is done by the `?` method that takes
+a `Router[A]` and a `RequestReader[B]` and returns a `Router[A :: B :: HNil]`.
 
 ```scala
-val users = 
-  (Get / "users" => GetAllUsers) |
-  (Get / "users" / int => GetUser)
+val r1: RequestReader[Int :: String :: HNil] = param("a").as[Int] :: param("b")
+val r2: Router[Boolean] = Router.value(true)
+val r3: Router[Boolean :: Int :: String :: HNil] = r2 ? r1
 ```
 
 ### Endpoints
 
-**Important:** endpoints are deprecated in 0.7.0 (and will be removed in 0.8.0) in favour of
+**Important:** endpoints are deprecated in 0.8.0 (and will be removed in 0.9.0) in favour of
 [Coproduct Routers](#coproduct-routers).
 
 A router that extracts `Service[Req, Rep]` out of the route is called an `Endpoint[Req, Rep]`. In, fact it's just a type
@@ -150,18 +162,16 @@ endpoint(request) handle {
 
 ### Coproduct Routers
 
-The `|` compositor is pretty useful for the simple cases when both underlying types `A` and `B` may be substituted with
-a single super type `C` such that `C >: A` and `C >: B` (usually that means that `A =:= B`). Although, it should be also
-possible to compose two routers of completely different types. This is pretty doable with the `:+:` compositor that
-composes two routers into a `Router[C <: Coproduct]`, where `Coproduct` is [Shapeless' disjoint union type][2].
+The `:+:` combinator composes two routers into a `Router[C <: Coproduct]`, where `Coproduct` is
+[Shapeless' disjoint union type][2].
 
 ```scala
 case class Foo(i: Int)
 case class Bar(s: String)
 
 val router: Router[Foo :+: Bar :+: CNil] =
-  Get / "foo" /> Foo(10) :+:
-  Get / "bar" /> Bar("bar")
+  get("foo") { Foo(10) } :+:
+  get("bar") { Bar("bar") }
 ```
 
 Coproduct routers are aimed to solve the problem of programming with types that actually matter rather than dealing with
@@ -171,19 +181,15 @@ following.
 
 * An `Response`
 * A value of a type with an `EncodeResponse` instance
-* A `Future` of `Response`
-* A `Future` of a value of a type with an `EncodeResponse` instance
-* A `RequestReader` that returns a value of a type with an `EncodeResponse` instance
 * A Finagle service that returns an `Response`
 * A Finagle service that returns a value of a type with an `EncodeResponse` instance
 
 ```scala
-val foo: Router[Response] = Get / "foo" /> Ok("foo")
-val bar: Router[Future[String]] = Get / "bar" / "bar".toFuture
-val baz: Router[RequestReader[String]] = Get / "baz" /> param("baz")
+val foo: Router[Response] = get("foo") { Ok("foo") }
+val bar: Router[String] = get("bar") { "bar" }
 
 val service: Service[Request, Response] =
-  (foo :+: bar :+: baz).toService
+  (foo :+: bar).toService
 ```
 
 ### Filters and Endpoints

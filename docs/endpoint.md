@@ -1,6 +1,6 @@
 ## Endpoints
 
-**WARNING**: `io.finch.Endpoint` is going to be deprecated in the 0.6.0 release. So, it's gently recommended to use the
+**WARNING**: `io.finch.Endpoint` is deprecated in 0.8.0. So, it's gently recommended to use the
 [route combinators](route.md) instead.
 
 One of the most powerful abstractions in Finch is an `Endpoint`, which is a composable router. At the high level

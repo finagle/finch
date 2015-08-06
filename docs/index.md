@@ -4,34 +4,34 @@
 
 The Finch library provides an immutable layer of functions and types atop of [Finagle][1] for writing lightweight HTTP
 services. It roughly contains three packages: [io.finch.route](route.md), [io.finch.request](request.md),
-[io.finch.response](response.md), which correspond to three simple steps to a robust REST/HTTP API:
+[io.finch.response](response.md).
 
-#### Step 1: Routing the HTTP requests to a `Service`
+#### Routing the HTTP requests
 
 The [Router](route.md#router) abstraction routes the requests depending on their path and method information. `Router`
 combinator provides a bunch of predefined routers handling separated parts of a route. `Router`s might be composed with
-either `/` (`flatMap`) or `/>` (`map`) operator. There is also `|` (`orElse`) operator that combines two routers in
-terms of the inclusive or operator.
+either `/` (and) or `:+:` (or) operators. It's also possible to map `Router` to either function `A => B` or
+`A => Future[B]` using the `apply` method.
 
 ```scala
-val router: Endpoint[Request, Response] = Get / ("users" | "user") / int /> GetUser
+val router: Router[String] = get("users" / string) { name: String => s"Hello, $name!" }
 ```
 
-#### Step 2: Reading the HTTP requests in a `Service`
+#### Reading the HTTP requests
 
 The [RequestReader](request.md#request-reader) abstraction is responsible for reading any details form the HTTP request.
 `RequestReader` is composable in both ways: via the monadic API (using the for-comprehension, i.e., `flatMap`/`map`) and
-via the applicative API (using the `~` operator). These approaches define an unlimited number of readers out the plenty
+via the applicative API (using the `::` operator). These approaches define an unlimited number of readers out the plenty
 of predefined ones.
 
 ```scala
 val pagination: RequestReader[(Int, Int)] =
-  paramOption("offset").as[Int] ~ paramOption("limit").as[Int] map {
-    case offset ~ limit => (offset.getOrElse(0), limit.getOrElse(100))
+  (paramOption("offset").as[Int] :: paramOption("limit").as[Int]).asTuple.map {
+    case (offset, limit) => (offset.getOrElse(0), limit.getOrElse(100))
   }
 ```
 
-#### Step 3: Building the HTTP responses in a `Service`
+#### Building the HTTP responses
 
 The [ResponseBuilder](response.md#response-builder) abstraction provides a convenient way of building the HTTP responses
 of any type. In fact, `ResponseBuilder` is a function that takes some content and builds an HTTP response of a type
@@ -46,15 +46,15 @@ depending on a content. There are plenty of predefined builders that might be us
 * [Quickstart](quickstart.md)
 * [Demo](demo.md)
 * [Routes](route.md)
-  * [Overview](route.md#overview)
-  * [Built-in Routers](route.md#built-in-routers)
-    * [Matchers](route.md#matchers)
-    * [Extractors](route.md#extractors)
-  * [Composing Routers](route.md#composing-routers)
-  * [Endpoints](route.md#endpoints)
-  * [Coproduct Routers](route.md#coproduct-routers)
-  * [Filters and Endpoints](route.md#filters-and-endpoints)
-* [Endpoints](endpoint.md)
+    * [Overview](route.md#overview)
+    * [Built-in Routers](route.md#built-in-routers)
+      * [Matching Routers](route.md#matching-routers)
+      * [Extracting Routers](route.md#extracting-routers)
+    * [Composing Routers](route.md#composing-routers)
+    * [Endpoints](route.md#endpoints)
+    * [Coproduct Routers](route.md#coproduct-routers)
+    * [Filters and Endpoints](route.md#filters-and-endpoints)
+    * [Endpoints](endpoint.md)
 * [Requests](request.md)
   * [Request Reader](request.md#request-reader)
     * [Overview](request.md#overview)
