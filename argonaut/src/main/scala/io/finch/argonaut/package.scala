@@ -1,7 +1,10 @@
 package io.finch
 
-import _root_.argonaut.{DecodeJson, EncodeJson, Parse}
+import _root_.argonaut.{CursorHistory, DecodeJson, EncodeJson, Json}
 import com.twitter.util.{Return, Throw, Try}
+import jawn.Parser
+import jawn.support.argonaut.Parser.facade
+import scala.util.{Failure, Success}
 
 package object argonaut {
 
@@ -10,12 +13,14 @@ package object argonaut {
    * @tparam A The type of data that the ''DecodeJson'' will decode into
    * @return Create a Finch ''DecodeRequest'' from an argonaut ''DecodeJson''
    */
-  implicit def decodeArgonaut[A](implicit decode: DecodeJson[A]): DecodeRequest[A] = DecodeRequest.instance(s =>
-    Parse.decodeEither(s).fold[Try[A]](
-      error => Throw[A](Error(error)),
-      Return(_)
-    )
-  )
+
+  implicit def decodeArgonaut[A](implicit decode: DecodeJson[A]): DecodeRequest[A] = DecodeRequest.instance[A] { s =>
+    val err: (String, CursorHistory) => Try[A] = { (str, hist) => Throw[A](Error(str)) }
+    Parser.parseFromString[Json](s)(facade) match {
+      case Success(v) => decode.decodeJson(v).fold[Try[A]](err, Return(_))
+      case Failure(error) => Throw[A](Error(error.getMessage))
+    }
+  }
 
   /**
    * @param encode The argonaut ''EncodeJson'' to use for decoding

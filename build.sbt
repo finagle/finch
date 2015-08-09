@@ -150,7 +150,11 @@ lazy val petstore = project
 lazy val argonaut = project
   .settings(moduleName := "finch-argonaut")
   .settings(allSettings)
-  .settings(libraryDependencies += "io.argonaut" %% "argonaut" % "6.1")
+  .settings(libraryDependencies ++= Seq(
+    "io.argonaut" %% "argonaut" % "6.1",
+    "org.spire-math" %% "jawn-parser" % "0.8.3",
+    "org.spire-math" %% "jawn-argonaut" % "0.8.3"
+  ))
   .dependsOn(core, jsonTest % "test")
 
 lazy val jackson = project
