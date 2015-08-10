@@ -7,6 +7,7 @@ class ArgonautUserServiceAppTest extends UserServiceAppTest(() => argonaut.userS
 class FinagleUserServiceAppTest extends UserServiceAppTest(() => finagle.userService)
 class JacksonUserServiceAppTest extends UserServiceAppTest(() => jackson.userService)
 class Json4sUserServiceAppTest extends UserServiceAppTest(() => json4s.userService)
+class CirceUserServiceAppTest extends UserServiceAppTest(() => circe.userService)
 
 class UserServiceAppTest(
   service: () => UserService

@@ -110,7 +110,7 @@ lazy val root = project.in(file("."))
         |import io.finch.route._
       """.stripMargin
   )
-  .aggregate(core, argonaut, jackson, json4s, benchmarks, petstore)
+  .aggregate(core, argonaut, jackson, json4s, circe, benchmarks, petstore)
   .dependsOn(core, argonaut)
 
 lazy val core = project
@@ -159,6 +159,18 @@ lazy val json4s = project
   )
   .dependsOn(core, test % "test")
 
+lazy val circe = project
+  .settings(moduleName := "finch-circe")
+  .settings(allSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.circe" %% "circe-core" % "0.1.1",
+      "io.circe" %% "circe-jawn" % "0.1.1",
+      "io.circe" %% "circe-generic" % "0.1.1" % "test"
+    )
+  )
+  .dependsOn(core, test % "test")
+
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")
   .settings(allSettings)
@@ -166,6 +178,7 @@ lazy val benchmarks = project
   .settings(Defaults.itSettings)
   .settings(parallelExecution in IntegrationTest := false)
   .settings(coverageExcludedPackages := "io\\.finch\\.benchmarks\\.service\\.UserServiceBenchmark")
+  .settings(libraryDependencies += "io.circe" %% "circe-generic" % "0.1.1")
   .settings(
     javaOptions in run ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
@@ -186,4 +199,11 @@ lazy val benchmarks = project
       "-server"
     )
   )
-  .dependsOn(core, argonaut, jackson, json4s, test % "it")
+  .dependsOn(
+    core,
+    argonaut,
+    jackson,
+    json4s,
+    circe,
+    test % "it"
+  )
