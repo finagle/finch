@@ -3,7 +3,7 @@ import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  version := "0.8.0-SNAPSHOT",
+  version := "0.8.0",
   scalaVersion := "2.11.7",
   crossScalaVersions := Seq("2.10.5", "2.11.7")
 )
