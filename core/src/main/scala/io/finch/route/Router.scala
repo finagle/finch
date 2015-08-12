@@ -3,9 +3,7 @@ package io.finch.route
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.{Request, Response}
 import com.twitter.util.Future
-import io.finch._
 import io.finch.request._
-import io.finch.response._
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.function.FnToProduct
@@ -131,7 +129,7 @@ trait Router[A] { self =>
    * Converts this router to a Finagle service from a request-like type `R` to a
    * [[com.twitter.finagle.httpx.Response]].
    */
-  def toService[R: ToRequest](implicit ts: ToService[R, A]): Service[R, Response] = ts(this)
+  def toService(implicit ts: ToService[A]): Service[Request, Response] = ts(this)
 }
 
 /**

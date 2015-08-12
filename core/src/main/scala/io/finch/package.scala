@@ -1,8 +1,6 @@
 package io
 
 import com.twitter.util.Future
-import com.twitter.finagle.Service
-import com.twitter.finagle.Filter
 
 /**
  * This is a root package of the Finch library, which provides an immutable layer of functions and types atop of Finagle
