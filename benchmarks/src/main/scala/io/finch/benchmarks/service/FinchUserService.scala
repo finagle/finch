@@ -13,33 +13,32 @@ class FinchUserService(implicit
   userEncoder: EncodeResponse[User],
   usersEncoder: EncodeResponse[List[User]]
 ) extends UserService {
-  def getUser(id: Long): Future[User] = db.get(id).flatMap {
-    case Some(user) => Future.value(user)
-    case None => Future.exception[User](UserNotFound(id))
+
+  val getUser: Router[User] = get("users" / long) { id: Long =>
+    db.get(id).flatMap {
+      case Some(user) => Future.value(user)
+      case None => Future.exception(UserNotFound(id))
+    }
   }
 
-  val allUsers: Service[Request, List[User]] = Service.mk(_ => db.all)
+  val getUsers: Router[List[User]] = get("users") { db.all }
 
-  val createUser: Service[Request, Response] = Service.mk { req =>
-    for {
-      NewUserInfo(name, age) <- body.as[NewUserInfo].apply(req)
-      id <- db.add(name, age)
-    } yield Created.withHeaders("Location" -> s"/users/$id")()
+  val postUser: Router[Response] = post("users" ? body.as[NewUserInfo]) { u: NewUserInfo =>
+    db.add(u.name, u.age).map { id =>
+      Created.withHeaders("Location" -> s"/users/$id")()
+    }
   }
 
-  val updateUser: Service[Request, Response] = Service.mk { req =>
-    body.as[User].apply(req).flatMap(db.update).map(_ => NoContent())
+  val deleteUser: Router[Response] = delete("users") {
+    db.delete().map(count => Ok(s"$count users deleted"))
   }
 
-  val deleteUsers: Service[Request, Response] =
-    Service.mk(_ => db.delete().map(count => Ok(s"$count users deleted")))
+  val putUser: Router[Response] = put("users" ? body.as[User]) { u: User =>
+    db.update(u).map(_ => NoContent())
+  }
 
   val users: Service[Request, Response] = (
-    get("users" / long) /> getUser :+:
-    get("users") /> allUsers       :+:
-    post("users") /> createUser    :+:
-    put("users") /> updateUser     :+:
-    delete("users") /> deleteUsers
+    getUsers :+: getUser :+: postUser :+: deleteUser :+: putUser
   ).toService
 
   val handleExceptions = new SimpleFilter[Request, Response] {
