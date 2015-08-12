@@ -101,15 +101,6 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     execRouter(r2, route) shouldBe Some(route.drop(2))
   }
 
-  it should "be implicitly converted into a service" in {
-    def echo(s: String) = new Service[Request, String] {
-      def apply(request: Request) = s.toFuture
-    }
-
-    val service: Service[Request, String] = get(string /> echo)
-    Await.result(service(Request("/foo"))) shouldBe "foo"
-  }
-
   it should "be composable as an endpoint" in {
     val r1: Router[Int] = get("a" / int /> { _ + 10 })
     val r2: Router[Int] = get("b" / int / int /> { _ + _ })

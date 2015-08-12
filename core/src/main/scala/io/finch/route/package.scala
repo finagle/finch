@@ -1,6 +1,5 @@
 package io.finch
 
-import com.twitter.finagle.Service
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
 
@@ -10,12 +9,6 @@ import shapeless.ops.adjoin.Adjoin
  * method and path information.
  */
 package object route extends RouterCombinators {
-
-  /**
-   * An alias for [[io.finch.route.Router Router]] that maps route to a [[com.twitter.finagle.Service Service]].
-   */
-  @deprecated(message = "Endpoint is deprecated in favor of coproduct routers", since = "0.8.0")
-  type Endpoint[A, B] = Router[Service[A, B]]
 
   type Router0 = Router[HNil]
   type Router2[A, B] = Router[A :: B :: HNil]
@@ -27,10 +20,6 @@ package object route extends RouterCombinators {
 }
 
 package route {
-  /**
-   * An exception, which is thrown by router in case of missing route `r`.
-   */
-  case class RouteNotFound(r: String) extends Exception(s"Route not found: $r")
 
   /**
    * We need a version of [[shapeless.ops.adjoin.Adjoin]] that provides slightly different behavior in

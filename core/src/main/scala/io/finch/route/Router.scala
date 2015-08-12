@@ -177,31 +177,6 @@ object Router {
   }
 
   /**
-   * An implicit conversion that turns any endpoint with an output type that can be converted into a response into a
-   * service that returns responses.
-   */
-  @deprecated(message = "Endpoint is deprecated in favor of coproduct routers", since = "0.8.0")
-  implicit def endpointToResponse[A, B](e: Endpoint[A, B])(implicit
-    encoder: EncodeResponse[B]
-  ): Endpoint[A, Response] = e.map { service =>
-    new Service[A, Response] {
-      def apply(a: A): Future[Response] = service(a).map(b => Ok(encoder(b)))
-    }
-  }
-
-  /**
-   * Implicitly converts the given `Router[Service[_, _]]` into a service.
-   */
-  implicit def endpointToService[Req, Rep](
-    router: Router[Service[Req, Rep]]
-  )(implicit ev: Req => Request): Service[Req, Rep] = new Service[Req, Rep] {
-    def apply(req: Req): Future[Rep] = router(Input(req)) match {
-      case Some((input, result)) => result().flatMap(_(req))
-      case _ => RouteNotFound(s"${req.method.toString.toUpperCase} ${req.path}").toFutureException[Rep]
-    }
-  }
-
-  /**
    * Add `/>` and `/>>` compositors to `Router` to compose it with function of one argument.
    */
   implicit class RArrow1[A](r: Router[A]) {
