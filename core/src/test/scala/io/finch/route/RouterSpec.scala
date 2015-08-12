@@ -184,16 +184,6 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     runRouter(r3) shouldBe runRouter(r2)
   }
 
-  it should "be implicitly convertible into service from future" in {
-    val e: Router[Service[Request, Response]] =
-      (Get / "foo" /> Ok("bar").toFuture: Router[Service[Request, Response]]) |
-      (Get / "bar" /> Ok("foo").toFuture)
-
-    Await.result(e(Request("/foo"))).contentString shouldBe "bar"
-    Await.result(e(Request("/bar"))).contentString shouldBe "foo"
-    a [RouteNotFound] shouldBe thrownBy(Await.result(e(Request("/baz"))))
-  }
-
   it should "be greedy" in {
     val a = Input(Request("/a/10"))
     val b = Input(Request("/a"))
@@ -222,26 +212,6 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
 
     runRouter(router, a) shouldBe Some((a.drop(2), HNil))
     flag shouldBe false
-  }
-
-  it should "allow mix routers that returns futures and services" in {
-    val service = new Service[Request, Response] {
-      def apply(req: Request) = Ok("foo").toFuture
-    }
-    val e: Router[Service[Request, Response]] =
-      (Get / "bar" /> Ok("bar").toFuture: Router[Service[Request, Response]]) |
-      (Get / "foo" /> service)
-
-    Await.result(e(Request("/foo"))).contentString shouldBe "foo"
-    Await.result(e(Request("/bar"))).contentString shouldBe "bar"
-  }
-
-  it should "convert Router[Future[_]] to both endpoint and service" in {
-    val s: Service[Request, Response] = Get / "foo" /> Ok("foo").toFuture: Router[Service[Request, Response]]
-    val e: Router[Service[Request, Response]] = Get / "bar" /> Ok("bar").toFuture
-
-    Await.result(s(Request("/foo"))).contentString shouldBe "foo"
-    Await.result(e(Request("/bar"))).contentString shouldBe "bar"
   }
 
   it should "handle the empty route well" in {
