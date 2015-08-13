@@ -3,9 +3,7 @@ package io.finch.route
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.{Request, Response}
 import com.twitter.util.Future
-import io.finch._
 import io.finch.request._
-import io.finch.response._
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.function.FnToProduct
@@ -131,7 +129,7 @@ trait Router[A] { self =>
    * Converts this router to a Finagle service from a request-like type `R` to a
    * [[com.twitter.finagle.httpx.Response]].
    */
-  def toService[R: ToRequest](implicit ts: ToService[R, A]): Service[R, Response] = ts(this)
+  def toService(implicit ts: ToService[A]): Service[Request, Response] = ts(this)
 }
 
 /**
@@ -174,31 +172,6 @@ object Router {
    */
   private[route] def embed[A](fn: Input => Option[(Input, () => Future[A])]): Router[A] = new Router[A] {
     def apply(input: Input): Option[(Input, () => Future[A])] = fn(input)
-  }
-
-  /**
-   * An implicit conversion that turns any endpoint with an output type that can be converted into a response into a
-   * service that returns responses.
-   */
-  @deprecated(message = "Endpoint is deprecated in favor of coproduct routers", since = "0.8.0")
-  implicit def endpointToResponse[A, B](e: Endpoint[A, B])(implicit
-    encoder: EncodeResponse[B]
-  ): Endpoint[A, Response] = e.map { service =>
-    new Service[A, Response] {
-      def apply(a: A): Future[Response] = service(a).map(b => Ok(encoder(b)))
-    }
-  }
-
-  /**
-   * Implicitly converts the given `Router[Service[_, _]]` into a service.
-   */
-  implicit def endpointToService[Req, Rep](
-    router: Router[Service[Req, Rep]]
-  )(implicit ev: Req => Request): Service[Req, Rep] = new Service[Req, Rep] {
-    def apply(req: Req): Future[Rep] = router(Input(req)) match {
-      case Some((input, result)) => result().flatMap(_(req))
-      case _ => RouteNotFound(s"${req.method.toString.toUpperCase} ${req.path}").toFutureException[Rep]
-    }
   }
 
   /**

@@ -46,14 +46,6 @@ package object request {
     */
   type FileUpload = org.jboss.netty.handler.codec.http.multipart.FileUpload
 
-  @deprecated(message = "Custom request are deprecated", since = "0.8.0")
-  type %>[A, B] = View[A, B]
-
-  /**
-   * A [[PRequestReader]] with request type fixed to [[com.twitter.finagle.httpx.Request]].
-   */
-  type RequestReader[A] = PRequestReader[Request, A]
-
   /**
    * Representations for the various types that can be processed with [[io.finch.request.RequestReader RequestReader]]s.
    */
@@ -126,7 +118,7 @@ package object request {
 
   // A convenient method for internal needs.
   private[request] def rr[A](i: RequestItem)(f: Request => A): RequestReader[A] =
-    RequestReader.embed[Request, A](i)(f(_).toFuture)
+    RequestReader.embed[A](i)(f(_).toFuture)
 
   /**
    * Creates a [[RequestReader]] that reads a required query-string param `name` from the request or raises a

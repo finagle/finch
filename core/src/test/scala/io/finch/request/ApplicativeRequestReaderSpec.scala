@@ -8,9 +8,6 @@ import items._
 
 class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
 
-  case class MyReq(http: Request, i: Int)
-  implicit val reqEv: MyReq %> Request = View(_.http)
-
   val reader: RequestReader[(Int, Double, Int)] = (
     param("a").as[Int] ::
     param("b").as[Double] ::
@@ -60,18 +57,6 @@ class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
   it should "parse all integers and doubles" in {
     val request = Request("a"->"9", "b"->"7.7", "c"->"5")
     Await.result(reader(request)) shouldBe ((9, 7.7, 5))
-  }
-
-  it should "be polymorphic in terms of request type" in {
-    val i: PRequestReader[MyReq, Int] = RequestReader(_.i)
-    val a = (i :: param("a")) ~> ((_: Int) + (_: String))
-    val b = for {
-      ii <- i
-      aa <- param("a")
-    } yield aa + ii
-
-    Await.result(a(MyReq(Request("a" -> "foo"), 10))) shouldBe "10foo"
-    Await.result(b(MyReq(Request("a" -> "foo"), 10))) shouldBe "foo10"
   }
 
   it should "compiles with both implicits Generic and DecodeRequest in the scope" in {

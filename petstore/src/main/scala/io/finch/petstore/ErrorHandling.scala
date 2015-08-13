@@ -18,9 +18,6 @@ trait ErrorHandling {
    * Tells the service how to handle certain types of servable errors (i.e. PetstoreError)
    */
   def errorHandler: PartialFunction[Throwable, Response] = {
-    case RouteNotFound(route) => NotFound(
-      Map("error" -> "route_not_found", "route" -> route).asJson
-    )
     case NotPresent(ParamItem(p)) => BadRequest(
       Map("error" -> "param_not_present", "param" -> p).asJson
     )

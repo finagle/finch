@@ -10,7 +10,7 @@ class RequestReaderCompanionSpec extends FlatSpec with Matchers {
 
   "The RequestReaderCompanion" should "support a factory method based on a function that reads from the request" in {
     val request: Request = Request(("foo", "5"))
-    val futureResult: Future[Option[String]] = RequestReader[Request, Option[String]](_ => Some("5"))(request)
+    val futureResult: Future[Option[String]] = RequestReader[Option[String]](_ => Some("5"))(request)
     Await.result(futureResult) shouldBe Some("5")
   }
 

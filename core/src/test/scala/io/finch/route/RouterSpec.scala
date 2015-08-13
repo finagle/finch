@@ -4,7 +4,6 @@ import com.twitter.finagle.httpx.{Request, Response}
 import com.twitter.finagle.Service
 import com.twitter.util.{Base64StringEncoder, Future, Await, Return}
 
-import io.finch._
 import io.finch.request.{RequestReader, DecodeRequest, param}
 import io.finch.response._
 import org.scalatest.prop.Checkers
@@ -101,15 +100,6 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     execRouter(r2, route) shouldBe Some(route.drop(2))
   }
 
-  it should "be implicitly converted into a service" in {
-    def echo(s: String) = new Service[Request, String] {
-      def apply(request: Request) = s.toFuture
-    }
-
-    val service: Service[Request, String] = get(string /> echo)
-    Await.result(service(Request("/foo"))) shouldBe "foo"
-  }
-
   it should "be composable as an endpoint" in {
     val r1: Router[Int] = get("a" / int /> { _ + 10 })
     val r2: Router[Int] = get("b" / int / int /> { _ + _ })
@@ -184,16 +174,6 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     runRouter(r3) shouldBe runRouter(r2)
   }
 
-  it should "be implicitly convertible into service from future" in {
-    val e: Router[Service[Request, Response]] =
-      (Get / "foo" /> Ok("bar").toFuture: Router[Service[Request, Response]]) |
-      (Get / "bar" /> Ok("foo").toFuture)
-
-    Await.result(e(Request("/foo"))).contentString shouldBe "bar"
-    Await.result(e(Request("/bar"))).contentString shouldBe "foo"
-    a [RouteNotFound] shouldBe thrownBy(Await.result(e(Request("/baz"))))
-  }
-
   it should "be greedy" in {
     val a = Input(Request("/a/10"))
     val b = Input(Request("/a"))
@@ -222,26 +202,6 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
 
     runRouter(router, a) shouldBe Some((a.drop(2), HNil))
     flag shouldBe false
-  }
-
-  it should "allow mix routers that returns futures and services" in {
-    val service = new Service[Request, Response] {
-      def apply(req: Request) = Ok("foo").toFuture
-    }
-    val e: Router[Service[Request, Response]] =
-      (Get / "bar" /> Ok("bar").toFuture: Router[Service[Request, Response]]) |
-      (Get / "foo" /> service)
-
-    Await.result(e(Request("/foo"))).contentString shouldBe "foo"
-    Await.result(e(Request("/bar"))).contentString shouldBe "bar"
-  }
-
-  it should "convert Router[Future[_]] to both endpoint and service" in {
-    val s: Service[Request, Response] = Get / "foo" /> Ok("foo").toFuture: Router[Service[Request, Response]]
-    val e: Router[Service[Request, Response]] = Get / "bar" /> Ok("bar").toFuture
-
-    Await.result(s(Request("/foo"))).contentString shouldBe "foo"
-    Await.result(e(Request("/bar"))).contentString shouldBe "bar"
   }
 
   it should "handle the empty route well" in {
@@ -287,48 +247,26 @@ class RouterSpec extends FlatSpec with Matchers with Checkers {
     implicit val decodeItem: DecodeRequest[Item] =
       DecodeRequest(s => Return(Item(s)))
 
-    val responseService: Service[Request, Response] =
-      Service.const(Ok("qux").toFuture)
-
-    val itemService: Service[Request, Item] =
-      Service.const(Item("item qux").toFuture)
-
     val service: Service[Request, Response] = (
-      get("foo" / string) /> Item          :+:
-        // Router returning an [[HttpResponse]].
-      get("foo") /> Ok("foo")              :+:
       // Router returning an encodeable value.
-      // Router returning an [[HttpResponse]] in a future.
-      get("bar") />> Ok("foo").toFuture    :+:
-      // Router returning an encodeable value in a future.
-      get("baz") />> Item("item foo").toFuture  :+:
-      // Router returning a Finagle service returning a [[HttpResponse]].
-      get("qux" / "s1") /> responseService :+:
-      // Router returning a Finagle service returning an encodeable value.
-      get("qux" / "s2") /> itemService     :+:
+      get("foo" / string) { s: String => Item(s) } :+:
+        // Router returning an [[Response]].
+      get("foo") { Ok("foo") }             :+:
       // Router composed with [[RequestReader]].
       get("qux") ? param("p").as[Item]
     ).toService
 
     val res1 = Await.result(service(Request("/foo")))
     val res2 = Await.result(service(Request("/foo/t")))
-    val res3 = Await.result(service(Request("/bar")))
-    val res4 = Await.result(service(Request("/baz")))
-    val res5 = Await.result(service(Request("/qux?p=something")))
-    val res6 = Await.result(service(Request("/qux/s1")))
-    val res7 = Await.result(service(Request("/qux/s2")))
+    val res3 = Await.result(service(Request("/qux?p=something")))
 
     res1.contentString shouldBe Ok("foo").contentString
     res2.contentString shouldBe Ok("t").contentString
-    res3.contentString shouldBe Ok("foo").contentString
-    res4.contentString shouldBe Ok("item foo").contentString
-    res5.contentString shouldBe Ok("something").contentString
-    res6.contentString shouldBe Ok("qux").contentString
-    res7.contentString shouldBe Ok("item qux").contentString
+    res3.contentString shouldBe Ok("something").contentString
   }
 
   it should "convert a value router into an endpoint" in {
-    val s: Service[Request, Response] = (Get / "foo" /> "bar").toService
+    val s: Service[Request, Response] = get("foo") { "bar" }.toService
 
     Await.result(s(Request("/foo"))).contentString shouldBe Ok("bar").contentString
   }
