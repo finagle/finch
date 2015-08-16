@@ -18,7 +18,7 @@ package object route extends Endpoints {
   type Router0 = Endpoint[HNil]
   @deprecated("Use io.finch.Endpoint2 instead", "0.9.0")
   type Router2[A, B] = Endpoint[A :: B :: HNil]
-  @deprecated("Use io.finch.Endpoin3 instead", "0.9.0")
+  @deprecated("Use io.finch.Endpoint3 instead", "0.9.0")
   type Router3[A, B, C] = Endpoint[A :: B :: C :: HNil]
 
   @deprecated("Use io.finch.Endpoint instead", "0.9.0")
