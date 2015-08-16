@@ -3,9 +3,9 @@ package io.finch.benchmarks.service
 import com.twitter.finagle.httpx.{Request, Response}
 import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Future
+import io.finch._
 import io.finch.request._
 import io.finch.response._
-import io.finch.route._
 
 class FinchUserService(implicit
   userDecoder: DecodeRequest[User],
@@ -14,26 +14,26 @@ class FinchUserService(implicit
   usersEncoder: EncodeResponse[List[User]]
 ) extends UserService {
 
-  val getUser: Router[User] = get("users" / long) { id: Long =>
+  val getUser: Endpoint[User] = get("users" / long) { id: Long =>
     db.get(id).flatMap {
       case Some(user) => Future.value(user)
       case None => Future.exception(UserNotFound(id))
     }
   }
 
-  val getUsers: Router[List[User]] = get("users") { db.all }
+  val getUsers: Endpoint[List[User]] = get("users") { db.all }
 
-  val postUser: Router[Response] = post("users" ? body.as[NewUserInfo]) { u: NewUserInfo =>
+  val postUser: Endpoint[Response] = post("users" ? body.as[NewUserInfo]) { u: NewUserInfo =>
     db.add(u.name, u.age).map { id =>
       Created.withHeaders("Location" -> s"/users/$id")()
     }
   }
 
-  val deleteUser: Router[Response] = delete("users") {
+  val deleteUser: Endpoint[Response] = delete("users") {
     db.delete().map(count => Ok(s"$count users deleted"))
   }
 
-  val putUser: Router[Response] = put("users" ? body.as[User]) { u: User =>
+  val putUser: Endpoint[Response] = put("users" ? body.as[User]) { u: User =>
     db.update(u).map(_ => NoContent())
   }
 
