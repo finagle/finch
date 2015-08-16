@@ -1,11 +1,10 @@
 package io.finch
 
-import io.finch
 import shapeless._
 
 /**
  * This package contains various of functions and types that enable _router combinators_ in Finch. Finch's
- * [[finch.Endpoint]] is an abstraction that is responsible for routing the HTTP requests using their
+ * [[io.finch.Endpoint]] is an abstraction that is responsible for routing the HTTP requests using their
  * method and path information.
  *
  * Please note that this package is deprecated since 0.9.0.

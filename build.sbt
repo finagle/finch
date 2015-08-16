@@ -102,16 +102,15 @@ lazy val root = project.in(file("."))
   .settings(
     initialCommands in console :=
       """
-        |import io.finch.{Endpoint => _, _}
-        |import io.finch.argonaut._
+        |import io.finch._
+        |import io.finch.circe._
         |import io.finch.request._
         |import io.finch.request.items._
         |import io.finch.response._
-        |import io.finch.route._
       """.stripMargin
   )
   .aggregate(core, argonaut, jackson, json4s, circe, benchmarks, petstore)
-  .dependsOn(core, argonaut)
+  .dependsOn(core, circe)
 
 lazy val core = project
   .settings(moduleName := "finch-core")
