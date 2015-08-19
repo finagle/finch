@@ -4,7 +4,6 @@ import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.{Request, Response}
 import com.twitter.util.Future
 import io.finch.request._
-import io.finch.route._
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.function.FnToProduct
@@ -187,7 +186,7 @@ object Endpoint {
    * Add `/>` and `/>>` compositors to `Router` to compose it with values.
    */
   @deprecated("Use smart apply (Endpoint.apply) instead", "0.9.0")
-  implicit class RArrow0(r: Router0) {
+  implicit class RArrow0(r: Endpoint0) {
     def />[B](v: => B): Endpoint[B] = r.map(_ => v)
     def />>[B](v: => Future[B]): Endpoint[B] = r.embedFlatMap(_ => v)
   }
@@ -196,7 +195,7 @@ object Endpoint {
    * Add `/>` and `/>>` compositors to `Router` to compose it with function of two arguments.
    */
   @deprecated("Use smart apply (Endpoint.apply) instead", "0.9.0")
-  implicit class RArrow2[A, B](r: Router2[A, B]) {
+  implicit class RArrow2[A, B](r: Endpoint2[A, B]) {
     def />[C](fn: (A, B) => C): Endpoint[C] = r.map {
       case a :: b :: HNil => fn(a, b)
     }
@@ -210,7 +209,7 @@ object Endpoint {
    * Add `/>` and `/>>` compositors to `Router` to compose it with function of three arguments.
    */
   @deprecated("Use smart apply (Endpoint.apply) instead", "0.9.0")
-  implicit class RArrow3[A, B, C](r: Router3[A, B, C]) {
+  implicit class RArrow3[A, B, C](r: Endpoint3[A, B, C]) {
     def />[D](fn: (A, B, C) => D): Endpoint[D] = r.map {
       case a :: b :: c :: HNil => fn(a, b, c)
     }
