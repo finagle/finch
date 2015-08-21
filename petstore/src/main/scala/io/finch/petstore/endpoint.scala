@@ -11,13 +11,14 @@ import io.finch.route._
 /**
  * Provides the paths and endpoints for all the API's public service methods.
  */
-object endpoint extends ErrorHandling {
+object endpoint extends ErrorHandling with SwaggerUi {
 
   /**
    * Private method that compiles all pet service endpoints.
    * @return Bundled compilation of all pet service endpoints.
    */
   private def pets(db: PetstoreDb) =
+    swaggerUi :+:
     getPet(db) :+:
     addPet(db) :+:
     updatePet(db) :+:
