@@ -75,6 +75,7 @@ Adopters
 * [Spright](http://spright.com)
 * [SoFi] (https://www.sofi.com/)
 * [Qubit] (http://www.qubit.com)
+* [Despegar] (http://www.despegar.com)
 * *Submit a pull-request to include your company/project into the list*
 
 Contributing
