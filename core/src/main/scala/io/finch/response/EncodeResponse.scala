@@ -17,6 +17,7 @@ trait EncodeResponse[-A] {
 }
 
 object EncodeResponse {
+
   /**
    * Convenience method for creating new [[io.finch.response.EncodeResponse EncodeResponse]] instances.
    */
@@ -47,7 +48,12 @@ object EncodeResponse {
   /**
    * Allows to pass raw strings to a [[ResponseBuilder]].
    */
-  implicit val encodeString: EncodeResponse[String] = EncodeResponse.fromString[String]("text/plain")(identity)
+  implicit val encodeString: EncodeResponse[String] =
+    EncodeResponse.fromString[String]("text/plain")(identity)
+
+  // TODO: Make it JSON-agnostic
+  implicit val encodeUnit: EncodeResponse[Unit] =
+    EncodeResponse("application/json")(_ => Buf.Empty)
 
   /**
    * Allows to pass `Buf` to a [[ResponseBuilder]].
@@ -62,16 +68,4 @@ object EncodeResponse {
 trait EncodeAnyResponse {
   def apply[A](rep: A): Buf
   def contentType: String
-}
-
-class TurnIntoHttp[A](val e: EncodeResponse[A]) extends Service[A, Response] {
-  def apply(req: A): Future[Response] = Ok(req)(e).toFuture
-}
-
-/**
- * A service that converts an encoded object into HTTP response with status ''OK'' using an implicit
- * [[io.finch.response.EncodeResponse EncodeResponse]].
- */
-object TurnIntoHttp {
-  def apply[A](implicit e: EncodeResponse[A]): Service[A, Response] = new TurnIntoHttp[A](e)
 }

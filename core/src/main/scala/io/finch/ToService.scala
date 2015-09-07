@@ -3,14 +3,14 @@ package io.finch
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.{Request, Response}
 import com.twitter.util.Future
-import io.finch.response.{EncodeResponse, NotFound, Ok}
+import io.finch.response.{EncodeResponse, NotFound => NF}
 import shapeless.ops.coproduct.Folder
 import shapeless.{Coproduct, Poly1}
 
 import scala.annotation.implicitNotFound
 
 /**
- * Represents a conversion from a router returning a result type `A` to a
+ * Represents a conversion from an endopoint returning a result type `A` to a
  * Finagle service from a request-like type `R` to a [[com.twitter.finagle.httpx.Response]].
  */
 @implicitNotFound(
@@ -25,7 +25,7 @@ part of ${A}).
 """
 )
 trait ToService[A] {
-  def apply(router: Endpoint[A]): Service[Request, Response]
+  def apply(endpoint: Endpoint[A]): Service[Request, Response]
 }
 
 object ToService extends LowPriorityToServiceInstances {
@@ -51,22 +51,33 @@ trait LowPriorityToServiceInstances {
       routerToService(router.map(polyCase(_)))
   }
 
-  protected def routerToService(router: Endpoint[Response]): Service[Request, Response] =
+  protected def routerToService(e: Endpoint[Response]): Service[Request, Response] =
     new Service[Request, Response] {
        import Endpoint._
-       def apply(req: Request): Future[Response] = router(Input(req)) match {
-         case Some((input, result)) if input.isEmpty => result()
-         case _ => NotFound().toFuture
+       def apply(req: Request): Future[Response] = e(Input(req)) match {
+         case Some((remainder, output)) if remainder.isEmpty =>
+           output().map { o =>
+             val rep = o.value
+             rep.status = o.status
+             o.headers.foreach { case (k, v) => rep.headerMap.add(k, v) }
+             o.cookies.foreach { rep.addCookie }
+             o.contentType.foreach { ct => rep.contentType = ct }
+             o.charset.foreach { cs => rep.charset = cs }
+
+             rep
+           }
+
+         case _ => NF().toFuture
        }
     }
 
   /**
    * A polymorphic function value that accepts types that can be transformed into a Finagle service from a request-like
-   * type to a [[com.twitter.finagle.httpx.Response]].
+   * type to a [[Response]].
    */
   protected object EncodeAll extends Poly1 {
     /**
-     * Transforms an [[com.twitter.finagle.httpx.Response]] directly into a constant service.
+     * Transforms a [[Response]] directly into a constant service.
      */
     implicit def response: Case.Aux[Response, Response] =
       at(r => r)
@@ -74,7 +85,14 @@ trait LowPriorityToServiceInstances {
     /**
      * Transforms an encodeable value into a constant service.
      */
-    implicit def encodeable[A: EncodeResponse]: Case.Aux[A, Response] =
-      at(a => Ok(a))
+    implicit def encodeable[A](implicit encode: EncodeResponse[A]): Case.Aux[A, Response] =
+      at { a =>
+        val rep = Response()
+        rep.content = encode(a)
+        rep.contentType = encode.contentType
+        encode.charset.foreach { cs => rep.charset = cs }
+
+        rep
+      }
   }
 }

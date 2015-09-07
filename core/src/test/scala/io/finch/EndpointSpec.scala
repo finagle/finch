@@ -4,7 +4,7 @@ import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.{Request, Response}
 import com.twitter.util.{Await, Base64StringEncoder, Future, Return}
 import io.finch.request.{DecodeRequest, RequestReader, param}
-import io.finch.response._
+import io.finch.response.EncodeResponse
 import org.scalatest.prop.Checkers
 import org.scalatest.{FlatSpec, Matchers}
 import shapeless.{:+:, ::, CNil, HNil, Inl}
@@ -15,21 +15,24 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
   val route = Input(Request("/a/1/b/2"))
   val emptyRoute = Input(Request())
 
-  def runAndAwait[A](e: Endpoint[A], input: Input = route): Option[(Input, A)] =
+  def runAndAwaitValue[A](e: Endpoint[A], input: Input = route): Option[(Input, A)] =
+    runAndAwaitOutput(e, input).map(r => (r._1, r._2.value))
+
+  def runAndAwaitOutput[A](e: Endpoint[A], input: Input = route): Option[(Input, Output[A])] =
     e(input).map {
-      case (input, result) => (input, Await.result(result()))
+      case (remainder, output) => (remainder, Await.result(output()))
     }
 
   def runAndForget[A](e: Endpoint[A], input: Input = route): Option[Input] = e(input).map(_._1)
 
   "An Endpoint" should "extract single string" in {
     val r: Endpoint[String] = get(string)
-    runAndAwait(r) shouldBe Some((route.drop(1), "a"))
+    runAndAwaitValue(r) shouldBe Some((route.drop(1), "a"))
   }
 
   it should "extract multiple strings" in {
     val r: Endpoint2[String, String] = get(string / "1" / string)
-    runAndAwait(r) shouldBe Some((route.drop(3), "a" :: "b" :: HNil))
+    runAndAwaitValue(r) shouldBe Some((route.drop(3), "a" :: "b" :: HNil))
   }
 
   it should "match string" in {
@@ -44,12 +47,12 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
 
   it should "not match if one of the endpoits failed" in {
     val r: Endpoint0 = get("a" / 2)
-    runAndAwait(r) shouldBe None
+    runAndAwaitValue(r) shouldBe None
   }
 
   it should "not match if the method is missing" in {
     val r: Endpoint0 = "a" / "b"
-    runAndAwait(r) shouldBe None
+    runAndAwaitValue(r) shouldBe None
   }
 
   it should "be able to skip route tokens" in {
@@ -69,7 +72,7 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
 
   it should "be able to not match int if it's a different value" in {
     val r: Endpoint0 = get("a" / 2)
-    runAndAwait(r) shouldBe None
+    runAndAwaitValue(r) shouldBe None
   }
 
   it should "be able to match method" in {
@@ -86,8 +89,8 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     val r1: Endpoint2[Int, String] = get("a" / int / string)
     val r2: Endpoint2[Int, Int] = get("a" / int("1") / "b" / int("2"))
 
-    runAndAwait(r1) shouldBe Some((route.drop(3), 1 :: "b" :: HNil))
-    runAndAwait(r2) shouldBe Some((route.drop(4), 1 :: 2 :: HNil))
+    runAndAwaitValue(r1) shouldBe Some((route.drop(3), 1 :: "b" :: HNil))
+    runAndAwaitValue(r2) shouldBe Some((route.drop(4), 1 :: 2 :: HNil))
   }
 
   it should "support DSL for boolean marchers and extractors" in {
@@ -95,7 +98,7 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     val r1: Endpoint[Boolean] = "flag" / boolean
     val r2: Endpoint0 = "flag" / true
 
-    runAndAwait(r1, route) shouldBe Some((route.drop(2), true))
+    runAndAwaitValue(r1, route) shouldBe Some((route.drop(2), true))
     runAndForget(r2, route) shouldBe Some(route.drop(2))
   }
 
@@ -104,12 +107,12 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     val r2: Endpoint[Int] = get("b" / int / int /> { _ + _ })
     val r3: Endpoint[Int] = r1 | r2
 
-    runAndAwait(r3) shouldBe Some((route.drop(2), 11))
+    runAndAwaitValue(r3) shouldBe Some((route.drop(2), 11))
   }
 
   it should "maps to value" in {
     val r: Endpoint[Int] = get(*) /> 10
-    runAndAwait(r) shouldBe Some((route.drop(4), 10))
+    runAndAwaitValue(r) shouldBe Some((route.drop(4), 10))
   }
 
   it should "skip all the route tokens" in {
@@ -119,7 +122,7 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
 
   it should "extract the tail of the route" in {
     val r: Endpoint[Seq[String]] = get("a" / strings)
-    runAndAwait(r, route) shouldBe Some((route.drop(4), Seq("1", "b", "2")))
+    runAndAwaitValue(r, route) shouldBe Some((route.drop(4), Seq("1", "b", "2")))
   }
 
   it should "extract ints from the tail of the route" in {
@@ -128,23 +131,23 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     val r1: Endpoint[Seq[Int]] = get("a" / ints)
     val r2: Endpoint[Int :: Seq[Int] :: HNil] = get("a" / int("1") / ints)
 
-    runAndAwait(r1, route1) shouldBe Some((route1.drop(4), Seq(1, 4, 42)))
-    runAndAwait(r1, route) shouldBe Some((route.drop(4), Seq(1, 2)))
+    runAndAwaitValue(r1, route1) shouldBe Some((route1.drop(4), Seq(1, 4, 42)))
+    runAndAwaitValue(r1, route) shouldBe Some((route.drop(4), Seq(1, 2)))
 
-    runAndAwait(r2, route1) shouldBe Some((route1.drop(4), 1 :: Seq(4, 42) :: HNil))
-    runAndAwait(r2, route) shouldBe Some((route.drop(4), 1 :: Seq(2) :: HNil))
+    runAndAwaitValue(r2, route1) shouldBe Some((route1.drop(4), 1 :: Seq(4, 42) :: HNil))
+    runAndAwaitValue(r2, route) shouldBe Some((route.drop(4), 1 :: Seq(2) :: HNil))
   }
 
   it should "extract booleans from the tail of the route" in {
     val route = Input(Request("/flag/true/false/true"))
     val r: Endpoint[Seq[Boolean]] = get("flag" / booleans)
-    runAndAwait(r, route) shouldBe Some((route.drop(4), Seq(true, false, true)))
+    runAndAwaitValue(r, route) shouldBe Some((route.drop(4), Seq(true, false, true)))
   }
 
   it should "extract the tail of the route in case it's empty" in {
     val route = Input(Request("/a"))
     val r: Endpoint[Seq[String]] = get("a" / strings)
-    runAndAwait(r, route) shouldBe Some((route.drop(4), Nil))
+    runAndAwaitValue(r, route) shouldBe Some((route.drop(4), Nil))
   }
 
   it should "converts into a string" in {
@@ -168,9 +171,53 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     val r2: Endpoint[String] = for { a :: b :: c :: HNil <- get("a" / int / string / int) } yield b + c + a
     val r3: Endpoint[String] = r1 | r2
 
-    runAndAwait(r1) shouldBe Some((route.drop(2), "a1"))
-    runAndAwait(r2) shouldBe Some((route.drop(4), "b21"))
-    runAndAwait(r3) shouldBe runAndAwait(r2)
+    runAndAwaitValue(r1) shouldBe Some((route.drop(2), "a1"))
+    runAndAwaitValue(r2) shouldBe Some((route.drop(4), "b21"))
+    runAndAwaitValue(r3) shouldBe runAndAwaitValue(r2)
+  }
+
+  it should "be map'd to an output" in {
+    val input = Input(Request())
+
+    val r1: Endpoint[String] = Endpoint(Ok("foo"))
+    val r2: Endpoint[String] = Endpoint(Ok(Future.value("foo")))
+    val r3: Endpoint[String] = Endpoint(Future.value(Ok("foo")))
+
+    runAndAwaitValue(r1, input) shouldBe Some((input, "foo"))
+    runAndAwaitValue(r2, input) shouldBe Some((input, "foo"))
+    runAndAwaitValue(r3, input) shouldBe Some((input, "foo"))
+
+    val r4: Endpoint[String] = get(/) { Ok("bar") }
+    val r5: Endpoint[String] = get(/) { Ok(Future.value("bar")) }
+    val r6: Endpoint[String] = get(/) { Future.value(Ok(("bar"))) }
+
+    runAndAwaitValue(r4, input) shouldBe Some((input, "bar"))
+    runAndAwaitValue(r5, input) shouldBe Some((input, "bar"))
+    runAndAwaitValue(r6, input) shouldBe Some((input, "bar"))
+
+    val r7: Endpoint[Int] = r1 { s: String => Ok(s.length) }
+    val r8: Endpoint[Int] = r1 { s: String => Ok(Future.value(s.length)) }
+    val r9: Endpoint[Int] = r1 { s: String => Future.value(Ok(s.length)) }
+
+    runAndAwaitValue(r7, input) shouldBe Some((input, 3))
+    runAndAwaitValue(r8, input) shouldBe Some((input, 3))
+    runAndAwaitValue(r9, input) shouldBe Some((input, 3))
+
+    val r10: Endpoint2[Int, Int] = Endpoint(Ok(100)) / Endpoint(Ok(200))
+    val r11: Endpoint[String] = r10 { (i: Int, j: Int) => Ok((i + j).toString) }
+    val r12: Endpoint[String] = r10 { (i: Int, j: Int) => Ok(Future.value((i + j).toString)) }
+    val r13: Endpoint[String] = r10 { (i: Int, j: Int) => Future.value(Ok((i + j).toString)) }
+
+    runAndAwaitValue(r11, input) shouldBe Some((input, "300"))
+    runAndAwaitValue(r12, input) shouldBe Some((input, "300"))
+    runAndAwaitValue(r13, input) shouldBe Some((input, "300"))
+  }
+
+  it should "capture the output context" in {
+    val input = Input(Request())
+    val r1: Endpoint[String] = Endpoint(Ok("foo").withHeader("X" -> "Y"))
+
+    runAndAwaitOutput(r1, input) shouldBe Some((input, Ok("foo").withHeader("X" -> "Y")))
   }
 
   it should "be greedy" in {
@@ -190,7 +237,7 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     val a = Input(Request("/a/10"))
     var flag = false
 
-    val routerWithFailedFuture: Endpoint0 = "a".embedFlatMap { hnil =>
+    val routerWithFailedFuture: Endpoint0 = "a".fmap { hnil =>
       Future {
         flag = true
         hnil
@@ -199,7 +246,7 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
 
     val router: Endpoint0 = ("a" / 10) | routerWithFailedFuture
 
-    runAndAwait(router, a) shouldBe Some((a.drop(2), HNil))
+    runAndAwaitValue(router, a) shouldBe Some((a.drop(2), HNil))
     flag shouldBe false
   }
 
@@ -223,8 +270,8 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     val route1 = Input(Request())
     val route2 = Input(Request("/foo"))
 
-    runAndAwait(r, route1) shouldBe Some((route1, "root"))
-    runAndAwait(r, route2) shouldBe Some((route2.drop(1), "foo"))
+    runAndAwaitValue(r, route1) shouldBe Some((route1, "root"))
+    runAndAwaitValue(r, route2) shouldBe Some((route2.drop(1), "foo"))
   }
 
   it should "combine coproduct routers appropriately" in {
@@ -234,7 +281,7 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     val r: Endpoint[Int :+: String :+: String :+: Long :+: CNil] = r1 :+: r2
 
     val route = Input(Request("/100"))
-    runAndAwait(r, route) shouldBe Some((route.drop(1), Inl(100)))
+    runAndAwaitValue(r, route) shouldBe Some((route.drop(1), Inl(100)))
   }
 
   it should "convert a coproduct router into an endpoint" in {
@@ -259,15 +306,15 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     val res2 = Await.result(service(Request("/foo/t")))
     val res3 = Await.result(service(Request("/qux?p=something")))
 
-    res1.contentString shouldBe Ok("foo").contentString
-    res2.contentString shouldBe Ok("t").contentString
-    res3.contentString shouldBe Ok("something").contentString
+    res1.contentString shouldBe "foo"
+    res2.contentString shouldBe "t"
+    res3.contentString shouldBe "something"
   }
 
   it should "convert a value router into an endpoint" in {
     val s: Service[Request, Response] = get("foo") { "bar" }.toService
 
-    Await.result(s(Request("/foo"))).contentString shouldBe Ok("bar").contentString
+    Await.result(s(Request("/foo"))).contentString shouldBe "bar"
   }
 
   it should "be composable with RequestReaders" in {
@@ -275,14 +322,14 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     val router: Endpoint[Int] = get("a" / int / "b" ? pagination) /> { (i, p) => i + p._1 + p._2 }
     val route = Input(Request("/a/10/b", "from" -> "100", "to" -> "200"))
 
-    runAndAwait(router, route) shouldBe Some((route.drop(3), 310))
+    runAndAwaitValue(router, route) shouldBe Some((route.drop(3), 310))
   }
 
   it should "maps with Mapper" in {
-    val r1: Endpoint[Int] = Endpoint.value(100)
+    val r1: Endpoint[Int] = Endpoint(Output(100))
     val r2: Endpoint[String] = r1 { i: Int => i.toString }
     val r3: Endpoint[String] = r1 { i: Int => Future.value(i.toString) }
-    val r4: Endpoint2[Int, Int] = Endpoint.value(10) / Endpoint.value(100)
+    val r4: Endpoint2[Int, Int] = Endpoint(Output(10)) / Endpoint(Output(100))
     val r5: Endpoint[Int] = r4 { (a: Int, b: Int) => a + b }
     val r6: Endpoint[Int] = r4 { (a: Int, b: Int) => Future.value(a + b) }
     val r7: Endpoint0 = /
@@ -291,15 +338,15 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
 
 
     val route = Input(Request())
-    runAndAwait(r1, route) shouldBe Some((route, 100))
-    runAndAwait(r2, route) shouldBe Some((route, "100"))
-    runAndAwait(r3, route) shouldBe Some((route, "100"))
-    runAndAwait(r4, route) shouldBe Some((route, 10 :: 100 :: HNil))
-    runAndAwait(r5, route) shouldBe Some((route, 110))
-    runAndAwait(r6, route) shouldBe Some((route, 110))
-    runAndAwait(r7, route) shouldBe Some((route, HNil))
-    runAndAwait(r8, route) shouldBe Some((route, "foo"))
-    runAndAwait(r9, route) shouldBe Some((route, "foo"))
+    runAndAwaitValue(r1, route) shouldBe Some((route, 100))
+    runAndAwaitValue(r2, route) shouldBe Some((route, "100"))
+    runAndAwaitValue(r3, route) shouldBe Some((route, "100"))
+    runAndAwaitValue(r4, route) shouldBe Some((route, 10 :: 100 :: HNil))
+    runAndAwaitValue(r5, route) shouldBe Some((route, 110))
+    runAndAwaitValue(r6, route) shouldBe Some((route, 110))
+    runAndAwaitValue(r7, route) shouldBe Some((route, HNil))
+    runAndAwaitValue(r8, route) shouldBe Some((route, "foo"))
+    runAndAwaitValue(r9, route) shouldBe Some((route, "foo"))
   }
 
   it should "maps lazily to values" in {
@@ -308,12 +355,12 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     val r2: Endpoint[Int] = get(/) { i = i + 1; Future.value(i) }
 
     val route = Input(Request())
-    runAndAwait(r1, route) shouldBe Some((route, 1))
-    runAndAwait(r1, route) shouldBe Some((route, 2))
-    runAndAwait(r1, route) shouldBe Some((route, 3))
-    runAndAwait(r2, route) shouldBe Some((route, 4))
-    runAndAwait(r2, route) shouldBe Some((route, 5))
-    runAndAwait(r2, route) shouldBe Some((route, 6))
+    runAndAwaitValue(r1, route) shouldBe Some((route, 1))
+    runAndAwaitValue(r1, route) shouldBe Some((route, 2))
+    runAndAwaitValue(r1, route) shouldBe Some((route, 3))
+    runAndAwaitValue(r2, route) shouldBe Some((route, 4))
+    runAndAwaitValue(r2, route) shouldBe Some((route, 5))
+    runAndAwaitValue(r2, route) shouldBe Some((route, 6))
   }
 
   "A string matcher" should "have the correct string representation" in {
@@ -354,7 +401,7 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
   "An embedFlatMapped endpoint" should "have the correct string representation" in {
     check { (s: String, ss: String) =>
       val matcher: Endpoint[HNil] = s
-      val router: Endpoint[String] = matcher.embedFlatMap(_ => Future.value(ss))
+      val router: Endpoint[String] = matcher.fmap(_ => Future.value(ss))
 
       router.toString === s
     }
@@ -384,12 +431,12 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
       val input = Input(req)
 
       rr.toString === s"BasicAuth($r)"
-      runAndAwait(rr, input) === Some((input, "foo"))
+      runAndAwaitValue(rr, input) === Some((input, "foo"))
     }
   }
 
   it should "drop the request if auth is failed" in {
     val r: Endpoint0 = basicAuth("foo", "bar")(/)
-    runAndAwait(r, Input(Request())) shouldBe None
+    runAndAwaitValue(r, Input(Request())) shouldBe None
   }
 }

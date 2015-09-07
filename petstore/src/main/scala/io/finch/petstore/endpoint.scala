@@ -6,7 +6,6 @@ import com.twitter.util.{Future}
 import io.finch._
 import io.finch.argonaut._
 import io.finch.request._
-import io.finch.response._
 
 /**
  * Provides the paths and endpoints for all the API's public service methods.
@@ -64,7 +63,7 @@ object endpoint extends ErrorHandling {
    * @return A Router that contains the Pet fetched.
    */
   def getPet(db: PetstoreDb): Endpoint[Pet] =
-    get("pet" / long) { id: Long => db.getPet(id) }
+    get("pet" / long) { id: Long => Ok(db.getPet(id)) }
 
   /**
    * The pet to be added must be passed in the body.
@@ -72,7 +71,7 @@ object endpoint extends ErrorHandling {
    */
   def addPet(db: PetstoreDb): Endpoint[Long] =
     post("pet" ? body.as[Pet]) { p: Pet =>
-      db.addPet(p)
+      Ok(db.addPet(p))
     }
 
   /**
@@ -86,7 +85,7 @@ object endpoint extends ErrorHandling {
         case None => throw MissingIdentifier("The updated pet must have a valid id.")
       }
 
-      db.updatePet(pet.copy(id = Some(identifier)))
+      Ok(db.updatePet(pet.copy(id = Some(identifier))))
     }
 
   /**
@@ -95,7 +94,7 @@ object endpoint extends ErrorHandling {
    */
   def getPetsByStatus(db: PetstoreDb): Endpoint[Seq[Pet]] =
     get("pet" / "findByStatus" ? reader.findByStatusReader) { s: Seq[String] =>
-      db.getPetsByStatus(s)
+      Ok(db.getPetsByStatus(s))
     }
 
   /**
@@ -104,16 +103,16 @@ object endpoint extends ErrorHandling {
    */
   def findPetsByTag(db: PetstoreDb): Endpoint[Seq[Pet]] =
     get("pet" / "findByTags" ? reader.tagReader) { s: Seq[String] =>
-      db.findPetsByTag(s)
+      Ok(db.findPetsByTag(s))
     }
 
   /**
    * The ID of the pet to delete is passed in the path.
    * @return A Router that contains a RequestReader of the deletePet result (true for success, false otherwise).
    */
-  def deletePet(db: PetstoreDb): Endpoint[Response] =
+  def deletePet(db: PetstoreDb): Endpoint[Unit] =
     delete("pet" / long) { petId: Long =>
-      db.deletePet(petId).map(_ => NoContent())
+      NoContent(db.deletePet(petId))
     }
 
   /**
@@ -125,7 +124,7 @@ object endpoint extends ErrorHandling {
       for {
         pet <- db.getPet(petId)
         newPet <- db.updatePetNameStatus(petId, Some(n), Some(s))
-      } yield newPet
+      } yield Ok(newPet)
     }
 
   /**
@@ -135,14 +134,14 @@ object endpoint extends ErrorHandling {
    */
   def uploadImage(db: PetstoreDb): Endpoint[String] =
     post("pet" / long / "uploadImage" ? fileUpload("file")) { (id: Long, upload: FileUpload) =>
-      db.addImage(id, upload.get())
+      Ok(db.addImage(id, upload.get()))
     }
 
   /**
    * @return A Router that contains a RequestReader of a Map reflecting the inventory.
    */
   def getInventory(db: PetstoreDb): Endpoint[Inventory] =
-    get("store" / "inventory") { db.getInventory }
+    get("store" / "inventory") { Ok(db.getInventory) }
 
   /**
    * The order to be added is passed in the body.
@@ -150,7 +149,7 @@ object endpoint extends ErrorHandling {
    */
   def addOrder(db: PetstoreDb): Endpoint[Long] =
     post("store" / "order" ? body.as[Order]) { o: Order =>
-      db.addOrder(o)
+      Ok(db.addOrder(o))
     }
 
   /**
@@ -159,7 +158,7 @@ object endpoint extends ErrorHandling {
    */
   def deleteOrder(db: PetstoreDb): Endpoint[Boolean] =
     delete("store" / "order" / long) { id: Long =>
-      db.deleteOrder(id)
+      Ok(db.deleteOrder(id))
     }
 
   /**
@@ -168,7 +167,7 @@ object endpoint extends ErrorHandling {
    */
   def findOrder(db: PetstoreDb): Endpoint[Order] =
     get("store" / "order" / long) { id: Long =>
-      db.findOrder(id)
+      Ok(db.findOrder(id))
     }
 
   /**
@@ -177,7 +176,7 @@ object endpoint extends ErrorHandling {
    */
   def addUser(db: PetstoreDb): Endpoint[String] =
     post("user" ? body.as[User]) { u: User =>
-      db.addUser(u)
+      Ok(db.addUser(u))
     }
 
   /**
@@ -186,7 +185,7 @@ object endpoint extends ErrorHandling {
    */
   def addUsersViaList(db: PetstoreDb): Endpoint[Seq[String]] =
     post("user" / "createWithList" ? body.as[Seq[User]]) { s: Seq[User] =>
-      Future.collect(s.map(db.addUser))
+      Ok(Future.collect(s.map(db.addUser)))
     }
 
   /**
@@ -195,7 +194,7 @@ object endpoint extends ErrorHandling {
    */
   def addUsersViaArray(db: PetstoreDb): Endpoint[Seq[String]] =
     post("user" / "createWithArray" ? body.as[Seq[User]]) { s: Seq[User] =>
-      Future.collect(s.map(db.addUser))
+      Ok(Future.collect(s.map(db.addUser)))
     }
 
   /**
@@ -204,7 +203,7 @@ object endpoint extends ErrorHandling {
    */
   def deleteUser(db: PetstoreDb): Endpoint[Unit] =
     delete("user" / string) { n: String =>
-      db.deleteUser(n)
+      Ok(db.deleteUser(n))
     }
 
   /**
@@ -213,7 +212,7 @@ object endpoint extends ErrorHandling {
    */
   def getUser(db: PetstoreDb): Endpoint[User] =
     get("user" / string) { n: String =>
-      db.getUser(n)
+      Ok(db.getUser(n))
     }
 
   /**
@@ -222,7 +221,7 @@ object endpoint extends ErrorHandling {
    */
   def updateUser(db: PetstoreDb): Endpoint[User] =
     put("user" / string ? body.as[User]) { (n: String, u: User) =>
-      db.updateUser(u)
+      Ok(db.updateUser(u))
     }
 }
 

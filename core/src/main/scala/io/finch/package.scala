@@ -7,7 +7,9 @@ import com.twitter.util.Future
  * for writing lightweight HTTP services. It roughly contains three packages: [[io.finch.route]], [[io.finch.request]],
  * [[io.finch.response]].
  */
-package object finch extends Endpoints {
+package object finch
+  extends Endpoints
+  with Outputs {
 
   /**
    * Alters any object within a `toFuture` method.

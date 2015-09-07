@@ -5,7 +5,7 @@ import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.util.Future
 import io.finch._
 import io.finch.request._
-import io.finch.response._
+import io.finch.response.{EncodeResponse, BadRequest => BR, InternalServerError => ISR}
 
 class FinchUserService(implicit
   userDecoder: DecodeRequest[User],
@@ -15,26 +15,30 @@ class FinchUserService(implicit
 ) extends UserService {
 
   val getUser: Endpoint[User] = get("users" / long) { id: Long =>
-    db.get(id).flatMap {
+    Ok(db.get(id).flatMap {
       case Some(user) => Future.value(user)
       case None => Future.exception(UserNotFound(id))
-    }
+    })
   }
 
-  val getUsers: Endpoint[List[User]] = get("users") { db.all }
-
-  val postUser: Endpoint[Response] = post("users" ? body.as[NewUserInfo]) { u: NewUserInfo =>
-    db.add(u.name, u.age).map { id =>
-      Created.withHeaders("Location" -> s"/users/$id")()
-    }
+  val getUsers: Endpoint[List[User]] = get("users") {
+    Ok(db.all)
   }
 
-  val deleteUser: Endpoint[Response] = delete("users") {
-    db.delete().map(count => Ok(s"$count users deleted"))
+  val postUser: Endpoint[Unit] = post("users" ? body.as[NewUserInfo]) { u: NewUserInfo =>
+    for {
+      id <- db.add(u.name, u.age)
+    } yield Created.withHeader("Location" -> s"/users/$id")
   }
 
-  val putUser: Endpoint[Response] = put("users" ? body.as[User]) { u: User =>
-    db.update(u).map(_ => NoContent())
+  val deleteUser: Endpoint[String] = delete("users") {
+    for {
+      count <- db.delete()
+    } yield Ok(s"$count users deleted")
+  }
+
+  val putUser: Endpoint[Unit] = put("users" ? body.as[User]) { u: User =>
+    NoContent(db.update(u))
   }
 
   val users: Service[Request, Response] = (
@@ -44,8 +48,8 @@ class FinchUserService(implicit
   val handleExceptions = new SimpleFilter[Request, Response] {
     def apply(req: Request, service: Service[Request, Response]): Future[Response] =
       service(req).handle {
-        case notFound @ UserNotFound(_) => BadRequest(notFound.getMessage)
-        case _ => InternalServerError()
+        case notFound @ UserNotFound(_) => BR(notFound.getMessage)
+        case _ => ISR()
       }
   }
 
