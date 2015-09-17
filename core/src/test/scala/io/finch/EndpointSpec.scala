@@ -1,5 +1,7 @@
 package io.finch
 
+import java.util.UUID
+
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.{Request, Response}
 import com.twitter.util.{Await, Base64StringEncoder, Future, Return}
@@ -85,12 +87,21 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     runAndForget(r1) shouldBe Some(route.drop(4))
   }
 
-  it should "support DSL for string and int extractors" in {
-    val r1: Endpoint2[Int, String] = get("a" / int / string)
-    val r2: Endpoint2[Int, Int] = get("a" / int("1") / "b" / int("2"))
+  it should "support DSL for string and int and UUID extractors" in {
+    val id = "7e773124-5d52-11e5-885d-feff819cdc9f"
+    // http://mark.koli.ch/thoughts-on-using-raw-uuids-in-your-web-application-or-web-service-paths
+    val badId = "0000000000007e773124-5d52-11e5-885d-feff819cdc9f"
+    val route = Input(Request(s"/a/1/b/$id"))
+    val badRoute = Input(Request(s"/a/1/b/$badId"))
 
-    runAndAwaitValue(r1) shouldBe Some((route.drop(3), 1 :: "b" :: HNil))
-    runAndAwaitValue(r2) shouldBe Some((route.drop(4), 1 :: 2 :: HNil))
+    val r1: Endpoint3[Int, String, UUID] = get("a" / int / string / uuid)
+    val r2: Endpoint2[Int, UUID] = get("a" / int("1") / "b" / uuid("3"))
+
+    runAndAwaitValue(r1, route) shouldBe Some((route.drop(4), 1 :: "b" :: UUID.fromString(id) :: HNil))
+    runAndAwaitValue(r2, route) shouldBe Some((route.drop(4), 1 :: UUID.fromString(id) :: HNil))
+
+    runAndAwaitValue(r1, badRoute) shouldBe None
+    runAndAwaitValue(r2, badRoute) shouldBe None
   }
 
   it should "support DSL for boolean marchers and extractors" in {

@@ -1,5 +1,7 @@
 package io.finch
 
+import java.util.UUID
+
 import com.twitter.finagle.httpx.Method
 import com.twitter.util.{Try, Base64StringEncoder, Future}
 import shapeless._
@@ -66,12 +68,12 @@ trait Endpoints {
   /**
    * An universal extractor that extracts some value of type `A` if it's possible to fetch the value from the string.
    */
-  case class Extractor[A](name: String, f: String => A) extends Endpoint[A] {
+  case class Extractor[A](name: String, f: String => Option[A]) extends Endpoint[A] {
     import Endpoint._
     def apply(input: Input): Option[(Input, () => Future[Output[A]])] =
       for {
         ss <- input.headOption
-        aa <- Try(f(ss)).toOption
+        aa <- f(ss)
       } yield (input.drop(1), () => Future.value(Output(aa)))
 
     def apply(n: String): Endpoint[A] = copy[A](name = n)
@@ -82,12 +84,12 @@ trait Endpoints {
   /**
    * An extractor that extracts a value of type `Seq[A]` from the tail of the route.
    */
-  case class TailExtractor[A](name: String, f: String => A) extends Endpoint[Seq[A]] {
+  case class TailExtractor[A](name: String, f: String => Option[A]) extends Endpoint[Seq[A]] {
     import Endpoint._
     def apply(input: Input): Option[(Input, () => Future[Output[Seq[A]]])] =
       Some((input.copy(path = Nil), () => Future.value(Output(for {
         s <- input.path
-        a <- Try(f(s)).toOption
+        a <- f(s)
       } yield a))))
 
     def apply(n: String): Endpoint[Seq[A]] = copy[A](name = n)
@@ -95,48 +97,65 @@ trait Endpoints {
     override def toString: String = s":$name*"
   }
 
-  /**
-   * A [[Endpoint]] that extract an integer value from the route.
-   */
-  object int extends Extractor("int", _.toInt)
+  private[this] def extractValue[A](f: String => A): String => Option[A] =
+    s => Try(f(s)).toOption
+
+  private[this] def extractUUID(s: String): Option[UUID] =
+    if (s.length != 36) None
+    else Try(UUID.fromString(s)).toOption
 
   /**
-   * A [[Endpoint]] that extract an integer tail from the route.
+   * An [[Endpoint]] that extract an integer value from the route.
    */
-  object ints extends TailExtractor("int", _.toInt)
+  object int extends Extractor("int", extractValue(_.toInt))
 
   /**
-   * A [[Endpoint]] that extract a long value from the route.
+   * An [[Endpoint]] that extract an integer tail from the route.
    */
-  object long extends Extractor("long", _.toLong)
+  object ints extends TailExtractor("int", extractValue(_.toInt))
 
   /**
-   * A [[Endpoint]] that extract a long tail from the route.
+   * An [[Endpoint]] that extract a long value from the route.
    */
-  object longs extends TailExtractor("long", _.toLong)
+  object long extends Extractor("long", extractValue(_.toLong))
 
   /**
-   * A [[Endpoint]] that extract a string value from the route.
+   * An [[Endpoint]] that extract a long tail from the route.
    */
-  object string extends Extractor("string", identity)
+  object longs extends TailExtractor("long", extractValue(_.toLong))
 
   /**
-   * A [[Endpoint]] that extract a string tail from the route.
+   * An [[Endpoint]] that extract a string value from the route.
    */
-  object strings extends TailExtractor("string", identity)
+  object string extends Extractor("string", s => Some(s))
 
   /**
-   * A [[Endpoint]] that extract a boolean value from the route.
+   * An [[Endpoint]] that extract a string tail from the route.
    */
-  object boolean extends Extractor("boolean", _.toBoolean)
+  object strings extends TailExtractor("string", s => Some(s))
 
   /**
-   * A [[Endpoint]] that extract a boolean tail from the route.
+   * An [[Endpoint]] that extract a boolean value from the route.
    */
-  object booleans extends TailExtractor("boolean", _.toBoolean)
+  object boolean extends Extractor("boolean", extractValue(_.toBoolean))
 
   /**
-   * A [[Endpoint]] that skips all path parts.
+   * An [[Endpoint]] that extract a boolean tail from the route.
+   */
+  object booleans extends TailExtractor("boolean", extractValue(_.toBoolean))
+
+  /**
+   * An [[Endpoint]] that extract an UUID value from the route.
+   */
+  object uuid extends Extractor("uuid", extractUUID)
+
+  /**
+   * An [[Endpoint]] that extract an UUID tail from the route.
+   */
+  object uuids extends TailExtractor("uuid", extractUUID)
+
+  /**
+   * An [[Endpoint]] that skips all path parts.
    */
   object * extends Endpoint[HNil] {
     import Endpoint._
