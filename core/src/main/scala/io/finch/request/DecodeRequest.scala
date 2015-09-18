@@ -1,6 +1,8 @@
 package io.finch.request
 
-import com.twitter.util.Try
+import java.util.UUID
+
+import com.twitter.util.{Throw, Try}
 import scala.reflect.ClassTag
 
 /**
@@ -19,22 +21,22 @@ object DecodeRequest {
   }
 
   /**
-   * A [[io.finch.request.DecodeRequest DecodeRequest]] instance for `String`.
+   * A [[DecodeRequest]] instance for `String`.
    */
   implicit val decodeString: DecodeRequest[String] = DecodeRequest { s => Try(s) }
 
   /**
-   * A [[io.finch.request.DecodeRequest DecodeRequest]] instance for `Int`.
+   * A [[DecodeRequest]] instance for `Int`.
    */
   implicit val decodeInt: DecodeRequest[Int] = DecodeRequest { s => Try(s.toInt) }
 
   /**
-   * A [[io.finch.request.DecodeRequest DecodeRequest]] instance for `Long`.
+   * A [[DecodeRequest]] instance for `Long`.
    */
   implicit val decodeLong: DecodeRequest[Long] = DecodeRequest { s => Try(s.toLong) }
 
   /**
-   * A [[io.finch.request.DecodeRequest DecodeRequest]] instance for `Float`.
+   * A [[DecodeRequest]] instance for `Float`.
    */
   implicit val decodeFloat: DecodeRequest[Float] = DecodeRequest { s => Try(s.toFloat) }
 
@@ -44,9 +46,17 @@ object DecodeRequest {
   implicit val decodeDouble: DecodeRequest[Double] = DecodeRequest { s => Try(s.toDouble) }
 
   /**
-   * A [[io.finch.request.DecodeRequest DecodeRequest]] instance for `Boolean`.
+   * A [[DecodeRequest]] instance for `Boolean`.
    */
   implicit val decodeBoolean: DecodeRequest[Boolean] = DecodeRequest { s => Try(s.toBoolean) }
+
+  /**
+   * A [[DecodeRequest]] instance for `UUID`.
+   */
+  implicit val decodeUUID: DecodeRequest[UUID] = DecodeRequest { s =>
+    if (s.length != 36) Throw(new IllegalArgumentException(s"Too long for UUID: ${s.length}"))
+    else Try(UUID.fromString(s))
+  }
 
   /**
    * Creates a [[DecodeRequest]] from [[DecodeAnyRequest ]].

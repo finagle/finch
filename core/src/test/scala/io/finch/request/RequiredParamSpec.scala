@@ -1,5 +1,7 @@
 package io.finch.request
 
+import java.util.UUID
+
 import com.twitter.finagle.httpx.Request
 import com.twitter.util.{Await, Future}
 import org.scalatest.{Matchers, FlatSpec}
@@ -55,6 +57,16 @@ class RequiredParamSpec extends FlatSpec with Matchers {
       Future.value(foo * 4)
     }
     Await.result(reader(request)) shouldBe "5555"
+  }
+
+  it should "be parsed as UUID" in {
+    val uuid = UUID.randomUUID()
+    val request: Request = Request(("foo", uuid.toString))
+    val badRequest: Request = Request(("foo", "00000000" + uuid.toString))
+
+    val p = param("foo").as[UUID]
+    Await.result(p(request)) shouldBe uuid
+    a [NotParsed] shouldBe thrownBy(Await.result(p(badRequest)))
   }
 
   "A RequiredBooleanParam" should "be parsed as a boolean" in {
