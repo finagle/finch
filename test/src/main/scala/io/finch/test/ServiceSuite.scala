@@ -27,7 +27,7 @@ trait ServiceSuite { self: FlatSpec =>
     /**
      * Apply the service and await the response.
      */
-    def apply(req: Request, timeout: Duration = Duration.fromSeconds(1)): Response =
+    def apply(req: Request, timeout: Duration = Duration.fromSeconds(5)): Response =
       Await.result(service(req), timeout)
   }
 
