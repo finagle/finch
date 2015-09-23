@@ -4,6 +4,7 @@ import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.{Cookie, Status, Request, Response}
 import com.twitter.util.Future
 import io.finch.request._
+import io.finch.response.{NotImplemented => NI}
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.function.FnToProduct
@@ -11,7 +12,7 @@ import shapeless.ops.function.FnToProduct
 /**
  * An endpoint that extracts some value of the type `A` from the given input.
  */
-trait Endpoint[A] { self =>
+abstract class Endpoint[A](exceptionHandler: PartialFunction[Throwable, Response] = { case _ => NI() }) { self =>
   import Endpoint._
 
   /**
@@ -177,9 +178,18 @@ trait Endpoint[A] { self =>
   }
 
   /**
-   * Converts this endpoint to a Finagle service `Request => Future[Response]`.
+   * Adds exception handler to this endpoint.
    */
-  def toService(implicit ts: ToService[A]): Service[Request, Response] = ts(this)
+  def withExceptionHandler(eh: PartialFunction[Throwable, Response]): Endpoint[A] =
+    new Endpoint[A](eh orElse exceptionHandler) {
+      override def apply(input: Input): Option[(Input, () => Future[Output[A]])] = self.apply(input)
+    }
+
+  /**
+   * Converts this router to a Finagle service from a request-like type `R` to a
+   * [[com.twitter.finagle.httpx.Response]].
+   */
+  def toService(implicit ts: ToService[A]): Service[Request, Response] = ts(this, exceptionHandler)
 
   private[this] def withOutput[B](fn: Output[A] => Output[B]): Endpoint[B] = new Endpoint[B] {
     def apply(input: Input): Option[(Input, () => Future[Output[B]])] =
