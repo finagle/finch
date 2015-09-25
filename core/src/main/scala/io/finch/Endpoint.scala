@@ -17,7 +17,7 @@ trait Endpoint[A] { self =>
   /**
    * Maps this endpoint to either `A => Output[B]` or `A => Output[Future[B]]`.
    */
-  def apply(mapper: Mapper[A]): Endpoint[mapper.Out] = mapper(self)
+  def apply(mapper: Mapper[A]): Endpoint.Mapped[A, mapper.Out] = mapper(self)
 
   /**
    * Extracts some value of type `A` from the given `input`.
@@ -27,13 +27,13 @@ trait Endpoint[A] { self =>
   /**
    * Maps this endpoint to the given function `A => B`.
    */
-  def map[B](fn: A => B): Endpoint[B] =
+  def map[B](fn: A => B): Endpoint.Mapped[A, B] =
     fmap(fn.andThen(Future.value))
 
   /**
    * Maps this endpoint to the given function `A => Future[B]`.
    */
-  def fmap[B](fn: A => Future[B]): Endpoint[B] = new Endpoint[B] {
+  def fmap[B](fn: A => Future[B]): Endpoint.Mapped[A, B] = new Endpoint.Mapped[A, B] {
     def apply(input: Input): Option[(Input, () => Future[Output[B]])] =
       self(input).map {
         case (remainder, output) =>
@@ -46,22 +46,24 @@ trait Endpoint[A] { self =>
           })
       }
 
+    def underlying(in: A): Future[Output[B]] = fn(in).map(Output(_))
+
     override def toString = self.toString
   }
 
   /**
    * Maps this endpoint to the given function `A => Output[B]`.
    */
-  def emap[B](fn: A => Output[B]): Endpoint[B] =
+  def emap[B](fn: A => Output[B]): Endpoint.Mapped[A, B] =
     efmap(fn.andThen(o => o.copy(value = Future.value(o.value))))
 
   /**
    * Maps this endpoint to the given function `A => Output[Future[B]]`.
    */
-  def efmap[B](fn: A => Output[Future[B]]): Endpoint[B] =
+  def efmap[B](fn: A => Output[Future[B]]): Endpoint.Mapped[A, B] =
     femap(fn.andThen(ofb => ofb.value.map(b => ofb.copy(value = b))))
 
-  def femap[B](fn: A => Future[Output[B]]): Endpoint[B] = new Endpoint[B] {
+  def femap[B](fn: A => Future[Output[B]]): Endpoint.Mapped[A, B] = new Endpoint.Mapped[A, B] {
     def apply(input: Input): Option[(Input, () => Future[Output[B]])] =
       self(input).map {
         case (remainder, output) =>
@@ -78,6 +80,8 @@ trait Endpoint[A] { self =>
             }
           })
       }
+
+    def underlying(in: A): Future[Output[B]] = fn(in)
 
     override def toString = self.toString
   }
@@ -195,6 +199,13 @@ trait Endpoint[A] { self =>
  * Provides extension methods for [[Endpoint]] to support coproduct and path syntax.
  */
 object Endpoint {
+
+  /**
+   * An [[Endpoint]] that is the result of mapping a function over another [[Endpoint]].
+   */
+  trait Mapped[In, A] extends Endpoint[A] {
+    def underlying(in: In): Future[Output[A]]
+  }
 
   /**
    * An input for [[Endpoint]].
