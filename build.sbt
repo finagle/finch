@@ -24,14 +24,14 @@ lazy val compilerOptions = Seq(
 )
 
 val testDependencies = Seq(
-  "org.scalacheck" %% "scalacheck" % "1.12.4",
+  "org.scalacheck" %% "scalacheck" % "1.12.5",
   "org.scalatest" %% "scalatest" % "2.2.5"
 )
 
 val baseSettings = Seq(
   libraryDependencies ++= Seq(
     "com.chuusai" %% "shapeless" % "2.2.5",
-    "com.twitter" %% "finagle-httpx" % "6.28.0",
+    "com.twitter" %% "finagle-httpx" % "6.29.0",
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
     compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
   ) ++ testDependencies.map(_ % "test"),
