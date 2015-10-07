@@ -70,6 +70,7 @@ Documentation
 Adopters
 --------
 * [Despegar] (http://www.despegar.com)
+* [Globo.com] (http://globo.com)
 * [Konfettin](http://konfettin.ru)
 * [JusBrasil](http://www.jusbrasil.com.br)
 * [Sabre Labs](http://sabrelabs.com)
