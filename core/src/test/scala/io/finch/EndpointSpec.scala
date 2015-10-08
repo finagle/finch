@@ -450,4 +450,16 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     val r: Endpoint0 = basicAuth("foo", "bar")(/)
     runAndAwaitValue(r, Input(Request())) shouldBe None
   }
+
+  it should "handle exceptions occurred at the endpoint" in {
+    val stopWord = "Stop, u're destroying our universe!"
+
+    val input = Input(Request())
+
+    val r1 = get(/) { 1/0 } handle {
+      case e: ArithmeticException => InternalServerError(stopWord)
+    }
+
+    runAndAwaitValue(r1, input).map(_._2) shouldBe Some(stopWord)
+  }
 }

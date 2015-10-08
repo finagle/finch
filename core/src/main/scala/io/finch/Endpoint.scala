@@ -181,6 +181,24 @@ trait Endpoint[A] { self =>
    */
   def toService(implicit ts: ToService[A]): Service[Request, Response] = ts(this)
 
+  /**
+   * Handle exception occurred at endpoint with async PartialFunction
+   */
+  def rescue[B >: A](pf: PartialFunction[Throwable, Future[Output[B]]]): Endpoint[B] =  new Endpoint[B] {
+    def apply(input: Input): Option[(Input, () => Future[Output[B]])] =
+      self(input).map {
+        case (remainder, output) =>
+          (remainder, () => output().rescue(pf))
+      }
+
+    override def toString = self.toString
+  }
+
+  /**
+   * Handle exception occurred at endpoint with PartialFunction
+   */
+  def handle[B >: A](pf: PartialFunction[Throwable, Output[B]]): Endpoint[B] = rescue(pf.andThen(Future.value))
+
   private[this] def withOutput[B](fn: Output[A] => Output[B]): Endpoint[B] = new Endpoint[B] {
     def apply(input: Input): Option[(Input, () => Future[Output[B]])] =
       self(input).map {
