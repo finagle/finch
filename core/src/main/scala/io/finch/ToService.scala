@@ -1,9 +1,9 @@
 package io.finch
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.httpx.{Request, Response}
+import com.twitter.finagle.httpx.{Request, Response, Status}
 import com.twitter.util.Future
-import io.finch.response.{EncodeResponse, NotFound => NF}
+import io.finch.response.EncodeResponse
 import shapeless.ops.coproduct.Folder
 import shapeless.{Coproduct, Poly1}
 
@@ -51,23 +51,29 @@ trait LowPriorityToServiceInstances {
       routerToService(router.map(polyCase(_)))
   }
 
+  private[this] val defaultHandler: PartialFunction[Throwable, Response] = {
+    case _ => Response(Status.InternalServerError)
+  }
+
   protected def routerToService(e: Endpoint[Response]): Service[Request, Response] =
     new Service[Request, Response] {
-       import Endpoint._
-       def apply(req: Request): Future[Response] = e(Input(req)) match {
+      import Endpoint._
+      def apply(req: Request): Future[Response] = e(Input(req)) match {
          case Some((remainder, output)) if remainder.isEmpty =>
-           output().map { o =>
+           output().map({ o =>
              val rep = o.value
              rep.status = o.status
              o.headers.foreach { case (k, v) => rep.headerMap.add(k, v) }
-             o.cookies.foreach { rep.addCookie }
+             o.cookies.foreach {
+               rep.addCookie
+             }
              o.contentType.foreach { ct => rep.contentType = ct }
              o.charset.foreach { cs => rep.charset = cs }
 
              rep
-           }
+           }).handle(e.errorHandler.orElse(defaultHandler))
 
-         case _ => NF().toFuture
+         case _ => Future.value(Response(Status.NotFound))
        }
     }
 

@@ -53,11 +53,11 @@ object endpoint extends ErrorHandling {
    * Compiles together all the endpoints relating to public service methods.
    * @return A service that contains all provided endpoints of the API.
    */
-  def makeService(db: PetstoreDb): Service[Request, Response] = handleExceptions andThen (
+  def makeService(db: PetstoreDb): Service[Request, Response] = (
     pets(db) :+:
     store(db) :+:
     users(db)
-  ).toService
+  ).handle(errorHandler).toService
 
   /**
    * The long passed in the path becomes the ID of the Pet fetched.

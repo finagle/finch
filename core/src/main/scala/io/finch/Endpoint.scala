@@ -9,7 +9,8 @@ import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.function.FnToProduct
 
 /**
- * An endpoint that extracts some value of the type `A` from the given input.
+ * An endpoint that is given an [[Endpoint.Input]], extracts some value of the type `A`, wrapped with
+ * [[Endpoint.Output]].
  */
 trait Endpoint[A] { self =>
   import Endpoint._
@@ -22,18 +23,20 @@ trait Endpoint[A] { self =>
   /**
    * Extracts some value of type `A` from the given `input`.
    */
+  // There is a reason why it can't be renamed to `run` as per https://github.com/finagle/finch/issues/371.
+  // More details are here: http://stackoverflow.com/questions/32064375/magnet-pattern-and-overloaded-methods
   def apply(input: Input): Option[(Input, () => Future[Output[A]])]
 
   /**
    * Maps this endpoint to the given function `A => B`.
    */
   def map[B](fn: A => B): Endpoint[B] =
-    fmap(fn.andThen(Future.value))
+    embedFlatMap(fn.andThen(Future.value))
 
   /**
    * Maps this endpoint to the given function `A => Future[B]`.
    */
-  def fmap[B](fn: A => Future[B]): Endpoint[B] = new Endpoint[B] {
+  def embedFlatMap[B](fn: A => Future[B]): Endpoint[B] = new Endpoint[B] {
     def apply(input: Input): Option[(Input, () => Future[Output[B]])] =
       self(input).map {
         case (remainder, output) =>
@@ -47,21 +50,25 @@ trait Endpoint[A] { self =>
       }
 
     override def toString = self.toString
+    override def errorHandler = self.errorHandler
   }
 
   /**
    * Maps this endpoint to the given function `A => Output[B]`.
    */
-  def emap[B](fn: A => Output[B]): Endpoint[B] =
+  private[finch] def emap[B](fn: A => Output[B]): Endpoint[B] =
     efmap(fn.andThen(o => o.copy(value = Future.value(o.value))))
 
   /**
    * Maps this endpoint to the given function `A => Output[Future[B]]`.
    */
-  def efmap[B](fn: A => Output[Future[B]]): Endpoint[B] =
+  private[finch] def efmap[B](fn: A => Output[Future[B]]): Endpoint[B] =
     femap(fn.andThen(ofb => ofb.value.map(b => ofb.copy(value = b))))
 
-  def femap[B](fn: A => Future[Output[B]]): Endpoint[B] = new Endpoint[B] {
+  /**
+   * Maps this endpoint to the given function `A => Future[Output[B]]`.
+   */
+  private[finch] def femap[B](fn: A => Future[Output[B]]): Endpoint[B] = new Endpoint[B] {
     def apply(input: Input): Option[(Input, () => Future[Output[B]])] =
       self(input).map {
         case (remainder, output) =>
@@ -80,6 +87,7 @@ trait Endpoint[A] { self =>
       }
 
     override def toString = self.toString
+    override def errorHandler = self.errorHandler
   }
 
   /**
@@ -107,6 +115,7 @@ trait Endpoint[A] { self =>
       }
 
     override def toString = self.toString
+    override def errorHandler = self.errorHandler
   }
 
   /**
@@ -121,6 +130,7 @@ trait Endpoint[A] { self =>
       def apply(input: Input): Option[(Input, () => Future[Output[adjoin.Out]])] = inner(input)
 
       override def toString = s"${self.toString}/${that.toString}"
+      override def errorHandler = self.errorHandler.orElse(that.errorHandler)
     }
 
   /**
@@ -140,6 +150,7 @@ trait Endpoint[A] { self =>
         }
 
       override def toString = s"${self.toString}?${that.toString}"
+      override def errorHandler = self.errorHandler
     }
 
   /**
@@ -155,13 +166,14 @@ trait Endpoint[A] { self =>
       }
 
     override def toString = s"(${self.toString}|${that.toString})"
+    override def errorHandler = self.errorHandler.orElse(that.errorHandler)
   }
 
   // A workaround for https://issues.scala-lang.org/browse/SI-1336
   def withFilter(p: A => Boolean): Endpoint[A] = self
 
   /**
-   * Compose this endpoint with another in such a way that coproducts are flattened.
+   * Composes this endpoint with another in such a way that coproducts are flattened.
    */
   def :+:[B](that: Endpoint[B])(implicit adjoin: Adjoin[B :+: A :+: CNil]): Endpoint[adjoin.Out] =
     that.map(b => adjoin(Inl[B, A :+: CNil](b))) |
@@ -189,9 +201,9 @@ trait Endpoint[A] { self =>
   def toService(implicit ts: ToService[A]): Service[Request, Response] = ts(this)
 
   /**
-   * Handle exception occurred at endpoint with async PartialFunction
+   * Rescues from any exception occurred in this endpoint.
    */
-  def rescue[B >: A](pf: PartialFunction[Throwable, Future[Output[B]]]): Endpoint[B] =  new Endpoint[B] {
+  def rescue[B >: A](pf: PartialFunction[Throwable, Future[Output[B]]]): Endpoint[B] = new Endpoint[B] {
     def apply(input: Input): Option[(Input, () => Future[Output[B]])] =
       self(input).map {
         case (remainder, output) =>
@@ -199,12 +211,22 @@ trait Endpoint[A] { self =>
       }
 
     override def toString = self.toString
+    override def errorHandler = self.errorHandler
   }
 
+  // An error handler.
+  private[finch] def errorHandler: PartialFunction[Throwable, Response] =
+    PartialFunction.empty[Throwable, Response]
+
   /**
-   * Handle exception occurred at endpoint with PartialFunction
+   * Handles any exception occurred this this endpoint.
    */
-  def handle[B >: A](pf: PartialFunction[Throwable, Output[B]]): Endpoint[B] = rescue(pf.andThen(Future.value))
+  def handle(pf: PartialFunction[Throwable, Response]): Endpoint[A] = new Endpoint[A] {
+    def apply(input: Input): Option[(Input, () => Future[Output[A]])] = self(input)
+
+    override def toString = self.toString
+    override def errorHandler = self.errorHandler.orElse(pf)
+  }
 
   private[this] def withOutput[B](fn: Output[A] => Output[B]): Endpoint[B] = new Endpoint[B] {
     def apply(input: Input): Option[(Input, () => Future[Output[B]])] =
@@ -213,6 +235,7 @@ trait Endpoint[A] { self =>
       }
 
     override def toString = self.toString
+    override def errorHandler = self.errorHandler
   }
 }
 
@@ -224,7 +247,7 @@ object Endpoint {
   /**
    * An input for [[Endpoint]].
    */
-  case class Input(request: Request, path: Seq[String]) {
+  final case class Input(request: Request, path: Seq[String]) {
     def headOption: Option[String] = path.headOption
     def drop(n: Int): Input = copy(path = path.drop(n))
     def isEmpty: Boolean = path.isEmpty
@@ -238,7 +261,7 @@ object Endpoint {
   /**
    * An output of [[Endpoint]].
    */
-  case class Output[+A](
+  final case class Output[+A](
     value: A,
     status: Status = Status.Ok,
     headers: Map[String, String] = Map.empty[String, String],
@@ -246,6 +269,7 @@ object Endpoint {
     contentType: Option[String] = None,
     charset: Option[String] = None
   ) {
+    def apply[B](value: B): Output[B] = copy(value = value)
     def withHeader(header: (String, String)): Output[A] = copy(headers = headers + header)
     def withCookie(cookie: Cookie): Output[A] = copy(cookies = cookies :+ cookie)
     def withContentType(contentType: Option[String]): Output[A] = copy(contentType = contentType)
@@ -264,31 +288,31 @@ object Endpoint {
   /**
    * Add `/>` and `/>>` compositors to `Router` to compose it with function of one argument.
    */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.9.0")
+  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
   implicit class RArrow1[A](r: Endpoint[A]) {
     def />[B](fn: A => B): Endpoint[B] = r.map(fn)
-    def />>[B](fn: A => Future[B]): Endpoint[B] = r.fmap(fn)
+    def />>[B](fn: A => Future[B]): Endpoint[B] = r.embedFlatMap(fn)
   }
 
   /**
    * Add `/>` and `/>>` compositors to `Router` to compose it with values.
    */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.9.0")
+  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
   implicit class RArrow0(r: Endpoint0) {
     def />[B](v: => B): Endpoint[B] = r.map(_ => v)
-    def />>[B](v: => Future[B]): Endpoint[B] = r.fmap(_ => v)
+    def />>[B](v: => Future[B]): Endpoint[B] = r.embedFlatMap(_ => v)
   }
 
   /**
    * Add `/>` and `/>>` compositors to `Router` to compose it with function of two arguments.
    */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.9.0")
+  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
   implicit class RArrow2[A, B](r: Endpoint2[A, B]) {
     def />[C](fn: (A, B) => C): Endpoint[C] = r.map {
       case a :: b :: HNil => fn(a, b)
     }
 
-    def />>[C](fn: (A, B) => Future[C]): Endpoint[C] = r.fmap {
+    def />>[C](fn: (A, B) => Future[C]): Endpoint[C] = r.embedFlatMap {
       case a :: b :: HNil => fn(a, b)
     }
   }
@@ -296,13 +320,13 @@ object Endpoint {
   /**
    * Add `/>` and `/>>` compositors to `Router` to compose it with function of three arguments.
    */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.9.0")
+  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
   implicit class RArrow3[A, B, C](r: Endpoint3[A, B, C]) {
     def />[D](fn: (A, B, C) => D): Endpoint[D] = r.map {
       case a :: b :: c :: HNil => fn(a, b, c)
     }
 
-    def />>[D](fn: (A, B, C) => Future[D]): Endpoint[D] = r.fmap {
+    def />>[D](fn: (A, B, C) => Future[D]): Endpoint[D] = r.embedFlatMap {
       case a :: b :: c :: HNil => fn(a, b, c)
     }
   }
@@ -310,13 +334,13 @@ object Endpoint {
   /**
    * Add `/>` and `/>>` compositors to `Router` to compose it with function of N arguments.
    */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.9.0")
+  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
   implicit class RArrowN[L <: HList](r: Endpoint[L]) {
     def />[F, I](fn: F)(implicit ftp: FnToProduct.Aux[F, L => I]): Endpoint[I] =
       r.map(ftp(fn))
 
     def />>[F, I, FI](fn: F)(
       implicit ftp: FnToProduct.Aux[F, L => FI], ev: FI <:< Future[I]
-    ): Endpoint[I] = r.fmap(value => ev(ftp(fn)(value)))
+    ): Endpoint[I] = r.embedFlatMap(value => ev(ftp(fn)(value)))
   }
 }

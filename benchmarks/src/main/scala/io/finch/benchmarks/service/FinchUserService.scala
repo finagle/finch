@@ -1,11 +1,11 @@
 package io.finch.benchmarks.service
 
 import com.twitter.finagle.httpx.{Request, Response}
-import com.twitter.finagle.{Service, SimpleFilter}
+import com.twitter.finagle.Service
 import com.twitter.util.Future
 import io.finch._
 import io.finch.request._
-import io.finch.response.{EncodeResponse, BadRequest => BR, InternalServerError => ISR}
+import io.finch.response.EncodeResponse
 
 class FinchUserService(implicit
   userDecoder: DecodeRequest[User],
@@ -41,17 +41,9 @@ class FinchUserService(implicit
     NoContent(db.update(u))
   }
 
-  val users: Service[Request, Response] = (
+  val backend: Service[Request, Response] = (
     getUsers :+: getUser :+: postUser :+: deleteUser :+: putUser
-  ).toService
-
-  val handleExceptions = new SimpleFilter[Request, Response] {
-    def apply(req: Request, service: Service[Request, Response]): Future[Response] =
-      service(req).handle {
-        case notFound @ UserNotFound(_) => BR(notFound.getMessage)
-        case _ => ISR()
-      }
-  }
-
-  val backend = handleExceptions andThen users
+  ).handle({
+    case notFound @ UserNotFound(_) => BadRequest(notFound.getMessage)
+  }).toService
 }

@@ -9,6 +9,7 @@ import com.twitter.finagle.httpx.{Cookie, Response, Status}
  * @param headers the HTTP headers map
  * @param cookies the HTTP cookies list
  */
+@deprecated("Use Endpoint.Output instead", "0.8.5")
 case class ResponseBuilder(
   status: Status,
   headers: Map[String, String] = Map.empty[String, String],

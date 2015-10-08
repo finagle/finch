@@ -248,7 +248,7 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     val a = Input(Request("/a/10"))
     var flag = false
 
-    val routerWithFailedFuture: Endpoint0 = "a".fmap { hnil =>
+    val routerWithFailedFuture: Endpoint0 = "a".embedFlatMap { hnil =>
       Future {
         flag = true
         hnil
@@ -412,7 +412,7 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
   "An embedFlatMapped endpoint" should "have the correct string representation" in {
     check { (s: String, ss: String) =>
       val matcher: Endpoint[HNil] = s
-      val router: Endpoint[String] = matcher.fmap(_ => Future.value(ss))
+      val router: Endpoint[String] = matcher.embedFlatMap(_ => Future.value(ss))
 
       router.toString === s
     }
@@ -451,16 +451,34 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     runAndAwaitValue(r, Input(Request())) shouldBe None
   }
 
-  it should "handle exceptions occurred at the endpoint" in {
-    val stopWord = "Stop, u're destroying our universe!"
-
+  it should "rescue exceptions occurred at the endpoint" in {
     val input = Input(Request())
 
-    val r1 = get(/) { 1/0 } handle {
-      case e: ArithmeticException => InternalServerError(stopWord)
+    val r1: Endpoint[Int]= get(/) { Ok(1 / 0) } rescue {
+      case e: ArithmeticException => Future.value(Ok(100))
+      case _: NullPointerException => Ok(200)
+      case _: Exception => Ok(Future.value(300))
     }
 
-    runAndAwaitValue(r1, input).map(_._2) shouldBe Some(stopWord)
+    runAndAwaitValue(r1, input) shouldBe Some((input, 100))
+  }
+
+  it should "handle exceptions occurred at the endpoint" in {
+    val e: Endpoint[String] = get("foo" / string) { s: String =>
+      if (s.length > 2) Ok(s)
+      else if (s.length == 2) throw new IllegalArgumentException("")
+      else throw new NullPointerException("")
+    } handle {
+      case _: IllegalArgumentException => BadRequest("bar")
+      case _: NullPointerException => NoContent
+    }
+
+    val s = e.toService
+
+    Await.result(s(Request("/foo/bar"))).status shouldBe Status.Ok
+    Await.result(s(Request("/foo/ba"))).status shouldBe Status.BadRequest
+    Await.result(s(Request("/foo/b"))).status shouldBe Status.NoContent
+    Await.result(s(Request("/bar"))).status shouldBe Status.NotFound
   }
 
   it should "propagate the output via / combinator" in {

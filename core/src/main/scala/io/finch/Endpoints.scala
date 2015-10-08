@@ -2,8 +2,9 @@ package io.finch
 
 import java.util.UUID
 
-import com.twitter.finagle.httpx.Method
+import com.twitter.finagle.httpx.{Response, Method}
 import com.twitter.util.{Try, Base64StringEncoder, Future}
+import io.finch.response.EncodeResponse
 import shapeless._
 
 /**
@@ -46,23 +47,23 @@ trait Endpoints {
   //
   // A group of routers that matches HTTP methods.
   //
-  @deprecated("Use method get: Endpoint[A] => Endpoint[A] instead", "0.9.0")
+  @deprecated("Use method get: Endpoint[A] => Endpoint[A] instead", "0.8.5")
   object Get extends MethodMatcher(Method.Get)
-  @deprecated("Use method post: Endpoint[A] => Endpoint[A] instead", "0.9.0")
+  @deprecated("Use method post: Endpoint[A] => Endpoint[A] instead", "0.8.5")
   object Post extends MethodMatcher(Method.Post)
-  @deprecated("Use method patch: Endpoint[A] => Endpoint[A] instead", "0.9.0")
+  @deprecated("Use method patch: Endpoint[A] => Endpoint[A] instead", "0.8.5")
   object Patch extends MethodMatcher(Method.Patch)
-  @deprecated("Use method delete: Endpoint[A] => Endpoint[A] instead", "0.9.0")
+  @deprecated("Use method delete: Endpoint[A] => Endpoint[A] instead", "0.8.5")
   object Delete extends MethodMatcher(Method.Delete)
-  @deprecated("Use method head: Endpoint[A] => Endpoint[A] instead", "0.9.0")
+  @deprecated("Use method head: Endpoint[A] => Endpoint[A] instead", "0.8.5")
   object Head extends MethodMatcher(Method.Head)
-  @deprecated("Use method options: Endpoint[A] => Endpoint[A] instead", "0.9.0")
+  @deprecated("Use method options: Endpoint[A] => Endpoint[A] instead", "0.8.5")
   object Options extends MethodMatcher(Method.Options)
-  @deprecated("Use method put: Endpoint[A] => Endpoint[A] instead", "0.9.0")
+  @deprecated("Use method put: Endpoint[A] => Endpoint[A] instead", "0.8.5")
   object Put extends MethodMatcher(Method.Put)
-  @deprecated("Use method connect: Endpoint[A] => Endpoint[A] instead", "0.9.0")
+  @deprecated("Use method connect: Endpoint[A] => Endpoint[A] instead", "0.8.5")
   object Connect extends MethodMatcher(Method.Connect)
-  @deprecated("Use method trace: Endpoint[A] => Endpoint[A] instead", "0.9.0")
+  @deprecated("Use method trace: Endpoint[A] => Endpoint[A] instead", "0.8.5")
   object Trace extends MethodMatcher(Method.Trace)
 
   /**
