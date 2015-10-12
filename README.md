@@ -22,6 +22,7 @@ Finch uses multi-project structure and contains of the following _modules_:
 * [`finch-jackson`](jackson) - the JSON API support for the [Jackson](http://jackson.codehaus.org/) library
 * [`finch-json4s`](json4s) - the JSON API support for the [JSON4S](http://json4s.org/) library
 * [`finch-circe`](circe) - the JSON API support for the [Circe](https://github.com/travisbrown/circe) library
+* [`finch-test`](test) - the test support classes/functions
 
 Installation
 ------------
