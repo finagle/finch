@@ -91,7 +91,7 @@ lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
 lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Seq(
   site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "docs"),
   git.remoteRepo := s"git@github.com:finagle/finch.git",
-  unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(benchmarks, petstore)
+  unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(benchmarks, petstore, jsonTest)
 )
 
 lazy val root = project.in(file("."))
@@ -109,7 +109,7 @@ lazy val root = project.in(file("."))
         |import io.finch.response._
       """.stripMargin
   )
-  .aggregate(core, argonaut, jackson, json4s, circe, benchmarks, petstore)
+  .aggregate(core, argonaut, jackson, json4s, circe, benchmarks, petstore, test, jsonTest)
   .dependsOn(core, circe)
 
 lazy val core = project
@@ -120,6 +120,16 @@ lazy val core = project
 lazy val test = project
   .settings(moduleName := "finch-test")
   .settings(allSettings)
+  .settings(coverageExcludedPackages := "io\\.finch\\.test\\..*")
+  .settings(
+    libraryDependencies ++= testDependencies
+  )
+  .dependsOn(core)
+
+lazy val jsonTest = project.in(file("json-test"))
+  .settings(moduleName := "finch-json-test")
+  .settings(allSettings)
+  .settings(noPublish)
   .settings(coverageExcludedPackages := "io\\.finch\\.test\\..*")
   .settings(
     libraryDependencies ++= "io.argonaut" %% "argonaut" % "6.1" +: testDependencies
@@ -141,13 +151,13 @@ lazy val argonaut = project
   .settings(moduleName := "finch-argonaut")
   .settings(allSettings)
   .settings(libraryDependencies += "io.argonaut" %% "argonaut" % "6.1")
-  .dependsOn(core, test % "test")
+  .dependsOn(core, jsonTest % "test")
 
 lazy val jackson = project
   .settings(moduleName := "finch-jackson")
   .settings(allSettings)
   .settings(libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.5.3")
-  .dependsOn(core, test % "test")
+  .dependsOn(core, jsonTest % "test")
 
 lazy val json4s = project
   .settings(moduleName := "finch-json4s")
@@ -156,7 +166,7 @@ lazy val json4s = project
     "org.json4s" %% "json4s-jackson" % "3.2.11",
     "org.json4s" %% "json4s-ext" % "3.2.11")
   )
-  .dependsOn(core, test % "test")
+  .dependsOn(core, jsonTest % "test")
 
 lazy val circe = project
   .settings(moduleName := "finch-circe")
@@ -168,7 +178,7 @@ lazy val circe = project
       "io.circe" %% "circe-generic" % "0.1.1" % "test"
     )
   )
-  .dependsOn(core, test % "test")
+  .dependsOn(core, jsonTest % "test")
 
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")

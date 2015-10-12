@@ -14,7 +14,7 @@ import org.scalatest.fixture.FlatSpec
 trait ServiceSuite { self: FlatSpec =>
 
   /**
-   * Create an instance of the service to be tested. 
+   * Create an instance of the service to be tested.
    */
   def createService(): Service[Request, Response]
 
