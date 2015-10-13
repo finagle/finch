@@ -13,10 +13,14 @@ import org.openjdk.jmh.annotations._
  * The following command will run all user service benchmarks with reasonable
  * settings:
  *
- * > sbt "benchmarks/run -i 10 -wi 10 -f 2 -t 1 io.finch.benchmarks.service.*"
+ * > sbt 'project benchmarks' 'run -prof gc io.finch.benchmarks.service.*Benchmark.*'
  */
 @State(Scope.Thread)
+@BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
+@Warmup(iterations = 10, time = 3, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 10, time = 3, timeUnit = TimeUnit.SECONDS)
+@Fork(2)
 abstract class UserServiceBenchmark(service: () => UserService)
   extends UserServiceApp(service)(8123, 2000, 10) {
   @Setup(Level.Invocation)
@@ -26,22 +30,17 @@ abstract class UserServiceBenchmark(service: () => UserService)
   def tearDown(): Unit = tearDownService()
 
   @Benchmark
-  @BenchmarkMode(Array(Mode.SingleShotTime))
   def createUsers(): Seq[Response] = Await.result(runCreateUsers)
 
   @Benchmark
-  @BenchmarkMode(Array(Mode.AverageTime))
   def getUsers(): Seq[Response] = Await.result(runGetUsers)
 
   @Benchmark
-  @BenchmarkMode(Array(Mode.SingleShotTime))
   def updateUsers(): Seq[Response] = Await.result(runUpdateUsers)
 
   @Benchmark
-  @BenchmarkMode(Array(Mode.AverageTime))
   def getAllUsers(): Response = Await.result(runGetAllUsers)
 
   @Benchmark
-  @BenchmarkMode(Array(Mode.AverageTime))
   def deleteAllUsers(): Response = Await.result(runDeleteAllUsers)
 }

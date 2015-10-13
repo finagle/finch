@@ -144,7 +144,6 @@ lazy val petstore = project
     .settings(Defaults.itSettings)
     .settings(parallelExecution in IntegrationTest := false)
     .settings(coverageExcludedPackages := "io\\.finch\\.petstore\\.PetstoreApp.*")
-    .disablePlugins(JmhPlugin)
     .dependsOn(core, argonaut, test % "test,it")
 
 lazy val argonaut = project
@@ -182,6 +181,7 @@ lazy val circe = project
 
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")
+  .enablePlugins(JmhPlugin)
   .settings(allSettings)
   .configs(IntegrationTest)
   .settings(Defaults.itSettings)
