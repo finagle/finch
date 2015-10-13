@@ -15,11 +15,14 @@ case class Foo(s: String, d: Double, i: Int, l: Long, b: Boolean)
  * The following command will run the request reader benchmarks with reasonable
  * settings:
  *
- * > sbt "benchmarks/run -i 10 -wi 10 -f 2 -t 1 io.finch.benchmarks.request.*"
+ * > sbt 'project benchmarks' 'run -prof gc io.finch.benchmarks.request.*Benchmark.*'
  */
 @State(Scope.Thread)
-@BenchmarkMode(Array(Mode.Throughput))
+@BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.SECONDS)
+@Warmup(iterations = 10, time = 3, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 10, time = 3, timeUnit = TimeUnit.SECONDS)
+@Fork(2)
 class SuccessfulRequestReaderBenchmark extends FooReadersAndRequests {
   @Benchmark
   def monadicReader: Foo = Await.result(monadicFooReader(goodFooRequest))
@@ -42,8 +45,11 @@ class SuccessfulRequestReaderBenchmark extends FooReadersAndRequests {
  * readers for invalid inputs, since it fails on the first error.
  */
 @State(Scope.Thread)
-@BenchmarkMode(Array(Mode.Throughput))
+@BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.SECONDS)
+@Warmup(iterations = 10, time = 3, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 10, time = 3, timeUnit = TimeUnit.SECONDS)
+@Fork(2)
 class FailingRequestReaderBenchmark extends FooReadersAndRequests {
   @Benchmark
   def monadicReader: Try[Foo] = Await.result(monadicFooReader(badFooRequest).liftToTry)
