@@ -1,8 +1,9 @@
 package io.finch
 
-import com.twitter.finagle.httpx.{Cookie, Method, Request}
+import com.twitter.finagle.httpx.{Cookie, Request}
+import com.twitter.finagle.httpx.exp.Multipart
+import com.twitter.finagle.httpx.exp.Multipart.FileUpload
 import com.twitter.io.Buf
-import org.jboss.netty.handler.codec.http.multipart.{Attribute, HttpPostRequestDecoder}
 
 import scala.collection.JavaConverters._
 
@@ -39,12 +40,6 @@ import scala.collection.JavaConverters._
  * }}}
  */
 package object request {
-
-  /**
-    * A type alias for a [[org.jboss.netty.handler.codec.http.multipart.FileUpload]]
-    * to prevent imports.
-    */
-  type FileUpload = org.jboss.netty.handler.codec.http.multipart.FileUpload
 
   /**
    * Representations for the various types that can be processed with [[io.finch.request.RequestReader RequestReader]]s.
@@ -84,15 +79,7 @@ package object request {
   // Helper functions.
   private[request] def requestParam(param: String)(req: Request): Option[String] =
     req.params.get(param) orElse {
-      import com.twitter.finagle.httpx.netty.Bijections._
-      val nettyReq = from(req)
-      if (req.method == Method.Post && HttpPostRequestDecoder.isMultipart(nettyReq)) {
-        val decoder = new HttpPostRequestDecoder(from(req))
-        decoder.getBodyHttpDatas.asScala.find(_.getName == param).flatMap {
-          case attr: Attribute => Some(attr.getValue)
-          case _ => None
-        }
-      } else None
+      Multipart.decodeNonChunked(req).attributes.get(param).flatMap(_.headOption)
     }
 
   private[request] def requestParams(params: String)(req: Request): Seq[String] =
@@ -108,12 +95,7 @@ package object request {
     req.cookies.get(cookie)
 
   private[request] def requestUpload(upload: String)(req: Request): Option[FileUpload] = {
-    import com.twitter.finagle.httpx.netty.Bijections._
-    val decoder = new HttpPostRequestDecoder(from(req))
-    decoder.getBodyHttpDatas.asScala.find(_.getName == upload).flatMap {
-      case file: FileUpload => Some(file)
-      case _ => None
-    }
+    Multipart.decodeNonChunked(req).files.get(upload).flatMap(_.headOption)
   }
 
   // A convenient method for internal needs.

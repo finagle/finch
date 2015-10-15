@@ -1,8 +1,9 @@
 package io.finch.petstore
 
 import com.twitter.finagle.Service
+import com.twitter.finagle.httpx.exp.Multipart.FileUpload
 import com.twitter.finagle.httpx.{Request, Response}
-import com.twitter.util.{Future}
+import com.twitter.util.Future
 import io.finch._
 import io.finch.argonaut._
 import io.finch.request._
@@ -134,7 +135,7 @@ object endpoint extends ErrorHandling {
    */
   def uploadImage(db: PetstoreDb): Endpoint[String] =
     post("pet" / long / "uploadImage" ? fileUpload("file")) { (id: Long, upload: FileUpload) =>
-      Ok(db.addImage(id, upload.get()))
+      Ok(db.addImage(id, upload.content))
     }
 
   /**
