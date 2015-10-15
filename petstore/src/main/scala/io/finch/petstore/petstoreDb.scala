@@ -1,6 +1,7 @@
 package io.finch.petstore
 
-import com.twitter.util.{Await, Future}
+import com.twitter.io.Buf
+import com.twitter.util.Future
 
 import scala.collection.mutable
 
@@ -13,7 +14,7 @@ class PetstoreDb {
   private[this] val tags = mutable.Map.empty[Long, Tag]
   private[this] val cat = mutable.Map.empty[Long, Category]
   private[this] val orders = mutable.Map.empty[Long, Order]
-  private[this] val photos = mutable.Map.empty[Long, Array[Byte]]
+  private[this] val photos = mutable.Map.empty[Long, Buf]
   private[this] val users = mutable.Map.empty[Long, User]
 
   /**
@@ -184,7 +185,7 @@ class PetstoreDb {
    * @param data The image in byte form.
    * @return The url of the uploaded photo.
    */
-  def addImage(petId: Long, data: Array[Byte]): Future[String] =
+  def addImage(petId: Long, data: Buf): Future[String] =
     pets.synchronized {
       for {
         pet <- getPet(petId)

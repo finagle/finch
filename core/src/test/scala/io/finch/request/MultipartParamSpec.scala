@@ -1,6 +1,7 @@
 package io.finch.request
 
 import com.twitter.finagle.httpx.{Request, RequestBuilder}
+import com.twitter.finagle.httpx.exp.Multipart.FileUpload
 import com.twitter.util.{Await, Future}
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -25,25 +26,25 @@ class MultipartParamSpec extends FlatSpec with Matchers {
   "A RequiredMultipartFile" should "have a filename" in {
     val request = requestFromBinaryFile("/upload.bytes")
     val futureResult: Future[FileUpload] = fileUpload("groups")(request)
-    Await.result(futureResult).getFilename shouldBe "dealwithit.gif"
+    Await.result(futureResult).fileName shouldBe "dealwithit.gif"
   }
 
   it should "have a content type" in {
     val request = requestFromBinaryFile("/upload.bytes")
     val futureResult: Future[FileUpload] = fileUpload("groups")(request)
-    Await.result(futureResult).getContentType shouldBe "image/gif"
+    Await.result(futureResult).contentType shouldBe "image/gif"
   }
 
   it should "have a size greater zero" in {
     val request = requestFromBinaryFile("/upload.bytes")
     val futureResult: Future[FileUpload] = fileUpload("groups")(request)
-    Await.result(futureResult).get.size should be > 0
+    Await.result(futureResult).content.length should be > 0
   }
 
   "An OptionalMultipartFile" should "have a filename if it exists" in {
     val request = requestFromBinaryFile("/upload.bytes")
     val futureResult: Future[Option[FileUpload]] = fileUploadOption("groups")(request)
-    Await.result(futureResult).get.getFilename shouldBe "dealwithit.gif"
+    Await.result(futureResult).get.fileName shouldBe "dealwithit.gif"
   }
 
   it should "be empty when the upload name exists but is not an upload" in {
