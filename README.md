@@ -108,6 +108,7 @@ Adopters
 * [Spright](http://spright.com)
 * [SoFi] (https://www.sofi.com/)
 * [Qubit] (http://www.qubit.com)
+* [QuizUp] (http://www.quizup.com)
 * *Submit a pull-request to include your company/project into the list*
 
 Contributing
