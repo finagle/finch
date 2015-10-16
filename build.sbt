@@ -1,5 +1,5 @@
 import sbtunidoc.Plugin.UnidocKeys._
-import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages
+import ScoverageSbtPlugin._
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
