@@ -5,8 +5,6 @@ import com.twitter.finagle.httpx.exp.Multipart
 import com.twitter.finagle.httpx.exp.Multipart.FileUpload
 import com.twitter.io.Buf
 
-import scala.collection.JavaConverters._
-
 /**
  * This package introduces types and functions that enable _request processing_ in Finch. The [[io.finch.request]]
  * primitives allow both to _read_ the various request items (''query string param'', ''header'' and ''cookie'') using

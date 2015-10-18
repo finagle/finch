@@ -20,9 +20,10 @@ Finch uses multi-project structure and contains of the following _modules_:
 * [`finch-core`](core) - the core classes/functions
 * [`finch-argonaut`](argonaut) - the JSON API support for the [Argonaut](argonaut) library
 * [`finch-jackson`](jackson) - the JSON API support for the [Jackson](jackson) library
-* [`finch-json4s`](json4s) - the JSON API support for the [JSON4S](http://json4s.org/) library
+* [`finch-json4s`](json4s) - the JSON API support for the [JSON4S](json4s) library
 * [`finch-circe`](circe) - the JSON API support for the [Circe](circe) library
 * [`finch-test`](test) - the test support classes/functions
+* [`finch-oauth2`](oauth2) - the OAuth2 support backed by the [finagle-oauth2](finagle-oauth2) library
 
 Installation
 ------------
@@ -135,5 +136,7 @@ limitations under the License.
 [service-benchmark]: https://github.com/finagle/finch/blob/master/benchmarks/src/main/scala/io/finch/benchmarks/service/UserServiceBenchmark.scala
 [finagle]: https://github.com/twitter/finagle
 [circe]: https://github.com/travisbrown/circe
-[jackson]: http://jackson.codehaus.org/
-[argonaut]: http://argonaut.io/
+[jackson]: http://jackson.codehaus.org
+[argonaut]: http://argonaut.io
+[finagle-oauth2]: https://github.com/finagle/finagle-oauth2
+[json4s]: http://json4s.org
