@@ -103,6 +103,7 @@ Adopters
 --------
 * [Despegar] (http://www.despegar.com)
 * [Globo.com] (http://globo.com)
+* [Hotel Urbano] (http://www.hotelurbano.com)
 * [Konfettin](http://konfettin.ru)
 * [JusBrasil](http://www.jusbrasil.com.br)
 * [Sabre Labs](http://sabrelabs.com)
