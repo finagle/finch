@@ -109,13 +109,12 @@ lazy val root = project.in(file("."))
         |import io.finch.response._
       """.stripMargin
   )
-  .aggregate(core, argonaut, jackson, json4s, circe, benchmarks, petstore, test, jsonTest)
+  .aggregate(core, argonaut, jackson, json4s, circe, benchmarks, petstore, test, jsonTest, oauth2)
   .dependsOn(core, circe)
 
 lazy val core = project
   .settings(moduleName := "finch-core")
   .settings(allSettings)
-  .settings(coverageExcludedPackages := "io\\.finch\\.micro\\..*")
 
 lazy val test = project
   .settings(moduleName := "finch-test")
@@ -178,6 +177,15 @@ lazy val circe = project
     )
   )
   .dependsOn(core, jsonTest % "test")
+
+lazy val oauth2 = project
+  .settings(moduleName := "finch-oauth2")
+  .settings(allSettings)
+  .settings(libraryDependencies ++= Seq(
+    "com.github.finagle" %% "finagle-oauth2" % "0.1.4",
+    "org.mockito" % "mockito-all" % "1.10.19" % "test"
+  ))
+  .dependsOn(core)
 
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")
