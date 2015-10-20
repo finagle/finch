@@ -6,7 +6,7 @@ import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.{Request, Response}
 import com.twitter.util.{Await, Base64StringEncoder, Future, Return}
 import io.finch.request.{DecodeRequest, RequestReader, param}
-import io.finch.response.EncodeResponse
+import io.finch.response.{EncodeResponse, BadRequest => BR, InternalServerError => ISE, Unauthorized => U}
 import org.scalatest.prop.Checkers
 import org.scalatest.{FlatSpec, Matchers}
 import shapeless.{:+:, ::, CNil, HNil, Inl}
@@ -321,6 +321,69 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     res2.contentString shouldBe "t"
     res3.contentString shouldBe "something"
   }
+
+  it should "be able to handle exceptions with default exception handler" in {
+    val s: Service[Request, Response] = get("exception") {
+      if (true) throw new Exception
+      else "bar"
+    }.toService
+
+    Await.result(s(Request("/exception"))).getStatusCode() shouldBe 501
+  }
+
+  it should "be able to handle exceptions with custom exception handler" in {
+    val eh: PartialFunction[Throwable, Response] = {
+      case e: IllegalArgumentException => BR()
+    }
+
+    val s: Service[Request, Response] = (
+      get("exception") {
+        if (true) throw new Exception
+        else "bar"
+      } :+:
+      get("illegalArgumentException") {
+        if (true) throw new IllegalArgumentException
+        else "bar"
+      }
+    ).withExceptionHandler(eh).toService
+
+    Await.result(s(Request("/exception"))).getStatusCode() shouldBe 501
+    Await.result(s(Request("/illegalArgumentException"))).getStatusCode() shouldBe 400
+  }
+
+  it should "be able to handle exceptions with exception handlers chain" in {
+    val eh1: PartialFunction[Throwable, Response] = {
+      case _ => ISE()
+    }
+
+    val eh2: PartialFunction[Throwable, Response] = {
+      case e: IllegalArgumentException => BR()
+    }
+
+    val eh3: PartialFunction[Throwable, Response] = {
+      case e: IllegalStateException => U()
+    }
+
+    val s: Service[Request, Response] = (
+      get("exception") {
+        if (true) throw new Exception
+        else "bar"
+      } :+:
+      get("illegalArgumentException") {
+        if (true) throw new IllegalArgumentException
+        else "bar"
+      } :+:
+        get("illegalStateException") {
+          if (true) throw new IllegalStateException()
+          else "bar"
+        }
+    ).withExceptionHandler(eh1).withExceptionHandler(eh2).withExceptionHandler(eh3).toService
+
+    Await.result(s(Request("/illegalArgumentException"))).getStatusCode() shouldBe 400
+    Await.result(s(Request("/illegalStateException"))).getStatusCode() shouldBe 401
+    Await.result(s(Request("/exception"))).getStatusCode() shouldBe 500
+  }
+
 
   it should "convert a value router into an endpoint" in {
     val s: Service[Request, Response] = get("foo") { "bar" }.toService

@@ -3,6 +3,7 @@ package io.finch
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.{Request, Response}
 import com.twitter.util.Future
+import io.finch.Endpoint.Output
 import io.finch.response.{EncodeResponse, NotFound => NF}
 import shapeless.ops.coproduct.Folder
 import shapeless.{Coproduct, Poly1}
@@ -25,7 +26,7 @@ part of ${A}).
 """
 )
 trait ToService[A] {
-  def apply(endpoint: Endpoint[A]): Service[Request, Response]
+  def apply(router: Endpoint[A], exceptionHandler: PartialFunction[Throwable, Response]): Service[Request, Response]
 }
 
 object ToService extends LowPriorityToServiceInstances {
@@ -35,8 +36,8 @@ object ToService extends LowPriorityToServiceInstances {
   implicit def coproductRouterToService[C <: Coproduct](implicit
     folder: Folder.Aux[EncodeAll.type, C, Response]
   ): ToService[C] = new ToService[C] {
-    def apply(router: Endpoint[C]): Service[Request, Response] =
-      routerToService(router.map(folder(_)))
+    def apply(router: Endpoint[C], exceptionHandler: PartialFunction[Throwable, Response]): Service[Request, Response] =
+      routerToService(router.map(folder(_)), exceptionHandler: PartialFunction[Throwable, Response])
   }
 }
 
@@ -47,11 +48,14 @@ trait LowPriorityToServiceInstances {
   implicit def valueRouterToService[A](implicit
     polyCase: EncodeAll.Case.Aux[A, Response]
   ): ToService[A] = new ToService[A] {
-    def apply(router: Endpoint[A]): Service[Request, Response] =
-      routerToService(router.map(polyCase(_)))
+    def apply(router: Endpoint[A], exceptionHandler: PartialFunction[Throwable, Response]): Service[Request, Response] =
+      routerToService(router.map(polyCase(_)), exceptionHandler)
   }
 
-  protected def routerToService(e: Endpoint[Response]): Service[Request, Response] =
+  protected def routerToService(
+    e: Endpoint[Response],
+    exceptionHandler: PartialFunction[Throwable, Response]
+  ): Service[Request, Response] =
     new Service[Request, Response] {
        import Endpoint._
        def apply(req: Request): Future[Response] = e(Input(req)) match {
@@ -65,7 +69,7 @@ trait LowPriorityToServiceInstances {
              o.charset.foreach { cs => rep.charset = cs }
 
              rep
-           }
+           }.handle(exceptionHandler)
 
          case _ => NF().toFuture
        }
