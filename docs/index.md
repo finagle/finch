@@ -2,93 +2,87 @@
   <img src="https://raw.githubusercontent.com/finagle/finch/master/finch-logo.png" width="360px" />
 </p>
 
-The Finch library provides an immutable layer of functions and types atop of [Finagle][1] for writing lightweight HTTP
-services. It roughly contains three packages: [io.finch.route](route.md), [io.finch.request](request.md),
-[io.finch.response](response.md).
+Finch is a simple library that provides an immutable layer of functions and types on top of [Finagle][finagle] for
+writing lightweight and composable HTTP services in a functional settings.
 
-#### Routing the HTTP requests
+### Look and Feel
 
-The [Router](route.md#router) abstraction routes the requests depending on their path and method information. `Router`
-combinator provides a bunch of predefined routers handling separated parts of a route. `Router`s might be composed with
-either `/` (and) or `:+:` (or) operators. It's also possible to map `Router` to either function `A => B` or
-`A => Future[B]` using the `apply` method.
+The following example creates an HTTP server (powered by Finagle) that serves the only endpoint `POST /time`. This
+endpoint takes a `Locale` instance represented as JSON in request _body_ and returns a current `Time` for this locale.
 
-```scala
-val router: Router[String] = get("users" / string) { name: String => s"Hello, $name!" }
-```
-
-#### Reading the HTTP requests
-
-The [RequestReader](request.md#request-reader) abstraction is responsible for reading any details form the HTTP request.
-`RequestReader` is composable in both ways: via the monadic API (using the for-comprehension, i.e., `flatMap`/`map`) and
-via the applicative API (using the `::` operator). These approaches define an unlimited number of readers out the plenty
-of predefined ones.
+build.sbt:
 
 ```scala
-val pagination: RequestReader[(Int, Int)] =
-  (paramOption("offset").as[Int] :: paramOption("limit").as[Int]).asTuple.map {
-    case (offset, limit) => (offset.getOrElse(0), limit.getOrElse(100))
-  }
+libraryDependencies ++= Seq(
+  "com.github.finagle" %% "finch-core" % "0.9.0",
+  "com.github.finagle" %% "finch-circe" % "0.9.0",
+  "io.circe" %% "circe-generic" % "0.2.0"
+)
 ```
 
-#### Building the HTTP responses
-
-The [ResponseBuilder](response.md#response-builder) abstraction provides a convenient way of building the HTTP responses
-of any type. In fact, `ResponseBuilder` is a function that takes some content and builds an HTTP response of a type
-depending on a content. There are plenty of predefined builders that might be used directly.
+Main.scala:
 
 ```scala
- val ok: Response = Ok("Hello, world!") // text/plain HTTP response with status code 200
+import com.twitter.finagle.Http
+import com.twitter.util.Await
+
+import io.finch._
+import io.finch.request._
+import io.finch.circe._
+import io.circe.generic.auto._
+
+object Main extends App {
+
+  case class Locale(language: String, country: String)
+  case class Time(locale: Locale, time: String)
+
+  def currentTime(l: java.util.Locale): String =
+    java.util.Calendar.getInstance(l).getTime.toString
+
+  val time: Endpoint[Time] =
+    post("time" ? body.as[Locale]) { l: Locale =>
+      Ok(Time(l, currentTime(new java.util.Locale(l.language, l.country))))
+    }
+
+  Await.ready(Http.server.serve(":8081", time.toService))
+}
 ```
 
-## Table of Contents
+### What People Say?
 
-* [Quickstart](quickstart.md)
-* [Demo](demo.md)
-* [Routes](route.md)
-    * [Overview](route.md#overview)
-    * [Built-in Routers](route.md#built-in-routers)
-      * [Matching Routers](route.md#matching-routers)
-      * [Extracting Routers](route.md#extracting-routers)
-    * [Composing Routers](route.md#composing-routers)
-    * [Endpoints](route.md#endpoints)
-    * [Coproduct Routers](route.md#coproduct-routers)
-    * [Filters and Endpoints](route.md#filters-and-endpoints)
-    * [Endpoints](endpoint.md)
-* [Requests](request.md)
-  * [Request Reader](request.md#request-reader)
-    * [Overview](request.md#overview)
-    * [API](request.md#api)
-  * [Base Readers](request.md#base-readers)
-    * [Required and Optional Readers](request.md#required-and-optional-readers)
-    * [Multi-Value Parameters](request.md#multi-value-parameters)
-    * [Custom Readers](request.md#custom-readers)
-    * [Error Handling](request.md#error-handling)
-  * [Combining and Reusing Readers](request.md#combining-and-reusing-readers)
-    * [Applicative Syntax](request.md#applicative-syntax)
-    * [Monadic Syntax](request.md#monadic-syntax)
-  * [Type Conversion](request.md#type-conversion)
-    * [Built-in Decoders](request.md#built-in-decoders)
-    * [Custom Decoders](request.md#custom-decoders)
-    * [Integration with JSON Libraries](request.md#integration-with-json-libraries)
-  * [Validation](request.md#validation)
-    * [Inline Validation](request.md#inline-validation)
-    * [Reusable Rules](request.md#reusable-validators)
-    * [Built-in Rules](request.md#built-in-rules)
-  * [A Note about Custom Request Types](request.md#a-note-about-custom-request-types)
-* [Responses](response.md)
-  * [Response Builder](response.md#response-builder)
-    * [An `EncodeResponse` Type-Class](response.md#an-encoderesponse-type-class)
-    * [Charset](response.md#charset)
-    * [Content Type](response.md#content-type)
-    * [HTTP Headers](response.md#http-headers)
-  * [HTTP Redirects](response.md#redirects)
+[@mandubian](https://twitter.com/mandubian) on [Twitter](https://twitter.com/mandubian/status/652136674353283072):
+
+> I think there is clearly room for great improvements using pure FP in Scala for HTTP API & #Finch is clearly a
+> good candidate.
+
+[@tperrigo](https://www.reddit.com/user/tperrigo) on
+[Reddit](https://www.reddit.com/r/scala/comments/3kaael/which_framework_to_use_for_development_of_a_rest/cv13vvg):
+
+> I'm currently working on a project using Finch (with [Circe][circe] to serialize my case classes to JSON without any
+> boilerplate code-- in fact, besides the import statements, I don't have to do anything to transform my results to
+> JSON) and am extremely impressed. There are still a few things in flux with Finch, but I'd recommend giving it a look.
+
+[@arnarthor](https://github.com/arnarthor) on [Gitter](https://gitter.im/finagle/finch?at=56159d7476d984a35875c13a):
+
+> I am currently re-writing a NodeJS service in Finch and the code is so much cleaner and readable and about two thirds
+> the amount of lines. Really love this.
+
+### Finch Talks/Slides
+
+* [An introduction to Finch at Scala BASE](https://rpless.github.io/finch-intro/) by
+  [@ryan_plessner](https://twitter.com/ryan_plessner) on Sep 2015
+* [Finch Workshop at FinagleCon](http://vkostyukov.ru/slides/finch-101/) by [@vkostyukov](https://twitter.com/vkostyukov)
+  on Aug 2015
+* [Finch and Shapeless at FinagleCon](https://meta.plasm.us/slides/finagle/finch-and-shapeless/) by
+  [@travisbrown](https://twitter.com/travisbrown) on Aug 2015
+
+# User Guide
+
+* [Endpoints](endpoint.md)
+* [RequestReaders](request.md)
+* [ResponseBuilders](response.md) **deprecated since 0.9.0**
 * [Authentication](auth.md)
-  * [OAuth2](auth.md#authorization-with-oauth2)
-  * [Basic Auth](auth.md#basic-http-auth)
 * [JSON](json.md)
-  * [Argonaut](json.md#argonaut)
-  * [Jackson](json.md#jackson)
-  * [JSON4S](json.md#json4s)
 
-[1]: http://twitter.github.io/finagle/
+[finagle]: http://twitter.github.io/finagle/
+[circe]: https://github.com/travisbrown/circe

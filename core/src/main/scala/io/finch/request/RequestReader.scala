@@ -11,8 +11,19 @@ import shapeless.{HNil, Generic, ::, HList}
 import scala.reflect.ClassTag
 
 /**
- * A polymorphic request reader (a reader monad) that reads a
- * [[com.twitter.util.Future]] of `A` from the request of type `R`.
+ * A `RequestReader` (a reader monad) that reads a [[Future]] of `A` from the request of type `R`. `RequestReader`s
+ * might be composed with each other using either monadic API (`flatMap` method) or applicative API (`::` method).
+ * Regardless the API used for `RequestReader`s composition, the main idea behind it is to use primitive readers (i.e.,
+ * `param`, `paramOption`) in order to _compose_ them together and _map_ to the application domain data.
+ *
+ * {{{
+ *   case class Complex(r: Double, i: Double)
+ *   val complex: RequestReader[Complex] = (
+ *     param("real").as[Double] ::
+ *     paramOption("imaginary").as[Double].withDefault(0.0)
+ *   ).as[Complex]
+ * }}}
+ *
  */
 trait RequestReader[A] { self =>
 
