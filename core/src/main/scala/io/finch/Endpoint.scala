@@ -1,7 +1,7 @@
 package io.finch
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.httpx.{Cookie, Status, Request, Response}
+import com.twitter.finagle.httpx.{Cookie, Request, Response}
 import com.twitter.util.Future
 import io.finch.request._
 import shapeless._
@@ -9,12 +9,9 @@ import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.function.FnToProduct
 
 /**
- * An endpoint that is given an [[Endpoint.Input]], extracts some value of the type `A`, wrapped with
- * [[Endpoint.Output]].
+ * An endpoint that is given an [[Input]], extracts some value of the type `A`, wrapped with [[Output]].
  */
 trait Endpoint[A] { self =>
-  import Endpoint._
-
   /**
    * Maps this endpoint to either `A => Output[B]` or `A => Output[Future[B]]`.
    */
@@ -40,30 +37,23 @@ trait Endpoint[A] { self =>
     def apply(input: Input): Option[(Input, () => Future[Output[B]])] =
       self(input).map {
         case (remainder, output) =>
-          (remainder, () => output().flatMap { oa =>
-            val fb = fn(oa.value)
-
-            fb.map { b =>
-              oa.copy(value = b)
-            }
-          })
+          (remainder, () => output().flatMap(oa => oa.traverse(a => fn(a))))
       }
 
     override def toString = self.toString
-    override def errorHandler = self.errorHandler
   }
 
   /**
    * Maps this endpoint to the given function `A => Output[B]`.
    */
   private[finch] def emap[B](fn: A => Output[B]): Endpoint[B] =
-    efmap(fn.andThen(o => o.copy(value = Future.value(o.value))))
+    femap(fn.andThen(Future.value))
 
   /**
    * Maps this endpoint to the given function `A => Output[Future[B]]`.
    */
   private[finch] def efmap[B](fn: A => Output[Future[B]]): Endpoint[B] =
-    femap(fn.andThen(ofb => ofb.value.map(b => ofb.copy(value = b))))
+    femap(fn.andThen(ofb => ofb.traverse(identity)))
 
   /**
    * Maps this endpoint to the given function `A => Future[Output[B]]`.
@@ -73,21 +63,20 @@ trait Endpoint[A] { self =>
       self(input).map {
         case (remainder, output) =>
           (remainder, () => output().flatMap { oa =>
-            val fob = fn(oa.value)
+            val fob = oa.traverse(fn).map(oob => oob.flatten)
 
             fob.map { ob =>
-              ob.copy(
-                headers = oa.headers ++ ob.headers,
-                cookies = oa.cookies ++ ob.cookies,
-                contentType = oa.contentType.orElse(ob.contentType),
-                charset = oa.charset.orElse(ob.charset)
-              )
+              val ob0 = ob.withContentType(oa.contentType.orElse(ob.contentType))
+                          .withCharset(oa.charset.orElse(ob.charset))
+              val ob1 = oa.headers.foldLeft(ob0)((acc, x) => acc.withHeader(x))
+              val ob2 = oa.cookies.foldLeft(ob1)((acc, x) => acc.withCookie(x))
+
+              ob2
             }
           })
       }
 
     override def toString = self.toString
-    override def errorHandler = self.errorHandler
   }
 
   /**
@@ -98,24 +87,13 @@ trait Endpoint[A] { self =>
       self(input).flatMap {
         case (remainder1, outputA) => fn(remainder1).map {
           case (remainder2, outputF) =>
-            (
-              remainder2,
-              () => outputA().join(outputF()).map {
-                case (oa, of) =>
-                  val ob = of.copy(value = of.value(oa.value))
-                  ob.copy(
-                    headers = oa.headers ++ of.headers,
-                    cookies = oa.cookies ++ of.cookies,
-                    contentType = oa.contentType.orElse(of.contentType),
-                    charset = oa.charset.orElse(of.charset)
-                  )
-              }
-            )
+            (remainder2, () => outputA().join(outputF()).map {
+              case (oa, of) => oa.flatMap(a => of.map(f => f(a)))
+            })
         }
       }
 
     override def toString = self.toString
-    override def errorHandler = self.errorHandler
   }
 
   /**
@@ -130,7 +108,6 @@ trait Endpoint[A] { self =>
       def apply(input: Input): Option[(Input, () => Future[Output[adjoin.Out]])] = inner(input)
 
       override def toString = s"${self.toString}/${that.toString}"
-      override def errorHandler = self.errorHandler.orElse(that.errorHandler)
     }
 
   /**
@@ -141,16 +118,12 @@ trait Endpoint[A] { self =>
       def apply(input: Input): Option[(Input, () => Future[Output[adjoin.Out]])] =
         self(input).map {
           case (remainder, output) =>
-            (
-              remainder,
-              () =>  output().join(that(input.request)).map {
-                case (a, b) => a.copy(value = adjoin(a.value, b))
-              }
-            )
+            (remainder, () =>  output().join(that(input.request)).map {
+                case (oa, b) => oa.map(a => adjoin(a, b))
+            })
         }
 
       override def toString = s"${self.toString}?${that.toString}"
-      override def errorHandler = self.errorHandler
     }
 
   /**
@@ -166,7 +139,6 @@ trait Endpoint[A] { self =>
       }
 
     override def toString = s"(${self.toString}|${that.toString})"
-    override def errorHandler = self.errorHandler.orElse(that.errorHandler)
   }
 
   // A workaround for https://issues.scala-lang.org/browse/SI-1336
@@ -179,21 +151,10 @@ trait Endpoint[A] { self =>
     that.map(b => adjoin(Inl[B, A :+: CNil](b))) |
     self.map(a => adjoin(Inr[B, A :+: CNil](Inl[A, CNil](a))))
 
-  def withHeader(header: (String, String)): Endpoint[A] = withOutput { o =>
-    o.copy(headers = o.headers + header)
-  }
-
-  def withContentType(contentType: Option[String]): Endpoint[A] = withOutput { o =>
-    o.copy(contentType = contentType)
-  }
-
-  def withCharset(charset: Option[String]): Endpoint[A] = withOutput { o =>
-    o.copy(charset = charset)
-  }
-
-  def withCookie(cookie: Cookie): Endpoint[A] = withOutput { o =>
-    o.copy(cookies = o.cookies :+ cookie)
-  }
+  def withHeader(header: (String, String)): Endpoint[A] = withOutput(o => o.withHeader(header))
+  def withContentType(contentType: Option[String]): Endpoint[A] = withOutput(o => o.withContentType(contentType))
+  def withCharset(charset: Option[String]): Endpoint[A] = withOutput(o => o.withCharset(charset))
+  def withCookie(cookie: Cookie): Endpoint[A] = withOutput(o => o.withCookie(cookie))
 
   /**
    * Converts this endpoint to a Finagle service `Request => Future[Response]`.
@@ -201,7 +162,8 @@ trait Endpoint[A] { self =>
   def toService(implicit ts: ToService[A]): Service[Request, Response] = ts(this)
 
   /**
-   * Rescues from any exception occurred in this endpoint.
+   * Recovers from any exception occurred in this endpoint by creating a new endpoint that will handle any matching
+   * throwable from the underlying future.
    */
   def rescue[B >: A](pf: PartialFunction[Throwable, Future[Output[B]]]): Endpoint[B] = new Endpoint[B] {
     def apply(input: Input): Option[(Input, () => Future[Output[B]])] =
@@ -211,22 +173,13 @@ trait Endpoint[A] { self =>
       }
 
     override def toString = self.toString
-    override def errorHandler = self.errorHandler
   }
-
-  // An error handler.
-  private[finch] def errorHandler: PartialFunction[Throwable, Response] =
-    PartialFunction.empty[Throwable, Response]
 
   /**
-   * Handles any exception occurred this this endpoint.
+   * Recovers from any exception occurred in this endpoint by creating a new endpoint that will handle any matching
+   * throwable from the underlying future.
    */
-  def handle(pf: PartialFunction[Throwable, Response]): Endpoint[A] = new Endpoint[A] {
-    def apply(input: Input): Option[(Input, () => Future[Output[A]])] = self(input)
-
-    override def toString = self.toString
-    override def errorHandler = self.errorHandler.orElse(pf)
-  }
+  def handle[B >: A](pf: PartialFunction[Throwable, Output[B]]): Endpoint[B] = rescue(pf.andThen(Future.value))
 
   private[this] def withOutput[B](fn: Output[A] => Output[B]): Endpoint[B] = new Endpoint[B] {
     def apply(input: Input): Option[(Input, () => Future[Output[B]])] =
@@ -235,7 +188,6 @@ trait Endpoint[A] { self =>
       }
 
     override def toString = self.toString
-    override def errorHandler = self.errorHandler
   }
 }
 
@@ -243,42 +195,6 @@ trait Endpoint[A] { self =>
  * Provides extension methods for [[Endpoint]] to support coproduct and path syntax.
  */
 object Endpoint {
-
-  /**
-   * An input for [[Endpoint]].
-   */
-  final case class Input(request: Request, path: Seq[String]) {
-    def headOption: Option[String] = path.headOption
-    def drop(n: Int): Input = copy(path = path.drop(n))
-    def isEmpty: Boolean = path.isEmpty
-  }
-
-  /**
-   * Creates an input for [[Endpoint]] from [[Request]].
-   */
-  def Input(req: Request): Input = Input(req, req.path.split("/").toList.drop(1))
-
-  /**
-   * An output of [[Endpoint]].
-   */
-  final case class Output[+A](
-    value: A,
-    status: Status = Status.Ok,
-    headers: Map[String, String] = Map.empty[String, String],
-    cookies: Seq[Cookie] = Seq.empty[Cookie],
-    contentType: Option[String] = None,
-    charset: Option[String] = None
-  ) {
-    def apply[B](value: B): Output[B] = copy(value = value)
-    def withHeader(header: (String, String)): Output[A] = copy(headers = headers + header)
-    def withCookie(cookie: Cookie): Output[A] = copy(cookies = cookies :+ cookie)
-    def withContentType(contentType: Option[String]): Output[A] = copy(contentType = contentType)
-    def withCharset(charset: Option[String]): Output[A] = copy(charset = charset)
-  }
-
-  object Output {
-    val HNil: Output[HNil] = Output(shapeless.HNil)
-  }
 
   /**
    * Creates an [[Endpoint]] from the given [[Output]].

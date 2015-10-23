@@ -4,6 +4,7 @@ import java.util.UUID
 
 import com.twitter.finagle.Service
 import com.twitter.finagle.httpx.{Request, Response, Status}
+import com.twitter.io.Buf
 import com.twitter.util.{Await, Base64StringEncoder, Future, Return}
 import io.finch.request.{DecodeRequest, RequestReader, param}
 import io.finch.response.EncodeResponse
@@ -12,7 +13,10 @@ import org.scalatest.{FlatSpec, Matchers}
 import shapeless.{:+:, ::, CNil, HNil, Inl}
 
 class EndpointSpec extends FlatSpec with Matchers with Checkers {
-  import Endpoint._
+  implicit val encodeErr: EncodeResponse[Map[String, String]] =
+    EncodeResponse("application/json")(err =>
+      Buf.Utf8(err.toSeq.map(kv => "\"" + kv._1 + "\":\"" + kv._2 + "\"").mkString(", "))
+    )
 
   val route = Input(Request("/a/1/b/2"))
   val emptyRoute = Input(Request())
@@ -337,10 +341,10 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
   }
 
   it should "maps with Mapper" in {
-    val r1: Endpoint[Int] = Endpoint(Output(100))
+    val r1: Endpoint[Int] = Endpoint(Ok(100))
     val r2: Endpoint[String] = r1 { i: Int => i.toString }
     val r3: Endpoint[String] = r1 { i: Int => Future.value(i.toString) }
-    val r4: Endpoint2[Int, Int] = Endpoint(Output(10)) / Endpoint(Output(100))
+    val r4: Endpoint2[Int, Int] = Endpoint(Ok(10)) / Endpoint(Ok(100))
     val r5: Endpoint[Int] = r4 { (a: Int, b: Int) => a + b }
     val r6: Endpoint[Int] = r4 { (a: Int, b: Int) => Future.value(a + b) }
     val r7: Endpoint0 = /
@@ -452,33 +456,22 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
   }
 
   it should "rescue exceptions occurred at the endpoint" in {
-    val input = Input(Request())
-
-    val r1: Endpoint[Int]= get(/) { Ok(1 / 0) } rescue {
-      case e: ArithmeticException => Future.value(Ok(100))
-      case _: NullPointerException => Ok(200)
-      case _: Exception => Ok(Future.value(300))
-    }
-
-    runAndAwaitValue(r1, input) shouldBe Some((input, 100))
-  }
-
-  it should "handle exceptions occurred at the endpoint" in {
-    val e: Endpoint[String] = get("foo" / string) { s: String =>
-      if (s.length > 2) Ok(s)
-      else if (s.length == 2) throw new IllegalArgumentException("")
-      else throw new NullPointerException("")
+    val e: Endpoint[String] = get(int) { i: Int =>
+      if (i > 0) Ok(i.toString)
+      else if (i < 0) BadRequest("err" -> "foo")
+      else Ok((i / 0).toString)
     } handle {
-      case _: IllegalArgumentException => BadRequest("bar")
-      case _: NullPointerException => NoContent
+      case _: ArithmeticException => BadRequest("err" -> "bar")
     }
 
-    val s = e.toService
+    val i1 = Input(Request("/10"))
+    runAndAwaitValue(e, i1) shouldBe Some((i1.drop(1), "10"))
 
-    Await.result(s(Request("/foo/bar"))).status shouldBe Status.Ok
-    Await.result(s(Request("/foo/ba"))).status shouldBe Status.BadRequest
-    Await.result(s(Request("/foo/b"))).status shouldBe Status.NoContent
-    Await.result(s(Request("/bar"))).status shouldBe Status.NotFound
+    val i2 = Input(Request("/-10"))
+    an [IllegalArgumentException] shouldBe thrownBy(runAndAwaitValue(e, i2))
+
+    val i3 = Input(Request("/0"))
+    an [IllegalArgumentException] shouldBe thrownBy(runAndAwaitValue(e, i3))
   }
 
   it should "propagate the output via / combinator" in {

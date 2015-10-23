@@ -2,9 +2,8 @@ package io.finch
 
 import java.util.UUID
 
-import com.twitter.finagle.httpx.{Response, Method}
+import com.twitter.finagle.httpx.Method
 import com.twitter.util.{Try, Base64StringEncoder, Future}
-import io.finch.response.EncodeResponse
 import shapeless._
 
 /**
@@ -19,7 +18,6 @@ trait Endpoints {
    * An universal [[Endpoint]] that matches the given string.
    */
   private[finch] class Matcher(s: String) extends Endpoint[HNil] {
-    import Endpoint._
     def apply(input: Input): Option[(Input, () => Future[Output[HNil]])] =
       input.headOption.collect(
         { case `s` => () => Future.value(Output.HNil) }
@@ -36,12 +34,11 @@ trait Endpoints {
    * A [[Endpoint]] that matches the given HTTP method.
    */
   private[finch] class MethodMatcher(m: Method) extends Endpoint[HNil] {
-    import Endpoint._
     def apply(input: Input): Option[(Input, () => Future[Output[HNil]])] =
       if (input.request.method == m) Some((input, () => Future.value(Output.HNil)))
       else None
 
-    override def toString: String = s"${m.toString.toUpperCase}"
+    override def toString: String = s"${m.toString().toUpperCase}"
   }
 
   //
@@ -70,12 +67,11 @@ trait Endpoints {
    * An universal extractor that extracts some value of type `A` if it's possible to fetch the value from the string.
    */
   case class Extractor[A](name: String, f: String => Option[A]) extends Endpoint[A] {
-    import Endpoint._
     def apply(input: Input): Option[(Input, () => Future[Output[A]])] =
       for {
         ss <- input.headOption
         aa <- f(ss)
-      } yield (input.drop(1), () => Future.value(Output(aa)))
+      } yield (input.drop(1), () => Future.value(Output.Payload(aa)))
 
     def apply(n: String): Endpoint[A] = copy[A](name = n)
 
@@ -86,9 +82,8 @@ trait Endpoints {
    * An extractor that extracts a value of type `Seq[A]` from the tail of the route.
    */
   case class TailExtractor[A](name: String, f: String => Option[A]) extends Endpoint[Seq[A]] {
-    import Endpoint._
     def apply(input: Input): Option[(Input, () => Future[Output[Seq[A]]])] =
-      Some((input.copy(path = Nil), () => Future.value(Output(for {
+      Some((input.copy(path = Nil), () => Future.value(Output.Payload(for {
         s <- input.path
         a <- f(s)
       } yield a))))
@@ -159,7 +154,6 @@ trait Endpoints {
    * An [[Endpoint]] that skips all path parts.
    */
   object * extends Endpoint[HNil] {
-    import Endpoint._
     def apply(input: Input): Option[(Input, () => Future[Output[HNil]])] =
       Some((input.copy(path = Nil), () => Future.value(Output.HNil)))
 
@@ -170,7 +164,6 @@ trait Endpoints {
    * An identity [[Endpoint]].
    */
   object / extends Endpoint[HNil] {
-    import Endpoint._
     def apply(input: Input): Option[(Input, () => Future[Output[HNil]])] =
       Some((input, () => Future.value(Output.HNil)))
 
@@ -178,12 +171,11 @@ trait Endpoints {
   }
 
   private[this] def method[A](m: Method)(r: Endpoint[A]): Endpoint[A] = new Endpoint[A] {
-    import Endpoint._
     def apply(input: Input): Option[(Input, () => Future[Output[A]])] =
       if (input.request.method == m) r(input)
       else None
 
-    override def toString: String = s"${m.toString.toUpperCase} /${r.toString}"
+    override def toString: String = s"${m.toString().toUpperCase} /${r.toString}"
   }
 
   /**
@@ -249,7 +241,6 @@ trait Endpoints {
     val expected = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
 
     new Endpoint[A] {
-      import Endpoint._
       def apply(input: Input): Option[(Input, () => Future[Output[A]])] =
         input.request.authorization.flatMap {
           case `expected` => r(input)

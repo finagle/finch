@@ -4,8 +4,6 @@ import com.twitter.util.Future
 import shapeless.HNil
 import shapeless.ops.function.FnToProduct
 
-import io.finch.Endpoint._
-
 /**
  * A type class that allows the [[Endpoint]] to be mapped to either `A => B` or `A => Future[B]`.
  */
