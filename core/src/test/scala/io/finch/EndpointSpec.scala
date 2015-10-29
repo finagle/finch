@@ -3,7 +3,7 @@ package io.finch
 import java.util.UUID
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.httpx.{Request, Response}
+import com.twitter.finagle.httpx.{Request, Response, Status}
 import com.twitter.util.{Await, Base64StringEncoder, Future, Return}
 import io.finch.request.{DecodeRequest, RequestReader, param}
 import io.finch.response.EncodeResponse
@@ -461,5 +461,20 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     }
 
     runAndAwaitValue(r1, input).map(_._2) shouldBe Some(stopWord)
+  }
+
+  it should "propagate the output via / combinator" in {
+    val e1 = get("foo" / string) { s: String => Created(s).withHeader("X" -> "Y") }
+    val e2 = get("bar" / string) { s: String => Future.value(Created(s).withHeader("X" -> "Y")) }
+    val e3 = get("baz" / string) { s: String => Created(Future.value(s)).withHeader("X" -> "Y") }
+
+    val s = ("prefix" / (e1 :+: e2 :+: e3)).toService
+
+    for (req <- Seq("/prefix/foo/1", "/prefix/bar/1", "/prefix/baz/1")) {
+      val rep = Await.result(s(Request(req)))
+      rep.status shouldBe Status.Created
+      rep.headerMap.get("X") shouldBe Some("Y")
+      rep.contentString shouldBe "1"
+    }
   }
 }

@@ -93,7 +93,14 @@ trait Endpoint[A] { self =>
             (
               remainder2,
               () => outputA().join(outputF()).map {
-                case (a, f) => a.copy(value = f.value(a.value))
+                case (oa, of) =>
+                  val ob = of.copy(value = of.value(oa.value))
+                  ob.copy(
+                    headers = oa.headers ++ of.headers,
+                    cookies = oa.cookies ++ of.cookies,
+                    contentType = oa.contentType.orElse(of.contentType),
+                    charset = oa.charset.orElse(of.charset)
+                  )
               }
             )
         }
