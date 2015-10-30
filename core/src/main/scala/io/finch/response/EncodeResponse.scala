@@ -1,11 +1,7 @@
 package io.finch.response
 
-import com.twitter.finagle.Service
-import com.twitter.finagle.httpx.Response
 import com.twitter.io.Buf
 import com.twitter.io.Buf.Utf8
-import com.twitter.util.Future
-import io.finch._
 
 /**
  * An abstraction that is responsible for encoding the response of type `A`.

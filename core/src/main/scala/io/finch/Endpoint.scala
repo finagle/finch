@@ -1,7 +1,7 @@
 package io.finch
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.httpx.{Cookie, Status, Request, Response}
+import com.twitter.finagle.httpx.{Cookie, Request, Response}
 import com.twitter.util.Future
 import io.finch.request._
 import shapeless._
@@ -9,11 +9,9 @@ import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.function.FnToProduct
 
 /**
- * An endpoint that extracts some value of the type `A` from the given input.
+ * An endpoint that is given an [[Input]], extracts some value of the type `A`, wrapped with [[Output]].
  */
 trait Endpoint[A] { self =>
-  import Endpoint._
-
   /**
    * Maps this endpoint to either `A => Output[B]` or `A => Output[Future[B]]`.
    */
@@ -22,28 +20,24 @@ trait Endpoint[A] { self =>
   /**
    * Extracts some value of type `A` from the given `input`.
    */
+  // There is a reason why it can't be renamed to `run` as per https://github.com/finagle/finch/issues/371.
+  // More details are here: http://stackoverflow.com/questions/32064375/magnet-pattern-and-overloaded-methods
   def apply(input: Input): Option[(Input, () => Future[Output[A]])]
 
   /**
    * Maps this endpoint to the given function `A => B`.
    */
   def map[B](fn: A => B): Endpoint[B] =
-    fmap(fn.andThen(Future.value))
+    embedFlatMap(fn.andThen(Future.value))
 
   /**
    * Maps this endpoint to the given function `A => Future[B]`.
    */
-  def fmap[B](fn: A => Future[B]): Endpoint[B] = new Endpoint[B] {
+  def embedFlatMap[B](fn: A => Future[B]): Endpoint[B] = new Endpoint[B] {
     def apply(input: Input): Option[(Input, () => Future[Output[B]])] =
       self(input).map {
         case (remainder, output) =>
-          (remainder, () => output().flatMap { oa =>
-            val fb = fn(oa.value)
-
-            fb.map { b =>
-              oa.copy(value = b)
-            }
-          })
+          (remainder, () => output().flatMap(oa => oa.traverse(a => fn(a))))
       }
 
     override def toString = self.toString
@@ -52,29 +46,32 @@ trait Endpoint[A] { self =>
   /**
    * Maps this endpoint to the given function `A => Output[B]`.
    */
-  def emap[B](fn: A => Output[B]): Endpoint[B] =
-    efmap(fn.andThen(o => o.copy(value = Future.value(o.value))))
+  private[finch] def emap[B](fn: A => Output[B]): Endpoint[B] =
+    femap(fn.andThen(Future.value))
 
   /**
    * Maps this endpoint to the given function `A => Output[Future[B]]`.
    */
-  def efmap[B](fn: A => Output[Future[B]]): Endpoint[B] =
-    femap(fn.andThen(ofb => ofb.value.map(b => ofb.copy(value = b))))
+  private[finch] def efmap[B](fn: A => Output[Future[B]]): Endpoint[B] =
+    femap(fn.andThen(ofb => ofb.traverse(identity)))
 
-  def femap[B](fn: A => Future[Output[B]]): Endpoint[B] = new Endpoint[B] {
+  /**
+   * Maps this endpoint to the given function `A => Future[Output[B]]`.
+   */
+  private[finch] def femap[B](fn: A => Future[Output[B]]): Endpoint[B] = new Endpoint[B] {
     def apply(input: Input): Option[(Input, () => Future[Output[B]])] =
       self(input).map {
         case (remainder, output) =>
           (remainder, () => output().flatMap { oa =>
-            val fob = fn(oa.value)
+            val fob = oa.traverse(fn).map(oob => oob.flatten)
 
             fob.map { ob =>
-              ob.copy(
-                headers = oa.headers ++ ob.headers,
-                cookies = oa.cookies ++ ob.cookies,
-                contentType = oa.contentType.orElse(ob.contentType),
-                charset = oa.charset.orElse(ob.charset)
-              )
+              val ob0 = ob.withContentType(oa.contentType.orElse(ob.contentType))
+                          .withCharset(oa.charset.orElse(ob.charset))
+              val ob1 = oa.headers.foldLeft(ob0)((acc, x) => acc.withHeader(x))
+              val ob2 = oa.cookies.foldLeft(ob1)((acc, x) => acc.withCookie(x))
+
+              ob2
             }
           })
       }
@@ -90,19 +87,9 @@ trait Endpoint[A] { self =>
       self(input).flatMap {
         case (remainder1, outputA) => fn(remainder1).map {
           case (remainder2, outputF) =>
-            (
-              remainder2,
-              () => outputA().join(outputF()).map {
-                case (oa, of) =>
-                  val ob = of.copy(value = of.value(oa.value))
-                  ob.copy(
-                    headers = oa.headers ++ of.headers,
-                    cookies = oa.cookies ++ of.cookies,
-                    contentType = oa.contentType.orElse(of.contentType),
-                    charset = oa.charset.orElse(of.charset)
-                  )
-              }
-            )
+            (remainder2, () => outputA().join(outputF()).map {
+              case (oa, of) => oa.flatMap(a => of.map(f => f(a)))
+            })
         }
       }
 
@@ -131,12 +118,9 @@ trait Endpoint[A] { self =>
       def apply(input: Input): Option[(Input, () => Future[Output[adjoin.Out]])] =
         self(input).map {
           case (remainder, output) =>
-            (
-              remainder,
-              () =>  output().join(that(input.request)).map {
-                case (a, b) => a.copy(value = adjoin(a.value, b))
-              }
-            )
+            (remainder, () =>  output().join(that(input.request)).map {
+                case (oa, b) => oa.map(a => adjoin(a, b))
+            })
         }
 
       override def toString = s"${self.toString}?${that.toString}"
@@ -161,27 +145,16 @@ trait Endpoint[A] { self =>
   def withFilter(p: A => Boolean): Endpoint[A] = self
 
   /**
-   * Compose this endpoint with another in such a way that coproducts are flattened.
+   * Composes this endpoint with another in such a way that coproducts are flattened.
    */
   def :+:[B](that: Endpoint[B])(implicit adjoin: Adjoin[B :+: A :+: CNil]): Endpoint[adjoin.Out] =
     that.map(b => adjoin(Inl[B, A :+: CNil](b))) |
     self.map(a => adjoin(Inr[B, A :+: CNil](Inl[A, CNil](a))))
 
-  def withHeader(header: (String, String)): Endpoint[A] = withOutput { o =>
-    o.copy(headers = o.headers + header)
-  }
-
-  def withContentType(contentType: Option[String]): Endpoint[A] = withOutput { o =>
-    o.copy(contentType = contentType)
-  }
-
-  def withCharset(charset: Option[String]): Endpoint[A] = withOutput { o =>
-    o.copy(charset = charset)
-  }
-
-  def withCookie(cookie: Cookie): Endpoint[A] = withOutput { o =>
-    o.copy(cookies = o.cookies :+ cookie)
-  }
+  def withHeader(header: (String, String)): Endpoint[A] = withOutput(o => o.withHeader(header))
+  def withContentType(contentType: Option[String]): Endpoint[A] = withOutput(o => o.withContentType(contentType))
+  def withCharset(charset: Option[String]): Endpoint[A] = withOutput(o => o.withCharset(charset))
+  def withCookie(cookie: Cookie): Endpoint[A] = withOutput(o => o.withCookie(cookie))
 
   /**
    * Converts this endpoint to a Finagle service `Request => Future[Response]`.
@@ -189,9 +162,10 @@ trait Endpoint[A] { self =>
   def toService(implicit ts: ToService[A]): Service[Request, Response] = ts(this)
 
   /**
-   * Handle exception occurred at endpoint with async PartialFunction
+   * Recovers from any exception occurred in this endpoint by creating a new endpoint that will handle any matching
+   * throwable from the underlying future.
    */
-  def rescue[B >: A](pf: PartialFunction[Throwable, Future[Output[B]]]): Endpoint[B] =  new Endpoint[B] {
+  def rescue[B >: A](pf: PartialFunction[Throwable, Future[Output[B]]]): Endpoint[B] = new Endpoint[B] {
     def apply(input: Input): Option[(Input, () => Future[Output[B]])] =
       self(input).map {
         case (remainder, output) =>
@@ -202,7 +176,8 @@ trait Endpoint[A] { self =>
   }
 
   /**
-   * Handle exception occurred at endpoint with PartialFunction
+   * Recovers from any exception occurred in this endpoint by creating a new endpoint that will handle any matching
+   * throwable from the underlying future.
    */
   def handle[B >: A](pf: PartialFunction[Throwable, Output[B]]): Endpoint[B] = rescue(pf.andThen(Future.value))
 
@@ -222,41 +197,6 @@ trait Endpoint[A] { self =>
 object Endpoint {
 
   /**
-   * An input for [[Endpoint]].
-   */
-  case class Input(request: Request, path: Seq[String]) {
-    def headOption: Option[String] = path.headOption
-    def drop(n: Int): Input = copy(path = path.drop(n))
-    def isEmpty: Boolean = path.isEmpty
-  }
-
-  /**
-   * Creates an input for [[Endpoint]] from [[Request]].
-   */
-  def Input(req: Request): Input = Input(req, req.path.split("/").toList.drop(1))
-
-  /**
-   * An output of [[Endpoint]].
-   */
-  case class Output[+A](
-    value: A,
-    status: Status = Status.Ok,
-    headers: Map[String, String] = Map.empty[String, String],
-    cookies: Seq[Cookie] = Seq.empty[Cookie],
-    contentType: Option[String] = None,
-    charset: Option[String] = None
-  ) {
-    def withHeader(header: (String, String)): Output[A] = copy(headers = headers + header)
-    def withCookie(cookie: Cookie): Output[A] = copy(cookies = cookies :+ cookie)
-    def withContentType(contentType: Option[String]): Output[A] = copy(contentType = contentType)
-    def withCharset(charset: Option[String]): Output[A] = copy(charset = charset)
-  }
-
-  object Output {
-    val HNil: Output[HNil] = Output(shapeless.HNil)
-  }
-
-  /**
    * Creates an [[Endpoint]] from the given [[Output]].
    */
   def apply[A](mapper: Mapper[HNil]): Endpoint[mapper.Out] = mapper(/)
@@ -264,31 +204,31 @@ object Endpoint {
   /**
    * Add `/>` and `/>>` compositors to `Router` to compose it with function of one argument.
    */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.9.0")
+  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
   implicit class RArrow1[A](r: Endpoint[A]) {
     def />[B](fn: A => B): Endpoint[B] = r.map(fn)
-    def />>[B](fn: A => Future[B]): Endpoint[B] = r.fmap(fn)
+    def />>[B](fn: A => Future[B]): Endpoint[B] = r.embedFlatMap(fn)
   }
 
   /**
    * Add `/>` and `/>>` compositors to `Router` to compose it with values.
    */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.9.0")
+  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
   implicit class RArrow0(r: Endpoint0) {
     def />[B](v: => B): Endpoint[B] = r.map(_ => v)
-    def />>[B](v: => Future[B]): Endpoint[B] = r.fmap(_ => v)
+    def />>[B](v: => Future[B]): Endpoint[B] = r.embedFlatMap(_ => v)
   }
 
   /**
    * Add `/>` and `/>>` compositors to `Router` to compose it with function of two arguments.
    */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.9.0")
+  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
   implicit class RArrow2[A, B](r: Endpoint2[A, B]) {
     def />[C](fn: (A, B) => C): Endpoint[C] = r.map {
       case a :: b :: HNil => fn(a, b)
     }
 
-    def />>[C](fn: (A, B) => Future[C]): Endpoint[C] = r.fmap {
+    def />>[C](fn: (A, B) => Future[C]): Endpoint[C] = r.embedFlatMap {
       case a :: b :: HNil => fn(a, b)
     }
   }
@@ -296,13 +236,13 @@ object Endpoint {
   /**
    * Add `/>` and `/>>` compositors to `Router` to compose it with function of three arguments.
    */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.9.0")
+  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
   implicit class RArrow3[A, B, C](r: Endpoint3[A, B, C]) {
     def />[D](fn: (A, B, C) => D): Endpoint[D] = r.map {
       case a :: b :: c :: HNil => fn(a, b, c)
     }
 
-    def />>[D](fn: (A, B, C) => Future[D]): Endpoint[D] = r.fmap {
+    def />>[D](fn: (A, B, C) => Future[D]): Endpoint[D] = r.embedFlatMap {
       case a :: b :: c :: HNil => fn(a, b, c)
     }
   }
@@ -310,13 +250,13 @@ object Endpoint {
   /**
    * Add `/>` and `/>>` compositors to `Router` to compose it with function of N arguments.
    */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.9.0")
+  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
   implicit class RArrowN[L <: HList](r: Endpoint[L]) {
     def />[F, I](fn: F)(implicit ftp: FnToProduct.Aux[F, L => I]): Endpoint[I] =
       r.map(ftp(fn))
 
     def />>[F, I, FI](fn: F)(
       implicit ftp: FnToProduct.Aux[F, L => FI], ev: FI <:< Future[I]
-    ): Endpoint[I] = r.fmap(value => ev(ftp(fn)(value)))
+    ): Endpoint[I] = r.embedFlatMap(value => ev(ftp(fn)(value)))
   }
 }

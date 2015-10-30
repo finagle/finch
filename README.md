@@ -52,10 +52,10 @@ Hello World!
 This "Hello World!" example is built with the `0.9.0-SNAPSHOT` version of `finch-core`.
 
 ```scala
-import io.finch.route._
+import io.finch._
 import com.twitter.finagle.Httpx
 
-val api: Router[String] = get("hello") { "Hello, World!" }
+val api: Endpoint[String] = get("hello") { Ok("Hello, World!") }
 
 Httpx.serve(":8080", api.toService)
 ```

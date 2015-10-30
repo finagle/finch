@@ -1,14 +1,8 @@
 package io.finch.petstore
 
-import _root_.argonaut._, Argonaut._
-import com.twitter.finagle.{Service, SimpleFilter}
-import com.twitter.finagle.httpx.{Request, Response}
-import com.twitter.util.Future
-import io.finch.argonaut._
+import io.finch._
 import io.finch.request._
 import io.finch.request.items._
-import io.finch.response._
-import io.finch.route._
 
 /**
  * Tells the API how to respond when certain exceptions are thrown.
@@ -17,34 +11,25 @@ trait ErrorHandling {
   /**
    * Tells the service how to handle certain types of servable errors (i.e. PetstoreError)
    */
-  def errorHandler: PartialFunction[Throwable, Response] = {
+  def errorHandler: PartialFunction[Throwable, Output[Nothing]] = {
     case NotPresent(ParamItem(p)) => BadRequest(
-      Map("error" -> "param_not_present", "param" -> p).asJson
+      "error" -> "param_not_present", "param" -> p
     )
     case NotPresent(BodyItem) => BadRequest(
-      Map("error" -> "body_not_present").asJson
+      "error" -> "body_not_present"
     )
     case NotParsed(ParamItem(p), _, _) => BadRequest(
-      Map("error" -> "param_not_parsed", "param" -> p).asJson
+      "error" -> "param_not_parsed", "param" -> p
     )
     case NotParsed(BodyItem, _, _) => BadRequest(
-      Map("error" -> "body_not_parsed").asJson
+      "error" -> "body_not_parsed"
     )
     case NotValid(ParamItem(p), rule) => BadRequest(
-      Map("error" -> "param_not_valid", "param" -> p, "rule" -> rule).asJson
+      "error" -> "param_not_valid", "param" -> p, "rule" -> rule
     )
     // Domain errors
     case error: PetstoreError => NotFound(
-      Map("error" -> error.message).asJson
+      "error" -> error.message
     )
-  }
-
-  /**
-   * A simple Finagle filter that handles all the exceptions, which might be thrown by
-   * a request reader of one of the REST services.
-   */
-  def handleExceptions: SimpleFilter[Request,Response] = new SimpleFilter[Request, Response] {
-    def apply(req: Request, service: Service[Request, Response]): Future[Response] =
-      service(req).handle(errorHandler)
   }
 }

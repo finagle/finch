@@ -3,77 +3,67 @@ package io.finch
 import com.twitter.finagle.httpx.Status
 
 trait Outputs {
-  import Endpoint.Output
-
-  trait OutputBuilder { self: Output[Unit] =>
-    def apply[A](a: A): Output[A] = Output(a, self.status)
-  }
+  private[this] val emptyErr: Map[String, String] = Map.empty[String, String]
 
   // 1xx
-  object Continue extends Output((), Status.Continue) with OutputBuilder                       // 100
-  object Processing extends Output((), Status.Processing) with OutputBuilder                   // 102
+  val Continue: Output.Payload[Unit] = Output.Payload((), Status.Continue)                                  // 100
+  val Processing: Output.Payload[Unit] = Output.Payload((), Status.Processing)                              // 102
 
   // 2xx
-  object Ok extends Output((), Status.Ok) with OutputBuilder                                   // 200
-  object Created extends Output((), Status.Created) with OutputBuilder                         // 201
-  object Accepted extends Output((), Status.Accepted) with OutputBuilder                       // 202
-  object NonAuthoritativeInformation
-    extends Output((), Status.NonAuthoritativeInformation) with OutputBuilder                  // 203
-  object NoContent extends Output((), Status.NoContent) with OutputBuilder                     // 204
-  object ResetContent extends Output((), Status.ResetContent) with OutputBuilder               // 205
-  object PartialContent extends Output((), Status.PartialContent) with OutputBuilder           // 206
-  object MultiStatus extends Output((), Status.MultiStatus) with OutputBuilder                 // 208
+  val Ok: Output.Payload[Unit] = Output.Payload((), Status.Ok)                                              // 200
+  val Created: Output.Payload[Unit] = Output.Payload((), Status.Created)                                    // 201
+  val Accepted: Output.Payload[Unit] = Output.Payload((), Status.Accepted)                                  // 202
+  val NonAuthoritativeInformation: Output.Payload[Unit] = Output.Payload((),
+      Status.NonAuthoritativeInformation)                                                                         // 203
+  val NoContent: Output.Payload[Unit] = Output.Payload((), Status.NoContent)                                // 204
+  val ResetContent: Output.Payload[Unit] =  Output.Payload((), Status.ResetContent)                         // 205
+  val PartialContent: Output.Payload[Unit] = Output.Payload((), Status.PartialContent)                      // 206
+  val MultiStatus: Output.Payload[Unit] = Output.Payload((), Status.MultiStatus)                            // 208
 
   // 3xx
-  object MultipleChoices extends Output((), Status.MultipleChoices) with OutputBuilder         // 300
-  object MovedPermanently extends Output((), Status.MovedPermanently) with OutputBuilder       // 301
-  object Found extends Output((), Status.Found) with OutputBuilder                             // 302
-  object SeeOther extends Output((), Status.SeeOther) with OutputBuilder                       // 303
-  object NotModified extends Output((), Status.NotModified) with OutputBuilder                 // 304
-  object UseProxy extends Output((), Status.UseProxy) with OutputBuilder                       // 305
-  object TemporaryRedirect extends Output((), Status.TemporaryRedirect) with OutputBuilder     // 307
+  val MultipleChoices: Output.Error = Output.Error(emptyErr, Status.MultipleChoices)                          // 300
+  val MovedPermanently: Output.Error = Output.Error(emptyErr, Status.MovedPermanently)                        // 301
+  val Found: Output.Error = Output.Error(emptyErr, Status.Found)                                              // 302
+  val SeeOther: Output.Error = Output.Error(emptyErr, Status.SeeOther)                                        // 303
+  val NotModified: Output.Error = Output.Error(emptyErr, Status.NotModified)                                  // 304
+  val UseProxy: Output.Error = Output.Error(emptyErr, Status.UseProxy)                                        // 305
+  val TemporaryRedirect: Output.Error = Output.Error(emptyErr, Status.TemporaryRedirect)                      // 307
 
   // 4xx
-  object BadRequest extends Output((), Status.BadRequest) with OutputBuilder                   // 400
-  object Unauthorized extends Output((), Status.Unauthorized) with OutputBuilder               // 401
-  object PaymentRequired extends Output((), Status.PaymentRequired) with OutputBuilder         // 402
-  object Forbidden extends Output((), Status.Forbidden) with OutputBuilder                     // 403
-  object NotFound extends Output((), Status.NotFound) with OutputBuilder                       // 404
-  object MethodNotAllowed extends Output((), Status.MethodNotAllowed) with OutputBuilder       // 405
-  object NotAcceptable extends Output((), Status.NotAcceptable) with OutputBuilder             // 406
-  object ProxyAuthenticationRequired
-    extends Output((), Status.ProxyAuthenticationRequired) with OutputBuilder                  // 407
-  object RequestTimeOut extends Output((), Status.RequestTimeout) with OutputBuilder           // 408
-  object Conflict extends Output((), Status.Conflict) with OutputBuilder                       // 409
-  object Gone extends Output((), Status.Gone) with OutputBuilder                               // 410
-  object LengthRequired extends Output((), Status.LengthRequired) with OutputBuilder           // 411
-  object PreconditionFailed extends Output((), Status.PreconditionFailed) with OutputBuilder   // 412
-  object RequestEntityTooLarge
-    extends Output((), Status.RequestEntityTooLarge) with OutputBuilder                        // 413
-  object RequestUriTooLong extends Output((), Status.RequestURITooLong) with OutputBuilder     // 414
-  object UnsupportedMediaType
-    extends Output((), Status.UnsupportedMediaType) with OutputBuilder                         // 415
-  object RequestedRangeNotSatisfiable
-    extends Output((), Status.RequestedRangeNotSatisfiable) with OutputBuilder                 // 416
-  object ExpectationFailed extends Output((), Status.ExpectationFailed) with OutputBuilder     // 417
-  object UnprocessableEntity extends Output((), Status.UnprocessableEntity) with OutputBuilder // 422
-  object Locked extends Output((), Status.Locked) with OutputBuilder                           // 423
-  object FailedDependency extends Output((), Status.FailedDependency) with OutputBuilder       // 424
-  object UnorderedCollection extends Output((), Status.UnorderedCollection) with OutputBuilder // 425
-  object UpgradeRequired extends Output((), Status.UpgradeRequired) with OutputBuilder         // 426
-  object PreconditionRequired extends Output((), Status(428)) with OutputBuilder               // 428
-  object TooManyRequests extends Output((), Status(429)) with OutputBuilder                    // 429
+  val BadRequest: Output.Error = Output.Error(emptyErr, Status.BadRequest)                                    // 400
+  val Unauthorized: Output.Error = Output.Error(emptyErr, Status.Unauthorized)                                // 401
+  val PaymentRequired: Output.Error = Output.Error(emptyErr, Status.PaymentRequired)                          // 402
+  val Forbidden: Output.Error = Output.Error(emptyErr, Status.Forbidden)                                      // 403
+  val NotFound: Output.Error = Output.Error(emptyErr, Status.NotFound)                                        // 404
+  val MethodNotAllowed: Output.Error = Output.Error(emptyErr, Status.MethodNotAllowed)                        // 405
+  val NotAcceptable: Output.Error = Output.Error(emptyErr, Status.NotAcceptable)                              // 406
+  val ProxyAuthenticationRequired: Output.Error = Output.Error(emptyErr, Status.ProxyAuthenticationRequired)  // 407
+  val RequestTimeOut: Output.Error = Output.Error(emptyErr, Status.RequestTimeout)                            // 408
+  val Conflict: Output.Error = Output.Error(emptyErr, Status.Conflict)                                        // 409
+  val Gone: Output.Error = Output.Error(emptyErr, Status.Gone)                                                // 410
+  val LengthRequired: Output.Error = Output.Error(emptyErr, Status.LengthRequired)                            // 411
+  val PreconditionFailed: Output.Error = Output.Error(emptyErr, Status.PreconditionFailed)                    // 412
+  val RequestEntityTooLarge: Output.Error = Output.Error(emptyErr, Status.RequestEntityTooLarge)              // 413
+  val RequestUriTooLong: Output.Error = Output.Error(emptyErr, Status.RequestURITooLong)                      // 414
+  val UnsupportedMediaType: Output.Error = Output.Error(emptyErr, Status.UnsupportedMediaType)                // 415
+  val RequestedRangeNotSatisfiable: Output.Error = Output.Error(emptyErr, Status.RequestedRangeNotSatisfiable)// 416
+  val ExpectationFailed: Output.Error = Output.Error(emptyErr, Status.ExpectationFailed)                      // 417
+  val UnprocessableEntity: Output.Error = Output.Error(emptyErr, Status.UnprocessableEntity)                  // 422
+  val Locked: Output.Error = Output.Error(emptyErr, Status.Locked)                                            // 423
+  val FailedDependency: Output.Error = Output.Error(emptyErr, Status.FailedDependency)                        // 424
+  val UnorderedCollection: Output.Error = Output.Error(emptyErr, Status.UnorderedCollection)                  // 425
+  val UpgradeRequired: Output.Error = Output.Error(emptyErr, Status.UpgradeRequired)                          // 426
+  val PreconditionRequired: Output.Error = Output.Error(emptyErr, Status(428))                                // 428
+  val TooManyRequests: Output.Error = Output.Error(emptyErr, Status(429))                                     // 429
 
   // 5xx
-  object InternalServerError extends Output((), Status.InternalServerError) with OutputBuilder // 500
-  object NotImplemented extends Output((), Status.NotImplemented) with OutputBuilder           // 501
-  object BadGateway extends Output((), Status.BadGateway) with OutputBuilder                   // 502
-  object ServiceUnavailable extends Output((), Status.ServiceUnavailable) with OutputBuilder   // 503
-  object GatewayTimeout extends Output((), Status.GatewayTimeout) with OutputBuilder           // 504
-  object HttpVersionNotSupported
-    extends Output((), Status.HttpVersionNotSupported) with OutputBuilder                      // 505
-  object VariantAlsoNegotiates
-    extends Output((), Status.VariantAlsoNegotiates) with OutputBuilder                        // 506
-  object InsufficientStorage extends Output((), Status.InsufficientStorage) with OutputBuilder // 507
-  object NotExtended extends Output((), Status.NotExtended) with OutputBuilder                 // 510
+  val InternalServerError: Output.Error = Output.Error(emptyErr, Status.InternalServerError)                  // 500
+  val NotImplemented: Output.Error = Output.Error(emptyErr, Status.NotImplemented)                            // 501
+  val BadGateway: Output.Error = Output.Error(emptyErr, Status.BadGateway)                                    // 502
+  val ServiceUnavailable: Output.Error = Output.Error(emptyErr, Status.ServiceUnavailable)                    // 503
+  val GatewayTimeout: Output.Error = Output.Error(emptyErr, Status.GatewayTimeout)                            // 504
+  val HttpVersionNotSupported: Output.Error = Output.Error(emptyErr, Status.HttpVersionNotSupported)          // 505
+  val VariantAlsoNegotiates: Output.Error = Output.Error(emptyErr, Status.VariantAlsoNegotiates)              // 506
+  val InsufficientStorage: Output.Error = Output.Error(emptyErr, Status.InsufficientStorage)                  // 507
+  val NotExtended: Output.Error = Output.Error(emptyErr, Status.NotExtended)                                  // 510
 }

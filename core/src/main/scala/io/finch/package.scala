@@ -4,8 +4,7 @@ import com.twitter.util.Future
 
 /**
  * This is a root package of the Finch library, which provides an immutable layer of functions and types atop of Finagle
- * for writing lightweight HTTP services. It roughly contains three packages: [[io.finch.route]], [[io.finch.request]],
- * [[io.finch.response]].
+ * for writing lightweight HTTP services.
  */
 package object finch
   extends Endpoints
