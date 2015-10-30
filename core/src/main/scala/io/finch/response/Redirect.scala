@@ -1,8 +1,8 @@
 package io.finch.response
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.httpx.{Response, Request}
-import com.twitter.finagle.httpx.path.Path
+import com.twitter.finagle.http.{Response, Request}
+import com.twitter.finagle.http.path.Path
 import io.finch._
 
 /**

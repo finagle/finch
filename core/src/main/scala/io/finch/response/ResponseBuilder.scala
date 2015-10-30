@@ -1,6 +1,6 @@
 package io.finch.response
 
-import com.twitter.finagle.httpx.{Cookie, Response, Status}
+import com.twitter.finagle.http.{Cookie, Response, Status}
 
 /**
  * An abstraction that is responsible for building HTTP responses.
@@ -28,7 +28,7 @@ case class ResponseBuilder(
   /**
    * Creates a new response builder with the given `cookies`.
    *
-   * @param cookies the [[com.twitter.finagle.httpx.Cookie Cookie]]'s to add to the response
+   * @param cookies the [[com.twitter.finagle.http.Cookie Cookie]]'s to add to the response
    */
   def withCookies(cookies: Cookie*): ResponseBuilder = copy(cookies = this.cookies ++ cookies)
 

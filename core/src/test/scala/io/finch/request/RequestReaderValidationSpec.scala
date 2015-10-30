@@ -1,6 +1,6 @@
 package io.finch.request
 
-import com.twitter.finagle.httpx.Request
+import com.twitter.finagle.http.Request
 import com.twitter.util.{Await, Future, Return, Throw}
 import org.scalacheck.Prop.BooleanOperators
 import org.scalatest.{Matchers, FlatSpec}

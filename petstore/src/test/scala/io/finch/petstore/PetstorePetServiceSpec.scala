@@ -1,7 +1,7 @@
 package io.finch.petstore
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.httpx.{FileElement, Request, RequestBuilder, Response}
+import com.twitter.finagle.http.{FileElement, Request, RequestBuilder, Response}
 import com.twitter.io.{Buf, Reader}
 import com.twitter.util.{Duration, Await}
 import io.finch.test.ServiceSuite

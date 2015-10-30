@@ -4,10 +4,10 @@ package finagle
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.twitter.finagle.{Service, SimpleFilter}
-import com.twitter.finagle.httpx._
-import com.twitter.finagle.httpx.Method._
-import com.twitter.finagle.httpx.path._
-import com.twitter.finagle.httpx.service.RoutingService
+import com.twitter.finagle.http._
+import com.twitter.finagle.http.Method._
+import com.twitter.finagle.http.path._
+import com.twitter.finagle.http.service.RoutingService
 import com.twitter.io.{Buf, Reader}
 import com.twitter.util.Future
 

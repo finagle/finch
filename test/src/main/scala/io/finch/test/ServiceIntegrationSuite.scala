@@ -1,7 +1,7 @@
 package io.finch.test
 
-import com.twitter.finagle.{Httpx, ListeningServer, Service}
-import com.twitter.finagle.httpx.{Request, Response}
+import com.twitter.finagle.{Http, ListeningServer, Service}
+import com.twitter.finagle.http.{Request, Response}
 import com.twitter.util.Await
 import org.scalatest.Outcome
 import org.scalatest.fixture.FlatSpec
@@ -23,8 +23,8 @@ trait ServiceIntegrationSuite extends ServiceSuite { self: FlatSpec =>
    */
   override def withFixture(test: OneArgTest): Outcome = {
     val service: Service[Request, Response] = createService()
-    var server: ListeningServer = Httpx.serve(s":$port", service)
-    var client: Service[Request, Response] = Httpx.newService(s"127.0.0.1:$port")
+    var server: ListeningServer = Http.serve(s":$port", service)
+    var client: Service[Request, Response] = Http.newService(s"127.0.0.1:$port")
 
     try {
       self.withFixture(test.toNoArgTest(FixtureParam(client)))

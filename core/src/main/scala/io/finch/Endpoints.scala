@@ -2,7 +2,7 @@ package io.finch
 
 import java.util.UUID
 
-import com.twitter.finagle.httpx.Method
+import com.twitter.finagle.http.Method
 import com.twitter.util.{Try, Base64StringEncoder, Future}
 import shapeless._
 

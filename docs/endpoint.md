@@ -23,7 +23,7 @@ val users: Endpoint[OAuth2Request, Json] = ???
 val groups: Endpoint[OAuth2Request, Json] = ???
 val endpoint: Endpoint[OAuth2Request, Response] = (users orElse groups) ! TurnIntoHttp[Json]
 
-// An HTTP endpoint that may be served with `Httpx`
+// An HTTP endpoint that may be served with `Http`
 val httpEndpoint: Endpoint[Request, Response] = auth ! endpoint
 ```
 
@@ -38,7 +38,7 @@ the following code is correct.
 ```scala
 val e: Endpoint[MyRequest, Response] = ???
 // an endpoint `e` will be converted to service implicitly
-Httpx.serve(new InetSocketAddress(8081), e)
+Http.serve(new InetSocketAddress(8081), e)
 ```
 
 --

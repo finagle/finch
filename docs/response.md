@@ -33,7 +33,7 @@ and start typing.
 import io.finch._
 import io.finch.request._
 import io.finch.response._
-import com.twitter.finagle.httpx.{Request, Response}
+import com.twitter.finagle.http.{Request, Response}
 
 object Hello extends Service[Request, Response] {
   def apply(req: Request) = for {

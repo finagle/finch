@@ -31,7 +31,7 @@ val testDependencies = Seq(
 val baseSettings = Seq(
   libraryDependencies ++= Seq(
     "com.chuusai" %% "shapeless" % "2.2.5",
-    "com.twitter" %% "finagle-httpx" % "6.29.0",
+    "com.twitter" %% "finagle-http" % "6.30.0",
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
     compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
   ) ++ testDependencies.map(_ % "test"),
@@ -108,7 +108,7 @@ lazy val root = project.in(file("."))
         |import io.finch.request.items._
         |import com.twitter.util.Future
         |import com.twitter.finagle.Service
-        |import com.twitter.finagle.httpx.{Request, Response, Status}
+        |import com.twitter.finagle.http.{Request, Response, Status}
       """.stripMargin
   )
   .aggregate(core, argonaut, jackson, json4s, circe, benchmarks, petstore, test, jsonTest, oauth2)
@@ -184,7 +184,7 @@ lazy val oauth2 = project
   .settings(moduleName := "finch-oauth2")
   .settings(allSettings)
   .settings(libraryDependencies ++= Seq(
-    "com.github.finagle" %% "finagle-oauth2" % "0.1.4",
+    "com.github.finagle" %% "finagle-oauth2" % "0.1.5",
     "org.mockito" % "mockito-all" % "1.10.19" % "test"
   ))
   .dependsOn(core)

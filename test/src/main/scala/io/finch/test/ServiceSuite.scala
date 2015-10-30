@@ -1,7 +1,7 @@
 package io.finch.test
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.httpx.{Request, Response}
+import com.twitter.finagle.http.{Request, Response}
 import com.twitter.util.{Await, Duration}
 import org.scalatest.Outcome
 import org.scalatest.fixture.FlatSpec

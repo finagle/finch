@@ -1,6 +1,6 @@
 package io.finch.request
 
-import com.twitter.finagle.httpx.Request
+import com.twitter.finagle.http.Request
 import com.twitter.util.{Return, Throw, Try, Future}
 import io.finch._
 import io.finch.request.items._

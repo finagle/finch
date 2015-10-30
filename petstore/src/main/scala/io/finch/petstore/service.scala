@@ -1,6 +1,6 @@
 package io.finch.petstore
 
-import com.twitter.finagle.Httpx
+import com.twitter.finagle.Http
 import com.twitter.util.{Future, Await}
 
 /**
@@ -18,7 +18,7 @@ class PetstoreApp {
 
   val service = endpoint.makeService(db)
 
-  val server = Httpx.serve(":8080", service) //creates service
+  val server = Http.serve(":8080", service) //creates service
 
   Await.ready(server)
 
