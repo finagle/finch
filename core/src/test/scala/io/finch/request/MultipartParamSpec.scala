@@ -1,7 +1,7 @@
 package io.finch.request
 
-import com.twitter.finagle.httpx.{Request, RequestBuilder}
-import com.twitter.finagle.httpx.exp.Multipart.FileUpload
+import com.twitter.finagle.http.{Request, RequestBuilder}
+import com.twitter.finagle.http.exp.Multipart.FileUpload
 import com.twitter.util.{Await, Future}
 import org.scalatest.{FlatSpec, Matchers}
 

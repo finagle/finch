@@ -1,7 +1,7 @@
 package io.finch
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.httpx.{Cookie, Request, Response, Status}
+import com.twitter.finagle.http.{Cookie, Request, Response, Status}
 import com.twitter.util.Future
 import io.finch.response.EncodeResponse
 import shapeless.ops.coproduct.Folder

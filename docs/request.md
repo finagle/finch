@@ -35,7 +35,7 @@ request in a Finagle application:
 
 ```scala
 import io.finch._
-import com.twitter.finagle.httpx.{Request, Response}
+import com.twitter.finagle.http.{Request, Response}
 
 def param(req: Request)(key: String): Option[String] =
   req.params.get(key) orElse {

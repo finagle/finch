@@ -1,6 +1,6 @@
 package io.finch
 
-import com.twitter.finagle.httpx.Status
+import com.twitter.finagle.http.Status
 
 trait Outputs {
   private[this] val emptyErr: Map[String, String] = Map.empty[String, String]

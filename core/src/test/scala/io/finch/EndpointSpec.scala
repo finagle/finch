@@ -3,7 +3,7 @@ package io.finch
 import java.util.UUID
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.httpx.{Request, Response, Status}
+import com.twitter.finagle.http.{Request, Response, Status}
 import com.twitter.io.Buf
 import com.twitter.util.{Await, Base64StringEncoder, Future, Return}
 import io.finch.request.{DecodeRequest, RequestReader, param}

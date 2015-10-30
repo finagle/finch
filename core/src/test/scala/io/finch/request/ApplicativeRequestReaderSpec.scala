@@ -2,7 +2,7 @@ package io.finch.request
 
 import org.scalatest.{FlatSpec, Matchers}
 
-import com.twitter.finagle.httpx.Request
+import com.twitter.finagle.http.Request
 import com.twitter.util.{Await, Throw, Try}
 import items._
 

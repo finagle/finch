@@ -1,6 +1,6 @@
 package io.finch.oauth2
 
-import com.twitter.finagle.httpx.Request
+import com.twitter.finagle.http.Request
 import com.twitter.finagle.oauth2._
 import com.twitter.util.{Await, Future}
 import io.finch.request.RequestReader

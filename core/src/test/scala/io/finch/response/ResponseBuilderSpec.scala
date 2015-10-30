@@ -1,6 +1,6 @@
 package io.finch.response
 
-import com.twitter.finagle.httpx.{Status, Cookie}
+import com.twitter.finagle.http.{Status, Cookie}
 import com.twitter.io.Buf
 import com.twitter.io.Buf.{Utf8, ByteBuffer}
 import org.scalatest.{Matchers, FlatSpec}

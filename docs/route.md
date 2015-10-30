@@ -143,11 +143,11 @@ val users: Endpoint[Request, Response] =
 ```
 
 Endpoints are implicitly convertible to Finagle `Service`s if there is an implicit view `Req => Request` available
-in the scope. This means, that you can usually pass an endpoint into a `Httpx.serve` method call.
+in the scope. This means, that you can usually pass an endpoint into a `Http.serve` method call.
 
 ```scala
 val endpoint: Endpoint[Request, Response] = users | tickets
-Httpx.serve(":8081", endpoint)
+Http.serve(":8081", endpoint)
 ```
 
 `Service` with underlying endpoint tries to match the _full_ route and throws a `RouteNotFound` exception in case if

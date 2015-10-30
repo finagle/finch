@@ -1,6 +1,6 @@
 package io.finch.benchmarks.service
 
-import com.twitter.finagle.httpx.Response
+import com.twitter.finagle.http.Response
 import com.twitter.util.Await
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations._

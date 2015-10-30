@@ -2,7 +2,7 @@ package io.finch.request
 
 import java.util.UUID
 
-import com.twitter.finagle.httpx.Request
+import com.twitter.finagle.http.Request
 import com.twitter.util.{Await, Future}
 import org.scalatest.{Matchers, FlatSpec}
 

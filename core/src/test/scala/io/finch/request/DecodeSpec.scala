@@ -2,7 +2,7 @@ package io.finch.request
 
 import org.scalatest.{Matchers, FlatSpec}
 import com.twitter.util.{Try, Return, Await}
-import com.twitter.finagle.httpx.Request
+import com.twitter.finagle.http.Request
 import scala.math._
 import scala.reflect.ClassTag
 

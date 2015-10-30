@@ -2,8 +2,8 @@ package io.finch.benchmarks.service
 
 import java.net.{InetSocketAddress, URL}
 
-import com.twitter.finagle.httpx.{Request, RequestBuilder, Response}
-import com.twitter.finagle.{Httpx, Service}
+import com.twitter.finagle.http.{Request, RequestBuilder, Response}
+import com.twitter.finagle.{Http, Service}
 import com.twitter.io.Buf
 import com.twitter.util.{Await, Closable, Future}
 
@@ -16,8 +16,8 @@ class UserServiceApp(service: () => UserService)(
   var client: Service[Request, Response] = _
 
   def setUpService(): Unit = {
-    server = Httpx.serve(new InetSocketAddress(port), service().backend)
-    client = Httpx.newService(s"127.0.0.1:$port")
+    server = Http.serve(new InetSocketAddress(port), service().backend)
+    client = Http.newService(s"127.0.0.1:$port")
     Await.result(batchCalls(Seq.tabulate(count)(createUserRequest)))
   }
 

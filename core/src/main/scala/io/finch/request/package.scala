@@ -1,8 +1,8 @@
 package io.finch
 
-import com.twitter.finagle.httpx.{Cookie, Request}
-import com.twitter.finagle.httpx.exp.Multipart
-import com.twitter.finagle.httpx.exp.Multipart.FileUpload
+import com.twitter.finagle.http.{Cookie, Request}
+import com.twitter.finagle.http.exp.Multipart
+import com.twitter.finagle.http.exp.Multipart.FileUpload
 import com.twitter.io.Buf
 
 /**

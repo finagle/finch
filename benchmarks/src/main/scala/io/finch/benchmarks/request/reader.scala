@@ -1,6 +1,6 @@
 package io.finch.benchmarks.request
 
-import com.twitter.finagle.httpx.Request
+import com.twitter.finagle.http.Request
 import com.twitter.util.{Await, Try}
 import io.finch.request._
 import java.util.concurrent.TimeUnit

@@ -1,6 +1,6 @@
 package io.finch.benchmarks.service
 
-import com.twitter.finagle.httpx.{Request, Response}
+import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.Service
 import io.finch._
 import io.finch.request._

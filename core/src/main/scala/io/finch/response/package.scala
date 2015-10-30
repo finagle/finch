@@ -3,7 +3,7 @@ package io.finch
 /**
  * This package enables a reasonable approach of building HTTP responses using the
  * [[io.finch.response.ResponseBuilder ResponseBuilder]] abstraction. The `ResponseBuilder` provides an immutable way
- * of building concrete [[com.twitter.finagle.httpx.Response Response]] instances by specifying their ''status'',
+ * of building concrete [[com.twitter.finagle.http.Response Response]] instances by specifying their ''status'',
  * ''headers'' and ''cookies''. There are plenty of predefined builders named by HTTP statuses, i.e., `Ok`, `Created`,
  * `NotFound`. Thus, the typical use case of the `ResponseBuilder` abstraction involves usage of concrete builder
  * instead of abstract `ResponseBuilder` itself.

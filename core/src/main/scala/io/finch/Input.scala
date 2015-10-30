@@ -1,6 +1,6 @@
 package io.finch
 
-import com.twitter.finagle.httpx.Request
+import com.twitter.finagle.http.Request
 
 /**
  * An input for [[Endpoint]].

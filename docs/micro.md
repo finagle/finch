@@ -90,7 +90,7 @@ value of type `EncodeResponse[String]` provided by the `io.finch.request` packag
 
 ```scala
 val e: Endpoint = Get / "a" /> Micro.value("foo")
-Httpx.serve(":8081", e)
+Http.serve(":8081", e)
 ```
 
 ### Custom Request Type

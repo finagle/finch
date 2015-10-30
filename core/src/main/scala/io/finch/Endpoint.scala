@@ -1,7 +1,7 @@
 package io.finch
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.httpx.{Cookie, Request, Response}
+import com.twitter.finagle.http.{Cookie, Request, Response}
 import com.twitter.util.Future
 import io.finch.request._
 import shapeless._
