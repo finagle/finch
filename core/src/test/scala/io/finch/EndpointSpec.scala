@@ -436,7 +436,7 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
 
   "A basicAuth combinator" should "auth the endpoint" in {
     def encode(user: String, password: String) = "Basic " + Base64StringEncoder.encode(s"$user:$password".getBytes)
-    val r: Endpoint[String] = get(/) /> "foo"
+    val r: Endpoint[String] = get(/) { "foo" }
 
     check { (u: String, p: String) =>
       val req = Request()
@@ -446,6 +446,8 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
       val input = Input(req)
 
       rr.toString === s"BasicAuth($r)"
+      runAndAwaitValue(rr, input) === None
+      req.headerMap.update("Authorization", encode(u, p))
       runAndAwaitValue(rr, input) === Some((input, "foo"))
     }
   }

@@ -244,6 +244,7 @@ trait Endpoints {
       def apply(input: Input): Option[(Input, () => Future[Output[A]])] =
         input.request.authorization.flatMap {
           case `expected` => r(input)
+          case _ => None
         }
 
       override def toString: String = s"BasicAuth($r)"
