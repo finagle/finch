@@ -259,4 +259,18 @@ object Endpoint {
       implicit ftp: FnToProduct.Aux[F, L => FI], ev: FI <:< Future[I]
     ): Endpoint[I] = r.embedFlatMap(value => ev(ftp(fn)(value)))
   }
+
+  final implicit class ValueEndpointOps[B](val self: Endpoint[B]) extends AnyVal {
+    /**
+     * Converts this endpoint to one that returns any type with `B :: HNil` as its representation.
+     */
+    def as[A](implicit gen: Generic.Aux[A, B :: HNil]): Endpoint[A] = self.map(value => gen.from(value :: HNil))
+  }
+
+  final implicit class HListEndpointOps[L <: HList](val self: Endpoint[L]) {
+    /**
+     * Converts this endpoint to one that returns any type with this [[shapeless.HList]] as its representation.
+     */
+    def as[A](implicit gen: Generic.Aux[A, L]): Endpoint[A] = self.map(gen.from)
+  }
 }

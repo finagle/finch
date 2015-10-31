@@ -378,6 +378,53 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     runAndAwaitValue(r2, route) shouldBe Some((route, 6))
   }
 
+  it should "support as[A] method" in {
+    case class Foo(i: Int)
+    case class Bar(i: Int, s: String)
+    val e1: Endpoint[Foo] = get(int).as[Foo]
+    val e2: Endpoint[Bar] = get(int / string).as[Bar]
+
+    val input1 = Input(Request("/100"))
+    runAndAwaitValue(e1, input1) shouldBe Some((input1.drop(1), Foo(100)))
+
+    val input2 = Input(Request("/100/200"))
+    runAndAwaitValue(e2, input2) shouldBe Some((input2.drop(2), Bar(100, "200")))
+  }
+
+  it should "rescue exceptions occurred at the endpoint" in {
+    val e: Endpoint[String] = get(int) { i: Int =>
+      if (i > 0) Ok(i.toString)
+      else if (i < 0) BadRequest("err" -> "foo")
+      else Ok((i / 0).toString)
+    } handle {
+      case _: ArithmeticException => BadRequest("err" -> "bar")
+    }
+
+    val i1 = Input(Request("/10"))
+    runAndAwaitValue(e, i1) shouldBe Some((i1.drop(1), "10"))
+
+    val i2 = Input(Request("/-10"))
+    an [IllegalArgumentException] shouldBe thrownBy(runAndAwaitValue(e, i2))
+
+    val i3 = Input(Request("/0"))
+    an [IllegalArgumentException] shouldBe thrownBy(runAndAwaitValue(e, i3))
+  }
+
+  it should "propagate the output via / combinator" in {
+    val e1 = get("foo" / string) { s: String => Created(s).withHeader("X" -> "Y") }
+    val e2 = get("bar" / string) { s: String => Future.value(Created(s).withHeader("X" -> "Y")) }
+    val e3 = get("baz" / string) { s: String => Created(Future.value(s)).withHeader("X" -> "Y") }
+
+    val s = ("prefix" / (e1 :+: e2 :+: e3)).toService
+
+    for (req <- Seq("/prefix/foo/1", "/prefix/bar/1", "/prefix/baz/1")) {
+      val rep = Await.result(s(Request(req)))
+      rep.status shouldBe Status.Created
+      rep.headerMap.get("X") shouldBe Some("Y")
+      rep.contentString shouldBe "1"
+    }
+  }
+
   "A string matcher" should "have the correct string representation" in {
     check { (s: String) =>
       val matcher: Endpoint[HNil] = s
@@ -450,40 +497,6 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
       runAndAwaitOutput(ee, input).get._2 === Unauthorized
       req.headerMap.update("Authorization", encode(u, p))
       runAndAwaitOutput(ee, input).get._2 === Ok("foo")
-    }
-  }
-
-  it should "rescue exceptions occurred at the endpoint" in {
-    val e: Endpoint[String] = get(int) { i: Int =>
-      if (i > 0) Ok(i.toString)
-      else if (i < 0) BadRequest("err" -> "foo")
-      else Ok((i / 0).toString)
-    } handle {
-      case _: ArithmeticException => BadRequest("err" -> "bar")
-    }
-
-    val i1 = Input(Request("/10"))
-    runAndAwaitValue(e, i1) shouldBe Some((i1.drop(1), "10"))
-
-    val i2 = Input(Request("/-10"))
-    an [IllegalArgumentException] shouldBe thrownBy(runAndAwaitValue(e, i2))
-
-    val i3 = Input(Request("/0"))
-    an [IllegalArgumentException] shouldBe thrownBy(runAndAwaitValue(e, i3))
-  }
-
-  it should "propagate the output via / combinator" in {
-    val e1 = get("foo" / string) { s: String => Created(s).withHeader("X" -> "Y") }
-    val e2 = get("bar" / string) { s: String => Future.value(Created(s).withHeader("X" -> "Y")) }
-    val e3 = get("baz" / string) { s: String => Created(Future.value(s)).withHeader("X" -> "Y") }
-
-    val s = ("prefix" / (e1 :+: e2 :+: e3)).toService
-
-    for (req <- Seq("/prefix/foo/1", "/prefix/bar/1", "/prefix/baz/1")) {
-      val rep = Await.result(s(Request(req)))
-      rep.status shouldBe Status.Created
-      rep.headerMap.get("X") shouldBe Some("Y")
-      rep.contentString shouldBe "1"
     }
   }
 }
