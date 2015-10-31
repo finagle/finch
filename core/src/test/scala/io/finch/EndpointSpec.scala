@@ -434,27 +434,23 @@ class EndpointSpec extends FlatSpec with Matchers with Checkers {
     assert(router.toString === "(:string|(:int|:long))")
   }
 
-  "A basicAuth combinator" should "auth the endpoint" in {
+  "A BasicAuth combinator" should "auth the endpoint" in {
     def encode(user: String, password: String) = "Basic " + Base64StringEncoder.encode(s"$user:$password".getBytes)
-    val r: Endpoint[String] = get(/) { "foo" }
+    val e: Endpoint[String] = get(/) { Ok("foo") }
 
     check { (u: String, p: String) =>
       val req = Request()
       req.headerMap.update("Authorization", encode(u, p))
 
-      val rr = basicAuth(u, p)(r)
+      val ba = BasicAuth(u, p)
       val input = Input(req)
+      val ee = ba(e)
 
-      rr.toString === s"BasicAuth($r)"
-      runAndAwaitValue(rr, input) === None
+      ee.toString === s"BasicAuth($e)"
+      runAndAwaitOutput(ee, input).get._2 === Unauthorized
       req.headerMap.update("Authorization", encode(u, p))
-      runAndAwaitValue(rr, input) === Some((input, "foo"))
+      runAndAwaitOutput(ee, input).get._2 === Ok("foo")
     }
-  }
-
-  it should "drop the request if auth is failed" in {
-    val r: Endpoint0 = basicAuth("foo", "bar")(/)
-    runAndAwaitValue(r, Input(Request())) shouldBe None
   }
 
   it should "rescue exceptions occurred at the endpoint" in {
