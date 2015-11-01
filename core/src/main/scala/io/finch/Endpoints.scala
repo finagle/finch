@@ -233,21 +233,27 @@ trait Endpoints {
   def trace[A]: Endpoint[A] => Endpoint[A] = method(Method.Trace)
 
   /**
+   * Maintains Basic HTTP Auth for an arbitrary [[Endpoint]].
+   */
+  case class BasicAuth(user: String, password: String, err: Map[String, String] = Map.empty[String, String]) {
+    private[this] val userInfo = s"$user:$password"
+    private[this] val expected = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
+
+    def apply[A](e: Endpoint[A]): Endpoint[A] = new Endpoint[A] {
+      def apply(input: Input): Option[(Input, () => Future[Output[A]])] =
+        input.request.authorization.flatMap {
+          case `expected` => e(input)
+          case _ => Some((input.copy(path = Seq.empty), () => Future.value(Unauthorized(err.toSeq: _*))))
+        }
+
+      override def toString: String = s"BasicAuth($e)"
+    }
+  }
+
+  /**
    * A combinator that wraps the given [[Endpoint]] with Basic HTTP Auth, configured with credentials `user` and
    * `password`.
    */
-  def basicAuth[A](user: String, password: String)(r: Endpoint[A]): Endpoint[A] = {
-    val userInfo = s"$user:$password"
-    val expected = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
-
-    new Endpoint[A] {
-      def apply(input: Input): Option[(Input, () => Future[Output[A]])] =
-        input.request.authorization.flatMap {
-          case `expected` => r(input)
-          case _ => None
-        }
-
-      override def toString: String = s"BasicAuth($r)"
-    }
-  }
+  @deprecated("Use BasicAuth instead", "0.8.5")
+  def basicAuth[A](user: String, password: String)(e: Endpoint[A]): Endpoint[A] = BasicAuth(user, password)(e)
 }
