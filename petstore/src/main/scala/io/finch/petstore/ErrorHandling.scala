@@ -11,7 +11,7 @@ trait ErrorHandling {
   /**
    * Tells the service how to handle certain types of servable errors (i.e. PetstoreError)
    */
-  def errorHandler: PartialFunction[Throwable, Output[Nothing]] = {
+  def errorHandler: PartialFunction[Throwable, Output.Failure] = {
     case NotPresent(ParamItem(p)) => BadRequest(
       "error" -> "param_not_present", "param" -> p
     )
