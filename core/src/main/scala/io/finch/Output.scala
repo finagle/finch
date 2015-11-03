@@ -54,8 +54,8 @@ object Output {
       ob.copy0(
         headers = ob.headers ++ headers,
         cookies = ob.cookies ++ cookies,
-        contentType = contentType,
-        charset = charset
+        contentType = ob.contentType.orElse(contentType),
+        charset = ob.charset.orElse(charset)
       )
     }
     def flatten[B](implicit ev: <:<[A, Output[B]]): Output[B] = value

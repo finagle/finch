@@ -66,8 +66,8 @@ trait Endpoint[A] { self =>
             val fob = oa.traverse(fn).map(oob => oob.flatten)
 
             fob.map { ob =>
-              val ob0 = ob.withContentType(oa.contentType.orElse(ob.contentType))
-                          .withCharset(oa.charset.orElse(ob.charset))
+              val ob0 = ob.withContentType(ob.contentType.orElse(oa.contentType))
+                          .withCharset(ob.charset.orElse(oa.charset))
               val ob1 = oa.headers.foldLeft(ob0)((acc, x) => acc.withHeader(x))
               val ob2 = oa.cookies.foldLeft(ob1)((acc, x) => acc.withCookie(x))
 
@@ -199,7 +199,7 @@ object Endpoint {
   /**
    * Creates an [[Endpoint]] from the given [[Output]].
    */
-  def apply[A](mapper: Mapper[HNil]): Endpoint[mapper.Out] = mapper(/)
+  def apply(mapper: Mapper[HNil]): Endpoint[mapper.Out] = mapper(/)
 
   /**
    * Add `/>` and `/>>` compositors to `Router` to compose it with function of one argument.
