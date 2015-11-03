@@ -21,7 +21,7 @@ import scala.annotation.implicitNotFound
   * A coproduct made up of some combination of the above
 
 ${A} does not satisfy the requirement. You may need to provide an EncodeResponse instance for ${A} (or for some
-part of ${A}). Also make sure there an EncodeResponse instance for Map[Stirng, String] in the scope.
+part of ${A}). Also make sure there an EncodeResponse instance for Map[String, String] in the scope.
 """
 )
 trait ToService[A] {
@@ -34,10 +34,10 @@ object ToService extends LowPriorityToServiceInstances {
    */
   implicit def coproductRouterToService[C <: Coproduct](implicit
     folder: Folder.Aux[EncodeAll.type, C, Response],
-    encodeErr: EncodeResponse[Map[String, String]]
+    encodeFailure: EncodeResponse[Map[String, String]]
   ): ToService[C] = new ToService[C] {
     def apply(router: Endpoint[C]): Service[Request, Response] =
-      routerToService(router.map(folder(_)), encodeErr)
+      endpointToService(router.map(folder(_)), encodeFailure)
   }
 }
 
@@ -47,14 +47,15 @@ trait LowPriorityToServiceInstances {
    */
   implicit def valueRouterToService[A](implicit
     polyCase: EncodeAll.Case.Aux[A, Response],
-    encodeErr: EncodeResponse[Map[String, String]]
+    encodeFailure: EncodeResponse[Map[String, String]]
   ): ToService[A] = new ToService[A] {
     def apply(router: Endpoint[A]): Service[Request, Response] =
-      routerToService(router.map(polyCase(_)), encodeErr)
+      endpointToService(router.map(polyCase(_)), encodeFailure)
   }
 
-  protected def routerToService(
-    e: Endpoint[Response], encodeErr: EncodeResponse[Map[String, String]]
+  protected def endpointToService(
+    e: Endpoint[Response],
+    encodeFailure: EncodeResponse[Map[String, String]]
   ): Service[Request, Response] = new Service[Request, Response] {
     private[this] def fillResponse(
       rep: Response, s: Status, hs: Map[String, String], cs: Seq[Cookie], ct: Option[String], chs: Option[String]
@@ -73,11 +74,11 @@ trait LowPriorityToServiceInstances {
          output().map {
            case Output.Payload(rep, s, hs, cs, ct, chs) =>
              fillResponse(rep, s, hs, cs, ct, chs)
-           case Output.Error(err, s, hs, cs, ct, chs) =>
+           case Output.Failure(msg, s, hs, cs, ct, chs) =>
              val rep = Response()
-             rep.content = encodeErr(err)
-             rep.contentType = encodeErr.contentType
-             encodeErr.charset.foreach { cs => rep.charset = cs }
+             rep.content = encodeFailure(msg)
+             rep.contentType = encodeFailure.contentType
+             encodeFailure.charset.foreach { cs => rep.charset = cs }
 
              fillResponse(rep, s, hs, cs, ct, chs)
          }

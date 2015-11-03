@@ -33,6 +33,10 @@ sealed trait Output[+A] { self =>
 }
 
 object Output {
+
+  /**
+   * A successful [[Output]] that captures a payload `value`.
+   */
   final case class Payload[A](
     value: A,
     status: Status = Status.Ok,
@@ -42,7 +46,7 @@ object Output {
     charset: Option[String] = None
   ) extends Output[A] {
 
-    def apply[B](x: B): Output[B] = copy(value = x)
+    def apply[B](x: B): Payload[B] = copy(value = x)
 
     def map[B](fn: A => B): Output[B] = copy(value = fn(value))
     def flatMap[B](fn: A => Output[B]): Output[B] = {
@@ -63,12 +67,15 @@ object Output {
       contentType: Option[String],
       charset: Option[String]
     ): Output[A] = copy(
-      value = value, status = status, headers = headers, cookies = cookies, contentType = contentType, charset = charset
+      headers = headers, cookies = cookies, contentType = contentType, charset = charset
     )
   }
 
-  final case class Error(
-    err: Map[String, String],
+  /**
+   * A failure [[Output]] that captures an error message `message`.
+   */
+  final case class Failure(
+    message: Map[String, String],
     status: Status = Status.Ok,
     headers: Map[String, String] = Map.empty[String, String],
     cookies: Seq[Cookie] = Seq.empty[Cookie],
@@ -76,9 +83,9 @@ object Output {
     charset: Option[String] = None
   ) extends Output[Nothing] {
 
-    def value: Nothing = throw new IllegalArgumentException(err.mkString(", "))
+    def apply(messages: (String, String)*): Failure = copy(message = message.toMap)
 
-    def apply(errs:(String, String)*): Output[Nothing] = copy(err = errs.toMap)
+    def value: Nothing = throw new IllegalArgumentException(message.mkString(", "))
 
     def map[B](fn: Nothing => B): Output[B] = this
     def flatMap[B](fn: Nothing => Output[B]): Output[B] = this
@@ -91,9 +98,9 @@ object Output {
       contentType: Option[String],
       charset: Option[String]
     ): Output[Nothing] = copy(
-      err = err, status = status, headers = headers, cookies = cookies, contentType = contentType, charset = charset
+      headers = headers, cookies = cookies, contentType = contentType, charset = charset
     )
   }
 
-  val HNil: Payload[HNil] = Output.Payload(shapeless.HNil)
+  private[finch] val HNil: Payload[HNil] = Output.Payload(shapeless.HNil)
 }
