@@ -35,10 +35,10 @@ val api: Router[String] =
   }
 ```
 
-The following code serves the given API endpoint with Finagle's Http codec.
+The following code serves the given API endpoint with Finagle's Httpx codec.
 
 ```scala
-Await.ready(Http.serve(":8081", api.toService))
+Await.ready(Httpx.serve(":8081", api.toService))
 ```
 
 So, we can now query the backend with `curl`.
