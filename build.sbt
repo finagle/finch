@@ -173,9 +173,9 @@ lazy val circe = project
   .settings(allSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "io.circe" %% "circe-core" % "0.1.1",
-      "io.circe" %% "circe-jawn" % "0.1.1",
-      "io.circe" %% "circe-generic" % "0.1.1" % "test"
+      "io.circe" %% "circe-core" % "0.2.0",
+      "io.circe" %% "circe-jawn" % "0.2.0",
+      "io.circe" %% "circe-generic" % "0.2.0" % "test"
     )
   )
   .dependsOn(core, jsonTest % "test")
@@ -197,7 +197,7 @@ lazy val benchmarks = project
   .settings(Defaults.itSettings)
   .settings(parallelExecution in IntegrationTest := false)
   .settings(coverageExcludedPackages := "io\\.finch\\.benchmarks\\.service\\.UserServiceBenchmark")
-  .settings(libraryDependencies += "io.circe" %% "circe-generic" % "0.1.1")
+  .settings(libraryDependencies += "io.circe" %% "circe-generic" % "0.2.0")
   .settings(
     javaOptions in run ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
