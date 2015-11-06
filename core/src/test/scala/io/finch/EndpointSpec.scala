@@ -2,501 +2,249 @@ package io.finch
 
 import java.util.UUID
 
-import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Request, Response, Status}
-import com.twitter.io.Buf
-import com.twitter.util.{Await, Base64StringEncoder, Future, Return}
-import io.finch.request.{DecodeRequest, RequestReader, param}
-import io.finch.response.EncodeResponse
-import org.scalatest.prop.Checkers
-import org.scalatest.{FlatSpec, Matchers}
-import shapeless.{:+:, ::, CNil, HNil, Inl}
+import com.twitter.finagle.http.{Method, Cookie}
+import com.twitter.util.{Try, Future}
 
-class EndpointSpec extends FlatSpec with Matchers with Checkers {
-  implicit val encodeErr: EncodeResponse[Map[String, String]] =
-    EncodeResponse("application/json")(err =>
-      Buf.Utf8(err.toSeq.map(kv => "\"" + kv._1 + "\":\"" + kv._2 + "\"").mkString(", "))
-    )
+class EndpointSpec extends FinchSpec {
 
-  val route = Input(Request("/a/1/b/2"))
-  val emptyRoute = Input(Request())
+  "An Endpoint" should "extract one path segment" in {
+    def extractOne[A](e: Endpoint[A], f: String => A): Input => Boolean = { i: Input =>
+      val o = e(i)
+      val v = i.headOption.flatMap(s => Try(f(s)).toOption)
 
-  def runAndAwaitValue[A](e: Endpoint[A], input: Input = route): Option[(Input, A)] =
-    runAndAwaitOutput(e, input).map(r => (r._1, r._2.value))
-
-  def runAndAwaitOutput[A](e: Endpoint[A], input: Input = route): Option[(Input, Output[A])] =
-    e(input).map {
-      case (remainder, output) => (remainder, Await.result(output()))
+      o.value === v && (v.isEmpty || o.remainder === Some(i.drop(1)))
     }
 
-  def runAndForget[A](e: Endpoint[A], input: Input = route): Option[Input] = e(input).map(_._1)
-
-  "An Endpoint" should "extract single string" in {
-    val r: Endpoint[String] = get(string)
-    runAndAwaitValue(r) shouldBe Some((route.drop(1), "a"))
+    check(extractOne(string, identity))
+    check(extractOne(int, _.toInt))
+    check(extractOne(boolean, _.toBoolean))
+    check(extractOne(long, _.toLong))
+    check(extractOne(uuid, UUID.fromString))
   }
 
-  it should "extract multiple strings" in {
-    val r: Endpoint2[String, String] = get(string / "1" / string)
-    runAndAwaitValue(r) shouldBe Some((route.drop(3), "a" :: "b" :: HNil))
-  }
-
-  it should "match string" in {
-    val r: Endpoint0 = get("a")
-    runAndForget(r) shouldBe Some(route.drop(1))
-  }
-
-  it should "match 2 or more strings" in {
-    val r: Endpoint0 = get("a" / 1 / "b")
-    runAndForget(r) shouldBe Some(route.drop(3))
-  }
-
-  it should "not match if one of the endpoits failed" in {
-    val r: Endpoint0 = get("a" / 2)
-    runAndAwaitValue(r) shouldBe None
-  }
-
-  it should "not match if the method is missing" in {
-    val r: Endpoint0 = "a" / "b"
-    runAndAwaitValue(r) shouldBe None
-  }
-
-  it should "be able to skip route tokens" in {
-    val r: Endpoint0 =  "a" / "1" / *
-    runAndForget(r) shouldBe Some(route.drop(4))
-  }
-
-  it should "match either one or other matcher" in {
-    val r: Endpoint0 = get("a" | "b")
-    runAndForget(r) shouldBe Some(route.drop(1))
-  }
-
-  it should "match int" in {
-    val r: Endpoint0 = get("a" / 1)
-    runAndForget(r) shouldBe Some(route.drop(2))
-  }
-
-  it should "be able to not match int if it's a different value" in {
-    val r: Endpoint0 = get("a" / 2)
-    runAndAwaitValue(r) shouldBe None
-  }
-
-  it should "be able to match method" in {
-    val r: Endpoint0 = get(/)
-    runAndForget(r) shouldBe Some(route)
-  }
-
-  it should "be able to match the whole route" in {
-    val r1: Endpoint0 = *
-    runAndForget(r1) shouldBe Some(route.drop(4))
-  }
-
-  it should "support DSL for string and int and UUID extractors" in {
-    val id = "7e773124-5d52-11e5-885d-feff819cdc9f"
-    // http://mark.koli.ch/thoughts-on-using-raw-uuids-in-your-web-application-or-web-service-paths
-    val badId = "0000000000007e773124-5d52-11e5-885d-feff819cdc9f"
-    val route = Input(Request(s"/a/1/b/$id"))
-    val badRoute = Input(Request(s"/a/1/b/$badId"))
-
-    val r1: Endpoint3[Int, String, UUID] = get("a" / int / string / uuid)
-    val r2: Endpoint2[Int, UUID] = get("a" / int("1") / "b" / uuid("3"))
-
-    runAndAwaitValue(r1, route) shouldBe Some((route.drop(4), 1 :: "b" :: UUID.fromString(id) :: HNil))
-    runAndAwaitValue(r2, route) shouldBe Some((route.drop(4), 1 :: UUID.fromString(id) :: HNil))
-
-    runAndAwaitValue(r1, badRoute) shouldBe None
-    runAndAwaitValue(r2, badRoute) shouldBe None
-  }
-
-  it should "support DSL for boolean marchers and extractors" in {
-    val route = Input(Request("/flag/true"))
-    val r1: Endpoint[Boolean] = "flag" / boolean
-    val r2: Endpoint0 = "flag" / true
-
-    runAndAwaitValue(r1, route) shouldBe Some((route.drop(2), true))
-    runAndForget(r2, route) shouldBe Some(route.drop(2))
-  }
-
-  it should "be composable as an endpoint" in {
-    val r1: Endpoint[Int] = get("a" / int /> { _ + 10 })
-    val r2: Endpoint[Int] = get("b" / int / int /> { _ + _ })
-    val r3: Endpoint[Int] = r1 | r2
-
-    runAndAwaitValue(r3) shouldBe Some((route.drop(2), 11))
-  }
-
-  it should "maps to value" in {
-    val r: Endpoint[Int] = get(*) /> 10
-    runAndAwaitValue(r) shouldBe Some((route.drop(4), 10))
-  }
-
-  it should "skip all the route tokens" in {
-    val r: Endpoint0 = get("a" / *)
-    runAndForget(r) shouldBe Some(route.drop(4))
-  }
-
-  it should "extract the tail of the route" in {
-    val r: Endpoint[Seq[String]] = get("a" / strings)
-    runAndAwaitValue(r, route) shouldBe Some((route.drop(4), Seq("1", "b", "2")))
-  }
-
-  it should "extract ints from the tail of the route" in {
-    val route1 = Input(Request("/a/1/4/42"))
-
-    val r1: Endpoint[Seq[Int]] = get("a" / ints)
-    val r2: Endpoint[Int :: Seq[Int] :: HNil] = get("a" / int("1") / ints)
-
-    runAndAwaitValue(r1, route1) shouldBe Some((route1.drop(4), Seq(1, 4, 42)))
-    runAndAwaitValue(r1, route) shouldBe Some((route.drop(4), Seq(1, 2)))
-
-    runAndAwaitValue(r2, route1) shouldBe Some((route1.drop(4), 1 :: Seq(4, 42) :: HNil))
-    runAndAwaitValue(r2, route) shouldBe Some((route.drop(4), 1 :: Seq(2) :: HNil))
-  }
-
-  it should "extract booleans from the tail of the route" in {
-    val route = Input(Request("/flag/true/false/true"))
-    val r: Endpoint[Seq[Boolean]] = get("flag" / booleans)
-    runAndAwaitValue(r, route) shouldBe Some((route.drop(4), Seq(true, false, true)))
-  }
-
-  it should "extract the tail of the route in case it's empty" in {
-    val route = Input(Request("/a"))
-    val r: Endpoint[Seq[String]] = get("a" / strings)
-    runAndAwaitValue(r, route) shouldBe Some((route.drop(4), Nil))
-  }
-
-  it should "converts into a string" in {
-    val r1: Endpoint0 = get(/)
-    val r2: Endpoint0 = get("a" / true / 1)
-    val r3: Endpoint3[Int, Long, String] = get(("a" | "b") / int / long / string)
-    val r4: Endpoint3[String, Int, Boolean] = get(string("name") / int("id") / boolean("flag") / "foo")
-    val r5: Endpoint0 = post(*)
-    val r6: Endpoint[Seq[String]] = post(strings)
-
-    r1.toString shouldBe "GET /"
-    r2.toString shouldBe "GET /a/true/1"
-    r3.toString shouldBe "GET /(a|b)/:int/:long/:string"
-    r4.toString shouldBe "GET /:name/:id/:flag/foo"
-    r5.toString shouldBe "POST /*"
-    r6.toString shouldBe "POST /:string*"
-  }
-
-  it should "support the for-comprehension syntax" in {
-    val r1: Endpoint[String] = for { a :: b :: HNil <- get(string / int) } yield a + b
-    val r2: Endpoint[String] = for { a :: b :: c :: HNil <- get("a" / int / string / int) } yield b + c + a
-    val r3: Endpoint[String] = r1 | r2
-
-    runAndAwaitValue(r1) shouldBe Some((route.drop(2), "a1"))
-    runAndAwaitValue(r2) shouldBe Some((route.drop(4), "b21"))
-    runAndAwaitValue(r3) shouldBe runAndAwaitValue(r2)
-  }
-
-  it should "be map'd to an output" in {
-    val input = Input(Request())
-
-    val r1: Endpoint[String] = Endpoint(Ok("foo"))
-    val r2: Endpoint[String] = Endpoint(Ok(Future.value("foo")))
-    val r3: Endpoint[String] = Endpoint(Future.value(Ok("foo")))
-
-    runAndAwaitValue(r1, input) shouldBe Some((input, "foo"))
-    runAndAwaitValue(r2, input) shouldBe Some((input, "foo"))
-    runAndAwaitValue(r3, input) shouldBe Some((input, "foo"))
-
-    val r4: Endpoint[String] = get(/) { Ok("bar") }
-    val r5: Endpoint[String] = get(/) { Ok(Future.value("bar")) }
-    val r6: Endpoint[String] = get(/) { Future.value(Ok(("bar"))) }
-
-    runAndAwaitValue(r4, input) shouldBe Some((input, "bar"))
-    runAndAwaitValue(r5, input) shouldBe Some((input, "bar"))
-    runAndAwaitValue(r6, input) shouldBe Some((input, "bar"))
-
-    val r7: Endpoint[Int] = r1 { s: String => Ok(s.length) }
-    val r8: Endpoint[Int] = r1 { s: String => Ok(Future.value(s.length)) }
-    val r9: Endpoint[Int] = r1 { s: String => Future.value(Ok(s.length)) }
-
-    runAndAwaitValue(r7, input) shouldBe Some((input, 3))
-    runAndAwaitValue(r8, input) shouldBe Some((input, 3))
-    runAndAwaitValue(r9, input) shouldBe Some((input, 3))
-
-    val r10: Endpoint2[Int, Int] = Endpoint(Ok(100)) / Endpoint(Ok(200))
-    val r11: Endpoint[String] = r10 { (i: Int, j: Int) => Ok((i + j).toString) }
-    val r12: Endpoint[String] = r10 { (i: Int, j: Int) => Ok(Future.value((i + j).toString)) }
-    val r13: Endpoint[String] = r10 { (i: Int, j: Int) => Future.value(Ok((i + j).toString)) }
-
-    runAndAwaitValue(r11, input) shouldBe Some((input, "300"))
-    runAndAwaitValue(r12, input) shouldBe Some((input, "300"))
-    runAndAwaitValue(r13, input) shouldBe Some((input, "300"))
-  }
-
-  it should "capture the output context" in {
-    val input = Input(Request())
-    val r1: Endpoint[String] = Endpoint(Ok("foo").withHeader("X" -> "Y"))
-
-    runAndAwaitOutput(r1, input) shouldBe Some((input, Ok("foo").withHeader("X" -> "Y")))
-  }
-
-  it should "be greedy" in {
-    val a = Input(Request("/a/10"))
-    val b = Input(Request("/a"))
-
-    val r1: Endpoint0 = "a" | "b" | ("a" / 10)
-    val r2: Endpoint0 = ("a" / 10) | "b" |  "a"
-
-    runAndForget(r1, a) shouldBe Some(a.drop(2))
-    runAndForget(r1, b) shouldBe Some(b.drop(2))
-    runAndForget(r2, a) shouldBe Some(a.drop(2))
-    runAndForget(r2, b) shouldBe Some(b.drop(2))
-  }
-
-  it should "not evaluate futures until matched" in {
-    val a = Input(Request("/a/10"))
-    var flag = false
-
-    val routerWithFailedFuture: Endpoint0 = "a".embedFlatMap { hnil =>
-      Future {
-        flag = true
-        hnil
-      }
+  it should "extract tail of the path" in {
+    def extractTail[A](e: Endpoint[Seq[A]]): Seq[A] => Boolean = { s: Seq[A] =>
+      val i = Input(null, s.map(_.toString))
+      e(i).remainder === Some(i.copy(path = Nil))
     }
 
-    val router: Endpoint0 = ("a" / 10) | routerWithFailedFuture
-
-    runAndAwaitValue(router, a) shouldBe Some((a.drop(2), HNil))
-    flag shouldBe false
+    check(extractTail(strings))
+    check(extractTail(ints))
+    check(extractTail(booleans))
+    check(extractTail(longs))
+    check(extractTail(uuids))
   }
 
-  it should "handle the empty route well" in {
-    val r1: Endpoint0 = get(*)
-    val r2: Endpoint3[Int, String, Boolean] = get(int / string / boolean)
-    val r3: Endpoint0 = get("a" / "b" / "c")
-    val r4: Endpoint0 = post(*)
-
-    runAndForget(r1, emptyRoute) shouldBe Some(emptyRoute)
-    runAndForget(r2, emptyRoute) shouldBe None
-    runAndForget(r3, emptyRoute) shouldBe None
-    runAndForget(r4, emptyRoute) shouldBe None
+  it should "support very basic map" in {
+    check { i: Input =>
+      string.map(_ * 2)(i).value === i.headOption.map(_ * 2)
+    }
   }
 
-  it should "use the first router if both eat the same number of tokens" in {
-    val r: Endpoint[String]=
-      get("foo") /> "foo" |
-      get(/) /> "root"
-
-    val route1 = Input(Request())
-    val route2 = Input(Request("/foo"))
-
-    runAndAwaitValue(r, route1) shouldBe Some((route1, "root"))
-    runAndAwaitValue(r, route2) shouldBe Some((route2.drop(1), "foo"))
+  it should "propagate the default (Ok) output" in {
+    check { i: Input =>
+      string(i).output === i.headOption.map(s => Ok(s))
+    }
   }
 
-  it should "combine coproduct routers appropriately" in {
-    val r1: Endpoint[Int :+: String :+: CNil] = int :+: string
-    val r2: Endpoint[String :+: Long :+: CNil] = string :+: long
-
-    val r: Endpoint[Int :+: String :+: String :+: Long :+: CNil] = r1 :+: r2
-
-    val route = Input(Request("/100"))
-    runAndAwaitValue(r, route) shouldBe Some((route.drop(1), Inl(100)))
+  it should "propagate the default (Ok) output through its map'd/embedFlatMap'd/ap'd version" in {
+    check { i: Input =>
+      val expected = i.headOption.map(s => Ok(s.length))
+      string.map(s => s.length)(i).output === expected &&
+      string.embedFlatMap(s => Future.value(s.length))(i).output === expected &&
+      string.ap[Int](/.map(_ => s => s.length))(i).output == expected
+    }
   }
 
-  it should "convert a coproduct router into an endpoint" in {
-    case class Item(s: String)
+  it should "propagate the output through femap and /" in {
+    def expected(i: Int): Output[Int] =
+      Created(i)
+        .withHeader("A" -> "B")
+        .withCookie(new Cookie("C", "D"))
+        .withContentType(Some("E"))
+        .withCharset(Some("F"))
 
-    implicit val encodeItem: EncodeResponse[Item] =
-      EncodeResponse.fromString("text/plain")(_.s)
+    check { i: Input =>
+      string.femap(s => Future.value(expected(s.length)))(i).output === i.headOption.map(s => expected(s.length))
+    }
 
-    implicit val decodeItem: DecodeRequest[Item] =
-      DecodeRequest(s => Return(Item(s)))
-
-    val service: Service[Request, Response] = (
-      // Router returning an encodeable value.
-      get("foo" / string) { s: String => Item(s) } :+:
-        // Router returning an [[Response]].
-      get("foo") { Ok("foo") }             :+:
-      // Router composed with [[RequestReader]].
-      get("qux") ? param("p").as[Item]
-    ).toService
-
-    val res1 = Await.result(service(Request("/foo")))
-    val res2 = Await.result(service(Request("/foo/t")))
-    val res3 = Await.result(service(Request("/qux?p=something")))
-
-    res1.contentString shouldBe "foo"
-    res2.contentString shouldBe "t"
-    res3.contentString shouldBe "something"
+    check { i: Input =>
+      val e = i.path.dropRight(1).map(s => s: Endpoint0).foldLeft[Endpoint0](/)((acc, ee) => acc / ee)
+      val v = (e / string).femap(s => Future.value(expected(s.length)))(i)
+      v.output === i.path.lastOption.map(s => expected(s.length))
+    }
   }
 
-  it should "convert a value router into an endpoint" in {
-    val s: Service[Request, Response] = get("foo") { "bar" }.toService
+  it should "match one patch segment" in {
+    def matchOne[A](f: String => A)(implicit ev: A => Endpoint0): Input => Boolean = { i: Input =>
+      val v = i.path.headOption.flatMap(s => Try(f(s)).toOption).map(ev).flatMap(e => e(i))
+      v.isEmpty || v.remainder === Some(i.drop(1))
+    }
 
-    Await.result(s(Request("/foo"))).contentString shouldBe "bar"
+    check(matchOne(identity))
+    check(matchOne(_.toInt))
+    check(matchOne(_.toBoolean))
   }
 
-  it should "be composable with RequestReaders" in {
-    val pagination: RequestReader[(Int, Int)] = (param("from").as[Int] :: param("to").as[Int]).asTuple
-    val router: Endpoint[Int] = get("a" / int / "b" ? pagination) /> { (i, p) => i + p._1 + p._2 }
-    val route = Input(Request("/a/10/b", "from" -> "100", "to" -> "200"))
-
-    runAndAwaitValue(router, route) shouldBe Some((route.drop(3), 310))
+  it should "always match the entire input with *" in {
+    check { i: Input =>
+      *(i).remainder === Some(i.copy(path = Nil))
+    }
   }
 
-  it should "maps with Mapper" in {
-    val r1: Endpoint[Int] = Endpoint(Ok(100))
-    val r2: Endpoint[String] = r1 { i: Int => i.toString }
-    val r3: Endpoint[String] = r1 { i: Int => Future.value(i.toString) }
-    val r4: Endpoint2[Int, Int] = Endpoint(Ok(10)) / Endpoint(Ok(100))
-    val r5: Endpoint[Int] = r4 { (a: Int, b: Int) => a + b }
-    val r6: Endpoint[Int] = r4 { (a: Int, b: Int) => Future.value(a + b) }
-    val r7: Endpoint0 = /
-    val r8: Endpoint[String] = r7 { "foo" }
-    val r9: Endpoint[String] = r7 { Future.value("foo") }
+  it should "match the HTTP method" in {
+    def matchMethod(m: Method, f: Endpoint0 => Endpoint0): Input => Boolean = { i: Input =>
+      val v = f(/)(i)
+      (i.request.method === m && v.remainder === Some(i)) || (i.request.method != m && v.remainder === None)
+    }
 
+    check(matchMethod(Method.Get, get))
+    check(matchMethod(Method.Post, post))
+    check(matchMethod(Method.Trace, trace))
+    check(matchMethod(Method.Put, put))
+    check(matchMethod(Method.Patch, patch))
+    check(matchMethod(Method.Head, head))
+    check(matchMethod(Method.Options, options))
+    check(matchMethod(Method.Connect, connect))
+    check(matchMethod(Method.Delete, delete))
+  }
 
-    val route = Input(Request())
-    runAndAwaitValue(r1, route) shouldBe Some((route, 100))
-    runAndAwaitValue(r2, route) shouldBe Some((route, "100"))
-    runAndAwaitValue(r3, route) shouldBe Some((route, "100"))
-    runAndAwaitValue(r4, route) shouldBe Some((route, 10 :: 100 :: HNil))
-    runAndAwaitValue(r5, route) shouldBe Some((route, 110))
-    runAndAwaitValue(r6, route) shouldBe Some((route, 110))
-    runAndAwaitValue(r7, route) shouldBe Some((route, HNil))
-    runAndAwaitValue(r8, route) shouldBe Some((route, "foo"))
-    runAndAwaitValue(r9, route) shouldBe Some((route, "foo"))
+  it should "always match the identity instance" in {
+    check { i: Input =>
+      /(i).remainder === Some(i)
+    }
+  }
+
+  it should "match the entire input" in {
+    check { i: Input =>
+      val e = i.path.map(s => s: Endpoint0).foldLeft[Endpoint0](/)((acc, e) => acc / e)
+      e(i).remainder == Some(i.copy(path = Nil))
+    }
+  }
+
+  it should "not match the entire input if one of the underlying endpoints is failed" in {
+    check { (i: Input, s: String) =>
+      (* / s).apply(i).remainder === None
+    }
+  }
+
+  it should "match the input if one of the endpoints succeed" in {
+    def matchOneOfTwo(f: String => Endpoint0): Input => Boolean = { i: Input =>
+      val v = i.path.headOption.map(f).flatMap(e => e(i))
+      v.isEmpty || v.remainder === Some(i.drop(1))
+    }
+
+    check(matchOneOfTwo(s => (s: Endpoint0) | (s.reverse: Endpoint0)))
+    check(matchOneOfTwo(s => (s.reverse: Endpoint0) | (s: Endpoint0)))
+  }
+
+  it should "have the correct string representation" in {
+    def standaloneMatcher[A](implicit f: A => Endpoint0): A => Boolean = { a: A =>
+      f(a).toString == a.toString
+    }
+
+    check(standaloneMatcher[String])
+    check(standaloneMatcher[Int])
+    check(standaloneMatcher[Boolean])
+
+    def methodMatcher(m: Method, f: Endpoint0 => Endpoint0): String => Boolean = { s: String =>
+      f(s).toString === m.toString().toUpperCase + " /" + s
+    }
+
+    check(methodMatcher(Method.Get, get))
+    check(methodMatcher(Method.Post, post))
+    check(methodMatcher(Method.Trace, trace))
+    check(methodMatcher(Method.Put, put))
+    check(methodMatcher(Method.Patch, patch))
+    check(methodMatcher(Method.Head, head))
+    check(methodMatcher(Method.Options, options))
+    check(methodMatcher(Method.Connect, connect))
+    check(methodMatcher(Method.Delete, delete))
+
+    check { (s: String, i: Int) => (s: Endpoint0).map(_ => i).toString === s }
+    check { (s: String, t: String) => ((s: Endpoint0) | (t: Endpoint0)).toString === s"($s|$t)" }
+    check { (s: String, t: String) => ((s: Endpoint0) / (t: Endpoint0)).toString === s"$s/$t" }
+    check { s: String => (s: Endpoint0).ap[String](*.map(_ => _ => "foo")).toString === s }
+    check { (s: String, t: String) => (s: Endpoint0).embedFlatMap(_ => Future.value(t)).toString === s }
+
+    *.toString shouldBe "*"
+    /.toString shouldBe ""
+    int.toString shouldBe ":int"
+    string.toString shouldBe ":string"
+    long.toString shouldBe ":long"
+    uuid.toString shouldBe ":uuid"
+    boolean.toString shouldBe ":boolean"
+
+    ints.toString shouldBe ":int*"
+    strings.toString shouldBe ":string*"
+    longs.toString shouldBe ":long*"
+    uuids.toString shouldBe ":uuid*"
+    booleans.toString shouldBe ":boolean*"
+
+    (int / string).toString shouldBe ":int/:string"
+    (boolean :+: long).toString shouldBe "(:boolean|:long)"
+  }
+
+  it should "always respond with the same output if it's a constant Endpoint" in {
+    check { (i: Input, s: String) =>
+      val expected = Ok(s).withContentType(Some("application/json"))
+      Endpoint(expected)(i).output === Some(expected)
+    }
+  }
+
+  it should "support the as[A] method" in {
+    case class Foo(s: String, i: Int, b: Boolean)
+    val foo = (string / int / boolean).as[Foo]
+    check { (s: String, i: Int, b: Boolean) =>
+      foo(Input(null, Seq(s, i.toString, b.toString))).value === Some(Foo(s, i, b))
+    }
+  }
+
+  it should "rescue the exception occurred in it" in {
+    check { (i: Input, s: String, e: Exception) =>
+      Endpoint(Ok(Future.exception(e))).handle({ case _ => NoContent(s) })(i).output === Some(NoContent(s))
+    }
+  }
+
+  it should "be composable with RequestReader" in {
+    import io.finch.request._
+    check { (i: Input, p: String) =>
+      (/ ? RequestReader.value(p)).apply(i).value === Some(p)
+    }
   }
 
   it should "maps lazily to values" in {
-    var i: Int = 0
-    val r1: Endpoint[Int] = get(/) { i = i + 1; i }
-    val r2: Endpoint[Int] = get(/) { i = i + 1; Future.value(i) }
+    val i = Input(null, Seq.empty)
+    var c = 0
+    val e = * { c = c + 1; Ok(c) }
 
-    val route = Input(Request())
-    runAndAwaitValue(r1, route) shouldBe Some((route, 1))
-    runAndAwaitValue(r1, route) shouldBe Some((route, 2))
-    runAndAwaitValue(r1, route) shouldBe Some((route, 3))
-    runAndAwaitValue(r2, route) shouldBe Some((route, 4))
-    runAndAwaitValue(r2, route) shouldBe Some((route, 5))
-    runAndAwaitValue(r2, route) shouldBe Some((route, 6))
+    e(i).value shouldBe Some(1)
+    e(i).value shouldBe Some(2)
   }
 
-  it should "support as[A] method" in {
-    case class Foo(i: Int)
-    case class Bar(i: Int, s: String)
-    val e1: Endpoint[Foo] = get(int).as[Foo]
-    val e2: Endpoint[Bar] = get(int / string).as[Bar]
+  it should "not evaluate Futures until matched" in {
+    val i = Input(null, Seq("a", "10"))
+    var flag = false
 
-    val input1 = Input(Request("/100"))
-    runAndAwaitValue(e1, input1) shouldBe Some((input1.drop(1), Foo(100)))
-
-    val input2 = Input(Request("/100/200"))
-    runAndAwaitValue(e2, input2) shouldBe Some((input2.drop(2), Bar(100, "200")))
-  }
-
-  it should "rescue exceptions occurred at the endpoint" in {
-    val e: Endpoint[String] = get(int) { i: Int =>
-      if (i > 0) Ok(i.toString)
-      else if (i < 0) BadRequest("err" -> "foo")
-      else Ok((i / 0).toString)
-    } handle {
-      case _: ArithmeticException => BadRequest("err" -> "bar")
+    val endpointWithFailedFuture = "a".embedFlatMap { nil =>
+      Future { flag = true; nil }
     }
 
-    val i1 = Input(Request("/10"))
-    runAndAwaitValue(e, i1) shouldBe Some((i1.drop(1), "10"))
-
-    val i2 = Input(Request("/-10"))
-    an [IllegalArgumentException] shouldBe thrownBy(runAndAwaitValue(e, i2))
-
-    val i3 = Input(Request("/0"))
-    an [IllegalArgumentException] shouldBe thrownBy(runAndAwaitValue(e, i3))
+    val e = ("a" / 10) | endpointWithFailedFuture
+    e(i).isDefined shouldBe true
+    flag shouldBe false
   }
 
-  it should "propagate the output via / combinator" in {
-    val e1 = get("foo" / string) { s: String => Created(s).withHeader("X" -> "Y") }
-    val e2 = get("bar" / string) { s: String => Future.value(Created(s).withHeader("X" -> "Y")) }
-    val e3 = get("baz" / string) { s: String => Created(Future.value(s)).withHeader("X" -> "Y") }
+  it should "be greedy in terms of | compositor" in {
+    val a = Input(null, Seq("a", "10"))
+    val b = Input(null, Seq("a"))
 
-    val s = ("prefix" / (e1 :+: e2 :+: e3)).toService
+    val e1: Endpoint0 = "a" | "b" | ("a" / 10)
+    val e2: Endpoint0 = ("a" / 10) | "b" |  "a"
 
-    for (req <- Seq("/prefix/foo/1", "/prefix/bar/1", "/prefix/baz/1")) {
-      val rep = Await.result(s(Request(req)))
-      rep.status shouldBe Status.Created
-      rep.headerMap.get("X") shouldBe Some("Y")
-      rep.contentString shouldBe "1"
-    }
-  }
-
-  "A string matcher" should "have the correct string representation" in {
-    check { (s: String) =>
-      val matcher: Endpoint[HNil] = s
-
-      matcher.toString === s
-    }
-  }
-
-  "An endpoint disjunction" should "have the correct string representation" in {
-    check { (s: String, t: String) =>
-      val router: Endpoint[HNil] = s | t
-
-      router.toString === s"($s|$t)"
-    }
-  }
-
-  "A mapped endpoint" should "have the correct string representation" in {
-    check { (s: String, i: Int) =>
-      val matcher: Endpoint[HNil] = s
-      val router: Endpoint[Int] = matcher.map(_ => i)
-
-      router.toString === s
-    }
-  }
-
-  "An ap'd endpoint" should "have the correct string representation" in {
-    check { (s: String) =>
-      val matcher: Endpoint[HNil] = s
-      val fr: Endpoint[HNil => String] = *.map(_ => _ => "foo")
-      val router: Endpoint[String] = matcher.ap(fr)
-
-      router.toString === s
-    }
-  }
-
-  "An embedFlatMapped endpoint" should "have the correct string representation" in {
-    check { (s: String, ss: String) =>
-      val matcher: Endpoint[HNil] = s
-      val router: Endpoint[String] = matcher.embedFlatMap(_ => Future.value(ss))
-
-      router.toString === s
-    }
-  }
-
-  "An coproduct endpoint with two elements" should "have the correct string representation" in {
-    val router: Endpoint[String :+: Int :+: CNil] = string :+: int
-
-    assert(router.toString === "(:string|:int)")
-  }
-
-  "An coproduct endpoint with more than two elements" should "have the correct string representation" in {
-    val router: Endpoint[String :+: Int :+: Long :+: CNil] = string :+: int :+: long
-
-    assert(router.toString === "(:string|(:int|:long))")
-  }
-
-  "A BasicAuth combinator" should "auth the endpoint" in {
-    def encode(user: String, password: String) = "Basic " + Base64StringEncoder.encode(s"$user:$password".getBytes)
-    val e: Endpoint[String] = get(/) { Ok("foo") }
-
-    check { (u: String, p: String) =>
-      val req = Request()
-      req.headerMap.update("Authorization", encode(u, p))
-
-      val ba = BasicAuth(u, p)
-      val input = Input(req)
-      val ee = ba(e)
-
-      ee.toString === s"BasicAuth($e)"
-      runAndAwaitOutput(ee, input).get._2 === Unauthorized
-      req.headerMap.update("Authorization", encode(u, p))
-      runAndAwaitOutput(ee, input).get._2 === Ok("foo")
-    }
+    e1(a).remainder shouldBe Some(a.drop(2))
+    e1(b).remainder shouldBe Some(b.drop(2))
+    e2(a).remainder shouldBe Some(a.drop(2))
+    e2(b).remainder shouldBe Some(b.drop(2))
   }
 }
