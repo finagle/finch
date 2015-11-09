@@ -9,7 +9,42 @@ import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.function.FnToProduct
 
 /**
- * An endpoint that is given an [[Input]], extracts some value of the type `A`, wrapped with [[Output]].
+ * An `Endpoint` represents the HTTP endpoint.
+ *
+ * I is well known and widely adopted in Finagle that "Your Server as a Function" (i.e., `Request => Future[Response]`.
+ * In a REST API setting this function may be viewed as `Request =1=> (A =2=> Future[B]) =3=> Future[Response]`, where
+ * transformation `1` is request decoding (deserialization), transformation `2` - is business logic and transformation
+ * `3` is- response encoding (serialization). The only interesting part here is transformation `2`
+ * (i.e., `A => Future[B]`), which represents a bossiness logic of an application.
+ *
+ * An `Endpoint` transformation (`map`, `embedFlatMap`, etc.) encodes the business logic, while the rest of Finch
+ * ecosystem takes care about both serialization and deserialization.
+ *
+ * A typical way to transform (or map) the `Endpoint` is to use [[Mapper]] and `Endpoint.apply` method, which, depending
+ * on the argument type, delegates the map operation to the underlying function.
+ *
+ * {{{
+ *   case class Foo(i: Int)
+ *   case class Bar(s: String)
+ *
+ *   val foo: Endpoint[Foo] = get("foo") { Ok(Foo(42)) }
+ *   val bar: Endpoint[Bar] = get("bar" / string) { s: String => Ok(Bar(s)) }
+ * }}}
+ *
+ * `Endpoint`s are also composable in terms of or-else combinator (or a space invader `:+:`) that takes two `Endpoint`s
+ * and gives a coproduct `Endpoint`.
+ *
+ * {{{
+ *   val foobar: Endpoint[Foo :+: Bar :+: CNil] = foo :+: bar
+ * }}}
+ *
+ * An `Endpoint` might be converted into a Finagle [[Service]] with `Endpoint.toService` method so it can be served with
+ * Finagle HTTP.
+ *
+ * {{{
+ *   Http.server.serve(foobar.toService)
+ * }}}
+ *
  */
 trait Endpoint[A] { self =>
   /**

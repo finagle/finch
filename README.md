@@ -92,12 +92,12 @@ FinagleJackson.postJsonObj:·gc.alloc.rate.norm   avgt   10  376365652.800 ± 16
 
 Demo
 ----
-The [`petstore`](petstore) project implements the [Petstore](http://petstore.swagger.io/) Swagger example.
+See very minimalistic [Finch application][todo] implementing an [HTTP backed][todobackend] for [TodoMVC][todomvc].
 
 Documentation
 -------------
 * A comprehensive documentation may be found in the [`docs/`](docs/index.md) folder
-* The latest Scaladoc is available at [http://finagle.github.io/finch/docs](http://finagle.github.io/finch/docs/#io.finch.package)
+* The latest Scaladoc is available at [http://finagle.github.io/finch/docs][scaladoc]
 
 Adopters
 --------
@@ -141,3 +141,7 @@ limitations under the License.
 [argonaut]: http://argonaut.io
 [finagle-oauth2]: https://github.com/finagle/finagle-oauth2
 [json4s]: http://json4s.org
+[scaladoc]: http://finagle.github.io/finch/docs/#io.finch.package
+[todo]: https://github.com/vkostyukov/finch-101/blob/master/src/main/scala/i/f/workshop/finch/Todo.scala
+[todobackend]: http://www.todobackend.com/
+[todomvc]: http://todomvc.com/

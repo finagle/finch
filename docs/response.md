@@ -5,6 +5,9 @@
 
 --
 
+**The `response` package is deprecated since 0.9.0 and will be removed in 1.0.0. use [Outputs](endpoint.md#outputs)
+instead.**
+
 ### Response Builder
 
 An entry point into the construction of HTTP responses in Finch is the `io.finch.response.ResponseBuilder` class. It

@@ -1,8 +1,17 @@
 package io.finch.request
 
 /**
- * A reusable validation rule that can be applied to any [[io.finch.request.RequestReader RequestReader]] with a
- * matching type.
+ * A `ValidationRule` enables a reusable way of defining a validation rules in the application domain. It might be
+ * composed with [[RequestReader]]s using either should` or `shouldNot` methods and with other `ValidationRule`s using
+ * logical methods `and` and `or`.
+ *
+ * {{{
+ *   case class User(name: String, age: Int)
+ *   val user: RequestReader[User] = (
+ *     param("name").should(beLongerThan(3)) ::
+ *     param("age").as[Int].should(beGreaterThan(0) and beLessThan(120))
+ *   ).as[User]
+ * }}}
  */
 trait ValidationRule[A] { self =>
 
