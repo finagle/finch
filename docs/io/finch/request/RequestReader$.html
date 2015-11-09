@@ -28,10 +28,12 @@
         </head>
         <body class="value">
       <div id="definition">
-        <img alt="Object" src="../../../lib/object_big.png" />
+        <a href="RequestReader.html" title="See companion trait"><img alt="Object/Trait" src="../../../lib/object_to_trait_big.png" /></a>
         <p id="owner"><a href="../../package.html" class="extype" name="io">io</a>.<a href="../package.html" class="extype" name="io.finch">finch</a>.<a href="package.html" class="extype" name="io.finch.request">request</a></p>
-        <h1>RequestReader</h1><h3><span class="morelinks"><div>Related Doc:
-            <a href="package.html" class="extype" name="io.finch.request">package request</a>
+        <h1><a href="RequestReader.html" title="See companion trait">RequestReader</a></h1><h3><span class="morelinks"><div>
+            Related Docs:
+            <a href="RequestReader.html" title="See companion trait">trait RequestReader</a>
+            | <a href="package.html" class="extype" name="io.finch.request">package request</a>
           </div></span></h3><span class="permalink">
       <a href="../../../index.html#io.finch.request.RequestReader$" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
@@ -125,6 +127,124 @@
       </a>
     </span>
       
+    </li><li name="io.finch.request.RequestReader.HListReaderOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="HListReaderOps[L&lt;:shapeless.HList]extendsAnyRef"></a>
+      <a id="HListReaderOps[L&lt;:HList]:HListReaderOps[L]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="RequestReader$$HListReaderOps.html"><span class="name">HListReaderOps</span></a><span class="tparams">[<span name="L">L &lt;: <span class="extype" name="shapeless.HList">HList</span></span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.RequestReader$@HListReaderOps[L&lt;:shapeless.HList]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit class that provides <code>::</code> and other operations on any request reader that returns a
+<span class="extype" name="shapeless.HList">shapeless.HList</span>.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit class that provides <code>::</code> and other operations on any request reader that returns a
+<span class="extype" name="shapeless.HList">shapeless.HList</span>.</p><p>See the implementation note on <a href="RequestReader$$StringSeqReaderOps.html" class="extype" name="io.finch.request.RequestReader.StringSeqReaderOps">StringSeqReaderOps</a> for a discussion of why this is not
+currently a value class.
+</p></div></div>
+    </li><li name="io.finch.request.RequestReader.OptionReaderOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="OptionReaderOps[A]extendsAnyVal"></a>
+      <a id="OptionReaderOps[A]:OptionReaderOps[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="RequestReader$$OptionReaderOps.html"><span class="name">OptionReaderOps</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.RequestReader$@OptionReaderOps[A]extendsAnyVal" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit conversion that adds convenience methods to readers for optional values.</p>
+    </li><li name="io.finch.request.RequestReader.StringOptionReaderOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="StringOptionReaderOpsextendsAnyVal"></a>
+      <a id="StringOptionReaderOps:StringOptionReaderOps"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="RequestReader$$StringOptionReaderOps.html"><span class="name">StringOptionReaderOps</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.RequestReader$@StringOptionReaderOpsextendsAnyVal" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit conversion that allows to call <code>as[A]</code> on any <code>RequestReader[Option[String]]</code> to perform a type conversion
+based on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion that allows to call <code>as[A]</code> on any <code>RequestReader[Option[String]]</code> to perform a type conversion
+based on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><p>The resulting reader will fail when the result is non-empty and type conversion fails. It will succeed if the
+result is empty or type conversion succeeds.
+</p></div></div>
+    </li><li name="io.finch.request.RequestReader.StringReaderOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="StringReaderOpsextendsAnyVal"></a>
+      <a id="StringReaderOps:StringReaderOps"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="RequestReader$$StringReaderOps.html"><span class="name">StringReaderOps</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.RequestReader$@StringReaderOpsextendsAnyVal" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit conversion that allows to call <code>as[A]</code> on any <code>RequestReader[String]</code> to perform a type conversion based
+on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion that allows to call <code>as[A]</code> on any <code>RequestReader[String]</code> to perform a type conversion based
+on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><p>The resulting reader will fail when type conversion fails.
+</p></div></div>
+    </li><li name="io.finch.request.RequestReader.StringSeqReaderOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="StringSeqReaderOpsextendsAnyRef"></a>
+      <a id="StringSeqReaderOps:StringSeqReaderOps"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="RequestReader$$StringSeqReaderOps.html"><span class="name">StringSeqReaderOps</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.RequestReader$@StringSeqReaderOpsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit conversion that allows to call <code>as[A]</code> on any <code>RequestReader[Seq[String]]</code> to perform a type conversion
+based on an implicit <i>DecodeRequest[A]</i> which must be in scope.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion that allows to call <code>as[A]</code> on any <code>RequestReader[Seq[String]]</code> to perform a type conversion
+based on an implicit <i>DecodeRequest[A]</i> which must be in scope.</p><p>The resulting reader will fail when the result is non-empty and type conversion fails on one or more of the
+elements in the <code>Seq</code>. It will succeed if the result is empty or type conversion succeeds for all elements.
+</p></div></div>
+    </li><li name="io.finch.request.RequestReader.ValueReaderOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ValueReaderOps[B]extendsAnyVal"></a>
+      <a id="ValueReaderOps[B]:ValueReaderOps[B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="RequestReader$$ValueReaderOps.html"><span class="name">ValueReaderOps</span></a><span class="tparams">[<span name="B">B</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.request.RequestReader$@ValueReaderOps[B]extendsAnyVal" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit class that provides <code>::</code> and other operations on any request reader to support
+building <span class="extype" name="shapeless.HList">shapeless.HList</span> request readers.</p>
     </li></ol>
             </div>
 
@@ -201,22 +321,22 @@
     </span>
       
     </li><li name="io.finch.request.RequestReader#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply[R,A](f:R=&gt;A):io.finch.request.PRequestReader[R,A]"></a>
-      <a id="apply[R,A]((R)⇒A):PRequestReader[R,A]"></a>
+      <a id="apply[A](f:com.twitter.finagle.http.Request=&gt;A):io.finch.request.RequestReader[A]"></a>
+      <a id="apply[A]((Request)⇒A):RequestReader[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="R">R</span>, <span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.finch.request.RequestReader.apply.R">R</span>) ⇒ <span class="extype" name="io.finch.request.RequestReader.apply.A">A</span></span>)</span><span class="result">: <a href="PRequestReader.html" class="extype" name="io.finch.request.PRequestReader">PRequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.apply.R">R</span>, <span class="extype" name="io.finch.request.RequestReader.apply.A">A</span>]</span>
+        <span class="name">apply</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="f">f: (<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Request" class="extype" target="_top">Request</a>) ⇒ <span class="extype" name="io.finch.request.RequestReader.apply.A">A</span></span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.apply.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.request.RequestReader$@apply[R,A](f:R=&gt;A):io.finch.request.PRequestReader[R,A]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.request.RequestReader$@apply[A](f:com.twitter.finagle.http.Request=&gt;A):io.finch.request.RequestReader[A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a new <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads the result from the request.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that reads the result from the request.
+      <p class="shortcomment cmt">Creates a new <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that reads the result from the request.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that reads the result from the request.
 </p></div><dl class="paramcmts block"><dt class="param">f</dt><dd class="cmt"><p>the function to apply to the request</p></dd><dt>returns</dt><dd class="cmt"><p>a new reader that reads the result from the request</p></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
@@ -267,14 +387,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">const</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="value">value: <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<span class="extype" name="io.finch.request.RequestReader.const.A">A</span>]</span>)</span><span class="result">: <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.const.A">A</span>]</span>
+        <span class="name">const</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="value">value: <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<span class="extype" name="io.finch.request.RequestReader.const.A">A</span>]</span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.const.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.RequestReader$@const[A](value:com.twitter.util.Future[A]):io.finch.request.RequestReader[A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a new <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that always produces the specified value.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that always produces the specified value. It will
+      <p class="shortcomment cmt">Creates a new <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that always produces the specified value.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that always produces the specified value. It will
 succeed if the given <code>Future</code> succeeds and fail if the <code>Future</code> fails.
 </p></div><dl class="paramcmts block"><dt class="param">value</dt><dd class="cmt"><p>the value the new reader should produce</p></dd><dt>returns</dt><dd class="cmt"><p>a new reader that always produces the specified value</p></dd></dl></div>
     </li><li name="io.finch.request.RequestReader#derive" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
@@ -337,15 +457,15 @@ succeed if the given <code>Future</code> succeeds and fail if the <code>Future</
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">exception</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="exc">exc: <span class="extype" name="scala.Throwable">Throwable</span></span>)</span><span class="result">: <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.exception.A">A</span>]</span>
+        <span class="name">exception</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="exc">exc: <span class="extype" name="scala.Throwable">Throwable</span></span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.exception.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.RequestReader$@exception[A](exc:Throwable):io.finch.request.RequestReader[A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a new <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that always fails, producing the specified
-exception.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that always fails, producing the specified
+      <p class="shortcomment cmt">Creates a new <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that always fails, producing the specified
+exception.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that always fails, producing the specified
 exception.
 </p></div><dl class="paramcmts block"><dt class="param">exc</dt><dd class="cmt"><p>the exception the new reader should produce</p></dd><dt>returns</dt><dd class="cmt"><p>a new reader that always fails, producing the specified exception</p></dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -516,14 +636,14 @@ exception.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">value</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="io.finch.request.RequestReader.value.A">A</span></span>)</span><span class="result">: <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.value.A">A</span>]</span>
+        <span class="name">value</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="io.finch.request.RequestReader.value.A">A</span></span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.request.RequestReader.value.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.request.RequestReader$@value[A](value:A):io.finch.request.RequestReader[A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a new <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that always succeeds, producing the specified value.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> that always succeeds, producing the specified value.
+      <p class="shortcomment cmt">Creates a new <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that always succeeds, producing the specified value.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a> that always succeeds, producing the specified value.
 </p></div><dl class="paramcmts block"><dt class="param">value</dt><dd class="cmt"><p>the value the new reader should produce</p></dd><dt>returns</dt><dd class="cmt"><p>a new reader that always succeeds, producing the specified value</p></dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>

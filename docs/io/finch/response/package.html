@@ -49,7 +49,7 @@
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>This package enables a reasonable approach of building HTTP responses using the
 <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a> abstraction. The <code>ResponseBuilder</code> provides an immutable way
-of building concrete <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Response" class="extype" target="_top">Response</a> instances by specifying their <i>status</i>,
+of building concrete <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a> instances by specifying their <i>status</i>,
 <i>headers</i> and <i>cookies</i>. There are plenty of predefined builders named by HTTP statuses, i.e., <code>Ok</code>, <code>Created</code>,
 <code>NotFound</code>. Thus, the typical use case of the <code>ResponseBuilder</code> abstraction involves usage of concrete builder
 instead of abstract <code>ResponseBuilder</code> itself.</p><pre><span class="kw">val</span> ok: Response = Ok(<span class="lit">"Hello, World!"</span>)</pre><p>In addition to <code>text/plain</code> responses, the <code>ResponseBuilder</code> is able to build any response, whose <code>content-type</code> is
@@ -140,7 +140,7 @@ scope.</p><pre><span class="kw">implicit</span> <span class="kw">val</span> enco
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="ResponseBuilder.html"><span class="name">ResponseBuilder</span></a><span class="params">(<span name="status">status: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Status" class="extype" target="_top">Status</a></span>, <span name="headers">headers: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Map.empty[String, String]</span></span>, <span name="cookies">cookies: <span class="extype" name="scala.Seq">Seq</span>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Cookie" class="extype" target="_top">Cookie</a>] = <span class="symbol">Seq.empty[Cookie]</span></span>, <span name="contentType">contentType: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="charset">charset: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="ResponseBuilder.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use Endpoint.Output instead">ResponseBuilder</span></a><span class="params">(<span name="status">status: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Status" class="extype" target="_top">Status</a></span>, <span name="headers">headers: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Map.empty[String, String]</span></span>, <span name="cookies">cookies: <span class="extype" name="scala.Seq">Seq</span>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Cookie" class="extype" target="_top">Cookie</a>] = <span class="symbol">Seq.empty[Cookie]</span></span>, <span name="contentType">contentType: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="charset">charset: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.package@ResponseBuilderextendsProductwithSerializable" title="Permalink" target="_top">
@@ -148,24 +148,10 @@ scope.</p><pre><span class="kw">implicit</span> <span class="kw">val</span> enco
       </a>
     </span>
       <p class="shortcomment cmt">An abstraction that is responsible for building HTTP responses.</p><div class="fullcomment"><div class="comment cmt"><p>An abstraction that is responsible for building HTTP responses.
-</p></div><dl class="paramcmts block"><dt class="param">status</dt><dd class="cmt"><p>the HTTP response status</p></dd><dt class="param">headers</dt><dd class="cmt"><p>the HTTP headers map</p></dd><dt class="param">cookies</dt><dd class="cmt"><p>the HTTP cookies list</p></dd></dl></div>
-    </li><li name="io.finch.response.TurnIntoHttp" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="TurnIntoHttp[A]extendsService[A,com.twitter.finagle.httpx.Response]"></a>
-      <a id="TurnIntoHttp[A]:TurnIntoHttp[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="TurnIntoHttp.html"><span class="name">TurnIntoHttp</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.Service" class="extype" target="_top">Service</a>[<span class="extype" name="io.finch.response.TurnIntoHttp.A">A</span>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Response" class="extype" target="_top">Response</a>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.response.package@TurnIntoHttp[A]extendsService[A,com.twitter.finagle.httpx.Response]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
+</p></div><dl class="paramcmts block"><dt class="param">status</dt><dd class="cmt"><p>the HTTP response status</p></dd><dt class="param">headers</dt><dd class="cmt"><p>the HTTP headers map</p></dd><dt class="param">cookies</dt><dd class="cmt"><p>the HTTP cookies list</p></dd></dl><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use Endpoint.Output instead</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -785,23 +771,6 @@ scope.</p><pre><span class="kw">implicit</span> <span class="kw">val</span> enco
       </a>
     </span>
       
-    </li><li name="io.finch.response.Redirect" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Redirect"></a>
-      <a id="Redirect:Redirect"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Redirect$.html"><span class="name">Redirect</span></a>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.response.package@Redirect" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A factory for Redirecting to other URLs.</p>
     </li><li name="io.finch.response.RequestEntityTooLarge" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="RequestEntityTooLarge"></a>
       <a id="RequestEntityTooLarge:RequestEntityTooLarge"></a>
@@ -955,24 +924,6 @@ scope.</p><pre><span class="kw">implicit</span> <span class="kw">val</span> enco
       </a>
     </span>
       
-    </li><li name="io.finch.response.TurnIntoHttp" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="TurnIntoHttp"></a>
-      <a id="TurnIntoHttp:TurnIntoHttp"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="TurnIntoHttp$.html"><span class="name">TurnIntoHttp</span></a>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.response.package@TurnIntoHttp" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A service that converts an encoded object into HTTP response with status <i>OK</i> using an implicit
-<a href="EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>.</p>
     </li><li name="io.finch.response.Unauthorized" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Unauthorized"></a>
       <a id="Unauthorized:Unauthorized"></a>
@@ -1097,7 +1048,31 @@ scope.</p><pre><span class="kw">implicit</span> <span class="kw">val</span> enco
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="io.finch.response.Redirect" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Redirect"></a>
+      <a id="Redirect:Redirect"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Redirect$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use Endpoint.Output instead">Redirect</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.package@Redirect" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A factory for Redirecting to other URLs.</p><div class="fullcomment"><div class="comment cmt"><p>A factory for Redirecting to other URLs.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use Endpoint.Output instead</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">

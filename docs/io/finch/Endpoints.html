@@ -1,0 +1,1220 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>Endpoints - io.finch.Endpoints</title>
+          <meta name="description" content="Endpoints - io.finch.Endpoints" />
+          <meta name="keywords" content="Endpoints io.finch.Endpoints" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'io.finch.Endpoints';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <img alt="Trait" src="../../lib/trait_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="io">io</a>.<a href="package.html" class="extype" name="io.finch">finch</a></p>
+        <h1>Endpoints</h1><h3><span class="morelinks"><div>Related Doc:
+            <a href="package.html" class="extype" name="io.finch">package finch</a>
+          </div></span></h3><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Endpoints</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A collection of <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> combinators.
+</p></div><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="io.finch.Endpoints"><span>Endpoints</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="io.finch.Endpoints.BasicAuth" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BasicAuthextendsProductwithSerializable"></a>
+      <a id="BasicAuth:BasicAuth"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$BasicAuth.html"><span class="name">BasicAuth</span></a><span class="params">(<span name="user">user: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="password">password: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="err">err: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Map.empty[String, String]</span></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@BasicAuthextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Maintains Basic HTTP Auth for an arbitrary <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>.</p>
+    </li><li name="io.finch.Endpoints.Endpoint0" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Endpoint0=io.finch.Endpoint[shapeless.HNil]"></a>
+      <a id="Endpoint0:Endpoint0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Endpoint0</span><span class="result"> = <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="shapeless.HNil">HNil</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@Endpoint0=io.finch.Endpoint[shapeless.HNil]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.Endpoints.Endpoint2" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Endpoint2[A,B]=io.finch.Endpoint[shapeless.::[A,shapeless.::[B,shapeless.HNil]]]"></a>
+      <a id="Endpoint2[A,B]:Endpoint2[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Endpoint2</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="result"> = <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="shapeless.::">::</span>[<span class="extype" name="io.finch.Endpoints.Endpoint2.A">A</span>, <span class="extype" name="shapeless.::">::</span>[<span class="extype" name="io.finch.Endpoints.Endpoint2.B">B</span>, <span class="extype" name="shapeless.HNil">HNil</span>]]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@Endpoint2[A,B]=io.finch.Endpoint[shapeless.::[A,shapeless.::[B,shapeless.HNil]]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.Endpoints.Endpoint3" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Endpoint3[A,B,C]=io.finch.Endpoint[shapeless.::[A,shapeless.::[B,shapeless.::[C,shapeless.HNil]]]]"></a>
+      <a id="Endpoint3[A,B,C]:Endpoint3[A,B,C]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Endpoint3</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>, <span name="C">C</span>]</span><span class="result"> = <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="shapeless.::">::</span>[<span class="extype" name="io.finch.Endpoints.Endpoint3.A">A</span>, <span class="extype" name="shapeless.::">::</span>[<span class="extype" name="io.finch.Endpoints.Endpoint3.B">B</span>, <span class="extype" name="shapeless.::">::</span>[<span class="extype" name="io.finch.Endpoints.Endpoint3.C">C</span>, <span class="extype" name="shapeless.HNil">HNil</span>]]]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@Endpoint3[A,B,C]=io.finch.Endpoint[shapeless.::[A,shapeless.::[B,shapeless.::[C,shapeless.HNil]]]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.Endpoints.Extractor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Extractor[A]extendsEndpoint[A]withProductwithSerializable"></a>
+      <a id="Extractor[A]:Extractor[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$Extractor.html"><span class="name">Extractor</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="f">f: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoints.Extractor.A">A</span>]</span>)</span><span class="result"> extends <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.Extractor.A">A</span>] with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@Extractor[A]extendsEndpoint[A]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An universal extractor that extracts some value of type <code>A</code> if it's possible to fetch the value from the string.</p>
+    </li><li name="io.finch.Endpoints.TailExtractor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TailExtractor[A]extendsEndpoint[Seq[A]]withProductwithSerializable"></a>
+      <a id="TailExtractor[A]:TailExtractor[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$TailExtractor.html"><span class="name">TailExtractor</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="f">f: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoints.TailExtractor.A">A</span>]</span>)</span><span class="result"> extends <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="io.finch.Endpoints.TailExtractor.A">A</span>]] with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@TailExtractor[A]extendsEndpoint[Seq[A]]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An extractor that extracts a value of type <code>Seq[A]</code> from the tail of the route.</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@##():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="io.finch.Endpoints.*" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="*"></a>
+      <a id="*:*"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$$times$.html"><span title="gt4s: $times" class="name">*</span></a><span class="result"> extends <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="shapeless.HNil">HNil</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@*" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that skips all path parts.</p>
+    </li><li name="io.finch.Endpoints./" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="/"></a>
+      <a id="/:/"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$$div$.html"><span title="gt4s: $div" class="name">/</span></a><span class="result"> extends <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="shapeless.HNil">HNil</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@/" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An identity <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>.</p>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.finch.Endpoints.boolean" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="boolean"></a>
+      <a id="boolean:boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$boolean$.html"><span class="name">boolean</span></a><span class="result"> extends <a href="Endpoints$Extractor.html" class="extype" name="io.finch.Endpoints.Extractor">Extractor</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that extract a boolean value from the route.</p>
+    </li><li name="io.finch.Endpoints#booleanToMatcher" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="booleanToMatcher(b:Boolean):Endpoints.this.Endpoint0"></a>
+      <a id="booleanToMatcher(Boolean):Endpoint0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">booleanToMatcher</span><span class="params">(<span name="b">b: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="#Endpoint0=io.finch.Endpoint[shapeless.HNil]" class="extmbr" name="io.finch.Endpoints.Endpoint0">Endpoint0</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@booleanToMatcher(b:Boolean):Endpoints.this.Endpoint0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.Endpoints.booleans" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="booleans"></a>
+      <a id="booleans:booleans"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$booleans$.html"><span class="name">booleans</span></a><span class="result"> extends <a href="Endpoints$TailExtractor.html" class="extype" name="io.finch.Endpoints.TailExtractor">TailExtractor</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@booleans" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that extract a boolean tail from the route.</p>
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@clone():Object" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="io.finch.Endpoints#connect" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="connect[A]:io.finch.Endpoint[A]=&gt;io.finch.Endpoint[A]"></a>
+      <a id="connect[A]:(Endpoint[A])⇒Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">connect</span><span class="tparams">[<span name="A">A</span>]</span><span class="result">: (<a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.connect.A">A</span>]) ⇒ <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.connect.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@connect[A]:io.finch.Endpoint[A]=&gt;io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with additional check of the HTTP method.</p><div class="fullcomment"><div class="comment cmt"><p>A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with additional check of the HTTP method. The resulting <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>
+succeeds on the request only if its method is <code>CONNECT</code> and the underlying router succeeds on it.
+</p></div></div>
+    </li><li name="io.finch.Endpoints#delete" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="delete[A]:io.finch.Endpoint[A]=&gt;io.finch.Endpoint[A]"></a>
+      <a id="delete[A]:(Endpoint[A])⇒Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">delete</span><span class="tparams">[<span name="A">A</span>]</span><span class="result">: (<a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.delete.A">A</span>]) ⇒ <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.delete.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@delete[A]:io.finch.Endpoint[A]=&gt;io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with additional check of the HTTP method.</p><div class="fullcomment"><div class="comment cmt"><p>A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with additional check of the HTTP method. The resulting <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>
+succeeds on the request only if its method is <code>DELETE</code> and the underlying router succeeds on it.
+</p></div></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="io.finch.Endpoints#get" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="get[A]:io.finch.Endpoint[A]=&gt;io.finch.Endpoint[A]"></a>
+      <a id="get[A]:(Endpoint[A])⇒Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">get</span><span class="tparams">[<span name="A">A</span>]</span><span class="result">: (<a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.get.A">A</span>]) ⇒ <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.get.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@get[A]:io.finch.Endpoint[A]=&gt;io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with additional check of the HTTP method.</p><div class="fullcomment"><div class="comment cmt"><p>A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with additional check of the HTTP method. The resulting <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>
+succeeds on the request only if its method is <code>GET</code> and the underlying router succeeds on it.
+</p></div></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <a id="hashCode():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@hashCode():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="io.finch.Endpoints#head" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="head[A]:io.finch.Endpoint[A]=&gt;io.finch.Endpoint[A]"></a>
+      <a id="head[A]:(Endpoint[A])⇒Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">head</span><span class="tparams">[<span name="A">A</span>]</span><span class="result">: (<a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.head.A">A</span>]) ⇒ <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.head.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@head[A]:io.finch.Endpoint[A]=&gt;io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with additional check of the HTTP method.</p><div class="fullcomment"><div class="comment cmt"><p>A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with additional check of the HTTP method. The resulting <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>
+succeeds on the request only if its method is <code>HEAD</code> and the underlying router succeeds on it.
+</p></div></div>
+    </li><li name="io.finch.Endpoints.int" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="int"></a>
+      <a id="int:int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$int$.html"><span class="name">int</span></a><span class="result"> extends <a href="Endpoints$Extractor.html" class="extype" name="io.finch.Endpoints.Extractor">Extractor</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that extract an integer value from the route.</p>
+    </li><li name="io.finch.Endpoints#intToMatcher" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="intToMatcher(i:Int):Endpoints.this.Endpoint0"></a>
+      <a id="intToMatcher(Int):Endpoint0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">intToMatcher</span><span class="params">(<span name="i">i: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="#Endpoint0=io.finch.Endpoint[shapeless.HNil]" class="extmbr" name="io.finch.Endpoints.Endpoint0">Endpoint0</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@intToMatcher(i:Int):Endpoints.this.Endpoint0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.Endpoints.ints" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ints"></a>
+      <a id="ints:ints"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$ints$.html"><span class="name">ints</span></a><span class="result"> extends <a href="Endpoints$TailExtractor.html" class="extype" name="io.finch.Endpoints.TailExtractor">TailExtractor</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@ints" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that extract an integer tail from the route.</p>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.finch.Endpoints.long" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="long"></a>
+      <a id="long:long"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$long$.html"><span class="name">long</span></a><span class="result"> extends <a href="Endpoints$Extractor.html" class="extype" name="io.finch.Endpoints.Extractor">Extractor</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Long" class="extype" target="_top">Long</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@long" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that extract a long value from the route.</p>
+    </li><li name="io.finch.Endpoints.longs" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="longs"></a>
+      <a id="longs:longs"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$longs$.html"><span class="name">longs</span></a><span class="result"> extends <a href="Endpoints$TailExtractor.html" class="extype" name="io.finch.Endpoints.TailExtractor">TailExtractor</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Long" class="extype" target="_top">Long</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@longs" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that extract a long tail from the route.</p>
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@notify():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="io.finch.Endpoints#options" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="options[A]:io.finch.Endpoint[A]=&gt;io.finch.Endpoint[A]"></a>
+      <a id="options[A]:(Endpoint[A])⇒Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">options</span><span class="tparams">[<span name="A">A</span>]</span><span class="result">: (<a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.options.A">A</span>]) ⇒ <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.options.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@options[A]:io.finch.Endpoint[A]=&gt;io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with additional check of the HTTP method.</p><div class="fullcomment"><div class="comment cmt"><p>A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with additional check of the HTTP method. The resulting <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>
+succeeds on the request only if its method is <code>OPTIONS</code> and the underlying router succeeds on it.
+</p></div></div>
+    </li><li name="io.finch.Endpoints#patch" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="patch[A]:io.finch.Endpoint[A]=&gt;io.finch.Endpoint[A]"></a>
+      <a id="patch[A]:(Endpoint[A])⇒Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">patch</span><span class="tparams">[<span name="A">A</span>]</span><span class="result">: (<a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.patch.A">A</span>]) ⇒ <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.patch.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@patch[A]:io.finch.Endpoint[A]=&gt;io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with additional check of the HTTP method.</p><div class="fullcomment"><div class="comment cmt"><p>A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with additional check of the HTTP method. The resulting <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>
+succeeds on the request only if its method is <code>PATCH</code> and the underlying router succeeds on it.
+</p></div></div>
+    </li><li name="io.finch.Endpoints#post" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="post[A]:io.finch.Endpoint[A]=&gt;io.finch.Endpoint[A]"></a>
+      <a id="post[A]:(Endpoint[A])⇒Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">post</span><span class="tparams">[<span name="A">A</span>]</span><span class="result">: (<a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.post.A">A</span>]) ⇒ <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.post.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@post[A]:io.finch.Endpoint[A]=&gt;io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with additional check of the HTTP method.</p><div class="fullcomment"><div class="comment cmt"><p>A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with additional check of the HTTP method. The resulting <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>
+succeeds on the request only if its method is <code>POST</code> and the underlying router succeeds on it.
+</p></div></div>
+    </li><li name="io.finch.Endpoints#put" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="put[A]:io.finch.Endpoint[A]=&gt;io.finch.Endpoint[A]"></a>
+      <a id="put[A]:(Endpoint[A])⇒Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">put</span><span class="tparams">[<span name="A">A</span>]</span><span class="result">: (<a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.put.A">A</span>]) ⇒ <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.put.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@put[A]:io.finch.Endpoint[A]=&gt;io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with additional check of the HTTP method.</p><div class="fullcomment"><div class="comment cmt"><p>A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with additional check of the HTTP method. The resulting <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>
+succeeds on the request only if its method is <code>PUT</code> and the underlying router succeeds on it.
+</p></div></div>
+    </li><li name="io.finch.Endpoints.string" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="string"></a>
+      <a id="string:string"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$string$.html"><span class="name">string</span></a><span class="result"> extends <a href="Endpoints$Extractor.html" class="extype" name="io.finch.Endpoints.Extractor">Extractor</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@string" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that extract a string value from the route.</p>
+    </li><li name="io.finch.Endpoints#stringToMatcher" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="stringToMatcher(s:String):Endpoints.this.Endpoint0"></a>
+      <a id="stringToMatcher(String):Endpoint0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">stringToMatcher</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#Endpoint0=io.finch.Endpoint[shapeless.HNil]" class="extmbr" name="io.finch.Endpoints.Endpoint0">Endpoint0</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@stringToMatcher(s:String):Endpoints.this.Endpoint0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.Endpoints.strings" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="strings"></a>
+      <a id="strings:strings"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$strings$.html"><span class="name">strings</span></a><span class="result"> extends <a href="Endpoints$TailExtractor.html" class="extype" name="io.finch.Endpoints.TailExtractor">TailExtractor</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@strings" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that extract a string tail from the route.</p>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@toString():String" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="io.finch.Endpoints#trace" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="trace[A]:io.finch.Endpoint[A]=&gt;io.finch.Endpoint[A]"></a>
+      <a id="trace[A]:(Endpoint[A])⇒Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">trace</span><span class="tparams">[<span name="A">A</span>]</span><span class="result">: (<a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.trace.A">A</span>]) ⇒ <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.trace.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@trace[A]:io.finch.Endpoint[A]=&gt;io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with additional check of the HTTP method.</p><div class="fullcomment"><div class="comment cmt"><p>A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with additional check of the HTTP method. The resulting <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>
+succeeds on the request only if its method is <code>TRACE</code> and the underlying router succeeds on it.
+</p></div></div>
+    </li><li name="io.finch.Endpoints.uuid" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="uuid"></a>
+      <a id="uuid:uuid"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$uuid$.html"><span class="name">uuid</span></a><span class="result"> extends <a href="Endpoints$Extractor.html" class="extype" name="io.finch.Endpoints.Extractor">Extractor</a>[<span class="extype" name="java.util.UUID">UUID</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@uuid" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that extract an UUID value from the route.</p>
+    </li><li name="io.finch.Endpoints.uuids" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="uuids"></a>
+      <a id="uuids:uuids"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$uuids$.html"><span class="name">uuids</span></a><span class="result"> extends <a href="Endpoints$TailExtractor.html" class="extype" name="io.finch.Endpoints.TailExtractor">TailExtractor</a>[<span class="extype" name="java.util.UUID">UUID</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@uuids" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that extract an UUID tail from the route.</p>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@wait():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="io.finch.Endpoints.Connect" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Connect"></a>
+      <a id="Connect:Connect"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$Connect$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use method connect: Endpoint[A] =&gt; Endpoint[A] instead">Connect</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.MethodMatcher">MethodMatcher</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@Connect" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use method connect: Endpoint[A] =&gt; Endpoint[A] instead</p></dd></dl></div>
+    </li><li name="io.finch.Endpoints.Delete" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Delete"></a>
+      <a id="Delete:Delete"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$Delete$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use method delete: Endpoint[A] =&gt; Endpoint[A] instead">Delete</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.MethodMatcher">MethodMatcher</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@Delete" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use method delete: Endpoint[A] =&gt; Endpoint[A] instead</p></dd></dl></div>
+    </li><li name="io.finch.Endpoints.Get" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Get"></a>
+      <a id="Get:Get"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$Get$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use method get: Endpoint[A] =&gt; Endpoint[A] instead">Get</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.MethodMatcher">MethodMatcher</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@Get" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use method get: Endpoint[A] =&gt; Endpoint[A] instead</p></dd></dl></div>
+    </li><li name="io.finch.Endpoints.Head" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Head"></a>
+      <a id="Head:Head"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$Head$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use method head: Endpoint[A] =&gt; Endpoint[A] instead">Head</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.MethodMatcher">MethodMatcher</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@Head" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use method head: Endpoint[A] =&gt; Endpoint[A] instead</p></dd></dl></div>
+    </li><li name="io.finch.Endpoints.Options" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Options"></a>
+      <a id="Options:Options"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$Options$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use method options: Endpoint[A] =&gt; Endpoint[A] instead">Options</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.MethodMatcher">MethodMatcher</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@Options" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use method options: Endpoint[A] =&gt; Endpoint[A] instead</p></dd></dl></div>
+    </li><li name="io.finch.Endpoints.Patch" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Patch"></a>
+      <a id="Patch:Patch"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$Patch$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use method patch: Endpoint[A] =&gt; Endpoint[A] instead">Patch</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.MethodMatcher">MethodMatcher</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@Patch" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use method patch: Endpoint[A] =&gt; Endpoint[A] instead</p></dd></dl></div>
+    </li><li name="io.finch.Endpoints.Post" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Post"></a>
+      <a id="Post:Post"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$Post$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use method post: Endpoint[A] =&gt; Endpoint[A] instead">Post</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.MethodMatcher">MethodMatcher</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@Post" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use method post: Endpoint[A] =&gt; Endpoint[A] instead</p></dd></dl></div>
+    </li><li name="io.finch.Endpoints.Put" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Put"></a>
+      <a id="Put:Put"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$Put$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use method put: Endpoint[A] =&gt; Endpoint[A] instead">Put</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.MethodMatcher">MethodMatcher</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@Put" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use method put: Endpoint[A] =&gt; Endpoint[A] instead</p></dd></dl></div>
+    </li><li name="io.finch.Endpoints.Trace" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Trace"></a>
+      <a id="Trace:Trace"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$Trace$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use method trace: Endpoint[A] =&gt; Endpoint[A] instead">Trace</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.MethodMatcher">MethodMatcher</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@Trace" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use method trace: Endpoint[A] =&gt; Endpoint[A] instead</p></dd></dl></div>
+    </li><li name="io.finch.Endpoints#basicAuth" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="basicAuth[A](user:String,password:String)(e:io.finch.Endpoint[A]):io.finch.Endpoint[A]"></a>
+      <a id="basicAuth[A](String,String)(Endpoint[A]):Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use BasicAuth instead">basicAuth</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="user">user: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="password">password: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="e">e: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.basicAuth.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.basicAuth.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@basicAuth[A](user:String,password:String)(e:io.finch.Endpoint[A]):io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with Basic HTTP Auth, configured with credentials <code>user</code> and
+<code>password</code>.</p><div class="fullcomment"><div class="comment cmt"><p>A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with Basic HTTP Auth, configured with credentials <code>user</code> and
+<code>password</code>.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use BasicAuth instead</p></dd></dl></div>
+    </li></ol>
+            </div>
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

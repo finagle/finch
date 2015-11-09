@@ -45,12 +45,15 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">Redirect</span>
+        <span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use Endpoint.Output instead">Redirect</span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A factory for Redirecting to other URLs.
-</p></div><div class="toggleContainer block">
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use Endpoint.Output instead</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
@@ -147,7 +150,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="io.finch.response.Redirect#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply(path:com.twitter.finagle.httpx.path.Path):com.twitter.finagle.Service[com.twitter.finagle.httpx.Request,com.twitter.finagle.httpx.Response]"></a>
+      <a id="apply(path:com.twitter.finagle.http.path.Path):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]"></a>
       <a id="apply(Path):Service[Request,Response]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -155,17 +158,17 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="path">path: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.path.Path" class="extype" target="_top">Path</a></span>)</span><span class="result">: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.Service" class="extype" target="_top">Service</a>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Request" class="extype" target="_top">Request</a>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Response" class="extype" target="_top">Response</a>]</span>
+        <span class="name">apply</span><span class="params">(<span name="path">path: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.path.Path" class="extype" target="_top">Path</a></span>)</span><span class="result">: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.Service" class="extype" target="_top">Service</a>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Request" class="extype" target="_top">Request</a>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.response.Redirect$@apply(path:com.twitter.finagle.httpx.path.Path):com.twitter.finagle.Service[com.twitter.finagle.httpx.Request,com.twitter.finagle.httpx.Response]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.response.Redirect$@apply(path:com.twitter.finagle.http.path.Path):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">Create a Service to generate redirects to the given Path.</p><div class="fullcomment"><div class="comment cmt"><p>Create a Service to generate redirects to the given Path.
 </p></div><dl class="paramcmts block"><dt class="param">path</dt><dd class="cmt"><p>The Finagle Path to redirect to</p></dd><dt>returns</dt><dd class="cmt"><p>A Service that generates a redirect to the given path</p></dd></dl></div>
     </li><li name="io.finch.response.Redirect#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply(url:String):com.twitter.finagle.Service[com.twitter.finagle.httpx.Request,com.twitter.finagle.httpx.Response]"></a>
+      <a id="apply(url:String):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]"></a>
       <a id="apply(String):Service[Request,Response]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -173,10 +176,10 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="url">url: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.Service" class="extype" target="_top">Service</a>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Request" class="extype" target="_top">Request</a>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Response" class="extype" target="_top">Response</a>]</span>
+        <span class="name">apply</span><span class="params">(<span name="url">url: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.Service" class="extype" target="_top">Service</a>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Request" class="extype" target="_top">Request</a>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.response.Redirect$@apply(url:String):com.twitter.finagle.Service[com.twitter.finagle.httpx.Request,com.twitter.finagle.httpx.Response]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.response.Redirect$@apply(url:String):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

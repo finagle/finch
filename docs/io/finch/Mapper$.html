@@ -1,0 +1,786 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>Mapper - io.finch.Mapper</title>
+          <meta name="description" content="Mapper - io.finch.Mapper" />
+          <meta name="keywords" content="Mapper io.finch.Mapper" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'io.finch.Mapper$';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <a href="Mapper.html" title="See companion trait"><img alt="Object/Trait" src="../../lib/object_to_trait_big.png" /></a>
+        <p id="owner"><a href="../package.html" class="extype" name="io">io</a>.<a href="package.html" class="extype" name="io.finch">finch</a></p>
+        <h1><a href="Mapper.html" title="See companion trait">Mapper</a></h1><h3><span class="morelinks"><div>
+            Related Docs:
+            <a href="Mapper.html" title="See companion trait">trait Mapper</a>
+            | <a href="package.html" class="extype" name="io.finch">package finch</a>
+          </div></span></h3><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Mapper</span><span class="result"> extends <a href="HighPriorityMapperConversions.html" class="extype" name="io.finch.HighPriorityMapperConversions">HighPriorityMapperConversions</a></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><a href="HighPriorityMapperConversions.html" class="extype" name="io.finch.HighPriorityMapperConversions">HighPriorityMapperConversions</a>, <a href="MidPriorityMapperConversions.html" class="extype" name="io.finch.MidPriorityMapperConversions">MidPriorityMapperConversions</a>, <a href="LowPriorityMapperConversions.html" class="extype" name="io.finch.LowPriorityMapperConversions">LowPriorityMapperConversions</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="io.finch.Mapper"><span>Mapper</span></li><li class="in" name="io.finch.HighPriorityMapperConversions"><span>HighPriorityMapperConversions</span></li><li class="in" name="io.finch.MidPriorityMapperConversions"><span>MidPriorityMapperConversions</span></li><li class="in" name="io.finch.LowPriorityMapperConversions"><span>LowPriorityMapperConversions</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="io.finch.LowPriorityMapperConversions.Aux" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Aux[A,B]=io.finch.Mapper[A]{typeOut=B}"></a>
+      <a id="Aux[A,B]:Aux[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Aux</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="result"> = <a href="Mapper.html" class="extype" name="io.finch.Mapper">Mapper</a>[<span class="extype" name="io.finch.LowPriorityMapperConversions.Aux.A">A</span>] { type Out = B }</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@Aux[A,B]=io.finch.Mapper[A]{typeOut=B}" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityMapperConversions.html" class="extype" name="io.finch.LowPriorityMapperConversions">LowPriorityMapperConversions</a></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@##():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@clone():Object" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <a id="hashCode():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@hashCode():Int" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.finch.LowPriorityMapperConversions#mapperFromFutureOutputFunction" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapperFromFutureOutputFunction[A,B](f:A=&gt;com.twitter.util.Future[io.finch.Output[B]]):io.finch.Mapper.Aux[A,B]"></a>
+      <a id="mapperFromFutureOutputFunction[A,B]((A)⇒Future[Output[B]]):Aux[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapperFromFutureOutputFunction</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromFutureOutputFunction.A">A</span>) ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromFutureOutputFunction.B">B</span>]]</span>)</span><span class="result">: <a href="#Aux[A,B]=io.finch.Mapper[A]{typeOut=B}" class="extmbr" name="io.finch.Mapper.Aux">Aux</a>[<span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromFutureOutputFunction.A">A</span>, <span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromFutureOutputFunction.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@mapperFromFutureOutputFunction[A,B](f:A=&gt;com.twitter.util.Future[io.finch.Output[B]]):io.finch.Mapper.Aux[A,B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityMapperConversions.html" class="extype" name="io.finch.LowPriorityMapperConversions">LowPriorityMapperConversions</a></dd></dl></div>
+    </li><li name="io.finch.Mapper#mapperFromFutureOutputHFunction" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="mapperFromFutureOutputHFunction[A,B,F,FOB](f:F)(implicitftp:shapeless.ops.function.FnToProduct.Aux[F,A=&gt;FOB],implicitev:&lt;:&lt;[FOB,com.twitter.util.Future[io.finch.Output[B]]]):io.finch.Mapper.Aux[A,B]"></a>
+      <a id="mapperFromFutureOutputHFunction[A,B,F,FOB](F)(shapeless.ops.function.FnToProduct.Aux[F,(A)⇒FOB],&lt;:&lt;[FOB,Future[Output[B]]]):Aux[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapperFromFutureOutputHFunction</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>, <span name="F">F</span>, <span name="FOB">FOB</span>]</span><span class="params">(<span name="f">f: <span class="extype" name="io.finch.Mapper.mapperFromFutureOutputHFunction.F">F</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ftp">ftp: <span class="extype" name="shapeless.ops.FnToProductInstances.Aux">shapeless.ops.function.FnToProduct.Aux</span>[<span class="extype" name="io.finch.Mapper.mapperFromFutureOutputHFunction.F">F</span>, (<span class="extype" name="io.finch.Mapper.mapperFromFutureOutputHFunction.A">A</span>) ⇒ <span class="extype" name="io.finch.Mapper.mapperFromFutureOutputHFunction.FOB">FOB</span>]</span>, <span name="ev">ev: <span class="extype" name="scala.Predef.&lt;:&lt;">&lt;:&lt;</span>[<span class="extype" name="io.finch.Mapper.mapperFromFutureOutputHFunction.FOB">FOB</span>, <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Mapper.mapperFromFutureOutputHFunction.B">B</span>]]]</span>)</span><span class="result">: <a href="#Aux[A,B]=io.finch.Mapper[A]{typeOut=B}" class="extmbr" name="io.finch.Mapper.Aux">Aux</a>[<span class="extype" name="io.finch.Mapper.mapperFromFutureOutputHFunction.A">A</span>, <span class="extype" name="io.finch.Mapper.mapperFromFutureOutputHFunction.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@mapperFromFutureOutputHFunction[A,B,F,FOB](f:F)(implicitftp:shapeless.ops.function.FnToProduct.Aux[F,A=&gt;FOB],implicitev:&lt;:&lt;[FOB,com.twitter.util.Future[io.finch.Output[B]]]):io.finch.Mapper.Aux[A,B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.HighPriorityMapperConversions#mapperFromFutureOutputValue" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapperFromFutureOutputValue[A](o:=&gt;com.twitter.util.Future[io.finch.Output[A]]):io.finch.Mapper.Aux[shapeless.HNil,A]"></a>
+      <a id="mapperFromFutureOutputValue[A](⇒Future[Output[A]]):Aux[HNil,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapperFromFutureOutputValue</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="o">o: ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromFutureOutputValue.A">A</span>]]</span>)</span><span class="result">: <a href="#Aux[A,B]=io.finch.Mapper[A]{typeOut=B}" class="extmbr" name="io.finch.Mapper.Aux">Aux</a>[<span class="extype" name="shapeless.HNil">HNil</span>, <span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromFutureOutputValue.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@mapperFromFutureOutputValue[A](o:=&gt;com.twitter.util.Future[io.finch.Output[A]]):io.finch.Mapper.Aux[shapeless.HNil,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HighPriorityMapperConversions.html" class="extype" name="io.finch.HighPriorityMapperConversions">HighPriorityMapperConversions</a></dd></dl></div>
+    </li><li name="io.finch.LowPriorityMapperConversions#mapperFromOutputFunction" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapperFromOutputFunction[A,B](f:A=&gt;io.finch.Output[B]):io.finch.Mapper.Aux[A,B]"></a>
+      <a id="mapperFromOutputFunction[A,B]((A)⇒Output[B]):Aux[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapperFromOutputFunction</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromOutputFunction.A">A</span>) ⇒ <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromOutputFunction.B">B</span>]</span>)</span><span class="result">: <a href="#Aux[A,B]=io.finch.Mapper[A]{typeOut=B}" class="extmbr" name="io.finch.Mapper.Aux">Aux</a>[<span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromOutputFunction.A">A</span>, <span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromOutputFunction.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@mapperFromOutputFunction[A,B](f:A=&gt;io.finch.Output[B]):io.finch.Mapper.Aux[A,B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityMapperConversions.html" class="extype" name="io.finch.LowPriorityMapperConversions">LowPriorityMapperConversions</a></dd></dl></div>
+    </li><li name="io.finch.LowPriorityMapperConversions#mapperFromOutputFutureFunction" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapperFromOutputFutureFunction[A,B](f:A=&gt;io.finch.Output[com.twitter.util.Future[B]]):io.finch.Mapper.Aux[A,B]"></a>
+      <a id="mapperFromOutputFutureFunction[A,B]((A)⇒Output[Future[B]]):Aux[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapperFromOutputFutureFunction</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromOutputFutureFunction.A">A</span>) ⇒ <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromOutputFutureFunction.B">B</span>]]</span>)</span><span class="result">: <a href="#Aux[A,B]=io.finch.Mapper[A]{typeOut=B}" class="extmbr" name="io.finch.Mapper.Aux">Aux</a>[<span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromOutputFutureFunction.A">A</span>, <span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromOutputFutureFunction.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@mapperFromOutputFutureFunction[A,B](f:A=&gt;io.finch.Output[com.twitter.util.Future[B]]):io.finch.Mapper.Aux[A,B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityMapperConversions.html" class="extype" name="io.finch.LowPriorityMapperConversions">LowPriorityMapperConversions</a></dd></dl></div>
+    </li><li name="io.finch.Mapper#mapperFromOutputFutureHFunction" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="mapperFromOutputFutureHFunction[A,B,F,OFB](f:F)(implicitftp:shapeless.ops.function.FnToProduct.Aux[F,A=&gt;OFB],implicitev:&lt;:&lt;[OFB,io.finch.Output[com.twitter.util.Future[B]]]):io.finch.Mapper.Aux[A,B]"></a>
+      <a id="mapperFromOutputFutureHFunction[A,B,F,OFB](F)(shapeless.ops.function.FnToProduct.Aux[F,(A)⇒OFB],&lt;:&lt;[OFB,Output[Future[B]]]):Aux[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapperFromOutputFutureHFunction</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>, <span name="F">F</span>, <span name="OFB">OFB</span>]</span><span class="params">(<span name="f">f: <span class="extype" name="io.finch.Mapper.mapperFromOutputFutureHFunction.F">F</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ftp">ftp: <span class="extype" name="shapeless.ops.FnToProductInstances.Aux">shapeless.ops.function.FnToProduct.Aux</span>[<span class="extype" name="io.finch.Mapper.mapperFromOutputFutureHFunction.F">F</span>, (<span class="extype" name="io.finch.Mapper.mapperFromOutputFutureHFunction.A">A</span>) ⇒ <span class="extype" name="io.finch.Mapper.mapperFromOutputFutureHFunction.OFB">OFB</span>]</span>, <span name="ev">ev: <span class="extype" name="scala.Predef.&lt;:&lt;">&lt;:&lt;</span>[<span class="extype" name="io.finch.Mapper.mapperFromOutputFutureHFunction.OFB">OFB</span>, <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<span class="extype" name="io.finch.Mapper.mapperFromOutputFutureHFunction.B">B</span>]]]</span>)</span><span class="result">: <a href="#Aux[A,B]=io.finch.Mapper[A]{typeOut=B}" class="extmbr" name="io.finch.Mapper.Aux">Aux</a>[<span class="extype" name="io.finch.Mapper.mapperFromOutputFutureHFunction.A">A</span>, <span class="extype" name="io.finch.Mapper.mapperFromOutputFutureHFunction.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@mapperFromOutputFutureHFunction[A,B,F,OFB](f:F)(implicitftp:shapeless.ops.function.FnToProduct.Aux[F,A=&gt;OFB],implicitev:&lt;:&lt;[OFB,io.finch.Output[com.twitter.util.Future[B]]]):io.finch.Mapper.Aux[A,B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.HighPriorityMapperConversions#mapperFromOutputFutureValue" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapperFromOutputFutureValue[A](o:=&gt;io.finch.Output[com.twitter.util.Future[A]]):io.finch.Mapper.Aux[shapeless.HNil,A]"></a>
+      <a id="mapperFromOutputFutureValue[A](⇒Output[Future[A]]):Aux[HNil,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapperFromOutputFutureValue</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="o">o: ⇒ <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromOutputFutureValue.A">A</span>]]</span>)</span><span class="result">: <a href="#Aux[A,B]=io.finch.Mapper[A]{typeOut=B}" class="extmbr" name="io.finch.Mapper.Aux">Aux</a>[<span class="extype" name="shapeless.HNil">HNil</span>, <span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromOutputFutureValue.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@mapperFromOutputFutureValue[A](o:=&gt;io.finch.Output[com.twitter.util.Future[A]]):io.finch.Mapper.Aux[shapeless.HNil,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HighPriorityMapperConversions.html" class="extype" name="io.finch.HighPriorityMapperConversions">HighPriorityMapperConversions</a></dd></dl></div>
+    </li><li name="io.finch.HighPriorityMapperConversions#mapperFromOutputHFunction" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapperFromOutputHFunction[A,B,F,OB](f:F)(implicitftp:shapeless.ops.function.FnToProduct.Aux[F,A=&gt;OB],implicitev:&lt;:&lt;[OB,io.finch.Output[B]]):io.finch.Mapper.Aux[A,B]"></a>
+      <a id="mapperFromOutputHFunction[A,B,F,OB](F)(shapeless.ops.function.FnToProduct.Aux[F,(A)⇒OB],&lt;:&lt;[OB,Output[B]]):Aux[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapperFromOutputHFunction</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>, <span name="F">F</span>, <span name="OB">OB</span>]</span><span class="params">(<span name="f">f: <span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromOutputHFunction.F">F</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ftp">ftp: <span class="extype" name="shapeless.ops.FnToProductInstances.Aux">shapeless.ops.function.FnToProduct.Aux</span>[<span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromOutputHFunction.F">F</span>, (<span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromOutputHFunction.A">A</span>) ⇒ <span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromOutputHFunction.OB">OB</span>]</span>, <span name="ev">ev: <span class="extype" name="scala.Predef.&lt;:&lt;">&lt;:&lt;</span>[<span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromOutputHFunction.OB">OB</span>, <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromOutputHFunction.B">B</span>]]</span>)</span><span class="result">: <a href="#Aux[A,B]=io.finch.Mapper[A]{typeOut=B}" class="extmbr" name="io.finch.Mapper.Aux">Aux</a>[<span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromOutputHFunction.A">A</span>, <span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromOutputHFunction.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@mapperFromOutputHFunction[A,B,F,OB](f:F)(implicitftp:shapeless.ops.function.FnToProduct.Aux[F,A=&gt;OB],implicitev:&lt;:&lt;[OB,io.finch.Output[B]]):io.finch.Mapper.Aux[A,B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HighPriorityMapperConversions.html" class="extype" name="io.finch.HighPriorityMapperConversions">HighPriorityMapperConversions</a></dd></dl></div>
+    </li><li name="io.finch.HighPriorityMapperConversions#mapperFromOutputValue" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapperFromOutputValue[A](o:=&gt;io.finch.Output[A]):io.finch.Mapper.Aux[shapeless.HNil,A]"></a>
+      <a id="mapperFromOutputValue[A](⇒Output[A]):Aux[HNil,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapperFromOutputValue</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="o">o: ⇒ <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromOutputValue.A">A</span>]</span>)</span><span class="result">: <a href="#Aux[A,B]=io.finch.Mapper[A]{typeOut=B}" class="extmbr" name="io.finch.Mapper.Aux">Aux</a>[<span class="extype" name="shapeless.HNil">HNil</span>, <span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromOutputValue.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@mapperFromOutputValue[A](o:=&gt;io.finch.Output[A]):io.finch.Mapper.Aux[shapeless.HNil,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HighPriorityMapperConversions.html" class="extype" name="io.finch.HighPriorityMapperConversions">HighPriorityMapperConversions</a></dd></dl></div>
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@notify():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@toString():String" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@wait():Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="io.finch.LowPriorityMapperConversions#mapperFromFunction" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapperFromFunction[A,B](f:A=&gt;B):io.finch.Mapper.Aux[A,B]"></a>
+      <a id="mapperFromFunction[A,B]((A)⇒B):Aux[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use an explicit output (i.e., Ok()) instead.">mapperFromFunction</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromFunction.A">A</span>) ⇒ <span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromFunction.B">B</span></span>)</span><span class="result">: <a href="#Aux[A,B]=io.finch.Mapper[A]{typeOut=B}" class="extmbr" name="io.finch.Mapper.Aux">Aux</a>[<span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromFunction.A">A</span>, <span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromFunction.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@mapperFromFunction[A,B](f:A=&gt;B):io.finch.Mapper.Aux[A,B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityMapperConversions.html" class="extype" name="io.finch.LowPriorityMapperConversions">LowPriorityMapperConversions</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use an explicit output (i.e., Ok()) instead.</p></dd></dl></div>
+    </li><li name="io.finch.LowPriorityMapperConversions#mapperFromFutureFunction" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapperFromFutureFunction[A,B](f:A=&gt;com.twitter.util.Future[B]):io.finch.Mapper.Aux[A,B]"></a>
+      <a id="mapperFromFutureFunction[A,B]((A)⇒Future[B]):Aux[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use an explicit output (i.e., Ok()) instead.">mapperFromFutureFunction</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromFutureFunction.A">A</span>) ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromFutureFunction.B">B</span>]</span>)</span><span class="result">: <a href="#Aux[A,B]=io.finch.Mapper[A]{typeOut=B}" class="extmbr" name="io.finch.Mapper.Aux">Aux</a>[<span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromFutureFunction.A">A</span>, <span class="extype" name="io.finch.LowPriorityMapperConversions.mapperFromFutureFunction.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@mapperFromFutureFunction[A,B](f:A=&gt;com.twitter.util.Future[B]):io.finch.Mapper.Aux[A,B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityMapperConversions.html" class="extype" name="io.finch.LowPriorityMapperConversions">LowPriorityMapperConversions</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use an explicit output (i.e., Ok()) instead.</p></dd></dl></div>
+    </li><li name="io.finch.HighPriorityMapperConversions#mapperFromFutureHFunction" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapperFromFutureHFunction[A,B,F,FB](f:F)(implicitftp:shapeless.ops.function.FnToProduct.Aux[F,A=&gt;FB],implicitev:&lt;:&lt;[FB,com.twitter.util.Future[B]]):io.finch.Mapper.Aux[A,B]"></a>
+      <a id="mapperFromFutureHFunction[A,B,F,FB](F)(shapeless.ops.function.FnToProduct.Aux[F,(A)⇒FB],&lt;:&lt;[FB,Future[B]]):Aux[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use an explicit output (i.e., Ok()) instead.">mapperFromFutureHFunction</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>, <span name="F">F</span>, <span name="FB">FB</span>]</span><span class="params">(<span name="f">f: <span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromFutureHFunction.F">F</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ftp">ftp: <span class="extype" name="shapeless.ops.FnToProductInstances.Aux">shapeless.ops.function.FnToProduct.Aux</span>[<span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromFutureHFunction.F">F</span>, (<span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromFutureHFunction.A">A</span>) ⇒ <span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromFutureHFunction.FB">FB</span>]</span>, <span name="ev">ev: <span class="extype" name="scala.Predef.&lt;:&lt;">&lt;:&lt;</span>[<span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromFutureHFunction.FB">FB</span>, <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromFutureHFunction.B">B</span>]]</span>)</span><span class="result">: <a href="#Aux[A,B]=io.finch.Mapper[A]{typeOut=B}" class="extmbr" name="io.finch.Mapper.Aux">Aux</a>[<span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromFutureHFunction.A">A</span>, <span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromFutureHFunction.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@mapperFromFutureHFunction[A,B,F,FB](f:F)(implicitftp:shapeless.ops.function.FnToProduct.Aux[F,A=&gt;FB],implicitev:&lt;:&lt;[FB,com.twitter.util.Future[B]]):io.finch.Mapper.Aux[A,B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HighPriorityMapperConversions.html" class="extype" name="io.finch.HighPriorityMapperConversions">HighPriorityMapperConversions</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use an explicit output (i.e., Ok()) instead.</p></dd></dl></div>
+    </li><li name="io.finch.HighPriorityMapperConversions#mapperFromFutureValue" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapperFromFutureValue[A](f:=&gt;com.twitter.util.Future[A]):io.finch.Mapper.Aux[shapeless.HNil,A]"></a>
+      <a id="mapperFromFutureValue[A](⇒Future[A]):Aux[HNil,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use an explicit output (i.e., Ok()) instead.">mapperFromFutureValue</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="f">f: ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromFutureValue.A">A</span>]</span>)</span><span class="result">: <a href="#Aux[A,B]=io.finch.Mapper[A]{typeOut=B}" class="extmbr" name="io.finch.Mapper.Aux">Aux</a>[<span class="extype" name="shapeless.HNil">HNil</span>, <span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromFutureValue.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@mapperFromFutureValue[A](f:=&gt;com.twitter.util.Future[A]):io.finch.Mapper.Aux[shapeless.HNil,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HighPriorityMapperConversions.html" class="extype" name="io.finch.HighPriorityMapperConversions">HighPriorityMapperConversions</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use an explicit output (i.e., Ok()) instead.</p></dd></dl></div>
+    </li><li name="io.finch.MidPriorityMapperConversions#mapperFromHFunction" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapperFromHFunction[A,B,F](f:F)(implicitftp:shapeless.ops.function.FnToProduct.Aux[F,A=&gt;B]):io.finch.Mapper.Aux[A,B]"></a>
+      <a id="mapperFromHFunction[A,B,F](F)(shapeless.ops.function.FnToProduct.Aux[F,(A)⇒B]):Aux[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use an explicit output (i.e., Ok()) instead.">mapperFromHFunction</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>, <span name="F">F</span>]</span><span class="params">(<span name="f">f: <span class="extype" name="io.finch.MidPriorityMapperConversions.mapperFromHFunction.F">F</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ftp">ftp: <span class="extype" name="shapeless.ops.FnToProductInstances.Aux">shapeless.ops.function.FnToProduct.Aux</span>[<span class="extype" name="io.finch.MidPriorityMapperConversions.mapperFromHFunction.F">F</span>, (<span class="extype" name="io.finch.MidPriorityMapperConversions.mapperFromHFunction.A">A</span>) ⇒ <span class="extype" name="io.finch.MidPriorityMapperConversions.mapperFromHFunction.B">B</span>]</span>)</span><span class="result">: <a href="#Aux[A,B]=io.finch.Mapper[A]{typeOut=B}" class="extmbr" name="io.finch.Mapper.Aux">Aux</a>[<span class="extype" name="io.finch.MidPriorityMapperConversions.mapperFromHFunction.A">A</span>, <span class="extype" name="io.finch.MidPriorityMapperConversions.mapperFromHFunction.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@mapperFromHFunction[A,B,F](f:F)(implicitftp:shapeless.ops.function.FnToProduct.Aux[F,A=&gt;B]):io.finch.Mapper.Aux[A,B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="MidPriorityMapperConversions.html" class="extype" name="io.finch.MidPriorityMapperConversions">MidPriorityMapperConversions</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use an explicit output (i.e., Ok()) instead.</p></dd></dl></div>
+    </li><li name="io.finch.HighPriorityMapperConversions#mapperFromValue" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapperFromValue[A](v:=&gt;A):io.finch.Mapper.Aux[shapeless.HNil,A]"></a>
+      <a id="mapperFromValue[A](⇒A):Aux[HNil,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use an explicit output (i.e., Ok()) instead.">mapperFromValue</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="v">v: ⇒ <span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromValue.A">A</span></span>)</span><span class="result">: <a href="#Aux[A,B]=io.finch.Mapper[A]{typeOut=B}" class="extmbr" name="io.finch.Mapper.Aux">Aux</a>[<span class="extype" name="shapeless.HNil">HNil</span>, <span class="extype" name="io.finch.HighPriorityMapperConversions.mapperFromValue.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Mapper$@mapperFromValue[A](v:=&gt;A):io.finch.Mapper.Aux[shapeless.HNil,A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HighPriorityMapperConversions.html" class="extype" name="io.finch.HighPriorityMapperConversions">HighPriorityMapperConversions</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use an explicit output (i.e., Ok()) instead.</p></dd></dl></div>
+    </li></ol>
+            </div>
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="io.finch.HighPriorityMapperConversions">
+              <h3>Inherited from <a href="HighPriorityMapperConversions.html" class="extype" name="io.finch.HighPriorityMapperConversions">HighPriorityMapperConversions</a></h3>
+            </div><div class="parent" name="io.finch.MidPriorityMapperConversions">
+              <h3>Inherited from <a href="MidPriorityMapperConversions.html" class="extype" name="io.finch.MidPriorityMapperConversions">MidPriorityMapperConversions</a></h3>
+            </div><div class="parent" name="io.finch.LowPriorityMapperConversions">
+              <h3>Inherited from <a href="LowPriorityMapperConversions.html" class="extype" name="io.finch.LowPriorityMapperConversions">LowPriorityMapperConversions</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

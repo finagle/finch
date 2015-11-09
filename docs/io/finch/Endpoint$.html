@@ -47,15 +47,12 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version 0.8.0) Endpoint is deprecated in favor of coproduct routers">Endpoint</span>
+        <span class="name">Endpoint</span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A companion object for <i>Endpoint</i>
-</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.0)</i> Endpoint is deprecated in favor of coproduct routers</p></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Provides extension methods for <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> to support coproduct and path syntax.
+</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
@@ -94,7 +91,129 @@
         <div id="allMembers">
         
 
-        
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="io.finch.Endpoint.HListEndpointOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HListEndpointOps[L&lt;:shapeless.HList]extendsAnyRef"></a>
+      <a id="HListEndpointOps[L&lt;:HList]:HListEndpointOps[L]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoint$$HListEndpointOps.html"><span class="name">HListEndpointOps</span></a><span class="tparams">[<span name="L">L &lt;: <span class="extype" name="shapeless.HList">HList</span></span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@HListEndpointOps[L&lt;:shapeless.HList]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.Endpoint.RArrow0" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RArrow0extendsAnyRef"></a>
+      <a id="RArrow0:RArrow0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoint$$RArrow0.html"><span class="name">RArrow0</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@RArrow0extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Add <code>/&gt;</code> and <code>/&gt;&gt;</code> compositors to <code>Router</code> to compose it with values.</p>
+    </li><li name="io.finch.Endpoint.RArrow1" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RArrow1[A]extendsAnyRef"></a>
+      <a id="RArrow1[A]:RArrow1[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoint$$RArrow1.html"><span class="name">RArrow1</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@RArrow1[A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Add <code>/&gt;</code> and <code>/&gt;&gt;</code> compositors to <code>Router</code> to compose it with function of one argument.</p>
+    </li><li name="io.finch.Endpoint.RArrow2" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RArrow2[A,B]extendsAnyRef"></a>
+      <a id="RArrow2[A,B]:RArrow2[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoint$$RArrow2.html"><span class="name">RArrow2</span></a><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@RArrow2[A,B]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Add <code>/&gt;</code> and <code>/&gt;&gt;</code> compositors to <code>Router</code> to compose it with function of two arguments.</p>
+    </li><li name="io.finch.Endpoint.RArrow3" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RArrow3[A,B,C]extendsAnyRef"></a>
+      <a id="RArrow3[A,B,C]:RArrow3[A,B,C]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoint$$RArrow3.html"><span class="name">RArrow3</span></a><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>, <span name="C">C</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@RArrow3[A,B,C]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Add <code>/&gt;</code> and <code>/&gt;&gt;</code> compositors to <code>Router</code> to compose it with function of three arguments.</p>
+    </li><li name="io.finch.Endpoint.RArrowN" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RArrowN[L&lt;:shapeless.HList]extendsAnyRef"></a>
+      <a id="RArrowN[L&lt;:HList]:RArrowN[L]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoint$$RArrowN.html"><span class="name">RArrowN</span></a><span class="tparams">[<span name="L">L &lt;: <span class="extype" name="shapeless.HList">HList</span></span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@RArrowN[L&lt;:shapeless.HList]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Add <code>/&gt;</code> and <code>/&gt;&gt;</code> compositors to <code>Router</code> to compose it with function of N arguments.</p>
+    </li><li name="io.finch.Endpoint.ValueEndpointOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ValueEndpointOps[B]extendsAnyVal"></a>
+      <a id="ValueEndpointOps[B]:ValueEndpointOps[B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoint$$ValueEndpointOps.html"><span class="name">ValueEndpointOps</span></a><span class="tparams">[<span name="B">B</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@ValueEndpointOps[B]extendsAnyVal" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
 
         
 
@@ -151,41 +270,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.finch.Endpoint#NotFound" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="NotFound:io.finch.Endpoint[com.twitter.finagle.httpx.Request,com.twitter.finagle.httpx.Response]"></a>
-      <a id="NotFound:Endpoint[Request,Response]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">NotFound</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Request" class="extype" target="_top">Request</a>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Response" class="extype" target="_top">Response</a>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoint$@NotFound:io.finch.Endpoint[com.twitter.finagle.httpx.Request,com.twitter.finagle.httpx.Response]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A robust 404 respond for missing endpoints.</p>
-    </li><li name="io.finch.Endpoint#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply[Req,Rep](r:PartialFunction[(com.twitter.finagle.httpx.Method,com.twitter.finagle.httpx.path.Path),com.twitter.finagle.Service[Req,Rep]]):io.finch.Endpoint[Req,Rep]"></a>
-      <a id="apply[Req,Rep](PartialFunction[(Method,Path),Service[Req,Rep]]):Endpoint[Req,Rep]"></a>
+    </li><li name="io.finch.Endpoint#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="apply(mapper:io.finch.Mapper[shapeless.HNil]):io.finch.Endpoint[mapper.Out]"></a>
+      <a id="apply(Mapper[HNil]):Endpoint[Out]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="Req">Req</span>, <span name="Rep">Rep</span>]</span><span class="params">(<span name="r">r: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.PartialFunction" class="extype" target="_top">PartialFunction</a>[(<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Method" class="extype" target="_top">Method</a>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.path.Path" class="extype" target="_top">Path</a>), <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.Service" class="extype" target="_top">Service</a>[<span class="extype" name="io.finch.Endpoint.apply.Req">Req</span>, <span class="extype" name="io.finch.Endpoint.apply.Rep">Rep</span>]]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.apply.Req">Req</span>, <span class="extype" name="io.finch.Endpoint.apply.Rep">Rep</span>]</span>
+        <span class="name">apply</span><span class="params">(<span name="mapper">mapper: <a href="Mapper.html" class="extype" name="io.finch.Mapper">Mapper</a>[<span class="extype" name="shapeless.HNil">HNil</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="Mapper.html#Out" class="extmbr" name="io.finch.Mapper.Out">Out</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoint$@apply[Req,Rep](r:PartialFunction[(com.twitter.finagle.httpx.Method,com.twitter.finagle.httpx.path.Path),com.twitter.finagle.Service[Req,Rep]]):io.finch.Endpoint[Req,Rep]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoint$@apply(mapper:io.finch.Mapper[shapeless.HNil]):io.finch.Endpoint[mapper.Out]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a new <i>Endpoint</i> using the given <i>r</i> function.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new <i>Endpoint</i> using the given <i>r</i> function.
-</p></div><dl class="paramcmts block"><dt class="param">r</dt><dd class="cmt"><p>The route for the new Endpoint</p></dd></dl></div>
+      <p class="shortcomment cmt">Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> from the given <a href="Output.html" class="extype" name="io.finch.Output">Output</a>.</p>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -334,24 +435,6 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.finch.Endpoint#join" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="join[Req,Rep](endpoints:io.finch.Endpoint[Req,Rep]*):io.finch.Endpoint[Req,Rep]"></a>
-      <a id="join[Req,Rep](Endpoint[Req,Rep]*):Endpoint[Req,Rep]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">join</span><span class="tparams">[<span name="Req">Req</span>, <span name="Rep">Rep</span>]</span><span class="params">(<span name="endpoints">endpoints: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.join.Req">Req</span>, <span class="extype" name="io.finch.Endpoint.join.Rep">Rep</span>]*</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.join.Req">Req</span>, <span class="extype" name="io.finch.Endpoint.join.Rep">Rep</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoint$@join[Req,Rep](endpoints:io.finch.Endpoint[Req,Rep]*):io.finch.Endpoint[Req,Rep]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Joins given sequence of endpoints by orElse-ing them.</p><div class="fullcomment"><div class="comment cmt"><p>Joins given sequence of endpoints by orElse-ing them.
-</p></div><dl class="paramcmts block"><dt class="tparam">Req</dt><dd class="cmt"><p>a request type</p></dd><dt class="tparam">Rep</dt><dd class="cmt"><p>a response type</p></dd><dt class="param">endpoints</dt><dd class="cmt"><p>the sequence of endpoints to join</p></dd><dt>returns</dt><dd class="cmt"><p>a joined endpoint</p></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -511,33 +594,7 @@
 
         
 
-        <div id="values" class="values members">
-              <h3>Deprecated Value Members</h3>
-              <ol><li name="io.finch.Endpoint#endpointToService" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="endpointToService[Req,Rep](e:io.finch.Endpoint[Req,Rep])(implicitev:Req=&gt;com.twitter.finagle.httpx.Request):com.twitter.finagle.Service[Req,Rep]"></a>
-      <a id="endpointToService[Req,Rep](Endpoint[Req,Rep])((Req)⇒Request):Service[Req,Rep]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version 0.8.0) Endpoint is deprecated in favor of coproduct routers">endpointToService</span><span class="tparams">[<span name="Req">Req</span>, <span name="Rep">Rep</span>]</span><span class="params">(<span name="e">e: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.endpointToService.Req">Req</span>, <span class="extype" name="io.finch.Endpoint.endpointToService.Rep">Rep</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: (<span class="extype" name="io.finch.Endpoint.endpointToService.Req">Req</span>) ⇒ <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.httpx.Request" class="extype" target="_top">Request</a></span>)</span><span class="result">: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.Service" class="extype" target="_top">Service</a>[<span class="extype" name="io.finch.Endpoint.endpointToService.Req">Req</span>, <span class="extype" name="io.finch.Endpoint.endpointToService.Rep">Rep</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoint$@endpointToService[Req,Rep](e:io.finch.Endpoint[Req,Rep])(implicitev:Req=&gt;com.twitter.finagle.httpx.Request):com.twitter.finagle.Service[Req,Rep]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Allows to use an <i>Endpoint</i> when <i>Service</i> is expected.</p><div class="fullcomment"><div class="comment cmt"><p>Allows to use an <i>Endpoint</i> when <i>Service</i> is expected. The implicit
-conversion is possible if there is an implicit view from <i>Req</i> to
-<i>Request</i> available in the scope.</p><pre><span class="kw">val</span> e: Endpoint[Request, Response] = ???
-Httpx.serve(<span class="kw">new</span> InetSocketAddress(<span class="num">8081</span>), e)</pre></div><dl class="paramcmts block"><dt class="tparam">Req</dt><dd class="cmt"><p>the request type</p></dd><dt class="tparam">Rep</dt><dd class="cmt"><p>the response type</p></dd><dt class="param">e</dt><dd class="cmt"><p>the endpoint to convert</p></dd><dt class="param">ev</dt><dd class="cmt"><p>the evidence of implicit view</p></dd><dt>returns</dt><dd class="cmt"><p>a service that delegates the requests to the underlying endpoint</p></dd></dl><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.0)</i> Endpoint is deprecated in favor of coproduct routers</p></dd></dl></div>
-    </li></ol>
-            </div>
+        
         </div>
 
         <div id="inheritedMembers">

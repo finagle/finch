@@ -174,7 +174,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="ct">ct: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="cs">cs: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Some(&quot;utf-8&quot;)</span></span>)</span><span class="params">(<span name="fn">fn: (<span class="extype" name="io.finch.response.EncodeResponse.apply.A">A</span>) ⇒ <span class="extype" name="com.twitter.io.Buf">Buf</span></span>)</span><span class="result">: <a href="EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>[<span class="extype" name="io.finch.response.EncodeResponse.apply.A">A</span>]</span>
+        <span class="name">apply</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="ct">ct: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="cs">cs: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Some(&quot;utf-8&quot;)</span></span>)</span><span class="params">(<span name="fn">fn: (<span class="extype" name="io.finch.response.EncodeResponse.apply.A">A</span>) ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.io.Buf" class="extype" target="_top">Buf</a></span>)</span><span class="result">: <a href="EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>[<span class="extype" name="io.finch.response.EncodeResponse.apply.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.EncodeResponse$@apply[A](ct:String,cs:Option[String])(fn:A=&gt;com.twitter.io.Buf):io.finch.response.EncodeResponse[A]" title="Permalink" target="_top">
@@ -231,7 +231,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">encodeBuf</span><span class="result">: <a href="EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>[<span class="extype" name="com.twitter.io.Buf">Buf</span>]</span>
+        <span class="name">encodeBuf</span><span class="result">: <a href="EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.io.Buf" class="extype" target="_top">Buf</a>]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.response.EncodeResponse$@encodeBuf:io.finch.response.EncodeResponse[com.twitter.io.Buf]" title="Permalink" target="_top">
@@ -256,6 +256,23 @@
       </a>
     </span>
       <p class="shortcomment cmt">Allows to pass raw strings to a <a href="ResponseBuilder.html" class="extype" name="io.finch.response.ResponseBuilder">ResponseBuilder</a>.</p>
+    </li><li name="io.finch.response.EncodeResponse#encodeUnit" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="encodeUnit:io.finch.response.EncodeResponse[Unit]"></a>
+      <a id="encodeUnit:EncodeResponse[Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">encodeUnit</span><span class="result">: <a href="EncodeResponse.html" class="extype" name="io.finch.response.EncodeResponse">EncodeResponse</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.response.EncodeResponse$@encodeUnit:io.finch.response.EncodeResponse[Unit]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>

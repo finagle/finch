@@ -51,9 +51,13 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A reusable validation rule that can be applied to any <a href="package.html#RequestReader[A]=io.finch.request.PRequestReader[com.twitter.finagle.httpx.Request,A]" class="extmbr" name="io.finch.request.RequestReader">RequestReader</a> with a
-matching type.
-</p></div><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a>[<span class="extype" name="io.finch.request.ValidationRule.A">A</span>]</dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A <code>ValidationRule</code> enables a reusable way of defining a validation rules in the application domain. It might be
+composed with <a href="RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>s using either should<code> or </code>shouldNot<code> methods and with other </code>ValidationRule<code>s using
+logical methods </code>and<code> and </code>or<code>.</code></p><pre><span class="kw">case</span> <span class="kw">class</span> User(name: <span class="std">String</span>, age: <span class="std">Int</span>)
+<span class="kw">val</span> user: RequestReader[User] = (
+  param(<span class="lit">"name"</span>).should(beLongerThan(<span class="num">3</span>)) ::
+  param(<span class="lit">"age"</span>).as[<span class="std">Int</span>].should(beGreaterThan(<span class="num">0</span>) and beLessThan(<span class="num">120</span>))
+).as[User]</pre></div><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="io.finch.request.ValidationRule">ValidationRule</a>[<span class="extype" name="io.finch.request.ValidationRule.A">A</span>]</dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
