@@ -6,7 +6,6 @@ import com.twitter.util.Future
 import io.finch.request._
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
-import shapeless.ops.function.FnToProduct
 
 /**
  * An `Endpoint` represents the HTTP endpoint.
@@ -235,65 +234,6 @@ object Endpoint {
    * Creates an [[Endpoint]] from the given [[Output]].
    */
   def apply(mapper: Mapper[HNil]): Endpoint[mapper.Out] = mapper(/)
-
-  /**
-   * Add `/>` and `/>>` compositors to `Router` to compose it with function of one argument.
-   */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
-  implicit class RArrow1[A](r: Endpoint[A]) {
-    def />[B](fn: A => B): Endpoint[B] = r.map(fn)
-    def />>[B](fn: A => Future[B]): Endpoint[B] = r.embedFlatMap(fn)
-  }
-
-  /**
-   * Add `/>` and `/>>` compositors to `Router` to compose it with values.
-   */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
-  implicit class RArrow0(r: Endpoint0) {
-    def />[B](v: => B): Endpoint[B] = r.map(_ => v)
-    def />>[B](v: => Future[B]): Endpoint[B] = r.embedFlatMap(_ => v)
-  }
-
-  /**
-   * Add `/>` and `/>>` compositors to `Router` to compose it with function of two arguments.
-   */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
-  implicit class RArrow2[A, B](r: Endpoint2[A, B]) {
-    def />[C](fn: (A, B) => C): Endpoint[C] = r.map {
-      case a :: b :: HNil => fn(a, b)
-    }
-
-    def />>[C](fn: (A, B) => Future[C]): Endpoint[C] = r.embedFlatMap {
-      case a :: b :: HNil => fn(a, b)
-    }
-  }
-
-  /**
-   * Add `/>` and `/>>` compositors to `Router` to compose it with function of three arguments.
-   */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
-  implicit class RArrow3[A, B, C](r: Endpoint3[A, B, C]) {
-    def />[D](fn: (A, B, C) => D): Endpoint[D] = r.map {
-      case a :: b :: c :: HNil => fn(a, b, c)
-    }
-
-    def />>[D](fn: (A, B, C) => Future[D]): Endpoint[D] = r.embedFlatMap {
-      case a :: b :: c :: HNil => fn(a, b, c)
-    }
-  }
-
-  /**
-   * Add `/>` and `/>>` compositors to `Router` to compose it with function of N arguments.
-   */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
-  implicit class RArrowN[L <: HList](r: Endpoint[L]) {
-    def />[F, I](fn: F)(implicit ftp: FnToProduct.Aux[F, L => I]): Endpoint[I] =
-      r.map(ftp(fn))
-
-    def />>[F, I, FI](fn: F)(
-      implicit ftp: FnToProduct.Aux[F, L => FI], ev: FI <:< Future[I]
-    ): Endpoint[I] = r.embedFlatMap(value => ev(ftp(fn)(value)))
-  }
 
   final implicit class ValueEndpointOps[B](val self: Endpoint[B]) extends AnyVal {
     /**
