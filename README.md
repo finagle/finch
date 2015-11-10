@@ -53,11 +53,11 @@ This "Hello World!" example is built with the `0.9.0-SNAPSHOT` version of `finch
 
 ```scala
 import io.finch._
-import com.twitter.finagle.Http
+import com.twitter.finagle.Httpx
 
 val api: Endpoint[String] = get("hello") { Ok("Hello, World!") }
 
-Http.serve(":8080", api.toService)
+Httpx.serve(":8080", api.toService)
 ```
 
 Performance
