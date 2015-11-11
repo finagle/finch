@@ -31,6 +31,39 @@ trait Endpoints {
   implicit def booleanToMatcher(b: Boolean): Endpoint0 = new Matcher(b.toString)
 
   /**
+   * A [[Endpoint]] that matches the given HTTP method.
+   */
+  private[finch] class MethodMatcher(m: Method) extends Endpoint[HNil] {
+    def apply(input: Input): Option[(Input, () => Future[Output[HNil]])] =
+      if (input.request.method == m) Some((input, () => Future.value(Output.HNil)))
+      else None
+
+    override def toString: String = s"${m.toString().toUpperCase}"
+  }
+
+  //
+  // A group of routers that matches HTTP methods.
+  //
+  @deprecated("Use method get: Endpoint[A] => Endpoint[A] instead", "0.8.5")
+  object Get extends MethodMatcher(Method.Get)
+  @deprecated("Use method post: Endpoint[A] => Endpoint[A] instead", "0.8.5")
+  object Post extends MethodMatcher(Method.Post)
+  @deprecated("Use method patch: Endpoint[A] => Endpoint[A] instead", "0.8.5")
+  object Patch extends MethodMatcher(Method.Patch)
+  @deprecated("Use method delete: Endpoint[A] => Endpoint[A] instead", "0.8.5")
+  object Delete extends MethodMatcher(Method.Delete)
+  @deprecated("Use method head: Endpoint[A] => Endpoint[A] instead", "0.8.5")
+  object Head extends MethodMatcher(Method.Head)
+  @deprecated("Use method options: Endpoint[A] => Endpoint[A] instead", "0.8.5")
+  object Options extends MethodMatcher(Method.Options)
+  @deprecated("Use method put: Endpoint[A] => Endpoint[A] instead", "0.8.5")
+  object Put extends MethodMatcher(Method.Put)
+  @deprecated("Use method connect: Endpoint[A] => Endpoint[A] instead", "0.8.5")
+  object Connect extends MethodMatcher(Method.Connect)
+  @deprecated("Use method trace: Endpoint[A] => Endpoint[A] instead", "0.8.5")
+  object Trace extends MethodMatcher(Method.Trace)
+
+  /**
    * An universal extractor that extracts some value of type `A` if it's possible to fetch the value from the string.
    */
   case class Extractor[A](name: String, f: String => Option[A]) extends Endpoint[A] {
@@ -216,4 +249,11 @@ trait Endpoints {
       override def toString: String = s"BasicAuth($e)"
     }
   }
+
+  /**
+   * A combinator that wraps the given [[Endpoint]] with Basic HTTP Auth, configured with credentials `user` and
+   * `password`.
+   */
+  @deprecated("Use BasicAuth instead", "0.8.5")
+  def basicAuth[A](user: String, password: String)(e: Endpoint[A]): Endpoint[A] = BasicAuth(user, password)(e)
 }
