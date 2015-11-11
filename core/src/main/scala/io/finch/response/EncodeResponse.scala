@@ -44,9 +44,13 @@ object EncodeResponse {
   implicit val encodeString: EncodeResponse[String] =
     EncodeResponse.fromString[String]("text/plain")(identity)
 
-  // TODO: Make it JSON-agnostic
   implicit val encodeUnit: EncodeResponse[Unit] =
-    EncodeResponse("application/json")(_ => Buf.Empty)
+    EncodeResponse("text/plain")(_ => Buf.Empty)
+
+  implicit val encodeMap: EncodeResponse[Map[String, String]] =
+    EncodeResponse.fromString("text/plain")(map =>
+      map.toSeq.map(kv => kv._1 + ":" + kv._2).mkString("\n")
+    )
 
   implicit val encodeBuf: EncodeResponse[Buf] =
     EncodeResponse("application/octet-stream", None)(identity)

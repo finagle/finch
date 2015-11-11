@@ -1,7 +1,7 @@
 package io.finch
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Cookie, Request, Response, Status}
+import com.twitter.finagle.http.{Request, Response, Status}
 import com.twitter.util.Future
 import io.finch.response.EncodeResponse
 import shapeless.ops.coproduct.Folder
@@ -16,12 +16,11 @@ import scala.annotation.implicitNotFound
 @implicitNotFound(
 """You can only convert a router into a Finagle service if the result type of the router is one of the following:
 
-  * An Response
   * A value of a type with an EncodeResponse instance
   * A coproduct made up of some combination of the above
 
 ${A} does not satisfy the requirement. You may need to provide an EncodeResponse instance for ${A} (or for some
-part of ${A}). Also make sure there an EncodeResponse instance for Map[String, String] in the scope.
+part of ${A}).
 """
 )
 trait ToService[A] {
@@ -33,56 +32,41 @@ object ToService extends LowPriorityToServiceInstances {
    * An instance for coproducts with appropriately typed elements.
    */
   implicit def coproductRouterToService[C <: Coproduct](implicit
-    folder: Folder.Aux[EncodeAll.type, C, Response],
-    encodeFailure: EncodeResponse[Map[String, String]]
+    folder: Folder.Aux[EncodeAll.type, C, Response]
   ): ToService[C] = new ToService[C] {
     def apply(router: Endpoint[C]): Service[Request, Response] =
-      endpointToService(router.map(folder(_)), encodeFailure)
+      endpointToService(router.map(folder(_)))
   }
 }
 
 trait LowPriorityToServiceInstances {
+
+  protected[finch] def encodeResponse[A](a: A)(implicit encode: EncodeResponse[A]): Response = {
+    val rep = Response()
+    rep.content = encode(a)
+    rep.contentType = encode.contentType
+    encode.charset.foreach { cs => rep.charset = cs }
+
+    rep
+  }
+
   /**
    * An instance for types that can be transformed into a Finagle service.
    */
   implicit def valueRouterToService[A](implicit
-    polyCase: EncodeAll.Case.Aux[A, Response],
-    encodeFailure: EncodeResponse[Map[String, String]]
+    polyCase: EncodeAll.Case.Aux[A, Response]
   ): ToService[A] = new ToService[A] {
     def apply(router: Endpoint[A]): Service[Request, Response] =
-      endpointToService(router.map(polyCase(_)), encodeFailure)
+      endpointToService(router.map(polyCase(_)))
   }
 
   protected def endpointToService(
-    e: Endpoint[Response],
-    encodeFailure: EncodeResponse[Map[String, String]]
+    e: Endpoint[Response]
   ): Service[Request, Response] = new Service[Request, Response] {
-    private[this] def fillResponse(
-      rep: Response, s: Status, hs: Map[String, String], cs: Seq[Cookie], ct: Option[String], chs: Option[String]
-    ): Response = {
-      rep.status = s
-      hs.foreach { case (k, v) => rep.headerMap.add(k, v) }
-      cs.foreach { rep.addCookie }
-      ct.foreach { ct => rep.contentType = ct }
-      chs.foreach { chr => rep.charset = chr }
-
-      rep
-    }
 
     def apply(req: Request): Future[Response] = e(Input(req)) match {
        case Some((remainder, output)) if remainder.isEmpty =>
-         output().map {
-           case Output.Payload(rep, s, hs, cs, ct, chs) =>
-             fillResponse(rep, s, hs, cs, ct, chs)
-           case Output.Failure(msg, s, hs, cs, ct, chs) =>
-             val rep = Response()
-             rep.content = encodeFailure(msg)
-             rep.contentType = encodeFailure.contentType
-             encodeFailure.charset.foreach { cs => rep.charset = cs }
-
-             fillResponse(rep, s, hs, cs, ct, chs)
-         }
-
+         output().map(o => o.toResponse)
        case _ => Future.value(Response(Status.NotFound))
      }
   }
@@ -101,14 +85,7 @@ trait LowPriorityToServiceInstances {
     /**
      * Transforms an encodeable value into a constant service.
      */
-    implicit def encodeable[A](implicit encode: EncodeResponse[A]): Case.Aux[A, Response] =
-      at { a =>
-        val rep = Response()
-        rep.content = encode(a)
-        rep.contentType = encode.contentType
-        encode.charset.foreach { cs => rep.charset = cs }
-
-        rep
-      }
+    implicit def encodeable[A: EncodeResponse]: Case.Aux[A, Response] =
+      at(a => encodeResponse(a))
   }
 }
