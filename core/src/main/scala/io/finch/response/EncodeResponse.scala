@@ -41,6 +41,9 @@ object EncodeResponse {
       def contentType: String = e.contentType
     }
 
+  /**
+   * Allows to pass raw strings to a [[ResponseBuilder]].
+   */
   implicit val encodeString: EncodeResponse[String] =
     EncodeResponse.fromString[String]("text/plain")(identity)
 
@@ -52,6 +55,9 @@ object EncodeResponse {
       map.toSeq.map(kv => kv._1 + ":" + kv._2).mkString("\n")
     )
 
+  /**
+   * Allows to pass `Buf` to a [[ResponseBuilder]].
+   */
   implicit val encodeBuf: EncodeResponse[Buf] =
     EncodeResponse("application/octet-stream", None)(identity)
 }
