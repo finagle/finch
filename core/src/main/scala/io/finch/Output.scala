@@ -83,7 +83,7 @@ object Output {
     charset: Option[String] = None
   ) extends Output[Nothing] {
 
-    def apply(messages: (String, String)*): Failure = copy(message = message.toMap)
+    def apply(messages: (String, String)*): Failure = copy(message = messages.toMap)
 
     def value: Nothing = throw new IllegalArgumentException(message.mkString(", "))
 
