@@ -16,13 +16,13 @@ trait Mapper[A] {
 trait LowPriorityMapperConversions {
   type Aux[A, B] = Mapper[A] { type Out = B }
 
-  @deprecated("Use an explicit output (i.e., Ok()) instead.", "0.8.5")
+  @deprecated("Use an explicit output (i.e., Ok()) instead.", "0.9.1")
   implicit def mapperFromFunction[A, B](f: A => B): Mapper.Aux[A, B] = new Mapper[A] {
     type Out = B
     def apply(r: Endpoint[A]): Endpoint[Out] = r.map(f)
   }
 
-  @deprecated("Use an explicit output (i.e., Ok()) instead.", "0.8.5")
+  @deprecated("Use an explicit output (i.e., Ok()) instead.", "0.9.1")
   implicit def mapperFromFutureFunction[A, B](f: A => Future[B]): Mapper.Aux[A, B] = new Mapper[A] {
     type Out = B
     def apply(r: Endpoint[A]): Endpoint[Out] = r.embedFlatMap(f)
@@ -47,7 +47,7 @@ trait LowPriorityMapperConversions {
 }
 
 trait MidPriorityMapperConversions extends LowPriorityMapperConversions {
-  @deprecated("Use an explicit output (i.e., Ok()) instead.", "0.8.5")
+  @deprecated("Use an explicit output (i.e., Ok()) instead.", "0.9.1")
   implicit def mapperFromHFunction[A, B, F](f: F)(implicit
     ftp: FnToProduct.Aux[F, A => B]
   ): Mapper.Aux[A, B] = new Mapper[A] {
@@ -65,7 +65,7 @@ trait HighPriorityMapperConversions extends MidPriorityMapperConversions {
     def apply(r: Endpoint[A]): Endpoint[Out] = r.emap(value => ev(ftp(f)(value)))
   }
 
-  @deprecated("Use an explicit output (i.e., Ok()) instead.", "0.8.5")
+  @deprecated("Use an explicit output (i.e., Ok()) instead.", "0.9.1")
   implicit def mapperFromFutureHFunction[A, B, F, FB](f: F)(implicit
     ftp: FnToProduct.Aux[F, A => FB],
     ev: FB <:< Future[B]
@@ -74,13 +74,13 @@ trait HighPriorityMapperConversions extends MidPriorityMapperConversions {
     def apply(r: Endpoint[A]): Endpoint[Out] = r.embedFlatMap(value => ev(ftp(f)(value)))
   }
 
-  @deprecated("Use an explicit output (i.e., Ok()) instead.", "0.8.5")
+  @deprecated("Use an explicit output (i.e., Ok()) instead.", "0.9.1")
   implicit def mapperFromValue[A](v: => A): Mapper.Aux[HNil, A] = new Mapper[HNil] {
     type Out = A
     def apply(r: Endpoint[HNil]): Endpoint[Out] = r.map(_ => v)
   }
 
-  @deprecated("Use an explicit output (i.e., Ok()) instead.", "0.8.5")
+  @deprecated("Use an explicit output (i.e., Ok()) instead.", "0.9.1")
   implicit def mapperFromFutureValue[A](f: => Future[A]): Mapper.Aux[HNil, A] = new Mapper[HNil] {
     type Out = A
     def apply(r: Endpoint[HNil]): Endpoint[Out] = r.embedFlatMap(_ => f)

@@ -44,23 +44,23 @@ trait Endpoints {
   //
   // A group of routers that matches HTTP methods.
   //
-  @deprecated("Use method get: Endpoint[A] => Endpoint[A] instead", "0.8.5")
+  @deprecated("Use method get: Endpoint[A] => Endpoint[A] instead", "0.9.1")
   object Get extends MethodMatcher(Method.Get)
-  @deprecated("Use method post: Endpoint[A] => Endpoint[A] instead", "0.8.5")
+  @deprecated("Use method post: Endpoint[A] => Endpoint[A] instead", "0.9.1")
   object Post extends MethodMatcher(Method.Post)
-  @deprecated("Use method patch: Endpoint[A] => Endpoint[A] instead", "0.8.5")
+  @deprecated("Use method patch: Endpoint[A] => Endpoint[A] instead", "0.9.1")
   object Patch extends MethodMatcher(Method.Patch)
-  @deprecated("Use method delete: Endpoint[A] => Endpoint[A] instead", "0.8.5")
+  @deprecated("Use method delete: Endpoint[A] => Endpoint[A] instead", "0.9.1")
   object Delete extends MethodMatcher(Method.Delete)
-  @deprecated("Use method head: Endpoint[A] => Endpoint[A] instead", "0.8.5")
+  @deprecated("Use method head: Endpoint[A] => Endpoint[A] instead", "0.9.1")
   object Head extends MethodMatcher(Method.Head)
-  @deprecated("Use method options: Endpoint[A] => Endpoint[A] instead", "0.8.5")
+  @deprecated("Use method options: Endpoint[A] => Endpoint[A] instead", "0.9.1")
   object Options extends MethodMatcher(Method.Options)
-  @deprecated("Use method put: Endpoint[A] => Endpoint[A] instead", "0.8.5")
+  @deprecated("Use method put: Endpoint[A] => Endpoint[A] instead", "0.9.1")
   object Put extends MethodMatcher(Method.Put)
-  @deprecated("Use method connect: Endpoint[A] => Endpoint[A] instead", "0.8.5")
+  @deprecated("Use method connect: Endpoint[A] => Endpoint[A] instead", "0.9.1")
   object Connect extends MethodMatcher(Method.Connect)
-  @deprecated("Use method trace: Endpoint[A] => Endpoint[A] instead", "0.8.5")
+  @deprecated("Use method trace: Endpoint[A] => Endpoint[A] instead", "0.9.1")
   object Trace extends MethodMatcher(Method.Trace)
 
   /**
@@ -254,6 +254,6 @@ trait Endpoints {
    * A combinator that wraps the given [[Endpoint]] with Basic HTTP Auth, configured with credentials `user` and
    * `password`.
    */
-  @deprecated("Use BasicAuth instead", "0.8.5")
+  @deprecated("Use BasicAuth instead", "0.9.1")
   def basicAuth[A](user: String, password: String)(e: Endpoint[A]): Endpoint[A] = BasicAuth(user, password)(e)
 }

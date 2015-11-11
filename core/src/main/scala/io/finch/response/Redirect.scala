@@ -8,7 +8,7 @@ import io.finch._
 /**
  * A factory for Redirecting to other URLs.
  */
-@deprecated("Use Endpoint.Output instead", "0.8.5")
+@deprecated("Use Endpoint.Output instead", "0.9.1")
 object Redirect {
   /**
    * Create a Service to generate redirects to the given url.

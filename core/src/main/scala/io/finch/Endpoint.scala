@@ -239,7 +239,7 @@ object Endpoint {
   /**
    * Add `/>` and `/>>` compositors to `Router` to compose it with function of one argument.
    */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
+  @deprecated("Use smart apply (Endpoint.apply) instead", "0.9.1")
   implicit class RArrow1[A](r: Endpoint[A]) {
     def />[B](fn: A => B): Endpoint[B] = r.map(fn)
     def />>[B](fn: A => Future[B]): Endpoint[B] = r.embedFlatMap(fn)
@@ -248,7 +248,7 @@ object Endpoint {
   /**
    * Add `/>` and `/>>` compositors to `Router` to compose it with values.
    */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
+  @deprecated("Use smart apply (Endpoint.apply) instead", "0.9.1")
   implicit class RArrow0(r: Endpoint0) {
     def />[B](v: => B): Endpoint[B] = r.map(_ => v)
     def />>[B](v: => Future[B]): Endpoint[B] = r.embedFlatMap(_ => v)
@@ -257,7 +257,7 @@ object Endpoint {
   /**
    * Add `/>` and `/>>` compositors to `Router` to compose it with function of two arguments.
    */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
+  @deprecated("Use smart apply (Endpoint.apply) instead", "0.9.1")
   implicit class RArrow2[A, B](r: Endpoint2[A, B]) {
     def />[C](fn: (A, B) => C): Endpoint[C] = r.map {
       case a :: b :: HNil => fn(a, b)
@@ -271,7 +271,7 @@ object Endpoint {
   /**
    * Add `/>` and `/>>` compositors to `Router` to compose it with function of three arguments.
    */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
+  @deprecated("Use smart apply (Endpoint.apply) instead", "0.9.1")
   implicit class RArrow3[A, B, C](r: Endpoint3[A, B, C]) {
     def />[D](fn: (A, B, C) => D): Endpoint[D] = r.map {
       case a :: b :: c :: HNil => fn(a, b, c)
@@ -285,7 +285,7 @@ object Endpoint {
   /**
    * Add `/>` and `/>>` compositors to `Router` to compose it with function of N arguments.
    */
-  @deprecated("Use smart apply (Endpoint.apply) instead", "0.8.5")
+  @deprecated("Use smart apply (Endpoint.apply) instead", "0.9.1")
   implicit class RArrowN[L <: HList](r: Endpoint[L]) {
     def />[F, I](fn: F)(implicit ftp: FnToProduct.Aux[F, L => I]): Endpoint[I] =
       r.map(ftp(fn))
