@@ -1,69 +1,156 @@
 package io.finch
 
 import com.twitter.finagle.http.Status
+import io.finch.response.EncodeResponse
 
 trait Outputs {
-  private[this] val emptyMsg: Map[String, String] = Map.empty[String, String]
 
   // 1xx
-  val Continue: Output.Failure = Output.Failure(emptyMsg, Status.Continue)                                        // 100
-  val Processing: Output.Failure = Output.Failure(emptyMsg, Status.Processing)                                    // 102
+  def Continue[A](message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.Continue)
+
+  def Processing(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.Processing)
 
   // 2xx
-  val Ok: Output.Payload[Unit] = Output.Payload((), Status.Ok)                                                    // 200
-  val Created: Output.Payload[Unit] = Output.Payload((), Status.Created)                                          // 201
-  val Accepted: Output.Payload[Unit] = Output.Payload((), Status.Accepted)                                        // 202
-  val NonAuthoritativeInformation: Output.Payload[Unit] = Output.Payload((),
-      Status.NonAuthoritativeInformation)                                                                         // 203
-  val NoContent: Output.Payload[Unit] = Output.Payload((), Status.NoContent)                                      // 204
-  val ResetContent: Output.Payload[Unit] =  Output.Payload((), Status.ResetContent)                               // 205
-  val PartialContent: Output.Payload[Unit] = Output.Payload((), Status.PartialContent)                            // 206
-  val MultiStatus: Output.Payload[Unit] = Output.Payload((), Status.MultiStatus)                                  // 208
+  def Ok(): Output.Payload[Unit] = Ok(())
+  def Ok[A](a: A): Output.Payload[A] = Output.Payload(a, Status.Ok)
+
+  def Created(): Output.Payload[Unit] = Created(())
+  def Created[A](a: A): Output.Payload[A] = Output.Payload(a, Status.Created)
+
+  def Accepted(): Output.Payload[Unit] = Accepted(())
+  def Accepted[A](a: A): Output.Payload[A] = Output.Payload(a, Status.Accepted)
+
+  def NonAuthoritativeInformation(): Output.Payload[Unit] = NonAuthoritativeInformation(())
+  def NonAuthoritativeInformation[A](a: A): Output.Payload[A] = Output.Payload(a, Status.NonAuthoritativeInformation)
+
+  def NoContent(): Output.Payload[Unit] = NoContent(())
+  def NoContent[A](a: A): Output.Payload[A] = Output.Payload(a, Status.NoContent)
+
+  def ResetContent(): Output.Payload[Unit] = ResetContent(())
+  def ResetContent[A](a: A): Output.Payload[A] = Output.Payload(a, Status.ResetContent)
+
+  def PartialContent(): Output.Payload[Unit] = PartialContent(())
+  def PartialContent[A](a: A): Output.Payload[A] = Output.Payload(a, Status.PartialContent)
+
+  def MultiStatus(): Output.Payload[Unit] = MultiStatus(())
+  def MultiStatus[A](a: A): Output.Payload[A] = Output.Payload(a, Status.MultiStatus)
 
   // 3xx
-  val MultipleChoices: Output.Failure = Output.Failure(emptyMsg, Status.MultipleChoices)                          // 300
-  val MovedPermanently: Output.Failure = Output.Failure(emptyMsg, Status.MovedPermanently)                        // 301
-  val Found: Output.Failure = Output.Failure(emptyMsg, Status.Found)                                              // 302
-  val SeeOther: Output.Failure = Output.Failure(emptyMsg, Status.SeeOther)                                        // 303
-  val NotModified: Output.Failure = Output.Failure(emptyMsg, Status.NotModified)                                  // 304
-  val UseProxy: Output.Failure = Output.Failure(emptyMsg, Status.UseProxy)                                        // 305
-  val TemporaryRedirect: Output.Failure = Output.Failure(emptyMsg, Status.TemporaryRedirect)                      // 307
+  def MultipleChoices(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.MultipleChoices)
+
+  def MovedPermanently(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.MovedPermanently)
+
+  def Found(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.Found)
+
+  def SeeOther(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.SeeOther)
+
+  def NotModified(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.NotModified)
+
+  def UseProxy(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.UseProxy)
+
+  def TemporaryRedirect(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.TemporaryRedirect)
 
   // 4xx
-  val BadRequest: Output.Failure = Output.Failure(emptyMsg, Status.BadRequest)                                    // 400
-  val Unauthorized: Output.Failure = Output.Failure(emptyMsg, Status.Unauthorized)                                // 401
-  val PaymentRequired: Output.Failure = Output.Failure(emptyMsg, Status.PaymentRequired)                          // 402
-  val Forbidden: Output.Failure = Output.Failure(emptyMsg, Status.Forbidden)                                      // 403
-  val NotFound: Output.Failure = Output.Failure(emptyMsg, Status.NotFound)                                        // 404
-  val MethodNotAllowed: Output.Failure = Output.Failure(emptyMsg, Status.MethodNotAllowed)                        // 405
-  val NotAcceptable: Output.Failure = Output.Failure(emptyMsg, Status.NotAcceptable)                              // 406
-  val ProxyAuthenticationRequired: Output.Failure = Output.Failure(emptyMsg, Status.ProxyAuthenticationRequired)  // 407
-  val RequestTimeOut: Output.Failure = Output.Failure(emptyMsg, Status.RequestTimeout)                            // 408
-  val Conflict: Output.Failure = Output.Failure(emptyMsg, Status.Conflict)                                        // 409
-  val Gone: Output.Failure = Output.Failure(emptyMsg, Status.Gone)                                                // 410
-  val LengthRequired: Output.Failure = Output.Failure(emptyMsg, Status.LengthRequired)                            // 411
-  val PreconditionFailed: Output.Failure = Output.Failure(emptyMsg, Status.PreconditionFailed)                    // 412
-  val RequestEntityTooLarge: Output.Failure = Output.Failure(emptyMsg, Status.RequestEntityTooLarge)              // 413
-  val RequestUriTooLong: Output.Failure = Output.Failure(emptyMsg, Status.RequestURITooLong)                      // 414
-  val UnsupportedMediaType: Output.Failure = Output.Failure(emptyMsg, Status.UnsupportedMediaType)                // 415
-  val RequestedRangeNotSatisfiable: Output.Failure = Output.Failure(emptyMsg, Status.RequestedRangeNotSatisfiable)// 416
-  val ExpectationFailed: Output.Failure = Output.Failure(emptyMsg, Status.ExpectationFailed)                      // 417
-  val UnprocessableEntity: Output.Failure = Output.Failure(emptyMsg, Status.UnprocessableEntity)                  // 422
-  val Locked: Output.Failure = Output.Failure(emptyMsg, Status.Locked)                                            // 423
-  val FailedDependency: Output.Failure = Output.Failure(emptyMsg, Status.FailedDependency)                        // 424
-  val UnorderedCollection: Output.Failure = Output.Failure(emptyMsg, Status.UnorderedCollection)                  // 425
-  val UpgradeRequired: Output.Failure = Output.Failure(emptyMsg, Status.UpgradeRequired)                          // 426
-  val PreconditionRequired: Output.Failure = Output.Failure(emptyMsg, Status(428))                                // 428
-  val TooManyRequests: Output.Failure = Output.Failure(emptyMsg, Status(429))                                     // 429
+  def BadRequest(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.BadRequest)
+
+  def Unauthorized(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.Unauthorized)
+
+  def PaymentRequired(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.PaymentRequired)
+
+  def Forbidden(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.Forbidden)
+
+  def NotFound(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.NotFound)
+
+  def MethodNotAllowed(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.MethodNotAllowed)
+
+  def NotAcceptable(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.NotAcceptable)
+
+  def ProxyAuthenticationRequired(message: (String, String)*)(
+    implicit e: EncodeResponse[Map[String, String]]
+  ): Output.Failure = Output.Failure(message.toMap, Status.ProxyAuthenticationRequired)
+
+  def RequestTimeout(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.RequestTimeout)
+
+  def Conflict(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.Conflict)
+
+  def Gone(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.Gone)
+
+  def LengthRequired(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.LengthRequired)
+
+  def PreconditionFailed(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.PreconditionFailed)
+
+  def RequestEntityTooLarge(message: (String, String)*)(
+    implicit e: EncodeResponse[Map[String, String]]
+  ): Output.Failure = Output.Failure(message.toMap, Status.RequestEntityTooLarge)
+
+  def RequestUriTooLong(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.RequestURITooLong)
+
+  def UnsupportedMediaType(message: (String, String)*)(
+    implicit e: EncodeResponse[Map[String, String]]
+  ): Output.Failure = Output.Failure(message.toMap, Status.UnsupportedMediaType)
+
+  def RequestedRangeNotSatisfiable(message: (String, String)*)(
+    implicit e: EncodeResponse[Map[String, String]]
+    ): Output.Failure = Output.Failure(message.toMap, Status.RequestedRangeNotSatisfiable)
+
+  def ExpectationFailed(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.ExpectationFailed)
+
+  def UnprocessableEntity(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.UnprocessableEntity)
+
+  def Locked(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.Locked)
+
+  def FailedDependency(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.FailedDependency)
+
+  def UnorderedCollection(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.UnorderedCollection)
+
+  def UpgradeRequired(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.UpgradeRequired)
+
+  def PreconditionRequired(message: (String, String)*)(
+    implicit e: EncodeResponse[Map[String, String]]
+  ): Output.Failure = Output.Failure(message.toMap, Status.PreconditionRequired)
+
+  def TooManyRequests(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.TooManyRequests)
 
   // 5xx
-  val InternalServerError: Output.Failure = Output.Failure(emptyMsg, Status.InternalServerError)                  // 500
-  val NotImplemented: Output.Failure = Output.Failure(emptyMsg, Status.NotImplemented)                            // 501
-  val BadGateway: Output.Failure = Output.Failure(emptyMsg, Status.BadGateway)                                    // 502
-  val ServiceUnavailable: Output.Failure = Output.Failure(emptyMsg, Status.ServiceUnavailable)                    // 503
-  val GatewayTimeout: Output.Failure = Output.Failure(emptyMsg, Status.GatewayTimeout)                            // 504
-  val HttpVersionNotSupported: Output.Failure = Output.Failure(emptyMsg, Status.HttpVersionNotSupported)          // 505
-  val VariantAlsoNegotiates: Output.Failure = Output.Failure(emptyMsg, Status.VariantAlsoNegotiates)              // 506
-  val InsufficientStorage: Output.Failure = Output.Failure(emptyMsg, Status.InsufficientStorage)                  // 507
-  val NotExtended: Output.Failure = Output.Failure(emptyMsg, Status.NotExtended)                                  // 510
+  def InternalServerError(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.InternalServerError)
+
+  def NotImplemented(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.NotImplemented)
+
+  def ServiceUnavailable(message: (String, String)*)(implicit e: EncodeResponse[Map[String, String]]): Output.Failure =
+    Output.Failure(message.toMap, Status.ServiceUnavailable)
+
+  def HttpVersionNotSupported(message: (String, String)*)(
+    implicit e: EncodeResponse[Map[String, String]]
+  ): Output.Failure = Output.Failure(message.toMap, Status.HttpVersionNotSupported)
 }

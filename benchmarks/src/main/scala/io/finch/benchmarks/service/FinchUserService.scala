@@ -34,7 +34,7 @@ class FinchUserService(implicit
   }
 
   val putUser: Endpoint[Unit] = put("users" ? body.as[User]) { u: User =>
-    db.update(u).map(_ => NoContent)
+    db.update(u).map(_ => NoContent())
   } handle {
     case UserNotFound(id) => BadRequest("error" -> s"No user $id")
   }
@@ -42,6 +42,6 @@ class FinchUserService(implicit
   val backend: Service[Request, Response] = (
     getUsers :+: getUser :+: postUser :+: deleteUser :+: putUser
   ).handle({
-    case _ => InternalServerError
+    case _ => InternalServerError()
   }).toService
 }

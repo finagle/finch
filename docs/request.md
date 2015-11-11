@@ -19,7 +19,6 @@
   * [Inline Validation](request.md#inline-validation)
   * [Reusable Rules](request.md#reusable-validators)
   * [Built-in Rules](request.md#built-in-rules)
-* [A Note about Custom Request Types](request.md#a-note-about-custom-request-types)
 
 --
 
@@ -501,20 +500,6 @@ As you can see in the example above, predefined rules can also be logically comb
 
 Finch comes with a small set of predefined rules. For readers producing numeric results, you can use `beLessThan(n: Int)`
 or `beGreaterThan(n: Int)`, and for strings you can use `beLongerThan(n: Int)` or `beShorterThan(n: Int)`.
-
-### A Note about Custom Request Types
-
-**Important:** Custom request types are supported via the `PRequestReader` type (which `RequestReader` extends), but are
-not generally recommended, since the don't fit well into Finch's philosophy, which is based on the concepts of functional
-programming (programming with functions). Finch's idiomatic style is built on the idea that ["your server is a function"][0]
-and promotes using simple functions `Request => A` (i.e., `RequestReader`s) instead of overriding the request types.
-
-With that said, a custom request types **are deprecated since 0.8.0**.
-
-A common pattern (now discouraged in Finch) is to implement authorization using Finagle filters and custom request types
-(i.e. an `AuthRequest`). In Finch, the same effect may be achieved using `RequestReader[AuthorizedUser]` composed in
-every endpoint that requires information about current user. Custom request types will likely be deprecated in favour of
-`RequestReader`s in 0.8.0.
 
 --
 Read Next: [Responses](response.md)
