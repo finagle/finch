@@ -44,7 +44,7 @@ trait RequestReader[A] { self =>
    */
   def flatMap[B](fn: A => RequestReader[B]): RequestReader[B] = new RequestReader[B] {
     val item = MultipleItems
-    def apply(req: Request): Future[B] = self(req) flatMap { fn(_)(req) }
+    def apply(req: Request): Future[B] = self(req).flatMap(a => fn(a)(req))
   }
 
   /**
@@ -52,7 +52,7 @@ trait RequestReader[A] { self =>
    */
   def map[B](fn: A => B): RequestReader[B] = new RequestReader[B] {
     val item = self.item
-    def apply(req: Request): Future[B] = self(req) map fn
+    def apply(req: Request): Future[B] = self(req).map(fn)
   }
 
   /**
@@ -60,7 +60,7 @@ trait RequestReader[A] { self =>
    */
   def embedFlatMap[B](fn: A => Future[B]): RequestReader[B] = new RequestReader[B] {
     val item = self.item
-    def apply(req: Request): Future[B] = self(req) flatMap fn
+    def apply(req: Request): Future[B] = self(req).flatMap(fn)
   }
 
   /**
@@ -85,10 +85,10 @@ trait RequestReader[A] { self =>
    * @return a request reader that will return the value of this reader if it is valid.
    *         Otherwise the future fails with a [[io.finch.request.NotValid NotValid]] error.
    */
-  def should(rule: String)(predicate: A => Boolean): RequestReader[A] = embedFlatMap { a =>
-    if (predicate(a)) a.toFuture
-    else NotValid(self.item, "should " + rule).toFutureException[A]
-  }
+  def should(rule: String)(predicate: A => Boolean): RequestReader[A] = embedFlatMap(a =>
+    if (predicate(a)) Future.value(a)
+    else Future.exception(Error.NotValid(self.item, "should " + rule))
+  )
 
   /**
    * Validates the result of this request reader using a `predicate`. The rule is used for error reporting.
@@ -137,7 +137,7 @@ object RequestReader {
    * @param value the value the new reader should produce
    * @return a new reader that always succeeds, producing the specified value
    */
-  def value[A](value: A): RequestReader[A] = const[A](value.toFuture)
+  def value[A](value: A): RequestReader[A] = const[A](Future.value(value))
 
   /**
    * Creates a new [[io.finch.request.RequestReader RequestReader]] that always fails, producing the specified
@@ -146,7 +146,7 @@ object RequestReader {
    * @param exc the exception the new reader should produce
    * @return a new reader that always fails, producing the specified exception
    */
-  def exception[A](exc: Throwable): RequestReader[A] = const[A](exc.toFutureException[A])
+  def exception[A](exc: Throwable): RequestReader[A] = const[A](Future.exception(exc))
 
   /**
    * Creates a new [[io.finch.request.RequestReader RequestReader]] that always produces the specified value. It will
@@ -163,7 +163,7 @@ object RequestReader {
    * @param f the function to apply to the request
    * @return a new reader that reads the result from the request
    */
-  def apply[A](f: Request => A): RequestReader[A] = embed[A](MultipleItems)(f(_).toFuture)
+  def apply[A](f: Request => A): RequestReader[A] = embed[A](MultipleItems)(req => Future.value(f(req)))
 
   private[request] def embed[A](i: RequestItem)(f: Request => Future[A]): RequestReader[A] =
     new RequestReader[A] {
@@ -172,7 +172,7 @@ object RequestReader {
     }
 
   private[this] def notParsed[A](rr: RequestReader[_], tag: ClassTag[_]): PartialFunction[Throwable, Try[A]] = {
-    case exc => Throw[A](NotParsed(rr.item, tag, exc))
+    case exc => Throw[A](Error.NotParsed(rr.item, tag, exc))
   }
 
   /**
@@ -182,9 +182,8 @@ object RequestReader {
    * The resulting reader will fail when type conversion fails.
    */
   implicit class StringReaderOps(val rr: RequestReader[String]) extends AnyVal {
-    def as[A](implicit decoder: DecodeRequest[A], tag: ClassTag[A]): RequestReader[A] = rr.embedFlatMap { value =>
-      Future.const(decoder(value).rescue(notParsed[A](rr, tag)))
-    }
+    def as[A](implicit decoder: DecodeRequest[A], tag: ClassTag[A]): RequestReader[A] =
+      rr.embedFlatMap(value => Future.const(decoder(value).rescue(notParsed[A](rr, tag))))
   }
 
   /**
@@ -225,9 +224,11 @@ object RequestReader {
 
     def as[A](implicit decoder: DecodeRequest[A], tag: ClassTag[A]): RequestReader[Seq[A]] =
       rr.embedFlatMap { items =>
-        val converted = items map (decoder(_))
-        if (converted.forall(_.isReturn)) converted.map(_.get).toFuture
-        else RequestErrors(converted collect { case Throw(e) => NotParsed(rr.item, tag, e) }).toFutureException[Seq[A]]
+        val converted = items.map(decoder.apply)
+        if (converted.forall(_.isReturn)) Future.value(converted.map(_.get))
+        else Future.exception(Error.RequestErrors(converted.collect {
+          case Throw(e) => Error.NotParsed(rr.item, tag, e)
+        }))
       }
   }
 
@@ -236,8 +237,8 @@ object RequestReader {
    */
   implicit class OptionReaderOps[A](val rr: RequestReader[Option[A]]) extends AnyVal {
     private[request] def failIfNone: RequestReader[A] = rr.embedFlatMap {
-      case Some(value) => value.toFuture
-      case None => NotPresent(rr.item).toFutureException[A]
+      case Some(value) => Future.value(value)
+      case None => Future.exception(Error.NotPresent(rr.item))
     }
 
     /**
@@ -268,19 +269,19 @@ object RequestReader {
         val item = MultipleItems
         def apply(req: Request): Future[A :: L] =
           Future.join(that(req).liftToTry, self(req).liftToTry).flatMap {
-            case (Return(a), Return(l)) => (a :: l).toFuture
-            case (Throw(a), Throw(l)) => collectExceptions(a, l).toFutureException[A :: L]
-            case (Throw(e), _) => e.toFutureException[A :: L]
-            case (_, Throw(e)) => e.toFutureException[A :: L]
+            case (Return(a), Return(l)) => Future.value(a :: l)
+            case (Throw(a), Throw(l)) => Future.exception(collectExceptions(a, l))
+            case (Throw(e), _) => Future.exception(e)
+            case (_, Throw(e)) => Future.exception(e)
           }
 
-        def collectExceptions(a: Throwable, b: Throwable): RequestErrors = {
+        def collectExceptions(a: Throwable, b: Throwable): Error.RequestErrors = {
           def collect(e: Throwable): Seq[Throwable] = e match {
-            case RequestErrors(errors) => errors
+            case Error.RequestErrors(errors) => errors
             case other => Seq(other)
           }
 
-          RequestErrors(collect(a) ++ collect(b))
+          Error.RequestErrors(collect(a) ++ collect(b))
         }
       }
 

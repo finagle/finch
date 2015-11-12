@@ -1,7 +1,7 @@
 package io.finch
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Request, Response, Status}
+import com.twitter.finagle.http.{Version, Request, Response, Status}
 import com.twitter.util.Future
 import io.finch.response.EncodeResponse
 import shapeless.ops.coproduct.Folder
@@ -33,43 +33,43 @@ object ToService extends LowPriorityToServiceInstances {
    * An instance for coproducts with appropriately typed elements.
    */
   implicit def coproductRouterToService[C <: Coproduct](implicit
-    folder: Folder.Aux[EncodeAll.type, C, Response]
+    folder: Folder.Aux[EncodeAll.type, C, Response],
+    exceptionToResponse: ToResponse[Exception]
   ): ToService[C] = new ToService[C] {
-    def apply(router: Endpoint[C]): Service[Request, Response] =
-      endpointToService(router.map(folder(_)))
+    def apply(e: Endpoint[C]): Service[Request, Response] = endpointToService(e.map(folder(_)))
   }
 }
 
 trait LowPriorityToServiceInstances {
 
-  protected[finch] def encodeResponse[A](a: A)(implicit encode: EncodeResponse[A]): Response = {
-    val rep = Response()
-    rep.content = encode(a)
-    rep.contentType = encode.contentType
-    encode.charset.foreach { cs => rep.charset = cs }
-
-    rep
+  private[finch] val basicEndpointHandler: PartialFunction[Throwable, Output.Failure] = {
+    case e: Error => Output.Failure(e, Status.BadRequest)
   }
 
   /**
    * An instance for types that can be transformed into a Finagle service.
    */
   implicit def valueRouterToService[A](implicit
-    polyCase: EncodeAll.Case.Aux[A, Response]
+    polyCase: EncodeAll.Case.Aux[A, Response],
+    exceptionToResponse: ToResponse[Exception]
   ): ToService[A] = new ToService[A] {
-    def apply(router: Endpoint[A]): Service[Request, Response] =
-      endpointToService(router.map(polyCase(_)))
+    def apply(e: Endpoint[A]): Service[Request, Response] = endpointToService(e.map(polyCase(_)))
   }
 
-  protected def endpointToService(
-    e: Endpoint[Response]
-  ): Service[Request, Response] = new Service[Request, Response] {
+  protected def endpointToService(e: Endpoint[Response])(implicit
+    exceptionToResponse: ToResponse[Exception]
+  ): Service[Request, Response] =
+    new Service[Request, Response] {
+      private[this] val safeEndpoint = e.handle(basicEndpointHandler)
 
-    def apply(req: Request): Future[Response] = e(Input(req)) match {
-       case Some((remainder, output)) if remainder.isEmpty =>
-         output().map(o => o.toResponse(req.version))
-       case _ => Future.value(Response(req.version, Status.NotFound))
-     }
+      def apply(req: Request): Future[Response] = safeEndpoint(Input(req)) match {
+        case Some((remainder, output)) if remainder.isEmpty =>
+          output().map(o => o.toResponse(req.version)).handle {
+            // TODO: Remove after Finagle 6.31
+            case _ => Response(req.version, Status.InternalServerError)
+          }
+        case _ => Future.value(Response(req.version, Status.NotFound))
+      }
   }
 
   /**
@@ -78,15 +78,9 @@ trait LowPriorityToServiceInstances {
    */
   protected object EncodeAll extends Poly1 {
     /**
-     * Transforms a [[Response]] directly into a constant service.
-     */
-    implicit def response: Case.Aux[Response, Response] =
-      at(r => r)
-
-    /**
      * Transforms an encodeable value into a constant service.
      */
-    implicit def encodeable[A: EncodeResponse]: Case.Aux[A, Response] =
-      at(a => encodeResponse(a))
+    implicit def toResponseToResponse[A](implicit toResponse: ToResponse[A]): Case.Aux[A, Response] =
+      at(a => toResponse(a))
   }
 }

@@ -1,9 +1,8 @@
 package io.finch
 
 import io.finch.request.DecodeRequest
-import io.finch.request.RequestError
 import io.finch.response.EncodeResponse
-import io.circe.{Decoder, Encoder, Json}
+import io.circe.{Decoder, Encoder}
 import io.circe.jawn.decode
 import com.twitter.util.{Try, Throw, Return}
 
@@ -17,7 +16,7 @@ package object circe {
   implicit def decodeCirce[A](implicit d: Decoder[A]): DecodeRequest[A] =
     DecodeRequest(
       decode[A](_).fold[Try[A]](
-        error => Throw[A](new RequestError(error.getMessage)),
+        error => Throw[A](Error(error.getMessage)),
         Return(_)
       )
     )

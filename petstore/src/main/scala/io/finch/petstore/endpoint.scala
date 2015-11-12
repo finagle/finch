@@ -1,5 +1,7 @@
 package io.finch.petstore
 
+import _root_.argonaut._, Argonaut._
+
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.exp.Multipart.FileUpload
 import com.twitter.finagle.http.{Request, Response}
@@ -7,11 +9,34 @@ import com.twitter.util.Future
 import io.finch._
 import io.finch.argonaut._
 import io.finch.request._
+import io.finch.request.items._
 
 /**
  * Provides the paths and endpoints for all the API's public service methods.
  */
-object endpoint extends ErrorHandling {
+object endpoint {
+
+  implicit val encodeException: EncodeJson[Exception] = EncodeJson {
+    case Error.NotPresent(ParamItem(p)) => Json.obj(
+      "error" -> jString("param_not_present"), "param" -> jString(p)
+    )
+    case Error.NotPresent(BodyItem) => Json.obj(
+      "error" -> jString("body_not_present")
+    )
+    case Error.NotParsed(ParamItem(p), _, _) => Json.obj(
+      "error" -> jString("param_not_parsed"), "param" -> jString(p)
+    )
+    case Error.NotParsed(BodyItem, _, _) => Json.obj(
+      "error" -> jString("body_not_parsed")
+    )
+    case Error.NotValid(ParamItem(p), rule) => Json.obj(
+      "error" -> jString("param_not_valid"), "param" -> jString(p), "rule" -> jString(rule)
+    )
+    // Domain errors
+    case error: PetstoreError => Json.obj(
+      "error" -> jString(error.message)
+    )
+  }
 
   /**
    * Private method that compiles all pet service endpoints.
@@ -57,7 +82,9 @@ object endpoint extends ErrorHandling {
     pets(db) :+:
     store(db) :+:
     users(db)
-  ).handle(errorHandler).toService
+  ).handle({
+    case e: PetstoreError => NotFound(e)
+  }).toService
 
   /**
    * The long passed in the path becomes the ID of the Pet fetched.

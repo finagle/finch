@@ -202,7 +202,7 @@ class EndpointSpec extends FinchSpec {
 
   it should "rescue the exception occurred in it" in {
     check { (i: Input, s: String, e: Exception) =>
-      Endpoint(Ok(Future.exception(e))).handle({ case _ => NoContent(s) })(i).output === Some(NoContent(s))
+      Endpoint(Ok(Future.exception(e))).handle({ case _ => Created(s) })(i).output === Some(Created(s))
     }
   }
 

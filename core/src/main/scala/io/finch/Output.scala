@@ -2,7 +2,6 @@ package io.finch
 
 import com.twitter.finagle.http.{Response, Status, Cookie, Version}
 import com.twitter.util.Future
-import io.finch.response.EncodeResponse
 import shapeless.HNil
 
 /**
@@ -33,15 +32,23 @@ sealed trait Output[+A] { self =>
   def withContentType(contentType: Option[String]): Output[A] = copy0(contentType = contentType)
   def withCharset(charset: Option[String]): Output[A] = copy0(charset = charset)
 
-  def toResponse(version: Version = Version.Http11)(implicit ev: <:<[A, Response]): Response
-
-  // except for status and version
-  protected def fillResponse(rep: Response): Unit = {
+  def toResponse(version: Version = Version.Http11)(implicit
+    payloadToResponse: ToResponse[A],
+    failureToResponse: ToResponse[Exception]
+  ): Response = {
+    val rep = this match {
+      case Output.Payload(v, _, _, _, _, _) => payloadToResponse(v)
+      case Output.Failure(x, _, _, _, _, _) => failureToResponse(x)
+    }
+    rep.version = version
+    rep.status = status
     headers.foreach { case (k, v) => rep.headerMap.set(k, v) }
     cookies.foreach(rep.cookies.add)
     val cs = rep.charset
     contentType.foreach { ct => rep.contentType = ct }
     charset.orElse(cs).foreach { chr => rep.charset = chr }
+
+    rep
   }
 }
 
@@ -80,30 +87,21 @@ object Output {
     ): Output[A] = copy(
       headers = headers, cookies = cookies, contentType = contentType, charset = charset
     )
-
-    def toResponse(version: Version = Version.Http11)(implicit ev: <:<[A, Response]): Response = {
-      val rep = ev(value)
-      rep.version = version
-      rep.status = status
-      fillResponse(rep)
-
-      rep
-    }
   }
 
   /**
-   * A failure [[Output]] that captures an error message `message`.
+   * A failure [[Output]] that captures an [[Exception]] that caused this.
    */
   final case class Failure(
-    message: Map[String, String],
+    cause: Exception,
     status: Status,
     headers: Map[String, String] = Map.empty[String, String],
     cookies: Seq[Cookie] = Seq.empty[Cookie],
     contentType: Option[String] = None,
     charset: Option[String] = None
-  )(implicit encodeMessage: EncodeResponse[Map[String, String]]) extends Output[Nothing] {
+  ) extends Output[Nothing] {
 
-    def value: Nothing = throw new IllegalArgumentException(message.mkString(", "))
+    def value: Nothing = throw cause
 
     def map[B](fn: Nothing => B): Output[B] = this
     def flatMap[B](fn: Nothing => Output[B]): Output[B] = this
@@ -118,16 +116,6 @@ object Output {
     ): Output[Nothing] = copy(
       headers = headers, cookies = cookies, contentType = contentType, charset = charset
     )
-
-    def toResponse(version: Version = Version.Http11)(implicit ev: <:<[Nothing, Response]): Response = {
-      val rep = Response(version, status)
-      rep.content = encodeMessage(message)
-      rep.contentType = encodeMessage.contentType
-      encodeMessage.charset.foreach { cs => rep.charset = cs }
-      fillResponse(rep)
-
-      rep
-    }
   }
 
   private[finch] val HNil: Payload[HNil] = Output.Payload(shapeless.HNil)

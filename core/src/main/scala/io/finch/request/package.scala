@@ -3,6 +3,7 @@ package io.finch
 import com.twitter.finagle.http.{Cookie, Request}
 import com.twitter.finagle.http.exp.Multipart
 import com.twitter.finagle.http.exp.Multipart.FileUpload
+import com.twitter.util.Future
 import com.twitter.io.Buf
 
 /**
@@ -12,6 +13,25 @@ import com.twitter.io.Buf
  * [[io.finch.request.ValidationRule ValidationRule]].
  */
 package object request {
+
+  @deprecated("Use io.finch.Error instead", "0.9.2")
+  type RequestError = Error
+  @deprecated("Use Error.RequestErrors instead", "0.9.2")
+  type RequestErrors = Error.RequestErrors
+  @deprecated("Use Error.RequestErrors instead", "0.9.2")
+  val RequestErrors = Error.RequestErrors
+  @deprecated("Use Error.NotParsed instead", "0.9.2")
+  type NotParsed = Error.NotParsed
+  @deprecated("Use Error.NotParsed instead", "0.9.2")
+  val NotParsed = Error.NotParsed
+  @deprecated("Use Error.NotValid instead", "0.9.2")
+  type NotValid = Error.NotValid
+  @deprecated("Use Error.NotValid instead", "0.9.2")
+  val NotValid = Error.NotValid
+  @deprecated("Use Error.NotPresent instead", "0.9.2")
+  type NotPresent = Error.NotPresent
+  @deprecated("Use Error.NotPresent instead", "0.9.2")
+  val NotPresent = Error.NotPresent
 
   /**
    * Representations for the various types that can be processed with [[io.finch.request.RequestReader RequestReader]]s.
@@ -106,7 +126,7 @@ package object request {
    */
   def paramsNonEmpty(name: String): RequestReader[Seq[String]] =
     rr(ParamItem(name))(requestParams(name)).embedFlatMap({
-      case Nil => NotPresent(ParamItem(name)).toFutureException[Seq[String]]
+      case Nil => Future.exception(Error.NotPresent(ParamItem(name)))
       case unfiltered => unfiltered.filter(_.nonEmpty).toFuture
     }).shouldNot("be empty")(_.isEmpty)
 

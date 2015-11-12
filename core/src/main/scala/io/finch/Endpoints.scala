@@ -31,39 +31,6 @@ trait Endpoints {
   implicit def booleanToMatcher(b: Boolean): Endpoint0 = new Matcher(b.toString)
 
   /**
-   * A [[Endpoint]] that matches the given HTTP method.
-   */
-  private[finch] class MethodMatcher(m: Method) extends Endpoint[HNil] {
-    def apply(input: Input): Option[(Input, () => Future[Output[HNil]])] =
-      if (input.request.method == m) Some((input, () => Future.value(Output.HNil)))
-      else None
-
-    override def toString: String = s"${m.toString().toUpperCase}"
-  }
-
-  //
-  // A group of routers that matches HTTP methods.
-  //
-  @deprecated("Use method get: Endpoint[A] => Endpoint[A] instead", "0.9.1")
-  object Get extends MethodMatcher(Method.Get)
-  @deprecated("Use method post: Endpoint[A] => Endpoint[A] instead", "0.9.1")
-  object Post extends MethodMatcher(Method.Post)
-  @deprecated("Use method patch: Endpoint[A] => Endpoint[A] instead", "0.9.1")
-  object Patch extends MethodMatcher(Method.Patch)
-  @deprecated("Use method delete: Endpoint[A] => Endpoint[A] instead", "0.9.1")
-  object Delete extends MethodMatcher(Method.Delete)
-  @deprecated("Use method head: Endpoint[A] => Endpoint[A] instead", "0.9.1")
-  object Head extends MethodMatcher(Method.Head)
-  @deprecated("Use method options: Endpoint[A] => Endpoint[A] instead", "0.9.1")
-  object Options extends MethodMatcher(Method.Options)
-  @deprecated("Use method put: Endpoint[A] => Endpoint[A] instead", "0.9.1")
-  object Put extends MethodMatcher(Method.Put)
-  @deprecated("Use method connect: Endpoint[A] => Endpoint[A] instead", "0.9.1")
-  object Connect extends MethodMatcher(Method.Connect)
-  @deprecated("Use method trace: Endpoint[A] => Endpoint[A] instead", "0.9.1")
-  object Trace extends MethodMatcher(Method.Trace)
-
-  /**
    * An universal extractor that extracts some value of type `A` if it's possible to fetch the value from the string.
    */
   case class Extractor[A](name: String, f: String => Option[A]) extends Endpoint[A] {
@@ -233,9 +200,17 @@ trait Endpoints {
   def trace[A]: Endpoint[A] => Endpoint[A] = method(Method.Trace)
 
   /**
+   * An [[Exception]] representing a failed authorization with [[BasicAuth]].
+   */
+  object BasicAuthFailed extends Exception {
+    override def getMessage: String = "Wrong credentials"
+  }
+
+  /**
    * Maintains Basic HTTP Auth for an arbitrary [[Endpoint]].
    */
-  case class BasicAuth(user: String, password: String, err: Map[String, String] = Map.empty[String, String]) {
+  case class BasicAuth(user: String, password: String) {
+    private[this] val failedOutput = Future.value(Unauthorized(BasicAuthFailed))
     private[this] val userInfo = s"$user:$password"
     private[this] val expected = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
 
@@ -243,7 +218,7 @@ trait Endpoints {
       def apply(input: Input): Option[(Input, () => Future[Output[A]])] =
         input.request.authorization.flatMap {
           case `expected` => e(input)
-          case _ => Some((input.copy(path = Seq.empty), () => Future.value(Unauthorized(err.toSeq: _*))))
+          case _ => Some((input.copy(path = Seq.empty), () => failedOutput))
         }
 
       override def toString: String = s"BasicAuth($e)"

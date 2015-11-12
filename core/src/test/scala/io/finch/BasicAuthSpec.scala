@@ -23,7 +23,7 @@ class BasicAuthSpec extends FinchSpec {
 
       e(i).output === Some(Ok("foo")) && {
         req.authorization = "secret"
-        e(i).output === Some(Unauthorized())
+        e(i).output === Some(Unauthorized(BasicAuthFailed))
       }
     }
   }

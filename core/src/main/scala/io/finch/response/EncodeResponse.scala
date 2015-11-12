@@ -41,25 +41,17 @@ object EncodeResponse {
       def contentType: String = e.contentType
     }
 
-  /**
-   * Allows to pass raw strings to a [[ResponseBuilder]].
-   */
   implicit val encodeString: EncodeResponse[String] =
     EncodeResponse.fromString[String]("text/plain")(identity)
 
   implicit val encodeUnit: EncodeResponse[Unit] =
     EncodeResponse("text/plain")(_ => Buf.Empty)
 
-  implicit val encodeMap: EncodeResponse[Map[String, String]] =
-    EncodeResponse.fromString("text/plain")(map =>
-      map.toSeq.map(kv => kv._1 + ":" + kv._2).mkString("\n")
-    )
-
-  /**
-   * Allows to pass `Buf` to a [[ResponseBuilder]].
-   */
   implicit val encodeBuf: EncodeResponse[Buf] =
     EncodeResponse("application/octet-stream", None)(identity)
+
+  implicit val encodeException: EncodeResponse[Exception] =
+    EncodeResponse.fromString("text/plain")(e => Option(e.getMessage).getOrElse(""))
 }
 
 /**
