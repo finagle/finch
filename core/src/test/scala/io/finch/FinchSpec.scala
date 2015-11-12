@@ -51,12 +51,12 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers {
     Status.InsufficientStorage, Status.NotExtended, Status.NetworkAuthenticationRequired
   )
 
-  def genOutputContext: Gen[(Status, Map[String, String], List[Cookie], Option[String], Option[String])] = for {
-    s <- genStatus
-    hs <- genHeaders
-    ct <- genOptionalNonEmptyString
-    ch <- genOptionalNonEmptyString
-  } yield (s, hs.m, List.empty[Cookie], ct.o, ch.o)
+  def genOutputContext: Gen[(Status, Map[String, String], Seq[Cookie], Option[String], Option[String])] =
+    for {
+      s <- genStatus
+      ct <- genOptionalNonEmptyString
+      ch <- genOptionalNonEmptyString
+    } yield (s, Map.empty[String, String], Seq.empty[Cookie], ct.o, ch.o)
 
   def genFailureOutput: Gen[Output.Failure] = for {
     (s, hs, cs, ct, ch) <- genOutputContext

@@ -66,8 +66,8 @@ trait LowPriorityToServiceInstances {
 
     def apply(req: Request): Future[Response] = e(Input(req)) match {
        case Some((remainder, output)) if remainder.isEmpty =>
-         output().map(o => o.toResponse)
-       case _ => Future.value(Response(Status.NotFound))
+         output().map(o => o.toResponse(req.version))
+       case _ => Future.value(Response(req.version, Status.NotFound))
      }
   }
 
