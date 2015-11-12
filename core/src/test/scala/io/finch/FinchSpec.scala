@@ -10,13 +10,8 @@ import org.scalatest.{Matchers, FlatSpec}
 
 trait FinchSpec extends FlatSpec with Matchers with Checkers {
 
-  case class Header(k: String, v: String) {
-    override def equals(o: Any) = o match {
-      case that: Header => that.k.equalsIgnoreCase(k)
-      case _ => false
-    }
-    override def hashCode(): Int = k.hashCode
-  }
+  case class Headers(m: Map[String, String])
+  case class Cookies(c: Seq[Cookie])
 
   case class OptionalNonEmptyString(o: Option[String])
 
@@ -26,18 +21,19 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers {
     def remainder: Option[Input] = o.map(_._1)
   }
 
-  def genCookie: Gen[Cookie] = for {
-    name <- Gen.alphaStr.suchThat(_.nonEmpty)
-    value <- Gen.alphaStr.suchThat(_.nonEmpty)
-  } yield new Cookie(name, value)
+  def genNonEmptyString: Gen[String] = Gen.nonEmptyListOf(Gen.alphaChar).map(_.mkString)
 
-  def genHeader: Gen[Header] = for {
-    k <- Gen.alphaStr.suchThat(_.nonEmpty)
-    v <- Gen.alphaStr.suchThat(_.nonEmpty)
-  } yield Header(k, v)
+  def genNonEmptyTuple: Gen[(String, String)] = for {
+    key <- genNonEmptyString
+    value <- genNonEmptyString
+  } yield (key, value)
+
+  def genHeaders: Gen[Headers] = Gen.mapOf(genNonEmptyTuple).map(Headers.apply)
+
+  def genCookies: Gen[Cookies] = Gen.listOf(genNonEmptyTuple.map(t => new Cookie(t._1, t._2))).map(Cookies.apply)
 
   def genOptionalNonEmptyString: Gen[OptionalNonEmptyString] =
-    Gen.option(Gen.alphaStr.suchThat(_.nonEmpty)).map(OptionalNonEmptyString.apply)
+    Gen.option(genNonEmptyString).map(OptionalNonEmptyString.apply)
 
   def genStatus: Gen[Status] = Gen.oneOf(
     Status.Continue, Status.SwitchingProtocols, Status.Processing, Status.Ok, Status.Created, Status.Accepted,
@@ -55,13 +51,12 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers {
     Status.InsufficientStorage, Status.NotExtended, Status.NetworkAuthenticationRequired
   )
 
-  def genOutputContext: Gen[(Status, Map[String, String], List[Cookie], Option[String], Option[String])] = for {
-    s <- genStatus
-    hs <- Gen.mapOf(genHeader.map(h => h.k -> h.v))
-    cs <- Gen.const(List.empty[Cookie]) //Gen.listOf(genCookie)
-    ct <- genOptionalNonEmptyString
-    ch <- genOptionalNonEmptyString
-  } yield (s, hs, cs, ct.o, ch.o)
+  def genOutputContext: Gen[(Status, Map[String, String], Seq[Cookie], Option[String], Option[String])] =
+    for {
+      s <- genStatus
+      ct <- genOptionalNonEmptyString
+      ch <- genOptionalNonEmptyString
+    } yield (s, Map.empty[String, String], Seq.empty[Cookie], ct.o, ch.o)
 
   def genFailureOutput: Gen[Output.Failure] = for {
     (s, hs, cs, ct, ch) <- genOutputContext
@@ -109,15 +104,16 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers {
 
   implicit def arbitraryStatus: Arbitrary[Status] = Arbitrary(genStatus)
 
-  implicit def arbitraryCookie: Arbitrary[Cookie] = Arbitrary(genCookie)
+  implicit def arbitraryHeaders: Arbitrary[Headers] = Arbitrary(genHeaders)
 
-  implicit def arbitraryHeader: Arbitrary[Header] = Arbitrary(genHeader)
+  implicit def arbitraryCookies: Arbitrary[Cookies] = Arbitrary(genCookies)
 
   implicit def arbitraryOptionalNonEmptyString: Arbitrary[OptionalNonEmptyString] = Arbitrary(genOptionalNonEmptyString)
 
   implicit def arbitraryFailureOutput: Arbitrary[Output.Failure] = Arbitrary(genFailureOutput)
 
-  implicit def arbitraryOutput[A: Arbitrary]: Arbitrary[Output[A]] = Arbitrary(genOutput[A])
-
   implicit def arbitraryPayloadOutput[A: Arbitrary]: Arbitrary[Output.Payload[A]] = Arbitrary(genPayloadOutput[A])
+
+  implicit def arbitraryOutput: Arbitrary[Output[Response]] =
+    Arbitrary(genOutput[String].map(os => os.map(s => ToService.encodeResponse(s))))
 }

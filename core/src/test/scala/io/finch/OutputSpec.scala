@@ -1,54 +1,52 @@
 package io.finch
 
-import com.twitter.finagle.http.Cookie
+import com.twitter.finagle.http.Response
 import com.twitter.io.Buf
 import io.finch.response.EncodeResponse
 
 class OutputSpec extends FinchSpec {
 
   "Output" should "propagate status to response" in {
-    check { of: Output[String] => of.map(a => ToService.encodeResponse(a)).toResponse.status == of.status }
+    check { o: Output[Response] => o.toResponse().status == o.status }
   }
 
   it should "propagate charset to response" in {
-    check { (of: Output[String], cs: OptionalNonEmptyString) =>
-      val rep = of.withCharset(cs.o).map(a => ToService.encodeResponse(a)).toResponse
+    check { (o: Output[Response], cs: OptionalNonEmptyString) =>
+      val rep = o.withCharset(cs.o).toResponse()
       rep.charset === cs.o.orElse(EncodeResponse.encodeMap.charset)
     }
   }
 
   it should "propagate contentType to response" in {
-    check { (of: Output[String], ct: OptionalNonEmptyString) =>
-      val rep = of.withContentType(ct.o).map(a => ToService.encodeResponse(a)).toResponse
+    check { (o: Output[Response], ct: OptionalNonEmptyString) =>
+      val rep = o.withContentType(ct.o).toResponse()
       rep.contentType.forall(_.startsWith(ct.o.getOrElse(EncodeResponse.encodeMap.contentType)))
     }
   }
 
-  ignore should "propagate headers to response" in {
-    check { (o: Output[String], headers: Set[Header]) =>
-      val rep = headers.foldLeft(o)((acc, h) => acc.withHeader(h.k -> h.v))
-                       .map(a => ToService.encodeResponse(a)).toResponse
-      headers.forall(h => rep.headerMap(h.k) === h.v)
+  it should "propagate headers to response" in {
+    check { (o: Output[Response], headers: Headers) =>
+      val rep = headers.m.foldLeft(o)((acc, h) => acc.withHeader(h._1 -> h._2)).toResponse()
+      headers.m.forall(h => rep.headerMap(h._1) === h._2)
     }
   }
 
-  ignore should "propagate cookies to response" in {
-    check { (o: Output[String], cookies: Set[Cookie]) =>
-      val rep = cookies.foldLeft(o)((acc, c) => acc.withCookie(c))
-                       .map(a => ToService.encodeResponse(a)).toResponse
-      cookies.forall(c => rep.cookies(c.name) === c)
+  it should "propagate cookies to response" in {
+    check { (o: Output[Response], cookies: Cookies) =>
+      val rep = cookies.c.foldLeft(o)((acc, c) => acc.withCookie(c)).toResponse()
+      cookies.c.forall(c => rep.cookies(c.name) === c)
     }
   }
 
   "Failure" should "propagate error message to response" in {
     check { of: Output.Failure =>
-      Some(of.toResponse.contentString) === Buf.Utf8.unapply(EncodeResponse.encodeMap(of.message))
+      Some(of.toResponse().contentString) === Buf.Utf8.unapply(EncodeResponse.encodeMap(of.message))
     }
   }
 
   "Payload" should "propagate payload to response" in {
     check { op: Output.Payload[String] =>
-      Some(op.map(a => ToService.encodeResponse(a)).toResponse.contentString) ===
+      Some(op.map(a => ToService.encodeResponse(a)).toResponse().contentString) ===
         Buf.Utf8.unapply(EncodeResponse.encodeString(op.value))
     }
   }

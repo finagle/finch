@@ -1,6 +1,6 @@
 package io.finch
 
-import com.twitter.finagle.http.{Response, Status, Cookie}
+import com.twitter.finagle.http.{Response, Status, Cookie, Version}
 import com.twitter.util.Future
 import io.finch.response.EncodeResponse
 import shapeless.HNil
@@ -33,9 +33,9 @@ sealed trait Output[+A] { self =>
   def withContentType(contentType: Option[String]): Output[A] = copy0(contentType = contentType)
   def withCharset(charset: Option[String]): Output[A] = copy0(charset = charset)
 
-  def toResponse(implicit ev: <:<[A, Response]): Response
+  def toResponse(version: Version = Version.Http11)(implicit ev: <:<[A, Response]): Response
 
-  // except for status
+  // except for status and version
   protected def fillResponse(rep: Response): Unit = {
     headers.foreach { case (k, v) => rep.headerMap.set(k, v) }
     cookies.foreach(rep.cookies.add)
@@ -81,8 +81,9 @@ object Output {
       headers = headers, cookies = cookies, contentType = contentType, charset = charset
     )
 
-    def toResponse(implicit ev: <:<[A, Response]): Response = {
+    def toResponse(version: Version = Version.Http11)(implicit ev: <:<[A, Response]): Response = {
       val rep = ev(value)
+      rep.version = version
       rep.status = status
       fillResponse(rep)
 
@@ -118,9 +119,8 @@ object Output {
       headers = headers, cookies = cookies, contentType = contentType, charset = charset
     )
 
-    def toResponse(implicit ev: <:<[Nothing, Response]): Response = {
-      val rep = Response()
-      rep.status = status
+    def toResponse(version: Version = Version.Http11)(implicit ev: <:<[Nothing, Response]): Response = {
+      val rep = Response(version, status)
       rep.content = encodeMessage(message)
       rep.contentType = encodeMessage.contentType
       encodeMessage.charset.foreach { cs => rep.charset = cs }
