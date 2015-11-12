@@ -36,7 +36,7 @@ class EndToEndSpec extends FinchSpec {
     rep3.status shouldBe Status.Created
   }
 
-  "A Value Endpoint" should "be convertible into a Servic" in {
+  "A Value Endpoint" should "be convertible into a Service" in {
     val e: Endpoint[String] = get("foo") { Created("bar") }
     val s: Service[Request, Response] = e.toService
 
