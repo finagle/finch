@@ -3,8 +3,6 @@ package io.finch
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response, Status}
 import com.twitter.util.{Await, Return}
-import io.finch.request.{DecodeRequest, param}
-import io.finch.response.EncodeResponse
 
 class EndToEndSpec extends FinchSpec {
 

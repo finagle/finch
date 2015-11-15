@@ -1,9 +1,9 @@
 package io.finch.petstore
 
+import scala.collection.mutable
+
 import com.twitter.io.Buf
 import com.twitter.util.Future
-
-import scala.collection.mutable
 
 /**
  * Provides a great majority of the service methods that allow Users to interact with the Pets in the

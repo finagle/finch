@@ -1,10 +1,9 @@
-package io.finch.request
-
-import org.scalatest.{FlatSpec, Matchers}
+package io.finch
 
 import com.twitter.finagle.http.Request
 import com.twitter.util.{Await, Throw, Try}
-import items._
+import io.finch.items._
+import org.scalatest.{FlatSpec, Matchers}
 
 class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
 
@@ -16,10 +15,10 @@ class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
   
   def extractNotParsedTargets (result: Try[(Int, Double, Int)]): AnyRef = {
     (result handle {
-      case RequestErrors(errors) => errors map {
-        case NotParsed(item, _, _) => item
+      case Error.RequestErrors(errors) => errors map {
+        case Error.NotParsed(item, _, _) => item
       }
-      case NotParsed(item, _, _) => Seq(item)
+      case Error.NotParsed(item, _, _) => Seq(item)
       case _ => Seq()
     }).get
   }
@@ -43,9 +42,9 @@ class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
   
   it should "produce two ParamNotFound errors if two parameters are missing" in {
     val request = Request("b" -> "7.7")
-    Await.result(reader(request).liftToTry) shouldBe Throw(RequestErrors(Seq(
-      NotPresent(ParamItem("a")),
-      NotPresent(ParamItem("c"))
+    Await.result(reader(request).liftToTry) shouldBe Throw(Error.RequestErrors(Seq(
+      Error.NotPresent(ParamItem("a")),
+      Error.NotPresent(ParamItem("c"))
     )))
   }
 

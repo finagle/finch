@@ -3,8 +3,6 @@ package io.finch.benchmarks.service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.Service
 import io.finch._
-import io.finch.request._
-import io.finch.response.EncodeResponse
 
 class FinchUserService(implicit
   userDecoder: DecodeRequest[User],

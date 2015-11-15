@@ -1,7 +1,6 @@
 package io.finch
 
 import com.twitter.io.Buf
-import io.finch.response.EncodeResponse
 
 class OutputSpec extends FinchSpec {
 

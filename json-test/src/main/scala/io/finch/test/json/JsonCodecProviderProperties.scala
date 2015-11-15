@@ -4,8 +4,7 @@ import argonaut.{CodecJson, DecodeJson, EncodeJson, Parse}
 import argonaut.Argonaut.{casecodec3, casecodec5}
 import com.twitter.io.Buf.Utf8
 import com.twitter.util.Return
-import io.finch.request._
-import io.finch.response._
+import io.finch.{DecodeRequest, EncodeResponse}
 import org.scalacheck.Arbitrary
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Prop.BooleanOperators

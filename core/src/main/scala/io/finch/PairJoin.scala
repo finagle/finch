@@ -1,6 +1,6 @@
 package io.finch
 
-import shapeless.{HNil, ::, DepFn2}
+import shapeless.{::, DepFn2, HNil}
 import shapeless.ops.adjoin.Adjoin
 
 /**

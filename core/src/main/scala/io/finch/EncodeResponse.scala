@@ -1,4 +1,4 @@
-package io.finch.response
+package io.finch
 
 import com.twitter.io.Buf
 import com.twitter.io.Buf.Utf8
@@ -15,7 +15,7 @@ trait EncodeResponse[-A] {
 object EncodeResponse {
 
   /**
-   * Convenience method for creating new [[io.finch.response.EncodeResponse EncodeResponse]] instances.
+   * Convenience method for creating new [[EncodeResponse]] instances.
    */
   def apply[A](ct: String, cs: Option[String] = Some("utf-8"))(fn: A => Buf): EncodeResponse[A] =
     new EncodeResponse[A] {
@@ -25,15 +25,13 @@ object EncodeResponse {
     }
 
   /**
-   * Convenience method for creating new [[io.finch.response.EncodeResponse EncodeResponse]] instances
-   * that treat String contents.
+   * Convenience method for creating new [[EncodeResponse]] instances that treat String contents.
    */
   def fromString[A](ct: String, cs: Option[String] = Some("utf-8"))(fn: A => String): EncodeResponse[A] =
     apply(ct, cs)(fn andThen Utf8.apply)
 
   /**
-   * Converts [[io.finch.response.EncodeAnyResponse EncodeAnyResponse]] into
-   * [[io.finch.response.EncodeResponse EncodeResponse]].
+   * Converts [[EncodeAnyResponse]] into [[EncodeResponse]].
    */
   implicit def anyToConcreteEncode[A](implicit e: EncodeAnyResponse): EncodeResponse[A] =
     new EncodeResponse[A] {

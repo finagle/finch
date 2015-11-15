@@ -1,9 +1,10 @@
 package io.finch.benchmarks.request
 
+import java.util.concurrent.TimeUnit
+
 import com.twitter.finagle.http.Request
 import com.twitter.util.{Await, Try}
-import io.finch.request._
-import java.util.concurrent.TimeUnit
+import io.finch._
 import org.openjdk.jmh.annotations._
 
 case class Foo(s: String, d: Double, i: Int, l: Long, b: Boolean)

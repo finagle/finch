@@ -1,6 +1,6 @@
 package io.finch.petstore
 
-import argonaut.{CodecJson, DecodeResult, DecodeJson, EncodeJson}
+import argonaut._
 
 /**
  * Represents the status of a particular order for pets. Can be "placed," "approved," or "delivered."

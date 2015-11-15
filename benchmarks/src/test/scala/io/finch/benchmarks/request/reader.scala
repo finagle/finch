@@ -1,9 +1,8 @@
 package io.finch.benchmarks.request
 
+import io.finch._, items._
 import com.twitter.util.{Throw, Try}
 import org.scalatest.{FlatSpec, Matchers}
-import io.finch.request.{NotParsed, RequestErrors}
-import io.finch.request.items.ParamItem
 import scala.reflect.classTag
 
 class SuccessfulRequestReaderBenchmarkSpec extends FlatSpec with Matchers {
@@ -31,10 +30,10 @@ class FailingRequestReaderBenchmarkSpec extends FlatSpec with Matchers {
 
   def matchesAggregatedErrors(result: Try[Foo]) = result match {
     case Throw(
-      RequestErrors(
+      Error.RequestErrors(
         Seq(
-          NotParsed(ParamItem("d"), dTag, _: NumberFormatException),
-          NotParsed(ParamItem("l"), lTag, _: NumberFormatException)
+          Error.NotParsed(ParamItem("d"), dTag, _: NumberFormatException),
+          Error.NotParsed(ParamItem("l"), lTag, _: NumberFormatException)
         )
       )
     ) => dTag == classTag[Double] && lTag == classTag[Long]
@@ -44,7 +43,7 @@ class FailingRequestReaderBenchmarkSpec extends FlatSpec with Matchers {
   "The monadic reader" should "fail with a single error on invalid input" in {
     benchmark.monadicReader should matchPattern {
       case Throw(
-        NotParsed(ParamItem("d"), tag, _: NumberFormatException)
+        Error.NotParsed(ParamItem("d"), tag, _: NumberFormatException)
       ) if tag == classTag[Double] =>
     }
   }

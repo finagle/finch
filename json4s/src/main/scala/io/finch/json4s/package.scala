@@ -1,8 +1,6 @@
 package io.finch
 
 import com.twitter.util.Try
-import io.finch.request.DecodeRequest
-import io.finch.response.EncodeResponse
 import org.json4s._
 import org.json4s.jackson.JsonMethods
 import org.json4s.jackson.Serialization._

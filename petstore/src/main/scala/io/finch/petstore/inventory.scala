@@ -1,7 +1,7 @@
 package io.finch.petstore
 
-import argonaut.CodecJson
 import argonaut.Argonaut._
+import argonaut.CodecJson
 
 /**
  * Represents the current state of the Petstore and how many pets are currently of which [[Status]].

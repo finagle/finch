@@ -1,8 +1,8 @@
-package io.finch.request
+package io.finch
 
 import com.twitter.finagle.http.Request
 import com.twitter.util.Await
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.{FlatSpec, Matchers}
 
 class HeaderSpec extends FlatSpec with Matchers {
 
@@ -16,7 +16,7 @@ class HeaderSpec extends FlatSpec with Matchers {
   it should "error if it does not exist" in {
     val request = Request()
     val futureResult = header("Location")(request)
-    a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
+    an [Error.NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
 
   "An OptionalHeader" should "properly read an existing header field" in {

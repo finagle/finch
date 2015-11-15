@@ -3,51 +3,12 @@ package io.finch
 import com.twitter.finagle.http.{Cookie, Request}
 import com.twitter.finagle.http.exp.Multipart
 import com.twitter.finagle.http.exp.Multipart.FileUpload
-import com.twitter.util.Future
 import com.twitter.io.Buf
+import com.twitter.util.Future
 
-/**
- * This package introduces types and functions that enable _request processing_ in Finch. The [[io.finch.request]]
- * primitives allow both to _read_ the various request items (''query string param'', ''header'' and ''cookie'') using
- * the [[io.finch.request.RequestReader RequestReader]] and _validate_ them using the
- * [[io.finch.request.ValidationRule ValidationRule]].
- */
-package object request {
+trait RequestReaders {
 
-  @deprecated("Use io.finch.Error instead", "0.9.2")
-  type RequestError = Error
-  @deprecated("Use Error.RequestErrors instead", "0.9.2")
-  type RequestErrors = Error.RequestErrors
-  @deprecated("Use Error.RequestErrors instead", "0.9.2")
-  val RequestErrors = Error.RequestErrors
-  @deprecated("Use Error.NotParsed instead", "0.9.2")
-  type NotParsed = Error.NotParsed
-  @deprecated("Use Error.NotParsed instead", "0.9.2")
-  val NotParsed = Error.NotParsed
-  @deprecated("Use Error.NotValid instead", "0.9.2")
-  type NotValid = Error.NotValid
-  @deprecated("Use Error.NotValid instead", "0.9.2")
-  val NotValid = Error.NotValid
-  @deprecated("Use Error.NotPresent instead", "0.9.2")
-  type NotPresent = Error.NotPresent
-  @deprecated("Use Error.NotPresent instead", "0.9.2")
-  val NotPresent = Error.NotPresent
-
-  /**
-   * Representations for the various types that can be processed with [[io.finch.request.RequestReader RequestReader]]s.
-   */
-  object items {
-    sealed abstract class RequestItem(val kind: String, val nameOption:Option[String] = None) {
-      val description = kind + nameOption.fold("")(" '" + _ + "'")
-    }
-    case class ParamItem(name: String) extends RequestItem("param", Some(name))
-    case class HeaderItem(name: String) extends RequestItem("header", Some(name))
-    case class CookieItem(name: String) extends RequestItem("cookie", Some(name))
-    case object BodyItem extends RequestItem("body")
-    case object MultipleItems extends RequestItem("request")
-  }
-
-  import io.finch.request.items._
+  import items._
 
   /**
    * Implicit conversion that allows the same inline rules to be used for required and optional values. If the optional
@@ -69,34 +30,34 @@ package object request {
   }
 
   // Helper functions.
-  private[request] def requestParam(param: String)(req: Request): Option[String] =
+  private[finch] def requestParam(param: String)(req: Request): Option[String] =
     req.params.get(param) orElse {
       Multipart.decodeNonChunked(req).attributes.get(param).flatMap(_.headOption)
     }
 
-  private[request] def requestParams(params: String)(req: Request): Seq[String] =
+  private[finch] def requestParams(params: String)(req: Request): Seq[String] =
     req.params.getAll(params).toList.flatMap(_.split(","))
 
-  private[request] def requestHeader(header: String)(req: Request): Option[String] =
+  private[finch] def requestHeader(header: String)(req: Request): Option[String] =
     req.headerMap.get(header)
 
-  private[request] def requestBody(req: Request): Array[Byte] =
+  private[finch] def requestBody(req: Request): Array[Byte] =
     Buf.ByteArray.Shared.extract(req.content)
 
-  private[request] def requestCookie(cookie: String)(req: Request): Option[Cookie] =
+  private[finch] def requestCookie(cookie: String)(req: Request): Option[Cookie] =
     req.cookies.get(cookie)
 
-  private[request] def requestUpload(upload: String)(req: Request): Option[FileUpload] = {
+  private[finch] def requestUpload(upload: String)(req: Request): Option[FileUpload] = {
     Multipart.decodeNonChunked(req).files.get(upload).flatMap(_.headOption)
   }
 
   // A convenient method for internal needs.
-  private[request] def rr[A](i: RequestItem)(f: Request => A): RequestReader[A] =
+  private[finch] def rr[A](i: RequestItem)(f: Request => A): RequestReader[A] =
     RequestReader.embed[A](i)(f(_).toFuture)
 
   /**
-   * Creates a [[RequestReader]] that reads a required query-string param `name` from the request or raises a
-   * [[NotPresent]] exception when the param is missing; a [[NotValid]] exception is the param is empty.
+   * Creates a [[RequestReader]] that reads a required query-string param `name` from the request or raises an
+   * [[Error.NotPresent]] exception when the param is missing; an [[Error.NotValid]] exception is the param is empty.
    *
    * @param name the param name to read
    *
@@ -117,8 +78,8 @@ package object request {
 
   /**
    * Creates a [[RequestReader]] that reads a required (in a meaning that a resulting `Seq` will have at least one
-   * element) multi-value query-string param `name` from the request into a `Seq` or raises a [[NotPresent]] exception
-   * when the params are missing or empty.
+   * element) multi-value query-string param `name` from the request into a `Seq` or raises a [[Error.NotPresent]]
+   * exception when the params are missing or empty.
    *
    * @param name the param to read
    *
@@ -143,8 +104,8 @@ package object request {
     rr(ParamItem(name))(requestParams(name)(_).filter(_.nonEmpty))
 
   /**
-   * Creates a [[RequestReader]] that reads a required HTTP header `name` from the request or raises a [[NotPresent]]
-   * exception when the header is missing.
+   * Creates a [[RequestReader]] that reads a required HTTP header `name` from the request or raises an
+   * [[Error.NotPresent]] exception when the header is missing.
    *
    * @param name the header to read
    *
@@ -174,7 +135,7 @@ package object request {
 
   /**
    * A [[RequestReader]] that reads a required binary request body, interpreted as a `Array[Byte]`, or throws a
-   * [[NotPresent]] exception.
+   * [[Error.NotPresent]] exception.
    */
   val binaryBody: RequestReader[Array[Byte]] = binaryBodyOption.failIfNone
 
@@ -184,8 +145,8 @@ package object request {
   val bodyOption: RequestReader[Option[String]] = binaryBodyOption.map(_.map(new String(_, "UTF-8")))
 
   /**
-   * A [[RequestReader]] that reads the required request body, interpreted as a `String`, or throws a [[NotPresent]]
-   * exception.
+   * A [[RequestReader]] that reads the required request body, interpreted as a `String`, or throws an
+   * [[Error.NotPresent]] exception.
    */
   val body: RequestReader[String] = bodyOption.failIfNone
 
@@ -199,8 +160,8 @@ package object request {
   def cookieOption(name: String): RequestReader[Option[Cookie]] = rr(CookieItem(name))(requestCookie(name))
 
   /**
-   * Creates a [[RequestReader]] that reads a required cookie from the request or raises a [[NotPresent]] exception
-   * when the cookie is missing.
+   * Creates a [[RequestReader]] that reads a required cookie from the request or raises an [[Error.NotPresent]]
+   * exception when the cookie is missing.
    *
    * @param name the name of the cookie to read
    *
@@ -224,29 +185,5 @@ package object request {
    */
   def fileUpload(name: String): RequestReader[FileUpload] = fileUploadOption(name).failIfNone
 
-  private[request] val beEmpty: ValidationRule[String] = ValidationRule("be empty")(_.isEmpty)
-
-  /**
-   * A [[io.finch.request.ValidationRule ValidationRule]] that makes sure the numeric value is greater than given `n`.
-   */
-  def beGreaterThan[A](n: A)(implicit ev: Numeric[A]): ValidationRule[A] =
-    ValidationRule(s"be greater than $n")(ev.gt(_, n))
-
-  /**
-   * A [[[io.finch.request.ValidationRule ValidationRule]] that makes sure the numeric value is less than given `n`.
-   */
-  def beLessThan[A](n: A)(implicit ev: Numeric[A]): ValidationRule[A] =
-    ValidationRule(s"be less than $n")(ev.lt(_, n))
-
-  /**
-   * A [[[io.finch.request.ValidationRule ValidationRule]] that makes sure the string value is longer than `n` symbols.
-   */
-  def beLongerThan(n: Int): ValidationRule[String] =
-    ValidationRule(s"be longer than $n symbols")(_.length > n)
-
-  /**
-   * A [[[io.finch.request.ValidationRule ValidationRule]] that makes sure the string value is shorter than `n` symbols.
-   */
-  def beShorterThan(n: Int): ValidationRule[String] =
-    ValidationRule(s"be shorter than $n symbols")(_.length < n)
+  private[finch] val beEmpty: ValidationRule[String] = ValidationRule("be empty")(_.isEmpty)
 }

@@ -1,10 +1,9 @@
-package io.finch.request
+package io.finch
 
 import com.twitter.finagle.http.Request
 import com.twitter.util.{Await, Future}
-import io.finch._
-import org.scalatest.{Matchers, FlatSpec}
-import items._
+import io.finch.items._
+import org.scalatest.{FlatSpec, Matchers}
 
 class RequestReaderCompanionSpec extends FlatSpec with Matchers {
 
@@ -28,8 +27,8 @@ class RequestReaderCompanionSpec extends FlatSpec with Matchers {
   
   it should "support a factory method based on a constant exception" in {
     val request: Request = Request(("foo", ""))
-    val futureResult: Future[Int] = RequestReader.exception(NotPresent(BodyItem))(request)
-    a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
+    val futureResult: Future[Int] = RequestReader.exception(Error.NotPresent(BodyItem))(request)
+    an [Error.NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
   
 }

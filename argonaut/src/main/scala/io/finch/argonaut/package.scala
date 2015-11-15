@@ -1,10 +1,7 @@
 package io.finch
 
-import _root_.argonaut.{EncodeJson, Json, Parse, DecodeJson}
-import io.finch.request.DecodeRequest
-import io.finch.request.RequestError
-import io.finch.response.EncodeResponse
-import com.twitter.util.{Try, Throw, Return}
+import _root_.argonaut.{DecodeJson, EncodeJson, Parse}
+import com.twitter.util.{Return, Throw, Try}
 
 package object argonaut {
 

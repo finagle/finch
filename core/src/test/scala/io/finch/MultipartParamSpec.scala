@@ -1,7 +1,7 @@
-package io.finch.request
+package io.finch
 
-import com.twitter.finagle.http.{Request, RequestBuilder}
 import com.twitter.finagle.http.exp.Multipart.FileUpload
+import com.twitter.finagle.http.{Request, RequestBuilder}
 import com.twitter.util.{Await, Future}
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -62,7 +62,7 @@ class MultipartParamSpec extends FlatSpec with Matchers {
   it should "produce an error if the param does not exist" in {
     val request = requestFromBinaryFile("/upload.bytes")
     val futureResult: Future[String] = param("foo")(request)
-    a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
+    an [Error.NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
 
   it should "also return query parameters" in {

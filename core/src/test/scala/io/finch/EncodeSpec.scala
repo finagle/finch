@@ -1,4 +1,4 @@
-package io.finch.response
+package io.finch
 
 import com.twitter.io.Buf
 import com.twitter.io.Buf.Utf8

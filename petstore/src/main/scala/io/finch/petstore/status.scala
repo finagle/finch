@@ -1,6 +1,6 @@
 package io.finch.petstore
 
-import argonaut.{CodecJson, DecodeResult, DecodeJson, EncodeJson}
+import argonaut._
 
 /**
  * Represents the general status of a [[Pet]]. This should either be [[Available]], [[Pending]], or [[Adopted]].

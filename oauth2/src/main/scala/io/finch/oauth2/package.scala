@@ -2,10 +2,9 @@ package io.finch
 
 import com.twitter.finagle.http.Request
 import com.twitter.finagle.OAuth2
-import com.twitter.finagle.oauth2.{GrantHandlerResult, AuthInfo, DataHandler}
+import com.twitter.finagle.oauth2.{AuthInfo, DataHandler, GrantHandlerResult}
 import com.twitter.util.Future
-import io.finch.request.RequestReader
-import io.finch.request.items._
+import io.finch.items._
 
 package object oauth2 {
 

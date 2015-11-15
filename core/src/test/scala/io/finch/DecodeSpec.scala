@@ -1,8 +1,9 @@
-package io.finch.request
+package io.finch
 
-import org.scalatest.{Matchers, FlatSpec}
-import com.twitter.util.{Try, Return, Await}
 import com.twitter.finagle.http.Request
+import com.twitter.util.{Await, Return, Try}
+import org.scalatest.{FlatSpec, Matchers}
+
 import scala.math._
 import scala.reflect.ClassTag
 
@@ -81,7 +82,7 @@ class DecodeSpec extends FlatSpec with Matchers {
     case class Foo(value: String)
     case class Bar(value: String)
     
-    implicit def decodeAny = new DecodeAnyRequest {
+    implicit val decodeAny = new DecodeAnyRequest {
       def apply[A: ClassTag](req: String): Try[A] = Return(new Bar(req).asInstanceOf[A])
     }                                       
     

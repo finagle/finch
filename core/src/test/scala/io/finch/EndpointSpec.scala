@@ -207,7 +207,6 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "be composable with RequestReader" in {
-    import io.finch.request._
     check { (i: Input, p: String) =>
       (/ ? RequestReader.value(p)).apply(i).value === Some(p)
     }

@@ -1,14 +1,12 @@
-package io.finch.request
-
-import com.twitter.finagle.http.Request
-import com.twitter.util.{Return, Throw, Try, Future}
-import io.finch._
-import io.finch.request.items._
-import shapeless.ops.function.FnToProduct
-import shapeless.ops.hlist.Tupler
-import shapeless.{HNil, Generic, ::, HList}
+package io.finch
 
 import scala.reflect.ClassTag
+
+import com.twitter.finagle.http.Request
+import com.twitter.util.{Future, Return, Throw, Try}
+import shapeless.{::, Generic, HList, HNil}
+import shapeless.ops.function.FnToProduct
+import shapeless.ops.hlist.Tupler
 
 /**
  * A `RequestReader` (a reader monad) that reads a [[Future]] of `A` from the request of type `R`. `RequestReader`s
@@ -27,8 +25,10 @@ import scala.reflect.ClassTag
  */
 trait RequestReader[A] { self =>
 
+  import items._
+
   /**
-   * A [[io.finch.request.items.RequestItem RequestItem]] read by this request reader.
+   * A [[RequestItem]] read by this request reader.
    */
   def item: RequestItem
 
@@ -83,7 +83,7 @@ trait RequestReader[A] { self =>
    * @param predicate returns true if the data is valid
    *
    * @return a request reader that will return the value of this reader if it is valid.
-   *         Otherwise the future fails with a [[io.finch.request.NotValid NotValid]] error.
+   *         Otherwise the future fails with an [[Error.NotValid]] error.
    */
   def should(rule: String)(predicate: A => Boolean): RequestReader[A] = embedFlatMap(a =>
     if (predicate(a)) Future.value(a)
@@ -97,7 +97,7 @@ trait RequestReader[A] { self =>
    * @param predicate returns false if the data is valid
    *
    * @return a request reader that will return the value of this reader if it is valid.
-   *         Otherwise the future fails with a [[io.finch.request.NotValid NotValid]] error.
+   *         Otherwise the future fails with a [[Error.NotValid]] error.
    */
   def shouldNot(rule: String)(predicate: A => Boolean): RequestReader[A] = should(s"not $rule.")(x => !predicate(x))
 
@@ -105,11 +105,11 @@ trait RequestReader[A] { self =>
    * Validates the result of this request reader using a predefined `rule`. This method allows for rules to be reused
    * across multiple request readers.
    *
-   * @param rule the predefined [[io.finch.request.ValidationRule ValidationRule]] that will return true if the data is
+   * @param rule the predefined [[ValidationRule]] that will return true if the data is
    *             valid
    *
    * @return a request reader that will return the value of this reader if it is valid.
-   *         Otherwise the future fails with a [[io.finch.request.NotValid NotValid]] error.
+   *         Otherwise the future fails with an [[Error.NotValid]] error.
    */
   def should(rule: ValidationRule[A]): RequestReader[A] = should(rule.description)(rule.apply)
 
@@ -117,11 +117,11 @@ trait RequestReader[A] { self =>
    * Validates the result of this request reader using a predefined `rule`. This method allows for rules to be reused
    * across multiple request readers.
    *
-   * @param rule the predefined [[io.finch.request.ValidationRule ValidationRule]] that will return false if the data is
+   * @param rule the predefined [[ValidationRule]] that will return false if the data is
    *             valid
    *
    * @return a request reader that will return the value of this reader if it is valid.
-   *         Otherwise the future fails with a [[io.finch.request.NotValid NotValid]] error.
+   *         Otherwise the future fails with a [[Error.NotValid]] error.
    */
   def shouldNot(rule: ValidationRule[A]): RequestReader[A] = shouldNot(rule.description)(rule.apply)
 }
@@ -131,8 +131,10 @@ trait RequestReader[A] { self =>
  */
 object RequestReader {
 
+  import items._
+
   /**
-   * Creates a new [[io.finch.request.RequestReader RequestReader]] that always succeeds, producing the specified value.
+   * Creates a new [[RequestReader]] that always succeeds, producing the specified value.
    *
    * @param value the value the new reader should produce
    * @return a new reader that always succeeds, producing the specified value
@@ -140,7 +142,7 @@ object RequestReader {
   def value[A](value: A): RequestReader[A] = const[A](Future.value(value))
 
   /**
-   * Creates a new [[io.finch.request.RequestReader RequestReader]] that always fails, producing the specified
+   * Creates a new [[RequestReader]] that always fails, producing the specified
    * exception.
    *
    * @param exc the exception the new reader should produce
@@ -149,7 +151,7 @@ object RequestReader {
   def exception[A](exc: Throwable): RequestReader[A] = const[A](Future.exception(exc))
 
   /**
-   * Creates a new [[io.finch.request.RequestReader RequestReader]] that always produces the specified value. It will
+   * Creates a new [[RequestReader]] that always produces the specified value. It will
    * succeed if the given `Future` succeeds and fail if the `Future` fails.
    *
    * @param value the value the new reader should produce
@@ -158,14 +160,14 @@ object RequestReader {
   def const[A](value: Future[A]): RequestReader[A] = embed[A](MultipleItems)(_ => value)
 
   /**
-   * Creates a new [[io.finch.request.RequestReader RequestReader]] that reads the result from the request.
+   * Creates a new [[RequestReader]] that reads the result from the request.
    *
    * @param f the function to apply to the request
    * @return a new reader that reads the result from the request
    */
   def apply[A](f: Request => A): RequestReader[A] = embed[A](MultipleItems)(req => Future.value(f(req)))
 
-  private[request] def embed[A](i: RequestItem)(f: Request => Future[A]): RequestReader[A] =
+  private[finch] def embed[A](i: RequestItem)(f: Request => Future[A]): RequestReader[A] =
     new RequestReader[A] {
       val item = i
       def apply(req: Request): Future[A] = f(req)
@@ -199,7 +201,7 @@ object RequestReader {
       case None => Future.None
     }
 
-    private[request] def noneIfEmpty: RequestReader[Option[String]] = rr.map {
+    private[finch] def noneIfEmpty: RequestReader[Option[String]] = rr.map {
       case Some(value) if value.isEmpty => None
       case other => other
     }
@@ -236,7 +238,7 @@ object RequestReader {
    * Implicit conversion that adds convenience methods to readers for optional values.
    */
   implicit class OptionReaderOps[A](val rr: RequestReader[Option[A]]) extends AnyVal {
-    private[request] def failIfNone: RequestReader[A] = rr.embedFlatMap {
+    private[finch] def failIfNone: RequestReader[A] = rr.embedFlatMap {
       case Some(value) => Future.value(value)
       case None => Future.exception(Error.NotPresent(rr.item))
     }
@@ -348,8 +350,10 @@ object RequestReader {
     def ~>[A](fn: B => A): RequestReader[A] = self.map(fn)
   }
 
+  import shapeless._
+  import labelled.{FieldType, field}
+
   import scala.reflect.ClassTag
-  import shapeless._, labelled.{FieldType, field}
 
   class GenericDerivation[A] {
     def fromParams[Repr <: HList](implicit
