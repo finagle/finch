@@ -32,6 +32,11 @@ trait LowPriorityMapperConversions {
       type Out = B
       def apply(r: Endpoint[A]): Endpoint[Out] = r.femap(f)
     }
+
+  implicit def mapperFromEndpointFunction[A, B](f: A => Endpoint[B]): Mapper.Aux[A, B] = new Mapper[A] {
+    type Out = B
+    def apply(r: Endpoint[A]): Endpoint[Out] = r.flatMap(f)
+  }
 }
 
 trait HighPriorityMapperConversions extends LowPriorityMapperConversions {
