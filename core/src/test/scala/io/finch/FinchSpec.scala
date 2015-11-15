@@ -4,6 +4,7 @@ import java.util.UUID
 
 import com.twitter.finagle.http._
 import com.twitter.util.{Await, Future}
+import io.finch.response.EncodeResponse
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.prop.Checkers
 import org.scalatest.{Matchers, FlatSpec}
@@ -60,17 +61,16 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers {
 
   def genFailureOutput: Gen[Output.Failure] = for {
     (s, hs, cs, ct, ch) <- genOutputContext
-    m <- Arbitrary.arbitrary[Map[String, String]]
-  } yield Output.Failure(m, s, hs.toMap, cs.toSeq, ct, ch)
+    m <- Gen.alphaStr
+  } yield Output.Failure(new Exception(m), s, hs.toMap, cs.toSeq, ct, ch)
 
   def genPayloadOutput[A: Arbitrary]: Gen[Output.Payload[A]] = for {
     (s, hs, cs, ct, ch) <- genOutputContext
-    v <- Arbitrary.arbitrary[A]
-  } yield Output.Payload(v, s, hs.toMap, cs.toSeq, ct, ch)
+    a <- Arbitrary.arbitrary[A]
+  } yield Output.Payload(a, s, hs.toMap, cs.toSeq, ct, ch)
 
   def genOutput[A: Arbitrary]: Gen[Output[A]] = Gen.oneOf(
-    genPayloadOutput[A],
-    genFailureOutput.map(_.asInstanceOf[Output[A]])
+    genPayloadOutput[A], genFailureOutput
   )
 
   def genMethod: Gen[Method] = Gen.oneOf(
@@ -114,6 +114,5 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers {
 
   implicit def arbitraryPayloadOutput[A: Arbitrary]: Arbitrary[Output.Payload[A]] = Arbitrary(genPayloadOutput[A])
 
-  implicit def arbitraryOutput: Arbitrary[Output[Response]] =
-    Arbitrary(genOutput[String].map(os => os.map(s => ToService.encodeResponse(s))))
+  implicit def arbitraryOutput[A: Arbitrary]: Arbitrary[Output[A]] = Arbitrary(genOutput[A])
 }

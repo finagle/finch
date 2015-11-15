@@ -22,15 +22,12 @@ case class User(
     email: Option[String],
     password: String,
     phone: Option[String]
-    )
+)
 
-/**
- * Companion object to the User class.
- */
 object User{
   /**
    * Creates the encode/decode codec for the User object.
-   */
+  */
   implicit val userCodec: CodecJson[User] =
     casecodec7(User.apply, User.unapply)("id", "username", "firstName", "lastName", "email", "password", "phone")
 }

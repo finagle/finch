@@ -106,9 +106,10 @@ lazy val root = project.in(file("."))
         |import io.finch.circe._
         |import io.finch.request._
         |import io.finch.request.items._
-        |import com.twitter.util.Future
+        |import com.twitter.util.{Future, Await}
         |import com.twitter.finagle.Service
         |import com.twitter.finagle.http.{Request, Response, Status}
+        |import io.circe._
       """.stripMargin
   )
   .aggregate(core, argonaut, jackson, json4s, circe, benchmarks, petstore, test, jsonTest, oauth2)
