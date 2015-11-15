@@ -2,8 +2,8 @@ package io.finch.benchmarks.service
 
 import java.net.{InetSocketAddress, URL}
 
-import com.twitter.finagle.http.{Request, RequestBuilder, Response}
 import com.twitter.finagle.{Http, Service}
+import com.twitter.finagle.http.{Request, RequestBuilder, Response}
 import com.twitter.io.Buf
 import com.twitter.util.{Await, Closable, Future}
 

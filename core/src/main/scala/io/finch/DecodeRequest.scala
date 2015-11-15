@@ -1,7 +1,7 @@
 package io.finch
 
-import java.util.UUID
 import com.twitter.util.{Throw, Try}
+import java.util.UUID
 import scala.reflect.ClassTag
 
 /**

@@ -1,12 +1,12 @@
 package io.finch
 
-import io.finch.items._
+import scala.reflect.ClassTag
+
 import com.twitter.finagle.http.Request
 import com.twitter.util.{Future, Return, Throw, Try}
+import shapeless.{::, Generic, HList, HNil}
 import shapeless.ops.function.FnToProduct
 import shapeless.ops.hlist.Tupler
-import shapeless.{::, Generic, HList, HNil}
-import scala.reflect.ClassTag
 
 /**
  * A `RequestReader` (a reader monad) that reads a [[Future]] of `A` from the request of type `R`. `RequestReader`s
@@ -24,6 +24,8 @@ import scala.reflect.ClassTag
  *
  */
 trait RequestReader[A] { self =>
+
+  import items._
 
   /**
    * A [[RequestItem]] read by this request reader.
@@ -350,6 +352,7 @@ object RequestReader {
 
   import shapeless._
   import labelled.{FieldType, field}
+
   import scala.reflect.ClassTag
 
   class GenericDerivation[A] {

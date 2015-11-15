@@ -1,10 +1,9 @@
 package io.finch.petstore
 
 import _root_.argonaut._, Argonaut._
-
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.exp.Multipart.FileUpload
 import com.twitter.finagle.http.{Request, Response}
+import com.twitter.finagle.http.exp.Multipart.FileUpload
 import com.twitter.util.Future
 import io.finch._, items._
 import io.finch.argonaut._

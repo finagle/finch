@@ -1,8 +1,8 @@
 package io.finch
 
+import com.twitter.util.{Return, Throw, Try}
 import io.circe.{Decoder, Encoder}
 import io.circe.jawn.decode
-import com.twitter.util.{Try, Throw, Return}
 
 package object circe {
 

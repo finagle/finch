@@ -1,6 +1,6 @@
 package io.finch
 
-import com.twitter.finagle.http.{Response, Status, Cookie, Version}
+import com.twitter.finagle.http.{Cookie, Response, Status, Version}
 import com.twitter.util.Future
 import shapeless.HNil
 

@@ -1,14 +1,14 @@
 package io.finch
 
+import com.twitter.finagle.http.{Cookie, Request}
 import com.twitter.finagle.http.exp.Multipart
 import com.twitter.finagle.http.exp.Multipart.FileUpload
-import com.twitter.finagle.http.{Cookie, Request}
 import com.twitter.io.Buf
 import com.twitter.util.Future
 
 trait RequestReaders {
 
-  import io.finch.items._
+  import items._
 
   /**
    * Implicit conversion that allows the same inline rules to be used for required and optional values. If the optional

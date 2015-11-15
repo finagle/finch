@@ -1,11 +1,11 @@
 package io.finch
 
+import scala.reflect.ClassTag
+
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.twitter.io.Buf
 import com.twitter.io.Buf.Utf8
 import com.twitter.util.Try
-
-import scala.reflect.ClassTag
 
 package object jackson {
 

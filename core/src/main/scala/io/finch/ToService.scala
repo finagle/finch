@@ -1,12 +1,12 @@
 package io.finch
 
+import scala.annotation.implicitNotFound
+
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response, Status}
 import com.twitter.util.Future
-import shapeless.ops.coproduct.Folder
 import shapeless.{Coproduct, Poly1}
-
-import scala.annotation.implicitNotFound
+import shapeless.ops.coproduct.Folder
 
 /**
  * Represents a conversion from an [[Endpoint]] returning a result type `A` to a Finagle service from a request-like
