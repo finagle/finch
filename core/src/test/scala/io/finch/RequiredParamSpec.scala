@@ -1,10 +1,10 @@
-package io.finch.request
+package io.finch
 
 import java.util.UUID
 
 import com.twitter.finagle.http.Request
 import com.twitter.util.{Await, Future}
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.{FlatSpec, Matchers}
 
 class RequiredParamSpec extends FlatSpec with Matchers {
 
@@ -17,13 +17,13 @@ class RequiredParamSpec extends FlatSpec with Matchers {
   it should "produce an error if the param is empty" in {
     val request: Request = Request(("foo", ""))
     val futureResult: Future[String] = param("foo")(request)
-    a [NotValid] shouldBe thrownBy(Await.result(futureResult))
+    an [Error.NotValid] shouldBe thrownBy(Await.result(futureResult))
   }
 
   it should "produce an error if the param does not exist" in {
     val request: Request = Request(("bar", "foo"))
     val futureResult: Future[String] = param("foo")(request)
-    a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
+    an [Error.NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
 
   it should "have a matching RequestItem" in {
@@ -66,7 +66,7 @@ class RequiredParamSpec extends FlatSpec with Matchers {
 
     val p = param("foo").as[UUID]
     Await.result(p(request)) shouldBe uuid
-    a [NotParsed] shouldBe thrownBy(Await.result(p(badRequest)))
+    an [Error.NotParsed] shouldBe thrownBy(Await.result(p(badRequest)))
   }
 
   "A RequiredBooleanParam" should "be parsed as a boolean" in {
@@ -78,7 +78,7 @@ class RequiredParamSpec extends FlatSpec with Matchers {
   it should "produce an error if the param is not a boolean" in {
     val request: Request = Request(("foo", "5"))
     val futureResult: Future[Boolean] = param("foo").as[Boolean].apply(request)
-    a [NotParsed] shouldBe thrownBy(Await.result(futureResult))
+    an [Error.NotParsed] shouldBe thrownBy(Await.result(futureResult))
   }
 
 
@@ -91,7 +91,7 @@ class RequiredParamSpec extends FlatSpec with Matchers {
   it should "produce an error if the param is not an integer" in {
     val request: Request = Request(("foo", "non-number"))
     val futureResult: Future[Int] = param("foo").as[Int].apply(request)
-    a [NotParsed] shouldBe thrownBy(Await.result(futureResult))
+    an [Error.NotParsed] shouldBe thrownBy(Await.result(futureResult))
   }
 
 
@@ -104,7 +104,7 @@ class RequiredParamSpec extends FlatSpec with Matchers {
   it should "produce an error if the param is not a long" in {
     val request: Request = Request(("foo", "non-number"))
     val futureResult: Future[Long] = param("foo").as[Long].apply(request)
-    a [NotParsed] shouldBe thrownBy(Await.result(futureResult))
+    an [Error.NotParsed] shouldBe thrownBy(Await.result(futureResult))
   }
 
   "A RequiredFloatParam" should "be parsed as a float" in {
@@ -116,7 +116,7 @@ class RequiredParamSpec extends FlatSpec with Matchers {
   it should "produce an error if the param is not a float" in {
     val request: Request = Request(("foo", "non-number"))
     val futureResult: Future[Float] = param("foo").as[Float].apply(request)
-    a [NotParsed] shouldBe thrownBy(Await.result(futureResult))
+    an [Error.NotParsed] shouldBe thrownBy(Await.result(futureResult))
   }
 
 
@@ -129,6 +129,6 @@ class RequiredParamSpec extends FlatSpec with Matchers {
   it should "produce an error if the param is not a double" in {
     val request: Request = Request(("foo", "non-number"))
     val futureResult: Future[Double] = param("foo").as[Double].apply(request)
-    a [NotParsed] shouldBe thrownBy(Await.result(futureResult))
+    an [Error.NotParsed] shouldBe thrownBy(Await.result(futureResult))
   }
 }

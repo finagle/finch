@@ -6,10 +6,8 @@ import com.twitter.finagle.Service
 import com.twitter.finagle.http.exp.Multipart.FileUpload
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.util.Future
-import io.finch._
+import io.finch._, items._
 import io.finch.argonaut._
-import io.finch.request._
-import io.finch.request.items._
 
 /**
  * Provides the paths and endpoints for all the API's public service methods.

@@ -1,10 +1,10 @@
-package io.finch.request
+package io.finch
 
 import com.twitter.finagle.http.Request
 import com.twitter.util.{Await, Future, Return, Throw}
 import org.scalacheck.Prop.BooleanOperators
-import org.scalatest.{Matchers, FlatSpec}
 import org.scalatest.prop.Checkers
+import org.scalatest.{FlatSpec, Matchers}
 
 class RequestReaderValidationSpec extends FlatSpec with Matchers with Checkers {
 
@@ -27,7 +27,7 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers with Checkers {
 
   it should "raise a RequestReader error for invalid values" in {
     val oddReader = fooReader.should("be odd") { _ % 2 != 0 }
-    a [RequestError] shouldBe thrownBy(Await.result(oddReader(request)))
+    an [Error] shouldBe thrownBy(Await.result(oddReader(request)))
   }
 
   it should "be lift-able into an optional reader that always succeeds" in {
@@ -46,7 +46,7 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers with Checkers {
     val readFoo: RequestReader[Int] = for {
       foo <- fooReader if foo % 2 != 0
     } yield foo
-    a [RequestError] shouldBe thrownBy(Await.result(readFoo(request)))
+    an [Error] shouldBe thrownBy(Await.result(readFoo(request)))
   }
 
   it should "be convertible to a single-member case class with a matching type" in {
@@ -68,7 +68,7 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers with Checkers {
 
   it should "raise a RequestReader error for invalid values" in {
     val oddReader = fooReader.shouldNot(beEven)
-    a [RequestError] shouldBe thrownBy(Await.result(oddReader(request)))
+    an [Error] shouldBe thrownBy(Await.result(oddReader(request)))
   }
   
   it should "allow valid values based on two rules combined with and" in {
@@ -78,7 +78,7 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers with Checkers {
   
   it should "raise a RequestReader error if one of two rules combined with and fails" in {
     val andReader = fooReader.should(beEven and beSmallerThan(2))
-    a [RequestError] shouldBe thrownBy(Await.result(andReader(request)))
+    an [Error] shouldBe thrownBy(Await.result(andReader(request)))
   }
   
   it should "allow valid values based on two rules combined with or" in {
@@ -88,7 +88,7 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers with Checkers {
   
   it should "raise a RequestReader error if one of two rules combined with or in a negation fails" in {
     val andReader = fooReader.shouldNot(beEven or beSmallerThan(12))
-    a [RequestError] shouldBe thrownBy(Await.result(andReader(request)))
+    an [Error] shouldBe thrownBy(Await.result(andReader(request)))
   }
   
   it should "allow to reuse a validation rule with optional readers" in {
@@ -98,7 +98,7 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers with Checkers {
   
   it should "raise a RequestReader error if a rule for a non-empty optional value fails" in {
     val optReader = paramOption("bar").as[Int].should(beEven)
-    a [RequestError] shouldBe thrownBy(Await.result(optReader(request)))
+    an [Error] shouldBe thrownBy(Await.result(optReader(request)))
   }
   
   it should "skip validation when applied to an empty optional value" in {
@@ -117,10 +117,10 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers with Checkers {
 
     val req = Request("foo" -> "20", "bar" -> "20.0", "baz" -> "baz")
 
-    a [RequestError] shouldBe thrownBy(Await.result(intReader(req)))
-    a [RequestError] shouldBe thrownBy(Await.result(floatReader(req)))
-    a [RequestError] shouldBe thrownBy(Await.result(stringReader(req)))
-    a [RequestError] shouldBe thrownBy(Await.result(optLongReader(req)))
+    an [Error] shouldBe thrownBy(Await.result(intReader(req)))
+    an [Error] shouldBe thrownBy(Await.result(floatReader(req)))
+    an [Error] shouldBe thrownBy(Await.result(stringReader(req)))
+    an [Error] shouldBe thrownBy(Await.result(optLongReader(req)))
 
     Await.result(ltIntReader(req)) shouldBe 20
     Await.result(stStringReader(req)) shouldBe "baz"
@@ -130,8 +130,8 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers with Checkers {
     val optInt = paramOption("foo").as[Int].should("be greater than 50") { i: Int => i > 50 }
     val optString = paramOption("bar").should("be longer than 5 chars") { s: String => s.length > 5 }
 
-    a [RequestError] shouldBe thrownBy(Await.result(optInt(request)))
-    a [RequestError] shouldBe thrownBy(Await.result(optString(request)))
+    an [Error] shouldBe thrownBy(Await.result(optInt(request)))
+    an [Error] shouldBe thrownBy(Await.result(optString(request)))
   }
 
   "An empty optional param RequestReader" should "work correctly with inline rules" in {
@@ -158,11 +158,11 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers with Checkers {
     val secondBadReader = (fooReader.should(beEven) :: barReader.should(beEven)).asTuple
 
     Await.result(firstBadReader(request).liftToTry) should matchPattern {
-      case Throw(NotValid(_, _)) =>
+      case Throw(Error.NotValid(_, _)) =>
     }
 
     Await.result(secondBadReader(request).liftToTry) should matchPattern {
-      case Throw(NotValid(_, _)) =>
+      case Throw(Error.NotValid(_, _)) =>
     }
   }
 
@@ -170,7 +170,7 @@ class RequestReaderValidationSpec extends FlatSpec with Matchers with Checkers {
     val tupleReader = (fooReader.shouldNot(beEven) :: barReader.should(beEven)).asTuple
 
     Await.result(tupleReader(request).liftToTry) should matchPattern {
-      case Throw(RequestErrors(Seq(NotValid(_, _), NotValid(_, _)))) =>
+      case Throw(Error.RequestErrors(Seq(Error.NotValid(_, _), Error.NotValid(_, _)))) =>
     }
   }
 

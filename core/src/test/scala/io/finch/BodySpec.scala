@@ -1,10 +1,10 @@
-package io.finch.request
+package io.finch
 
 import com.twitter.finagle.http.Request
 import com.twitter.io.Buf.ByteArray
 import com.twitter.util.{Await, Future, Try}
+import io.finch.items._
 import org.scalatest.{FlatSpec, Matchers}
-import items._
 
 class BodySpec extends FlatSpec with Matchers {
   val foo = "foo"
@@ -19,7 +19,7 @@ class BodySpec extends FlatSpec with Matchers {
   it should "produce an error if the body is empty" in {
     val request: Request = requestWithBody(Array[Byte]())
     val futureResult: Future[Array[Byte]] = binaryBody(request)
-    a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
+    an [Error.NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
 
   it should "have a corresponding RequestItem" in {
@@ -51,7 +51,7 @@ class BodySpec extends FlatSpec with Matchers {
   it should "produce an error if the body is empty" in {
     val request: Request = requestWithBody("")
     val futureResult: Future[String] = body(request)
-    a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
+    an [Error.NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
 
   "An OptionalStringBody" should "be properly read if it exists" in {
@@ -120,10 +120,10 @@ class BodySpec extends FlatSpec with Matchers {
     val oi: RequestReader[Option[Int]] = bodyOption.as[Int]
     val o: Future[Option[Int]] = bodyOption.as[Int].apply(req)
 
-    a [NotParsed] shouldBe thrownBy(Await.result(ri(req)))
-    a [NotParsed] shouldBe thrownBy(Await.result(i))
-    a [NotParsed] shouldBe thrownBy(Await.result(oi(req)))
-    a [NotParsed] shouldBe thrownBy(Await.result(o))
+    an [Error.NotParsed] shouldBe thrownBy(Await.result(ri(req)))
+    an [Error.NotParsed] shouldBe thrownBy(Await.result(i))
+    an [Error.NotParsed] shouldBe thrownBy(Await.result(oi(req)))
+    an [Error.NotParsed] shouldBe thrownBy(Await.result(o))
   }
 
   private[this] def requestWithBody(body: String): Request = {

@@ -1,6 +1,6 @@
 package io.finch.petstore
 
-import io.finch.request._
+import io.finch._
 
 /**
  * Represents a reader object that helps extract parameters from query params and bodies.

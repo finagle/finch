@@ -3,7 +3,6 @@ package io.finch.oauth2
 import com.twitter.finagle.http.Request
 import com.twitter.finagle.oauth2._
 import com.twitter.util.{Await, Future}
-import io.finch.request.RequestReader
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.Checkers
 import org.scalatest.{Matchers, FlatSpec}

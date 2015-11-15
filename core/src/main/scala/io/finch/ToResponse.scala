@@ -1,7 +1,6 @@
 package io.finch
 
 import com.twitter.finagle.http.Response
-import io.finch.response.EncodeResponse
 
 /**
  * Represents a conversion from `A` to [[Response]].

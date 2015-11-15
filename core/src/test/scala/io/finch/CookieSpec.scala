@@ -1,8 +1,8 @@
-package io.finch.request
+package io.finch
 
-import com.twitter.finagle.http.{Request, Cookie}
+import com.twitter.finagle.http.{Cookie, Request}
 import com.twitter.util.{Await, Future}
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.{FlatSpec, Matchers}
 
 class CookieSpec extends FlatSpec with Matchers {
 
@@ -22,7 +22,7 @@ class CookieSpec extends FlatSpec with Matchers {
     request.addCookie(c)
     val futureResult: Future[Cookie] = cookie("another-cookie")(request)
 
-    a [NotPresent] shouldBe thrownBy(Await.result(futureResult))
+    an [Error.NotPresent] shouldBe thrownBy(Await.result(futureResult))
   }
 
   it should "read an optional cookie if it exists" in {

@@ -1,7 +1,5 @@
 package io.finch
 
-import io.finch.request.DecodeRequest
-import io.finch.response.EncodeResponse
 import io.circe.{Decoder, Encoder}
 import io.circe.jawn.decode
 import com.twitter.util.{Try, Throw, Return}

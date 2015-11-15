@@ -1,4 +1,37 @@
-package io.finch.request
+package io.finch
+
+/**
+ * Allows the creation of reusable validation rules for [[RequestReader]]s.
+ */
+object ValidationRule {
+  /**
+   * Implicit conversion that allows the same [[ValidationRule]] to be used for required
+   * and optional values. If the optional value is non-empty, it gets validated (and validation may fail, producing an
+   * error), but if it is empty, it is always treated as valid.
+   *
+   * @param rule the validation rule to adapt for optional values
+   * @return a new validation rule that applies the specified rule to an optional value in case it is not empty
+   */
+  implicit def toOptionalRule[A](rule: ValidationRule[A]): ValidationRule[Option[A]] = {
+    ValidationRule(rule.description) {
+      case Some(value) => rule(value)
+      case None => true
+    }
+  }
+
+  /**
+   * Creates a new reusable [[ValidationRule]] based on the specified predicate.
+   *
+   * @param desc text describing the rule being validated
+   * @param p returns true if the data is valid
+   *
+   * @return a new reusable validation rule.
+   */
+  def apply[A](desc: String)(p: A => Boolean): ValidationRule[A] = new ValidationRule[A] {
+    def description: String = desc
+    def apply(value: A): Boolean = p(value)
+  }
+}
 
 /**
  * A `ValidationRule` enables a reusable way of defining a validation rules in the application domain. It might be
@@ -44,37 +77,4 @@ trait ValidationRule[A] { self =>
    */
   def or(that: ValidationRule[A]): ValidationRule[A] =
     ValidationRule(s"${self.description} or ${that.description}") { value => self(value) || that(value) }
-}
-
-/**
- * Allows the creation of reusable validation rules for [[io.finch.request.RequestReader RequestReader]]s.
- */
-object ValidationRule {
-  /**
-   * Implicit conversion that allows the same [[io.finch.request.ValidationRule ValudationRule]] to be used for required
-   * and optional values. If the optional value is non-empty, it gets validated (and validation may fail, producing an
-   * error), but if it is empty, it is always treated as valid.
-   *
-   * @param rule the validation rule to adapt for optional values
-   * @return a new validation rule that applies the specified rule to an optional value in case it is not empty
-   */
-  implicit def toOptionalRule[A](rule: ValidationRule[A]): ValidationRule[Option[A]] = {
-    ValidationRule(rule.description) {
-      case Some(value) => rule(value)
-      case None => true
-    }
-  }
-
-  /**
-   * Creates a new reusable [[io.finch.request.ValidationRule ValidationRule]] based on the specified predicate.
-   *
-   * @param desc text describing the rule being validated
-   * @param p returns true if the data is valid
-   *
-   * @return a new reusable validation rule.
-   */
-  def apply[A](desc: String)(p: A => Boolean): ValidationRule[A] = new ValidationRule[A] {
-    def description: String = desc
-    def apply(value: A): Boolean = p(value)
-  }
 }

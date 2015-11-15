@@ -1,7 +1,6 @@
-package io.finch.request
+package io.finch
 
 import java.util.UUID
-
 import com.twitter.util.{Throw, Try}
 import scala.reflect.ClassTag
 
@@ -14,7 +13,7 @@ trait DecodeRequest[A] {
 
 object DecodeRequest {
   /**
-   * Convenience method for creating new [[io.finch.request.DecodeRequest DecodeRequest]] instances.
+   * Convenience method for creating new [[DecodeRequest]] instances.
    */
   def apply[A](f: String => Try[A]): DecodeRequest[A] = new DecodeRequest[A] {
     def apply(value: String): Try[A] = f(value)

@@ -3,8 +3,6 @@ package io.finch
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.twitter.io.Buf
 import com.twitter.io.Buf.Utf8
-import io.finch.request.DecodeAnyRequest
-import io.finch.response.EncodeAnyResponse
 import com.twitter.util.Try
 
 import scala.reflect.ClassTag
