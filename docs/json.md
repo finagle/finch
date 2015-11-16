@@ -72,3 +72,7 @@ implicit val formats: Formats = DefaultFormats ++ JodaTimeSerializers.all
 [jackson]: http://wiki.fasterxml.com/JacksonHome
 [json4s]: http://json4s.org/
 [circe]: https://github.com/travisbrown/circe
+
+--
+Read Next: [Best Practices](best-practices.md)
+
