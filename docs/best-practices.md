@@ -1,0 +1,131 @@
+## Best Practices
+
+* [Picking a JSON library](best-practices.md#picking-a-json-library)
+* [Do not block an endpoint](best-practices.md#do-not-block-an-endpoint)
+* [Use TwitterServer](best-practices.md#use-twitterserver)
+* [Monitor your application](best-practices.md#monitor-your-application)
+
+--
+
+### Picking a JSON library
+
+It's highly recommended to use [Circe][circe], whose purely functional nature aligns very well with Finch (see
+[JSON docs](json.md#circe) on how to enable Circe support in Finch). In addition to a
+[compile-time derived decoders][generic-decoders] and encoders, Circe comes with
+[a great performance][circe-performance] and very useful features such as case class patchers and incomplete decoders.
+
+Case class patchers are extremely useful for `PATCH` and `PUT` HTTP endpoints, when it's required to _update_ the case
+class instance with new data parsed from a JSON object. In Finch, Circe's case class patchers are usually represented as
+`RequestReader[A => A]`, which
+
+1. parses an HTTP request for a partial JSON object that contains fields need to be updated and
+2. represents that partial JSON object as a function `A => A` that takes a case class and updates it with all the values
+   from a JSON object
+
+```scala
+case class Todo(id: UUID, title: String, completed: Boolean, order: Int)
+val patchedTodo: RequestReader[Todo => Todo] = body.as[Todo => Todo]
+val patchTodo: Endpoint[Todo] = patch("todos" / uuid ? patchedTodo) { (id: UUID, pt: Todo => Todo) =>
+  val oldTodo = ??? // get by id
+  val newTodo = pt(oldTodo)
+  // store newTodo in the DB
+  Ok(newTodo)
+}
+```
+
+[Incomplete decoders][incomplete-decoders] allows to ask Circe and Finch for a JSON object/array with some fields
+missing. This is very useful for `POST` HTTP endpoints that create new entries from JSON supplied by user and some
+internally generated ID. A Circe's incomplete decoder is represented in Finch as a
+`RequestReader[(A, B, ..., Z) => 0ut]`, where `A, B, ..., Z` is a set of missing fields from the `Out` type. This type
+signature basically means that a request reader, instead of a final type (a complete JSON object), gives us a function,
+to which we'd need to supply some missing bits to get the final instance.
+
+
+```scala
+val postedTodo: RequestReader[Todo] = body.as[UUID => Todo].map(_(UUID.randomUUID()))
+val postTodo: Endpoint[Todo] = post("todos" ? pastedTodo) { t: Todo =>
+  // store t in the DB
+  Ok(t)
+}
+```
+
+### Do not block an endpoint
+
+Finagle is very sensitive to whether or not its worker threads are blocked. In order to make sure your HTTP server
+always makes progress (accepts new connections/requests), do not block Finch endpoints. Use `FuturePool`s to wrap
+expensive computations.
+
+```scala
+import com.twitter.util.FuturePool
+
+val expensive: Endpoint[BigInt] = get(int) { i: Int =>
+  FuturePool.unboundedPool {
+    BigInt(i).pow(i)
+  }
+}
+```
+
+### Use TwitterServer
+
+Always serve Finch endpoints within [TwitterServer][twitter-server], a lightweight server template used in production at
+Twitter. TwitterServer wraps a Finagle application with a bunch of useful features such as command line flags, logging
+and more importantly HTTP admin interface that can tell a lot on what's happening with your server. One of the most
+powerful features of the admin interface is [Metrics][metrics], which captures a snapshot of all the system-wide stats
+(free memory, CPU usage, request success rate, request latency and many more) exported in a JSON format.
+
+Use the following template to empower your Finch application with TwitterServer.
+
+```scala
+object Main extends TwitterServer {
+
+  val api: Service[Request, Response] = ???
+
+  def main(): Unit = {
+    val server: ListeningServer = Http.server
+      .configured(Stats(statsReceiver))
+      .serve(":8081", api)
+
+    onExit { server.close() }
+
+    Await.ready(adminHttpServer)
+  }
+}
+```
+
+### Monitor your application
+
+Use [Metrics][metrics] to export domain-specific metrics from your application and export them automatically with
+[TwitterServer][twitter-server]. Metrics are extremely valuable and helps you better understand your application under
+different circumstances.
+
+One of the easiest things to export is a _counters_ that captures the number of times some event occurred.
+
+```scala
+val todos: Counter = statsReceiver.counter("todos")
+val postTodo: Endpoint[Todo] = post("todos" ? pastedTodo) { t: Todo =>
+  todos.incr()
+  // add todo into the DB
+  Ok(t)
+}
+```
+
+It's also possible to export histograms over the random values (latencies, number of active users, etc).
+
+```scala
+import com.twitter.finagle.stats.Stat
+
+val getTodosLatency = statsReceiver.stat("get_todos_latency")
+val getTodos: Endpoint[List[Todo]] = get("todos") {
+  Stat.time(getTodoLatency) { Ok(Todo.list()) }
+}
+```
+
+Both Finagle and user defined stats are available via TwitterServer's HTTP admin interface or HTTP endpoint
+`/admin/metrics.json`.
+
+[circe]: https://github.com/travisbrown/circe
+[circe-performance]: https://github.com/travisbrown/circe#performance
+[generic-decoders]: https://meta.plasm.us/posts/2015/11/08/type-classes-and-generic-derivation/
+[incomplete-decoders]: https://meta.plasm.us/posts/2015/06/21/deriving-incomplete-type-class-instances/
+[twitter-server]: https://twitter.github.io/twitter-server/
+[metrics]: https://twitter.github.io/twitter-server/Features.html#metrics

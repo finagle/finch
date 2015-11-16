@@ -14,8 +14,8 @@ build.sbt:
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "finch-core" % "0.9.0",
-  "com.github.finagle" %% "finch-circe" % "0.9.0",
+  "com.github.finagle" %% "finch-core" % "0.9.1",
+  "com.github.finagle" %% "finch-circe" % "0.9.1",
   "io.circe" %% "circe-generic" % "0.2.0"
 )
 ```
@@ -83,6 +83,7 @@ object Main extends App {
 * [ResponseBuilders](response.md) **deprecated since 0.9.0**
 * [Authentication](auth.md)
 * [JSON](json.md)
+* [Best Practices](best-practices.md)
 
 [finagle]: http://twitter.github.io/finagle/
 [circe]: https://github.com/travisbrown/circe
