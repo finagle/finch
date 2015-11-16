@@ -43,7 +43,7 @@ to which we'd need to supply some missing bits to get the final instance.
 
 ```scala
 val postedTodo: RequestReader[Todo] = body.as[UUID => Todo].map(_(UUID.randomUUID()))
-val postTodo: Endpoint[Todo] = post("todos" ? pastedTodo) { t: Todo =>
+val postTodo: Endpoint[Todo] = post("todos" ? postedTodo) { t: Todo =>
   // store t in the DB
   Ok(t)
 }
@@ -102,7 +102,7 @@ One of the easiest things to export is a _counters_ that captures the number of 
 
 ```scala
 val todos: Counter = statsReceiver.counter("todos")
-val postTodo: Endpoint[Todo] = post("todos" ? pastedTodo) { t: Todo =>
+val postTodo: Endpoint[Todo] = post("todos" ? postedTodo) { t: Todo =>
   todos.incr()
   // add todo into the DB
   Ok(t)
@@ -116,7 +116,7 @@ import com.twitter.finagle.stats.Stat
 
 val getTodosLatency = statsReceiver.stat("get_todos_latency")
 val getTodos: Endpoint[List[Todo]] = get("todos") {
-  Stat.time(getTodoLatency) { Ok(Todo.list()) }
+  Stat.time(getTodosLatency) { Ok(Todo.list()) }
 }
 ```
 
