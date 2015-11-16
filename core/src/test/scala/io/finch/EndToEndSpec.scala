@@ -13,7 +13,7 @@ class EndToEndSpec extends FinchSpec {
       EncodeResponse.fromString("text/plain")(_.s)
 
     implicit val decodeFoo: DecodeRequest[Foo] =
-      DecodeRequest(s => Return(Foo(s)))
+      DecodeRequest.instance(s => Return(Foo(s)))
 
     implicit val encodeException: EncodeResponse[Exception] =
       EncodeResponse.fromString("text/plain")(_ => "ERR!")

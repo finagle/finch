@@ -10,13 +10,12 @@ package object argonaut {
    * @tparam A The type of data that the ''DecodeJson'' will decode into
    * @return Create a Finch ''DecodeRequest'' from an argonaut ''DecodeJson''
    */
-  implicit def decodeArgonaut[A](implicit decode: DecodeJson[A]): DecodeRequest[A] =
-    DecodeRequest(
-      Parse.decodeEither(_).fold[Try[A]](
-        error => Throw[A](Error(error)),
-        Return(_)
-      )
+  implicit def decodeArgonaut[A](implicit decode: DecodeJson[A]): DecodeRequest[A] = DecodeRequest.instance(s =>
+    Parse.decodeEither(s).fold[Try[A]](
+      error => Throw[A](Error(error)),
+      Return(_)
     )
+  )
 
   /**
    * @param encode The argonaut ''EncodeJson'' to use for decoding

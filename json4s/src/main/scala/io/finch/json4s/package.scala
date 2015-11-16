@@ -12,9 +12,8 @@ package object json4s {
    * @tparam A the type of data to decode into
    */
   //@TODO get rid of Manifest as soon as json4s migrates to new reflection API
-  implicit def decodeJson[A : Manifest](implicit formats: Formats): DecodeRequest[A] = DecodeRequest(
-    input => Try(JsonMethods.parse(input).extract[A])
-  )
+  implicit def decodeJson[A : Manifest](implicit formats: Formats): DecodeRequest[A] =
+    DecodeRequest.instance(input => Try(JsonMethods.parse(input).extract[A]))
 
   /**
    * @param formats json4s `Formats` to use for decoding

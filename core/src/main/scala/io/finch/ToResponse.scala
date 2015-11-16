@@ -11,19 +11,27 @@ trait ToResponse[-A] {
 
 object ToResponse {
 
-  implicit val responseToResponse: ToResponse[Response] = new ToResponse[Response] {
-    def apply(a: Response): Response = a
+  /**
+   * Returns an instance for a given type.
+   */
+  def apply[A](implicit tr: ToResponse[A]): ToResponse[A] = tr
+
+  /**
+   * Constructs an instance from a function.
+   */
+  def instance[A](f: A => Response): ToResponse[A] = new ToResponse[A] {
+    def apply(a: A): Response = f(a)
   }
 
-  implicit def encodeableToResponse[A](implicit e: EncodeResponse[A]): ToResponse[A] =
-    new ToResponse[A] {
-      override def apply(a: A): Response = {
-        val rep = Response()
-        rep.content = e(a)
-        rep.contentType = e.contentType
-        e.charset.foreach { cs => rep.charset = cs }
+  implicit val responseToResponse: ToResponse[Response] = instance(identity)
 
-        rep
-      }
+  implicit def encodeableToResponse[A](implicit e: EncodeResponse[A]): ToResponse[A] =
+    instance { a =>
+      val rep = Response()
+      rep.content = e(a)
+      rep.contentType = e.contentType
+      e.charset.foreach { cs => rep.charset = cs }
+
+      rep
     }
 }

@@ -34,12 +34,22 @@ object ToService extends LowPriorityToServiceInstances {
   implicit def coproductRouterToService[C <: Coproduct](implicit
     folder: Folder.Aux[EncodeAll.type, C, Response],
     exceptionToResponse: ToResponse[Exception]
-  ): ToService[C] = new ToService[C] {
-    def apply(e: Endpoint[C]): Service[Request, Response] = endpointToService(e.map(folder(_)))
-  }
+  ): ToService[C] = instance(e => endpointToService(e.map(folder(_))))
 }
 
 trait LowPriorityToServiceInstances {
+
+  /**
+   * Returns an instance for a given type.
+   */
+  def apply[A](implicit ts: ToService[A]): ToService[A] = ts
+
+  /**
+   * Constructs an instance for a given type.
+   */
+  def instance[A](f: Endpoint[A] => Service[Request, Response]): ToService[A] = new ToService[A] {
+    def apply(endpoint: Endpoint[A]): Service[Request, Response] = f(endpoint)
+  }
 
   private[finch] val basicEndpointHandler: PartialFunction[Throwable, Output.Failure] = {
     case e: Error => Output.Failure(e, Status.BadRequest)
@@ -51,9 +61,7 @@ trait LowPriorityToServiceInstances {
   implicit def valueRouterToService[A](implicit
     polyCase: EncodeAll.Case.Aux[A, Response],
     exceptionToResponse: ToResponse[Exception]
-  ): ToService[A] = new ToService[A] {
-    def apply(e: Endpoint[A]): Service[Request, Response] = endpointToService(e.map(polyCase(_)))
-  }
+  ): ToService[A] = instance(e => endpointToService(e.map(polyCase(_))))
 
   protected def endpointToService(e: Endpoint[Response])(implicit
     exceptionToResponse: ToResponse[Exception]
