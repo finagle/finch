@@ -8,54 +8,60 @@ import scala.reflect.ClassTag
  * An abstraction that is responsible for decoding the request of type `A`.
  */
 trait DecodeRequest[A] {
-  def apply(req: String): Try[A]
+  def apply(s: String): Try[A]
 }
 
 object DecodeRequest {
+
   /**
-   * Convenience method for creating new [[DecodeRequest]] instances.
+   * Returns an instance for a given type.
    */
-  def apply[A](f: String => Try[A]): DecodeRequest[A] = new DecodeRequest[A] {
-    def apply(value: String): Try[A] = f(value)
+  def apply[A](implicit dr: DecodeRequest[A]): DecodeRequest[A] = dr
+
+  /**
+   * Creates an instance for a given type.
+   */
+  def instance[A](f: String => Try[A]): DecodeRequest[A] = new DecodeRequest[A] {
+    def apply(s: String): Try[A] = f(s)
   }
 
   /**
    * A [[DecodeRequest]] instance for `String`.
    */
-  implicit val decodeString: DecodeRequest[String] = DecodeRequest { s => Try(s) }
+  implicit val decodeString: DecodeRequest[String] = instance(s => Try(s))
 
   /**
    * A [[DecodeRequest]] instance for `Int`.
    */
-  implicit val decodeInt: DecodeRequest[Int] = DecodeRequest { s => Try(s.toInt) }
+  implicit val decodeInt: DecodeRequest[Int] = instance(s => Try(s.toInt))
 
   /**
    * A [[DecodeRequest]] instance for `Long`.
    */
-  implicit val decodeLong: DecodeRequest[Long] = DecodeRequest { s => Try(s.toLong) }
+  implicit val decodeLong: DecodeRequest[Long] = instance(s => Try(s.toLong))
 
   /**
    * A [[DecodeRequest]] instance for `Float`.
    */
-  implicit val decodeFloat: DecodeRequest[Float] = DecodeRequest { s => Try(s.toFloat) }
+  implicit val decodeFloat: DecodeRequest[Float] = instance(s => Try(s.toFloat))
 
   /**
    * A [[DecodeRequest]] instance for `Double`.
    */
-  implicit val decodeDouble: DecodeRequest[Double] = DecodeRequest { s => Try(s.toDouble) }
+  implicit val decodeDouble: DecodeRequest[Double] = instance(s => Try(s.toDouble))
 
   /**
    * A [[DecodeRequest]] instance for `Boolean`.
    */
-  implicit val decodeBoolean: DecodeRequest[Boolean] = DecodeRequest { s => Try(s.toBoolean) }
+  implicit val decodeBoolean: DecodeRequest[Boolean] = instance(s => Try(s.toBoolean))
 
   /**
    * A [[DecodeRequest]] instance for `UUID`.
    */
-  implicit val decodeUUID: DecodeRequest[UUID] = DecodeRequest { s =>
+  implicit val decodeUUID: DecodeRequest[UUID] = instance(s =>
     if (s.length != 36) Throw(new IllegalArgumentException(s"Too long for UUID: ${s.length}"))
     else Try(UUID.fromString(s))
-  }
+  )
 
   /**
    * Creates a [[DecodeRequest]] from [[DecodeAnyRequest ]].
@@ -63,9 +69,7 @@ object DecodeRequest {
   implicit def decodeRequestFromAnyDecode[A](implicit
     d: DecodeAnyRequest,
     tag: ClassTag[A]
-  ): DecodeRequest[A] = new DecodeRequest[A] {
-    def apply(req: String): Try[A] = d(req)(tag)
-  }
+  ): DecodeRequest[A] = instance(s => d(s)(tag))
 }
 
 /**
