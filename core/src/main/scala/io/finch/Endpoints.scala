@@ -2,6 +2,7 @@ package io.finch
 
 import java.util.UUID
 
+import cats.Eval
 import com.twitter.finagle.http.Method
 import com.twitter.util.{Base64StringEncoder, Future, Try}
 import shapeless._
@@ -10,6 +11,9 @@ import shapeless._
  * A collection of [[Endpoint]] combinators.
  */
 trait Endpoints {
+
+  private[this] val hnilFutureOutput: Eval[Future[Output[HNil]]] = Eval.now(Future.value(Output.payload(HNil)))
+
   type Endpoint0 = Endpoint[HNil]
   type Endpoint2[A, B] = Endpoint[A :: B :: HNil]
   type Endpoint3[A, B, C] = Endpoint[A :: B :: C :: HNil]
@@ -18,10 +22,8 @@ trait Endpoints {
    * An universal [[Endpoint]] that matches the given string.
    */
   private[finch] class Matcher(s: String) extends Endpoint[HNil] {
-    def apply(input: Input): Option[(Input, () => Future[Output[HNil]])] =
-      input.headOption.collect(
-        { case `s` => () => Future.value(Output.HNil) }
-      ).map((input.drop(1), _))
+    def apply(input: Input): Option[(Input, Eval[Future[Output[HNil]]])] =
+      input.headOption.collect({ case `s` => hnilFutureOutput }).map(o => (input.drop(1), o))
 
     override def toString: String = s
   }
@@ -34,11 +36,11 @@ trait Endpoints {
    * An universal extractor that extracts some value of type `A` if it's possible to fetch the value from the string.
    */
   case class Extractor[A](name: String, f: String => Option[A]) extends Endpoint[A] {
-    def apply(input: Input): Option[(Input, () => Future[Output[A]])] =
+    def apply(input: Input): Option[(Input, Eval[Future[Output[A]]])] =
       for {
         ss <- input.headOption
         aa <- f(ss)
-      } yield (input.drop(1), () => Future.value(Output.Payload(aa)))
+      } yield (input.drop(1), Eval.now(Future.value(Output.payload(aa))))
 
     def apply(n: String): Endpoint[A] = copy[A](name = n)
 
@@ -49,11 +51,11 @@ trait Endpoints {
    * An extractor that extracts a value of type `Seq[A]` from the tail of the route.
    */
   case class TailExtractor[A](name: String, f: String => Option[A]) extends Endpoint[Seq[A]] {
-    def apply(input: Input): Option[(Input, () => Future[Output[Seq[A]]])] =
-      Some((input.copy(path = Nil), () => Future.value(Output.Payload(for {
+    def apply(input: Input): Option[(Input, Eval[Future[Output[Seq[A]]]])] =
+      Some((input.copy(path = Nil), Eval.now(Future.value(Output.payload(for {
         s <- input.path
         a <- f(s)
-      } yield a))))
+      } yield a)))))
 
     def apply(n: String): Endpoint[Seq[A]] = copy[A](name = n)
 
@@ -121,8 +123,8 @@ trait Endpoints {
    * An [[Endpoint]] that skips all path parts.
    */
   object * extends Endpoint[HNil] {
-    def apply(input: Input): Option[(Input, () => Future[Output[HNil]])] =
-      Some((input.copy(path = Nil), () => Future.value(Output.HNil)))
+    def apply(input: Input): Option[(Input, Eval[Future[Output[HNil]]])] =
+      Some((input.copy(path = Nil), hnilFutureOutput))
 
     override def toString: String = "*"
   }
@@ -131,14 +133,14 @@ trait Endpoints {
    * An identity [[Endpoint]].
    */
   object / extends Endpoint[HNil] {
-    def apply(input: Input): Option[(Input, () => Future[Output[HNil]])] =
-      Some((input, () => Future.value(Output.HNil)))
+    def apply(input: Input): Option[(Input, Eval[Future[Output[HNil]]])] =
+      Some((input, hnilFutureOutput))
 
     override def toString: String = ""
   }
 
   private[this] def method[A](m: Method)(r: Endpoint[A]): Endpoint[A] = new Endpoint[A] {
-    def apply(input: Input): Option[(Input, () => Future[Output[A]])] =
+    def apply(input: Input): Option[(Input, Eval[Future[Output[A]]])] =
       if (input.request.method == m) r(input)
       else None
 
@@ -210,15 +212,15 @@ trait Endpoints {
    * Maintains Basic HTTP Auth for an arbitrary [[Endpoint]].
    */
   case class BasicAuth(user: String, password: String) {
-    private[this] val failedOutput = Future.value(Unauthorized(BasicAuthFailed))
     private[this] val userInfo = s"$user:$password"
     private[this] val expected = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
 
     def apply[A](e: Endpoint[A]): Endpoint[A] = new Endpoint[A] {
-      def apply(input: Input): Option[(Input, () => Future[Output[A]])] =
+      private[this] val failedOutput: Eval[Future[Output[A]]] = Eval.now(Future.value(Unauthorized(BasicAuthFailed)))
+      def apply(input: Input): Option[(Input, Eval[Future[Output[A]]])] =
         input.request.authorization.flatMap {
           case `expected` => e(input)
-          case _ => Some((input.copy(path = Seq.empty), () => failedOutput))
+          case _ => Some((input.copy(path = Seq.empty), failedOutput))
         }
 
       override def toString: String = s"BasicAuth($e)"

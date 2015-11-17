@@ -11,6 +11,7 @@ lazy val buildSettings = Seq(
 lazy val finagleVersion = "6.30.0"
 lazy val circeVersion = "0.3.0-SNAPSHOT"
 lazy val shapelessVersion = "2.3.0-SNAPSHOT"
+lazy val catsVersion = "0.4.0-SNAPSHOT"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -35,6 +36,7 @@ val testDependencies = Seq(
 val baseSettings = Seq(
   libraryDependencies ++= Seq(
     "com.chuusai" %% "shapeless" % shapelessVersion,
+    "org.spire-math" %% "cats-core" % catsVersion,
     "com.twitter" %% "finagle-http" % finagleVersion,
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
     compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
