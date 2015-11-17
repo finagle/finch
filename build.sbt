@@ -8,6 +8,10 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.10.5", "2.11.7")
 )
 
+lazy val finagleVersion = "6.30.0"
+lazy val circeVersion = "0.3.0-SNAPSHOT"
+lazy val shapelessVersion = "2.3.0-SNAPSHOT"
+
 lazy val compilerOptions = Seq(
   "-deprecation",
   "-encoding", "UTF-8",
@@ -30,19 +34,22 @@ val testDependencies = Seq(
 
 val baseSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.chuusai" %% "shapeless" % "2.2.5",
-    "com.twitter" %% "finagle-http" % "6.30.0",
+    "com.chuusai" %% "shapeless" % shapelessVersion,
+    "com.twitter" %% "finagle-http" % finagleVersion,
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
     compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
   ) ++ testDependencies.map(_ % "test"),
+  resolvers ++= Seq(
+    Resolver.sonatypeRepo("releases"),
+    Resolver.sonatypeRepo("snapshots")
+  ),
   scalacOptions ++= compilerOptions ++ (
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 11)) => Seq("-Ywarn-unused-import")
       case _ => Seq.empty
     }
   ),
-  scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
-  wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.NoNeedForMonad, Wart.Null, Wart.Nothing, Wart.DefaultArguments)
+  scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based"
 )
 
 lazy val publishSettings = Seq(
@@ -177,9 +184,9 @@ lazy val circe = project
   .settings(allSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "io.circe" %% "circe-core" % "0.2.0",
-      "io.circe" %% "circe-jawn" % "0.2.0",
-      "io.circe" %% "circe-generic" % "0.2.0" % "test"
+      "io.circe" %% "circe-core" % circeVersion,
+      "io.circe" %% "circe-jawn" % circeVersion,
+      "io.circe" %% "circe-generic" % circeVersion % "test"
     )
   )
   .dependsOn(core, jsonTest % "test")
@@ -201,7 +208,7 @@ lazy val benchmarks = project
   .settings(Defaults.itSettings)
   .settings(parallelExecution in IntegrationTest := false)
   .settings(coverageExcludedPackages := "io\\.finch\\.benchmarks\\.service\\.UserServiceBenchmark")
-  .settings(libraryDependencies += "io.circe" %% "circe-generic" % "0.2.0")
+  .settings(libraryDependencies += "io.circe" %% "circe-generic" % circeVersion)
   .settings(
     javaOptions in run ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
