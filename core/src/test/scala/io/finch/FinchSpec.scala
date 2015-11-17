@@ -28,7 +28,9 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers {
     value <- genNonEmptyString
   } yield (key, value)
 
-  def genHeaders: Gen[Headers] = Gen.mapOf(genNonEmptyTuple).map(Headers.apply)
+  def genHeaders: Gen[Headers] = Gen.mapOf(genNonEmptyTuple).map(m =>
+    Headers(m.map(kv => kv._1.toLowerCase -> kv._2.toLowerCase))
+  )
 
   def genCookies: Gen[Cookies] = Gen.listOf(genNonEmptyTuple.map(t => new Cookie(t._1, t._2))).map(Cookies.apply)
 

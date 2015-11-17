@@ -104,8 +104,7 @@ lazy val root = project.in(file("."))
       """
         |import io.finch._
         |import io.finch.circe._
-        |import io.finch.request._
-        |import io.finch.request.items._
+        |import io.finch.items._
         |import com.twitter.util.{Future, Await}
         |import com.twitter.finagle.Service
         |import com.twitter.finagle.http.{Request, Response, Status}
