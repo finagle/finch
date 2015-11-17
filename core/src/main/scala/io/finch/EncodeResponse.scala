@@ -2,6 +2,7 @@ package io.finch
 
 import com.twitter.io.Buf
 import com.twitter.io.Buf.Utf8
+import scala.xml.NodeSeq
 
 /**
  * An abstraction that is responsible for encoding the response of type `A`.
@@ -50,6 +51,9 @@ object EncodeResponse {
 
   implicit val encodeException: EncodeResponse[Exception] =
     EncodeResponse.fromString("text/plain")(e => Option(e.getMessage).getOrElse(""))
+
+  implicit val encodeNodeSeq: EncodeResponse[NodeSeq] =
+    EncodeResponse.fromString("application/xml")(a => a.toString)
 }
 
 /**
