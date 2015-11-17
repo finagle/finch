@@ -37,6 +37,7 @@ val baseSettings = Seq(
     "com.chuusai" %% "shapeless" % shapelessVersion,
     "com.twitter" %% "finagle-http" % finagleVersion,
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+    "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
     compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
   ) ++ testDependencies.map(_ % "test"),
   resolvers ++= Seq(
