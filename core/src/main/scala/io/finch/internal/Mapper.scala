@@ -1,6 +1,7 @@
-package io.finch
+package io.finch.internal
 
 import com.twitter.util.Future
+import io.finch.{Endpoint, Output}
 import shapeless.HNil
 import shapeless.ops.function.FnToProduct
 
@@ -62,7 +63,6 @@ trait HighPriorityMapperConversions extends LowPriorityMapperConversions {
 }
 
 object Mapper extends HighPriorityMapperConversions {
-
   implicit def mapperFromOutputFutureHFunction[A, B, F, OFB](f: F)(implicit
      ftp: FnToProduct.Aux[F, A => OFB],
      ev: OFB <:< Output[Future[B]]

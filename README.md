@@ -92,7 +92,7 @@ FinagleJackson.postJsonObj:·gc.alloc.rate.norm   avgt   10  376365652.800 ± 16
 
 Demo
 ----
-See very minimalistic [Finch application][todo] implementing an [HTTP backed][todobackend] for [TodoMVC][todomvc].
+See very minimalistic [Finch application][todo] implementing an [HTTP backend][todobackend] for [TodoMVC][todomvc].
 
 Documentation
 -------------

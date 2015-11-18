@@ -226,11 +226,4 @@ trait Endpoints {
       override def toString: String = s"BasicAuth($e)"
     }
   }
-
-  /**
-   * A combinator that wraps the given [[Endpoint]] with Basic HTTP Auth, configured with credentials `user` and
-   * `password`.
-   */
-  @deprecated("Use BasicAuth instead", "0.9.1")
-  def basicAuth[A](user: String, password: String)(e: Endpoint[A]): Endpoint[A] = BasicAuth(user, password)(e)
 }

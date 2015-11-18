@@ -1,10 +1,11 @@
-package io.finch
+package io.finch.internal
 
 import scala.annotation.implicitNotFound
 
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response, Status}
 import com.twitter.util.Future
+import io.finch.{Endpoint, Input, Output}
 import shapeless.{Coproduct, Poly1}
 import shapeless.ops.coproduct.Folder
 
@@ -52,7 +53,7 @@ trait LowPriorityToServiceInstances {
   }
 
   private[finch] val basicEndpointHandler: PartialFunction[Throwable, Output.Failure] = {
-    case e: Error => Output.Failure(e, Status.BadRequest)
+    case e: io.finch.Error => Output.Failure(e, Status.BadRequest)
   }
 
   /**

@@ -2,6 +2,7 @@ package io.finch
 
 import com.twitter.finagle.http.{Cookie, Response, Status, Version}
 import com.twitter.util.Future
+import io.finch.internal.ToResponse
 
 /**
  * An output of [[Endpoint]].

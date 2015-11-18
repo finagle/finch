@@ -4,6 +4,7 @@ import cats.Eval
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Cookie, Request, Response}
 import com.twitter.util.Future
+import io.finch.internal.{Mapper, PairAdjoin, ToService}
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
 
