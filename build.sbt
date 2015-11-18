@@ -51,12 +51,8 @@ val baseSettings = Seq(
       case _ => Seq.empty
     }
   ),
-  scalacOptions in (Compile, console) := compilerOptions ++ (
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 11)) => Seq("-Yrepl-class-based'")
-      case _ => Seq.empty
-    }
-  )
+  scalacOptions in (Compile, console) ~= (_ filterNot (_ == "-Ywarn-unused-import")),
+  scalacOptions in (Compile, console) += "-Yrepl-class-based"
 )
 
 lazy val publishSettings = Seq(
@@ -108,7 +104,7 @@ lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Se
   unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(benchmarks, petstore, jsonTest)
 )
 
-lazy val root = project.in(file("."))
+lazy val finch = project.in(file("."))
   .settings(moduleName := "finch")
   .settings(allSettings)
   .settings(docSettings)
