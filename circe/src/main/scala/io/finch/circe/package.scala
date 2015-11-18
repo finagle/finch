@@ -1,29 +1,16 @@
 package io.finch
 
-import com.twitter.util.{Return, Throw, Try}
-import io.circe.{Decoder, Encoder}
-import io.circe.jawn.decode
+import io.circe.Printer
 
-package object circe {
+package object circe extends Encoders with Decoders {
 
-  /**
-   * @param d The [[io.circe.Decoder]] to use for decoding
-   * @tparam A The type of data that the [[io.circe.Decoder]] will decode into
-   * @return Create a Finch ''DecodeRequest'' from a [[io.circe.Decoder]]
-   */
-  implicit def decodeCirce[A](implicit d: Decoder[A]): DecodeRequest[A] = DecodeRequest.instance(s =>
-    decode[A](s).fold[Try[A]](
-      error => Throw[A](Error(error.getMessage)),
-      Return(_)
-    )
-  )
+  override protected val printer: Printer = Printer.noSpaces
 
   /**
-   * @param e The [[io.circe.Encoder]] to use for decoding
-   * @tparam A The type of data that the [[io.circe.Encoder]] will use to create the JSON string
-   * @return Create a Finch ''EncodeJson'' from an [[io.circe.Encoder]]
+   * Provides an implicit [[Printer]] that drops null keys.
    */
-  implicit def encodeCirce[A](implicit e: Encoder[A]): EncodeResponse[A] =
-    EncodeResponse.fromString[A]("application/json")(e(_).noSpaces)
+  object dropNullKeys extends Encoders with Decoders {
+    override protected val printer: Printer = Printer.noSpaces.copy(dropNullKeys = true)
+  }
 }
 
