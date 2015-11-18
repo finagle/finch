@@ -2,7 +2,6 @@ package io.finch
 
 import com.twitter.finagle.http.{Cookie, Response, Status, Version}
 import com.twitter.util.Future
-import shapeless.HNil
 
 /**
  * An output of [[Endpoint]].
@@ -55,6 +54,16 @@ sealed trait Output[+A] { self =>
 object Output {
 
   /**
+   * Creates a new [[Output.Payload]] of type `Output[A]`.
+   */
+  def payload[A](a: A, s: Status = Status.Ok): Output[A] = Payload(a, s)
+
+  /**
+   * Creates a new [[Output.Failure]] of type `Output[A]`.
+   */
+  def failure[A](cause: Exception, s: Status = Status.BadRequest): Output[A] = Failure(cause, s)
+
+  /**
    * A successful [[Output]] that captures a payload `value`.
    */
   final case class Payload[A](
@@ -94,7 +103,7 @@ object Output {
    */
   final case class Failure(
     cause: Exception,
-    status: Status,
+    status: Status = Status.BadRequest,
     headers: Map[String, String] = Map.empty[String, String],
     cookies: Seq[Cookie] = Seq.empty[Cookie],
     contentType: Option[String] = None,
@@ -117,6 +126,4 @@ object Output {
       headers = headers, cookies = cookies, contentType = contentType, charset = charset
     )
   }
-
-  private[finch] val HNil: Payload[HNil] = Output.Payload(shapeless.HNil)
 }

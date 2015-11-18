@@ -2,6 +2,7 @@ package io.finch
 
 import java.util.UUID
 
+import cats.Eval
 import com.twitter.finagle.http._
 import com.twitter.util.{Await, Future}
 import org.scalacheck.{Arbitrary, Gen}
@@ -15,8 +16,8 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers {
 
   case class OptionalNonEmptyString(o: Option[String])
 
-  implicit class OptionOutputOps[A](o: Option[(Input, () => Future[Output[A]])]) {
-    def output: Option[Output[A]] = o.map({ case (_, oa) => Await.result(oa()) })
+  implicit class OptionOutputOps[A](o: Option[(Input, Eval[Future[Output[A]]])]) {
+    def output: Option[Output[A]] = o.map({ case (_, oa) => Await.result(oa.value) })
     def value: Option[A] = output.map(oa => oa.value)
     def remainder: Option[Input] = o.map(_._1)
   }
