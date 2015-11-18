@@ -2,7 +2,7 @@ package io.finch
 
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response, Status}
-import com.twitter.util.{Await, Return}
+import com.twitter.util.{Future, Await, Return}
 
 class EndToEndSpec extends FinchSpec {
 
@@ -49,5 +49,18 @@ class EndToEndSpec extends FinchSpec {
     val rep = Await.result(s(Request("/foo")))
     rep.contentString shouldBe "bar"
     rep.status shouldBe Status.Created
+  }
+
+  "A monadic-composed Endpoint" should "be convertible into a Service" in {
+    val e = get("a" ? param("b")) { b: String =>
+      get("c") {
+        Future.value(Ok(b))
+      }
+    }
+    val s = e.toService
+
+    val rep = Await.result(s(Request("/a/c?b=hogehoge")))
+    rep.contentString shouldBe "hogehoge"
+    rep.status shouldBe Status.Ok
   }
 }

@@ -3,7 +3,7 @@ package io.finch
 import cats.Eval
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Cookie, Request, Response}
-import com.twitter.util.Future
+import com.twitter.util.{Await, Future}
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
 
@@ -128,6 +128,13 @@ trait Endpoint[A] { self =>
       }
 
     override def toString = self.toString
+  }
+
+  def flatMap[B](fn: A => Endpoint[B]): Endpoint[B] = new Endpoint[B] {
+    override def apply(input: Input): Option[(Input, () => Future[Output[B]])] = for {
+      (r1, ao) <- self(input)
+      (r2, bo) <- fn(Await.result(ao()).value)(r1)
+    } yield (r2, bo)
   }
 
   /**
