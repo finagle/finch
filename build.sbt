@@ -5,7 +5,7 @@ lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   version := "0.9.2-SNAPSHOT",
   scalaVersion := "2.11.7",
-  crossScalaVersions := Seq("2.10.5", "2.11.7")
+  crossScalaVersions := Seq("2.10.6", "2.11.7")
 )
 
 lazy val finagleVersion = "6.30.0"
@@ -51,7 +51,12 @@ val baseSettings = Seq(
       case _ => Seq.empty
     }
   ),
-  scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based"
+  scalacOptions in (Compile, console) := compilerOptions ++ (
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, 11)) => Seq("-Yrepl-class-based'")
+      case _ => Seq.empty
+    }
+  )
 )
 
 lazy val publishSettings = Seq(
