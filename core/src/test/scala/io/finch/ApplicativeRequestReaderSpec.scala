@@ -59,18 +59,15 @@ class ApplicativeRequestReaderSpec extends FlatSpec with Matchers {
   }
 
   it should "compiles with both implicits Generic and DecodeRequest in the scope" in {
-    case class MyString(s: String)
-    implicit val decodeMyString: DecodeRequest[MyString] =
-      DecodeRequest.instance(s => Try(MyString(s)))
+    case class Foo(s: String)
+    implicit val decodeFoo: DecodeRequest[Foo] =
+      DecodeRequest.instance(s => Try(Foo(s)))
 
-    val foo: RequestReader[MyString] = param("a").as[MyString]
-    Await.result(foo(Request("a" -> "foo"))) shouldBe MyString("foo")
+    val foo: RequestReader[Foo] = param("a").as[Foo]
+    Await.result(foo(Request("a" -> "foo"))) shouldBe Foo("foo")
 
-    case class MyInt(i: Int)
-    implicit val decodeMyInt: DecodeRequest[MyInt] =
-      DecodeRequest.instance(s => Try(MyInt(s.toInt)))
-
-    val bar: RequestReader[MyInt] = param("a").as[MyInt]
-    Await.result(bar(Request("a" -> "100"))) shouldBe MyInt(100)
+    case class Bar(s: String)
+    val bar: RequestReader[Bar] = param("a").as[Bar]
+    Await.result(bar(Request("a" -> "100"))) shouldBe Bar("100")
   }
 }

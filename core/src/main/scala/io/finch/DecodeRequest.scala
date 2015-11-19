@@ -1,8 +1,10 @@
 package io.finch
 
-import com.twitter.util.{Throw, Try}
 import java.util.UUID
 import scala.reflect.ClassTag
+
+import com.twitter.util.{Return, Throw, Try}
+import shapeless.{::, Generic, HNil}
 
 /**
  * An abstraction that is responsible for decoding the request of type `A`.
@@ -11,12 +13,7 @@ trait DecodeRequest[A] {
   def apply(s: String): Try[A]
 }
 
-object DecodeRequest {
-
-  /**
-   * Returns an instance for a given type.
-   */
-  def apply[A](implicit dr: DecodeRequest[A]): DecodeRequest[A] = dr
+trait LowPriorityDecodeRequestInstances {
 
   /**
    * Creates an instance for a given type.
@@ -26,9 +23,27 @@ object DecodeRequest {
   }
 
   /**
+   * Creates a [[DecodeRequest]] from [[shapeless.Generic]].
+   *
+   * Note: This is mostly a workaround for `RequestReader[String].as[CaseClassOfASingleString]`,
+   *       because by some reason, compiler doesn't pick `ValueReaderOps` for `RequestReader[String]`.
+   */
+  implicit def decodeRequestFromGeneric[A](implicit
+    gen: Generic.Aux[A, String :: HNil]
+  ): DecodeRequest[A] = instance(s => Return(gen.from(s :: HNil)))
+}
+
+object DecodeRequest extends LowPriorityDecodeRequestInstances {
+
+  /**
+   * Returns an instance for a given type.
+   */
+  def apply[A](implicit dr: DecodeRequest[A]): DecodeRequest[A] = dr
+
+  /**
    * A [[DecodeRequest]] instance for `String`.
    */
-  implicit val decodeString: DecodeRequest[String] = instance(s => Try(s))
+  implicit val decodeString: DecodeRequest[String] = instance(s => Return(s))
 
   /**
    * A [[DecodeRequest]] instance for `Int`.
@@ -64,7 +79,7 @@ object DecodeRequest {
   )
 
   /**
-   * Creates a [[DecodeRequest]] from [[DecodeAnyRequest ]].
+   * Creates a [[DecodeRequest]] instance from [[DecodeAnyRequest]].
    */
   implicit def decodeRequestFromAnyDecode[A](implicit
     d: DecodeAnyRequest,
