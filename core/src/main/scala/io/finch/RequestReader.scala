@@ -4,7 +4,8 @@ import scala.reflect.ClassTag
 
 import com.twitter.finagle.http.Request
 import com.twitter.util.{Future, Return, Throw, Try}
-import shapeless.{::, Generic, HList, HNil}
+import io.finch.internal.FromParams
+import shapeless.{::, Generic, HList, HNil, LabelledGeneric}
 import shapeless.ops.function.FnToProduct
 import shapeless.ops.hlist.Tupler
 
@@ -262,7 +263,6 @@ object RequestReader {
    * currently a value class.
    */
   final implicit class HListReaderOps[L <: HList](val self: RequestReader[L]) {
-
     /**
      * Composes this request reader with the given `that` request reader.
      */
@@ -350,11 +350,6 @@ object RequestReader {
     def ~>[A](fn: B => A): RequestReader[A] = self.map(fn)
   }
 
-  import shapeless._
-  import labelled.{FieldType, field}
-
-  import scala.reflect.ClassTag
-
   class GenericDerivation[A] {
     def fromParams[Repr <: HList](implicit
       gen: LabelledGeneric.Aux[A, Repr],
@@ -362,25 +357,8 @@ object RequestReader {
     ): RequestReader[A] = fp.reader.map(gen.from)
   }
 
-  trait FromParams[L <: HList] {
-    def reader: RequestReader[L]
-  }
-
-  object FromParams {
-    implicit val hnilFromParams: FromParams[HNil] = new FromParams[HNil] {
-      def reader: RequestReader[HNil] = value(HNil)
-    }
-
-    implicit def hconsFromParams[HK <: Symbol, HV, T <: HList](implicit
-      dh: DecodeRequest[HV],
-      ct: ClassTag[HV],
-      key: Witness.Aux[HK],
-      fpt: FromParams[T]
-    ): FromParams[FieldType[HK, HV] :: T] = new FromParams[FieldType[HK, HV] :: T] {
-      def reader: RequestReader[FieldType[HK, HV] :: T] =
-        param(key.value.name).as(dh, ct).map(field[HK](_)) :: fpt.reader
-    }
-  }
-
+  /**
+   * Generically derive a very basic instance of [[RequestReader]] for a given type `A`.
+   */
   def derive[A]: GenericDerivation[A] = new GenericDerivation[A]
 }

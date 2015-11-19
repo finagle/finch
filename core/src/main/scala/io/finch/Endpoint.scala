@@ -246,7 +246,7 @@ object Endpoint {
     def as[A](implicit gen: Generic.Aux[A, B :: HNil]): Endpoint[A] = self.map(value => gen.from(value :: HNil))
   }
 
-  final implicit class HListEndpointOps[L <: HList](val self: Endpoint[L]) {
+  final implicit class HListEndpointOps[L <: HList](val self: Endpoint[L]) extends AnyVal {
     /**
      * Converts this endpoint to one that returns any type with this [[shapeless.HList]] as its representation.
      */
