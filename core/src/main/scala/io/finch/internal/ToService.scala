@@ -28,16 +28,6 @@ trait ToService[A] {
   def apply(endpoint: Endpoint[A]): Service[Request, Response]
 }
 
-object ToService extends LowPriorityToServiceInstances {
-  /**
-   * An instance for coproducts with appropriately typed elements.
-   */
-  implicit def coproductRouterToService[C <: Coproduct](implicit
-    folder: Folder.Aux[EncodeAll.type, C, Response],
-    exceptionToResponse: ToResponse[Exception]
-  ): ToService[C] = instance(e => endpointToService(e.map(folder(_))))
-}
-
 trait LowPriorityToServiceInstances {
 
   /**
@@ -61,11 +51,11 @@ trait LowPriorityToServiceInstances {
    */
   implicit def valueRouterToService[A](implicit
     polyCase: EncodeAll.Case.Aux[A, Response],
-    exceptionToResponse: ToResponse[Exception]
+    tre: ToResponse[Exception]
   ): ToService[A] = instance(e => endpointToService(e.map(polyCase(_))))
 
   protected def endpointToService(e: Endpoint[Response])(implicit
-    exceptionToResponse: ToResponse[Exception]
+    tre: ToResponse[Exception]
   ): Service[Request, Response] =
     new Service[Request, Response] {
       private[this] val safeEndpoint = e.handle(basicEndpointHandler)
@@ -78,7 +68,7 @@ trait LowPriorityToServiceInstances {
           }
         case _ => Future.value(Response(req.version, Status.NotFound))
       }
-  }
+    }
 
   /**
    * A polymorphic function value that accepts types that can be transformed into a Finagle service from a request-like
@@ -88,7 +78,17 @@ trait LowPriorityToServiceInstances {
     /**
      * Transforms an encodeable value into a constant service.
      */
-    implicit def toResponseToResponse[A](implicit toResponse: ToResponse[A]): Case.Aux[A, Response] =
-      at(a => toResponse(a))
+    implicit def toResponseToResponse[A](implicit tr: ToResponse[A]): Case.Aux[A, Response] =
+      at(a => tr(a))
   }
+}
+
+object ToService extends LowPriorityToServiceInstances {
+  /**
+   * An instance for coproducts with appropriately typed elements.
+   */
+  implicit def coproductRouterToService[C <: Coproduct](implicit
+    folder: Folder.Aux[EncodeAll.type, C, Response],
+    tre: ToResponse[Exception]
+  ): ToService[C] = instance(e => endpointToService(e.map(folder(_))))
 }

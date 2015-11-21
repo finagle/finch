@@ -1,7 +1,6 @@
 package io.finch
 
 import com.twitter.io.Buf
-import com.twitter.io.Buf.Utf8
 
 /**
  * An abstraction that is responsible for encoding the response of type `A`.
@@ -12,7 +11,7 @@ trait EncodeResponse[-A] {
   def charset: Option[String] = Some("utf-8")
 }
 
-object EncodeResponse {
+trait LowPriorityEncodeResponseInstances {
 
   /**
    * Convenience method for creating new [[EncodeResponse]] instances.
@@ -28,7 +27,13 @@ object EncodeResponse {
    * Convenience method for creating new [[EncodeResponse]] instances that treat String contents.
    */
   def fromString[A](ct: String, cs: Option[String] = Some("utf-8"))(fn: A => String): EncodeResponse[A] =
-    apply(ct, cs)(fn andThen Utf8.apply)
+    apply(ct, cs)(fn.andThen(Buf.Utf8.apply))
+
+  implicit val encodeException: EncodeResponse[Exception] =
+    fromString("text/plain")(e => Option(e.getMessage).getOrElse(""))
+}
+
+object EncodeResponse extends LowPriorityEncodeResponseInstances {
 
   /**
    * Converts [[EncodeAnyResponse]] into [[EncodeResponse]].
@@ -40,16 +45,13 @@ object EncodeResponse {
     }
 
   implicit val encodeString: EncodeResponse[String] =
-    EncodeResponse.fromString[String]("text/plain")(identity)
+    fromString[String]("text/plain")(identity)
 
   implicit val encodeUnit: EncodeResponse[Unit] =
-    EncodeResponse("text/plain")(_ => Buf.Empty)
+    apply("text/plain")(_ => Buf.Empty)
 
   implicit val encodeBuf: EncodeResponse[Buf] =
-    EncodeResponse("application/octet-stream", None)(identity)
-
-  implicit val encodeException: EncodeResponse[Exception] =
-    EncodeResponse.fromString("text/plain")(e => Option(e.getMessage).getOrElse(""))
+    apply("application/octet-stream", None)(identity)
 }
 
 /**
