@@ -101,7 +101,7 @@ lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
 lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Seq(
   site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "docs"),
   git.remoteRepo := s"git@github.com:finagle/finch.git",
-  unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(benchmarks, petstore, jsonTest)
+  unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(benchmarks, jsonTest)
 )
 
 lazy val finch = project.in(file("."))
@@ -121,7 +121,7 @@ lazy val finch = project.in(file("."))
         |import io.circe._
       """.stripMargin
   )
-  .aggregate(core, argonaut, jackson, json4s, circe, benchmarks, petstore, test, jsonTest, oauth2)
+  .aggregate(core, argonaut, jackson, json4s, circe, benchmarks, test, jsonTest, oauth2)
   .dependsOn(core, circe)
 
 lazy val core = project
@@ -146,16 +146,6 @@ lazy val jsonTest = project.in(file("json-test"))
     libraryDependencies ++= "io.argonaut" %% "argonaut" % "6.1" +: testDependencies
   )
   .dependsOn(core)
-
-lazy val petstore = project
-    .settings(moduleName := "finch-petstore")
-    .configs(IntegrationTest.extend(Test))
-    .settings(allSettings)
-    .settings(noPublish)
-    .settings(Defaults.itSettings)
-    .settings(parallelExecution in IntegrationTest := false)
-    .settings(coverageExcludedPackages := "io\\.finch\\.petstore\\.PetstoreApp.*")
-    .dependsOn(core, argonaut, test % "test,it")
 
 lazy val argonaut = project
   .settings(moduleName := "finch-argonaut")
