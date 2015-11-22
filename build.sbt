@@ -93,7 +93,8 @@ lazy val publishSettings = Seq(
 
 lazy val noPublish = Seq(
   publish := {},
-  publishLocal := {}
+  publishLocal := {},
+  publishArtifact := false
 )
 
 lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
@@ -121,7 +122,7 @@ lazy val finch = project.in(file("."))
         |import io.circe._
       """.stripMargin
   )
-  .aggregate(core, argonaut, jackson, json4s, circe, benchmarks, test, jsonTest, oauth2)
+  .aggregate(core, argonaut, jackson, json4s, circe, benchmarks, test, jsonTest, oauth2, examples)
   .dependsOn(core, circe)
 
 lazy val core = project
@@ -132,9 +133,7 @@ lazy val test = project
   .settings(moduleName := "finch-test")
   .settings(allSettings)
   .settings(coverageExcludedPackages := "io\\.finch\\.test\\..*")
-  .settings(
-    libraryDependencies ++= testDependencies
-  )
+  .settings(libraryDependencies ++= testDependencies)
   .dependsOn(core)
 
 lazy val jsonTest = project.in(file("json-test"))
@@ -193,10 +192,24 @@ lazy val oauth2 = project
   ))
   .dependsOn(core)
 
+lazy val examples = project
+  .settings(moduleName := "finch-examples")
+  .settings(allSettings)
+  .settings(noPublish)
+  .settings(resolvers += "TM" at "http://maven.twttr.com")
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.circe" %% "circe-generic" % circeVersion,
+      "com.twitter" %% "twitter-server" % "1.15.0"
+    )
+  )
+  .dependsOn(core, circe)
+
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")
   .enablePlugins(JmhPlugin)
   .settings(allSettings)
+  .settings(noPublish)
   .configs(IntegrationTest)
   .settings(Defaults.itSettings)
   .settings(parallelExecution in IntegrationTest := false)

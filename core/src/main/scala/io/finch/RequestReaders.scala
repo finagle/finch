@@ -31,9 +31,7 @@ trait RequestReaders {
 
   // Helper functions.
   private[finch] def requestParam(param: String)(req: Request): Option[String] =
-    req.params.get(param) orElse {
-      Multipart.decodeNonChunked(req).attributes.get(param).flatMap(_.headOption)
-    }
+    req.params.get(param).orElse(Multipart.decodeNonChunked(req).attributes.get(param).flatMap(_.headOption))
 
   private[finch] def requestParams(params: String)(req: Request): Seq[String] =
     req.params.getAll(params).toList.flatMap(_.split(","))

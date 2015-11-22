@@ -60,6 +60,8 @@ val api: Endpoint[String] = get("hello") { Ok("Hello, World!") }
 Http.serve(":8080", api.toService)
 ```
 
+See [examples](examples/src/main/scala/io/finch) sub-project for more complete examples.
+
 Performance
 -----------
 
@@ -72,27 +74,23 @@ Jackson.
 **GET /JSON-Object**
 
 ```
-Benchmark                                        Mode  Cnt          Score        Error   Unit
+Benchmark                                             Mode  Cnt          Score        Error   Unit
 
-FinchCirce.getJsonObj                            avgt   10        352.658 ±     49.267  ms/op
-FinchCirce.getJsonObj:·gc.alloc.rate.norm        avgt   10  366909071.657 ±  19659.934   B/op
-FinagleJackson.getJsonObj                        avgt   10        372.074 ±     57.819  ms/op
-FinagleJackson.getJsonObj:·gc.alloc.rate.norm    avgt   10  328441359.200 ±  78088.424   B/op
+FinchCirce.getJsonObj                                 avgt   10        352.658 ±     49.267  ms/op
+FinchCirce.getJsonObj:·gc.alloc.rate.norm             avgt   10  366909071.657 ±  19659.934   B/op
+FinagleJackson.getJsonObj                             avgt   10        372.074 ±     57.819  ms/op
+FinagleJackson.getJsonObj:·gc.alloc.rate.norm         avgt   10  328441359.200 ±  78088.424   B/op
 ```
 
 **POST /JSON-Object**
 ```
-Benchmark                                        Mode  Cnt      Score            Error   Unit
+Benchmark                                             Mode  Cnt      Score            Error   Unit
 
-FinchCirce.postJsonObj                           avgt   10        243.935 ±     29.455  ms/op
-FinchCirce.postJsonObj:·gc.alloc.rate.norm       avgt   10  399187222.400 ±  84523.131   B/op
-FinagleJackson.postJsonObj                       avgt   10        235.564 ±     46.433  ms/op
-FinagleJackson.postJsonObj:·gc.alloc.rate.norm   avgt   10  376365652.800 ± 169854.875   B/op
+FinchCirce.postJsonObj                                avgt   10        243.935 ±     29.455  ms/op
+FinchCirce.postJsonObj:·gc.alloc.rate.norm            avgt   10  399187222.400 ±  84523.131   B/op
+FinagleJackson.postJsonObj                            avgt   10        235.564 ±     46.433  ms/op
+FinagleJackson.postJsonObj:·gc.alloc.rate.norm        avgt   10  376365652.800 ± 169854.875   B/op
 ```
-
-Demo
-----
-See very minimalistic [Finch application][todo] implementing an [HTTP backend][todobackend] for [TodoMVC][todomvc].
 
 Documentation
 -------------
@@ -142,6 +140,3 @@ limitations under the License.
 [finagle-oauth2]: https://github.com/finagle/finagle-oauth2
 [json4s]: http://json4s.org
 [scaladoc]: http://finagle.github.io/finch/docs/#io.finch.package
-[todo]: https://github.com/vkostyukov/finch-101/blob/master/src/main/scala/i/f/workshop/finch/Todo.scala
-[todobackend]: http://www.todobackend.com/
-[todomvc]: http://todomvc.com/
