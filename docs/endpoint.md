@@ -119,7 +119,9 @@ Here is an example of an endpoint that matches a request `GET /users/:id/orders/
 `userId` and `ticketId` from its path.
 
 ```scala
-val e: Endpoint[Int :: Int :: HNil] =>
+import shapeless._
+
+val e: Endpoint[Int :: Int :: HNil] =
    get("users" / int("userId") / "tickets" / int("ticketId"))
 ```
 
@@ -133,6 +135,8 @@ space invader compositor's mechanic is close to `orElse` function defined of `Op
 fails to match the input, it fails through to the second one.
 
 ```scala
+import shapeless._
+
 case class Foo(i: Int)
 case class Bar(s: String)
 
@@ -150,6 +154,8 @@ It's possible to compose `Endpoints`s with `RequestReader`s. Such composition is
 a `Endpoint[A]` and a `RequestReader[B]` and returns a `Endpoint[A :: B :: HNil]`.
 
 ```scala
+import shapeless._
+
 val r: RequestReader[Int :: String :: HNil] = param("a").as[Int] :: param("b")
 val e1: Endpoint[Boolean] = Endpoint(OK(true))
 val e2: Endpoint[Boolean :: Int :: String :: HNil] = e1 ? r

@@ -4,7 +4,8 @@ import java.util.UUID
 
 import cats.Eval
 import com.twitter.finagle.http.Method
-import com.twitter.util.{Base64StringEncoder, Future, Try}
+import com.twitter.util.{Base64StringEncoder, Future}
+import io.finch.internal.TooFastString
 import shapeless._
 
 /**
@@ -23,9 +24,12 @@ trait Endpoints {
    */
   private[finch] class Matcher(s: String) extends Endpoint[HNil] {
     def apply(input: Input): Option[(Input, Eval[Future[Output[HNil]]])] =
-      input.headOption.collect({ case `s` => hnilFutureOutput }).map(o => (input.drop(1), o))
+      input.headOption.flatMap {
+        case `s` => Some((input.drop(1), hnilFutureOutput))
+        case _ => None
+      }
 
-    override def toString: String = s
+    override def toString = s
   }
 
   implicit def stringToMatcher(s: String): Endpoint0 = new Matcher(s)
@@ -47,6 +51,15 @@ trait Endpoints {
     override def toString: String = s":$name"
   }
 
+  private[finch] case class StringExtractor(name: String) extends Endpoint[String] {
+    def apply(input: Input): Option[(Input, Eval[Future[Output[String]]])] =
+      input.headOption.map(s => (input.drop(1), Eval.now(Future.value(Output.payload(s)))))
+
+    def apply(n: String): Endpoint[String] = copy(name = n)
+
+    override def toString: String = s":$name"
+  }
+
   /**
    * An extractor that extracts a value of type `Seq[A]` from the tail of the route.
    */
@@ -62,37 +75,34 @@ trait Endpoints {
     override def toString: String = s":$name*"
   }
 
-  private[this] def extractValue[A](f: String => A): String => Option[A] =
-    s => Try(f(s)).toOption
-
   private[this] def extractUUID(s: String): Option[UUID] =
     if (s.length != 36) None
-    else Try(UUID.fromString(s)).toOption
+    else try Some(UUID.fromString(s)) catch { case _: Exception => None }
 
   /**
    * An [[Endpoint]] that extract an integer value from the route.
    */
-  object int extends Extractor("int", extractValue(_.toInt))
+  object int extends Extractor("int", _.tooInt)
 
   /**
    * An [[Endpoint]] that extract an integer tail from the route.
    */
-  object ints extends TailExtractor("int", extractValue(_.toInt))
+  object ints extends TailExtractor("int", _.tooInt)
 
   /**
    * An [[Endpoint]] that extract a long value from the route.
    */
-  object long extends Extractor("long", extractValue(_.toLong))
+  object long extends Extractor("long", _.tooLong)
 
   /**
    * An [[Endpoint]] that extract a long tail from the route.
    */
-  object longs extends TailExtractor("long", extractValue(_.toLong))
+  object longs extends TailExtractor("long", _.tooLong)
 
   /**
    * An [[Endpoint]] that extract a string value from the route.
    */
-  object string extends Extractor("string", s => Some(s))
+  object string extends StringExtractor("string")
 
   /**
    * An [[Endpoint]] that extract a string tail from the route.
@@ -102,12 +112,12 @@ trait Endpoints {
   /**
    * An [[Endpoint]] that extract a boolean value from the route.
    */
-  object boolean extends Extractor("boolean", extractValue(_.toBoolean))
+  object boolean extends Extractor("boolean", _.tooBoolean)
 
   /**
    * An [[Endpoint]] that extract a boolean tail from the route.
    */
-  object booleans extends TailExtractor("boolean", extractValue(_.toBoolean))
+  object booleans extends TailExtractor("boolean", _.tooBoolean)
 
   /**
    * An [[Endpoint]] that extract an UUID value from the route.
