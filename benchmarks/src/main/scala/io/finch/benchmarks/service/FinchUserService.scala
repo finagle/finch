@@ -8,8 +8,7 @@ class FinchUserService(implicit
   userDecoder: DecodeRequest[User],
   newUserInfoDecoder: DecodeRequest[NewUserInfo],
   userEncoder: EncodeResponse[User],
-  usersEncoder: EncodeResponse[List[User]],
-  encodeErr: EncodeResponse[Map[String, String]]
+  usersEncoder: EncodeResponse[List[User]]
 ) extends UserService {
 
   val getUser: Endpoint[User] = get("users" / long) { id: Long =>

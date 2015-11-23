@@ -51,7 +51,8 @@ trait LowPriorityToServiceInstances {
    */
   implicit def valueRouterToService[A](implicit
     polyCase: EncodeAll.Case.Aux[A, Response],
-    tre: ToResponse[Exception]
+    tre: ToResponse[Exception],
+    trm: ToResponse[Map[String, String]]
   ): ToService[A] = instance(e => endpointToService(e.map(polyCase(_))))
 
   protected def endpointToService(e: Endpoint[Response])(implicit
@@ -89,6 +90,7 @@ object ToService extends LowPriorityToServiceInstances {
    */
   implicit def coproductRouterToService[C <: Coproduct](implicit
     folder: Folder.Aux[EncodeAll.type, C, Response],
-    tre: ToResponse[Exception]
+    tre: ToResponse[Exception],
+    trm: ToResponse[Map[String, String]]
   ): ToService[C] = instance(e => endpointToService(e.map(folder(_))))
 }

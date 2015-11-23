@@ -1,6 +1,7 @@
 package io.finch
 
 import com.twitter.finagle.http.Status
+import io.finch.Error.MapException
 
 trait Outputs {
 
@@ -38,7 +39,7 @@ trait Outputs {
       cause, Status.RequestedRangeNotSatisfiable)                                                                  //416
   def EnhanceYourCalm(cause: Exception): Output.Failure = Output.Failure(cause, Status.EnhanceYourCalm)            //420
   def UnprocessableEntity(cause: Exception): Output.Failure = Output.Failure(cause, Status.UnprocessableEntity)    //422
-  def ToManyRequests(cause: Exception): Output.Failure = Output.Failure(cause, Status.TooManyRequests)             //429
+  def TooManyRequests(cause: Exception): Output.Failure = Output.Failure(cause, Status.TooManyRequests)            //429
 
   // 5xx
   def InternalServerError(cause: Exception): Output.Failure = Output.Failure(cause, Status.InternalServerError)    //500
@@ -47,4 +48,75 @@ trait Outputs {
   def ServiceUnavailable(cause: Exception): Output.Failure = Output.Failure(cause, Status.ServiceUnavailable)      //503
   def GatewayTimeout(cause: Exception): Output.Failure = Output.Failure(cause, Status.GatewayTimeout)              //504
   def InsufficientStorage(cause: Exception): Output.Failure = Output.Failure(cause, Status.InsufficientStorage)    //507
+
+  // ------ 0.9.1-compatible API (will be removed in 0.9.3) ------
+
+  // 3xx
+  @deprecated("Use MovedPermanently(Exception) instead", "0.9.2")
+  def MovedPermanently(messages: (String, String)*): Output.Failure = MovedPermanently(MapException(messages.toMap))
+  @deprecated("Use Found(Exception) instead", "0.9.2")
+  def Found(messages: (String, String)*): Output.Failure = Found(MapException(messages.toMap))
+  @deprecated("Use SeeOther(Exception) instead", "0.9.2")
+  def SeeOther(messages: (String, String)*): Output.Failure = SeeOther(MapException(messages.toMap))
+  @deprecated("Use NotModified(Exception) instead", "0.9.2")
+  def NotModified(messages: (String, String)*): Output.Failure = NotModified(MapException(messages.toMap))
+  @deprecated("Use TemporaryRedirect(Exception) instead", "0.9.2")
+  def TemporaryRedirect(messages: (String, String)*): Output.Failure = TemporaryRedirect(MapException(messages.toMap))
+  @deprecated("Use PermanentRedirect(Exception) instead", "0.9.2")
+  def PermanentRedirect(messages: (String, String)*): Output.Failure = PermanentRedirect(MapException(messages.toMap))
+
+  // 4xx
+  @deprecated("Use BadRequest(Exception) instead", "0.9.2")
+  def BadRequest(messages: (String, String)*): Output.Failure = BadRequest(MapException(messages.toMap))
+  @deprecated("Use Unauthorized(Exception) instead", "0.9.2")
+  def Unauthorized(messages: (String, String)*): Output.Failure = Unauthorized(MapException(messages.toMap))
+  @deprecated("Use PaymentRequired(Exception) instead", "0.9.2")
+  def PaymentRequired(messages: (String, String)*): Output.Failure = PaymentRequired(MapException(messages.toMap))
+  @deprecated("Use Forbidden(Exception) instead", "0.9.2")
+  def Forbidden(messages: (String, String)*): Output.Failure = Forbidden(MapException(messages.toMap))
+  @deprecated("Use NotFound(Exception) instead", "0.9.2")
+  def NotFound(messages: (String, String)*): Output.Failure = NotFound(MapException(messages.toMap))
+  @deprecated("Use MethodNotAllowed(Exception) instead", "0.9.2")
+  def MethodNotAllowed(messages: (String, String)*): Output.Failure = MethodNotAllowed(MapException(messages.toMap))
+  @deprecated("Use NotAcceptable(Exception) instead", "0.9.2")
+  def NotAcceptable(messages: (String, String)*): Output.Failure = NotAcceptable(MapException(messages.toMap))
+  @deprecated("Use RequestTimeout(Exception) instead", "0.9.2")
+  def RequestTimeout(messages: (String, String)*): Output.Failure = RequestTimeout(MapException(messages.toMap))
+  @deprecated("Use Conflict(Exception) instead", "0.9.2")
+  def Conflict(messages: (String, String)*): Output.Failure = Conflict(MapException(messages.toMap))
+  @deprecated("Use Gone(Exception) instead", "0.9.2")
+  def Gone(messages: (String, String)*): Output.Failure = Gone(MapException(messages.toMap))
+  @deprecated("Use LengthRequired(Exception) instead", "0.9.2")
+  def LengthRequired(messages: (String, String)*): Output.Failure = LengthRequired(MapException(messages.toMap))
+  @deprecated("Use PreconditionFailed(Exception) instead", "0.9.2")
+  def PreconditionFailed(messages: (String, String)*): Output.Failure = PreconditionFailed(MapException(messages.toMap))
+  @deprecated("Use RequestEntityTooLarge(Exception) instead", "0.9.2")
+  def RequestEntityTooLarge(messages: (String, String)*): Output.Failure =
+    RequestEntityTooLarge(MapException(messages.toMap))
+  @deprecated("Use RequestedRangeNotSatisfiable(Exception) instead", "0.9.2")
+  def RequestedRangeNotSatisfiable(messages: (String, String)*): Output.Failure =
+    RequestedRangeNotSatisfiable(MapException(messages.toMap))
+  @deprecated("Use EnhanceYourCalm(Exception) instead", "0.9.2")
+  def EnhanceYourCalm(messages: (String, String)*): Output.Failure = EnhanceYourCalm(MapException(messages.toMap))
+  @deprecated("Use UnprocessableEntity(Exception) instead", "0.9.2")
+  def UnprocessableEntity(messages: (String, String)*): Output.Failure =
+    UnprocessableEntity(MapException(messages.toMap))
+  @deprecated("Use TooManyRequests(Exception) instead", "0.9.2")
+  def TooManyRequests(messages: (String, String)*): Output.Failure = TooManyRequests(MapException(messages.toMap))
+
+  // 5xx
+  @deprecated("Use InternalServerError(Exception) instead", "0.9.2")
+  def InternalServerError(messages: (String, String)*): Output.Failure =
+    InternalServerError(MapException(messages.toMap))
+  @deprecated("Use NotImplemented(Exception) instead", "0.9.2")
+  def NotImplemented(messages: (String, String)*): Output.Failure = NotImplemented(MapException(messages.toMap))
+  @deprecated("Use BadGateway(Exception) instead", "0.9.2")
+  def BadGateway(messages: (String, String)*): Output.Failure = BadGateway(MapException(messages.toMap))
+  @deprecated("Use ServiceUnavailable(Exception) instead", "0.9.2")
+  def ServiceUnavailable(messages: (String, String)*): Output.Failure = ServiceUnavailable(MapException(messages.toMap))
+  @deprecated("Use GatewayTimeout(Exception) instead", "0.9.2")
+  def GatewayTimeout(messages: (String, String)*): Output.Failure = GatewayTimeout(MapException(messages.toMap))
+  @deprecated("Use InsufficientStorage(Exception) instead", "0.9.2")
+  def InsufficientStorage(messages: (String, String)*): Output.Failure =
+    InsufficientStorage(MapException(messages.toMap))
 }

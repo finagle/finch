@@ -57,4 +57,13 @@ object Error {
       s"${item.description} cannot be converted to ${targetType.runtimeClass.getSimpleName}: ${cause.getMessage}."
     override def getCause: Throwable = cause
   }
+
+  /**
+   * An exception that wrap an immutable map, which encodes an exception message.
+   *
+   * Warning: This class is only used to provide a 0.9.1-compatible API in 0.9.2. Will be removed in 0.9.3.
+   */
+  private[finch] final case class MapException(map: Map[String, String]) extends Error {
+    override def getMessage: String = map.toSeq.map(kv => kv._1 + ":" + kv._2).mkString("\n")
+  }
 }
