@@ -137,7 +137,7 @@ case class Foo(i: Int)
 case class Bar(s: String)
 
 val fooBar: Endpoint[Foo :+: Bar :+: CNil] =
-  Endpoint(Ok(Foo(42))) :+: Endpoint(Ok(Bar("bar"))
+  Endpoint(Ok(Foo(42))) :+: Endpoint(Ok(Bar("bar")))
 ```
 
 Any coproduct endpoint may be converted into a Finagle HTTP service (i.e., `Service[Request, Response]`) under the
