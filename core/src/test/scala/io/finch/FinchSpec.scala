@@ -16,12 +16,6 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers {
 
   case class OptionalNonEmptyString(o: Option[String])
 
-  implicit class OptionOutputOps[A](o: Option[(Input, Eval[Future[Output[A]]])]) {
-    def output: Option[Output[A]] = o.map({ case (_, oa) => Await.result(oa.value) })
-    def value: Option[A] = output.map(oa => oa.value)
-    def remainder: Option[Input] = o.map(_._1)
-  }
-
   def genNonEmptyString: Gen[String] = Gen.nonEmptyListOf(Gen.alphaChar).map(_.mkString)
 
   def genNonEmptyTuple: Gen[(String, String)] = for {

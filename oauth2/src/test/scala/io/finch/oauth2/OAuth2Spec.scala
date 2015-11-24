@@ -12,13 +12,6 @@ import io.finch._
 
 class OAuth2Spec extends FlatSpec with Matchers with Checkers with MockitoSugar {
 
-  // TODO: Reuse this one from FinchSpec
-  implicit class OptionOutputOps[A](o: Option[(Input, Eval[Future[Output[A]]])]) {
-    def output: Option[Output[A]] = o.map({ case (_, oa) => Await.result(oa.value) })
-    def value: Option[A] = output.map(oa => oa.value)
-    def remainder: Option[Input] = o.map(_._1)
-  }
-
   "The OAuth2 provider" should "authorize the requests" in {
     val at: AccessToken = mock[AccessToken]
     val dh: DataHandler[Int] = mock[DataHandler[Int]]

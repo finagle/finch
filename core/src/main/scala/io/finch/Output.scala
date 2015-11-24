@@ -1,7 +1,8 @@
 package io.finch
 
+import cats.Eval
 import com.twitter.finagle.http.{Cookie, Response, Status, Version}
-import com.twitter.util.Future
+import com.twitter.util.{Await, Future}
 import io.finch.internal.ToResponse
 
 /**
@@ -126,5 +127,11 @@ object Output {
     ): Output[Nothing] = copy(
       headers = headers, cookies = cookies, contentType = contentType, charset = charset
     )
+  }
+
+  implicit class OptionOutputOps[A](val o: Option[(Input, Eval[Future[Output[A]]])]) extends AnyVal {
+    private[finch] def output: Option[Output[A]] = o.map({ case (_, oa) => Await.result(oa.value) })
+    private[finch] def value: Option[A] = output.map(oa => oa.value)
+    private[finch] def remainder: Option[Input] = o.map(_._1)
   }
 }
