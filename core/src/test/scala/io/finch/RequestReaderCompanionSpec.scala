@@ -15,7 +15,7 @@ class RequestReaderCompanionSpec extends FlatSpec with Matchers {
 
   it should "support a factory method based on a constant Future" in {
     val request: Request = Request(("foo", ""))
-    val futureResult: Future[Int] = RequestReader.const(1.toFuture)(request)
+    val futureResult: Future[Int] = RequestReader.const(Future.value(1))(request)
     Await.result(futureResult) shouldBe 1
   }
   

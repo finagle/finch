@@ -51,7 +51,7 @@ trait RequestReaders {
 
   // A convenient method for internal needs.
   private[finch] def rr[A](i: RequestItem)(f: Request => A): RequestReader[A] =
-    RequestReader.embed[A](i)(f(_).toFuture)
+    RequestReader.embed[A](i)(r => Future.value(f(r)))
 
   /**
    * Creates a [[RequestReader]] that reads a required query-string param `name` from the request or raises an
@@ -86,7 +86,7 @@ trait RequestReaders {
   def paramsNonEmpty(name: String): RequestReader[Seq[String]] =
     rr(ParamItem(name))(requestParams(name)).embedFlatMap({
       case Nil => Future.exception(Error.NotPresent(ParamItem(name)))
-      case unfiltered => unfiltered.filter(_.nonEmpty).toFuture
+      case unfiltered => Future.value(unfiltered.filter(_.nonEmpty))
     }).shouldNot("be empty")(_.isEmpty)
 
   /**
