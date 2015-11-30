@@ -2,9 +2,7 @@ package io.finch
 
 import java.util.UUID
 
-import cats.Eval
 import com.twitter.finagle.http._
-import com.twitter.util.{Await, Future}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.prop.Checkers
 import org.scalatest.{Matchers, FlatSpec}

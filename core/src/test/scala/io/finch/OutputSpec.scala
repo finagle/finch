@@ -1,6 +1,7 @@
 package io.finch
 
 import com.twitter.io.Buf
+import com.twitter.finagle.http.Status
 
 class OutputSpec extends FinchSpec {
 
@@ -43,9 +44,49 @@ class OutputSpec extends FinchSpec {
     }
   }
 
+  it should "set the corresponding status while predefined smart constructors are used" in {
+    Ok(()).status shouldBe Status.Ok
+    Created(()).status shouldBe Status.Created
+    Accepted(()).status shouldBe Status.Accepted
+    NoContent(()).status shouldBe Status.NoContent
+  }
+
   "Payload" should "propagate payload to response" in {
     check { op: Output.Payload[String] =>
       Some(op.toResponse().contentString) === Buf.Utf8.unapply(EncodeResponse.encodeString(op.value))
     }
+  }
+
+  it should "set the corresponding status while predefined smart constructors are used" in {
+    val cause = new Exception
+    MovedPermanently(cause).status shouldBe Status.MovedPermanently
+    Found(cause).status shouldBe Status.Found
+    SeeOther(cause).status shouldBe Status.SeeOther
+    NotModified(cause).status shouldBe Status.NotModified
+    TemporaryRedirect(cause).status shouldBe Status.TemporaryRedirect
+    PermanentRedirect(cause).status shouldBe Status(308)
+    BadRequest(cause).status shouldBe Status.BadRequest
+    Unauthorized(cause).status shouldBe Status.Unauthorized
+    PaymentRequired(cause).status shouldBe Status.PaymentRequired
+    Forbidden(cause).status shouldBe Status.Forbidden
+    NotFound(cause).status shouldBe Status.NotFound
+    MethodNotAllowed(cause).status shouldBe Status.MethodNotAllowed
+    NotAcceptable(cause).status shouldBe Status.NotAcceptable
+    RequestTimeout(cause).status shouldBe Status.RequestTimeout
+    Conflict(cause).status shouldBe Status.Conflict
+    Gone(cause).status shouldBe Status.Gone
+    LengthRequired(cause).status shouldBe Status.LengthRequired
+    PreconditionFailed(cause).status shouldBe Status.PreconditionFailed
+    RequestEntityTooLarge(cause).status shouldBe Status.RequestEntityTooLarge
+    RequestedRangeNotSatisfiable(cause).status shouldBe Status.RequestedRangeNotSatisfiable
+    EnhanceYourCalm(cause).status shouldBe Status.EnhanceYourCalm
+    UnprocessableEntity(cause).status shouldBe Status.UnprocessableEntity
+    TooManyRequests(cause).status shouldBe Status.TooManyRequests
+    InternalServerError(cause).status shouldBe Status.InternalServerError
+    NotImplemented(cause).status shouldBe Status.NotImplemented
+    BadGateway(cause).status shouldBe Status.BadGateway
+    ServiceUnavailable(cause).status shouldBe Status.ServiceUnavailable
+    GatewayTimeout(cause).status shouldBe Status.GatewayTimeout
+    InsufficientStorage(cause).status shouldBe Status.InsufficientStorage
   }
 }
