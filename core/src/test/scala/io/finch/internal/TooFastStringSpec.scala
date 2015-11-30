@@ -1,11 +1,10 @@
-package io.finch
+package io.finch.internal
 
 import com.twitter.util.Try
-import io.finch.internal.TooFastString
-import org.scalatest.{Matchers, FlatSpec}
-import org.scalatest.prop.Checkers
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
+import org.scalatest.prop.Checkers
+import org.scalatest.{FlatSpec, Matchers}
 
 class TooFastStringSpec extends FlatSpec with Matchers with Checkers {
 
