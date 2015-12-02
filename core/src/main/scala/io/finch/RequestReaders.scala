@@ -3,7 +3,8 @@ package io.finch
 import com.twitter.finagle.http.{Cookie, Request}
 import com.twitter.finagle.http.exp.Multipart
 import com.twitter.finagle.http.exp.Multipart.FileUpload
-import com.twitter.io.Buf
+import com.twitter.finagle.netty3.ChannelBufferBuf
+import com.twitter.io.{Buf, Charsets}
 import com.twitter.util.Future
 
 trait RequestReaders {
@@ -38,9 +39,6 @@ trait RequestReaders {
 
   private[finch] def requestHeader(header: String)(req: Request): Option[String] =
     req.headerMap.get(header)
-
-  private[finch] def requestBody(req: Request): Array[Byte] =
-    Buf.ByteArray.Shared.extract(req.content)
 
   private[finch] def requestCookie(cookie: String)(req: Request): Option[Cookie] =
     req.cookies.get(cookie)
@@ -125,11 +123,12 @@ trait RequestReaders {
   /**
    * A [[RequestReader]] that reads a binary request body, interpreted as a `Array[Byte]`, into an `Option`.
    */
-  val binaryBodyOption: RequestReader[Option[Array[Byte]]] = rr(BodyItem) { req =>
-    req.contentLength.flatMap(length =>
-      if (length > 0) Some(requestBody(req)) else None
-    )
-  }
+  val binaryBodyOption: RequestReader[Option[Array[Byte]]] = rr(BodyItem)(req =>
+    req.contentLength match {
+      case Some(n) if n > 0 => Some(Buf.ByteArray.Shared.extract(req.content))
+      case _ => None
+    }
+  )
 
   /**
    * A [[RequestReader]] that reads a required binary request body, interpreted as a `Array[Byte]`, or throws a
@@ -140,7 +139,17 @@ trait RequestReaders {
   /**
    * A [[RequestReader]] that reads an optional request body, interpreted as a `String`, into an `Option`.
    */
-  val bodyOption: RequestReader[Option[String]] = binaryBodyOption.map(_.map(new String(_, "UTF-8")))
+  val bodyOption: RequestReader[Option[String]] = rr(BodyItem)(req =>
+    req.contentLength match {
+      case Some(n) if n > 0 =>
+        val buffer = ChannelBufferBuf.Owned.extract(req.content)
+        // Note: We usually have an array underneath the ChannelBuffer (at least on Netty 3).
+        // This check is mostly about a safeguard.
+        if (buffer.hasArray) Some(new String(buffer.array(), "UTF-8"))
+        else Some(buffer.toString(Charsets.Utf8))
+      case _ => None
+    }
+  )
 
   /**
    * A [[RequestReader]] that reads the required request body, interpreted as a `String`, or throws an
