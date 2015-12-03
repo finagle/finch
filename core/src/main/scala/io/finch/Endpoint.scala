@@ -57,7 +57,7 @@ trait Endpoint[A] { self =>
    */
   // There is a reason why it can't be renamed to `run` as per https://github.com/finagle/finch/issues/371.
   // More details are here: http://stackoverflow.com/questions/32064375/magnet-pattern-and-overloaded-methods
-  def apply(input: Input): Option[(Input, Eval[Future[Output[A]]])]
+  def apply(input: Input): Endpoint.Result[A]
 
   /**
    * Maps this endpoint to the given function `A => B`.
@@ -69,7 +69,7 @@ trait Endpoint[A] { self =>
    * Maps this endpoint to the given function `A => Future[B]`.
    */
   def embedFlatMap[B](fn: A => Future[B]): Endpoint[B] = new Endpoint[B] {
-    def apply(input: Input): Option[(Input, Eval[Future[Output[B]]])] =
+    def apply(input: Input): Endpoint.Result[B] =
       self(input).map {
         case (remainder, output) =>
           (remainder, output.map(f => f.flatMap(oa => oa.traverse(a => fn(a)))))
@@ -94,7 +94,7 @@ trait Endpoint[A] { self =>
    * Maps this endpoint to the given function `A => Future[Output[B]]`.
    */
   private[finch] def femap[B](fn: A => Future[Output[B]]): Endpoint[B] = new Endpoint[B] {
-    def apply(input: Input): Option[(Input, Eval[Future[Output[B]]])] =
+    def apply(input: Input): Endpoint.Result[B] =
       self(input).map {
         case (remainder, output) =>
           (remainder, output.map(f => f.flatMap { oa =>
@@ -118,7 +118,7 @@ trait Endpoint[A] { self =>
    * Maps this endpoint to `Endpoint[A => B]`.
    */
   def ap[B](fn: Endpoint[A => B]): Endpoint[B] = new Endpoint[B] {
-    def apply(input: Input): Option[(Input, Eval[Future[Output[B]]])] =
+    def apply(input: Input): Endpoint.Result[B] =
       self(input).flatMap {
         case (remainder1, outputA) => fn(remainder1).map {
           case (remainder2, outputF) =>
@@ -140,7 +140,7 @@ trait Endpoint[A] { self =>
       val inner = self.ap(
         that.map { b => (a: A) => adjoin(a, b) }
       )
-      def apply(input: Input): Option[(Input, Eval[Future[Output[adjoin.Out]]])] = inner(input)
+      def apply(input: Input): Endpoint.Result[adjoin.Out] = inner(input)
 
       override def toString = s"${self.toString}/${that.toString}"
     }
@@ -150,7 +150,7 @@ trait Endpoint[A] { self =>
    */
   def ?[B](that: RequestReader[B])(implicit adjoin: PairAdjoin[A, B]): Endpoint[adjoin.Out] =
     new Endpoint[adjoin.Out] {
-      def apply(input: Input): Option[(Input, Eval[Future[Output[adjoin.Out]]])] =
+      def apply(input: Input): Endpoint.Result[adjoin.Out] =
         self(input).map {
           case (remainder, output) =>
             (remainder, output.map(f => f.join(that(input.request)).map {
@@ -166,10 +166,10 @@ trait Endpoint[A] { self =>
    * succeed if either this or `that` endpoints are succeed.
    */
   def |[B >: A](that: Endpoint[B]): Endpoint[B] = new Endpoint[B] {
-    private[this] def aToB(o: Option[(Input, Eval[Future[Output[A]]])]): Option[(Input, Eval[Future[Output[B]]])] =
+    private[this] def aToB(o: Endpoint.Result[A]): Endpoint.Result[B] =
       o.map { case (r, oo) => (r, oo.map(_.asInstanceOf[Future[Output[B]]])) }
 
-    def apply(input: Input): Option[(Input, Eval[Future[Output[B]]])] =
+    def apply(input: Input): Endpoint.Result[B] =
       (self(input), that(input)) match {
         case (aa @ Some((a, _)), bb @ Some((b, _))) =>
           if (a.path.length <= b.path.length) aToB(aa) else bb
@@ -204,7 +204,7 @@ trait Endpoint[A] { self =>
    * throwable from the underlying future.
    */
   def rescue[B >: A](pf: PartialFunction[Throwable, Future[Output[B]]]): Endpoint[B] = new Endpoint[B] {
-    def apply(input: Input): Option[(Input, Eval[Future[Output[B]]])] =
+    def apply(input: Input): Endpoint.Result[B] =
       self(input).map {
         case (remainder, output) =>
           (remainder, output.map(f => f.rescue(pf)))
@@ -220,7 +220,7 @@ trait Endpoint[A] { self =>
   def handle[B >: A](pf: PartialFunction[Throwable, Output[B]]): Endpoint[B] = rescue(pf.andThen(Future.value))
 
   private[this] def withOutput[B](fn: Output[A] => Output[B]): Endpoint[B] = new Endpoint[B] {
-    def apply(input: Input): Option[(Input, Eval[Future[Output[B]]])] =
+    def apply(input: Input): Endpoint.Result[B] =
       self(input).map {
         case (remainder, output) => (remainder, output.map(f => f.map(o => fn(o))))
       }
@@ -233,6 +233,8 @@ trait Endpoint[A] { self =>
  * Provides extension methods for [[Endpoint]] to support coproduct and path syntax.
  */
 object Endpoint {
+
+  type Result[A] = Option[(Input, Eval[Future[Output[A]]])]
 
   /**
    * Creates an [[Endpoint]] from the given [[Output]].

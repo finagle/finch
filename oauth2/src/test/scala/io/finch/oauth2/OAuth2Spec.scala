@@ -1,9 +1,8 @@
 package io.finch.oauth2
 
-import cats.Eval
 import com.twitter.finagle.http.Request
 import com.twitter.finagle.oauth2._
-import com.twitter.util.{Await, Future}
+import com.twitter.util.Future
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.Checkers
 import org.scalatest.{Matchers, FlatSpec}

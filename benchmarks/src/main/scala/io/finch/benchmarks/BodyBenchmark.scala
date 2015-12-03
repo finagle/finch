@@ -11,9 +11,9 @@ class BodyBenchmark extends FinchBenchmark {
 
   val req: Request = {
     val r = Request()
-    val content = Buf.Utf8("foo" * 1024)
+    val content = Buf.Utf8("x" * 1024)
     r.content = content
-    r.contentLength = content.length
+    r.contentLength = content.length.toLong
 
     r
   }
