@@ -1,8 +1,9 @@
 package io.finch
 
-import com.twitter.finagle.http.exp.Multipart.FileUpload
+import com.twitter.finagle.http.exp.Multipart
 import com.twitter.finagle.http.{Request, RequestBuilder}
 import com.twitter.util.{Await, Future}
+import com.twitter.io.{Buf, Files}
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -25,31 +26,33 @@ class MultipartParamSpec extends FlatSpec with Matchers {
 
   "A RequiredMultipartFile" should "have a filename" in {
     val request = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[FileUpload] = fileUpload("groups")(request)
+    val futureResult: Future[Multipart.FileUpload] = fileUpload("groups")(request)
     Await.result(futureResult).fileName shouldBe "dealwithit.gif"
   }
 
   it should "have a content type" in {
     val request = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[FileUpload] = fileUpload("groups")(request)
+    val futureResult: Future[Multipart.FileUpload] = fileUpload("groups")(request)
     Await.result(futureResult).contentType shouldBe "image/gif"
   }
 
   it should "have a size greater zero" in {
     val request = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[FileUpload] = fileUpload("groups")(request)
-    Await.result(futureResult).content.length should be > 0
+    val futureResult: Future[Multipart.FileUpload] = fileUpload("groups")(request)
+    val Multipart.OnDiskFileUpload(file, _, _, _) = Await.result(futureResult)
+    val buf = Buf.ByteArray.Owned(Files.readBytes(file, limit = Int.MaxValue))
+    buf.length should be > 0
   }
 
   "An OptionalMultipartFile" should "have a filename if it exists" in {
     val request = requestFromBinaryFile("/upload.bytes")
-    val futureResult: Future[Option[FileUpload]] = fileUploadOption("groups")(request)
+    val futureResult: Future[Option[Multipart.FileUpload]] = fileUploadOption("groups")(request)
     Await.result(futureResult).get.fileName shouldBe "dealwithit.gif"
   }
 
   it should "be empty when the upload name exists but is not an upload" in {
     val request = RequestBuilder().url("http://localhost/").addFormElement("groups" -> "foo").buildFormPost()
-    val futureResult: Future[Option[FileUpload]] = fileUploadOption("groups")(request)
+    val futureResult: Future[Option[Multipart.FileUpload]] = fileUploadOption("groups")(request)
     Await.result(futureResult) shouldBe None
   }
 
@@ -87,6 +90,20 @@ class MultipartParamSpec extends FlatSpec with Matchers {
     val request: Request = requestFromBinaryFile("/upload.bytes")
     val futureResult: Future[Option[String]] = paramOption("groups")(request)
     Await.result(futureResult) shouldBe None
+  }
+
+  it should "allow to read both file uploads and attributes via request reader" in {
+    val request: Request = requestFromBinaryFile("/upload.bytes")
+
+    val paramFirst = (param("type") :: fileUpload("groups")).asTuple
+    val (t1, g1) = Await.result(paramFirst(request))
+    t1 shouldBe "text"
+    g1.fileName shouldBe "dealwithit.gif"
+    
+    val fileFirst = (fileUpload("groups") :: param("type")).asTuple
+    val (g2, t2) = Await.result(fileFirst(request))
+    t2 shouldBe "text"
+    g2.fileName shouldBe "dealwithit.gif"
   }
 
   private[this] def requestFromBinaryFile(resourceName: String): Request = {

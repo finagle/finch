@@ -8,7 +8,7 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.10.6", "2.11.7")
 )
 
-lazy val finagleVersion = "6.30.0"
+lazy val finagleVersion = "6.31.0"
 lazy val circeVersion = "0.3.0-SNAPSHOT"
 lazy val shapelessVersion = "2.3.0-SNAPSHOT"
 lazy val catsVersion = "0.4.0-SNAPSHOT"

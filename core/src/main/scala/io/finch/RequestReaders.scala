@@ -1,7 +1,6 @@
 package io.finch
 
 import com.twitter.finagle.http.{Cookie, Request}
-import com.twitter.finagle.http.exp.Multipart
 import com.twitter.finagle.http.exp.Multipart.FileUpload
 import com.twitter.finagle.netty3.ChannelBufferBuf
 import com.twitter.io.{Buf, Charsets}
@@ -32,7 +31,7 @@ trait RequestReaders {
 
   // Helper functions.
   private[finch] def requestParam(param: String)(req: Request): Option[String] =
-    req.params.get(param).orElse(Multipart.decodeNonChunked(req).attributes.get(param).flatMap(_.headOption))
+    req.params.get(param).orElse(req.multipart.flatMap(m => m.attributes.get(param).flatMap(_.headOption)))
 
   private[finch] def requestParams(params: String)(req: Request): Seq[String] =
     req.params.getAll(params).toList.flatMap(_.split(","))
@@ -43,9 +42,8 @@ trait RequestReaders {
   private[finch] def requestCookie(cookie: String)(req: Request): Option[Cookie] =
     req.cookies.get(cookie)
 
-  private[finch] def requestUpload(upload: String)(req: Request): Option[FileUpload] = {
-    Multipart.decodeNonChunked(req).files.get(upload).flatMap(_.headOption)
-  }
+  private[finch] def requestUpload(upload: String)(req: Request): Option[FileUpload] =
+    req.multipart.flatMap(m => m.files.get(upload).flatMap(fs => fs.headOption))
 
   // A convenient method for internal needs.
   private[finch] def rr[A](i: RequestItem)(f: Request => A): RequestReader[A] =
