@@ -201,7 +201,7 @@ lazy val examples = project
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-generic" % circeVersion,
-      "com.twitter" %% "twitter-server" % "1.15.0"
+      "com.twitter" %% "twitter-server" % "1.16.0"
     )
   )
   .dependsOn(core, circe)
