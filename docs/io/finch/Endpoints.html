@@ -100,7 +100,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Endpoints$BasicAuth.html"><span class="name">BasicAuth</span></a><span class="params">(<span name="user">user: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="password">password: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="err">err: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Map.empty[String, String]</span></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+        <a href="Endpoints$BasicAuth.html"><span class="name">BasicAuth</span></a><span class="params">(<span name="user">user: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="password">password: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.finch.Endpoints@BasicAuthextendsProductwithSerializable" title="Permalink" target="_top">
@@ -285,6 +285,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="io.finch.Endpoints.BasicAuthFailed" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BasicAuthFailed"></a>
+      <a id="BasicAuthFailed:BasicAuthFailed"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoints$BasicAuthFailed$.html"><span class="name">BasicAuthFailed</span></a><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@BasicAuthFailed" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <span class="extype" name="Exception">Exception</span> representing a failed authorization with <a href="Endpoints$BasicAuth.html" class="extype" name="io.finch.Endpoints.BasicAuth">BasicAuth</a>.</p>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -781,7 +798,7 @@ succeeds on the request only if its method is <code>PUT</code> and the underlyin
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Endpoints$string$.html"><span class="name">string</span></a><span class="result"> extends <a href="Endpoints$Extractor.html" class="extype" name="io.finch.Endpoints.Extractor">Extractor</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <a href="Endpoints$string$.html"><span class="name">string</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.StringExtractor">StringExtractor</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.finch.Endpoints@string" title="Permalink" target="_top">
@@ -984,213 +1001,7 @@ succeeds on the request only if its method is <code>TRACE</code> and the underly
 
         
 
-        <div id="values" class="values members">
-              <h3>Deprecated Value Members</h3>
-              <ol><li name="io.finch.Endpoints.Connect" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="Connect"></a>
-      <a id="Connect:Connect"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Endpoints$Connect$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use method connect: Endpoint[A] =&gt; Endpoint[A] instead">Connect</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.MethodMatcher">MethodMatcher</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoints@Connect" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use method connect: Endpoint[A] =&gt; Endpoint[A] instead</p></dd></dl></div>
-    </li><li name="io.finch.Endpoints.Delete" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="Delete"></a>
-      <a id="Delete:Delete"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Endpoints$Delete$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use method delete: Endpoint[A] =&gt; Endpoint[A] instead">Delete</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.MethodMatcher">MethodMatcher</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoints@Delete" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use method delete: Endpoint[A] =&gt; Endpoint[A] instead</p></dd></dl></div>
-    </li><li name="io.finch.Endpoints.Get" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="Get"></a>
-      <a id="Get:Get"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Endpoints$Get$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use method get: Endpoint[A] =&gt; Endpoint[A] instead">Get</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.MethodMatcher">MethodMatcher</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoints@Get" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use method get: Endpoint[A] =&gt; Endpoint[A] instead</p></dd></dl></div>
-    </li><li name="io.finch.Endpoints.Head" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="Head"></a>
-      <a id="Head:Head"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Endpoints$Head$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use method head: Endpoint[A] =&gt; Endpoint[A] instead">Head</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.MethodMatcher">MethodMatcher</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoints@Head" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use method head: Endpoint[A] =&gt; Endpoint[A] instead</p></dd></dl></div>
-    </li><li name="io.finch.Endpoints.Options" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="Options"></a>
-      <a id="Options:Options"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Endpoints$Options$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use method options: Endpoint[A] =&gt; Endpoint[A] instead">Options</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.MethodMatcher">MethodMatcher</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoints@Options" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use method options: Endpoint[A] =&gt; Endpoint[A] instead</p></dd></dl></div>
-    </li><li name="io.finch.Endpoints.Patch" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="Patch"></a>
-      <a id="Patch:Patch"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Endpoints$Patch$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use method patch: Endpoint[A] =&gt; Endpoint[A] instead">Patch</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.MethodMatcher">MethodMatcher</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoints@Patch" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use method patch: Endpoint[A] =&gt; Endpoint[A] instead</p></dd></dl></div>
-    </li><li name="io.finch.Endpoints.Post" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="Post"></a>
-      <a id="Post:Post"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Endpoints$Post$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use method post: Endpoint[A] =&gt; Endpoint[A] instead">Post</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.MethodMatcher">MethodMatcher</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoints@Post" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use method post: Endpoint[A] =&gt; Endpoint[A] instead</p></dd></dl></div>
-    </li><li name="io.finch.Endpoints.Put" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="Put"></a>
-      <a id="Put:Put"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Endpoints$Put$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use method put: Endpoint[A] =&gt; Endpoint[A] instead">Put</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.MethodMatcher">MethodMatcher</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoints@Put" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use method put: Endpoint[A] =&gt; Endpoint[A] instead</p></dd></dl></div>
-    </li><li name="io.finch.Endpoints.Trace" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="Trace"></a>
-      <a id="Trace:Trace"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Endpoints$Trace$.html"><span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use method trace: Endpoint[A] =&gt; Endpoint[A] instead">Trace</span></a><span class="result"> extends <span class="extype" name="io.finch.Endpoints.MethodMatcher">MethodMatcher</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoints@Trace" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use method trace: Endpoint[A] =&gt; Endpoint[A] instead</p></dd></dl></div>
-    </li><li name="io.finch.Endpoints#basicAuth" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="basicAuth[A](user:String,password:String)(e:io.finch.Endpoint[A]):io.finch.Endpoint[A]"></a>
-      <a id="basicAuth[A](String,String)(Endpoint[A]):Endpoint[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version 0.8.5) Use BasicAuth instead">basicAuth</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="user">user: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="password">password: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="e">e: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.basicAuth.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.basicAuth.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoints@basicAuth[A](user:String,password:String)(e:io.finch.Endpoint[A]):io.finch.Endpoint[A]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with Basic HTTP Auth, configured with credentials <code>user</code> and
-<code>password</code>.</p><div class="fullcomment"><div class="comment cmt"><p>A combinator that wraps the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> with Basic HTTP Auth, configured with credentials <code>user</code> and
-<code>password</code>.
-</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.8.5)</i> Use BasicAuth instead</p></dd></dl></div>
-    </li></ol>
-            </div>
+        
         </div>
 
         <div id="inheritedMembers">

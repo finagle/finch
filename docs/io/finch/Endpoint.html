@@ -56,7 +56,7 @@ In a REST API setting this function may be viewed as <code>Request =1=&gt; (A =2
 transformation <code>1</code> is request decoding (deserialization), transformation <code>2</code> - is business logic and transformation
 <code>3</code> is- response encoding (serialization). The only interesting part here is transformation <code>2</code>
 (i.e., <code>A =&gt; Future[B]</code>), which represents a bossiness logic of an application.</p><p>An <code>Endpoint</code> transformation (<code>map</code>, <code>embedFlatMap</code>, etc.) encodes the business logic, while the rest of Finch
-ecosystem takes care about both serialization and deserialization.</p><p>A typical way to transform (or map) the <code>Endpoint</code> is to use <a href="Mapper.html" class="extype" name="io.finch.Mapper">Mapper</a> and <code>Endpoint.apply</code> method, which, depending
+ecosystem takes care about both serialization and deserialization.</p><p>A typical way to transform (or map) the <code>Endpoint</code> is to use <span class="extype" name="Mapper">Mapper</span> and <code>Endpoint.apply</code> method, which, depending
 on the argument type, delegates the map operation to the underlying function.</p><pre><span class="kw">case</span> <span class="kw">class</span> Foo(i: <span class="std">Int</span>)
 <span class="kw">case</span> <span class="kw">class</span> Bar(s: <span class="std">String</span>)
 
@@ -68,7 +68,7 @@ Finagle HTTP.</p><pre>Http.server.serve(foobar.toService)</pre></div><dl class="
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div><div class="toggleContainer block">
             <span class="toggle">Known Subclasses</span>
-            <div class="subClasses hiddenContent"><a href="Endpoints$$times$.html" class="extype" name="io.finch.Endpoints.*">*</a>, <a href="Endpoints$$div$.html" class="extype" name="io.finch.Endpoints./">/</a>, <a href="Endpoints$Extractor.html" class="extype" name="io.finch.Endpoints.Extractor">Extractor</a>, <a href="Endpoints$TailExtractor.html" class="extype" name="io.finch.Endpoints.TailExtractor">TailExtractor</a>, <a href="Endpoints$boolean$.html" class="extype" name="io.finch.Endpoints.boolean">boolean</a>, <a href="Endpoints$booleans$.html" class="extype" name="io.finch.Endpoints.booleans">booleans</a>, <a href="Endpoints$int$.html" class="extype" name="io.finch.Endpoints.int">int</a>, <a href="Endpoints$ints$.html" class="extype" name="io.finch.Endpoints.ints">ints</a>, <a href="Endpoints$long$.html" class="extype" name="io.finch.Endpoints.long">long</a>, <a href="Endpoints$longs$.html" class="extype" name="io.finch.Endpoints.longs">longs</a>, <a href="Endpoints$string$.html" class="extype" name="io.finch.Endpoints.string">string</a>, <a href="Endpoints$strings$.html" class="extype" name="io.finch.Endpoints.strings">strings</a>, <a href="Endpoints$uuid$.html" class="extype" name="io.finch.Endpoints.uuid">uuid</a>, <a href="Endpoints$uuids$.html" class="extype" name="io.finch.Endpoints.uuids">uuids</a></div>
+            <div class="subClasses hiddenContent"><a href="Endpoints$$times$.html" class="extype" name="io.finch.Endpoints.*">*</a>, <a href="Endpoints$$div$.html" class="extype" name="io.finch.Endpoints./">/</a>, <a href="Endpoints$Extractor.html" class="extype" name="io.finch.Endpoints.Extractor">Extractor</a>, <a href="Endpoints$TailExtractor.html" class="extype" name="io.finch.Endpoints.TailExtractor">TailExtractor</a>, <a href="Endpoints$boolean$.html" class="extype" name="io.finch.Endpoints.boolean">boolean</a>, <a href="Endpoints$booleans$.html" class="extype" name="io.finch.Endpoints.booleans">booleans</a>, <a href="Endpoints$int$.html" class="extype" name="io.finch.Endpoints.int">int</a>, <a href="Endpoints$ints$.html" class="extype" name="io.finch.Endpoints.ints">ints</a>, <a href="Endpoints$long$.html" class="extype" name="io.finch.Endpoints.long">long</a>, <a href="Endpoints$longs$.html" class="extype" name="io.finch.Endpoints.longs">longs</a>, <a href="Endpoints$strings$.html" class="extype" name="io.finch.Endpoints.strings">strings</a>, <a href="Endpoints$uuid$.html" class="extype" name="io.finch.Endpoints.uuid">uuid</a>, <a href="Endpoints$uuids$.html" class="extype" name="io.finch.Endpoints.uuids">uuids</a></div>
           </div></div>
         
 
@@ -110,18 +110,18 @@ Finagle HTTP.</p><pre>Http.server.serve(foobar.toService)</pre></div><dl class="
         <div id="values" class="values members">
               <h3>Abstract Value Members</h3>
               <ol><li name="io.finch.Endpoint#apply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="apply(input:io.finch.Input):Option[(io.finch.Input,()=&gt;com.twitter.util.Future[io.finch.Output[A]])]"></a>
-      <a id="apply(Input):Option[(Input,()⇒Future[Output[A]])]"></a>
+      <a id="apply(input:io.finch.Input):io.finch.Endpoint.Result[A]"></a>
+      <a id="apply(Input):Result[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="input">input: <a href="Input.html" class="extype" name="io.finch.Input">Input</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[(<a href="Input.html" class="extype" name="io.finch.Input">Input</a>, () ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]])]</span>
+        <span class="name">apply</span><span class="params">(<span name="input">input: <a href="Input.html" class="extype" name="io.finch.Input">Input</a></span>)</span><span class="result">: <a href="Endpoint$.html#Result[A]=Option[(io.finch.Input,cats.Eval[com.twitter.util.Future[io.finch.Output[A]]])]" class="extmbr" name="io.finch.Endpoint.Result">Result</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoint@apply(input:io.finch.Input):Option[(io.finch.Input,()=&gt;com.twitter.util.Future[io.finch.Output[A]])]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoint@apply(input:io.finch.Input):io.finch.Endpoint.Result[A]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -166,18 +166,18 @@ Finagle HTTP.</p><pre>Http.server.serve(foobar.toService)</pre></div><dl class="
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="io.finch.Endpoint#/" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="/[B](that:io.finch.Endpoint[B])(implicitadjoin:io.finch.PairAdjoin[A,B]):io.finch.Endpoint[adjoin.Out]"></a>
-      <a id="/[B](Endpoint[B])(PairAdjoin[A,B]):Endpoint[PairAdjoin.Out]"></a>
+      <a id="/[B](that:io.finch.Endpoint[B])(implicitadjoin:io.finch.internal.PairAdjoin[A,B]):io.finch.Endpoint[adjoin.Out]"></a>
+      <a id="/[B](Endpoint[B])(PairAdjoin[A,B]):Endpoint[internal.PairAdjoin.Out]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $div" class="name">/</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="that">that: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint./.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="adjoin">adjoin: <a href="PairAdjoin.html" class="extype" name="io.finch.PairAdjoin">PairAdjoin</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>, <span class="extype" name="io.finch.Endpoint./.B">B</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="PairAdjoin.html#Out" class="extmbr" name="io.finch.PairAdjoin.Out">PairAdjoin.Out</a>]</span>
+        <span title="gt4s: $div" class="name">/</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="that">that: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint./.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="adjoin">adjoin: <a href="internal/PairAdjoin.html" class="extype" name="io.finch.internal.PairAdjoin">PairAdjoin</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>, <span class="extype" name="io.finch.Endpoint./.B">B</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="internal/PairAdjoin.html#Out" class="extmbr" name="io.finch.internal.PairAdjoin.Out">internal.PairAdjoin.Out</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoint@/[B](that:io.finch.Endpoint[B])(implicitadjoin:io.finch.PairAdjoin[A,B]):io.finch.Endpoint[adjoin.Out]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoint@/[B](that:io.finch.Endpoint[B])(implicitadjoin:io.finch.internal.PairAdjoin[A,B]):io.finch.Endpoint[adjoin.Out]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -219,22 +219,22 @@ if both this and <code>that</code> endpoints succeed.
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="io.finch.Endpoint#?" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="?[B](that:io.finch.request.RequestReader[B])(implicitadjoin:io.finch.PairAdjoin[A,B]):io.finch.Endpoint[adjoin.Out]"></a>
-      <a id="?[B](RequestReader[B])(PairAdjoin[A,B]):Endpoint[PairAdjoin.Out]"></a>
+      <a id="?[B](that:io.finch.RequestReader[B])(implicitadjoin:io.finch.internal.PairAdjoin[A,B]):io.finch.Endpoint[adjoin.Out]"></a>
+      <a id="?[B](RequestReader[B])(PairAdjoin[A,B]):Endpoint[internal.PairAdjoin.Out]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $qmark" class="name">?</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="that">that: <a href="request/RequestReader.html" class="extype" name="io.finch.request.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.Endpoint.?.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="adjoin">adjoin: <a href="PairAdjoin.html" class="extype" name="io.finch.PairAdjoin">PairAdjoin</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>, <span class="extype" name="io.finch.Endpoint.?.B">B</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="PairAdjoin.html#Out" class="extmbr" name="io.finch.PairAdjoin.Out">PairAdjoin.Out</a>]</span>
+        <span title="gt4s: $qmark" class="name">?</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="that">that: <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.Endpoint.?.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="adjoin">adjoin: <a href="internal/PairAdjoin.html" class="extype" name="io.finch.internal.PairAdjoin">PairAdjoin</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>, <span class="extype" name="io.finch.Endpoint.?.B">B</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="internal/PairAdjoin.html#Out" class="extmbr" name="io.finch.internal.PairAdjoin.Out">internal.PairAdjoin.Out</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoint@?[B](that:io.finch.request.RequestReader[B])(implicitadjoin:io.finch.PairAdjoin[A,B]):io.finch.Endpoint[adjoin.Out]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoint@?[B](that:io.finch.RequestReader[B])(implicitadjoin:io.finch.internal.PairAdjoin[A,B]):io.finch.Endpoint[adjoin.Out]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Composes this endpoint with the given <span class="extype" name="RequestReader">RequestReader</span>.</p>
+      <p class="shortcomment cmt">Composes this endpoint with the given <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>.</p>
     </li><li name="io.finch.Endpoint#ap" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ap[B](fn:io.finch.Endpoint[A=&gt;B]):io.finch.Endpoint[B]"></a>
       <a id="ap[B](Endpoint[(A)⇒B]):Endpoint[B]"></a>
@@ -253,7 +253,7 @@ if both this and <code>that</code> endpoints succeed.
     </span>
       <p class="shortcomment cmt">Maps this endpoint to <code>Endpoint[A =&gt; B]</code>.</p>
     </li><li name="io.finch.Endpoint#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply(mapper:io.finch.Mapper[A]):io.finch.Endpoint[mapper.Out]"></a>
+      <a id="apply(mapper:io.finch.internal.Mapper[A]):io.finch.Endpoint[mapper.Out]"></a>
       <a id="apply(Mapper[A]):Endpoint[Out]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -261,10 +261,10 @@ if both this and <code>that</code> endpoints succeed.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="mapper">mapper: <a href="Mapper.html" class="extype" name="io.finch.Mapper">Mapper</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="Mapper.html#Out" class="extmbr" name="io.finch.Mapper.Out">Out</a>]</span>
+        <span class="name">apply</span><span class="params">(<span name="mapper">mapper: <a href="internal/Mapper.html" class="extype" name="io.finch.internal.Mapper">Mapper</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="internal/Mapper.html#Out" class="extmbr" name="io.finch.internal.Mapper.Out">Out</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoint@apply(mapper:io.finch.Mapper[A]):io.finch.Endpoint[mapper.Out]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoint@apply(mapper:io.finch.internal.Mapper[A]):io.finch.Endpoint[mapper.Out]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -556,7 +556,7 @@ throwable from the underlying future.</p>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="io.finch.Endpoint#toService" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toService(implicitts:io.finch.ToService[A]):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]"></a>
+      <a id="toService(implicitts:io.finch.internal.ToService[A]):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]"></a>
       <a id="toService(ToService[A]):Service[Request,Response]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -564,10 +564,10 @@ throwable from the underlying future.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toService</span><span class="params">(<span class="implicit">implicit </span><span name="ts">ts: <a href="ToService.html" class="extype" name="io.finch.ToService">ToService</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>)</span><span class="result">: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.Service" class="extype" target="_top">Service</a>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Request" class="extype" target="_top">Request</a>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a>]</span>
+        <span class="name">toService</span><span class="params">(<span class="implicit">implicit </span><span name="ts">ts: <a href="internal/ToService.html" class="extype" name="io.finch.internal.ToService">ToService</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>)</span><span class="result">: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.Service" class="extype" target="_top">Service</a>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Request" class="extype" target="_top">Request</a>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoint@toService(implicitts:io.finch.ToService[A]):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoint@toService(implicitts:io.finch.internal.ToService[A]):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

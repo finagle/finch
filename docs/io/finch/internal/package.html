@@ -1,0 +1,396 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>internal - io.finch.internal</title>
+          <meta name="description" content="internal - io.finch.internal" />
+          <meta name="keywords" content="internal io.finch.internal" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../index.html';
+            var hash = 'io.finch.internal.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img alt="Package" src="../../../lib/package_big.png" />
+        <p id="owner"><a href="../../package.html" class="extype" name="io">io</a>.<a href="../package.html" class="extype" name="io.finch">finch</a></p>
+        <h1>internal</h1><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.package" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">internal</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>This package contains an internal-use only type-classes and utilities that power Finch's API.</p><p>It's not recommended to use any of the internal API directly, since it might change without any deprecation cycles.
+</p></div><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="io.finch.internal"><span>internal</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="io.finch.internal.FromParams" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="FromParams[L&lt;:shapeless.HList]extendsAnyRef"></a>
+      <a id="FromParams[L&lt;:HList]:FromParams[L]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="FromParams.html"><span class="name">FromParams</span></a><span class="tparams">[<span name="L">L &lt;: <span class="extype" name="shapeless.HList">HList</span></span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.package@FromParams[L&lt;:shapeless.HList]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A type class empowering a generic derivation of <a href="../RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>s from query string params.</p>
+    </li><li name="io.finch.internal.HighPriorityMapperConversions" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="HighPriorityMapperConversionsextendsLowPriorityMapperConversions"></a>
+      <a id="HighPriorityMapperConversions:HighPriorityMapperConversions"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="HighPriorityMapperConversions.html"><span class="name">HighPriorityMapperConversions</span></a><span class="result"> extends <a href="LowPriorityMapperConversions.html" class="extype" name="io.finch.internal.LowPriorityMapperConversions">LowPriorityMapperConversions</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.package@HighPriorityMapperConversionsextendsLowPriorityMapperConversions" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.internal.LowPriorityMapperConversions" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="LowPriorityMapperConversionsextendsAnyRef"></a>
+      <a id="LowPriorityMapperConversions:LowPriorityMapperConversions"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="LowPriorityMapperConversions.html"><span class="name">LowPriorityMapperConversions</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.package@LowPriorityMapperConversionsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.internal.LowPriorityPairAdjoin" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="LowPriorityPairAdjoinextendsAnyRef"></a>
+      <a id="LowPriorityPairAdjoin:LowPriorityPairAdjoin"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="LowPriorityPairAdjoin.html"><span class="name">LowPriorityPairAdjoin</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.package@LowPriorityPairAdjoinextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.internal.LowPriorityToServiceInstances" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="LowPriorityToServiceInstancesextendsAnyRef"></a>
+      <a id="LowPriorityToServiceInstances:LowPriorityToServiceInstances"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="LowPriorityToServiceInstances.html"><span class="name">LowPriorityToServiceInstances</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.package@LowPriorityToServiceInstancesextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.internal.Mapper" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Mapper[A]extendsAnyRef"></a>
+      <a id="Mapper[A]:Mapper[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Mapper.html"><span class="name">Mapper</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.package@Mapper[A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A type class that allows the <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> to be mapped to either <code>A =&gt; B</code> or <code>A =&gt; Future[B]</code>.</p>
+    </li><li name="io.finch.internal.PairAdjoin" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="PairAdjoin[A,B]extendsDepFn2[A,B]"></a>
+      <a id="PairAdjoin[A,B]:PairAdjoin[A,B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="PairAdjoin.html"><span class="name">PairAdjoin</span></a><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="result"> extends <span class="extype" name="shapeless.DepFn2">DepFn2</span>[<span class="extype" name="io.finch.internal.PairAdjoin.A">A</span>, <span class="extype" name="io.finch.internal.PairAdjoin.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.package@PairAdjoin[A,B]extendsDepFn2[A,B]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">We need a version of <span class="extype" name="shapeless.ops.adjoin.Adjoin">shapeless.ops.adjoin.Adjoin</span> that provides slightly different behavior in
+the case of singleton results (we simply return the value, not a singleton <code>HList</code>).</p>
+    </li><li name="io.finch.internal.ToResponse" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ToResponse[-A]extendsAnyRef"></a>
+      <a id="ToResponse[-A]:ToResponse[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ToResponse.html"><span class="name">ToResponse</span></a><span class="tparams">[<span name="A">-A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.package@ToResponse[-A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Represents a conversion from <code>A</code> to <span class="extype" name="Response">Response</span>.</p>
+    </li><li name="io.finch.internal.ToService" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ToService[A]extendsAnyRef"></a>
+      <a id="ToService[A]:ToService[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ToService.html"><span class="name">ToService</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.package@ToService[A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Represents a conversion from an <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> returning a result type <code>A</code> to a Finagle service from a request-like
+type <code>R</code> to a <span class="extype" name="Response">Response</span>.</p><div class="fullcomment"><div class="comment cmt"><p>Represents a conversion from an <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> returning a result type <code>A</code> to a Finagle service from a request-like
+type <code>R</code> to a <span class="extype" name="Response">Response</span>.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@implicitNotFound</span><span class="args">(<span>
+      
+      <span class="defval" name="&quot;&quot;&quot;You can only convert a router into a Finagle service if the result type of the router is one of the following:<br/><br/>  * A Response<br/>  * A value of a type with an EncodeResponse instance<br/>  * A coproduct made up of some combination of the above<br/><br/>${A} does not satisfy the requirement. You may need to provide an EncodeResponse instance for ${A} (or for some  part of<br/>${A}).<br/>&quot;&quot;&quot;">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="io.finch.internal.TooFastString" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TooFastStringextendsAnyVal"></a>
+      <a id="TooFastString:TooFastString"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$TooFastString.html"><span class="name">TooFastString</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.package@TooFastStringextendsAnyVal" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Enriches any string with fast <code>tooX</code> conversions.</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="io.finch.internal.FromParams" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="FromParams"></a>
+      <a id="FromParams:FromParams"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="FromParams$.html"><span class="name">FromParams</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.package@FromParams" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.internal.Mapper" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Mapper"></a>
+      <a id="Mapper:Mapper"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Mapper$.html"><span class="name">Mapper</span></a><span class="result"> extends <a href="HighPriorityMapperConversions.html" class="extype" name="io.finch.internal.HighPriorityMapperConversions">HighPriorityMapperConversions</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.package@Mapper" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.internal.PairAdjoin" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PairAdjoin"></a>
+      <a id="PairAdjoin:PairAdjoin"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="PairAdjoin$.html"><span class="name">PairAdjoin</span></a><span class="result"> extends <a href="LowPriorityPairAdjoin.html" class="extype" name="io.finch.internal.LowPriorityPairAdjoin">LowPriorityPairAdjoin</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.package@PairAdjoin" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.internal.ToResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ToResponse"></a>
+      <a id="ToResponse:ToResponse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ToResponse$.html"><span class="name">ToResponse</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.package@ToResponse" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.internal.ToService" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ToService"></a>
+      <a id="ToService:ToService"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ToService$.html"><span class="name">ToService</span></a><span class="result"> extends <a href="LowPriorityToServiceInstances.html" class="extype" name="io.finch.internal.LowPriorityToServiceInstances">LowPriorityToServiceInstances</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.package@ToService" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
