@@ -87,7 +87,7 @@ operations in the `for`-comprehension will be performed.
 A typical `RequestReader` might look like this:
 
 ```scala
-import io.finch.request._
+import io.finch._
 
 case class User(name: String, age: Int, city: String)
 
@@ -148,7 +148,7 @@ def as[A](implicit gen: Generic.Aux[A, L]): RequestReader[A]
 ```
 
 The following sections cover all these features in more detail. All sample code assumes that you have imported
-`io.finch.request._`.
+`io.finch._`.
 
 Finally, `RequestReader`s that return `Option` values have a couple of additional useful methods:
 `withDefault(value: A)` and `orElse(alternative: Option[A])`.
@@ -227,16 +227,16 @@ The exceptions from a request reader might be handled just like other failed fut
 
 ```scala
 val user: Future[Json] = service(...) handle {
-  case NotFound(ParamItem(param)) =>
+  case Error.NotFound(ParamItem(param)) =>
     Json.obj("error" -> "param_not_found", "param" -> param)
-  case NotValid(ParamItem(param), rule) =>
+  case Error.NotValid(ParamItem(param), rule) =>
     Json.obj("error" -> "validation_failed", "param" -> param, "rule" -> rule)
 }
 ```
 
 All the exceptions thrown by `RequestReader` are case classes. Therefore pattern matching may be used to handle them.
 
-These are all error types produced by Finch (note that all extend `RequestError`):
+These are all error types produced by Finch (note that all extend `io.finch.Error`):
 
 ```scala
  // when multiple request items were invalid or missing

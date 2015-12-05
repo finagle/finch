@@ -192,12 +192,12 @@ into an HTTP response. There are two cases of `Output`: `Output.Payload` represe
 defined as payloads while the rest of outputs as failures.
 
 `Output.Payload` carries an actual _value_ that will be serialized into a response body, while `Output.Failure` carries
-just an failure message represented as `Map[String, String]`. A simplified version of this ADS is shown bellow.
+an `Exception` cased this failure. A simplified version of this ADT is shown below.
 
 ```scala
 sealed trait Output[A]
 case class Payload[A](value: A) extends Output[A]
-case class Failure(message: Map[String, String]) extends Output[Nothing]
+case class Failure(cause: Exception) extends Output[Nothing]
 ```
 
 Having an `Output` defined as an ADT allows to return both payloads and failures from the same endpoint depending on the
@@ -205,14 +205,22 @@ condition result.
 
 ```scala
 val divOrFail: Endpoint[Int] = post("div" / a / b) { (a: Int, b: Int) =>
-  if (b == 0) BadRequest("err" -> "Can not divide by zero.")
+  if (b == 0) BadRequest(new ArithmeticException("Can not divide by 0"))
   else Ok(a / b)
 }
 ```
 
-Please note that since `Output.Failure` contains the error message (i.e., `Map[String, String]`), when converting any
-endpoint into a Finagle service it's also required to have an instance to `EncodeResponse[Map[String, String]]` in the
-scope.
+Payloads and failures are symmetric in terms of serializing `Output` into an HTTP response. With that said, in order to
+convert an `Endpoint` into a Finagle service, there is should be an implicit instance of `EncodeResponse[Exception]`
+available in the scope. For example, it might be defined in terms of Circe's `Encoder`:
+
+```scala
+implicit val encodeException: Encoder[Exception] = Encoder.instance(e =>
+  Json.obj("message" -> Json.string(e.getMessage)))
+```
+
+By default, all the exception are converted into `plain/text` HTTP response containing the exception message in their
+bodies.
 
 ### Error Handling
 
@@ -222,15 +230,19 @@ similarly named methods:
 - `Endpoint[A].handle[B >: A](Throwable => Output[B]): Endpoint[B]`
 - `Endpoint[A].rescue[B >: A](Throwable => Future[Output[B]]): Endpoint[B]`
 
-The following example handles the `ArithmeticExceptions` propagated from `a / b`.
+The following example handles the `ArithmeticException` propagated from `a / b`.
 
 ```scala
 val divOrFail: Endpoint[Int] = post("div" / a / b) { (a: Int, b: Int) =>
   Ok(a / b)
 } handle {
-  case _: ArithmeticExceptions => BadRequest("err" -> "Can not divide by zero.")
+  case e: ArithmeticExceptions => BadRequest(e)
 }
 ```
+
+All the unhandled exceptions are converted into very basic 500 responses that don't carry any payload. Only Finch's
+errors (i.e., `io.finch.Error`) are treated in a special way and converted into 400 responses with their messages
+serialized according to the rules defined in the `EncodeResponse[Exception]` instance.
 
 --
 Read Next: [RequestReaders](request.md)
