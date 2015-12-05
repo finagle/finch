@@ -2,7 +2,6 @@ package io.finch
 
 import com.twitter.finagle.http.{Cookie, Response, Status, Version}
 import com.twitter.util.{Await, Future}
-import io.finch.Error.MapException
 import io.finch.internal.ToResponse
 
 /**
@@ -35,12 +34,10 @@ sealed trait Output[+A] { self =>
 
   def toResponse(version: Version = Version.Http11)(implicit
     payloadToResponse: ToResponse[A],
-    failureToResponse: ToResponse[Exception],
-    mapToResponse: ToResponse[Map[String, String]]
+    failureToResponse: ToResponse[Exception]
   ): Response = {
     val rep = this match {
       case Output.Payload(v, _, _, _, _, _) => payloadToResponse(v)
-      case Output.Failure(MapException(map), _, _, _, _, _) => mapToResponse(map)
       case Output.Failure(x, _, _, _, _, _) => failureToResponse(x)
     }
     rep.version = version
