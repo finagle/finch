@@ -80,7 +80,6 @@ object Main extends App {
 
 * [Endpoints](endpoint.md)
 * [RequestReaders](request.md)
-* [ResponseBuilders](response.md) **deprecated since 0.9.0**
 * [Authentication](auth.md)
 * [JSON](json.md)
 * [Best Practices](best-practices.md)

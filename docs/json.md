@@ -28,6 +28,14 @@ import io.finch.circe._
 import io.circe.generic.auto._
 ```
 
+It's also possible to import the Circe configuration that uses a pretty printer configured with `dropNullKeys = true`.
+Use the following imports instead:
+
+```scala
+import io.finch.circe.dropNullKeys._
+import io.circe.generic.auto._
+```
+
 ### Argonaut
 
 * Bring the dependency to the `finch-argonaut` module.
@@ -42,6 +50,16 @@ import io.finch.argonaut._
 implicit val e: EncodeJson[_] = ???
 implicit val d: DecodeJson[_] = ???
 ```
+
+In addition to the very basic Argonaut pretty printer (available via `import io.finch.argonaut._`), there are three
+additional configurations available out of the box:
+
+* `import io.finch.argonaut.dropNullKeys._` - brings both decoder and encoder (uses pretty printer that drops null keys)
+   in the scope
+* `import io.finch.argonaut.preserveOrder._` - brings both decoder and encoder (uses pretty printer that preserves
+   fields order) in the scope
+* `import io.finch.argonaut.preserveOrderAndDropNullKeys._` - brings both decoder and encoder (uses pretty printer that
+   preserves fields order as well as drop null keys) in the scope
 
 ### Jackson
 
