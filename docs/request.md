@@ -502,7 +502,7 @@ Finch comes with a small set of predefined rules. For readers producing numeric 
 or `beGreaterThan(n: Int)`, and for strings you can use `beLongerThan(n: Int)` or `beShorterThan(n: Int)`.
 
 --
-Read Next: [Responses](response.md)
+Read Next: [Authentication](auth.md)
 
 [0]: http://monkey.org/~marius/funsrv.pdf
 [1]: https://github.com/finagle/finch/blob/master/demo/src/main/scala/io/finch/demo/Main.scala
