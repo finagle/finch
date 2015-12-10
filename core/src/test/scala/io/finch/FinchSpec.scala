@@ -3,6 +3,7 @@ package io.finch
 import java.util.UUID
 
 import com.twitter.finagle.http._
+import com.twitter.io.Buf
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.prop.Checkers
 import org.scalatest.{Matchers, FlatSpec}
@@ -84,12 +85,27 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers {
     ))
   } yield "/" + ss.mkString("/")
 
+  def genBuf: Gen[Buf] = for {
+    s <- Arbitrary.arbitrary[String]
+    b <- Gen.oneOf(
+      Buf.Utf8(s),
+      Buf.ByteArray.Owned(s.getBytes("UTF-8"))
+    )
+  } yield b
+
   implicit def arbitraryRequest: Arbitrary[Request] = Arbitrary(
     for {
       m <- genMethod
       v <- genVersion
       s <- genPath
-    } yield Request(v, m, s)
+      b <- genBuf
+    } yield {
+      val r = Request(v, m, s)
+      r.content = b
+      r.contentLength = b.length.toLong
+      r.charset = "utf-8"
+      r
+    }
   )
 
   implicit def arbitraryInput: Arbitrary[Input] = Arbitrary(arbitraryRequest.arbitrary.map(Input.apply))

@@ -143,7 +143,7 @@ trait RequestReaders {
         val buffer = ChannelBufferBuf.Owned.extract(req.content)
         // Note: We usually have an array underneath the ChannelBuffer (at least on Netty 3).
         // This check is mostly about a safeguard.
-        if (buffer.hasArray) Some(new String(buffer.array(), "UTF-8"))
+        if (buffer.hasArray) Some(new String(buffer.array(), 0, buffer.readableBytes(), "UTF-8"))
         else Some(buffer.toString(Charsets.Utf8))
       case _ => None
     }

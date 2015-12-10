@@ -1,139 +1,48 @@
 package io.finch
 
 import com.twitter.finagle.http.Request
-import com.twitter.io.Buf.ByteArray
-import com.twitter.util.{Await, Future, Try}
-import io.finch.items._
-import org.scalatest.{FlatSpec, Matchers}
+import com.twitter.util._
 
-class BodySpec extends FlatSpec with Matchers {
-  val foo = "foo"
-  val fooBytes = foo.getBytes("UTF-8")
+class BodySpec extends FinchSpec {
 
-  "A RequiredArrayBody" should "be properly read if it exists" in {
-    val request: Request = requestWithBody(fooBytes)
-    val futureResult: Future[Array[Byte]] = binaryBody(request)
-    Await.result(futureResult) shouldBe fooBytes
-  }
-
-  it should "produce an error if the body is empty" in {
-    val request: Request = requestWithBody(Array[Byte]())
-    val futureResult: Future[Array[Byte]] = binaryBody(request)
-    an [Error.NotPresent] shouldBe thrownBy(Await.result(futureResult))
-  }
-
-  it should "have a corresponding RequestItem" in {
-    binaryBody.item shouldBe BodyItem
-  }
-
-  "An OptionalArrayBody" should "be properly read if it exists" in {
-    val request: Request = requestWithBody(fooBytes)
-    val futureResult: Future[Option[Array[Byte]]] = binaryBodyOption(request)
-    Await.result(futureResult).get shouldBe fooBytes
-  }
-
-  it should "produce an error if the body is empty" in {
-    val request: Request = requestWithBody(Array[Byte]())
-    val futureResult: Future[Option[Array[Byte]]] = binaryBodyOption(request)
-    Await.result(futureResult) shouldBe None
-  }
-
-  it should "have a corresponding RequestItem" in {
-    binaryBodyOption.item shouldBe BodyItem
-  }
-
-  "A RequiredStringBody" should "be properly read if it exists" in {
-    val request: Request = requestWithBody(foo)
-    val futureResult: Future[String] = body(request)
-    Await.result(futureResult) shouldBe foo
-  }
-
-  it should "produce an error if the body is empty" in {
-    val request: Request = requestWithBody("")
-    val futureResult: Future[String] = body(request)
-    an [Error.NotPresent] shouldBe thrownBy(Await.result(futureResult))
-  }
-
-  "An OptionalStringBody" should "be properly read if it exists" in {
-    val request: Request = requestWithBody(foo)
-    val futureResult: Future[Option[String]] = bodyOption(request)
-    Await.result(futureResult) shouldBe Some(foo)
-  }
-
-  it should "produce an error if the body is empty" in {
-    val request: Request = requestWithBody("")
-    val futureResult: Future[Option[String]] = bodyOption(request)
-    Await.result(futureResult) shouldBe None
-  }
-
-  "RequiredArrayBody Reader" should "work without parentheses at call site" in {
-    val reader = for {
-      body <- binaryBody
-    } yield body
-
-    val request: Request = requestWithBody(fooBytes)
-    Await.result(reader(request)) shouldBe fooBytes
-  }
-
-  "RequiredBody and OptionalBody" should "work with no request type available" in {
-    implicit val decodeInt = new DecodeRequest[Int] {
-       def apply(req: String): Try[Int] = Try(req.toInt)
+  "A body reader" should "read the optional HTTP body as a string" in {
+    check { req: Request =>
+      val cs = req.contentString
+      val bo = Await.result(bodyOption(req))
+      (cs.isEmpty && bo === None) || (cs.nonEmpty && bo === Some(cs))
     }
-    val req = requestWithBody("123")
-    val ri: RequestReader[Int] = body.as[Int]
-    val i: Future[Int] = body.as[Int].apply(req)
-    val oi: RequestReader[Option[Int]] = bodyOption.as[Int]
-    val o = bodyOption.as[Int].apply(req)
-
-    Await.result(ri(req)) shouldBe 123
-    Await.result(i) shouldBe 123
-    Await.result(oi(req)) shouldBe Some(123)
-    Await.result(o) shouldBe Some(123)
   }
 
-  it should "work with custom request and its implicit view to Request" in {
-    implicit val decodeDouble = new DecodeRequest[Double] { // custom encoder
-      def apply(req: String): Try[Double] = Try(req.toDouble)
+  it should "read the required HTTP body as a string" in {
+    check { req: Request =>
+      val cs = req.contentString
+      val b = Await.result(body(req).liftToTry)
+      (cs.isEmpty && b === Throw(Error.NotPresent(items.BodyItem))) ||
+      (cs.nonEmpty && b === Return(cs))
     }
-    case class CReq(http: Request) // custom request
-    implicit val cReqEv = (req: CReq) => req.http // implicit view
-
-    val req = CReq(requestWithBody("42.0"))
-    val rd: RequestReader[Double] = body.as[Double]
-    val d = body.as[Double].apply(req)
-    val od: RequestReader[Option[Double]] = bodyOption.as[Double]
-    val o: Future[Option[Double]] = bodyOption.as[Double].apply(req)
-
-    Await.result(rd(req)) shouldBe 42.0
-    Await.result(d) shouldBe 42.0
-    Await.result(od(req)) shouldBe Some(42.0)
-    Await.result(o) shouldBe Some(42.0)
   }
-  
-  it should "fail if the decoding of the body fails" in {
-    implicit val decodeInt = new DecodeRequest[Int] {
-       def apply(req: String): Try[Int] = Try(req.toInt)
+
+  it should "read the optional HTTP body as a byte array" in {
+    check { req: Request =>
+      val cb = req.contentString.getBytes("UTF-8")
+      val bo = Await.result(binaryBodyOption(req))
+      (cb.isEmpty && bo === None) || (cb.nonEmpty && bo.map(_.deep) === Some(cb.deep))
     }
-    val req = requestWithBody("foo")
-    val ri: RequestReader[Int] = body.as[Int]
-    val i: Future[Int] = body.as[Int].apply(req)
-    val oi: RequestReader[Option[Int]] = bodyOption.as[Int]
-    val o: Future[Option[Int]] = bodyOption.as[Int].apply(req)
-
-    an [Error.NotParsed] shouldBe thrownBy(Await.result(ri(req)))
-    an [Error.NotParsed] shouldBe thrownBy(Await.result(i))
-    an [Error.NotParsed] shouldBe thrownBy(Await.result(oi(req)))
-    an [Error.NotParsed] shouldBe thrownBy(Await.result(o))
   }
 
-  private[this] def requestWithBody(body: String): Request = {
-    requestWithBody(body.getBytes("UTF-8"))
+  it should "read the required HTTP body as a byte array" in {
+    check { req: Request =>
+      val cb = req.contentString.getBytes("UTF-8")
+      val b = Await.result(binaryBody(req).liftToTry)
+      (cb.isEmpty && b === Throw(Error.NotPresent(items.BodyItem))) ||
+      (cb.nonEmpty && b.map(_.deep) === Return(cb.deep))
+    }
   }
 
-  private[this] def requestWithBody(body: Array[Byte]): Request = {
-    val r = Request()
-    r.content = ByteArray.Owned(body)
-    r.contentLength = body.length.toLong
-    r
+  it should "has a corresponding request item" in {
+    body.item shouldBe items.BodyItem
+    bodyOption.item shouldBe items.BodyItem
+    binaryBody.item shouldBe items.BodyItem
+    binaryBodyOption.item shouldBe items.BodyItem
   }
 }
