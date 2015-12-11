@@ -4,7 +4,7 @@ import com.twitter.finagle.http.{Cookie, Request}
 import com.twitter.finagle.http.exp.Multipart.FileUpload
 import com.twitter.finagle.netty3.ChannelBufferBuf
 import com.twitter.io.{Buf, Charsets}
-import com.twitter.util.Future
+import com.twitter.util.{Future, Try}
 
 trait RequestReaders {
 
@@ -43,7 +43,7 @@ trait RequestReaders {
     req.cookies.get(cookie)
 
   private[finch] def requestUpload(upload: String)(req: Request): Option[FileUpload] =
-    req.multipart.flatMap(m => m.files.get(upload).flatMap(fs => fs.headOption))
+    Try(req.multipart).getOrElse(None).flatMap(m => m.files.get(upload).flatMap(fs => fs.headOption))
 
   // A convenient method for internal needs.
   private[finch] def rr[A](i: RequestItem)(f: Request => A): RequestReader[A] =

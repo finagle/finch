@@ -44,6 +44,12 @@ class MultipartParamSpec extends FlatSpec with Matchers {
     buf.length should be > 0
   }
 
+  it should "produce an error if the request body is not parsable as multipart" in {
+    val request = RequestBuilder().url("http://example.com").buildPost(Buf.Utf8("&"))
+    val futureResult = fileUpload("notmultipart")(request)
+    an [Error.NotPresent] shouldBe thrownBy(Await.result(futureResult))
+  }
+
   "An OptionalMultipartFile" should "have a filename if it exists" in {
     val request = requestFromBinaryFile("/upload.bytes")
     val futureResult: Future[Option[Multipart.FileUpload]] = fileUploadOption("groups")(request)
@@ -53,6 +59,12 @@ class MultipartParamSpec extends FlatSpec with Matchers {
   it should "be empty when the upload name exists but is not an upload" in {
     val request = RequestBuilder().url("http://localhost/").addFormElement("groups" -> "foo").buildFormPost()
     val futureResult: Future[Option[Multipart.FileUpload]] = fileUploadOption("groups")(request)
+    Await.result(futureResult) shouldBe None
+  }
+
+  it should "produce an error if the request body is not parsable as multipart" in {
+    val request = RequestBuilder().url("http://example.com").buildPost(Buf.Utf8("&"))
+    val futureResult = fileUploadOption("notmultipart")(request)
     Await.result(futureResult) shouldBe None
   }
 
