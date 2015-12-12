@@ -36,6 +36,15 @@ import io.finch.circe.dropNullKeys._
 import io.circe.generic.auto._
 ```
 
+Unless it's absolutely necessary to customize Circe's output format (i.e., drop null keys), always prefer [Jackson
+serializer][circe-jackson] for better performance. The following two imports shows how to switch Circe to use Jackson
+while serializing instead of built-in pretty printer.
+
+```scala
+import io.finch.circe.jacksonSerializer._
+import io.circe.generic.auto._
+```
+
 ### Argonaut
 
 * Bring the dependency to the `finch-argonaut` module.
@@ -90,6 +99,7 @@ implicit val formats: Formats = DefaultFormats ++ JodaTimeSerializers.all
 [jackson]: http://wiki.fasterxml.com/JacksonHome
 [json4s]: http://json4s.org/
 [circe]: https://github.com/travisbrown/circe
+[circe-jackson]: https://github.com/travisbrown/circe/pull/111
 
 --
 Read Next: [Best Practices](best-practices.md)

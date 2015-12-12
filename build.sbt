@@ -198,14 +198,15 @@ lazy val examples = project
   .settings(allSettings)
   .settings(noPublish)
   .settings(resolvers += "TM" at "http://maven.twttr.com")
-  .settings(coverageExcludedPackages := "io\\.finch\\.div\\..*;io\\.finch\\.todo\\..*")
+  .settings(coverageExcludedPackages := "io\\.finch\\.div\\..*;io\\.finch\\.todo\\..*;io\\.finch\\.eval\\..*")
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-generic" % circeVersion,
-      "com.twitter" %% "twitter-server" % "1.16.0"
+      "com.twitter" %% "twitter-server" % "1.16.0",
+      "com.twitter" %% "util-eval" % "6.30.0"
     )
   )
-  .dependsOn(core, circe)
+  .dependsOn(core, circe, jackson)
 
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")

@@ -35,15 +35,6 @@ trait LowPriorityEncodeResponseInstances {
 
 object EncodeResponse extends LowPriorityEncodeResponseInstances {
 
-  /**
-   * Converts [[EncodeAnyResponse]] into [[EncodeResponse]].
-   */
-  implicit def anyToConcreteEncode[A](implicit e: EncodeAnyResponse): EncodeResponse[A] =
-    new EncodeResponse[A] {
-      def apply(rep: A): Buf = e(rep)
-      def contentType: String = e.contentType
-    }
-
   implicit val encodeMap: EncodeResponse[Map[String, String]] =
     EncodeResponse("text/plain")(map =>
       Buf.Utf8(map.toSeq.map(kv => kv._1 + ":" + kv._2).mkString("\n"))
@@ -57,12 +48,4 @@ object EncodeResponse extends LowPriorityEncodeResponseInstances {
 
   implicit val encodeBuf: EncodeResponse[Buf] =
     apply("application/octet-stream", None)(identity)
-}
-
-/**
- * An abstraction that is responsible for encoding the response of a generic type.
- */
-trait EncodeAnyResponse {
-  def apply[A](rep: A): Buf
-  def contentType: String
 }

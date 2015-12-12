@@ -74,27 +74,4 @@ class DecodeSpec extends FlatSpec with Matchers {
     val result = reader(request)
     Await.result(result).isEmpty shouldBe true
   }
-  
-  it should "resolve implicits correctly in case DecodeAnyRequest gets used" in {
-    
-    case class Foo(value: String)
-    case class Bar(value: String)
-    
-    implicit val decodeAny = new DecodeAnyRequest {
-      def apply[A: ClassTag](req: String): Try[A] = Return(new Bar(req).asInstanceOf[A])
-    }                                       
-    
-    implicit val decodeFoo = new DecodeRequest[Foo] {
-      def apply(req: String): Try[Foo] = Return(new Foo(req))
-    }   
-    
-    val request: Request = Request(("foo", "foo"), ("bar", "bar"))
-    val reader: RequestReader[(Foo, Bar)] = for {
-      foo <- param("foo").as[Foo]
-      bar <- param("bar").as[Bar]
-    } yield (foo, bar)
-    
-    val result = reader(request)
-    Await.result(result) shouldBe ((Foo("foo"), Bar("bar")))
-  }
 }

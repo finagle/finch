@@ -222,6 +222,10 @@ implicit val encodeException: Encoder[Exception] = Encoder.instance(e =>
 By default, all the exception are converted into `plain/text` HTTP response containing the exception message in their
 bodies.
 
+While this approach works perfectly well with JSON libraries empowering type-classes as decoders/encoders, it doesn't
+really fit well with libraries using runtime-reflection. Thus, when it comes to exception encoding, it involves some
+workaround to enable [Jackson](json.md#jackson) support in Finch. See [eval][eval] for an idiomatic example.
+
 ### Error Handling
 
 By analogy with `com.twitter.util.Future` API it's possible to _handle_ the failed future in the endpoint using the
@@ -250,3 +254,4 @@ Read Next: [RequestReaders](request.md)
 [shapeless]: https://github.com/milessabin/shapeless
 [hlist]: https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.0.0#heterogenous-lists
 [coproduct]: https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.0.0#coproducts-and-discriminated-unions
+[eval]: https://github.com/finagle/finch/tree/master/examples/src/main/scala/io/finch/eval

@@ -77,19 +77,4 @@ object DecodeRequest extends LowPriorityDecodeRequestInstances {
     if (s.length != 36) Throw(new IllegalArgumentException(s"Too long for UUID: ${s.length}"))
     else Try(UUID.fromString(s))
   )
-
-  /**
-   * Creates a [[DecodeRequest]] instance from [[DecodeAnyRequest]].
-   */
-  implicit def decodeRequestFromAnyDecode[A](implicit
-    d: DecodeAnyRequest,
-    tag: ClassTag[A]
-  ): DecodeRequest[A] = instance(s => d(s)(tag))
-}
-
-/**
- * An abstraction that is responsible for decoding the request of general type.
- */
-trait DecodeAnyRequest {
-  def apply[A: ClassTag](req: String): Try[A]
 }
