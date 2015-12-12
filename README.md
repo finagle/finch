@@ -11,7 +11,7 @@ Badges
 [![Build Status](https://img.shields.io/travis/finagle/finch/master.svg)](https://travis-ci.org/finagle/finch)
 [![Coverage Status](https://img.shields.io/codecov/c/github/finagle/finch/master.svg)](https://codecov.io/github/finagle/finch)
 [![Gitter](https://img.shields.io/badge/gitter-join%20chat-green.svg)](https://gitter.im/finagle/finch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.finagle/finch_2.11.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.finagle/finch_2.11)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.finagle/finch-core_2.11.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.finagle/finch-core_2.11)
 
 Modules
 -------
@@ -120,6 +120,9 @@ There are plenty of ways to contribute into Finch:
 * [Submit a PR](CONTRIBUTING.md) (there is an issue label ["easy"](https://github.com/finagle/finch/issues?q=is%3Aopen+is%3Aissue+label%3Aeasy) for newcomers)
 * Be cool and wear a [Finch T-Shirt](http://www.redbubble.com/people/vkostyukov/works/13277123-finch-io-rest-api-with-finagle?p=t-shirt)
 
+The Finch project supports the [Typelevel][typelevel] [code of conduct][conduct] and wants all of its channels
+(Gitter, GitHub, etc.) to be welcoming environments for everyone.
+
 License
 -------
 Licensed under the **[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)** (the "License");
@@ -140,3 +143,5 @@ limitations under the License.
 [finagle-oauth2]: https://github.com/finagle/finagle-oauth2
 [json4s]: http://json4s.org
 [scaladoc]: http://finagle.github.io/finch/docs/#io.finch.package
+[typelevel]: http://typelevel.org/
+[conduct]: http://typelevel.org/conduct.html
