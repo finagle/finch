@@ -62,10 +62,7 @@ trait LowPriorityToServiceInstances {
 
       def apply(req: Request): Future[Response] = safeEndpoint(Input(req)) match {
         case Some((remainder, output)) if remainder.isEmpty =>
-          output.map(f => f.map(o => o.toResponse(req.version))).value.handle {
-            // TODO: Remove after Finagle 6.31
-            case _ => Response(req.version, Status.InternalServerError)
-          }
+          output.map(f => f.map(o => o.toResponse(req.version))).value
         case _ => Future.value(Response(req.version, Status.NotFound))
       }
     }
