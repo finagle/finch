@@ -9,7 +9,7 @@ lazy val buildSettings = Seq(
 )
 
 lazy val finagleVersion = "6.31.0"
-lazy val circeVersion = "0.2.1"
+lazy val circeVersion = "0.3.0-SNAPSHOT"
 lazy val shapelessVersion = "2.2.5"
 lazy val catsVersion = "0.3.0"
 
@@ -159,7 +159,7 @@ lazy val argonaut = project
 lazy val jackson = project
   .settings(moduleName := "finch-jackson")
   .settings(allSettings)
-  .settings(libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.5.3")
+  .settings(libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.6.3")
   .dependsOn(core, jsonTest % "test")
 
 lazy val json4s = project
@@ -178,7 +178,8 @@ lazy val circe = project
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-jawn" % circeVersion,
-      "io.circe" %% "circe-generic" % circeVersion % "test"
+      "io.circe" %% "circe-generic" % circeVersion % "test",
+      "io.circe" %% "circe-jackson" % circeVersion
     )
   )
   .dependsOn(core, jsonTest % "test")
