@@ -1,7 +1,6 @@
 package io.finch.circe
 
-import io.circe.{Json, Encoder, Printer}
-import io.circe.jackson._
+import io.circe.{Encoder, Json}
 import io.finch.EncodeResponse
 
 trait Encoders {
