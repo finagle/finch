@@ -35,7 +35,7 @@ object Main extends App {
   // returns a simple response with a total sum.
   //
   // For example, if input stream is `1, 2, 3` then output response would be `6`.
-  val totalSum: Endpoint[String] = streamingPost("totalSum" ? asyncBody) { as: AsyncStream[Buf] =>
+  val totalSum: Endpoint[String] = post("totalSum" :: asyncBody) { as: AsyncStream[Buf] =>
     as.foldLeft(0L)((acc, b) => acc + bufToLong(b)).map(s => Ok(s.toString))
   }
 
@@ -44,7 +44,7 @@ object Main extends App {
   //
   // For example, if an input value is `3` then output stream would be
   // `1 (1), 3 (1 + 2), 5 (1 + 2 + 3)`.
-  val sumTo: Endpoint[AsyncStream[Buf]] = post("sumTo" / int) { to: Int =>
+  val sumTo: Endpoint[AsyncStream[Buf]] = post("sumTo" :: int) { to: Int =>
     def loop(n: Int, s: Int): AsyncStream[Int] =
       if (n > to) AsyncStream.empty[Int]
       else (n + s) +:: loop(n + 1, n + s)
@@ -57,7 +57,7 @@ object Main extends App {
   //
   // For example, if input stream is `1, 2, 3` then output stream would be `1, 3, 6`.
   val sumSoFar: Endpoint[AsyncStream[Buf]] =
-    streamingPost("sumSoFar" ? asyncBody) { as: AsyncStream[Buf] =>
+    post("sumSoFar" :: asyncBody) { as: AsyncStream[Buf] =>
       Ok(as.map(b =>
         Buf.Utf8(sum.addAndGet(bufToLong(b)).toString)
       ))

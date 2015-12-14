@@ -7,16 +7,16 @@ import shapeless.{::, HList, HNil, Witness}
 import shapeless.labelled._
 
 /**
- * A type class empowering a generic derivation of [[RequestReader]]s from query string params.
+ * A type class empowering a generic derivation of [[Endpoint]]s from query string params.
  */
 trait FromParams[L <: HList] {
-  def reader: RequestReader[L]
+  def endpoint: Endpoint[L]
 }
 
 object FromParams {
 
   implicit val hnilFromParams: FromParams[HNil] = new FromParams[HNil] {
-    def reader: RequestReader[HNil] = RequestReader.value(HNil)
+    def endpoint: Endpoint[HNil] = Endpoint.Empty
   }
 
   implicit def hconsFromParams[HK <: Symbol, HV, T <: HList](implicit
@@ -25,8 +25,8 @@ object FromParams {
     key: Witness.Aux[HK],
     fpt: FromParams[T]
   ): FromParams[FieldType[HK, HV] :: T] = new FromParams[FieldType[HK, HV] :: T] {
-    def reader: RequestReader[FieldType[HK, HV] :: T] =
-      param(key.value.name).as(dh, ct).map(field[HK](_)) :: fpt.reader
+    def endpoint: Endpoint[FieldType[HK, HV] :: T] =
+      param(key.value.name).as(dh, ct).map(field[HK](_)) :: fpt.endpoint
   }
 }
 

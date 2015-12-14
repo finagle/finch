@@ -2,15 +2,26 @@ package io.finch
 
 import java.util.UUID
 
+import cats.std.AllInstances
 import com.twitter.finagle.http._
 import com.twitter.io.Buf
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.prop.Checkers
 import org.scalatest.{Matchers, FlatSpec}
+import org.typelevel.discipline.Laws
 
-trait FinchSpec extends FlatSpec with Matchers with Checkers {
+trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
+  with MissingInstances {
+
+  def checkAll(name: String, ruleSet: Laws#RuleSet): Unit = {
+    for ((id, prop) <- ruleSet.all.properties)
+      it should (name + "." + id) in {
+        check(prop)
+      }
+  }
 
   case class Headers(m: Map[String, String])
+  case class Params(p: Map[String, String])
   case class Cookies(c: Seq[Cookie])
 
   case class OptionalNonEmptyString(o: Option[String])
@@ -26,25 +37,33 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers {
     Headers(m.map(kv => kv._1.toLowerCase -> kv._2.toLowerCase))
   )
 
-  def genCookies: Gen[Cookies] = Gen.listOf(genNonEmptyTuple.map(t => new Cookie(t._1, t._2))).map(Cookies.apply)
+  def genParams: Gen[Params] = Gen.mapOf(genNonEmptyTuple).map(m =>
+    Params(m.map(kv => kv._1.toLowerCase -> kv._2.toLowerCase))
+  )
+
+  def genCookies: Gen[Cookies] =
+    Gen.listOf(genNonEmptyTuple.map(t => new Cookie(t._1, t._2))).map(Cookies.apply)
 
   def genOptionalNonEmptyString: Gen[OptionalNonEmptyString] =
     Gen.option(genNonEmptyString).map(OptionalNonEmptyString.apply)
 
   def genStatus: Gen[Status] = Gen.oneOf(
-    Status.Continue, Status.SwitchingProtocols, Status.Processing, Status.Ok, Status.Created, Status.Accepted,
-    Status.NonAuthoritativeInformation, Status.NoContent, Status.ResetContent, Status.PartialContent,
-    Status.MultiStatus, Status.MultipleChoices, Status.MovedPermanently, Status.Found, Status.SeeOther,
-    Status.NotModified, Status.UseProxy, Status.TemporaryRedirect, Status.BadRequest, Status.Unauthorized,
-    Status.PaymentRequired, Status.Forbidden, Status.NotFound, Status.MethodNotAllowed, Status.NotAcceptable,
-    Status.ProxyAuthenticationRequired, Status.RequestTimeout, Status.Conflict, Status.Gone, Status.LengthRequired,
-    Status.PreconditionFailed, Status.RequestEntityTooLarge, Status.RequestURITooLong,
-    Status.UnsupportedMediaType, Status.RequestedRangeNotSatisfiable, Status.ExpectationFailed, Status.EnhanceYourCalm,
-    Status.UnprocessableEntity, Status.Locked, Status.FailedDependency, Status.UnorderedCollection,
-    Status.UpgradeRequired, Status.PreconditionRequired, Status.TooManyRequests, Status.RequestHeaderFieldsTooLarge,
-    Status.ClientClosedRequest, Status.InternalServerError, Status.NotImplemented, Status.BadGateway,
-    Status.ServiceUnavailable, Status.GatewayTimeout, Status.HttpVersionNotSupported, Status.VariantAlsoNegotiates,
-    Status.InsufficientStorage, Status.NotExtended, Status.NetworkAuthenticationRequired
+    Status.Continue, Status.SwitchingProtocols, Status.Processing, Status.Ok, Status.Created,
+    Status.Accepted, Status.NonAuthoritativeInformation, Status.NoContent, Status.ResetContent,
+    Status.PartialContent, Status.MultiStatus, Status.MultipleChoices, Status.MovedPermanently,
+    Status.Found, Status.SeeOther, Status.NotModified, Status.UseProxy, Status.TemporaryRedirect,
+    Status.BadRequest, Status.Unauthorized, Status.PaymentRequired, Status.Forbidden,
+    Status.NotFound, Status.MethodNotAllowed, Status.NotAcceptable,
+    Status.ProxyAuthenticationRequired, Status.RequestTimeout, Status.Conflict, Status.Gone,
+    Status.LengthRequired, Status.PreconditionFailed, Status.RequestEntityTooLarge,
+    Status.RequestURITooLong, Status.UnsupportedMediaType, Status.RequestedRangeNotSatisfiable,
+    Status.ExpectationFailed, Status.EnhanceYourCalm, Status.UnprocessableEntity, Status.Locked,
+    Status.FailedDependency, Status.UnorderedCollection, Status.UpgradeRequired,
+    Status.PreconditionRequired, Status.TooManyRequests, Status.RequestHeaderFieldsTooLarge,
+    Status.ClientClosedRequest, Status.InternalServerError, Status.NotImplemented,
+    Status.BadGateway, Status.ServiceUnavailable, Status.GatewayTimeout,
+    Status.HttpVersionNotSupported, Status.VariantAlsoNegotiates, Status.InsufficientStorage,
+    Status.NotExtended, Status.NetworkAuthenticationRequired
   )
 
   def genOutputMeta: Gen[Output.Meta] =
@@ -122,6 +141,8 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers {
   implicit def arbitraryHeaders: Arbitrary[Headers] = Arbitrary(genHeaders)
 
   implicit def arbitraryCookies: Arbitrary[Cookies] = Arbitrary(genCookies)
+
+  implicit def arbitraryParams: Arbitrary[Params] = Arbitrary(genParams)
 
   implicit def arbitraryOptionalNonEmptyString: Arbitrary[OptionalNonEmptyString] =
     Arbitrary(genOptionalNonEmptyString)

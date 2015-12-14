@@ -3,8 +3,12 @@ package io.finch
 import java.util.UUID
 
 import cats.Eval
-import com.twitter.finagle.http.Method
-import com.twitter.util.{Base64StringEncoder, Future}
+import com.twitter.concurrent.AsyncStream
+import com.twitter.finagle.http.{Cookie, Method, Request}
+import com.twitter.finagle.http.exp.Multipart.FileUpload
+import com.twitter.finagle.netty3.ChannelBufferBuf
+import com.twitter.io.{Buf, Charsets}
+import com.twitter.util.{Base64StringEncoder, Future, Try}
 import io.finch.internal.TooFastString
 import shapeless._
 
@@ -13,7 +17,11 @@ import shapeless._
  */
 trait Endpoints {
 
-  private[this] val hnilFutureOutput: Eval[Future[Output[HNil]]] = Eval.now(Future.value(Output.payload(HNil)))
+  @deprecated("RequestReaders are now Endpoints", "0.10.0")
+  type RequestReader[A] = Endpoint[A]
+
+  private[this] val hnilFutureOutput: Eval[Future[Output[HNil]]] =
+    Eval.now(Future.value(Output.payload(HNil)))
 
   type Endpoint0 = Endpoint[HNil]
   type Endpoint2[A, B] = Endpoint[A :: B :: HNil]
@@ -37,7 +45,8 @@ trait Endpoints {
   implicit def booleanToMatcher(b: Boolean): Endpoint0 = new Matcher(b.toString)
 
   /**
-   * An universal extractor that extracts some value of type `A` if it's possible to fetch the value from the string.
+   * An universal extractor that extracts some value of type `A` if it's possible to fetch the value
+   * from the string.
    */
   case class Extractor[A](name: String, f: String => Option[A]) extends Endpoint[A] {
     def apply(input: Input): Endpoint.Result[A] =
@@ -157,94 +166,238 @@ trait Endpoints {
     override def toString: String = s"${m.toString().toUpperCase} /${r.toString}"
   }
 
-  private[this] def streaming[A](r: Endpoint[A]): Endpoint[A] = new Endpoint[A] {
-    def apply(input: Input): Endpoint.Result[A] =
-      if (input.request.isChunked) r(input)
-      else None
-
-    override def toString: String = s"streaming:${r.toString}"
-  }
-
   /**
-   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The resulting [[Endpoint]]
-   * succeeds on the request only if its method is `GET` and the underlying router succeeds on it.
+   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
+   * resulting [[Endpoint]] succeeds on the request only if its method is `GET` and the underlying
+   * endpoint succeeds on it.
    */
   def get[A]: Endpoint[A] => Endpoint[A] = method(Method.Get)
 
   /**
-   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The resulting [[Endpoint]]
-   * succeeds on the request only if its method is `POST` and the underlying router succeeds on it.
+   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
+   * resulting [[Endpoint]] succeeds on the request only if its method is `POST` and the underlying
+   * endpoint succeeds on it.
    */
   def post[A]: Endpoint[A] => Endpoint[A] = method(Method.Post)
 
   /**
-   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The resulting [[Endpoint]]
-   * succeeds on the request only if its method is `PATCH` and the underlying router succeeds on it.
+   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
+   * resulting [[Endpoint]] succeeds on the request only if its method is `PATCH` and the underlying
+   * endpoint succeeds on it.
    */
   def patch[A]: Endpoint[A] => Endpoint[A] = method(Method.Patch)
 
   /**
-   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The resulting [[Endpoint]]
-   * succeeds on the request only if its method is `DELETE` and the underlying router succeeds on it.
+   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
+   * resulting [[Endpoint]] succeeds on the request only if its method is `DELETE` and the
+   * underlying endpoint succeeds on it.
    */
   def delete[A]: Endpoint[A] => Endpoint[A] = method(Method.Delete)
 
   /**
-   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The resulting [[Endpoint]]
-   * succeeds on the request only if its method is `HEAD` and the underlying router succeeds on it.
+   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
+   * resulting [[Endpoint]] succeeds on the request only if its method is `HEAD` and the underlying
+   * endpoint succeeds on it.
    */
   def head[A]: Endpoint[A] => Endpoint[A] = method(Method.Head)
 
   /**
-   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The resulting [[Endpoint]]
-   * succeeds on the request only if its method is `OPTIONS` and the underlying router succeeds on it.
+   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
+   * resulting [[Endpoint]] succeeds on the request only if its method is `OPTIONS` and the
+   * underlying endpoint succeeds on it.
    */
   def options[A]: Endpoint[A] => Endpoint[A] = method(Method.Options)
 
   /**
-   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The resulting [[Endpoint]]
-   * succeeds on the request only if its method is `PUT` and the underlying router succeeds on it.
+   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
+   * resulting [[Endpoint]] succeeds on the request only if its method is `PUT` and the underlying
+   * endpoint succeeds on it.
    */
   def put[A]: Endpoint[A] => Endpoint[A] = method(Method.Put)
 
   /**
-   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The resulting [[Endpoint]]
-   * succeeds on the request only if its method is `CONNECT` and the underlying router succeeds on it.
+   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
+   * resulting [[Endpoint]] succeeds on the request only if its method is `CONNECT` and the
+   * underlying endpoint succeeds on it.
    */
   def connect[A]: Endpoint[A] => Endpoint[A] = method(Method.Connect)
 
   /**
-   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The resulting [[Endpoint]]
-   * succeeds on the request only if its method is `TRACE` and the underlying router succeeds on it.
+   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
+   * resulting [[Endpoint]] succeeds on the request only if its method is `TRACE` and the underlying
+   * router endpoint on it.
    */
   def trace[A]: Endpoint[A] => Endpoint[A] = method(Method.Trace)
 
-  /**
-   * A combinator that wraps the given [[Endpoint]] with two additional checks: an HTTP method and
-   * whether or not the incoming request chunked (streamed).
-   *
-   * The resulting [[Endpoint]] succeeds on the request only if its method is `POST`, it's chunked,
-   * and the underlying endpoint succeeds on it as well.
-   */
-  def streamingPost[A]: Endpoint[A] => Endpoint[A] = e => method[A](Method.Post)(streaming(e))
+  // Helper functions.
+  private[this] def requestParam(param: String)(req: Request): Option[String] =
+    req.params.get(param)
+      .orElse(req.multipart.flatMap(m => m.attributes.get(param).flatMap(_.headOption)))
+
+  private[this] def requestParams(params: String)(req: Request): Seq[String] =
+    req.params.getAll(params).toList.flatMap(_.split(","))
+
+  private[this] def requestHeader(header: String)(req: Request): Option[String] =
+    req.headerMap.get(header)
+
+  private[this] def requestCookie(cookie: String)(req: Request): Option[Cookie] =
+    req.cookies.get(cookie)
+
+  private[this] def requestBody(req: Request): Option[String] =
+    req.contentLength match {
+      case Some(n) if n > 0 =>
+        val buffer = ChannelBufferBuf.Owned.extract(req.content)
+        // Note: We usually have an array underneath the ChannelBuffer (at least on Netty 3).
+        // This check is mostly about a safeguard.
+        // TODO: Use proper charset
+        if (buffer.hasArray) Some(new String(buffer.array(), 0, buffer.readableBytes(), "UTF-8"))
+        else Some(buffer.toString(Charsets.Utf8))
+      case _ => None
+    }
+
+  private[this] def requestUpload(upload: String)(req: Request): Option[FileUpload] =
+    Try(req.multipart).getOrElse(None).flatMap(m => m.files.get(upload).flatMap(fs => fs.headOption))
+
+  private[this] def option[A](item: items.RequestItem)(f: Request => A): Endpoint[A] =
+    Endpoint.embed(item)(input =>
+      Some((input, Eval.now(Future.value(Output.payload(f(input.request))))))
+    )
+
+  private[this] def exists[A](item: items.RequestItem)(f: Request => Option[A]): Endpoint[A] =
+    Endpoint.embed(item)(input =>
+      f(input.request).map(s => (input, Eval.now(Future.value(Output.payload(s)))))
+    )
+
+  private[this] def matches[A]
+    (item: items.RequestItem)
+    (p: Request => Boolean)
+    (f: Request => A): Endpoint[A] = Endpoint.embed(item)(input =>
+      if (p(input.request)) Some((input, Eval.now(Future.value(Output.payload(f(input.request))))))
+      else None
+    )
 
   /**
-   * A combinator that wraps the given [[Endpoint]] with two additional checks: an HTTP method and
-   * whether or not the incoming request chunked (streamed).
-   *
-   * The resulting [[Endpoint]] succeeds on the request only if its method is `PUT`, it's chunked,
-   * and the underlying endpoint succeeds on it as well.
+   * Creates an [[Endpoint]] that reads an optional query-string param `name` from the request into
+   * an `Option`.
    */
-  def streamingPut[A]: Endpoint[A] => Endpoint[A] = e => method[A](Method.Put)(streaming(e))
+  def paramOption(name: String): Endpoint[Option[String]] =
+    option(items.ParamItem(name))(requestParam(name)).noneIfEmpty
 
   /**
-   * A combinator that wraps the given [[Endpoint]] with two additional checks: an HTTP method and
-   * whether or not the incoming request chunked (streamed).
-   *
-   * The resulting [[Endpoint]] succeeds on the request only if its method is `PATCH`, it's chunked,
-   * and the underlying endpoint succeeds on it as well.
+   * Creates an always-match [[Endpoint]] that reads a required query-string param `name` from the
+   * request or raises an [[Error.NotPresent]] exception when the param is missing; an
+   * [[Error.NotValid]] exception is the param is empty.
    */
-  def streamingPatch[A]: Endpoint[A] => Endpoint[A] = e => method[A](Method.Patch)(streaming(e))
+  def param(name: String): Endpoint[String] =
+    paramOption(name).failIfNone.shouldNot(beEmpty)
+
+  /**
+   * Creates an [[Endpoint]] that only matches the requests that contain a given query-string
+   * param `name`.
+   */
+  def paramExists(name: String): Endpoint[String] =
+    exists(items.ParamItem(name))(requestParam(name))
+
+  /**
+   * Creates an [[Endpoint]] that reads an optional (in a meaning that a resulting
+   * `Seq` may be empty) multi-value query-string param `name` from the request into a `Seq`.
+   */
+  def params(name: String): Endpoint[Seq[String]] =
+    option(items.ParamItem(name))(i => requestParams(name)(i).filter(_.nonEmpty))
+
+  /**
+   * Creates an [[Endpoint]] that reads a required (in a meaning that a resulting `Seq` will have at
+   * least one element) multi-value query-string param `name` from the request into a `Seq` or
+   * raises a [[Error.NotPresent]] exception when the params are missing or empty.
+   */
+  def paramsNonEmpty(name: String): Endpoint[Seq[String]] =
+    option(items.ParamItem(name))(requestParams(name)).mapAsync({
+      case Nil => Future.exception(Error.NotPresent(items.ParamItem(name)))
+      case unfiltered => Future.value(unfiltered.filter(_.nonEmpty))
+    }).shouldNot("be empty")(_.isEmpty)
+
+  /**
+   * Creates an [[Endpoint]] that reads a required HTTP header `name` from the request or raises an
+   * [[Error.NotPresent]] exception when the header is missing.
+   */
+  def header(name: String): Endpoint[String] =
+    option(items.HeaderItem(name))(requestHeader(name)).failIfNone.shouldNot(beEmpty)
+
+  /**
+   * Creates an [[Endpoint]] that reads an optional HTTP header `name` from the request into an
+   * `Option`.
+   */
+  def headerOption(name: String): Endpoint[Option[String]] =
+    option(items.HeaderItem(name))(requestHeader(name)).noneIfEmpty
+
+  /**
+   * Creates an [[Endpoint]] that only matches the requests that contain a given header `name`.
+   */
+  def headerExists(name: String): Endpoint[String] =
+    exists(items.HeaderItem(name))(requestHeader(name))
+
+  /**
+   * An [[Endpoint]] that reads a binary request body, interpreted as a `Array[Byte]`, into an
+   * `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
+   */
+  val binaryBodyOption: Endpoint[Option[Array[Byte]]] =
+    matches(items.BodyItem)(!_.isChunked)(req =>
+      req.contentLength match {
+        case Some(n) if n > 0 => Some(Buf.ByteArray.Shared.extract(req.content))
+        case _ => None
+      }
+    )
+
+  /**
+   * An [[Endpoint]] that reads a required binary request body, interpreted as a `Array[Byte]`, or
+   * throws a [[Error.NotPresent]] exception. The returned [[Endpoint]] only matches non-chunked
+   * (non-streamed) requests.
+   */
+  val binaryBody: Endpoint[Array[Byte]] = binaryBodyOption.failIfNone
+
+  /**
+   * An [[Endpoint]] that reads an optional request body, interpreted as a `String`, into an
+   * `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
+   */
+  val bodyOption: Endpoint[Option[String]] = matches(items.BodyItem)(!_.isChunked)(requestBody)
+
+  /**
+   * An [[Endpoint]] that reads the required request body, interpreted as a `String`, or throws an
+   * [[Error.NotPresent]] exception. The returned [[Endpoint]] only matches non-chunked
+   * (non-streamed) requests.
+   */
+  val body: Endpoint[String] = bodyOption.failIfNone
+
+  /**
+   * An [[Endpoint]] that reads a required chunked streaming binary body, interpreted as a
+   * `AsyncStream[Buf]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
+   */
+  val asyncBody: Endpoint[AsyncStream[Buf]] =
+    matches(items.BodyItem)(_.isChunked)(req => AsyncStream.fromReader(req.reader))
+
+  /**
+   * Creates an [[Endpoint]] that reads an optional HTTP cookie from the request into an `Option`.
+   */
+  def cookieOption(name: String): Endpoint[Option[Cookie]] =
+    option(items.CookieItem(name))(requestCookie(name))
+
+  /**
+   * Creates an [[Endpoint]] that reads a required cookie from the request or raises an
+   * [[Error.NotPresent]] exception when the cookie is missing.
+   */
+  def cookie(name: String): Endpoint[Cookie] = cookieOption(name).failIfNone
+
+  /**
+   * Creates an [[Endpoint]] that reads an optional file upload from a multipart/form-data request
+   * into an `Option`.
+   */
+  def fileUploadOption(name: String): Endpoint[Option[FileUpload]] =
+    matches(items.ParamItem(name))(!_.isChunked)(requestUpload(name))
+
+  /**
+   * Creates an [[Endpoint]] that reads a required file upload from a multipart/form-data request.
+   */
+  def fileUpload(name: String): Endpoint[FileUpload] = fileUploadOption(name).failIfNone
 
   /**
    * An [[Exception]] representing a failed authorization with [[BasicAuth]].
@@ -261,7 +414,9 @@ trait Endpoints {
     private[this] val expected = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
 
     def apply[A](e: Endpoint[A]): Endpoint[A] = new Endpoint[A] {
-      private[this] val failedOutput: Eval[Future[Output[A]]] = Eval.now(Future.value(Unauthorized(BasicAuthFailed)))
+      private[this] val failedOutput: Eval[Future[Output[A]]] =
+        Eval.now(Future.value(Unauthorized(BasicAuthFailed)))
+
       def apply(input: Input): Endpoint.Result[A] =
         input.request.authorization.flatMap {
           case `expected` => e(input)
@@ -271,4 +426,6 @@ trait Endpoints {
       override def toString: String = s"BasicAuth($e)"
     }
   }
+
+  private[finch] val beEmpty: ValidationRule[String] = ValidationRule("be empty")(_.isEmpty)
 }

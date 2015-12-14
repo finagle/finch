@@ -22,7 +22,7 @@ import io.finch._
  */
 object Main extends App {
 
-  val div: Endpoint[String] = post(int / int) { (a: Int, b: Int) =>
+  val div: Endpoint[String] = post(int :: int) { (a: Int, b: Int) =>
     Ok((a / b).toString)
   } handle {
     case e: ArithmeticException => BadRequest(e)
