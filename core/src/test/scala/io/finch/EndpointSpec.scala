@@ -51,7 +51,7 @@ class EndpointSpec extends FinchSpec {
     check { i: Input =>
       val expected = i.headOption.map(s => Ok(s.length))
       string.map(s => s.length)(i).output === expected &&
-      string.embedFlatMap(s => Future.value(s.length))(i).output === expected &&
+      string.mapAsync(s => Future.value(s.length))(i).output === expected &&
       string.ap[Int](/.map(_ => s => s.length))(i).output == expected
     }
   }
@@ -65,12 +65,12 @@ class EndpointSpec extends FinchSpec {
         .withCharset(Some("F"))
 
     check { i: Input =>
-      string.femap(s => Future.value(expected(s.length)))(i).output === i.headOption.map(s => expected(s.length))
+      string.mapOutputAsync(s => Future.value(expected(s.length)))(i).output === i.headOption.map(s => expected(s.length))
     }
 
     check { i: Input =>
       val e = i.path.dropRight(1).map(s => s: Endpoint0).foldLeft[Endpoint0](/)((acc, ee) => acc / ee)
-      val v = (e / string).femap(s => Future.value(expected(s.length)))(i)
+      val v = (e / string).mapOutputAsync(s => Future.value(expected(s.length)))(i)
       v.output === i.path.lastOption.map(s => expected(s.length))
     }
   }
@@ -165,7 +165,7 @@ class EndpointSpec extends FinchSpec {
     check { (s: String, t: String) => ((s: Endpoint0) | (t: Endpoint0)).toString === s"($s|$t)" }
     check { (s: String, t: String) => ((s: Endpoint0) / (t: Endpoint0)).toString === s"$s/$t" }
     check { s: String => (s: Endpoint0).ap[String](*.map(_ => _ => "foo")).toString === s }
-    check { (s: String, t: String) => (s: Endpoint0).embedFlatMap(_ => Future.value(t)).toString === s }
+    check { (s: String, t: String) => (s: Endpoint0).mapAsync(_ => Future.value(t)).toString === s }
 
     *.toString shouldBe "*"
     /.toString shouldBe ""
@@ -225,7 +225,7 @@ class EndpointSpec extends FinchSpec {
     val i = Input(null, Seq("a", "10"))
     var flag = false
 
-    val endpointWithFailedFuture = "a".embedFlatMap { nil =>
+    val endpointWithFailedFuture = "a".mapAsync { nil =>
       Future { flag = true; nil }
     }
 

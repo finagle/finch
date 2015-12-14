@@ -63,12 +63,12 @@ trait Endpoint[A] { self =>
    * Maps this endpoint to the given function `A => B`.
    */
   def map[B](fn: A => B): Endpoint[B] =
-    embedFlatMap(fn.andThen(Future.value))
+    mapAsync(fn.andThen(Future.value))
 
   /**
    * Maps this endpoint to the given function `A => Future[B]`.
    */
-  def embedFlatMap[B](fn: A => Future[B]): Endpoint[B] = new Endpoint[B] {
+  def mapAsync[B](fn: A => Future[B]): Endpoint[B] = new Endpoint[B] {
     def apply(input: Input): Endpoint.Result[B] =
       self(input).map {
         case (remainder, output) =>
@@ -78,22 +78,19 @@ trait Endpoint[A] { self =>
     override def toString = self.toString
   }
 
+  @deprecated("Use Endpoint.mapAsync instead", "0.9.3")
+  def embedFlatMap[B](fn: A => Future[B]): Endpoint[B] = mapAsync(fn)
+
   /**
    * Maps this endpoint to the given function `A => Output[B]`.
    */
-  private[finch] def emap[B](fn: A => Output[B]): Endpoint[B] =
-    femap(fn.andThen(Future.value))
-
-  /**
-   * Maps this endpoint to the given function `A => Output[Future[B]]`.
-   */
-  private[finch] def efmap[B](fn: A => Output[Future[B]]): Endpoint[B] =
-    femap(fn.andThen(ofb => ofb.traverse(identity)))
+  def mapOutput[B](fn: A => Output[B]): Endpoint[B] =
+    mapOutputAsync(fn.andThen(Future.value))
 
   /**
    * Maps this endpoint to the given function `A => Future[Output[B]]`.
    */
-  private[finch] def femap[B](fn: A => Future[Output[B]]): Endpoint[B] = new Endpoint[B] {
+  def mapOutputAsync[B](fn: A => Future[Output[B]]): Endpoint[B] = new Endpoint[B] {
     def apply(input: Input): Endpoint.Result[B] =
       self(input).map {
         case (remainder, output) =>
