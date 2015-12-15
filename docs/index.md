@@ -14,9 +14,9 @@ build.sbt:
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "finch-core" % "0.9.1",
-  "com.github.finagle" %% "finch-circe" % "0.9.1",
-  "io.circe" %% "circe-generic" % "0.2.0"
+  "com.github.finagle" %% "finch-core" % "0.9.2",
+  "com.github.finagle" %% "finch-circe" % "0.9.2",
+  "io.circe" %% "circe-generic" % "0.2.1"
 )
 ```
 
@@ -67,14 +67,14 @@ object Main extends App {
 > I am currently re-writing a NodeJS service in Finch and the code is so much cleaner and readable and about two thirds
 > the amount of lines. Really love this.
 
-### Finch Talks/Slides
+### Finch Talks
 
-* [An introduction to Finch at Scala BASE](https://rpless.github.io/finch-intro/) by
-  [@ryan_plessner](https://twitter.com/ryan_plessner) on Sep 2015
-* [Finch Workshop at FinagleCon](http://vkostyukov.ru/slides/finch-101/) by [@vkostyukov](https://twitter.com/vkostyukov)
-  on Aug 2015
-* [Finch and Shapeless at FinagleCon](https://meta.plasm.us/slides/finagle/finch-and-shapeless/) by
-  [@travisbrown](https://twitter.com/travisbrown) on Aug 2015
+* [Finch: Your REST API as a Monad](https://skillsmatter.com/skillscasts/6876-finch-your-rest-api-as-a-monad) by
+  [@vkostyukov](https://twitter.com/vkostyukov) on Dec 2015
+* [On the history of Finch](https://www.youtube.com/watch?v=bbzRTxGDFhs) by
+  [@vkostyukov](https://twitter.com/vkostyukov) on Apr 2015
+* [Some possible features for Finch](https://www.youtube.com/watch?v=noCyZ6B__iE)
+  [@travisbrown](https://twitter.com/travisbrown) on Apr 2015
 
 # User Guide
 
