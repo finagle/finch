@@ -29,6 +29,18 @@ trait RequestReaders {
     case None => true
   }
 
+  private val promoteAs = "None"
+
+  private def requestParamIncompletes(param: String)(req: Request): String =
+    req.params.getAll(param) match {
+      case x if x.isEmpty => promoteAs
+      case x if x.size == 1 => x.head
+      case x if x.size > 1 => x.toList.mkString(",")
+      case _ => req.params.get(param).orElse(req.multipart.flatMap(m =>
+        m.attributes.get(param).flatMap(_.headOption))).getOrElse(promoteAs)
+    }
+
+
   // Helper functions.
   private[finch] def requestParam(param: String)(req: Request): Option[String] =
     req.params.get(param).orElse(req.multipart.flatMap(m => m.attributes.get(param).flatMap(_.headOption)))
@@ -60,6 +72,8 @@ trait RequestReaders {
   def param(name: String): RequestReader[String] =
     rr(ParamItem(name))(requestParam(name)).failIfNone.shouldNot(beEmpty)
 
+  def paramIncompletes(name: String): RequestReader[String] =
+    rr(ParamItem(name))(requestParamIncompletes(name))
   /**
    * Creates a [[RequestReader]] that reads an optional query-string param `name` from the request into an `Option`.
    *

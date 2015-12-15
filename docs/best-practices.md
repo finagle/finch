@@ -1,5 +1,6 @@
 ## Best Practices
 
+* [The big picture](best-practices.md#the-big-picture)
 * [Picking a JSON library](best-practices.md#picking-a-json-library)
 * [Do not block an endpoint](best-practices.md#do-not-block-an-endpoint)
 * [Use TwitterServer](best-practices.md#use-twitterserver)
@@ -7,6 +8,22 @@
 * [Use applicative request readers](best-practices.md#use-applicative-request-readers)
 
 --
+
+### The big picture
+
+There were a lot of discussions and thoughts on "What an idiomatic Finch program look like?" (see the
+[Best Practices and Abstractions][issue263] issue and the [Future Finch][future-finch] writeup), but we're not sure we
+should end up sticking with "one-size-fits-all" style in Finch. In fact, zero lines of Finch's code were written with
+some particular style in mind, rather than reasonable composition and reuse of its building blocks. That said, Finch
+will always be a _library_ that doesn't promote any concrete style of organizing a code base (frameworks usually do
+that), but does promote composability and compile-time guarantees for its abstractions.
+
+Given that major Finch's abstractions are pretty generic, you can make them [to have any faces you like][faceless]
+as long as it makes programming fun again: some of the Finch users write [Jersey-style][diar] programs, some of them
+stick with [CRUD-style][issue263] ones.
+
+Note that all of the Finch examples are written in the "Vanilla Finch" style, when no additional levels of indirections
+are layered on top of endpoints.
 
 ### Picking a JSON library
 
@@ -25,6 +42,8 @@ class instance with new data parsed from a JSON object. In Finch, Circe's case c
 
 ```scala
 import io.finch._
+import io.finch.circe._
+import io.circe.generic.auto._
 
 case class Todo(id: UUID, title: String, completed: Boolean, order: Int)
 val patchedTodo: RequestReader[Todo => Todo] = body.as[Todo => Todo]
@@ -46,6 +65,8 @@ to which we'd need to supply some missing bits to get the final instance.
 
 ```scala
 import io.finch._
+import io.finch.circe._
+import io.circe.generic.auto._
 
 val postedTodo: RequestReader[Todo] = body.as[UUID => Todo].map(_(UUID.randomUUID()))
 val postTodo: Endpoint[Todo] = post("todos" ? postedTodo) { t: Todo =>
@@ -53,6 +74,13 @@ val postTodo: Endpoint[Todo] = post("todos" ? postedTodo) { t: Todo =>
   Ok(t)
 }
 ```
+
+By default Finch uses Circe's `Printer` to serialize JSON values into strings, which is quite convenient given that it's
+possible to _configure_ and enable some extra options (eg., to drop null keys in the output string, replace the
+`io.finch.circe._` import with `io.finch.circe.dropNullKeys._` one), but it's not the most performant printer in Circe.
+Always use [Jackson-powered printer with Circe][circe-jackson] (i.e., replace the `io.finch.circe._` import with
+`io.finch.circe.jacksonSerializer` one) unless you absolutely not happy with its output format (i.e., want to drop null
+keys).
 
 ### Do not block an endpoint
 
@@ -116,6 +144,8 @@ One of the easiest things to export is a _counters_ that captures the number of 
 
 ```scala
 import io.finch._
+import io.finch.circe._
+import io.circe.generic.auto._
 
 import com.twitter.server.TwitterServer
 import com.twitter.finagle.stats.Counter
@@ -134,6 +164,8 @@ It's also possible to export histograms over the random values (latencies, numbe
 
 ```scala
 import io.finch._
+import io.finch.circe._
+import io.circe.generic.auto._
 
 import com.twitter.server.TwitterServer
 import com.twitter.finagle.stats.Stat
@@ -158,6 +190,8 @@ since it evaluates its underlying futures concurrently.
 
 ```scala
 import io.finch._
+import io.finch.circe._
+import io.circe.generic.auto._
 
 case class Foo(i: Int, s: String)
 val foo: RequestReader[Foo] = (param("i").as[Int] :: param("s")).as[Foo]
@@ -177,8 +211,14 @@ case class Foo(i: Int, s: String)
 val foo: RequestReader[Foo] = RequestReader.derive[Foo].fromParams
 ```
 
+[issue263]: https://github.com/finagle/finch/issues/263
+[future-finch]: https://gist.github.com/vkostyukov/411a9184f44a136e2ad9
+[faceless]: http://gameofthrones.wikia.com/wiki/Faceless_Men
+[diar]: https://github.com/jeremyrsmith/dair
+[examples]: https://github.com/finagle/finch/tree/master/examples/src/main/scala/io/finch
 [circe]: https://github.com/travisbrown/circe
 [circe-performance]: https://github.com/travisbrown/circe#performance
+[circe-jackson]: https://github.com/travisbrown/circe/pull/111
 [generic-decoders]: https://meta.plasm.us/posts/2015/11/08/type-classes-and-generic-derivation/
 [incomplete-decoders]: https://meta.plasm.us/posts/2015/06/21/deriving-incomplete-type-class-instances/
 [twitter-server]: https://twitter.github.io/twitter-server/

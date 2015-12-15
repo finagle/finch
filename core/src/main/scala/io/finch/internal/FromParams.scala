@@ -26,7 +26,7 @@ object FromParams {
     fpt: FromParams[T]
   ): FromParams[FieldType[HK, HV] :: T] = new FromParams[FieldType[HK, HV] :: T] {
     def reader: RequestReader[FieldType[HK, HV] :: T] =
-      param(key.value.name).as(dh, ct).map(field[HK](_)) :: fpt.reader
+      paramIncompletes(key.value.name).as(dh,ct).map(field[HK](_)) :: fpt.reader
   }
 }
 

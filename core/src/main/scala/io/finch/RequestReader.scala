@@ -1,12 +1,12 @@
 package io.finch
 
+import shapeless.ops.record.RemoveAll
 import scala.reflect.ClassTag
-
 import com.twitter.finagle.http.Request
 import com.twitter.util.{Future, Return, Throw, Try}
-import io.finch.internal.FromParams
+import io.finch.internal.{PatchWithOptions, FromParams}
 import shapeless.{::, Generic, HList, HNil, LabelledGeneric}
-import shapeless.ops.function.FnToProduct
+import shapeless.ops.function.{FnFromProduct, FnToProduct}
 import shapeless.ops.hlist.Tupler
 
 /**
@@ -70,6 +70,14 @@ trait RequestReader[A] { self =>
   def withFilter(p: A => Boolean): RequestReader[A] = self.should("not fail validation")(p)
 
   /**
+   *
+   * We need a filter that accepts Future[Boolean] because if the parameters come from Future
+   * then the result will be promoted as Future[A] too.
+   * in the case of Future[A] => Future[Boolean]
+   */
+  def withFilterF(p: A => Future[Boolean]): RequestReader[A] = self.shouldF("not fail validation")(p)
+
+  /**
    * Lifts this request reader into one that always succeeds, with an empty option representing failure.
    */
   def lift: RequestReader[Option[A]] = new RequestReader[Option[A]] {
@@ -90,6 +98,12 @@ trait RequestReader[A] { self =>
     if (predicate(a)) Future.value(a)
     else Future.exception(Error.NotValid(self.item, "should " + rule))
   )
+
+  def shouldF(rule: String)(predicate: A => Future[Boolean]): RequestReader[A] = embedFlatMap(a =>
+    predicate(a) flatMap (x => if (x) Future.value(a)
+    else Future.exception(Error.NotValid(self.item, "should " + rule)))
+  )
+
 
   /**
    * Validates the result of this request reader using a `predicate`. The rule is used for error reporting.
@@ -351,10 +365,27 @@ object RequestReader {
   }
 
   class GenericDerivation[A] {
+
     def fromParams[Repr <: HList](implicit
-      gen: LabelledGeneric.Aux[A, Repr],
-      fp: FromParams[Repr]
+     gen: LabelledGeneric.Aux[A, Repr],
+     fp: FromParams[Repr]
     ): RequestReader[A] = fp.reader.map(gen.from)
+
+    def incomplete[P <: HList, C, T <: HList, R <: HList](implicit
+     ffp: FnFromProduct.Aux[P => C, A],
+     gen: LabelledGeneric.Aux[C, T],
+     removeAll: RemoveAll.Aux[T, P, (P, R)],
+     fp: FromParams[R]
+    ): RequestReader[A] =
+      fp.reader.map(r => ffp(p => gen.from(removeAll.reinsert((p, r)))))
+
+
+    def patch[R <: HList, O <: HList](implicit
+     gen: LabelledGeneric.Aux[A, R],
+     patch: PatchWithOptions.Aux[R, O],
+     fp: FromParams[O]
+    ): RequestReader[A => A] =
+      fp.reader.map(o => a => gen.from(patch(gen.to(a), o)))
   }
 
   /**

@@ -19,7 +19,7 @@ class FinchUserService(implicit
   }
 
   val getUsers: Endpoint[List[User]] = get("users") {
-    Ok(db.all)
+    db.all.map(Ok)
   }
 
   val postUser: Endpoint[Unit] = post("users" ? body.as[NewUserInfo]) { u: NewUserInfo =>
@@ -31,7 +31,7 @@ class FinchUserService(implicit
   }
 
   val putUser: Endpoint[Unit] = put("users" ? body.as[User]) { u: User =>
-    NoContent(db.update(u))
+    db.update(u).map(NoContent)
   }
 
   val backend: Service[Request, Response] = (

@@ -19,19 +19,19 @@ trait LowPriorityMapperConversions {
 
   implicit def mapperFromOutputFunction[A, B](f: A => Output[B]): Mapper.Aux[A, B] = new Mapper[A] {
     type Out = B
-    def apply(r: Endpoint[A]): Endpoint[Out] = r.emap(f)
+    def apply(r: Endpoint[A]): Endpoint[Out] = r.mapOutput(f)
   }
 
   implicit def mapperFromOutputFutureFunction[A, B](f: A => Output[Future[B]]): Mapper.Aux[A, B] =
     new Mapper[A] {
       type Out = B
-      def apply(r: Endpoint[A]): Endpoint[Out] = r.efmap(f)
+      def apply(r: Endpoint[A]): Endpoint[Out] = r.mapOutputAsync(f.andThen(ofb => ofb.traverse(identity)))
     }
 
   implicit def mapperFromFutureOutputFunction[A, B](f: A => Future[Output[B]]): Mapper.Aux[A, B] =
     new Mapper[A] {
       type Out = B
-      def apply(r: Endpoint[A]): Endpoint[Out] = r.femap(f)
+      def apply(r: Endpoint[A]): Endpoint[Out] = r.mapOutputAsync(f)
     }
 }
 
@@ -41,24 +41,24 @@ trait HighPriorityMapperConversions extends LowPriorityMapperConversions {
     ev: OB <:< Output[B]
   ): Mapper.Aux[A, B] = new Mapper[A] {
     type Out = B
-    def apply(r: Endpoint[A]): Endpoint[Out] = r.emap(value => ev(ftp(f)(value)))
+    def apply(r: Endpoint[A]): Endpoint[Out] = r.mapOutput(value => ev(ftp(f)(value)))
   }
 
   implicit def mapperFromOutputValue[A](o: => Output[A]): Mapper.Aux[HNil, A] = new Mapper[HNil] {
     type Out = A
-    def apply(r: Endpoint[HNil]): Endpoint[Out] = r.emap(_ => o)
+    def apply(r: Endpoint[HNil]): Endpoint[Out] = r.mapOutput(_ => o)
   }
 
   implicit def mapperFromOutputFutureValue[A](o: => Output[Future[A]]): Mapper.Aux[HNil, A] =
     new Mapper[HNil] {
       type Out = A
-      def apply(r: Endpoint[HNil]): Endpoint[Out] = r.efmap(_ => o)
+      def apply(r: Endpoint[HNil]): Endpoint[Out] = r.mapOutputAsync(_ => o.traverse(identity))
     }
 
   implicit def mapperFromFutureOutputValue[A](o: => Future[Output[A]]): Mapper.Aux[HNil, A] =
     new Mapper[HNil] {
       type Out = A
-      def apply(r: Endpoint[HNil]): Endpoint[Out] = r.femap(_ => o)
+      def apply(r: Endpoint[HNil]): Endpoint[Out] = r.mapOutputAsync(_ => o)
     }
 }
 
@@ -68,7 +68,8 @@ object Mapper extends HighPriorityMapperConversions {
      ev: OFB <:< Output[Future[B]]
   ): Mapper.Aux[A, B] = new Mapper[A] {
     type Out = B
-    def apply(r: Endpoint[A]): Endpoint[Out] = r.efmap(value => ev(ftp(f)(value)))
+    def apply(r: Endpoint[A]): Endpoint[Out] =
+      r.mapOutputAsync(value => ev(ftp(f)(value)).traverse(identity))
   }
 
   implicit def mapperFromFutureOutputHFunction[A, B, F, FOB](f: F)(implicit
@@ -76,6 +77,6 @@ object Mapper extends HighPriorityMapperConversions {
     ev: FOB <:< Future[Output[B]]
   ): Mapper.Aux[A, B] = new Mapper[A] {
     type Out = B
-    def apply(r: Endpoint[A]): Endpoint[Out] = r.femap(value => ev(ftp(f)(value)))
+    def apply(r: Endpoint[A]): Endpoint[Out] = r.mapOutputAsync(value => ev(ftp(f)(value)))
   }
 }
