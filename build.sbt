@@ -159,7 +159,7 @@ lazy val argonaut = project
 lazy val jackson = project
   .settings(moduleName := "finch-jackson")
   .settings(allSettings)
-  .settings(libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.6.3")
+  .settings(libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.5.3")
   .dependsOn(core, jsonTest % "test")
 
 lazy val json4s = project
