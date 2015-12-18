@@ -101,6 +101,7 @@ Adopters
 --------
 * [Despegar] (http://www.despegar.com)
 * [Globo.com] (http://globo.com)
+* [Glopart] (https://glopart.ru)
 * [Hotel Urbano] (http://www.hotelurbano.com)
 * [Konfettin](http://konfettin.ru)
 * [JusBrasil](http://www.jusbrasil.com.br)
