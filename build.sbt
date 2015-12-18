@@ -193,6 +193,11 @@ lazy val oauth2 = project
   ))
   .dependsOn(core)
 
+lazy val streaming = project
+  .settings(moduleName := "finch-streaming")
+  .settings(allSettings)
+  .dependsOn(core)
+
 lazy val examples = project
   .settings(moduleName := "finch-examples")
   .settings(allSettings)
@@ -205,7 +210,7 @@ lazy val examples = project
       "com.twitter" %% "twitter-server" % "1.16.0"
     )
   )
-  .dependsOn(core, circe)
+  .dependsOn(core, circe, streaming)
 
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")
