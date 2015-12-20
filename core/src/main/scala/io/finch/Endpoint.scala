@@ -12,9 +12,9 @@ import shapeless.ops.adjoin.Adjoin
  * An `Endpoint` represents the HTTP endpoint.
  *
  * I is well known and widely adopted in Finagle that "Your Server as a Function" (i.e., `Request => Future[Response]`.
- * In a REST API setting this function may be viewed as `Request =1=> (A =2=> Future[B]) =3=> Future[Response]`, where
- * transformation `1` is request decoding (deserialization), transformation `2` - is business logic and transformation
- * `3` is- response encoding (serialization). The only interesting part here is transformation `2`
+ * In a REST/HTTP API setting this function may be viewed as `Request =1=> (A =2=> Future[B]) =3=> Future[Response]`,
+ * where transformation `1` is request decoding (deserialization), transformation `2` - is business logic and
+ * transformation `3` is- response encoding (serialization). The only interesting part here is transformation `2`
  * (i.e., `A => Future[B]`), which represents a bossiness logic of an application.
  *
  * An `Endpoint` transformation (`map`, `embedFlatMap`, etc.) encodes the business logic, while the rest of Finch
