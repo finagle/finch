@@ -3,7 +3,7 @@
 </p>
 
 Finch is a thin layer of purely functional basic blocks atop of [Finagle][finagle] for
-building composable REST APIs. Its mission is to provide the developers simple and robust REST API primitives being as
+building composable HTTP APIs. Its mission is to provide the developers simple and robust HTTP primitives being as
 close as possible to the bare metal Finagle API.
 
 Badges
