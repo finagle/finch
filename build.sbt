@@ -9,7 +9,7 @@ lazy val buildSettings = Seq(
 )
 
 lazy val finagleVersion = "6.31.0"
-lazy val circeVersion = "0.3.0-SNAPSHOT"
+lazy val circeVersion = "0.2.1"
 lazy val shapelessVersion = "2.2.5"
 lazy val catsVersion = "0.3.0"
 
@@ -178,8 +178,7 @@ lazy val circe = project
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-jawn" % circeVersion,
-      "io.circe" %% "circe-generic" % circeVersion % "test",
-      "io.circe" %% "circe-jackson" % circeVersion
+      "io.circe" %% "circe-generic" % circeVersion % "test"
     )
   )
   .dependsOn(core, jsonTest % "test")
