@@ -35,11 +35,6 @@ trait LowPriorityEncodeResponseInstances {
 
 object EncodeResponse extends LowPriorityEncodeResponseInstances {
 
-  implicit val encodeMap: EncodeResponse[Map[String, String]] =
-    EncodeResponse("text/plain")(map =>
-      Buf.Utf8(map.toSeq.map(kv => kv._1 + ":" + kv._2).mkString("\n"))
-    )
-
   implicit val encodeString: EncodeResponse[String] =
     fromString[String]("text/plain")(identity)
 

@@ -82,6 +82,7 @@ object Main extends App {
 * [RequestReaders](request.md)
 * [Authentication](auth.md)
 * [JSON](json.md)
+* [Cookbook](cookbook.md)
 * [Best Practices](best-practices.md)
 
 [finagle]: http://twitter.github.io/finagle/

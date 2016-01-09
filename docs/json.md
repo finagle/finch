@@ -102,5 +102,5 @@ implicit val formats: Formats = DefaultFormats ++ JodaTimeSerializers.all
 [circe-jackson]: https://github.com/travisbrown/circe/pull/111
 
 --
-Read Next: [Best Practices](best-practices.md)
+Read Next: [Cookbook](cookbook.md)
 
