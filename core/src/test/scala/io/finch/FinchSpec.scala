@@ -47,25 +47,29 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers {
     Status.InsufficientStorage, Status.NotExtended, Status.NetworkAuthenticationRequired
   )
 
-  def genOutputContext: Gen[(Status, Map[String, String], Seq[Cookie], Option[String], Option[String])] =
+  def genOutputMeta: Gen[Output.Meta] =
     for {
       s <- genStatus
       ct <- genOptionalNonEmptyString
       ch <- genOptionalNonEmptyString
-    } yield (s, Map.empty[String, String], Seq.empty[Cookie], ct.o, ch.o)
+    } yield Output.Meta(s, Map.empty[String, String], Seq.empty[Cookie], ct.o, ch.o)
+
+  def genEmptyOutput: Gen[Output.Empty] = for {
+    m <- genOutputMeta
+  } yield Output.Empty(m)
 
   def genFailureOutput: Gen[Output.Failure] = for {
-    (s, hs, cs, ct, ch) <- genOutputContext
-    m <- Gen.alphaStr
-  } yield Output.Failure(new Exception(m), s, hs.toMap, cs.toSeq, ct, ch)
+    m <- genOutputMeta
+    s <- Gen.alphaStr
+  } yield Output.Failure(new Exception(s), m)
 
   def genPayloadOutput[A: Arbitrary]: Gen[Output.Payload[A]] = for {
-    (s, hs, cs, ct, ch) <- genOutputContext
+    m <- genOutputMeta
     a <- Arbitrary.arbitrary[A]
-  } yield Output.Payload(a, s, hs.toMap, cs.toSeq, ct, ch)
+  } yield Output.Payload(a, m)
 
   def genOutput[A: Arbitrary]: Gen[Output[A]] = Gen.oneOf(
-    genPayloadOutput[A], genFailureOutput
+    genPayloadOutput[A], genFailureOutput, genEmptyOutput
   )
 
   def genMethod: Gen[Method] = Gen.oneOf(
@@ -108,7 +112,8 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers {
     }
   )
 
-  implicit def arbitraryInput: Arbitrary[Input] = Arbitrary(arbitraryRequest.arbitrary.map(Input.apply))
+  implicit def arbitraryInput: Arbitrary[Input] =
+    Arbitrary(arbitraryRequest.arbitrary.map(Input.apply))
 
   implicit def arbitraryUUID: Arbitrary[UUID] = Arbitrary(Gen.uuid)
 
@@ -118,11 +123,15 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers {
 
   implicit def arbitraryCookies: Arbitrary[Cookies] = Arbitrary(genCookies)
 
-  implicit def arbitraryOptionalNonEmptyString: Arbitrary[OptionalNonEmptyString] = Arbitrary(genOptionalNonEmptyString)
+  implicit def arbitraryOptionalNonEmptyString: Arbitrary[OptionalNonEmptyString] =
+    Arbitrary(genOptionalNonEmptyString)
 
   implicit def arbitraryFailureOutput: Arbitrary[Output.Failure] = Arbitrary(genFailureOutput)
 
-  implicit def arbitraryPayloadOutput[A: Arbitrary]: Arbitrary[Output.Payload[A]] = Arbitrary(genPayloadOutput[A])
+  implicit def arbitraryEmptyOutput: Arbitrary[Output.Empty] = Arbitrary(genEmptyOutput)
+
+  implicit def arbitraryPayloadOutput[A: Arbitrary]: Arbitrary[Output.Payload[A]] =
+    Arbitrary(genPayloadOutput[A])
 
   implicit def arbitraryOutput[A: Arbitrary]: Arbitrary[Output[A]] = Arbitrary(genOutput[A])
 }

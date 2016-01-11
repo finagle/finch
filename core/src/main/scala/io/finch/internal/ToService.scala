@@ -42,8 +42,8 @@ trait LowPriorityToServiceInstances {
     def apply(endpoint: Endpoint[A]): Service[Request, Response] = f(endpoint)
   }
 
-  private[finch] val basicEndpointHandler: PartialFunction[Throwable, Output.Failure] = {
-    case e: io.finch.Error => Output.Failure(e, Status.BadRequest)
+  private[finch] val basicEndpointHandler: PartialFunction[Throwable, Output[Nothing]] = {
+    case e: io.finch.Error => Output.failure(e, Status.BadRequest)
   }
 
   /**

@@ -1,5 +1,6 @@
 package io.finch.benchmarks.service
 
+import com.twitter.finagle.http
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.Service
 import io.finch._
@@ -23,7 +24,8 @@ class FinchUserService(implicit
   }
 
   val postUser: Endpoint[Unit] = post("users" ? body.as[NewUserInfo]) { u: NewUserInfo =>
-    db.add(u.name, u.age).map(id => Created(()).withHeader("Location" -> s"/users/$id"))
+      db.add(u.name, u.age)
+        .map(id => Output.unit(http.Status.Created).withHeader("Location" -> s"/users/$id"))
   }
 
   val deleteUser: Endpoint[String] = delete("users") {
@@ -31,7 +33,7 @@ class FinchUserService(implicit
   }
 
   val putUser: Endpoint[Unit] = put("users" ? body.as[User]) { u: User =>
-    db.update(u).map(NoContent)
+    db.update(u).map(_ => NoContent[Unit])
   }
 
   val backend: Service[Request, Response] = (
