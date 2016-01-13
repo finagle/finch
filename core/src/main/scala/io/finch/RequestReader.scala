@@ -100,7 +100,7 @@ trait RequestReader[A] { self =>
    * @return a request reader that will return the value of this reader if it is valid.
    *         Otherwise the future fails with a [[Error.NotValid]] error.
    */
-  def shouldNot(rule: String)(predicate: A => Boolean): RequestReader[A] = should(s"not $rule.")(x => !predicate(x))
+  def shouldNot(rule: String)(predicate: A => Boolean): RequestReader[A] = should(s"not $rule")(x => !predicate(x))
 
   /**
    * Validates the result of this request reader using a predefined `rule`. This method allows for rules to be reused
