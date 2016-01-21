@@ -1,7 +1,6 @@
 package io.finch
 
 import java.util.UUID
-import scala.reflect.ClassTag
 
 import com.twitter.util.{Return, Throw, Try}
 import shapeless.{::, Generic, HNil}

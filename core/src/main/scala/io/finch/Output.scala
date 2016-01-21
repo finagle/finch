@@ -8,37 +8,114 @@ import io.finch.internal.ToResponse
  * An output of [[Endpoint]].
  */
 sealed trait Output[+A] { self =>
+
+  protected def meta: Output.Meta
+  protected def withMeta(meta: Output.Meta): Output[A]
+
+  /**
+   * The status code of this [[Output]].
+   */
+  def status: Status = meta.status
+
+  /**
+   * The header map of this [[Output]].
+   */
+  def headers: Map[String, String] = meta.headers
+
+  /**
+   * The cookie list of this [[Output]].
+   */
+  def cookies: Seq[Cookie] = meta.cookies
+
+  /**
+   * The content type of this [[Output]].
+   */
+  def contentType: Option[String] = meta.contentType
+
+  /**
+   * The charset of this [[Output]].
+   */
+  def charset: Option[String] = meta.charset
+
+  /**
+   * Returns the payload value of this [[Output]] or throws an exception.
+   */
   def value: A
-  def status: Status
-  def headers: Map[String, String]
-  def cookies: Seq[Cookie]
-  def contentType: Option[String]
-  def charset: Option[String]
 
-  def map[B](fn: A => B): Output[B]
-  def flatMap[B](fn: A => Output[B]): Output[B]
-  def flatten[B](implicit ev: A <:< Output[B]): Output[B]
-  def traverse[B](fn: A => Future[B]): Future[Output[B]]
+  def map[B](fn: A => B): Output[B] = this match {
+    case Output.Payload(v, m) => Output.Payload(fn(v), m)
+    case f @ Output.Failure(_, _) => f
+    case e @ Output.Empty(_) => e
+  }
 
-  protected def copy0(
-    headers: Map[String, String] = self.headers,
-    cookies: Seq[Cookie] = self.cookies,
-    contentType: Option[String] = self.contentType,
-    charset: Option[String] = self.charset
-  ): Output[A]
+  def flatMap[B](fn: A => Output[B]): Output[B] = this match {
+    case p @ Output.Payload(v, _) =>
+      val ob = fn(v)
+      ob.withMeta(ob.meta.copy(
+        headers = ob.headers ++ p.headers,
+        cookies = ob.cookies ++ p.cookies,
+        contentType = ob.contentType.orElse(p.contentType),
+        charset = ob.charset.orElse(p.charset)
+        )
+      )
 
-  def withHeader(header: (String, String)): Output[A] = copy0(headers = headers + header)
-  def withCookie(cookie: Cookie): Output[A] = copy0(cookies = cookies :+ cookie)
-  def withContentType(contentType: Option[String]): Output[A] = copy0(contentType = contentType)
-  def withCharset(charset: Option[String]): Output[A] = copy0(charset = charset)
+    case f @ Output.Failure(_, _) => f
+    case e @ Output.Empty(_) => e
+  }
 
+  def flatten[B](implicit ev: A <:< Output[B]): Output[B] = this match {
+    case Output.Payload(v, _) => v
+    case f @ Output.Failure(_, _) => f
+    case e @ Output.Empty(_) => e
+  }
+
+  def traverse[B](fn: A => Future[B]): Future[Output[B]] = this match {
+    case p @ Output.Payload(v, _) => fn(v).map(b => p.copy(value = b))
+    case f @ Output.Failure(_, _) => Future.value(f)
+    case e @ Output.Empty(_) => Future.value(e)
+  }
+
+  /**
+   * Overrides the status code of this [[Output]].
+   */
+  def withStatus(status: Status): Output[A] =
+    withMeta(meta.copy(status = status))
+
+  /**
+   * Adds a given `header` to this [[Output]].
+   */
+  def withHeader(header: (String, String)): Output[A] =
+    withMeta(meta.copy(headers = headers + header))
+
+  /**
+   * Adds a given `cookie` to this [[Output]].
+   */
+  def withCookie(cookie: Cookie): Output[A] =
+    withMeta(meta.copy(cookies = cookies :+ cookie))
+
+  /**
+   * Overrides the content type value of this [[Output]].
+   */
+  def withContentType(contentType: Option[String]): Output[A] =
+    withMeta(meta.copy(contentType = contentType))
+
+  /**
+   * Overrides the charset value of this [[Output]].
+   */
+  def withCharset(charset: Option[String]): Output[A] =
+    withMeta(meta.copy(charset = charset))
+
+  /**
+   * Converts this [[Output]] to the HTTP response of the given `version`.
+   */
   def toResponse(version: Version = Version.Http11)(implicit
     payloadToResponse: ToResponse[A],
     failureToResponse: ToResponse[Exception]
   ): Response = {
     val rep = this match {
-      case Output.Payload(v, _, _, _, _, _) => payloadToResponse(v)
-      case Output.Failure(x, _, _, _, _, _) => failureToResponse(x)
+      case Output.Payload(v, _) => payloadToResponse(v)
+      case Output.Failure(x, _) => failureToResponse(x)
+      case Output.Empty(_) => Response()
     }
     rep.version = version
     rep.status = status
@@ -55,77 +132,62 @@ sealed trait Output[+A] { self =>
 object Output {
 
   /**
-   * Creates a new [[Output.Payload]] of type `Output[A]`.
+   * A data type representing an HTTP response metadata shared between different types of
+   * [[Output]]s.
    */
-  def payload[A](a: A, s: Status = Status.Ok): Output[A] = Payload(a, s)
-
-  /**
-   * Creates a new [[Output.Failure]] of type `Output[A]`.
-   */
-  def failure[A](cause: Exception, s: Status = Status.BadRequest): Output[A] = Failure(cause, s)
-
-  /**
-   * A successful [[Output]] that captures a payload `value`.
-   */
-  final case class Payload[A](
-    value: A,
+  private[finch] case class Meta(
     status: Status = Status.Ok,
     headers: Map[String, String] = Map.empty[String, String],
     cookies: Seq[Cookie] = Seq.empty[Cookie],
     contentType: Option[String] = None,
     charset: Option[String] = None
-  ) extends Output[A] {
+  )
 
-    def map[B](fn: A => B): Output[B] = copy(value = fn(value))
-    def flatMap[B](fn: A => Output[B]): Output[B] = {
-      val ob = fn(value)
-      ob.copy0(
-        headers = ob.headers ++ headers,
-        cookies = ob.cookies ++ cookies,
-        contentType = ob.contentType.orElse(contentType),
-        charset = ob.charset.orElse(charset)
-      )
-    }
-    def flatten[B](implicit ev: <:<[A, Output[B]]): Output[B] = value
-    def traverse[B](fn: A => Future[B]): Future[Output[B]] = fn(value).map(b => copy(value = b))
+  /**
+   * Creates a successful [[Output]] that wraps a payload `value` with given `status`.
+   */
+  final def payload[A](value: A, status: Status = Status.Ok): Output[A] =
+    Payload(value, Meta(status = status))
 
-    protected def copy0(
-      headers: Map[String, String],
-      cookies: Seq[Cookie],
-      contentType: Option[String],
-      charset: Option[String]
-    ): Output[A] = copy(
-      headers = headers, cookies = cookies, contentType = contentType, charset = charset
-    )
+  /**
+   * Creates a failure [[Output]] that wraps an exception `cause` causing this.
+   */
+  final def failure[A](cause: Exception, status: Status = Status.BadRequest): Output[A] =
+    Failure(cause, Meta(status = status))
+
+  /**
+   * Creates an empty [[Output]] of given `status`.
+   */
+  final def empty[A](status: Status): Output[A] =
+    Empty(Meta(status = status))
+
+  /**
+   * Creates a unit [[Output]] (i.e., `Output[Unit]`) of given `status`.
+   */
+  final def unit(status: Status): Output[Unit] = Empty(Meta(status = status))
+
+  /**
+   * A successful [[Output]] that captures a payload `value`.
+   */
+  private[finch] final case class Payload[A](value: A, meta: Meta) extends Output[A] {
+    override protected def withMeta(meta: Meta): Output[A] = copy(meta = meta)
   }
 
   /**
-   * A failure [[Output]] that captures an [[Exception]] that caused this.
+   * A failure [[Output]] that captures an  [[Exception]] explaining why it's not a payload
+   * or an empty response.
    */
-  final case class Failure(
-    cause: Exception,
-    status: Status = Status.BadRequest,
-    headers: Map[String, String] = Map.empty[String, String],
-    cookies: Seq[Cookie] = Seq.empty[Cookie],
-    contentType: Option[String] = None,
-    charset: Option[String] = None
-  ) extends Output[Nothing] {
+  private[finch] final case class Failure(cause: Exception, meta: Meta) extends Output[Nothing] {
+    override protected def withMeta(meta: Meta): Output[Nothing] = copy(meta = meta)
+    override def value: Nothing = throw cause
+  }
 
-    def value: Nothing = throw cause
-
-    def map[B](fn: Nothing => B): Output[B] = this
-    def flatMap[B](fn: Nothing => Output[B]): Output[B] = this
-    def flatten[B](implicit ev: <:<[Nothing, Output[B]]): Output[B] = this
-    def traverse[B](fn: Nothing => Future[B]): Future[Output[B]] = Future.value(this)
-
-    protected def copy0(
-      headers: Map[String, String],
-      cookies: Seq[Cookie],
-      contentType: Option[String],
-      charset: Option[String]
-    ): Output[Nothing] = copy(
-      headers = headers, cookies = cookies, contentType = contentType, charset = charset
-    )
+  /**
+   * An empty [[Output]] that does not capture any payload.
+   */
+  private[finch] final case class Empty(meta: Meta) extends Output[Nothing] {
+    override protected def withMeta(meta: Meta): Output[Nothing] = copy(meta = meta)
+    override def value: Nothing = throw new IllegalStateException("empty output")
   }
 
   implicit class EndpointResultOps[A](val o: Endpoint.Result[A]) extends AnyVal {

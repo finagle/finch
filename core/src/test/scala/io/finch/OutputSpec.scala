@@ -12,13 +12,15 @@ class OutputSpec extends FinchSpec {
   it should "propagate charset to response" in {
     check { (o: Output[String], cs: OptionalNonEmptyString) =>
       val rep = o.withCharset(cs.o).toResponse()
-      rep.charset === cs.o.orElse(EncodeResponse.encodeString.charset)
+      (rep.content === Buf.Empty) ||
+      (rep.charset === cs.o.orElse(EncodeResponse.encodeString.charset))
     }
   }
 
   it should "propagate contentType to response" in {
     check { (o: Output[String], ct: OptionalNonEmptyString) =>
       val rep = o.withContentType(ct.o).toResponse()
+      (rep.content === Buf.Empty) ||
       rep.contentType.forall(_.startsWith(ct.o.getOrElse(EncodeResponse.encodeString.contentType)))
     }
   }
@@ -37,34 +39,12 @@ class OutputSpec extends FinchSpec {
     }
   }
 
-  "Failure" should "propagate content to response" in {
-    check { (of: Output.Failure, s: String) =>
-      implicit val ee: EncodeResponse[Exception] = EncodeResponse.fromString("application/json") { _ => s }
-      Some(of.toResponse().contentString) === Buf.Utf8.unapply(ee(of.cause))
-    }
-  }
-
-  it should "set the corresponding status while predefined smart constructors are used" in {
-    Ok(()).status shouldBe Status.Ok
-    Created(()).status shouldBe Status.Created
-    Accepted(()).status shouldBe Status.Accepted
-    NoContent(()).status shouldBe Status.NoContent
-  }
-
-  "Payload" should "propagate payload to response" in {
-    check { op: Output.Payload[String] =>
-      Some(op.toResponse().contentString) === Buf.Utf8.unapply(EncodeResponse.encodeString(op.value))
-    }
-  }
-
   it should "set the corresponding status while predefined smart constructors are used" in {
     val cause = new Exception
-    MovedPermanently(cause).status shouldBe Status.MovedPermanently
-    Found(cause).status shouldBe Status.Found
-    SeeOther(cause).status shouldBe Status.SeeOther
-    NotModified(cause).status shouldBe Status.NotModified
-    TemporaryRedirect(cause).status shouldBe Status.TemporaryRedirect
-    PermanentRedirect(cause).status shouldBe Status(308)
+    Ok(()).status shouldBe Status.Ok
+    Created(()).status shouldBe Status.Created
+    Accepted.status shouldBe Status.Accepted
+    NoContent.status shouldBe Status.NoContent
     BadRequest(cause).status shouldBe Status.BadRequest
     Unauthorized(cause).status shouldBe Status.Unauthorized
     PaymentRequired(cause).status shouldBe Status.PaymentRequired
@@ -88,5 +68,23 @@ class OutputSpec extends FinchSpec {
     ServiceUnavailable(cause).status shouldBe Status.ServiceUnavailable
     GatewayTimeout(cause).status shouldBe Status.GatewayTimeout
     InsufficientStorage(cause).status shouldBe Status.InsufficientStorage
+  }
+
+  "Failure" should "propagate cause to response" in {
+    check { of: Output.Failure =>
+      of.toResponse().content === EncodeResponse.encodeException(of.cause)
+    }
+  }
+
+  "Empty" should "propagate empytiness to response" in {
+    check { of: Output.Empty =>
+      of.toResponse().content === Buf.Empty
+    }
+  }
+
+  "Payload" should "propagate payload to response" in {
+    check { op: Output.Payload[String] =>
+      Some(op.toResponse().contentString) === Buf.Utf8.unapply(EncodeResponse.encodeString(op.value))
+    }
   }
 }
