@@ -204,7 +204,7 @@ Having an `Output` defined as an ADT allows to return both payloads and failures
 condition result.
 
 ```scala
-val divOrFail: Endpoint[Int] = post("div" / a / b) { (a: Int, b: Int) =>
+val divOrFail: Endpoint[Int] = post("div" / int / int) { (a: Int, b: Int) =>
   if (b == 0) BadRequest(new ArithmeticException("Can not divide by 0"))
   else Ok(a / b)
 }
@@ -237,7 +237,7 @@ similarly named methods:
 The following example handles the `ArithmeticException` propagated from `a / b`.
 
 ```scala
-val divOrFail: Endpoint[Int] = post("div" / a / b) { (a: Int, b: Int) =>
+val divOrFail: Endpoint[Int] = post("div" / int / int) { (a: Int, b: Int) =>
   Ok(a / b)
 } handle {
   case e: ArithmeticExceptions => BadRequest(e)
