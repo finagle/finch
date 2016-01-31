@@ -1,6 +1,7 @@
 package io.finch
 
 import cats.Show
+import cats.data.Xor
 import com.twitter.io.Buf
 import shapeless.Witness
 
@@ -60,4 +61,10 @@ object Encode extends LowPriorityEncodeInstances {
 
   implicit val encodeString: TextPlain[String] =
     textPlain(Buf.Utf8.apply)
+
+  implicit def encodeXor[A, B, CT <: String](implicit
+    ae: Encode.Aux[A, CT],
+    be: Encode.Aux[B, CT]): Encode.Aux[A Xor B, CT] = {
+    instance[A Xor B, CT](xor => xor.fold(ae.apply, be.apply))
+  }
 }
