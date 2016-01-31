@@ -198,7 +198,8 @@ lazy val examples = project
   .settings(allSettings)
   .settings(noPublish)
   .settings(resolvers += "TM" at "http://maven.twttr.com")
-  .settings(coverageExcludedPackages := "io\\.finch\\.div\\..*;io\\.finch\\.todo\\..*;io\\.finch\\.eval\\..*")
+  .settings(coverageExcludedPackages :=
+    "io\\.finch\\.div\\..*;io\\.finch\\.todo\\..*;io\\.finch\\.eval\\..*;io\\.finch\\.streaming\\..*")
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-generic" % circeVersion,
