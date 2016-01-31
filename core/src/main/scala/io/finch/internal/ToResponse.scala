@@ -1,6 +1,8 @@
 package io.finch.internal
 
-import com.twitter.finagle.http.Response
+import com.twitter.concurrent.AsyncStream
+import com.twitter.finagle.http.{Response, Status, Version}
+import com.twitter.io.{Buf, Reader}
 import io.finch.EncodeResponse
 
 /**
@@ -35,4 +37,18 @@ object ToResponse {
 
       rep
     }
+
+  /**
+   * Provides implicit ToResponse for `AsyncStream[Buf]`.
+   * If it reaches the end of the stream it closes the connection.
+   *
+   * Http server should be initialized with `.withStreaming(enabled=true)`
+   */
+  implicit def asyncToResponse: ToResponse[AsyncStream[Buf]] = new ToResponse[AsyncStream[Buf]] {
+    override def apply(a: AsyncStream[Buf]): Response = {
+      val writable = Reader.writable()
+      a.foreachF(writable.write).ensure(writable.close())
+      Response(Version.Http11, Status.Ok, writable)
+    }
+  }
 }
