@@ -1,7 +1,7 @@
 package io.finch
 
 import com.twitter.io.Buf
-import com.twitter.finagle.http.Status
+import com.twitter.finagle.http.{Response, Status}
 
 class OutputSpec extends FinchSpec {
 
@@ -72,13 +72,13 @@ class OutputSpec extends FinchSpec {
 
   "Failure" should "propagate cause to response" in {
     check { of: Output.Failure =>
-      of.toResponse().content === EncodeResponse.encodeException(of.cause)
+      (of: Output[Unit]).toResponse().content === EncodeResponse.encodeException(of.cause)
     }
   }
 
   "Empty" should "propagate empytiness to response" in {
     check { of: Output.Empty =>
-      of.toResponse().content === Buf.Empty
+      (of: Output[Unit]).toResponse().content === Buf.Empty
     }
   }
 
