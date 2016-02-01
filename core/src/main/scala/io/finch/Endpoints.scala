@@ -157,6 +157,14 @@ trait Endpoints {
     override def toString: String = s"${m.toString().toUpperCase} /${r.toString}"
   }
 
+  private[this] def streaming[A](r: Endpoint[A]): Endpoint[A] = new Endpoint[A] {
+    def apply(input: Input): Endpoint.Result[A] =
+      if (input.request.isChunked) r(input)
+      else None
+
+    override def toString: String = s"streaming:${r.toString}"
+  }
+
   /**
    * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The resulting [[Endpoint]]
    * succeeds on the request only if its method is `GET` and the underlying router succeeds on it.
@@ -210,6 +218,33 @@ trait Endpoints {
    * succeeds on the request only if its method is `TRACE` and the underlying router succeeds on it.
    */
   def trace[A]: Endpoint[A] => Endpoint[A] = method(Method.Trace)
+
+  /**
+   * A combinator that wraps the given [[Endpoint]] with two additional checks: an HTTP method and
+   * whether or not the incoming request chunked (streamed).
+   *
+   * The resulting [[Endpoint]] succeeds on the request only if its method is `POST`, it's chunked,
+   * and the underlying endpoint succeeds on it as well.
+   */
+  def streamingPost[A]: Endpoint[A] => Endpoint[A] = e => method[A](Method.Post)(streaming(e))
+
+  /**
+   * A combinator that wraps the given [[Endpoint]] with two additional checks: an HTTP method and
+   * whether or not the incoming request chunked (streamed).
+   *
+   * The resulting [[Endpoint]] succeeds on the request only if its method is `PUT`, it's chunked,
+   * and the underlying endpoint succeeds on it as well.
+   */
+  def streamingPut[A]: Endpoint[A] => Endpoint[A] = e => method[A](Method.Put)(streaming(e))
+
+  /**
+   * A combinator that wraps the given [[Endpoint]] with two additional checks: an HTTP method and
+   * whether or not the incoming request chunked (streamed).
+   *
+   * The resulting [[Endpoint]] succeeds on the request only if its method is `PATCH`, it's chunked,
+   * and the underlying endpoint succeeds on it as well.
+   */
+  def streamingPatch[A]: Endpoint[A] => Endpoint[A] = e => method[A](Method.Patch)(streaming(e))
 
   /**
    * An [[Exception]] representing a failed authorization with [[BasicAuth]].
