@@ -44,7 +44,7 @@ object Main extends App {
   //
   // For example, if an input value is `3` then output stream would be
   // `1 (1), 3 (1 + 2), 5 (1 + 2 + 3)`.
-  val sumTo: Endpoint[AsyncStream[Buf]] = streamingPost("sumTo" / int) { to: Int =>
+  val sumTo: Endpoint[AsyncStream[Buf]] = post("sumTo" / int) { to: Int =>
     def loop(n: Int, s: Int): AsyncStream[Int] =
       if (n > to) AsyncStream.empty[Int]
       else (n + s) +:: loop(n + 1, n + s)
