@@ -74,6 +74,7 @@ results (even `StackOverflowException`s). As a workaround, you might define a ra
 demonstrates how to do that with Jackson.
 
 ```scala
+import io.finch._
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 
@@ -98,6 +99,7 @@ thereby lifting the encoding part onto endpoint itself (where it's quite legal t
 `Future[Buf]`).
 
 ```scala
+import io.finch._
 import com.twitter.io.{Reader, Buf}
 import java.io.File
 
@@ -107,10 +109,26 @@ val file: Endpoint[Buf] = get("file") {
   Ok(Reader.readAll(reader)).withContentType(Some("text/plain"))
 }
 ```
-
 **Note:** It's usually not a great idea to use tools like Finch (or similar) while serving a static
 content given their _dynamic_ nature. Instead, a static HTTP server (i.e., [Nginx][nginx]) would be
 a perfect tool to use.
+
+Since Finch 0.10 it's possible to _stream_ the file content to the client using [`AsyncStream`][as]
+and `Http.server.withStreaming(enabled = true).serve(...)`.
+
+```scala
+import io.finch._
+import com.twitter.conversions.storage._
+import com.twitter.io.{Reader, Buf}
+import com.twitter.concurrent.AsyncStream
+import java.io.File
+
+val reader: Reader = Reader.fromFile(new File("/dev/urandom"))
+
+val file: Endpoint[AsyncStream[Buf]] = get("stream-of-file") {
+  Ok(AsyncStream.fromReader(reader, chunkSize = 512.kilobytes.inBytes))
+}
+```
 
 ### Converting `Error.RequestErrors` into JSON
 
@@ -241,3 +259,4 @@ Read Next: [Best Practices](best-practices.md)
 [issue191]: https://github.com/finagle/finch/issues/191
 [futures]: http://twitter.github.io/finagle/guide/Futures.html
 [bijection]: https://github.com/twitter/bijection
+[as]: https://github.com/twitter/util/blob/develop/util-core/src/main/scala/com/twitter/concurrent/AsyncStream.scala
