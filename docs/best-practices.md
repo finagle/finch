@@ -7,6 +7,7 @@
 * [Monitor your application](best-practices.md#monitor-your-application)
 * [Use applicative request readers](best-practices.md#use-applicative-request-readers)
 * [Picking HTTP statuses for responses](best-practices.md#picking-http-statuses-for-responses)
+* [Configuring Finagle](best-practices.md#configuring-finagle)
 
 --
 
@@ -241,6 +242,30 @@ Payload     | 200, 201
 Empty       | 202, 204
 Failure     | 4xx, 5xx
 
+### Configuring Finagle
+
+Finch uses Finagle to serve its endpoints (converted into Finagle `Service`s) so it's important to
+know what Finagle can do for you in order to improve the resiliency of your application. While
+[Finagle servers][finagle-servers] are quite simple compared to Finagle clients, there are still
+useful server-side features that might be useful for most of the use cases.
+
+ All Finagle servers are configured via a collection of [`with`-prefixed methods][finagle-config]
+ available on their instances (i.e., `Http.server.with*`). For example, it's always a good idea to
+ put bounds on the most critical parts of your application. In case of Finagle HTTP server, you
+ might think of overriding a [concurrency limit][finagle-concurrency] (a maximum number of
+ concurrent requests allowed) on it (disabled by default).
+
+ ```scala
+ import com.twitter.finagle.Http
+
+ val server = Http.server
+   .withAdmissionControl.concurrencyLimit(
+     maxConcurrentRequests = 10,
+     maxWaiters = 10,
+   )
+   .serve(":8080", service)
+ ```
+
 [issue263]: https://github.com/finagle/finch/issues/263
 [future-finch]: https://gist.github.com/vkostyukov/411a9184f44a136e2ad9
 [faceless]: http://gameofthrones.wikia.com/wiki/Faceless_Men
@@ -255,3 +280,6 @@ Failure     | 4xx, 5xx
 [metrics]: https://twitter.github.io/twitter-server/Features.html#metrics
 [statuses]: https://gist.github.com/vkostyukov/32c84c0c01789425c29a
 [rest-api-bb]: http://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-api
+[finagle-servers]: http://twitter.github.io/finagle/guide/Servers.html
+[finagle-config]: http://twitter.github.io/finagle/guide/Configuration.html
+[finagle-concurrency]: http://twitter.github.io/finagle/guide/Servers.html#concurrency-limit
