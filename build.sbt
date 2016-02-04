@@ -3,15 +3,15 @@ import ScoverageSbtPlugin._
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  version := "0.9.4-SNAPSHOT",
+  version := "0.10.0-SNAPSHOT",
   scalaVersion := "2.11.7",
   crossScalaVersions := Seq("2.10.6", "2.11.7")
 )
 
-lazy val finagleVersion = "6.31.0"
+lazy val finagleVersion = "6.33.0"
 lazy val circeVersion = "0.3.0-SNAPSHOT"
 lazy val shapelessVersion = "2.2.5"
-lazy val catsVersion = "0.4.0"
+lazy val catsVersion = "0.4.1"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -81,7 +81,7 @@ lazy val publishSettings = Seq(
       <developer>
         <id>vkostyukov</id>
         <name>Vladimir Kostyukov</name>
-        <url>http://vkostyukov.ru</url>
+        <url>http://vkostyukov.net</url>
       </developer>
       <developer>
         <id>travisbrown</id>
@@ -117,8 +117,10 @@ lazy val finch = project.in(file("."))
         |import io.finch.circe._
         |import io.finch.items._
         |import com.twitter.util.{Future, Await}
+        |import com.twitter.concurrent.AsyncStream
+        |import com.twitter.io.{Buf, Reader}
         |import com.twitter.finagle.Service
-        |import com.twitter.finagle.http.{Request, Response, Status}
+        |import com.twitter.finagle.http.{Request, Response, Status, Version}
         |import io.circe._
       """.stripMargin
   )
@@ -203,8 +205,8 @@ lazy val examples = project
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-generic" % circeVersion,
-      "com.twitter" %% "twitter-server" % "1.16.0",
-      "com.twitter" %% "util-eval" % "6.30.0"
+      "com.twitter" %% "twitter-server" % "1.18.0",
+      "com.twitter" %% "util-eval" % "6.32.0"
     )
   )
   .dependsOn(core, circe, jackson)

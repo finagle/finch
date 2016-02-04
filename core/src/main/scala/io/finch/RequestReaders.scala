@@ -4,7 +4,7 @@ import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.{Cookie, Request}
 import com.twitter.finagle.http.exp.Multipart.FileUpload
 import com.twitter.finagle.netty3.ChannelBufferBuf
-import com.twitter.io.{Buf, Charsets, Reader}
+import com.twitter.io.{Buf, Charsets}
 import com.twitter.util.{Future, Try}
 
 trait RequestReaders {
@@ -138,14 +138,8 @@ trait RequestReaders {
   /**
    * A [[RequestReader]] that reads a required chunked streaming binary body, interpreted as a `AsyncStream[Buf]`.
    */
-  val asyncBody: RequestReader[AsyncStream[Buf]] = {
-    def read(chunkSize: Int, reader: Reader): AsyncStream[Buf] =
-      AsyncStream.fromFuture(reader.read(chunkSize)).flatMap {
-        case Some(buf) => buf +:: read(chunkSize, reader)
-        case None => AsyncStream.empty
-      }
-    RequestReader(request => read(Int.MaxValue, request.reader))
-  }
+  val asyncBody: RequestReader[AsyncStream[Buf]] =
+    rr(BodyItem)(req => AsyncStream.fromReader(req.reader))
 
   /**
    * A [[RequestReader]] that reads an optional request body, interpreted as a `String`, into an `Option`.
