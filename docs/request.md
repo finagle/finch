@@ -410,7 +410,7 @@ for a Joda `DateTime` from a `Long` representing the number of milliseconds sinc
 
 ```scala
 implicit val dateTimeDecoder: DecodeRequest[DateTime] =
-  DecodeRequest(s => Try(new DateTime(s.toLong)))
+  DecodeRequest.instance(s => Try(new DateTime(s.toLong)))
 ```
 
 The example shows the most concise way of creating a new decoder: using the factory method on the companion object of
