@@ -190,7 +190,7 @@ lazy val oauth2 = project
   .settings(moduleName := "finch-oauth2")
   .settings(allSettings)
   .settings(libraryDependencies ++= Seq(
-    "com.github.finagle" %% "finagle-oauth2" % "0.1.5",
+    "com.github.finagle" %% "finagle-oauth2" % "0.1.6",
     "org.mockito" % "mockito-all" % "1.10.19" % "test"
   ))
   .dependsOn(core)
