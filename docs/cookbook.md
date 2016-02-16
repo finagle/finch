@@ -171,7 +171,7 @@ An `Endpoint[Unit]` represents an endpoint that doesn't return any payload in th
 ```scala
 import io.finch._
 
-val empty: Endpoint[Unit] = get("empty" / string) { s: String =>
+val empty: Endpoint[Unit] = get("empty" :: string) { s: String =>
   NoContent[Unit].withHeader("X-String" -> s)
 }
 ```
@@ -187,13 +187,13 @@ import com.twitter.finagle.http.Status
 case class Foo(s: String)
 
 // This possible to do
-val fooOrEmpty: Endpoint[Foo] = get("foo" / string) { s: String =>
+val fooOrEmpty: Endpoint[Foo] = get("foo" :: string) { s: String =>
   if (s != "") Ok(Foo(s))
   else NoContent
 }
 
 // This is recommend to do 
-val fooOrFailure: Endpoint[Foo] = get("foo" / string) { s: String =>
+val fooOrFailure: Endpoint[Foo] = get("foo" :: string) { s: String =>
   if (s != "") Ok(Foo(s))
   else BadRequest(new IllegalArgumentException("empty string"))
 }
@@ -209,7 +209,7 @@ output) indicating that there is no payload returned.
 import io.finch._
 import com.twitter.finagle.http.Status
 
-val redirect: Endpoint[Unit] = get("redirect" / "from") {
+val redirect: Endpoint[Unit] = get("redirect" :: "from") {
   Output.unit(Status.SeeOther).withHeader("Location" -> "/redirect/to")
 }
 ```
