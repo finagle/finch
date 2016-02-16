@@ -89,57 +89,57 @@ trait Endpoints {
     else try Some(UUID.fromString(s)) catch { case _: Exception => None }
 
   /**
-   * An [[Endpoint]] that extract an integer value from the route.
+   * A matching [[Endpoint]] that reads an integer value from the current path segment.
    */
   object int extends Extractor("int", _.tooInt)
 
   /**
-   * An [[Endpoint]] that extract an integer tail from the route.
+   * A matching [[Endpoint]] that reads an integer tail from the current path segment.
    */
   object ints extends TailExtractor("int", _.tooInt)
 
   /**
-   * An [[Endpoint]] that extract a long value from the route.
+   * A matching [[Endpoint]] that reads a long value from the current path segment.
    */
   object long extends Extractor("long", _.tooLong)
 
   /**
-   * An [[Endpoint]] that extract a long tail from the route.
+   * A matching [[Endpoint]] that reads a long tail from the current path segment.
    */
   object longs extends TailExtractor("long", _.tooLong)
 
   /**
-   * An [[Endpoint]] that extract a string value from the route.
+   * A matching [[Endpoint]] that reads a string value from the current path segment.
    */
   object string extends StringExtractor("string")
 
   /**
-   * An [[Endpoint]] that extract a string tail from the route.
+   * A matching [[Endpoint]] that reads a string tail from the current path segment.
    */
   object strings extends TailExtractor("string", s => Some(s))
 
   /**
-   * An [[Endpoint]] that extract a boolean value from the route.
+   * A matching [[Endpoint]] that reads a boolean value from the current path segment.
    */
   object boolean extends Extractor("boolean", _.tooBoolean)
 
   /**
-   * An [[Endpoint]] that extract a boolean tail from the route.
+   * A matching [[Endpoint]] that reads a boolean tail from the current path segment.
    */
   object booleans extends TailExtractor("boolean", _.tooBoolean)
 
   /**
-   * An [[Endpoint]] that extract an UUID value from the route.
+   * A matching [[Endpoint]] that reads an UUID value from the current path segment.
    */
   object uuid extends Extractor("uuid", extractUUID)
 
   /**
-   * An [[Endpoint]] that extract an UUID tail from the route.
+   * A matching [[Endpoint]] that reads an UUID tail from the current path segment.
    */
   object uuids extends TailExtractor("uuid", extractUUID)
 
   /**
-   * An [[Endpoint]] that skips all path parts.
+   * An [[Endpoint]] that skips all path segments.
    */
   object * extends Endpoint[HNil] {
     def apply(input: Input): Endpoint.Result[HNil] =
@@ -260,7 +260,7 @@ trait Endpoints {
 
   private[this] def option[A](item: items.RequestItem)(f: Request => A): Endpoint[A] =
     Endpoint.embed(item)(input =>
-      Some((input, Eval.now(Future.value(Output.payload(f(input.request))))))
+      Some((input, Eval.later(Future.value(Output.payload(f(input.request))))))
     )
 
   private[this] def exists[A](item: items.RequestItem)(f: Request => Option[A]): Endpoint[A] =
@@ -272,19 +272,19 @@ trait Endpoints {
     (item: items.RequestItem)
     (p: Request => Boolean)
     (f: Request => A): Endpoint[A] = Endpoint.embed(item)(input =>
-      if (p(input.request)) Some((input, Eval.now(Future.value(Output.payload(f(input.request))))))
+      if (p(input.request)) Some((input, Eval.later(Future.value(Output.payload(f(input.request))))))
       else None
     )
 
   /**
-   * Creates an [[Endpoint]] that reads an optional query-string param `name` from the request into
-   * an `Option`.
+   * An evaluating [[Endpoint]] that reads an optional query-string param `name` from the request
+   * into an `Option`.
    */
   def paramOption(name: String): Endpoint[Option[String]] =
     option(items.ParamItem(name))(requestParam(name)).noneIfEmpty
 
   /**
-   * Creates an always-match [[Endpoint]] that reads a required query-string param `name` from the
+   * An evaluating [[Endpoint]] that reads a required query-string param `name` from the
    * request or raises an [[Error.NotPresent]] exception when the param is missing; an
    * [[Error.NotValid]] exception is the param is empty.
    */
@@ -292,22 +292,22 @@ trait Endpoints {
     paramOption(name).failIfNone.shouldNot(beEmpty)
 
   /**
-   * Creates an [[Endpoint]] that only matches the requests that contain a given query-string
+   * A matching [[Endpoint]] that only matches the requests that contain a given query-string
    * param `name`.
    */
   def paramExists(name: String): Endpoint[String] =
     exists(items.ParamItem(name))(requestParam(name))
 
   /**
-   * Creates an [[Endpoint]] that reads an optional (in a meaning that a resulting
+   * An evaluating [[Endpoint]] that reads an optional (in a meaning that a resulting
    * `Seq` may be empty) multi-value query-string param `name` from the request into a `Seq`.
    */
   def params(name: String): Endpoint[Seq[String]] =
     option(items.ParamItem(name))(i => requestParams(name)(i).filter(_.nonEmpty))
 
   /**
-   * Creates an [[Endpoint]] that reads a required (in a meaning that a resulting `Seq` will have at
-   * least one element) multi-value query-string param `name` from the request into a `Seq` or
+   * An evaluating [[Endpoint]] that reads a required (in a meaning that a resulting `Seq` will have
+   * at least one element) multi-value query-string param `name` from the request into a `Seq` or
    * raises a [[Error.NotPresent]] exception when the params are missing or empty.
    */
   def paramsNonEmpty(name: String): Endpoint[Seq[String]] =
@@ -317,28 +317,28 @@ trait Endpoints {
     }).shouldNot("be empty")(_.isEmpty)
 
   /**
-   * Creates an [[Endpoint]] that reads a required HTTP header `name` from the request or raises an
-   * [[Error.NotPresent]] exception when the header is missing.
+   * An evaluating [[Endpoint]] that reads a required HTTP header `name` from the request or raises
+   * an [[Error.NotPresent]] exception when the header is missing.
    */
   def header(name: String): Endpoint[String] =
     option(items.HeaderItem(name))(requestHeader(name)).failIfNone.shouldNot(beEmpty)
 
   /**
-   * Creates an [[Endpoint]] that reads an optional HTTP header `name` from the request into an
+   * An evaluating [[Endpoint]] that reads an optional HTTP header `name` from the request into an
    * `Option`.
    */
   def headerOption(name: String): Endpoint[Option[String]] =
     option(items.HeaderItem(name))(requestHeader(name)).noneIfEmpty
 
   /**
-   * Creates an [[Endpoint]] that only matches the requests that contain a given header `name`.
+   * A matching [[Endpoint]] that only matches the requests that contain a given header `name`.
    */
   def headerExists(name: String): Endpoint[String] =
     exists(items.HeaderItem(name))(requestHeader(name))
 
   /**
-   * An [[Endpoint]] that reads a binary request body, interpreted as a `Array[Byte]`, into an
-   * `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
+   * An evaluating [[Endpoint]] that reads a binary request body, interpreted as a `Array[Byte]`,
+   * into an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
    */
   val binaryBodyOption: Endpoint[Option[Array[Byte]]] =
     matches(items.BodyItem)(!_.isChunked)(req =>
@@ -349,53 +349,55 @@ trait Endpoints {
     )
 
   /**
-   * An [[Endpoint]] that reads a required binary request body, interpreted as a `Array[Byte]`, or
-   * throws a [[Error.NotPresent]] exception. The returned [[Endpoint]] only matches non-chunked
-   * (non-streamed) requests.
+   * An evaluating [[Endpoint]] that reads a required binary request body, interpreted as an
+   * `Array[Byte]`, or throws a [[Error.NotPresent]] exception. The returned [[Endpoint]] only
+   * matches non-chunked (non-streamed) requests.
    */
   val binaryBody: Endpoint[Array[Byte]] = binaryBodyOption.failIfNone
 
   /**
-   * An [[Endpoint]] that reads an optional request body, interpreted as a `String`, into an
-   * `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
+   * An evaluating [[Endpoint]] that reads an optional request body, interpreted as a `String`, into
+   * an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
    */
   val bodyOption: Endpoint[Option[String]] = matches(items.BodyItem)(!_.isChunked)(requestBody)
 
   /**
-   * An [[Endpoint]] that reads the required request body, interpreted as a `String`, or throws an
-   * [[Error.NotPresent]] exception. The returned [[Endpoint]] only matches non-chunked
+   * An evaluating[[Endpoint]] that reads the required request body, interpreted as a `String`, or
+   * throws an [[Error.NotPresent]] exception. The returned [[Endpoint]] only matches non-chunked
    * (non-streamed) requests.
    */
   val body: Endpoint[String] = bodyOption.failIfNone
 
   /**
-   * An [[Endpoint]] that reads a required chunked streaming binary body, interpreted as a
-   * `AsyncStream[Buf]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
+   * An evaluating [[Endpoint]] that reads a required chunked streaming binary body, interpreted as
+   * an `AsyncStream[Buf]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
    */
   val asyncBody: Endpoint[AsyncStream[Buf]] =
     matches(items.BodyItem)(_.isChunked)(req => AsyncStream.fromReader(req.reader))
 
   /**
-   * Creates an [[Endpoint]] that reads an optional HTTP cookie from the request into an `Option`.
+   * An evaluating [[Endpoint]] that reads an optional HTTP cookie from the request into an
+   * `Option`.
    */
   def cookieOption(name: String): Endpoint[Option[Cookie]] =
     option(items.CookieItem(name))(requestCookie(name))
 
   /**
-   * Creates an [[Endpoint]] that reads a required cookie from the request or raises an
+   * An evaluating [[Endpoint]] that reads a required cookie from the request or raises an
    * [[Error.NotPresent]] exception when the cookie is missing.
    */
   def cookie(name: String): Endpoint[Cookie] = cookieOption(name).failIfNone
 
   /**
-   * Creates an [[Endpoint]] that reads an optional file upload from a multipart/form-data request
+   * An evaluating[[Endpoint]] that reads an optional file upload from a multipart/form-data request
    * into an `Option`.
    */
   def fileUploadOption(name: String): Endpoint[Option[FileUpload]] =
     matches(items.ParamItem(name))(!_.isChunked)(requestUpload(name))
 
   /**
-   * Creates an [[Endpoint]] that reads a required file upload from a multipart/form-data request.
+   * An evaluating [[Endpoint]] that reads a required file upload from a multipart/form-data
+   * request.
    */
   def fileUpload(name: String): Endpoint[FileUpload] = fileUploadOption(name).failIfNone
 

@@ -36,7 +36,7 @@ import shapeless.ops.hlist.Tupler
  *   case class Bar(s: String)
  *
  *   val foo: Endpoint[Foo] = get("foo") { Ok(Foo(42)) }
- *   val bar: Endpoint[Bar] = get("bar" / string) { s: String => Ok(Bar(s)) }
+ *   val bar: Endpoint[Bar] = get("bar" :: string) { s: String => Ok(Bar(s)) }
  * }}}
  *
  * `Endpoint`s are also composable in terms of or-else combinator (known as a "space invader"
