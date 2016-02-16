@@ -130,7 +130,7 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="io.finch.Endpoint#/" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="/[B](that:io.finch.Endpoint[B])(implicitadjoin:io.finch.internal.PairAdjoin[A,B]):io.finch.Endpoint[adjoin.Out]"></a>
+      <a id="/[B](that:io.finch.Endpoint[B])(implicitpa:io.finch.internal.PairAdjoin[A,B]):io.finch.Endpoint[pa.Out]"></a>
       <a id="/[B](Endpoint[B])(PairAdjoin[HNil,B]):Endpoint[internal.PairAdjoin.Out]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -138,15 +138,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $div" class="name">/</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="that">that: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint./.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="adjoin">adjoin: <a href="internal/PairAdjoin.html" class="extype" name="io.finch.internal.PairAdjoin">PairAdjoin</a>[<span class="extype" name="shapeless.HNil">HNil</span>, <span class="extype" name="io.finch.Endpoint./.B">B</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="internal/PairAdjoin.html#Out" class="extmbr" name="io.finch.internal.PairAdjoin.Out">internal.PairAdjoin.Out</a>]</span>
+        <span title="gt4s: $div" class="name">/</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="that">that: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint./.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="pa">pa: <a href="internal/PairAdjoin.html" class="extype" name="io.finch.internal.PairAdjoin">PairAdjoin</a>[<span class="extype" name="shapeless.HNil">HNil</span>, <span class="extype" name="io.finch.Endpoint./.B">B</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="internal/PairAdjoin.html#Out" class="extmbr" name="io.finch.internal.PairAdjoin.Out">internal.PairAdjoin.Out</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoints$$div$@/[B](that:io.finch.Endpoint[B])(implicitadjoin:io.finch.internal.PairAdjoin[A,B]):io.finch.Endpoint[adjoin.Out]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoints$$div$@/[B](that:io.finch.Endpoint[B])(implicitpa:io.finch.internal.PairAdjoin[A,B]):io.finch.Endpoint[pa.Out]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Composes this endpoint with the given <code>that</code> endpoint.</p><div class="fullcomment"><div class="comment cmt"><p>Composes this endpoint with the given <code>that</code> endpoint. The resulting endpoint will succeed only
-if both this and <code>that</code> endpoints succeed.
+      <p class="shortcomment cmt">Composes this endpoint with the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Composes this endpoint with the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
     </li><li name="io.finch.Endpoint#:+:" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id=":+:[B](that:io.finch.Endpoint[B])(implicitadjoin:shapeless.ops.adjoin.Adjoin[shapeless.:+:[B,shapeless.:+:[A,shapeless.CNil]]]):io.finch.Endpoint[adjoin.Out]"></a>
@@ -166,6 +165,24 @@ if both this and <code>that</code> endpoints succeed.
     </span>
       <p class="shortcomment cmt">Composes this endpoint with another in such a way that coproducts are flattened.</p><div class="fullcomment"><div class="comment cmt"><p>Composes this endpoint with another in such a way that coproducts are flattened.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
+    </li><li name="io.finch.Endpoint#::" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="::[B](that:io.finch.Endpoint[B])(implicitpa:io.finch.internal.PairAdjoin[B,A]):io.finch.Endpoint[pa.Out]"></a>
+      <a id="::[B](Endpoint[B])(PairAdjoin[B,HNil]):Endpoint[internal.PairAdjoin.Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $colon$colon" class="name">::</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="that">that: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.::.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="pa">pa: <a href="internal/PairAdjoin.html" class="extype" name="io.finch.internal.PairAdjoin">PairAdjoin</a>[<span class="extype" name="io.finch.Endpoint.::.B">B</span>, <span class="extype" name="shapeless.HNil">HNil</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="internal/PairAdjoin.html#Out" class="extmbr" name="io.finch.internal.PairAdjoin.Out">internal.PairAdjoin.Out</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints$$div$@::[B](that:io.finch.Endpoint[B])(implicitpa:io.finch.internal.PairAdjoin[B,A]):io.finch.Endpoint[pa.Out]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Composes this endpoint with the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Composes this endpoint with the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
     </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a>
       <a id="==(Any):Boolean"></a>
@@ -184,22 +201,41 @@ if both this and <code>that</code> endpoints succeed.
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="io.finch.Endpoint#?" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="?[B](that:io.finch.RequestReader[B])(implicitadjoin:io.finch.internal.PairAdjoin[A,B]):io.finch.Endpoint[adjoin.Out]"></a>
-      <a id="?[B](RequestReader[B])(PairAdjoin[HNil,B]):Endpoint[internal.PairAdjoin.Out]"></a>
+      <a id="?[B](that:io.finch.Endpoint[B])(implicitpa:io.finch.internal.PairAdjoin[A,B]):io.finch.Endpoint[pa.Out]"></a>
+      <a id="?[B](Endpoint[B])(PairAdjoin[HNil,B]):Endpoint[internal.PairAdjoin.Out]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $qmark" class="name">?</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="that">that: <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.Endpoint.?.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="adjoin">adjoin: <a href="internal/PairAdjoin.html" class="extype" name="io.finch.internal.PairAdjoin">PairAdjoin</a>[<span class="extype" name="shapeless.HNil">HNil</span>, <span class="extype" name="io.finch.Endpoint.?.B">B</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="internal/PairAdjoin.html#Out" class="extmbr" name="io.finch.internal.PairAdjoin.Out">internal.PairAdjoin.Out</a>]</span>
+        <span title="gt4s: $qmark" class="name">?</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="that">that: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.?.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="pa">pa: <a href="internal/PairAdjoin.html" class="extype" name="io.finch.internal.PairAdjoin">PairAdjoin</a>[<span class="extype" name="shapeless.HNil">HNil</span>, <span class="extype" name="io.finch.Endpoint.?.B">B</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="internal/PairAdjoin.html#Out" class="extmbr" name="io.finch.internal.PairAdjoin.Out">internal.PairAdjoin.Out</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoints$$div$@?[B](that:io.finch.RequestReader[B])(implicitadjoin:io.finch.internal.PairAdjoin[A,B]):io.finch.Endpoint[adjoin.Out]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoints$$div$@?[B](that:io.finch.Endpoint[B])(implicitpa:io.finch.internal.PairAdjoin[A,B]):io.finch.Endpoint[pa.Out]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Composes this endpoint with the given <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Composes this endpoint with the given <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>.
+      <p class="shortcomment cmt">Composes this endpoint with the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Composes this endpoint with the given <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
+    </li><li name="io.finch.Endpoint#adjoin" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="adjoin[B](that:io.finch.Endpoint[B])(implicitpa:io.finch.internal.PairAdjoin[A,B]):io.finch.Endpoint[pa.Out]"></a>
+      <a id="adjoin[B](Endpoint[B])(PairAdjoin[HNil,B]):Endpoint[internal.PairAdjoin.Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">adjoin</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="that">that: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.adjoin.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="pa">pa: <a href="internal/PairAdjoin.html" class="extype" name="io.finch.internal.PairAdjoin">PairAdjoin</a>[<span class="extype" name="shapeless.HNil">HNil</span>, <span class="extype" name="io.finch.Endpoint.adjoin.B">B</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="internal/PairAdjoin.html#Out" class="extmbr" name="io.finch.internal.PairAdjoin.Out">internal.PairAdjoin.Out</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints$$div$@adjoin[B](that:io.finch.Endpoint[B])(implicitpa:io.finch.internal.PairAdjoin[A,B]):io.finch.Endpoint[pa.Out]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Composes this endpoint with the given <code>that</code> endpoint.</p><div class="fullcomment"><div class="comment cmt"><p>Composes this endpoint with the given <code>that</code> endpoint. The resulting endpoint will succeed only
+if both this and <code>that</code> endpoints succeed.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
     </li><li name="io.finch.Endpoint#ap" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ap[B](fn:io.finch.Endpoint[A=&gt;B]):io.finch.Endpoint[B]"></a>
@@ -235,7 +271,7 @@ if both this and <code>that</code> endpoints succeed.
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Extracts some value of type <code>A</code> from the given <code>input</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Extracts some value of type <code>A</code> from the given <code>input</code>.
+      <p class="shortcomment cmt">Runs this endpoint.</p><div class="fullcomment"><div class="comment cmt"><p>Runs this endpoint.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="io.finch.Endpoints./">/</a> → <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
     </li><li name="io.finch.Endpoint#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="apply(mapper:io.finch.internal.Mapper[A]):io.finch.Endpoint[mapper.Out]"></a>
@@ -295,24 +331,6 @@ if both this and <code>that</code> endpoints succeed.
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.finch.Endpoint#embedFlatMap" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="embedFlatMap[B](fn:A=&gt;com.twitter.util.Future[B]):io.finch.Endpoint[B]"></a>
-      <a id="embedFlatMap[B]((HNil)⇒Future[B]):Endpoint[B]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">embedFlatMap</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="shapeless.HNil">HNil</span>) ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<span class="extype" name="io.finch.Endpoint.embedFlatMap.B">B</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.embedFlatMap.B">B</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoints$$div$@embedFlatMap[B](fn:A=&gt;com.twitter.util.Future[B]):io.finch.Endpoint[B]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Maps this endpoint to the given function <code>A =&gt; Future[B]</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Maps this endpoint to the given function <code>A =&gt; Future[B]</code>.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -403,9 +421,9 @@ if both this and <code>that</code> endpoints succeed.
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Recovers from any exception occurred in this endpoint by creating a new endpoint that will handle any matching
-throwable from the underlying future.</p><div class="fullcomment"><div class="comment cmt"><p>Recovers from any exception occurred in this endpoint by creating a new endpoint that will handle any matching
-throwable from the underlying future.
+      <p class="shortcomment cmt">Recovers from any exception occurred in this endpoint by creating a new endpoint that will
+handle any matching throwable from the underlying future.</p><div class="fullcomment"><div class="comment cmt"><p>Recovers from any exception occurred in this endpoint by creating a new endpoint that will
+handle any matching throwable from the underlying future.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
@@ -441,6 +459,41 @@ throwable from the underlying future.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.finch.Endpoint#item" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="item:io.finch.items.RequestItem"></a>
+      <a id="item:RequestItem"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">item</span><span class="result">: <a href="package$$items$$RequestItem.html" class="extype" name="io.finch.items.RequestItem">RequestItem</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints$$div$@item:io.finch.items.RequestItem" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
+    </li><li name="io.finch.Endpoint#lift" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="lift:io.finch.Endpoint[Option[A]]"></a>
+      <a id="lift:Endpoint[Option[HNil]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">lift</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="shapeless.HNil">HNil</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints$$div$@lift:io.finch.Endpoint[Option[A]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Lifts this endpoint into one that always succeeds, with an empty <code>Option</code> representing failure.</p><div class="fullcomment"><div class="comment cmt"><p>Lifts this endpoint into one that always succeeds, with an empty <code>Option</code> representing failure.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
     </li><li name="io.finch.Endpoint#map" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="map[B](fn:A=&gt;B):io.finch.Endpoint[B]"></a>
       <a id="map[B]((HNil)⇒B):Endpoint[B]"></a>
@@ -458,6 +511,60 @@ throwable from the underlying future.
       </a>
     </span>
       <p class="shortcomment cmt">Maps this endpoint to the given function <code>A =&gt; B</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Maps this endpoint to the given function <code>A =&gt; B</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
+    </li><li name="io.finch.Endpoint#mapAsync" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapAsync[B](fn:A=&gt;com.twitter.util.Future[B]):io.finch.Endpoint[B]"></a>
+      <a id="mapAsync[B]((HNil)⇒Future[B]):Endpoint[B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapAsync</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="shapeless.HNil">HNil</span>) ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<span class="extype" name="io.finch.Endpoint.mapAsync.B">B</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.mapAsync.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints$$div$@mapAsync[B](fn:A=&gt;com.twitter.util.Future[B]):io.finch.Endpoint[B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Maps this endpoint to the given function <code>A =&gt; Future[B]</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Maps this endpoint to the given function <code>A =&gt; Future[B]</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
+    </li><li name="io.finch.Endpoint#mapOutput" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapOutput[B](fn:A=&gt;io.finch.Output[B]):io.finch.Endpoint[B]"></a>
+      <a id="mapOutput[B]((HNil)⇒Output[B]):Endpoint[B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapOutput</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="shapeless.HNil">HNil</span>) ⇒ <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Endpoint.mapOutput.B">B</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.mapOutput.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints$$div$@mapOutput[B](fn:A=&gt;io.finch.Output[B]):io.finch.Endpoint[B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Maps this endpoint to the given function <code>A =&gt; Output[B]</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Maps this endpoint to the given function <code>A =&gt; Output[B]</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
+    </li><li name="io.finch.Endpoint#mapOutputAsync" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="mapOutputAsync[B](fn:A=&gt;com.twitter.util.Future[io.finch.Output[B]]):io.finch.Endpoint[B]"></a>
+      <a id="mapOutputAsync[B]((HNil)⇒Future[Output[B]]):Endpoint[B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapOutputAsync</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="shapeless.HNil">HNil</span>) ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Endpoint.mapOutputAsync.B">B</span>]]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.mapOutputAsync.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints$$div$@mapOutputAsync[B](fn:A=&gt;com.twitter.util.Future[io.finch.Output[B]]):io.finch.Endpoint[B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Maps this endpoint to the given function <code>A =&gt; Future[Output[B]]</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Maps this endpoint to the given function <code>A =&gt; Future[Output[B]]</code>.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
@@ -526,10 +633,91 @@ throwable from the underlying future.
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Recovers from any exception occurred in this endpoint by creating a new endpoint that will handle any matching
-throwable from the underlying future.</p><div class="fullcomment"><div class="comment cmt"><p>Recovers from any exception occurred in this endpoint by creating a new endpoint that will handle any matching
-throwable from the underlying future.
+      <p class="shortcomment cmt">Recovers from any exception occurred in this endpoint by creating a new endpoint that will
+handle any matching throwable from the underlying future.</p><div class="fullcomment"><div class="comment cmt"><p>Recovers from any exception occurred in this endpoint by creating a new endpoint that will
+handle any matching throwable from the underlying future.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
+    </li><li name="io.finch.Endpoint#should" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="should(rule:io.finch.ValidationRule[A]):io.finch.Endpoint[A]"></a>
+      <a id="should(ValidationRule[HNil]):Endpoint[HNil]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">should</span><span class="params">(<span name="rule">rule: <a href="ValidationRule.html" class="extype" name="io.finch.ValidationRule">ValidationRule</a>[<span class="extype" name="shapeless.HNil">HNil</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="shapeless.HNil">HNil</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints$$div$@should(rule:io.finch.ValidationRule[A]):io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Validates the result of this endpoint using a predefined <code>rule</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Validates the result of this endpoint using a predefined <code>rule</code>. This method allows for rules
+to be reused across multiple request readers.
+</p></div><dl class="paramcmts block"><dt class="param">rule</dt><dd class="cmt"><p>the predefined <a href="ValidationRule.html" class="extype" name="io.finch.ValidationRule">ValidationRule</a> that will return true if the data is
+            valid</p></dd><dt>returns</dt><dd class="cmt"><p>an endpoint that will return the value of this reader if it is valid.
+        Otherwise the future fails with an <a href="Error$$NotValid.html" class="extype" name="io.finch.Error.NotValid">Error.NotValid</a> error.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
+    </li><li name="io.finch.Endpoint#should" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="should(rule:String)(predicate:A=&gt;Boolean):io.finch.Endpoint[A]"></a>
+      <a id="should(String)((HNil)⇒Boolean):Endpoint[HNil]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">should</span><span class="params">(<span name="rule">rule: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="predicate">predicate: (<span class="extype" name="shapeless.HNil">HNil</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="shapeless.HNil">HNil</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints$$div$@should(rule:String)(predicate:A=&gt;Boolean):io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Validates the result of this endpoint using a <code>predicate</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Validates the result of this endpoint using a <code>predicate</code>. The rule is used for error
+reporting.
+</p></div><dl class="paramcmts block"><dt class="param">rule</dt><dd class="cmt"><p>text describing the rule being validated</p></dd><dt class="param">predicate</dt><dd class="cmt"><p>returns true if the data is valid</p></dd><dt>returns</dt><dd class="cmt"><p>an endpoint that will return the value of this reader if it is valid.
+        Otherwise the future fails with an <a href="Error$$NotValid.html" class="extype" name="io.finch.Error.NotValid">Error.NotValid</a> error.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
+    </li><li name="io.finch.Endpoint#shouldNot" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="shouldNot(rule:io.finch.ValidationRule[A]):io.finch.Endpoint[A]"></a>
+      <a id="shouldNot(ValidationRule[HNil]):Endpoint[HNil]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shouldNot</span><span class="params">(<span name="rule">rule: <a href="ValidationRule.html" class="extype" name="io.finch.ValidationRule">ValidationRule</a>[<span class="extype" name="shapeless.HNil">HNil</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="shapeless.HNil">HNil</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints$$div$@shouldNot(rule:io.finch.ValidationRule[A]):io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Validates the result of this endpoint using a predefined <code>rule</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Validates the result of this endpoint using a predefined <code>rule</code>. This method allows for rules
+to be reused across multiple request readers.
+</p></div><dl class="paramcmts block"><dt class="param">rule</dt><dd class="cmt"><p>the predefined <a href="ValidationRule.html" class="extype" name="io.finch.ValidationRule">ValidationRule</a> that will return false if the data is
+            valid</p></dd><dt>returns</dt><dd class="cmt"><p>an endpoint that will return the value of this reader if it is valid.
+        Otherwise the future fails with a <a href="Error$$NotValid.html" class="extype" name="io.finch.Error.NotValid">Error.NotValid</a> error.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
+    </li><li name="io.finch.Endpoint#shouldNot" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="shouldNot(rule:String)(predicate:A=&gt;Boolean):io.finch.Endpoint[A]"></a>
+      <a id="shouldNot(String)((HNil)⇒Boolean):Endpoint[HNil]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shouldNot</span><span class="params">(<span name="rule">rule: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="predicate">predicate: (<span class="extype" name="shapeless.HNil">HNil</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="shapeless.HNil">HNil</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints$$div$@shouldNot(rule:String)(predicate:A=&gt;Boolean):io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Validates the result of this endpoint using a <code>predicate</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Validates the result of this endpoint using a <code>predicate</code>. The rule is used for error reporting.
+</p></div><dl class="paramcmts block"><dt class="param">rule</dt><dd class="cmt"><p>text describing the rule being validated</p></dd><dt class="param">predicate</dt><dd class="cmt"><p>returns false if the data is valid</p></dd><dt>returns</dt><dd class="cmt"><p>an endplint that will return the value of this reader if it is valid.
+        Otherwise the future fails with a <a href="Error$$NotValid.html" class="extype" name="io.finch.Error.NotValid">Error.NotValid</a> error.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -752,7 +940,7 @@ throwable from the underlying future.
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Sequentially composes this endpoint with the given <code>that</code> endpoint.</p><div class="fullcomment"><div class="comment cmt"><p>Sequentially composes this endpoint with the given <code>that</code> endpoint. The resulting router will
+      <p class="shortcomment cmt">Sequentially composes this endpoint with the given <code>that</code> endpoint.</p><div class="fullcomment"><div class="comment cmt"><p>Sequentially composes this endpoint with the given <code>that</code> endpoint. The resulting endpoint will
 succeed if either this or <code>that</code> endpoints are succeed.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
     </li></ol>
@@ -760,7 +948,30 @@ succeed if either this or <code>that</code> endpoints are succeed.
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="io.finch.Endpoint#embedFlatMap" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="embedFlatMap[B](fn:A=&gt;com.twitter.util.Future[B]):io.finch.Endpoint[B]"></a>
+      <a id="embedFlatMap[B]((HNil)⇒Future[B]):Endpoint[B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.10.0) Use Endpoint.mapAsync instead">embedFlatMap</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="shapeless.HNil">HNil</span>) ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<span class="extype" name="io.finch.Endpoint.embedFlatMap.B">B</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.embedFlatMap.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints$$div$@embedFlatMap[B](fn:A=&gt;com.twitter.util.Future[B]):io.finch.Endpoint[B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.10.0)</i> Use Endpoint.mapAsync instead</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">

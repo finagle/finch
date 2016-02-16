@@ -181,7 +181,8 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Converts this endpoint to one that returns any type with this <span class="extype" name="shapeless.HList">shapeless.HList</span> as its representation.</p>
+      <p class="shortcomment cmt">Converts this endpoint to one that returns any type with this <span class="extype" name="shapeless.HList">shapeless.HList</span> as its
+representation.</p>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -199,6 +200,27 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.finch.Endpoint.HListEndpointOps#asTuple" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asTuple(implicittupler:shapeless.ops.hlist.Tupler[L]):io.finch.Endpoint[tupler.Out]"></a>
+      <a id="asTuple(Tupler[L]):Endpoint[shapeless.ops.hlist.Tupler.Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asTuple</span><span class="params">(<span class="implicit">implicit </span><span name="tupler">tupler: <span class="extype" name="shapeless.ops.hlist.Tupler">Tupler</span>[<span class="extype" name="io.finch.Endpoint.HListEndpointOps.L">L</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="shapeless.DepFn1.Out">shapeless.ops.hlist.Tupler.Out</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$$HListEndpointOps@asTuple(implicittupler:shapeless.ops.hlist.Tupler[L]):io.finch.Endpoint[tupler.Out]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Converts this endpoint to one that returns a tuple with the same types as this
+<span class="extype" name="shapeless.HList">shapeless.HList</span>.</p><div class="fullcomment"><div class="comment cmt"><p>Converts this endpoint to one that returns a tuple with the same types as this
+<span class="extype" name="shapeless.HList">shapeless.HList</span>.</p><p>Note that this will fail at compile time if this this <span class="extype" name="shapeless.HList">shapeless.HList</span> contains more than
+22 elements.
+</p></div></div>
     </li><li name="scala.AnyVal#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_&lt;:AnyVal]"></a>
       <a id="getClass():Class[_&lt;:AnyVal]"></a>

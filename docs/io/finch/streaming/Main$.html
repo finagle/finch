@@ -1,22 +1,22 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <title>HListReaderOps - io.finch.RequestReader.HListReaderOps</title>
-          <meta name="description" content="HListReaderOps - io.finch.RequestReader.HListReaderOps" />
-          <meta name="keywords" content="HListReaderOps io.finch.RequestReader.HListReaderOps" />
+          <title>Main - io.finch.streaming.Main</title>
+          <meta name="description" content="Main - io.finch.streaming.Main" />
+          <meta name="keywords" content="Main io.finch.streaming.Main" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
-      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
-      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
-      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
       
       <script type="text/javascript">
          if(top === self) {
-            var url = '../../index.html';
-            var hash = 'io.finch.RequestReader$$HListReaderOps';
+            var url = '../../../index.html';
+            var hash = 'io.finch.streaming.Main$';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -26,35 +26,34 @@
    	  </script>
     
         </head>
-        <body class="type">
+        <body class="value">
       <div id="definition">
-        <img alt="Class" src="../../lib/class_big.png" />
-        <p id="owner"><a href="../package.html" class="extype" name="io">io</a>.<a href="package.html" class="extype" name="io.finch">finch</a>.<a href="RequestReader$.html" class="extype" name="io.finch.RequestReader">RequestReader</a></p>
-        <h1>HListReaderOps</h1><h3><span class="morelinks"><div>Related Doc:
-            <a href="RequestReader$.html" class="extype" name="io.finch.RequestReader">package RequestReader</a>
+        <img alt="Object" src="../../../lib/object_big.png" />
+        <p id="owner"><a href="../../package.html" class="extype" name="io">io</a>.<a href="../package.html" class="extype" name="io.finch">finch</a>.<a href="package.html" class="extype" name="io.finch.streaming">streaming</a></p>
+        <h1>Main</h1><h3><span class="morelinks"><div>Related Doc:
+            <a href="package.html" class="extype" name="io.finch.streaming">package streaming</a>
           </div></span></h3><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
-        <span class="modifier">implicit final </span>
-        <span class="kind">class</span>
+        <span class="modifier"></span>
+        <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">HListReaderOps</span><span class="tparams">[<span name="L">L &lt;: <span class="extype" name="shapeless.HList">HList</span></span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+        <span class="name">Main</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.App" class="extype" target="_top">App</a></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Implicit class that provides <code>::</code> and other operations on any request reader that returns a
-<span class="extype" name="shapeless.HList">shapeless.HList</span>.</p><p>See the implementation note on <a href="RequestReader$$StringSeqReaderOps.html" class="extype" name="io.finch.RequestReader.StringSeqReaderOps">StringSeqReaderOps</a> for a discussion of why this is not
-currently a value class.
-</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A simple Finch application featuring very basic, <code>Buf</code>-based streaming support.</p><p>There are three endpoints in this example:</p><ol class="decimal"><li><code>totalSum</code> - streaming request
+ 2. <code>sumTo</code> - streaming response
+ 3. <code>sumSoFar</code> - end-to-end (request - response) streaming</li></ol><p>Use the following sbt command to run the application.</p><pre>$ sbt 'examples/runMain io.finch.streaming.Main<span class="lit">'</span></pre></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.App" class="extype" target="_top">App</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.DelayedInit" class="extype" target="_top">DelayedInit</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
         
 
@@ -72,7 +71,7 @@ currently a value class.
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="io.finch.RequestReader.HListReaderOps"><span>HListReaderOps</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="io.finch.streaming.Main"><span>Main</span></li><li class="in" name="scala.App"><span>App</span></li><li class="in" name="scala.DelayedInit"><span>DelayedInit</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -89,27 +88,7 @@ currently a value class.
 
       <div id="template">
         <div id="allMembers">
-        <div id="constructors" class="members">
-              <h3>Instance Constructors</h3>
-              <ol><li name="io.finch.RequestReader.HListReaderOps#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(self:io.finch.RequestReader[L]):io.finch.RequestReader.HListReaderOps[L]"></a>
-      <a id="&lt;init&gt;:HListReaderOps[L]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">new</span>
-      </span>
-      <span class="symbol">
-        <span class="name">HListReaderOps</span><span class="params">(<span name="self">self: <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.RequestReader.HListReaderOps.L">L</span>]</span>)</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@&lt;init&gt;(self:io.finch.RequestReader[L]):io.finch.RequestReader.HListReaderOps[L]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li></ol>
-            </div>
+        
 
         
 
@@ -129,8 +108,8 @@ currently a value class.
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@!=(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -146,28 +125,11 @@ currently a value class.
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@##():Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@##():Int" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.finch.RequestReader.HListReaderOps#::" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="::[S,A](that:io.finch.RequestReader[A]):io.finch.RequestReader[shapeless.::[A,L]]"></a>
-      <a id="::[S,A](RequestReader[A]):RequestReader[::[A,L]]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $colon$colon" class="name">::</span><span class="tparams">[<span name="S">S</span>, <span name="A">A</span>]</span><span class="params">(<span name="that">that: <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.RequestReader.HListReaderOps.::.A">A</span>]</span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>[<span class="extype" name="shapeless.::">::</span>[<span class="extype" name="io.finch.RequestReader.HListReaderOps.::.A">A</span>, <span class="extype" name="io.finch.RequestReader.HListReaderOps.L">L</span>]]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@::[S,A](that:io.finch.RequestReader[A]):io.finch.RequestReader[shapeless.::[A,L]]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Composes this request reader with the given <code>that</code> request reader.</p>
     </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a>
       <a id="==(Any):Boolean"></a>
@@ -180,29 +142,37 @@ currently a value class.
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@==(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.finch.RequestReader.HListReaderOps#as" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="as[A](implicitgen:shapeless.Generic.Aux[A,L]):io.finch.RequestReader[A]"></a>
-      <a id="as[A](Aux[A,L]):RequestReader[A]"></a>
+    </li><li name="scala.App#args" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="args:Array[String]"></a>
+      <a id="args:Array[String]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="gen">gen: <span class="extype" name="shapeless.Generic.Aux">Aux</span>[<span class="extype" name="io.finch.RequestReader.HListReaderOps.as.A">A</span>, <span class="extype" name="io.finch.RequestReader.HListReaderOps.L">L</span>]</span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.RequestReader.HListReaderOps.as.A">A</span>]</span>
+        <span class="name">args</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Array" class="extype" target="_top">Array</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@as[A](implicitgen:shapeless.Generic.Aux[A,L]):io.finch.RequestReader[A]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@args:Array[String]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Converts this request reader to one that returns any type with this <span class="extype" name="shapeless.HList">shapeless.HList</span> as
-its representation.</p>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>App</dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecatedOverriding</span><span class="args">(<span>
+      
+      <span class="symbol">&quot;args should not be overridden&quot;</span>
+    </span>, <span>
+      
+      <span class="symbol">&quot;2.11.0&quot;</span>
+    </span>)</span>
+              
+        </dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -215,32 +185,11 @@ its representation.</p>
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@asInstanceOf[T0]:T0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.finch.RequestReader.HListReaderOps#asTuple" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="asTuple(implicittupler:shapeless.ops.hlist.Tupler[L]):io.finch.RequestReader[tupler.Out]"></a>
-      <a id="asTuple(Tupler[L]):RequestReader[shapeless.ops.hlist.Tupler.Out]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">asTuple</span><span class="params">(<span class="implicit">implicit </span><span name="tupler">tupler: <span class="extype" name="shapeless.ops.hlist.Tupler">Tupler</span>[<span class="extype" name="io.finch.RequestReader.HListReaderOps.L">L</span>]</span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>[<span class="extype" name="shapeless.DepFn1.Out">shapeless.ops.hlist.Tupler.Out</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@asTuple(implicittupler:shapeless.ops.hlist.Tupler[L]):io.finch.RequestReader[tupler.Out]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Converts this request reader to one that returns a tuple with the same types as this
-<span class="extype" name="shapeless.HList">shapeless.HList</span>.</p><div class="fullcomment"><div class="comment cmt"><p>Converts this request reader to one that returns a tuple with the same types as this
-<span class="extype" name="shapeless.HList">shapeless.HList</span>.</p><p>Note that this will fail at compile time if this this <span class="extype" name="shapeless.HList">shapeless.HList</span> contains more than
-22 elements.
-</p></div></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -253,11 +202,11 @@ its representation.</p>
         <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@clone():Object" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@clone():Object" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
@@ -276,8 +225,8 @@ its representation.</p>
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -293,11 +242,28 @@ its representation.</p>
         <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@equals(x$1:Any):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.App#executionStart" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="executionStart:Long"></a>
+      <a id="executionStart:Long"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">executionStart</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Long" class="extype" target="_top">Long</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.streaming.Main$@executionStart:Long" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>App</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -310,11 +276,11 @@ its representation.</p>
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@finalize():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
@@ -333,8 +299,8 @@ its representation.</p>
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@getClass():Class[_]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -350,8 +316,8 @@ its representation.</p>
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@hashCode():Int" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@hashCode():Int" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -367,11 +333,37 @@ its representation.</p>
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.App#main" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="main(args:&lt;?&gt;):Unit"></a>
+      <a id="main(Array[String]):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">main</span><span class="params">(<span name="args">args: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Array" class="extype" target="_top">Array</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.streaming.Main$@main(args:Array[String]):Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>App</dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecatedOverriding</span><span class="args">(<span>
+      
+      <span class="symbol">&quot;main should not be overridden&quot;</span>
+    </span>, <span>
+      
+      <span class="symbol">&quot;2.11.0&quot;</span>
+    </span>)</span>
+              
+        </dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -384,8 +376,8 @@ its representation.</p>
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -401,8 +393,8 @@ its representation.</p>
         <span class="name">notify</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@notify():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@notify():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -418,25 +410,59 @@ its representation.</p>
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@notifyAll():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="io.finch.RequestReader.HListReaderOps#self" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="self:io.finch.RequestReader[L]"></a>
-      <a id="self:RequestReader[L]"></a>
+    </li><li name="io.finch.streaming.Main#sum" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="sum:java.util.concurrent.atomic.AtomicLong"></a>
+      <a id="sum:AtomicLong"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">self</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.RequestReader.HListReaderOps.L">L</span>]</span>
+        <span class="name">sum</span><span class="result">: <span class="extype" name="java.util.concurrent.atomic.AtomicLong">AtomicLong</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@self:io.finch.RequestReader[L]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@sum:java.util.concurrent.atomic.AtomicLong" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.streaming.Main#sumSoFar" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="sumSoFar:io.finch.Endpoint[com.twitter.concurrent.AsyncStream[com.twitter.io.Buf]]"></a>
+      <a id="sumSoFar:Endpoint[AsyncStream[Buf]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sumSoFar</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.concurrent.AsyncStream" class="extype" target="_top">AsyncStream</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.io.Buf" class="extype" target="_top">Buf</a>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.streaming.Main$@sumSoFar:io.finch.Endpoint[com.twitter.concurrent.AsyncStream[com.twitter.io.Buf]]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.streaming.Main#sumTo" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="sumTo:io.finch.Endpoint[com.twitter.concurrent.AsyncStream[com.twitter.io.Buf]]"></a>
+      <a id="sumTo:Endpoint[AsyncStream[Buf]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sumTo</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.concurrent.AsyncStream" class="extype" target="_top">AsyncStream</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.io.Buf" class="extype" target="_top">Buf</a>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.streaming.Main$@sumTo:io.finch.Endpoint[com.twitter.concurrent.AsyncStream[com.twitter.io.Buf]]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       
@@ -452,8 +478,8 @@ its representation.</p>
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -469,11 +495,28 @@ its representation.</p>
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@toString():String" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@toString():String" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="io.finch.streaming.Main#totalSum" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="totalSum:io.finch.Endpoint[String]"></a>
+      <a id="totalSum:Endpoint[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">totalSum</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.streaming.Main$@totalSum:io.finch.Endpoint[String]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
@@ -486,8 +529,8 @@ its representation.</p>
         <span class="name">wait</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@wait():Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@wait():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
@@ -509,8 +552,8 @@ its representation.</p>
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
@@ -532,8 +575,8 @@ its representation.</p>
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@wait(x$1:Long):Unit" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
+      <a href="../../../index.html#io.finch.streaming.Main$@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
@@ -543,52 +586,43 @@ its representation.</p>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.finch.RequestReader.HListReaderOps#~&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="~&gt;[F,I](fn:F)(implicitftp:shapeless.ops.function.FnToProduct.Aux[F,L=&gt;I]):io.finch.RequestReader[I]"></a>
-      <a id="~&gt;[F,I](F)(shapeless.ops.function.FnToProduct.Aux[F,(L)⇒I]):RequestReader[I]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $tilde$greater" class="name">~&gt;</span><span class="tparams">[<span name="F">F</span>, <span name="I">I</span>]</span><span class="params">(<span name="fn">fn: <span class="extype" name="io.finch.RequestReader.HListReaderOps.~&gt;.F">F</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ftp">ftp: <span class="extype" name="shapeless.ops.FnToProductInstances.Aux">shapeless.ops.function.FnToProduct.Aux</span>[<span class="extype" name="io.finch.RequestReader.HListReaderOps.~&gt;.F">F</span>, (<span class="extype" name="io.finch.RequestReader.HListReaderOps.L">L</span>) ⇒ <span class="extype" name="io.finch.RequestReader.HListReaderOps.~&gt;.I">I</span>]</span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.RequestReader.HListReaderOps.~&gt;.I">I</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@~&gt;[F,I](fn:F)(implicitftp:shapeless.ops.function.FnToProduct.Aux[F,L=&gt;I]):io.finch.RequestReader[I]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Applies a <code>FunctionN</code> with the appropriate arity and types to the elements of this
-<span class="extype" name="shapeless.HList">shapeless.HList</span>.</p>
-    </li><li name="io.finch.RequestReader.HListReaderOps#~~&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="~~&gt;[F,I,FI](fn:F)(implicitftp:shapeless.ops.function.FnToProduct.Aux[F,L=&gt;FI],implicitev:&lt;:&lt;[FI,com.twitter.util.Future[I]]):io.finch.RequestReader[I]"></a>
-      <a id="~~&gt;[F,I,FI](F)(shapeless.ops.function.FnToProduct.Aux[F,(L)⇒FI],&lt;:&lt;[FI,Future[I]]):RequestReader[I]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $tilde$tilde$greater" class="name">~~&gt;</span><span class="tparams">[<span name="F">F</span>, <span name="I">I</span>, <span name="FI">FI</span>]</span><span class="params">(<span name="fn">fn: <span class="extype" name="io.finch.RequestReader.HListReaderOps.~~&gt;.F">F</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ftp">ftp: <span class="extype" name="shapeless.ops.FnToProductInstances.Aux">shapeless.ops.function.FnToProduct.Aux</span>[<span class="extype" name="io.finch.RequestReader.HListReaderOps.~~&gt;.F">F</span>, (<span class="extype" name="io.finch.RequestReader.HListReaderOps.L">L</span>) ⇒ <span class="extype" name="io.finch.RequestReader.HListReaderOps.~~&gt;.FI">FI</span>]</span>, <span name="ev">ev: <span class="extype" name="scala.Predef.&lt;:&lt;">&lt;:&lt;</span>[<span class="extype" name="io.finch.RequestReader.HListReaderOps.~~&gt;.FI">FI</span>, <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<span class="extype" name="io.finch.RequestReader.HListReaderOps.~~&gt;.I">I</span>]]</span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.RequestReader.HListReaderOps.~~&gt;.I">I</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$HListReaderOps@~~&gt;[F,I,FI](fn:F)(implicitftp:shapeless.ops.function.FnToProduct.Aux[F,L=&gt;FI],implicitev:&lt;:&lt;[FI,com.twitter.util.Future[I]]):io.finch.RequestReader[I]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Applies a <code>FunctionN</code> with the appropriate arity and types and a <code>Future</code> return type to
-the elements of this <span class="extype" name="shapeless.HList">shapeless.HList</span>.</p>
     </li></ol>
             </div>
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="scala.App#delayedInit" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="delayedInit(body:=&gt;Unit):Unit"></a>
+      <a id="delayedInit(⇒Unit):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 2.11.0) The delayedInit mechanism will disappear.">delayedInit</span><span class="params">(<span name="body">body: ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.streaming.Main$@delayedInit(body:=&gt;Unit):Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>App → DelayedInit</dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 2.11.0)</i> The delayedInit mechanism will disappear.</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.App">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.App" class="extype" target="_top">App</a></h3>
+            </div><div class="parent" name="scala.DelayedInit">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.DelayedInit" class="extype" target="_top">DelayedInit</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></h3>

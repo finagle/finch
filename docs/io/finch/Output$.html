@@ -109,40 +109,6 @@
       </a>
     </span>
       
-    </li><li name="io.finch.Output.Failure" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="FailureextendsOutput[Nothing]withProductwithSerializable"></a>
-      <a id="Failure:Failure"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="Output$$Failure.html"><span class="name">Failure</span></a><span class="params">(<span name="cause">cause: <span class="extype" name="scala.Exception">Exception</span></span>, <span name="status">status: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Status" class="extype" target="_top">Status</a> = <span class="symbol">Status.BadRequest</span></span>, <span name="headers">headers: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Map.empty[String, String]</span></span>, <span name="cookies">cookies: <span class="extype" name="scala.Seq">Seq</span>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Cookie" class="extype" target="_top">Cookie</a>] = <span class="symbol">Seq.empty[Cookie]</span></span>, <span name="contentType">contentType: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="charset">charset: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Nothing" class="extype" target="_top">Nothing</a>] with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Output$@FailureextendsOutput[Nothing]withProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A failure <a href="Output.html" class="extype" name="io.finch.Output">Output</a> that captures an <span class="extype" name="Exception">Exception</span> that caused this.</p>
-    </li><li name="io.finch.Output.Payload" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Payload[A]extendsOutput[A]withProductwithSerializable"></a>
-      <a id="Payload[A]:Payload[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="Output$$Payload.html"><span class="name">Payload</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="io.finch.Output.Payload.A">A</span></span>, <span name="status">status: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Status" class="extype" target="_top">Status</a> = <span class="symbol">Status.Ok</span></span>, <span name="headers">headers: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Map.empty[String, String]</span></span>, <span name="cookies">cookies: <span class="extype" name="scala.Seq">Seq</span>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Cookie" class="extype" target="_top">Cookie</a>] = <span class="symbol">Seq.empty[Cookie]</span></span>, <span name="contentType">contentType: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="charset">charset: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.Payload.A">A</span>] with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Output$@Payload[A]extendsOutput[A]withProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A successful <a href="Output.html" class="extype" name="io.finch.Output">Output</a> that captures a payload <code>value</code>.</p>
     </li></ol>
             </div>
 
@@ -201,6 +167,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="io.finch.Output#None" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="None:io.finch.Output[Option[Nothing]]"></a>
+      <a id="None:Output[Option[Nothing]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">None</span><span class="result">: <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Nothing" class="extype" target="_top">Nothing</a>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Output$@None:io.finch.Output[Option[Nothing]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Output.html" class="extype" name="io.finch.Output">Output</a> with <code>None</code> as payload.</p>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -241,6 +224,23 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="io.finch.Output#empty" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="empty[A](status:com.twitter.finagle.http.Status):io.finch.Output[A]"></a>
+      <a id="empty[A](Status):Output[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">empty</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="status">status: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Status" class="extype" target="_top">Status</a></span>)</span><span class="result">: <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.empty.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Output$@empty[A](status:com.twitter.finagle.http.Status):io.finch.Output[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Creates an empty <a href="Output.html" class="extype" name="io.finch.Output">Output</a> of given <code>status</code>.</p>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -276,22 +276,22 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="io.finch.Output#failure" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="failure[A](cause:Exception,s:com.twitter.finagle.http.Status):io.finch.Output[A]"></a>
+      <a id="failure[A](cause:Exception,status:com.twitter.finagle.http.Status):io.finch.Output[A]"></a>
       <a id="failure[A](Exception,Status):Output[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">failure</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="cause">cause: <span class="extype" name="scala.Exception">Exception</span></span>, <span name="s">s: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Status" class="extype" target="_top">Status</a> = <span class="symbol">Status.BadRequest</span></span>)</span><span class="result">: <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.failure.A">A</span>]</span>
+        <span class="name">failure</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="cause">cause: <span class="extype" name="scala.Exception">Exception</span></span>, <span name="status">status: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Status" class="extype" target="_top">Status</a> = <span class="symbol">Status.BadRequest</span></span>)</span><span class="result">: <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.failure.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Output$@failure[A](cause:Exception,s:com.twitter.finagle.http.Status):io.finch.Output[A]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Output$@failure[A](cause:Exception,status:com.twitter.finagle.http.Status):io.finch.Output[A]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a new <a href="Output$$Failure.html" class="extype" name="io.finch.Output.Failure">Output.Failure</a> of type <code>Output[A]</code>.</p>
+      <p class="shortcomment cmt">Creates a failure <a href="Output.html" class="extype" name="io.finch.Output">Output</a> that wraps an exception <code>cause</code> causing this.</p>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -418,22 +418,22 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="io.finch.Output#payload" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="payload[A](a:A,s:com.twitter.finagle.http.Status):io.finch.Output[A]"></a>
+      <a id="payload[A](value:A,status:com.twitter.finagle.http.Status):io.finch.Output[A]"></a>
       <a id="payload[A](A,Status):Output[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">payload</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="a">a: <span class="extype" name="io.finch.Output.payload.A">A</span></span>, <span name="s">s: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Status" class="extype" target="_top">Status</a> = <span class="symbol">Status.Ok</span></span>)</span><span class="result">: <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.payload.A">A</span>]</span>
+        <span class="name">payload</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="io.finch.Output.payload.A">A</span></span>, <span name="status">status: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Status" class="extype" target="_top">Status</a> = <span class="symbol">Status.Ok</span></span>)</span><span class="result">: <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.payload.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Output$@payload[A](a:A,s:com.twitter.finagle.http.Status):io.finch.Output[A]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Output$@payload[A](value:A,status:com.twitter.finagle.http.Status):io.finch.Output[A]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a new <a href="Output$$Payload.html" class="extype" name="io.finch.Output.Payload">Output.Payload</a> of type <code>Output[A]</code>.</p>
+      <p class="shortcomment cmt">Creates a successful <a href="Output.html" class="extype" name="io.finch.Output">Output</a> that wraps a payload <code>value</code> with given <code>status</code>.</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -468,6 +468,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="io.finch.Output#unit" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="unit(status:com.twitter.finagle.http.Status):io.finch.Output[Unit]"></a>
+      <a id="unit(Status):Output[Unit]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">unit</span><span class="params">(<span name="status">status: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Status" class="extype" target="_top">Status</a></span>)</span><span class="result">: <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Output$@unit(status:com.twitter.finagle.http.Status):io.finch.Output[Unit]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Creates a unit/empty <a href="Output.html" class="extype" name="io.finch.Output">Output</a> (i.e., <code>Output[Unit]</code>) of given <code>status</code>.</p>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>

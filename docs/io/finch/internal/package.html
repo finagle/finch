@@ -47,7 +47,8 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>This package contains an internal-use only type-classes and utilities that power Finch's API.</p><p>It's not recommended to use any of the internal API directly, since it might change without any deprecation cycles.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>This package contains an internal-use only type-classes and utilities that power Finch's API.</p><p>It's not recommended to use any of the internal API directly, since it might change without any
+deprecation cycles.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
@@ -105,7 +106,7 @@
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">A type class empowering a generic derivation of <a href="../RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>s from query string params.</p>
+      <p class="shortcomment cmt">A type class empowering a generic derivation of <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>s from query string params.</p>
     </li><li name="io.finch.internal.HighPriorityMapperConversions" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="HighPriorityMapperConversionsextendsLowPriorityMapperConversions"></a>
       <a id="HighPriorityMapperConversions:HighPriorityMapperConversions"></a>
@@ -242,13 +243,13 @@ the case of singleton results (we simply return the value, not a singleton <code
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Represents a conversion from an <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> returning a result type <code>A</code> to a Finagle service from a request-like
-type <code>R</code> to a <span class="extype" name="Response">Response</span>.</p><div class="fullcomment"><div class="comment cmt"><p>Represents a conversion from an <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> returning a result type <code>A</code> to a Finagle service from a request-like
-type <code>R</code> to a <span class="extype" name="Response">Response</span>.
+      <p class="shortcomment cmt">Represents a conversion from an <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> returning a result type <code>A</code> to a Finagle service
+from a request-like type <code>R</code> to a <span class="extype" name="Response">Response</span>.</p><div class="fullcomment"><div class="comment cmt"><p>Represents a conversion from an <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> returning a result type <code>A</code> to a Finagle service
+from a request-like type <code>R</code> to a <span class="extype" name="Response">Response</span>.
 </p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
                 <span class="name">@implicitNotFound</span><span class="args">(<span>
       
-      <span class="defval" name="&quot;&quot;&quot;You can only convert a router into a Finagle service if the result type of the router is one of the following:<br/><br/>  * A Response<br/>  * A value of a type with an EncodeResponse instance<br/>  * A coproduct made up of some combination of the above<br/><br/>${A} does not satisfy the requirement. You may need to provide an EncodeResponse instance for ${A} (or for some  part of<br/>${A}).<br/>&quot;&quot;&quot;">...</span>
+      <span class="defval" name="&quot;&quot;&quot;You can only convert a router into a Finagle service if the result type of the router is one of<br/>the following:<br/><br/>  * A Response<br/>  * A value of a type with an EncodeResponse instance<br/>  * A coproduct made up of some combination of the above<br/><br/>${A} does not satisfy the requirement. You may need to provide an EncodeResponse instance for ${A}<br/>(or for some  part of ${A}).<br/>&quot;&quot;&quot;">...</span>
     </span>)</span>
               
         </dd></dl></div>

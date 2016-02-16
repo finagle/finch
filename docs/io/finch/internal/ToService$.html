@@ -163,9 +163,9 @@
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">A polymorphic function value that accepts types that can be transformed into a Finagle service from a request-like
-type to a <span class="extype" name="Response">Response</span>.</p><div class="fullcomment"><div class="comment cmt"><p>A polymorphic function value that accepts types that can be transformed into a Finagle service from a request-like
-type to a <span class="extype" name="Response">Response</span>.
+      <p class="shortcomment cmt">A polymorphic function value that accepts types that can be transformed into a Finagle service
+from a request-like type to a <span class="extype" name="Response">Response</span>.</p><div class="fullcomment"><div class="comment cmt"><p>A polymorphic function value that accepts types that can be transformed into a Finagle service
+from a request-like type to a <span class="extype" name="Response">Response</span>.
 </p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="LowPriorityToServiceInstances.html" class="extype" name="io.finch.internal.LowPriorityToServiceInstances">LowPriorityToServiceInstances</a></dd></dl></div>
     </li><li name="io.finch.internal.LowPriorityToServiceInstances#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="apply[A](implicitts:io.finch.internal.ToService[A]):io.finch.internal.ToService[A]"></a>
@@ -226,18 +226,18 @@ type to a <span class="extype" name="Response">Response</span>.
               
         </dd></dl></div>
     </li><li name="io.finch.internal.ToService#coproductRouterToService" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="coproductRouterToService[C&lt;:shapeless.Coproduct](implicitfolder:shapeless.ops.coproduct.Folder.Aux[io.finch.internal.ToService.EncodeAll.type,C,com.twitter.finagle.http.Response],implicittre:io.finch.internal.ToResponse[Exception],implicittrm:io.finch.internal.ToResponse[Map[String,String]]):io.finch.internal.ToService[C]"></a>
-      <a id="coproductRouterToService[C&lt;:Coproduct](Aux[EncodeAll.type,C,Response],ToResponse[Exception],ToResponse[Map[String,String]]):ToService[C]"></a>
+      <a id="coproductRouterToService[C&lt;:shapeless.Coproduct](implicitfolder:shapeless.ops.coproduct.Folder.Aux[io.finch.internal.ToService.EncodeAll.type,C,com.twitter.finagle.http.Response],implicittre:io.finch.internal.ToResponse[Exception]):io.finch.internal.ToService[C]"></a>
+      <a id="coproductRouterToService[C&lt;:Coproduct](Aux[EncodeAll.type,C,Response],ToResponse[Exception]):ToService[C]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">coproductRouterToService</span><span class="tparams">[<span name="C">C &lt;: <span class="extype" name="shapeless.Coproduct">Coproduct</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="folder">folder: <span class="extype" name="shapeless.ops.coproduct.Folder.Aux">Aux</span>[<a href="#EncodeAll" class="extmbr" name="io.finch.internal.LowPriorityToServiceInstances.EncodeAll">EncodeAll</a>.type, <span class="extype" name="io.finch.internal.ToService.coproductRouterToService.C">C</span>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a>]</span>, <span name="tre">tre: <a href="ToResponse.html" class="extype" name="io.finch.internal.ToResponse">ToResponse</a>[<span class="extype" name="scala.Exception">Exception</span>]</span>, <span name="trm">trm: <a href="ToResponse.html" class="extype" name="io.finch.internal.ToResponse">ToResponse</a>[<span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]]</span>)</span><span class="result">: <a href="ToService.html" class="extype" name="io.finch.internal.ToService">ToService</a>[<span class="extype" name="io.finch.internal.ToService.coproductRouterToService.C">C</span>]</span>
+        <span class="name">coproductRouterToService</span><span class="tparams">[<span name="C">C &lt;: <span class="extype" name="shapeless.Coproduct">Coproduct</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="folder">folder: <span class="extype" name="shapeless.ops.coproduct.Folder.Aux">Aux</span>[<a href="#EncodeAll" class="extmbr" name="io.finch.internal.LowPriorityToServiceInstances.EncodeAll">EncodeAll</a>.type, <span class="extype" name="io.finch.internal.ToService.coproductRouterToService.C">C</span>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a>]</span>, <span name="tre">tre: <a href="ToResponse.html" class="extype" name="io.finch.internal.ToResponse">ToResponse</a>[<span class="extype" name="scala.Exception">Exception</span>]</span>)</span><span class="result">: <a href="ToService.html" class="extype" name="io.finch.internal.ToService">ToService</a>[<span class="extype" name="io.finch.internal.ToService.coproductRouterToService.C">C</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.internal.ToService$@coproductRouterToService[C&lt;:shapeless.Coproduct](implicitfolder:shapeless.ops.coproduct.Folder.Aux[io.finch.internal.ToService.EncodeAll.type,C,com.twitter.finagle.http.Response],implicittre:io.finch.internal.ToResponse[Exception],implicittrm:io.finch.internal.ToResponse[Map[String,String]]):io.finch.internal.ToService[C]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.internal.ToService$@coproductRouterToService[C&lt;:shapeless.Coproduct](implicitfolder:shapeless.ops.coproduct.Folder.Aux[io.finch.internal.ToService.EncodeAll.type,C,com.twitter.finagle.http.Response],implicittre:io.finch.internal.ToResponse[Exception]):io.finch.internal.ToService[C]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -471,18 +471,18 @@ type to a <span class="extype" name="Response">Response</span>.
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="io.finch.internal.LowPriorityToServiceInstances#valueRouterToService" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="valueRouterToService[A](implicitpolyCase:LowPriorityToServiceInstances.this.EncodeAll.Case.Aux[A,com.twitter.finagle.http.Response],implicittre:io.finch.internal.ToResponse[Exception],implicittrm:io.finch.internal.ToResponse[Map[String,String]]):io.finch.internal.ToService[A]"></a>
-      <a id="valueRouterToService[A](Aux[A,Response],ToResponse[Exception],ToResponse[Map[String,String]]):ToService[A]"></a>
+      <a id="valueRouterToService[A](implicitpolyCase:LowPriorityToServiceInstances.this.EncodeAll.Case.Aux[A,com.twitter.finagle.http.Response],implicittre:io.finch.internal.ToResponse[Exception]):io.finch.internal.ToService[A]"></a>
+      <a id="valueRouterToService[A](Aux[A,Response],ToResponse[Exception]):ToService[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">valueRouterToService</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="polyCase">polyCase: <span class="extype" name="shapeless.Poly1.Case.Aux">Aux</span>[<span class="extype" name="io.finch.internal.LowPriorityToServiceInstances.valueRouterToService.A">A</span>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a>]</span>, <span name="tre">tre: <a href="ToResponse.html" class="extype" name="io.finch.internal.ToResponse">ToResponse</a>[<span class="extype" name="scala.Exception">Exception</span>]</span>, <span name="trm">trm: <a href="ToResponse.html" class="extype" name="io.finch.internal.ToResponse">ToResponse</a>[<span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]]</span>)</span><span class="result">: <a href="ToService.html" class="extype" name="io.finch.internal.ToService">ToService</a>[<span class="extype" name="io.finch.internal.LowPriorityToServiceInstances.valueRouterToService.A">A</span>]</span>
+        <span class="name">valueRouterToService</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="polyCase">polyCase: <span class="extype" name="shapeless.Poly1.Case.Aux">Aux</span>[<span class="extype" name="io.finch.internal.LowPriorityToServiceInstances.valueRouterToService.A">A</span>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a>]</span>, <span name="tre">tre: <a href="ToResponse.html" class="extype" name="io.finch.internal.ToResponse">ToResponse</a>[<span class="extype" name="scala.Exception">Exception</span>]</span>)</span><span class="result">: <a href="ToService.html" class="extype" name="io.finch.internal.ToService">ToService</a>[<span class="extype" name="io.finch.internal.LowPriorityToServiceInstances.valueRouterToService.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.internal.ToService$@valueRouterToService[A](implicitpolyCase:LowPriorityToServiceInstances.this.EncodeAll.Case.Aux[A,com.twitter.finagle.http.Response],implicittre:io.finch.internal.ToResponse[Exception],implicittrm:io.finch.internal.ToResponse[Map[String,String]]):io.finch.internal.ToService[A]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.internal.ToService$@valueRouterToService[A](implicitpolyCase:LowPriorityToServiceInstances.this.EncodeAll.Case.Aux[A,com.twitter.finagle.http.Response],implicittre:io.finch.internal.ToResponse[Exception]):io.finch.internal.ToService[A]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

@@ -51,7 +51,7 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Allows the creation of reusable validation rules for <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>s.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Allows the creation of reusable validation rules for <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>s.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
@@ -400,9 +400,10 @@
     </span>
       <p class="shortcomment cmt">Implicit conversion that allows the same <a href="ValidationRule.html" class="extype" name="io.finch.ValidationRule">ValidationRule</a> to be used for required
 and optional values.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion that allows the same <a href="ValidationRule.html" class="extype" name="io.finch.ValidationRule">ValidationRule</a> to be used for required
-and optional values. If the optional value is non-empty, it gets validated (and validation may fail, producing an
-error), but if it is empty, it is always treated as valid.
-</p></div><dl class="paramcmts block"><dt class="param">rule</dt><dd class="cmt"><p>the validation rule to adapt for optional values</p></dd><dt>returns</dt><dd class="cmt"><p>a new validation rule that applies the specified rule to an optional value in case it is not empty</p></dd></dl></div>
+and optional values. If the optional value is non-empty, it gets validated (and validation may
+fail, producing an error), but if it is empty, it is always treated as valid.
+</p></div><dl class="paramcmts block"><dt class="param">rule</dt><dd class="cmt"><p>the validation rule to adapt for optional values</p></dd><dt>returns</dt><dd class="cmt"><p>a new validation rule that applies the specified rule to an optional value in case it
+        is not empty</p></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>

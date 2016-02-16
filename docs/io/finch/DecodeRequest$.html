@@ -147,7 +147,7 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.finch.DecodeRequest#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.finch.DecodeRequest#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="apply[A](implicitdr:io.finch.DecodeRequest[A]):io.finch.DecodeRequest[A]"></a>
       <a id="apply[A](DecodeRequest[A]):DecodeRequest[A]"></a>
       <h4 class="signature">
@@ -163,7 +163,11 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Returns an instance for a given type.</p>
+      <p class="shortcomment cmt">Returns an instance for a given type.</p><div class="fullcomment"><div class="comment cmt"><p>Returns an instance for a given type.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@inline</span><span class="args">()</span>
+              
+        </dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -289,23 +293,6 @@
       </a>
     </span>
       <p class="shortcomment cmt">A <a href="DecodeRequest.html" class="extype" name="io.finch.DecodeRequest">DecodeRequest</a> instance for <code>Long</code>.</p>
-    </li><li name="io.finch.DecodeRequest#decodeRequestFromAnyDecode" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="decodeRequestFromAnyDecode[A](implicitd:io.finch.DecodeAnyRequest,implicittag:scala.reflect.ClassTag[A]):io.finch.DecodeRequest[A]"></a>
-      <a id="decodeRequestFromAnyDecode[A](DecodeAnyRequest,ClassTag[A]):DecodeRequest[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">decodeRequestFromAnyDecode</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeAnyRequest.html" class="extype" name="io.finch.DecodeAnyRequest">DecodeAnyRequest</a></span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.DecodeRequest.decodeRequestFromAnyDecode.A">A</span>]</span>)</span><span class="result">: <a href="DecodeRequest.html" class="extype" name="io.finch.DecodeRequest">DecodeRequest</a>[<span class="extype" name="io.finch.DecodeRequest.decodeRequestFromAnyDecode.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.DecodeRequest$@decodeRequestFromAnyDecode[A](implicitd:io.finch.DecodeAnyRequest,implicittag:scala.reflect.ClassTag[A]):io.finch.DecodeRequest[A]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Creates a <a href="DecodeRequest.html" class="extype" name="io.finch.DecodeRequest">DecodeRequest</a> instance from <a href="DecodeAnyRequest.html" class="extype" name="io.finch.DecodeAnyRequest">DecodeAnyRequest</a>.</p>
     </li><li name="io.finch.LowPriorityDecodeRequestInstances#decodeRequestFromGeneric" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="decodeRequestFromGeneric[A](implicitgen:shapeless.Generic.Aux[A,shapeless.::[String,shapeless.HNil]]):io.finch.DecodeRequest[A]"></a>
       <a id="decodeRequestFromGeneric[A](Aux[A,::[String,HNil]]):DecodeRequest[A]"></a>
@@ -322,8 +309,9 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates a <a href="DecodeRequest.html" class="extype" name="io.finch.DecodeRequest">DecodeRequest</a> from <span class="extype" name="shapeless.Generic">shapeless.Generic</span>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="DecodeRequest.html" class="extype" name="io.finch.DecodeRequest">DecodeRequest</a> from <span class="extype" name="shapeless.Generic">shapeless.Generic</span>.</p><p>Note: This is mostly a workaround for <code>RequestReader[String].as[CaseClassOfASingleString]</code>,
-      because by some reason, compiler doesn't pick <code>ValueReaderOps</code> for <code>RequestReader[String]</code>.
+      <p class="shortcomment cmt">Creates a <a href="DecodeRequest.html" class="extype" name="io.finch.DecodeRequest">DecodeRequest</a> from <span class="extype" name="shapeless.Generic">shapeless.Generic</span>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="DecodeRequest.html" class="extype" name="io.finch.DecodeRequest">DecodeRequest</a> from <span class="extype" name="shapeless.Generic">shapeless.Generic</span>.</p><p>Note: This is mostly a workaround for <code>Endpoint[String].as[CaseClassOfASingleString]</code>,
+      because by some reason, compiler doesn't pick <code>ValueEndpointOps</code> for
+      <code>Endpoint[String]</code>.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityDecodeRequestInstances.html" class="extype" name="io.finch.LowPriorityDecodeRequestInstances">LowPriorityDecodeRequestInstances</a></dd></dl></div>
     </li><li name="io.finch.DecodeRequest#decodeString" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="decodeString:io.finch.DecodeRequest[String]"></a>

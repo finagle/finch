@@ -93,7 +93,24 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="io.finch.Endpoint.HListEndpointOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="io.finch.Endpoint.GenericDerivation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GenericDerivation[A]extendsAnyRef"></a>
+      <a id="GenericDerivation[A]:GenericDerivation[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoint$$GenericDerivation.html"><span class="name">GenericDerivation</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@GenericDerivation[A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.Endpoint.HListEndpointOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="HListEndpointOps[L&lt;:shapeless.HList]extendsAnyVal"></a>
       <a id="HListEndpointOps[L&lt;:HList]:HListEndpointOps[L]"></a>
       <h4 class="signature">
@@ -110,6 +127,23 @@
       </a>
     </span>
       
+    </li><li name="io.finch.Endpoint.OptionEndpointOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="OptionEndpointOps[A]extendsAnyVal"></a>
+      <a id="OptionEndpointOps[A]:OptionEndpointOps[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoint$$OptionEndpointOps.html"><span class="name">OptionEndpointOps</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@OptionEndpointOps[A]extendsAnyVal" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit conversion that adds convenience methods to endpoint for optional values.</p>
     </li><li name="io.finch.Endpoint.Result" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Result[A]=Option[(io.finch.Input,cats.Eval[com.twitter.util.Future[io.finch.Output[A]]])]"></a>
       <a id="Result[A]:Result[A]"></a>
@@ -119,7 +153,7 @@
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span class="name">Result</span><span class="tparams">[<span name="A">A</span>]</span><span class="result"> = <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[(<a href="Input.html" class="extype" name="io.finch.Input">Input</a>, <a href="https://non.github.io/cats/api/index.html#cats.Eval" class="extype" target="_top">Eval</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Endpoint.Result.A">A</span>]]])]</span>
+        <span class="name">Result</span><span class="tparams">[<span name="A">A</span>]</span><span class="result"> = <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[(<a href="Input.html" class="extype" name="io.finch.Input">Input</a>, <a href="http://typelevel.org/cats/api/index.html#cats.Eval" class="extype" target="_top">Eval</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Endpoint.Result.A">A</span>]]])]</span>
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.finch.Endpoint$@Result[A]=Option[(io.finch.Input,cats.Eval[com.twitter.util.Future[io.finch.Output[A]]])]" title="Permalink" target="_top">
@@ -127,6 +161,69 @@
       </a>
     </span>
       
+    </li><li name="io.finch.Endpoint.StringEndpointOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="StringEndpointOpsextendsAnyVal"></a>
+      <a id="StringEndpointOps:StringEndpointOps"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoint$$StringEndpointOps.html"><span class="name">StringEndpointOps</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@StringEndpointOpsextendsAnyVal" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit conversion that allows to call <code>as[A]</code> on any <code>Endpoint[String]</code> to perform a type
+conversion based on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion that allows to call <code>as[A]</code> on any <code>Endpoint[String]</code> to perform a type
+conversion based on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><p>The resulting reader will fail when type conversion fails.
+</p></div></div>
+    </li><li name="io.finch.Endpoint.StringOptionEndpointOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="StringOptionEndpointOpsextendsAnyVal"></a>
+      <a id="StringOptionEndpointOps:StringOptionEndpointOps"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoint$$StringOptionEndpointOps.html"><span class="name">StringOptionEndpointOps</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@StringOptionEndpointOpsextendsAnyVal" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit conversion that allows to call <code>as[A]</code> on any <code>Endpoint[Option[String]]</code> to perform a
+type conversion based on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion that allows to call <code>as[A]</code> on any <code>Endpoint[Option[String]]</code> to perform a
+type conversion based on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><p>The resulting endpoint will fail when the result is non-empty and type conversion fails. It
+will succeed if the result is empty or type conversion succeeds.
+</p></div></div>
+    </li><li name="io.finch.Endpoint.StringSeqEndpointOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="StringSeqEndpointOpsextendsAnyRef"></a>
+      <a id="StringSeqEndpointOps:StringSeqEndpointOps"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoint$$StringSeqEndpointOps.html"><span class="name">StringSeqEndpointOps</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@StringSeqEndpointOpsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit conversion that allows to call <code>as[A]</code> on any <code>Endpoint[Seq[String]]</code> to perform a
+type conversion based on an implicit <code><code>DecodeRequest[A]</code> which must be in scope.</code></p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion that allows to call <code>as[A]</code> on any <code>Endpoint[Seq[String]]</code> to perform a
+type conversion based on an implicit <code><code>DecodeRequest[A]</code> which must be in scope.</code></p><p>The resulting endpoint will fail when the result is non-empty and type conversion fails on one
+or more of the elements in the <code>Seq</code>. It will succeed if the result is empty or type conversion
+succeeds for all elements.
+</p></div></div>
     </li><li name="io.finch.Endpoint.ValueEndpointOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ValueEndpointOps[B]extendsAnyVal"></a>
       <a id="ValueEndpointOps[B]:ValueEndpointOps[B]"></a>
@@ -259,6 +356,23 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="io.finch.Endpoint#derive" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="derive[A]:io.finch.Endpoint.GenericDerivation[A]"></a>
+      <a id="derive[A]:GenericDerivation[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">derive</span><span class="tparams">[<span name="A">A</span>]</span><span class="result">: <a href="Endpoint$$GenericDerivation.html" class="extype" name="io.finch.Endpoint.GenericDerivation">GenericDerivation</a>[<span class="extype" name="io.finch.Endpoint.derive.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@derive[A]:io.finch.Endpoint.GenericDerivation[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Generically derive a very basic instance of <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> for a given type <code>A</code>.</p>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>

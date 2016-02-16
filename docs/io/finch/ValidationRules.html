@@ -429,6 +429,27 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="io.finch.ValidationRules#toOptionalInlineRule" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toOptionalInlineRule[A](fn:A=&gt;Boolean):Option[A]=&gt;Boolean"></a>
+      <a id="toOptionalInlineRule[A]((A)⇒Boolean):(Option[A])⇒Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toOptionalInlineRule</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="io.finch.ValidationRules.toOptionalInlineRule.A">A</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: (<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.ValidationRules.toOptionalInlineRule.A">A</span>]) ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.ValidationRules@toOptionalInlineRule[A](fn:A=&gt;Boolean):Option[A]=&gt;Boolean" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit conversion that allows the same inline rules to be used for required and optional
+values.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion that allows the same inline rules to be used for required and optional
+values. If the optional value is non-empty, it gets validated (and validation may fail,
+producing error), but if it is empty, it is always treated as valid.</p><p>In order to help the compiler determine the case when inline rule should be converted, the type
+of the validated value should be specified explicitly.</p><pre>paramOption(<span class="lit">"foo"</span>).should(<span class="lit">"be greater than 50"</span>) { i: <span class="std">Int</span> <span class="kw">=&gt;</span> i &gt; <span class="num">50</span> }</pre></div><dl class="paramcmts block"><dt class="param">fn</dt><dd class="cmt"><p>the underlying function to convert</p></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>

@@ -127,19 +127,19 @@
 
         <div id="values" class="values members">
               <h3>Abstract Value Members</h3>
-              <ol><li name="io.finch.circe.Encoders#printer" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="printer:io.circe.Printer"></a>
-      <a id="printer:Printer"></a>
+              <ol><li name="io.finch.circe.Encoders#print" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="print(json:io.circe.Json):String"></a>
+      <a id="print(Json):String"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">printer</span><span class="result">: <a href="https://travisbrown.github.io/circe/api/index.html#io.circe.Printer" class="extype" target="_top">Printer</a></span>
+        <span class="name">print</span><span class="params">(<span name="json">json: <a href="https://travisbrown.github.io/circe/api/index.html#io.circe.Json" class="extype" target="_top">Json</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.circe.package@printer:io.circe.Printer" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.circe.package@print(json:io.circe.Json):String" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -183,7 +183,7 @@
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Provides an implicit <span class="extype" name="Printer">Printer</span> that drops null keys.</p>
+      <p class="shortcomment cmt">Provides a <span class="extype" name="Printer">Printer</span> that drops null keys.</p>
     </li><li name="io.finch.circe.Encoders#encodeCirce" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="encodeCirce[A](implicite:io.circe.Encoder[A]):io.finch.EncodeResponse[A]"></a>
       <a id="encodeCirce[A](Encoder[A]):EncodeResponse[A]"></a>
@@ -202,6 +202,23 @@
     </span>
       <p class="shortcomment cmt">Maps Circe's <span class="extype" name="Encoder">Encoder</span> to Finch's <a href="../EncodeResponse.html" class="extype" name="io.finch.EncodeResponse">EncodeResponse</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Maps Circe's <span class="extype" name="Encoder">Encoder</span> to Finch's <a href="../EncodeResponse.html" class="extype" name="io.finch.EncodeResponse">EncodeResponse</a>.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Encoders.html" class="extype" name="io.finch.circe.Encoders">Encoders</a></dd></dl></div>
+    </li><li name="io.finch.circe.jacksonSerializer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="jacksonSerializer"></a>
+      <a id="jacksonSerializer:jacksonSerializer"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$jacksonSerializer$.html"><span class="name">jacksonSerializer</span></a><span class="result"> extends <a href="Encoders.html" class="extype" name="io.finch.circe.Encoders">Encoders</a> with <a href="Decoders.html" class="extype" name="io.finch.circe.Decoders">Decoders</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.circe.package@jacksonSerializer" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Provides Jackson Serializer.</p>
     </li></ol>
             </div>
 

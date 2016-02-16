@@ -55,10 +55,7 @@
 </p></div><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.A">A</span>]</dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
-        </div><div class="toggleContainer block">
-            <span class="toggle">Known Subclasses</span>
-            <div class="subClasses hiddenContent"><a href="Output$$Failure.html" class="extype" name="io.finch.Output.Failure">Failure</a>, <a href="Output$$Payload.html" class="extype" name="io.finch.Output.Payload">Payload</a></div>
-          </div></div>
+        </div></div>
         
 
       <div id="mbrsel">
@@ -98,176 +95,23 @@
 
         <div id="values" class="values members">
               <h3>Abstract Value Members</h3>
-              <ol><li name="io.finch.Output#charset" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="charset:Option[String]"></a>
-      <a id="charset:Option[String]"></a>
+              <ol><li name="io.finch.Output#meta" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="meta:io.finch.Output.Meta"></a>
+      <a id="meta:Meta"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">charset</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">meta</span><span class="result">: <span class="extype" name="io.finch.Output.Meta">Meta</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Output@charset:Option[String]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="io.finch.Output#contentType" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="contentType:Option[String]"></a>
-      <a id="contentType:Option[String]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">contentType</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Output@contentType:Option[String]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="io.finch.Output#cookies" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="cookies:Seq[com.twitter.finagle.http.Cookie]"></a>
-      <a id="cookies:Seq[Cookie]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">cookies</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Cookie" class="extype" target="_top">Cookie</a>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Output@cookies:Seq[com.twitter.finagle.http.Cookie]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="io.finch.Output#copy0" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="copy0(headers:Map[String,String],cookies:Seq[com.twitter.finagle.http.Cookie],contentType:Option[String],charset:Option[String]):io.finch.Output[A]"></a>
-      <a id="copy0(Map[String,String],Seq[Cookie],Option[String],Option[String]):Output[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">copy0</span><span class="params">(<span name="headers">headers: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol"><span class="name"><a href="#headers:Map[String,String]">self.headers</a></span></span></span>, <span name="cookies">cookies: <span class="extype" name="scala.Seq">Seq</span>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Cookie" class="extype" target="_top">Cookie</a>] = <span class="symbol"><span class="name"><a href="#cookies:Seq[com.twitter.finagle.http.Cookie]">self.cookies</a></span></span></span>, <span name="contentType">contentType: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol"><span class="name"><a href="#contentType:Option[String]">self.contentType</a></span></span></span>, <span name="charset">charset: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol"><span class="name"><a href="#charset:Option[String]">self.charset</a></span></span></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Output@copy0(headers:Map[String,String],cookies:Seq[com.twitter.finagle.http.Cookie],contentType:Option[String],charset:Option[String]):io.finch.Output[A]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Output@meta:io.finch.Output.Meta" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
-    </li><li name="io.finch.Output#flatMap" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="flatMap[B](fn:A=&gt;io.finch.Output[B]):io.finch.Output[B]"></a>
-      <a id="flatMap[B]((A)⇒Output[B]):Output[B]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">flatMap</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="io.finch.Output.A">A</span>) ⇒ <a href="" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.flatMap.B">B</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.flatMap.B">B</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Output@flatMap[B](fn:A=&gt;io.finch.Output[B]):io.finch.Output[B]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="io.finch.Output#flatten" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="flatten[B](implicitev:&lt;:&lt;[A,io.finch.Output[B]]):io.finch.Output[B]"></a>
-      <a id="flatten[B](&lt;:&lt;[A,Output[B]]):Output[B]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">flatten</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <span class="extype" name="scala.Predef.&lt;:&lt;">&lt;:&lt;</span>[<span class="extype" name="io.finch.Output.A">A</span>, <a href="" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.flatten.B">B</span>]]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.flatten.B">B</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Output@flatten[B](implicitev:&lt;:&lt;[A,io.finch.Output[B]]):io.finch.Output[B]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="io.finch.Output#headers" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="headers:Map[String,String]"></a>
-      <a id="headers:Map[String,String]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">headers</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Output@headers:Map[String,String]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="io.finch.Output#map" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="map[B](fn:A=&gt;B):io.finch.Output[B]"></a>
-      <a id="map[B]((A)⇒B):Output[B]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">map</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="io.finch.Output.A">A</span>) ⇒ <span class="extype" name="io.finch.Output.map.B">B</span></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.map.B">B</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Output@map[B](fn:A=&gt;B):io.finch.Output[B]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="io.finch.Output#status" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="status:com.twitter.finagle.http.Status"></a>
-      <a id="status:Status"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">status</span><span class="result">: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Status" class="extype" target="_top">Status</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Output@status:com.twitter.finagle.http.Status" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
-    </li><li name="io.finch.Output#traverse" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="traverse[B](fn:A=&gt;com.twitter.util.Future[B]):com.twitter.util.Future[io.finch.Output[B]]"></a>
-      <a id="traverse[B]((A)⇒Future[B]):Future[Output[B]]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">traverse</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="io.finch.Output.A">A</span>) ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<span class="extype" name="io.finch.Output.traverse.B">B</span>]</span>)</span><span class="result">: <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<a href="" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.traverse.B">B</span>]]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Output@traverse[B](fn:A=&gt;com.twitter.util.Future[B]):com.twitter.util.Future[io.finch.Output[B]]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="io.finch.Output#value" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="value:A"></a>
       <a id="value:A"></a>
@@ -284,7 +128,24 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">Returns the payload value of this <a href="" class="extype" name="io.finch.Output">Output</a> or throws an exception.</p>
+    </li><li name="io.finch.Output#withMeta" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="withMeta(meta:io.finch.Output.Meta):io.finch.Output[A]"></a>
+      <a id="withMeta(Meta):Output[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withMeta</span><span class="params">(<span name="meta">meta: <span class="extype" name="io.finch.Output.Meta">Meta</span></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Output@withMeta(meta:io.finch.Output.Meta):io.finch.Output[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
     </li></ol>
             </div>
 
@@ -358,6 +219,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.finch.Output#charset" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="charset:Option[String]"></a>
+      <a id="charset:Option[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">charset</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Output@charset:Option[String]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">The charset of this <a href="" class="extype" name="io.finch.Output">Output</a>.</p>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -381,6 +259,40 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="io.finch.Output#contentType" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="contentType:Option[String]"></a>
+      <a id="contentType:Option[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">contentType</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Output@contentType:Option[String]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">The content type of this <a href="" class="extype" name="io.finch.Output">Output</a>.</p>
+    </li><li name="io.finch.Output#cookies" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="cookies:Seq[com.twitter.finagle.http.Cookie]"></a>
+      <a id="cookies:Seq[Cookie]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">cookies</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Cookie" class="extype" target="_top">Cookie</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Output@cookies:Seq[com.twitter.finagle.http.Cookie]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">The cookie list of this <a href="" class="extype" name="io.finch.Output">Output</a>.</p>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -438,6 +350,40 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="io.finch.Output#flatMap" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="flatMap[B](fn:A=&gt;io.finch.Output[B]):io.finch.Output[B]"></a>
+      <a id="flatMap[B]((A)⇒Output[B]):Output[B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">flatMap</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="io.finch.Output.A">A</span>) ⇒ <a href="" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.flatMap.B">B</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.flatMap.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Output@flatMap[B](fn:A=&gt;io.finch.Output[B]):io.finch.Output[B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.Output#flatten" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="flatten[B](implicitev:&lt;:&lt;[A,io.finch.Output[B]]):io.finch.Output[B]"></a>
+      <a id="flatten[B](&lt;:&lt;[A,Output[B]]):Output[B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">flatten</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <span class="extype" name="scala.Predef.&lt;:&lt;">&lt;:&lt;</span>[<span class="extype" name="io.finch.Output.A">A</span>, <a href="" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.flatten.B">B</span>]]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.flatten.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Output@flatten[B](implicitev:&lt;:&lt;[A,io.finch.Output[B]]):io.finch.Output[B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <a id="getClass():Class[_]"></a>
@@ -472,6 +418,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="io.finch.Output#headers" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="headers:Map[String,String]"></a>
+      <a id="headers:Map[String,String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">headers</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Output@headers:Map[String,String]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">The header map of this <a href="" class="extype" name="io.finch.Output">Output</a>.</p>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -489,6 +452,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.finch.Output#map" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="map[B](fn:A=&gt;B):io.finch.Output[B]"></a>
+      <a id="map[B]((A)⇒B):Output[B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">map</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="io.finch.Output.A">A</span>) ⇒ <span class="extype" name="io.finch.Output.map.B">B</span></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.map.B">B</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Output@map[B](fn:A=&gt;B):io.finch.Output[B]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -540,6 +520,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="io.finch.Output#status" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="status:com.twitter.finagle.http.Status"></a>
+      <a id="status:Status"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">status</span><span class="result">: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Status" class="extype" target="_top">Status</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Output@status:com.twitter.finagle.http.Status" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">The status code of this <a href="" class="extype" name="io.finch.Output">Output</a>.</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -558,22 +555,22 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="io.finch.Output#toResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toResponse(version:com.twitter.finagle.http.Version)(implicitpayloadToResponse:io.finch.internal.ToResponse[A],implicitfailureToResponse:io.finch.internal.ToResponse[Exception],implicitmapToResponse:io.finch.internal.ToResponse[Map[String,String]]):com.twitter.finagle.http.Response"></a>
-      <a id="toResponse(Version)(ToResponse[A],ToResponse[Exception],ToResponse[Map[String,String]]):Response"></a>
+      <a id="toResponse(version:com.twitter.finagle.http.Version)(implicitpayloadToResponse:io.finch.internal.ToResponse[A],implicitfailureToResponse:io.finch.internal.ToResponse[Exception]):com.twitter.finagle.http.Response"></a>
+      <a id="toResponse(Version)(ToResponse[A],ToResponse[Exception]):Response"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toResponse</span><span class="params">(<span name="version">version: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Version" class="extype" target="_top">Version</a> = <span class="symbol">Version.Http11</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="payloadToResponse">payloadToResponse: <a href="internal/ToResponse.html" class="extype" name="io.finch.internal.ToResponse">ToResponse</a>[<span class="extype" name="io.finch.Output.A">A</span>]</span>, <span name="failureToResponse">failureToResponse: <a href="internal/ToResponse.html" class="extype" name="io.finch.internal.ToResponse">ToResponse</a>[<span class="extype" name="scala.Exception">Exception</span>]</span>, <span name="mapToResponse">mapToResponse: <a href="internal/ToResponse.html" class="extype" name="io.finch.internal.ToResponse">ToResponse</a>[<span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]]</span>)</span><span class="result">: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a></span>
+        <span class="name">toResponse</span><span class="params">(<span name="version">version: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Version" class="extype" target="_top">Version</a> = <span class="symbol">Version.Http11</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="payloadToResponse">payloadToResponse: <a href="internal/ToResponse.html" class="extype" name="io.finch.internal.ToResponse">ToResponse</a>[<span class="extype" name="io.finch.Output.A">A</span>]</span>, <span name="failureToResponse">failureToResponse: <a href="internal/ToResponse.html" class="extype" name="io.finch.internal.ToResponse">ToResponse</a>[<span class="extype" name="scala.Exception">Exception</span>]</span>)</span><span class="result">: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Output@toResponse(version:com.twitter.finagle.http.Version)(implicitpayloadToResponse:io.finch.internal.ToResponse[A],implicitfailureToResponse:io.finch.internal.ToResponse[Exception],implicitmapToResponse:io.finch.internal.ToResponse[Map[String,String]]):com.twitter.finagle.http.Response" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Output@toResponse(version:com.twitter.finagle.http.Version)(implicitpayloadToResponse:io.finch.internal.ToResponse[A],implicitfailureToResponse:io.finch.internal.ToResponse[Exception]):com.twitter.finagle.http.Response" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">Converts this <a href="" class="extype" name="io.finch.Output">Output</a> to the HTTP response of the given <code>version</code>.</p>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
@@ -591,6 +588,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="io.finch.Output#traverse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="traverse[B](fn:A=&gt;com.twitter.util.Future[B]):com.twitter.util.Future[io.finch.Output[B]]"></a>
+      <a id="traverse[B]((A)⇒Future[B]):Future[Output[B]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">traverse</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="io.finch.Output.A">A</span>) ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<span class="extype" name="io.finch.Output.traverse.B">B</span>]</span>)</span><span class="result">: <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<a href="" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.traverse.B">B</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Output@traverse[B](fn:A=&gt;com.twitter.util.Future[B]):com.twitter.util.Future[io.finch.Output[B]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
@@ -676,7 +690,7 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">Overrides the charset value of this <a href="" class="extype" name="io.finch.Output">Output</a>.</p>
     </li><li name="io.finch.Output#withContentType" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="withContentType(contentType:Option[String]):io.finch.Output[A]"></a>
       <a id="withContentType(Option[String]):Output[A]"></a>
@@ -693,7 +707,7 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">Overrides the content type value of this <a href="" class="extype" name="io.finch.Output">Output</a>.</p>
     </li><li name="io.finch.Output#withCookie" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="withCookie(cookie:com.twitter.finagle.http.Cookie):io.finch.Output[A]"></a>
       <a id="withCookie(Cookie):Output[A]"></a>
@@ -710,7 +724,7 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">Adds a given <code>cookie</code> to this <a href="" class="extype" name="io.finch.Output">Output</a>.</p>
     </li><li name="io.finch.Output#withHeader" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="withHeader(header:(String,String)):io.finch.Output[A]"></a>
       <a id="withHeader((String,String)):Output[A]"></a>
@@ -727,7 +741,24 @@
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">Adds a given <code>header</code> to this <a href="" class="extype" name="io.finch.Output">Output</a>.</p>
+    </li><li name="io.finch.Output#withStatus" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withStatus(status:com.twitter.finagle.http.Status):io.finch.Output[A]"></a>
+      <a id="withStatus(Status):Output[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withStatus</span><span class="params">(<span name="status">status: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Status" class="extype" target="_top">Status</a></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Output.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Output@withStatus(status:com.twitter.finagle.http.Status):io.finch.Output[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Overrides the status code of this <a href="" class="extype" name="io.finch.Output">Output</a>.</p>
     </li></ol>
             </div>
 

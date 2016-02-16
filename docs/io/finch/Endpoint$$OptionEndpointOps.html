@@ -1,9 +1,9 @@
 <!DOCTYPE html >
 <html>
         <head>
-          <title>ValueReaderOps - io.finch.RequestReader.ValueReaderOps</title>
-          <meta name="description" content="ValueReaderOps - io.finch.RequestReader.ValueReaderOps" />
-          <meta name="keywords" content="ValueReaderOps io.finch.RequestReader.ValueReaderOps" />
+          <title>OptionEndpointOps - io.finch.Endpoint.OptionEndpointOps</title>
+          <meta name="description" content="OptionEndpointOps - io.finch.Endpoint.OptionEndpointOps" />
+          <meta name="keywords" content="OptionEndpointOps io.finch.Endpoint.OptionEndpointOps" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -16,7 +16,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
-            var hash = 'io.finch.RequestReader$$ValueReaderOps';
+            var hash = 'io.finch.Endpoint$$OptionEndpointOps';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -29,11 +29,11 @@
         <body class="type">
       <div id="definition">
         <img alt="Class" src="../../lib/class_big.png" />
-        <p id="owner"><a href="../package.html" class="extype" name="io">io</a>.<a href="package.html" class="extype" name="io.finch">finch</a>.<a href="RequestReader$.html" class="extype" name="io.finch.RequestReader">RequestReader</a></p>
-        <h1>ValueReaderOps</h1><h3><span class="morelinks"><div>Related Doc:
-            <a href="RequestReader$.html" class="extype" name="io.finch.RequestReader">package RequestReader</a>
+        <p id="owner"><a href="../package.html" class="extype" name="io">io</a>.<a href="package.html" class="extype" name="io.finch">finch</a>.<a href="Endpoint$.html" class="extype" name="io.finch.Endpoint">Endpoint</a></p>
+        <h1>OptionEndpointOps</h1><h3><span class="morelinks"><div>Related Doc:
+            <a href="Endpoint$.html" class="extype" name="io.finch.Endpoint">package Endpoint</a>
           </div></span></h3><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$ValueReaderOps" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoint$$OptionEndpointOps" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -45,12 +45,11 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">ValueReaderOps</span><span class="tparams">[<span name="B">B</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a></span>
+        <span class="name">OptionEndpointOps</span><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Implicit class that provides <code>::</code> and other operations on any request reader to support
-building <span class="extype" name="shapeless.HList">shapeless.HList</span> request readers.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Implicit conversion that adds convenience methods to endpoint for optional values.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
@@ -71,7 +70,7 @@ building <span class="extype" name="shapeless.HList">shapeless.HList</span> requ
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="io.finch.RequestReader.ValueReaderOps"><span>ValueReaderOps</span></li><li class="in" name="scala.AnyVal"><span>AnyVal</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="io.finch.Endpoint.OptionEndpointOps"><span>OptionEndpointOps</span></li><li class="in" name="scala.AnyVal"><span>AnyVal</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -90,19 +89,19 @@ building <span class="extype" name="shapeless.HList">shapeless.HList</span> requ
         <div id="allMembers">
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
-              <ol><li name="io.finch.RequestReader.ValueReaderOps#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(self:io.finch.RequestReader[B]):io.finch.RequestReader.ValueReaderOps[B]"></a>
-      <a id="&lt;init&gt;:ValueReaderOps[B]"></a>
+              <ol><li name="io.finch.Endpoint.OptionEndpointOps#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(self:io.finch.Endpoint[Option[A]]):io.finch.Endpoint.OptionEndpointOps[A]"></a>
+      <a id="&lt;init&gt;:OptionEndpointOps[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">ValueReaderOps</span><span class="params">(<span name="self">self: <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.RequestReader.ValueReaderOps.B">B</span>]</span>)</span>
+        <span class="name">OptionEndpointOps</span><span class="params">(<span name="self">self: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>]]</span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$ValueReaderOps@&lt;init&gt;(self:io.finch.RequestReader[B]):io.finch.RequestReader.ValueReaderOps[B]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoint$$OptionEndpointOps@&lt;init&gt;(self:io.finch.Endpoint[Option[A]]):io.finch.Endpoint.OptionEndpointOps[A]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -128,7 +127,7 @@ building <span class="extype" name="shapeless.HList">shapeless.HList</span> requ
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$ValueReaderOps@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoint$$OptionEndpointOps@!=(x$1:Any):Boolean" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -145,29 +144,11 @@ building <span class="extype" name="shapeless.HList">shapeless.HList</span> requ
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$ValueReaderOps@##():Int" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoint$$OptionEndpointOps@##():Int" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.finch.RequestReader.ValueReaderOps#::" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="::[A](that:io.finch.RequestReader[A]):io.finch.RequestReader[shapeless.::[A,shapeless.::[B,shapeless.HNil]]]"></a>
-      <a id="::[A](RequestReader[A]):RequestReader[::[A,::[B,HNil]]]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $colon$colon" class="name">::</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="that">that: <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.RequestReader.ValueReaderOps.::.A">A</span>]</span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>[<span class="extype" name="shapeless.::">::</span>[<span class="extype" name="io.finch.RequestReader.ValueReaderOps.::.A">A</span>, <span class="extype" name="shapeless.::">::</span>[<span class="extype" name="io.finch.RequestReader.ValueReaderOps.B">B</span>, <span class="extype" name="shapeless.HNil">HNil</span>]]]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$ValueReaderOps@::[A](that:io.finch.RequestReader[A]):io.finch.RequestReader[shapeless.::[A,shapeless.::[B,shapeless.HNil]]]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Lift this request reader into a singleton <span class="extype" name="shapeless.HList">shapeless.HList</span> and compose it with the given
-<code>that</code> request reader.</p>
     </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a>
       <a id="==(Any):Boolean"></a>
@@ -180,29 +161,11 @@ building <span class="extype" name="shapeless.HList">shapeless.HList</span> requ
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$ValueReaderOps@==(x$1:Any):Boolean" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoint$$OptionEndpointOps@==(x$1:Any):Boolean" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.finch.RequestReader.ValueReaderOps#as" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="as[A](implicitgen:shapeless.Generic.Aux[A,shapeless.::[B,shapeless.HNil]]):io.finch.RequestReader[A]"></a>
-      <a id="as[A](Aux[A,::[B,HNil]]):RequestReader[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="gen">gen: <span class="extype" name="shapeless.Generic.Aux">Aux</span>[<span class="extype" name="io.finch.RequestReader.ValueReaderOps.as.A">A</span>, <span class="extype" name="shapeless.::">::</span>[<span class="extype" name="io.finch.RequestReader.ValueReaderOps.B">B</span>, <span class="extype" name="shapeless.HNil">HNil</span>]]</span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.RequestReader.ValueReaderOps.as.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$ValueReaderOps@as[A](implicitgen:shapeless.Generic.Aux[A,shapeless.::[B,shapeless.HNil]]):io.finch.RequestReader[A]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Converts this request reader to one that returns any type with <code>B :: HNil</code> as
-its representation.</p>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -215,7 +178,7 @@ its representation.</p>
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$ValueReaderOps@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoint$$OptionEndpointOps@asInstanceOf[T0]:T0" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -232,7 +195,7 @@ its representation.</p>
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Predef.Class">Class</span>[_ &lt;: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyVal" class="extype" target="_top">AnyVal</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$ValueReaderOps@getClass():Class[_&lt;:AnyVal]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoint$$OptionEndpointOps@getClass():Class[_&lt;:AnyVal]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -249,24 +212,41 @@ its representation.</p>
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$ValueReaderOps@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoint$$OptionEndpointOps@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.finch.RequestReader.ValueReaderOps#self" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="self:io.finch.RequestReader[B]"></a>
-      <a id="self:RequestReader[B]"></a>
+    </li><li name="io.finch.Endpoint.OptionEndpointOps#orElse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="orElse[B&gt;:A](alternative:=&gt;Option[B]):io.finch.Endpoint[Option[B]]"></a>
+      <a id="orElse[B&gt;:A](⇒Option[B]):Endpoint[Option[B]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">orElse</span><span class="tparams">[<span name="B">B &gt;: <span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span></span>]</span><span class="params">(<span name="alternative">alternative: ⇒ <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.orElse.B">B</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.orElse.B">B</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$$OptionEndpointOps@orElse[B&gt;:A](alternative:=&gt;Option[B]):io.finch.Endpoint[Option[B]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">If endpoint is empty it will return provided alternative.</p>
+    </li><li name="io.finch.Endpoint.OptionEndpointOps#self" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="self:io.finch.Endpoint[Option[A]]"></a>
+      <a id="self:Endpoint[Option[A]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">self</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.RequestReader.ValueReaderOps.B">B</span>]</span>
+        <span class="name">self</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$ValueReaderOps@self:io.finch.RequestReader[B]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoint$$OptionEndpointOps@self:io.finch.Endpoint[Option[A]]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -283,45 +263,28 @@ its representation.</p>
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$ValueReaderOps@toString():String" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoint$$OptionEndpointOps@toString():String" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.finch.RequestReader.ValueReaderOps#~&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="~&gt;[A](fn:B=&gt;A):io.finch.RequestReader[A]"></a>
-      <a id="~&gt;[A]((B)⇒A):RequestReader[A]"></a>
+    </li><li name="io.finch.Endpoint.OptionEndpointOps#withDefault" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withDefault[B&gt;:A](default:=&gt;B):io.finch.Endpoint[B]"></a>
+      <a id="withDefault[B&gt;:A](⇒B):Endpoint[B]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $tilde$greater" class="name">~&gt;</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="io.finch.RequestReader.ValueReaderOps.B">B</span>) ⇒ <span class="extype" name="io.finch.RequestReader.ValueReaderOps.~&gt;.A">A</span></span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.RequestReader.ValueReaderOps.~&gt;.A">A</span>]</span>
+        <span class="name">withDefault</span><span class="tparams">[<span name="B">B &gt;: <span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span></span>]</span><span class="params">(<span name="default">default: ⇒ <span class="extype" name="io.finch.Endpoint.OptionEndpointOps.withDefault.B">B</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.withDefault.B">B</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$ValueReaderOps@~&gt;[A](fn:B=&gt;A):io.finch.RequestReader[A]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoint$$OptionEndpointOps@withDefault[B&gt;:A](default:=&gt;B):io.finch.Endpoint[B]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Applies a function to the result of this reader.</p>
-    </li><li name="io.finch.RequestReader.ValueReaderOps#~~&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="~~&gt;[A](fn:B=&gt;com.twitter.util.Future[A]):io.finch.RequestReader[A]"></a>
-      <a id="~~&gt;[A]((B)⇒Future[A]):RequestReader[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $tilde$tilde$greater" class="name">~~&gt;</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="io.finch.RequestReader.ValueReaderOps.B">B</span>) ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<span class="extype" name="io.finch.RequestReader.ValueReaderOps.~~&gt;.A">A</span>]</span>)</span><span class="result">: <a href="RequestReader.html" class="extype" name="io.finch.RequestReader">RequestReader</a>[<span class="extype" name="io.finch.RequestReader.ValueReaderOps.~~&gt;.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.RequestReader$$ValueReaderOps@~~&gt;[A](fn:B=&gt;com.twitter.util.Future[A]):io.finch.RequestReader[A]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Applies a function returning a future to the result of this reader.</p>
+      <p class="shortcomment cmt">If endpoint is empty it will return provided default value.</p>
     </li></ol>
             </div>
 
