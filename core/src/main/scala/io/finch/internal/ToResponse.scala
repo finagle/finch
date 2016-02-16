@@ -17,7 +17,7 @@ object ToResponse {
   /**
    * Returns an instance for a given type.
    */
-  def apply[A](implicit tr: ToResponse[A]): ToResponse[A] = tr
+  @inline def apply[A](implicit tr: ToResponse[A]): ToResponse[A] = tr
 
   /**
    * Constructs an instance from a function.
@@ -42,7 +42,8 @@ object ToResponse {
    * Provides implicit ToResponse for `AsyncStream[Buf]`.
    * If it reaches the end of the stream it closes the connection.
    *
-   * Http server should be initialized with `.withStreaming(enabled = true)`
+   * @note Http server should be initialized with `.withStreaming(enabled = true)` to get advantage
+   *       of streaming (chunked requests).
    */
   implicit val asyncToResponse: ToResponse[AsyncStream[Buf]] =
     instance { a =>

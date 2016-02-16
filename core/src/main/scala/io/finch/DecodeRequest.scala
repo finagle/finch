@@ -24,8 +24,9 @@ trait LowPriorityDecodeRequestInstances {
   /**
    * Creates a [[DecodeRequest]] from [[shapeless.Generic]].
    *
-   * Note: This is mostly a workaround for `RequestReader[String].as[CaseClassOfASingleString]`,
-   *       because by some reason, compiler doesn't pick `ValueReaderOps` for `RequestReader[String]`.
+   * Note: This is mostly a workaround for `Endpoint[String].as[CaseClassOfASingleString]`,
+   *       because by some reason, compiler doesn't pick `ValueEndpointOps` for
+   *       `Endpoint[String]`.
    */
   implicit def decodeRequestFromGeneric[A](implicit
     gen: Generic.Aux[A, String :: HNil]
@@ -37,7 +38,7 @@ object DecodeRequest extends LowPriorityDecodeRequestInstances {
   /**
    * Returns an instance for a given type.
    */
-  def apply[A](implicit dr: DecodeRequest[A]): DecodeRequest[A] = dr
+  @inline def apply[A](implicit dr: DecodeRequest[A]): DecodeRequest[A] = dr
 
   /**
    * A [[DecodeRequest]] instance for `String`.

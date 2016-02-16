@@ -1,47 +1,25 @@
 package io.finch
 
+import java.util.UUID
+
 import com.twitter.finagle.http.Request
-import com.twitter.util.Await
-import org.scalatest.{FlatSpec, Matchers}
 
-class HeaderSpec extends FlatSpec with Matchers {
+class HeaderSpec extends FinchSpec {
 
-  "A RequiredHeader" should "properly read the header field" in {
-    val request = Request()
-    request.headerMap.update("Location", "some header")
-    val futureResult = header("Location")(request)
-    Await.result(futureResult) shouldBe "some header"
+  behavior of "header*"
+
+  def withHeader(k: String)(v: String): Input = Input {
+    val req = Request()
+    req.headerMap.put(k, v)
+
+    req
   }
 
-  it should "error if it does not exist" in {
-    val request = Request()
-    val futureResult = header("Location")(request)
-    an [Error.NotPresent] shouldBe thrownBy(Await.result(futureResult))
-  }
-
-  "An OptionalHeader" should "properly read an existing header field" in {
-    val request = Request()
-    request.headerMap.update("Location", "some header")
-    val futureResult = headerOption("Location")(request)
-    Await.result(futureResult) shouldBe Some("some header")
-  }
-
-  it should "be None if it does not exist" in {
-    val request = Request()
-    val futureResult = headerOption("Location")(request)
-    Await.result(futureResult) shouldBe None
-  }
-
-  it should "be None if it's empty" in {
-    val request = Request()
-    request.headerMap.update("Location", "")
-    val futureResult = headerOption("Location")(request)
-    Await.result(futureResult) shouldBe None
-  }
-
-  "A Header Reader" should "have a matching RequestItem" in {
-    val h = "Location"
-    header(h).item shouldBe items.HeaderItem(h)
-    headerOption(h).item shouldBe items.HeaderItem(h)
-  }
+  checkAll("Header[String]", EndpointLaws[String](headerOption("x"))(withHeader("x")).evaluating)
+  checkAll("Header[Int]", EndpointLaws[Int](headerOption("x"))(withHeader("x")).evaluating)
+  checkAll("Header[Long]", EndpointLaws[Long](headerOption("x"))(withHeader("x")).evaluating)
+  checkAll("Header[Boolean]", EndpointLaws[Boolean](headerOption("x"))(withHeader("x")).evaluating)
+  checkAll("Header[Float]", EndpointLaws[Float](headerOption("x"))(withHeader("x")).evaluating)
+  checkAll("Header[Double]", EndpointLaws[Double](headerOption("x"))(withHeader("x")).evaluating)
+  checkAll("Header[UUID]", EndpointLaws[UUID](headerOption("x"))(withHeader("x")).evaluating)
 }

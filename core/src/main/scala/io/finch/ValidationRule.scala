@@ -1,16 +1,18 @@
 package io.finch
 
 /**
- * Allows the creation of reusable validation rules for [[RequestReader]]s.
+ * Allows the creation of reusable validation rules for [[Endpoint]]s.
  */
 object ValidationRule {
   /**
    * Implicit conversion that allows the same [[ValidationRule]] to be used for required
-   * and optional values. If the optional value is non-empty, it gets validated (and validation may fail, producing an
-   * error), but if it is empty, it is always treated as valid.
+   * and optional values. If the optional value is non-empty, it gets validated (and validation may
+   * fail, producing an error), but if it is empty, it is always treated as valid.
    *
    * @param rule the validation rule to adapt for optional values
-   * @return a new validation rule that applies the specified rule to an optional value in case it is not empty
+   *
+   * @return a new validation rule that applies the specified rule to an optional value in case it
+   *         is not empty
    */
   implicit def toOptionalRule[A](rule: ValidationRule[A]): ValidationRule[Option[A]] = {
     ValidationRule(rule.description) {
@@ -34,13 +36,13 @@ object ValidationRule {
 }
 
 /**
- * A `ValidationRule` enables a reusable way of defining a validation rules in the application domain. It might be
- * composed with [[RequestReader]]s using either should` or `shouldNot` methods and with other `ValidationRule`s using
- * logical methods `and` and `or`.
+ * A `ValidationRule` enables a reusable way of defining a validation rules in the application
+ * domain. It might be composed with [[Endpoint]]s using either should` or `shouldNot` methods and
+ * with other `ValidationRule`s using logical methods `and` and `or`.
  *
  * {{{
  *   case class User(name: String, age: Int)
- *   val user: RequestReader[User] = (
+ *   val user: Endpoint[User] = (
  *     param("name").should(beLongerThan(3)) ::
  *     param("age").as[Int].should(beGreaterThan(0) and beLessThan(120))
  *   ).as[User]
@@ -61,20 +63,26 @@ trait ValidationRule[A] { self =>
   def apply(value: A): Boolean
 
   /**
-   * Combines this rule with another rule such that the new rule only validates if both the combined rules validate.
+   * Combines this rule with another rule such that the new rule only validates if both the combined
+   * rules validate.
    *
    * @param that the rule to combine with this rule
+   *
    * @return a new rule that only validates if both the combined rules validate
    */
   def and(that: ValidationRule[A]): ValidationRule[A] =
     ValidationRule(s"${self.description} and ${that.description}") { value => self(value) && that(value) }
 
   /**
-   * Combines this rule with another rule such that the new rule validates if any one of the combined rules validates.
+   * Combines this rule with another rule such that the new rule validates if any one of the
+   * combined rules validates.
    *
    * @param that the rule to combine with this rule
+   *
    * @return a new rule that validates if any of the combined rules validates
    */
   def or(that: ValidationRule[A]): ValidationRule[A] =
-    ValidationRule(s"${self.description} or ${that.description}") { value => self(value) || that(value) }
+    ValidationRule(s"${self.description} or ${that.description}") {
+      value => self(value) || that(value)
+    }
 }

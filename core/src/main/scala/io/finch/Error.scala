@@ -26,8 +26,8 @@ object Error {
   }
 
   /**
-   * An exception that indicates a required request item (''header'', ''param'', ''cookie'', ''body'') was missing in
-   * the request.
+   * An exception that indicates a required request item (''header'', ''param'', ''cookie'',
+   * ''body'') was missing in the request.
    *
    * @param item the missing request item
    */
@@ -36,7 +36,8 @@ object Error {
   }
 
   /**
-   * An exception that indicates a broken [[[io.finch.request.ValidationRule ValidationRule]] on the request item.
+   * An exception that indicates a broken [[[io.finch.request.ValidationRule ValidationRule]] on the
+   * request item.
    *
    * @param item the invalid request item
    * @param rule the rule description
@@ -52,9 +53,13 @@ object Error {
    * @param targetType the type the item should be converted into
    * @param cause the cause of the parsing error
    */
-  final case class NotParsed(item: RequestItem, targetType: ClassTag[_], cause: Throwable) extends Error {
+  final case class NotParsed(item: RequestItem, targetType: ClassTag[_], cause: Throwable)
+    extends Error {
+
     override def getMessage: String =
-      s"${item.description} cannot be converted to ${targetType.runtimeClass.getSimpleName}: ${cause.getMessage}."
+      s"${item.description} cannot be converted to ${targetType.runtimeClass.getSimpleName}: " +
+      s"${cause.getMessage}."
+
     override def getCause: Throwable = cause
   }
 }

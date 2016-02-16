@@ -6,26 +6,24 @@ import org.scalatest.{FlatSpec, Matchers}
 import scala.reflect.classTag
 
 class SuccessfulRequestReaderBenchmarkSpec extends FlatSpec with Matchers {
+
+  behavior of "Successful Endpoint"
+
   val benchmark = new SuccessfulRequestReaderBenchmark
 
-  "The monadic reader" should "parse the input correctly" in {
-    benchmark.monadicReader shouldBe benchmark.goodFooResult
-  }
-
-  "The generic applicative HList-based reader" should "parse the input correctly" in {
+  it should "parse the input correctly (manual)" in {
     benchmark.hlistGenericReader shouldBe benchmark.goodFooResult
   }
 
-  "The applicative HList-based reader with ~>" should "parse the input correctly" in {
-    benchmark.hlistApplyReader shouldBe benchmark.goodFooResult
-  }
-
-  "The derived reader" should "parse the input correctly" in {
+  it should "parse the input correctly (derived)" in {
     benchmark.derivedReader shouldBe benchmark.goodFooResult
   }
 }
 
 class FailingRequestReaderBenchmarkSpec extends FlatSpec with Matchers {
+
+  behavior of "Failed Endpoint"
+
   val benchmark = new FailingRequestReaderBenchmark
 
   def matchesAggregatedErrors(result: Try[Foo]) = result match {
@@ -40,23 +38,11 @@ class FailingRequestReaderBenchmarkSpec extends FlatSpec with Matchers {
     case _ => false
   }
 
-  "The monadic reader" should "fail with a single error on invalid input" in {
-    benchmark.monadicReader should matchPattern {
-      case Throw(
-        Error.NotParsed(ParamItem("d"), tag, _: NumberFormatException)
-      ) if tag == classTag[Double] =>
-    }
-  }
-
-  "The generic applicative HList-based reader" should "fail correctly on invalid input" in {
+  it should "fail correctly on invalid input (manual)" in {
     matchesAggregatedErrors(benchmark.hlistGenericReader)
   }
 
-  "The applicative HList-based reader with ~>" should "fail correctly on invalid input" in {
-    matchesAggregatedErrors(benchmark.hlistApplyReader)
-  }
-
-  "The derived reader" should "fail correctly on invalid input" in {
+  it should "fail correctly on invalid input (derived)" in {
     matchesAggregatedErrors(benchmark.derivedReader)
   }
 }

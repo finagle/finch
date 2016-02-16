@@ -30,7 +30,9 @@ lazy val compilerOptions = Seq(
 
 val testDependencies = Seq(
   "org.scalacheck" %% "scalacheck" % "1.12.5",
-  "org.scalatest" %% "scalatest" % "2.2.5"
+  "org.scalatest" %% "scalatest" % "2.2.5",
+  "org.typelevel" %% "cats-laws" % catsVersion,
+  "org.typelevel" %% "discipline" % "0.4"
 )
 
 val baseSettings = Seq(

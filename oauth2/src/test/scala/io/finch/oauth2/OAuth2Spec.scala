@@ -1,6 +1,6 @@
 package io.finch.oauth2
 
-import com.twitter.finagle.http.Request
+import com.twitter.finagle.http.{Status, Request}
 import com.twitter.finagle.oauth2._
 import com.twitter.util.Future
 import org.scalatest.mock.MockitoSugar
@@ -11,7 +11,9 @@ import io.finch._
 
 class OAuth2Spec extends FlatSpec with Matchers with Checkers with MockitoSugar {
 
-  "The OAuth2 provider" should "authorize the requests" in {
+  behavior of "OAuth2"
+
+  it should "authorize the requests" in {
     val at: AccessToken = mock[AccessToken]
     val dh: DataHandler[Int] = mock[DataHandler[Int]]
     val ai: AuthInfo[Int] = mock[AuthInfo[Int]]
@@ -21,8 +23,8 @@ class OAuth2Spec extends FlatSpec with Matchers with Checkers with MockitoSugar 
     when(dh.findAuthInfoByAccessToken(at)).thenReturn(Future.value(Some(ai)))
     when(ai.user).thenReturn(42)
 
-    val authInfo: RequestReader[AuthInfo[Int]] = authorize(dh)
-    val e: Endpoint[Int] = get("user" ? authInfo) { ai: AuthInfo[Int] =>
+    val authInfo: Endpoint[AuthInfo[Int]] = authorize(dh)
+    val e: Endpoint[Int] = get("user" :: authInfo) { ai: AuthInfo[Int] =>
       Ok(ai.user)
     }
 
@@ -30,7 +32,9 @@ class OAuth2Spec extends FlatSpec with Matchers with Checkers with MockitoSugar 
     val i2 = Input(Request("/user"))
 
     e(i1).output shouldBe Some(Ok(42))
-    an [OAuthError] shouldBe thrownBy(e(i2).output)
+    val Some(error) = e(i2).output
+    error.status shouldBe Status.BadRequest
+    error.headers should contain key "WWW-Authenticate"
   }
 
   it should "issue the access token" in {
@@ -43,17 +47,19 @@ class OAuth2Spec extends FlatSpec with Matchers with Checkers with MockitoSugar 
     when(dh.getStoredAccessToken(AuthInfo(42, "id", None, None))).thenReturn(Future.value(Some(at)))
     when(dh.isAccessTokenExpired(at)).thenReturn(false)
 
-    val grandHandlerResult: RequestReader[GrantHandlerResult] = issueAccessToken(dh)
-    val e: Endpoint[String] = get("token" ? grandHandlerResult) { ghr: GrantHandlerResult =>
+    val grandHandlerResult: Endpoint[GrantHandlerResult] = issueAccessToken(dh)
+    val e: Endpoint[String] = get("token" :: grandHandlerResult) { ghr: GrantHandlerResult =>
       Ok(ghr.accessToken)
     }
 
-    val i1 = Input(
-      Request("/token", "grant_type" -> "password", "username" -> "u", "password" -> "p", "client_id" -> "id")
-    )
+    val i1 = Input(Request("/token",
+      "grant_type" -> "password", "username" -> "u", "password" -> "p", "client_id" -> "id"
+    ))
     val i2 = Input(Request("/token"))
 
     e(i1).output shouldBe Some(Ok("foobar"))
-    an [OAuthError] shouldBe thrownBy(e(i2).output)
+    val Some(error) = e(i2).output
+    error.status shouldBe Status.BadRequest
+    error.headers should contain key "WWW-Authenticate"
   }
 }

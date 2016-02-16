@@ -5,7 +5,6 @@ import java.util.UUID
 import com.twitter.app.Flag
 import com.twitter.finagle.{Http, Service}
 import com.twitter.finagle.http.{Request, Response}
-import com.twitter.finagle.param.Stats
 import com.twitter.finagle.stats.Counter
 import com.twitter.server.TwitterServer
 import com.twitter.util.Await
@@ -37,21 +36,21 @@ object Main extends TwitterServer {
 
   val todos: Counter = statsReceiver.counter("todos")
 
-  val postedTodo: RequestReader[Todo] =
+  val postedTodo: Endpoint[Todo] =
     body.as[UUID => Todo].map(_(UUID.randomUUID()))
 
   val getTodos: Endpoint[List[Todo]] = get("todos") {
     Ok(Todo.list())
   }
 
-  val postTodo: Endpoint[Todo] = post("todos" ? postedTodo) { t: Todo =>
+  val postTodo: Endpoint[Todo] = post("todos" :: postedTodo) { t: Todo =>
     todos.incr()
     Todo.save(t)
 
     Created(t)
   }
 
-  val deleteTodo: Endpoint[Todo] = delete("todos" / uuid) { id: UUID =>
+  val deleteTodo: Endpoint[Todo] = delete("todos" :: uuid) { id: UUID =>
     Todo.get(id) match {
       case Some(t) => Todo.delete(id); Ok(t)
       case None => throw new TodoNotFound(id)
@@ -65,10 +64,10 @@ object Main extends TwitterServer {
     Ok(all)
   }
 
-  val patchedTodo: RequestReader[Todo => Todo] = body.as[Todo => Todo]
+  val patchedTodo: Endpoint[Todo => Todo] = body.as[Todo => Todo]
 
   val patchTodo: Endpoint[Todo] =
-    patch("todos" / uuid ? patchedTodo) { (id: UUID, pt: Todo => Todo) =>
+    patch("todos" :: uuid :: patchedTodo) { (id: UUID, pt: Todo => Todo) =>
       Todo.get(id) match {
         case Some(currentTodo) =>
           val newTodo: Todo = pt(currentTodo)
@@ -90,7 +89,7 @@ object Main extends TwitterServer {
     log.info("Serving the Todo application")
 
     val server = Http.server
-      .configured(Stats(statsReceiver))
+      .withStatsReceiver(statsReceiver)
       .serve(s":${port()}", api)
 
     onExit { server.close() }

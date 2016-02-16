@@ -5,10 +5,12 @@ import com.twitter.util.Base64StringEncoder
 
 class BasicAuthSpec extends FinchSpec {
 
+  behavior of "BasicAuth"
+
   private[this] def encode(user: String, password: String) =
     "Basic " + Base64StringEncoder.encode(s"$user:$password".getBytes)
 
-  "A BasicAuth combinator" should "has a proper string representation" in {
+  it should "has a proper string representation" in {
     check { s: String =>
       BasicAuth("foo", "bar")(s: Endpoint0).toString === s"BasicAuth($s)"
     }
