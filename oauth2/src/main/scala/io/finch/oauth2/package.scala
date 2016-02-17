@@ -22,7 +22,7 @@ package object oauth2 {
    */
   def authorize[U](dataHandler: DataHandler[U]): Endpoint[AuthInfo[U]] =
     Endpoint.embed(items.MultipleItems)(i =>
-      Some((i, Eval.now(OAuth2.authorize(i.request, dataHandler).map(Output.payload(_)))))
+      Some((i, Eval.later(OAuth2.authorize(i.request, dataHandler).map(Output.payload(_)))))
     ).handle(handleOAuthError)
 
   /**
@@ -31,6 +31,6 @@ package object oauth2 {
    */
   def issueAccessToken[U](dataHandler: DataHandler[U]): Endpoint[GrantHandlerResult] =
     Endpoint.embed(items.MultipleItems)(i =>
-      Some((i, Eval.now(OAuth2.issueAccessToken(i.request, dataHandler).map(Output.payload(_)))))
+      Some((i, Eval.later(OAuth2.issueAccessToken(i.request, dataHandler).map(Output.payload(_)))))
     ).handle(handleOAuthError)
 }

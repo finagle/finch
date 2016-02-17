@@ -3,7 +3,7 @@ import ScoverageSbtPlugin._
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  version := "0.10.0",
+  version := "0.11.0-SNAPSHOT",
   scalaVersion := "2.11.7",
   crossScalaVersions := Seq("2.10.6", "2.11.7")
 )
