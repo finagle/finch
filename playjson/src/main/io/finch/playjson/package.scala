@@ -15,5 +15,5 @@ package object playjson {
  * @tparam A the type of the data to encode from
  */
   implicit def encodeJson[A](implicit writes: Writes[A]): EncodeResponse[A] =
-    EncodeResponse.fromString[A]("application/json") {a =>Json.stringify(Json.toJson(a))}
+    EncodeResponse.fromString[A]("application/json")(a =>Json.stringify(Json.toJson(a)))
 }
