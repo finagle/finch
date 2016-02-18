@@ -5,6 +5,7 @@
 * [Converting `Error.RequestErrors` into JSON](cookbook.md#converting-errorrequesterrors-into-json)
 * [Defining endpoints returning empty responses](cookbook.md#defining-endpoints-returning-empty-responses)
 * [Defining redirecting endpoints](cookbook.md#defining-redirecting-endpoints)
+* [Defining custom endpoints](cookbook.md#defining-custom-endpoints)
 * [Converting between Scala futures and Twitter futures](cookbook.md#converting-between-scala-futures-and-twitter-futures)
 
 This is a collection of short recipes of "How to X in Finch".
@@ -213,6 +214,103 @@ val redirect: Endpoint[Unit] = get("redirect" :: "from") {
   Output.unit(Status.SeeOther).withHeader("Location" -> "/redirect/to")
 }
 ```
+
+### Defining custom endpoints
+
+"Custom endpoints" isn't probably a good definition for these since once you called `map*` or `as*`
+on a predefined endpoint it becomes "custom". Anyways, there are endpoints (at least some part of
+more complex endpoints) that might be decoupled and shared across other endpoints in your
+application.
+
+One way or another, Finch is a library promoting functional programming, which means it prefers
+composition over inheritance. Thus, building new instances in Finch is never about extending some
+base class, but about composing existing instances together.
+
+**Example 1: aka request reader**
+
+Before 0.10 there was a `RequestReader` abstraction in Finch that has been replaced with _evaluating
+endpoints_. Even that the name was changed, the request-reader-flavored API (and behaviour) wasn't
+touched at all.
+
+In the following example, we define a new endpoint `foo` that reads an instance of the case class
+`Foo` from the request during the _evaluation_ stage. So it won't affect matching.
+
+```scala
+case class Foo(i: Int, s: String)
+
+val foo: Endpoint[Foo] = (param("i").as[Int] :: param("s")).as[Foo]
+
+val getFoo: Endpoint[Foo] = get("foo" :: foo) { f: Foo =>
+  println(s"Got foo: $f")
+  Ok(f) // echo it back
+}
+```
+
+**Note:** The endpoint body from the example above will never be evaluated if the `foo` endpoint
+fails (e.g., one of the params is missing). This shouldn't be a big surprise given that such
+behavior is quite natural for a functor (i.e., `map` function) - an endpoint on which `mapOutput` is
+called (via the syntactic sugar around `apply`) might be already failed.
+
+**Example 2: authentication**
+
+Since endpoints provide more control over the output (i.e., via `io.finch.Output`), it's now
+possible to define self-contained instances that also handle exceptions (convert them to appropriate
+outputs).
+
+In this example, we define an evaluating endpoint `auth` that takes a request and tries to
+authenticate it by the user name passed in the `User` header. If the header is missing the request
+considered unauthorized.
+
+```scala
+import io.finch._
+
+case class User(id: Int)
+
+val auth: Endpoint[User] = header("User").mapOutput(u =>
+  if (u == "secret user") Ok(User(10))
+  else Unauthorized(new Exception(s"User $u is unknown."))
+).handle {
+  // if header "User" is missing we respond 401
+  case e: Error.NotPresent => Unauthorized(e)
+}
+
+val getCurrentUser: Endpoint[User] = get("user" :: auth) { u: User =>
+  println(s"Got user: $u")
+  Ok(u) // echo it back
+}
+```
+
+**Note:** Even though an endpoint `auth` can't fail since we explicitly handled its only possible
+exception, the body of the `getCurrentUser` endpoint will only be evaluated if the incoming request
+contains a header `User: secret user` and a path `/user`. This comes from `io.finch.Output`, which
+provides a monadic API over the three cases (payload (i.e., `Ok`), failure (i.e., `BadRequest`) and
+empty) and only `Output.Payload` is considered a success. Simply speaking, calling `map*` on either
+`Output.Failure` or `Output.Empty` is the same as calling `map*` on `None: Option[Nothing]`. Thus,
+an endpoint returning non-`Output.Payload` output considered failed and its `map*` call won't be
+evaluated.
+
+**Example 3: custom path matcher**
+
+Let's say you want to write a custom _matching_ endpoint that only matches requests whose current
+path segment might be extracted as (converted to) Java 8's `LocalDateTime`.
+
+```scala
+import io.finch._
+import io.finch.internal
+import com.twitter.util.Try
+import java.time.LocalDateTime
+
+implicit val e: internal.Extractor[LocalDateTime] =
+  internal.Extractor.instance(s => Try(LocalDateTime.parse(s)).toOption)
+
+val dateTime: Endpoint[LocalDateTime] = get("time" :: path[LocalDateTime]) { t: LocalDateTime =>
+  println(s"Got time: $t")
+  Ok(t) // echo it back
+}
+```
+
+**Note:** `io.finch.internal.Extractor` is an experimental API that will be (or not) eventually
+promoted to non-experimental.
 
 ### Converting between Scala futures and Twitter futures
 
