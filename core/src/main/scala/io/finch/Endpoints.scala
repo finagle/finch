@@ -17,9 +17,6 @@ import shapeless._
  */
 trait Endpoints {
 
-  @deprecated("RequestReaders are now Endpoints", "0.10.0")
-  type RequestReader[A] = Endpoint[A]
-
   private[this] val hnilFutureOutput: Eval[Future[Output[HNil]]] =
     Eval.now(Future.value(Output.payload(HNil)))
 
@@ -48,7 +45,7 @@ trait Endpoints {
    * An universal extractor that extracts some value of type `A` if it's possible to fetch the value
    * from the string.
    */
-  case class Extractor[A](name: String, f: String => Option[A]) extends Endpoint[A] {
+  private[finch] case class Extractor[A](name: String, f: String => Option[A]) extends Endpoint[A] {
     def apply(input: Input): Endpoint.Result[A] =
       for {
         ss <- input.headOption
@@ -72,7 +69,9 @@ trait Endpoints {
   /**
    * An extractor that extracts a value of type `Seq[A]` from the tail of the route.
    */
-  case class TailExtractor[A](name: String, f: String => Option[A]) extends Endpoint[Seq[A]] {
+  private[finch] case class TailExtractor[A](
+      name: String,
+      f: String => Option[A]) extends Endpoint[Seq[A]] {
     def apply(input: Input): Endpoint.Result[Seq[A]] =
       Some((input.copy(path = Nil), Eval.now(Future.value(Output.payload(for {
         s <- input.path
@@ -87,6 +86,34 @@ trait Endpoints {
   private[this] def extractUUID(s: String): Option[UUID] =
     if (s.length != 36) None
     else try Some(UUID.fromString(s)) catch { case _: Exception => None }
+
+  private[this] def result[A](i: Input, a: A): (Input, Eval[Future[Output[A]]]) =
+    (i.drop(1), Eval.now(Future.value(Output.payload(a))))
+
+  /**
+   * A matching [[Endpoint]] that reads a string value from the current path segment.
+   *
+   * @note This is an experimental API and might be removed without any notice.
+   */
+  val path: Endpoint[String] = new Endpoint[String] {
+    def apply(input: Input): Endpoint.Result[String] =
+      input.headOption.map(s => result(input, s))
+
+    override def toString: String = ":path"
+  }
+
+  /**
+   * A matching [[Endpoint]] that reads a value of type `A` (using the implicit
+   * [[internal.Extractor]] instances defined for `A`) from the current path segment.
+   */
+  def path[A](implicit e: internal.Extractor[A]): Endpoint[A] = new Endpoint[A] {
+    def apply(input: Input): Endpoint.Result[A] = for {
+      ss <- input.headOption
+      aa <- e(ss)
+    } yield result(input, aa)
+
+    override def toString: String = ":path"
+  }
 
   /**
    * A matching [[Endpoint]] that reads an integer value from the current path segment.

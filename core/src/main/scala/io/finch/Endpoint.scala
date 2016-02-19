@@ -79,13 +79,13 @@ trait Endpoint[A] { self =>
   /**
    * Maps this endpoint to the given function `A => B`.
    */
-  def map[B](fn: A => B): Endpoint[B] =
+  final def map[B](fn: A => B): Endpoint[B] =
     mapAsync(fn.andThen(Future.value))
 
   /**
    * Maps this endpoint to the given function `A => Future[B]`.
    */
-  def mapAsync[B](fn: A => Future[B]): Endpoint[B] = new Endpoint[B] {
+  final def mapAsync[B](fn: A => Future[B]): Endpoint[B] = new Endpoint[B] {
     def apply(input: Input): Endpoint.Result[B] =
       self(input).map {
         case (remainder, output) =>
@@ -96,19 +96,16 @@ trait Endpoint[A] { self =>
     override def toString = self.toString
   }
 
-  @deprecated("Use Endpoint.mapAsync instead", "0.10.0")
-  def embedFlatMap[B](fn: A => Future[B]): Endpoint[B] = mapAsync(fn)
-
   /**
    * Maps this endpoint to the given function `A => Output[B]`.
    */
-  def mapOutput[B](fn: A => Output[B]): Endpoint[B] =
+  final def mapOutput[B](fn: A => Output[B]): Endpoint[B] =
     mapOutputAsync(fn.andThen(Future.value))
 
   /**
    * Maps this endpoint to the given function `A => Future[Output[B]]`.
    */
-  def mapOutputAsync[B](fn: A => Future[Output[B]]): Endpoint[B] = new Endpoint[B] {
+  final def mapOutputAsync[B](fn: A => Future[Output[B]]): Endpoint[B] = new Endpoint[B] {
     def apply(input: Input): Endpoint.Result[B] =
       self(input).map {
         case (remainder, output) =>
@@ -133,7 +130,7 @@ trait Endpoint[A] { self =>
   /**
    * Maps this endpoint to `Endpoint[A => B]`.
    */
-  def ap[B](fn: Endpoint[A => B]): Endpoint[B] = new Endpoint[B] {
+  final def ap[B](fn: Endpoint[A => B]): Endpoint[B] = new Endpoint[B] {
     private[this] def join(
       foa: Future[Output[A]],
       fof: Future[Output[A => B]]
@@ -169,7 +166,7 @@ trait Endpoint[A] { self =>
    * Composes this endpoint with the given `that` endpoint. The resulting endpoint will succeed only
    * if both this and `that` endpoints succeed.
    */
-  def adjoin[B](that: Endpoint[B])(implicit pa: PairAdjoin[A, B]): Endpoint[pa.Out] =
+  final def adjoin[B](that: Endpoint[B])(implicit pa: PairAdjoin[A, B]): Endpoint[pa.Out] =
     new Endpoint[pa.Out] {
       val inner = self.ap(
         that.map { b => (a: A) => pa(a, b) }
@@ -183,26 +180,26 @@ trait Endpoint[A] { self =>
   /**
    * Composes this endpoint with the given [[Endpoint]].
    */
-  def ?[B](that: Endpoint[B])(implicit pa: PairAdjoin[A, B]): Endpoint[pa.Out] =
+  final def ?[B](that: Endpoint[B])(implicit pa: PairAdjoin[A, B]): Endpoint[pa.Out] =
     self.adjoin(that)
 
   /**
    * Composes this endpoint with the given [[Endpoint]].
    */
-  def /[B](that: Endpoint[B])(implicit pa: PairAdjoin[A, B]): Endpoint[pa.Out] =
+  final def /[B](that: Endpoint[B])(implicit pa: PairAdjoin[A, B]): Endpoint[pa.Out] =
     self.adjoin(that)
 
   /**
    * Composes this endpoint with the given [[Endpoint]].
    */
-  def ::[B](that: Endpoint[B])(implicit pa: PairAdjoin[B, A]): Endpoint[pa.Out] =
+  final def ::[B](that: Endpoint[B])(implicit pa: PairAdjoin[B, A]): Endpoint[pa.Out] =
     that.adjoin(self)
 
   /**
    * Sequentially composes this endpoint with the given `that` endpoint. The resulting endpoint will
    * succeed if either this or `that` endpoints are succeed.
    */
-  def |[B >: A](that: Endpoint[B]): Endpoint[B] = new Endpoint[B] {
+  final def |[B >: A](that: Endpoint[B]): Endpoint[B] = new Endpoint[B] {
     private[this] def aToB(o: Endpoint.Result[A]): Endpoint.Result[B] =
       o.map { case (r, oo) => (r, oo.map(_.asInstanceOf[Future[Output[B]]])) }
 
@@ -223,7 +220,7 @@ trait Endpoint[A] { self =>
   /**
    * Composes this endpoint with another in such a way that coproducts are flattened.
    */
-  def :+:[B](that: Endpoint[B])(implicit adjoin: Adjoin[B :+: A :+: CNil]): Endpoint[adjoin.Out] =
+  final def :+:[B](that: Endpoint[B])(implicit adjoin: Adjoin[B :+: A :+: CNil]): Endpoint[adjoin.Out] =
     that.map(b => adjoin(Inl[B, A :+: CNil](b))) |
     self.map(a => adjoin(Inr[B, A :+: CNil](Inl[A, CNil](a))))
 
@@ -239,13 +236,13 @@ trait Endpoint[A] { self =>
   /**
    * Converts this endpoint to a Finagle service `Request => Future[Response]`.
    */
-  def toService(implicit ts: ToService[A]): Service[Request, Response] = ts(this)
+  final def toService(implicit ts: ToService[A]): Service[Request, Response] = ts(this)
 
   /**
    * Recovers from any exception occurred in this endpoint by creating a new endpoint that will
    * handle any matching throwable from the underlying future.
    */
-  def rescue[B >: A](pf: PartialFunction[Throwable, Future[Output[B]]]): Endpoint[B] =
+  final def rescue[B >: A](pf: PartialFunction[Throwable, Future[Output[B]]]): Endpoint[B] =
     new Endpoint[B] {
       def apply(input: Input): Endpoint.Result[B] =
         self(input).map {
@@ -261,7 +258,7 @@ trait Endpoint[A] { self =>
    * Recovers from any exception occurred in this endpoint by creating a new endpoint that will
    * handle any matching throwable from the underlying future.
    */
-  def handle[B >: A](pf: PartialFunction[Throwable, Output[B]]): Endpoint[B] =
+  final def handle[B >: A](pf: PartialFunction[Throwable, Output[B]]): Endpoint[B] =
     rescue(pf.andThen(Future.value))
 
   /**
@@ -274,7 +271,7 @@ trait Endpoint[A] { self =>
    * @return an endpoint that will return the value of this reader if it is valid.
    *         Otherwise the future fails with an [[Error.NotValid]] error.
    */
-  def should(rule: String)(predicate: A => Boolean): Endpoint[A] = mapAsync(a =>
+  final def should(rule: String)(predicate: A => Boolean): Endpoint[A] = mapAsync(a =>
     if (predicate(a)) Future.value(a)
     else Future.exception(Error.NotValid(self.item, "should " + rule))
   )
@@ -285,10 +282,10 @@ trait Endpoint[A] { self =>
    * @param rule text describing the rule being validated
    * @param predicate returns false if the data is valid
    *
-   * @return an endplint that will return the value of this reader if it is valid.
+   * @return an endpoint that will return the value of this reader if it is valid.
    *         Otherwise the future fails with a [[Error.NotValid]] error.
    */
-  def shouldNot(rule: String)(predicate: A => Boolean): Endpoint[A] =
+  final def shouldNot(rule: String)(predicate: A => Boolean): Endpoint[A] =
     should(s"not $rule.")(x => !predicate(x))
 
   /**
@@ -301,7 +298,7 @@ trait Endpoint[A] { self =>
    * @return an endpoint that will return the value of this reader if it is valid.
    *         Otherwise the future fails with an [[Error.NotValid]] error.
    */
-  def should(rule: ValidationRule[A]): Endpoint[A] = should(rule.description)(rule.apply)
+  final def should(rule: ValidationRule[A]): Endpoint[A] = should(rule.description)(rule.apply)
 
   /**
    * Validates the result of this endpoint using a predefined `rule`. This method allows for rules
@@ -313,12 +310,12 @@ trait Endpoint[A] { self =>
    * @return an endpoint that will return the value of this reader if it is valid.
    *         Otherwise the future fails with a [[Error.NotValid]] error.
    */
-  def shouldNot(rule: ValidationRule[A]): Endpoint[A] = shouldNot(rule.description)(rule.apply)
+  final def shouldNot(rule: ValidationRule[A]): Endpoint[A] = shouldNot(rule.description)(rule.apply)
 
   /**
    * Lifts this endpoint into one that always succeeds, with an empty `Option` representing failure.
    */
-  def lift: Endpoint[Option[A]] = new Endpoint[Option[A]] {
+  final def lift: Endpoint[Option[A]] = new Endpoint[Option[A]] {
     def apply(input: Input): Result[Option[A]] =
       self(input).map {
         case (remainder, output) =>
