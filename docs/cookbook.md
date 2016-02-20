@@ -38,7 +38,7 @@ That means, a compiler wasn't able to find an instance of `EncodeResponse` type-
 have an absolutely specific use case) or use one of the supported JSON libraries and get it for
 free (preferred).
 
-For example, to bring the [Crice][circe] support and benefit from its auto-derivation of codecs
+For example, to bring the [Circe][circe] support and benefit from its auto-derivation of codecs
 you'd only need to add two extra imports to the scope (file) where you call the `.toService` method.
 
 ```scala
