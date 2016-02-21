@@ -104,12 +104,12 @@ trait Endpoints {
 
   /**
    * A matching [[Endpoint]] that reads a value of type `A` (using the implicit
-   * [[internal.Extractor]] instances defined for `A`) from the current path segment.
+   * [[internal.Capture]] instances defined for `A`) from the current path segment.
    */
-  def path[A](implicit e: internal.Extractor[A]): Endpoint[A] = new Endpoint[A] {
+  def path[A](implicit c: internal.Capture[A]): Endpoint[A] = new Endpoint[A] {
     def apply(input: Input): Endpoint.Result[A] = for {
       ss <- input.headOption
-      aa <- e(ss)
+      aa <- c(ss)
     } yield result(input, aa)
 
     override def toString: String = ":path"

@@ -530,7 +530,7 @@ endpoint using the similarly named methods:
 The following example handles the `ArithmeticException` propagated from `a / b`.
 
 ```scala
-val divOrFail: Endpoint[Int] = post("div" / int / int) { (a: Int, b: Int) =>
+val divOrFail: Endpoint[Int] = post("div" :: int :: int) { (a: Int, b: Int) =>
   Ok(a / b)
 } handle {
   case e: ArithmeticExceptions => BadRequest(e)
