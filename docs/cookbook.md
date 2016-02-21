@@ -305,8 +305,8 @@ import io.finch.internal
 import com.twitter.util.Try
 import java.time.LocalDateTime
 
-implicit val e: internal.Extractor[LocalDateTime] =
-  internal.Extractor.instance(s => Try(LocalDateTime.parse(s)).toOption)
+implicit val e: internal.Capture[LocalDateTime] =
+  internal.Capture.instance(s => Try(LocalDateTime.parse(s)).toOption)
 
 val dateTime: Endpoint[LocalDateTime] = get("time" :: path[LocalDateTime]) { t: LocalDateTime =>
   println(s"Got time: $t")

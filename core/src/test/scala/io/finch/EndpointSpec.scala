@@ -74,9 +74,9 @@ class EndpointSpec extends FinchSpec {
     check { i: Input =>
       val e = i.path.dropRight(1)
         .map(s => s: Endpoint0)
-        .foldLeft[Endpoint0](/)((acc, ee) => acc / ee)
+        .foldLeft[Endpoint0](/)((acc, ee) => acc :: ee)
 
-      val v = (e / string).mapOutputAsync(s => Future.value(expected(s.length)))(i)
+      val v = (e :: string).mapOutputAsync(s => Future.value(expected(s.length)))(i)
       v.output === i.path.lastOption.map(s => expected(s.length))
     }
   }
@@ -124,14 +124,14 @@ class EndpointSpec extends FinchSpec {
 
   it should "match the entire input" in {
     check { i: Input =>
-      val e = i.path.map(s => s: Endpoint0).foldLeft[Endpoint0](/)((acc, e) => acc / e)
+      val e = i.path.map(s => s: Endpoint0).foldLeft[Endpoint0](/)((acc, e) => acc :: e)
       e(i).remainder == Some(i.copy(path = Nil))
     }
   }
 
   it should "not match the entire input if one of the underlying endpoints is failed" in {
     check { (i: Input, s: String) =>
-      (* / s).apply(i).remainder === None
+      (* :: s).apply(i).remainder === None
     }
   }
 
@@ -170,7 +170,7 @@ class EndpointSpec extends FinchSpec {
 
     check { (s: String, i: Int) => (s: Endpoint0).map(_ => i).toString === s }
     check { (s: String, t: String) => ((s: Endpoint0) | (t: Endpoint0)).toString === s"($s|$t)" }
-    check { (s: String, t: String) => ((s: Endpoint0) / (t: Endpoint0)).toString === s"$s/$t" }
+    check { (s: String, t: String) => ((s: Endpoint0) :: (t: Endpoint0)).toString === s"$s/$t" }
     check { s: String => (s: Endpoint0).ap[String](*.map(_ => _ => "foo")).toString === s }
     check { (s: String, t: String) => (s: Endpoint0).mapAsync(_ => Future.value(t)).toString === s }
 
@@ -188,7 +188,7 @@ class EndpointSpec extends FinchSpec {
     uuids.toString shouldBe ":uuid*"
     booleans.toString shouldBe ":boolean*"
 
-    (int / string).toString shouldBe ":int/:string"
+    (int :: string).toString shouldBe ":int/:string"
     (boolean :+: long).toString shouldBe "(:boolean|:long)"
   }
 
@@ -201,7 +201,7 @@ class EndpointSpec extends FinchSpec {
 
   it should "support the as[A] method" in {
     case class Foo(s: String, i: Int, b: Boolean)
-    val foo = (string / int / boolean).as[Foo]
+    val foo = (string :: int :: boolean).as[Foo]
     check { (s: String, i: Int, b: Boolean) =>
       foo(Input(null, Seq(s, i.toString, b.toString))).value === Some(Foo(s, i, b))
     }
@@ -242,7 +242,7 @@ class EndpointSpec extends FinchSpec {
       Future { flag = true; nil }
     }
 
-    val e = ("a" / 10) | endpointWithFailedFuture
+    val e = ("a" :: 10) | endpointWithFailedFuture
     e(i).isDefined shouldBe true
     flag shouldBe false
   }
@@ -251,8 +251,8 @@ class EndpointSpec extends FinchSpec {
     val a = Input(null, Seq("a", "10"))
     val b = Input(null, Seq("a"))
 
-    val e1: Endpoint0 = "a" | "b" | ("a" / 10)
-    val e2: Endpoint0 = ("a" / 10) | "b" |  "a"
+    val e1: Endpoint0 = "a" | "b" | ("a" :: 10)
+    val e2: Endpoint0 = ("a" :: 10) | "b" |  "a"
 
     e1(a).remainder shouldBe Some(a.drop(2))
     e1(b).remainder shouldBe Some(b.drop(2))
