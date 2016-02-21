@@ -114,14 +114,15 @@ val file: Endpoint[Buf] = get("file") {
 content given their _dynamic_ nature. Instead, a static HTTP server (i.e., [Nginx][nginx]) would be
 a perfect tool to use.
 
-Since Finch 0.10 it's possible to _stream_ the file content to the client using [`AsyncStream`][as]
-and `Http.server.withStreaming(enabled = true).serve(...)`.
+Since Finch 0.10 it's possible to _stream_ the file content to the client using [`AsyncStream`][as].
 
 ```scala
 import io.finch._
 import com.twitter.conversions.storage._
-import com.twitter.io.{Reader, Buf}
 import com.twitter.concurrent.AsyncStream
+import com.twitter.finagle.Http
+import com.twitter.io.{Reader, Buf}
+
 import java.io.File
 
 val reader: Reader = Reader.fromFile(new File("/dev/urandom"))
@@ -129,6 +130,10 @@ val reader: Reader = Reader.fromFile(new File("/dev/urandom"))
 val file: Endpoint[AsyncStream[Buf]] = get("stream-of-file") {
   Ok(AsyncStream.fromReader(reader, chunkSize = 512.kilobytes.inBytes))
 }
+
+Http.server
+  .withStreamig(enabled = true)
+  .serve(":8081", file.toService)
 ```
 
 ### Converting `Error.RequestErrors` into JSON
@@ -202,7 +207,7 @@ val fooOrFailure: Endpoint[Foo] = get("foo" :: string) { s: String =>
 
 ### Defining redirecting endpoints
 
-Redirects are still weird in Finch. Util [reversed routes/endpoints][issue 191] are shipped, the
+Redirects are still weird in Finch. Util [reversed routes/endpoints][issue191] are shipped, the
 reasonable way of defining redirecting endpoints is to represent them as `Endpoint[Unit]` (empty
 output) indicating that there is no payload returned.
 

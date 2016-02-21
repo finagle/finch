@@ -180,12 +180,14 @@ trait Endpoint[A] { self =>
   /**
    * Composes this endpoint with the given [[Endpoint]].
    */
+  @deprecated("Use :: instead", "0.11")
   final def ?[B](that: Endpoint[B])(implicit pa: PairAdjoin[A, B]): Endpoint[pa.Out] =
     self.adjoin(that)
 
   /**
    * Composes this endpoint with the given [[Endpoint]].
    */
+  @deprecated("Use :: instead", "0.11")
   final def /[B](that: Endpoint[B])(implicit pa: PairAdjoin[A, B]): Endpoint[pa.Out] =
     self.adjoin(that)
 
