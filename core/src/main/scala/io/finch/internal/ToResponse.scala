@@ -1,54 +1,69 @@
 package io.finch.internal
 
 import com.twitter.concurrent.AsyncStream
-import com.twitter.finagle.http.{Response, Status, Version}
-import com.twitter.io.{Buf, Reader}
-import io.finch.EncodeResponse
+import com.twitter.finagle.http.Response
+import com.twitter.io.Buf
+import io.finch.Encode
+import shapeless._
 
 /**
  * Represents a conversion from `A` to [[Response]].
  */
-trait ToResponse[-A] {
+trait ToResponse[A] {
+  type ContentType <: String
+
   def apply(a: A): Response
 }
 
-object ToResponse {
-
-  /**
-   * Returns an instance for a given type.
-   */
-  @inline def apply[A](implicit tr: ToResponse[A]): ToResponse[A] = tr
+trait LowPriorityToResponseInstances {
+  type Aux[A, CT <: String] = ToResponse[A] { type ContentType = CT }
 
   /**
    * Constructs an instance from a function.
    */
-  def instance[A](f: A => Response): ToResponse[A] = new ToResponse[A] {
+  def instance[A, CT <: String](f: A => Response): Aux[A, CT] = new ToResponse[A] {
+    type ContentType = CT
     def apply(a: A): Response = f(a)
   }
 
-  implicit val responseToResponse: ToResponse[Response] = instance(identity)
+  implicit def valueToResponse[A, CT <: String](implicit
+    e: Encode.Aux[A, CT],
+    w: Witness.Aux[CT]
+  ): Aux[A, CT] = instance { a =>
+    val rep = Response()
+    val buf = e(a)
 
-  implicit def encodeableToResponse[A](implicit e: EncodeResponse[A]): ToResponse[A] =
-    instance { a =>
-      val rep = Response()
-      rep.content = e(a)
-      rep.contentType = e.contentType
-      e.charset.foreach { cs => rep.charset = cs }
-
-      rep
+    if (!buf.isEmpty) {
+      rep.content = buf
+      rep.contentType = w.value
     }
 
-  /**
-   * Provides implicit ToResponse for `AsyncStream[Buf]`.
-   * If it reaches the end of the stream it closes the connection.
-   *
-   * @note Http server should be initialized with `.withStreaming(enabled = true)` to get advantage
-   *       of streaming (chunked requests).
-   */
-  implicit val asyncToResponse: ToResponse[AsyncStream[Buf]] =
-    instance { a =>
-      val writable = Reader.writable()
-      a.foreachF(writable.write).ensure(writable.close())
-      Response(Version.Http11, Status.Ok, writable)
-    }
+    rep
+  }
+}
+
+object ToResponse extends LowPriorityToResponseInstances {
+
+  implicit def asyncBufToResponse[CT <: String](implicit
+    w: Witness.Aux[CT]
+  ): Aux[AsyncStream[Buf], CT] = instance { a =>
+    val rep = Response()
+    val writable = rep.writer
+
+    a.foreachF(writable.write).ensure(writable.close())
+    rep.contentType = w.value
+
+    rep
+  }
+
+  implicit def cnilToResponse[CT <: String]: Aux[CNil, CT] =
+    instance(_ => sys.error("impossible"))
+
+  implicit def coproductToResponse[H, T <: Coproduct, CT <: String](implicit
+    trH: ToResponse.Aux[H, CT],
+    trT: ToResponse.Aux[T, CT]
+  ): Aux[H :+: T, CT] = instance {
+    case Inl(h) => trH(h)
+    case Inr(t) => trT(t)
+  }
 }

@@ -8,12 +8,12 @@ import com.twitter.util.{Return, Try}
 import org.scalacheck.{Prop, Arbitrary}
 import org.typelevel.discipline.Laws
 
-trait DecoderLaws[A] extends Laws with MissingInstances with AllInstances {
+trait DecodeLaws[A] extends Laws with MissingInstances with AllInstances {
 
-  def decoder: DecodeRequest[A]
+  def decode: Decode[A]
 
   def roundTrip(a: A): IsEq[Try[A]] =
-    decoder(a.toString) <-> Return(a)
+    decode(a.toString) <-> Return(a)
 
   def all(implicit A: Arbitrary[A], eq: Eq[A]): RuleSet = new DefaultRuleSet(
     name = "all",
@@ -22,8 +22,8 @@ trait DecoderLaws[A] extends Laws with MissingInstances with AllInstances {
   )
 }
 
-object DecoderLaws {
-  def apply[A: DecodeRequest]: DecoderLaws[A] = new DecoderLaws[A] {
-    val decoder: DecodeRequest[A] = DecodeRequest[A]
+object DecodeLaws {
+  def apply[A: Decode]: DecodeLaws[A] = new DecodeLaws[A] {
+    val decode: Decode[A] = Decode[A]
   }
 }

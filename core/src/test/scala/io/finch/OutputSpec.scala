@@ -2,6 +2,7 @@ package io.finch
 
 import com.twitter.io.Buf
 import com.twitter.finagle.http.Status
+import shapeless.Witness
 
 class OutputSpec extends FinchSpec {
 
@@ -9,22 +10,6 @@ class OutputSpec extends FinchSpec {
 
   it should "propagate status to response" in {
     check { o: Output[String] => o.toResponse().status == o.status }
-  }
-
-  it should "propagate charset to response" in {
-    check { (o: Output[String], cs: OptionalNonEmptyString) =>
-      val rep = o.withCharset(cs.o).toResponse()
-      (rep.content === Buf.Empty) ||
-      (rep.charset === cs.o.orElse(EncodeResponse.encodeString.charset))
-    }
-  }
-
-  it should "propagate contentType to response" in {
-    check { (o: Output[String], ct: OptionalNonEmptyString) =>
-      val rep = o.withContentType(ct.o).toResponse()
-      (rep.content === Buf.Empty) ||
-      rep.contentType.forall(_.startsWith(ct.o.getOrElse(EncodeResponse.encodeString.contentType)))
-    }
   }
 
   it should "propagate headers to response" in {
@@ -74,20 +59,21 @@ class OutputSpec extends FinchSpec {
 
   it should "propagate cause to response" in {
     check { of: Output.Failure =>
-      (of: Output[Unit]).toResponse().content === EncodeResponse.encodeException(of.cause)
+      (of: Output[Unit]).toResponse[Witness.`"text/plain"`.T]().content ===
+        Encode.encodeExceptionAsTextPlain(of.cause)
     }
   }
 
   it should "propagate empytiness to response" in {
     check { of: Output.Empty =>
-      (of: Output[Unit]).toResponse().content === Buf.Empty
+      (of: Output[Unit]).toResponse[Witness.`"text/plain"`.T]().content === Buf.Empty
     }
   }
 
   it should "propagate payload to response" in {
     check { op: Output.Payload[String] =>
       Some(op.toResponse().contentString) ===
-        Buf.Utf8.unapply(EncodeResponse.encodeString(op.value))
+        Buf.Utf8.unapply(Encode.encodeString(op.value))
     }
   }
 }

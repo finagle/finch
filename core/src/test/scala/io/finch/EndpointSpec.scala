@@ -63,8 +63,6 @@ class EndpointSpec extends FinchSpec {
       Created(i)
         .withHeader("A" -> "B")
         .withCookie(new Cookie("C", "D"))
-        .withContentType(Some("E"))
-        .withCharset(Some("F"))
 
     check { i: Input =>
       string.mapOutputAsync(s => Future.value(expected(s.length)))(i).output ===
@@ -194,7 +192,7 @@ class EndpointSpec extends FinchSpec {
 
   it should "always respond with the same output if it's a constant Endpoint" in {
     check { (i: Input, s: String) =>
-      val expected = Ok(s).withContentType(Some("application/json"))
+      val expected = Ok(s)
       Endpoint(expected)(i).output === Some(expected)
     }
   }

@@ -67,11 +67,7 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
   )
 
   def genOutputMeta: Gen[Output.Meta] =
-    for {
-      s <- genStatus
-      ct <- genOptionalNonEmptyString
-      ch <- genOptionalNonEmptyString
-    } yield Output.Meta(s, Map.empty[String, String], Seq.empty[Cookie], ct.o, ch.o)
+    genStatus.map(s => Output.Meta(s, Map.empty[String, String], Seq.empty[Cookie]))
 
   def genEmptyOutput: Gen[Output.Empty] = for {
     m <- genOutputMeta

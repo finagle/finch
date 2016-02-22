@@ -59,6 +59,8 @@ import shapeless.ops.hlist.Tupler
  */
 trait Endpoint[A] { self =>
 
+  type ContentType <: String
+
   def item: items.RequestItem = items.MultipleItems
 
   /**
@@ -113,9 +115,7 @@ trait Endpoint[A] { self =>
             val fob = oa.traverse(fn).map(oob => oob.flatten)
 
             fob.map { ob =>
-              val ob0 = ob.withContentType(ob.contentType.orElse(oa.contentType))
-                          .withCharset(ob.charset.orElse(oa.charset))
-              val ob1 = oa.headers.foldLeft(ob0)((acc, x) => acc.withHeader(x))
+              val ob1 = oa.headers.foldLeft(ob)((acc, x) => acc.withHeader(x))
               val ob2 = oa.cookies.foldLeft(ob1)((acc, x) => acc.withCookie(x))
 
               ob2
@@ -228,17 +228,20 @@ trait Endpoint[A] { self =>
 
   def withHeader(header: (String, String)): Endpoint[A] =
     withOutput(o => o.withHeader(header))
-  def withContentType(contentType: Option[String]): Endpoint[A] =
-    withOutput(o => o.withContentType(contentType))
-  def withCharset(charset: Option[String]): Endpoint[A] =
-    withOutput(o => o.withCharset(charset))
   def withCookie(cookie: Cookie): Endpoint[A] =
     withOutput(o => o.withCookie(cookie))
 
   /**
    * Converts this endpoint to a Finagle service `Request => Future[Response]`.
    */
-  final def toService(implicit ts: ToService[A]): Service[Request, Response] = ts(this)
+  final def toService(implicit ts: ToService.Aux[A, Witness.`"application/json"`.T]): Service[Request, Response] =
+    ts(this)
+
+  /**
+   * Converts this endpoint to a Finagle service `Request => Future[Response]`.
+   */
+  final def toServiceAs[CT <: String](implicit ts: ToService.Aux[A, CT]): Service[Request, Response] =
+    ts(this)
 
   /**
    * Recovers from any exception occurred in this endpoint by creating a new endpoint that will
@@ -404,7 +407,7 @@ object Endpoint {
    * The resulting reader will fail when type conversion fails.
    */
   implicit class StringEndpointOps(val self: Endpoint[String]) extends AnyVal {
-    def as[A](implicit decoder: DecodeRequest[A], tag: ClassTag[A]): Endpoint[A] =
+    def as[A](implicit decoder: Decode[A], tag: ClassTag[A]): Endpoint[A] =
       self.mapAsync(value => Future.const(decoder(value).rescue(notParsed[A](self, tag))))
   }
 
@@ -449,7 +452,7 @@ object Endpoint {
      * this class can safely extends AnyVal.
      */
 
-    def as[A](implicit decoder: DecodeRequest[A], tag: ClassTag[A]): Endpoint[Seq[A]] =
+    def as[A](implicit decoder: Decode[A], tag: ClassTag[A]): Endpoint[Seq[A]] =
       self.mapAsync { items =>
         val decoded = items.map(decoder.apply)
         val errors = decoded.collect {
@@ -469,7 +472,7 @@ object Endpoint {
    * will succeed if the result is empty or type conversion succeeds.
    */
   implicit class StringOptionEndpointOps(val self: Endpoint[Option[String]]) extends AnyVal {
-    def as[A](implicit decoder: DecodeRequest[A], tag: ClassTag[A]): Endpoint[Option[A]] =
+    def as[A](implicit decoder: Decode[A], tag: ClassTag[A]): Endpoint[Option[A]] =
       self.mapAsync {
         case Some(value) =>
           Future.const(decoder(value).rescue(notParsed[A](self, tag)).map(Some.apply))
