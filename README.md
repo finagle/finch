@@ -22,6 +22,7 @@ Finch uses multi-project structure and contains of the following _modules_:
 * [`finch-jackson`](jackson) - the JSON API support for the [Jackson][jackson] library
 * [`finch-json4s`](json4s) - the JSON API support for the [JSON4S][json4s] library
 * [`finch-circe`](circe) - the JSON API support for the [Circe][circe] library
+* [`finch-playjson`](playjson) - The JSON API support for the [PlayJson][playjson] library
 * [`finch-test`](test) - the test support classes/functions
 * [`finch-oauth2`](oauth2) - the OAuth2 support backed by the [finagle-oauth2][finagle-oauth2] library
 
@@ -144,6 +145,7 @@ limitations under the License.
 [argonaut]: http://argonaut.io
 [finagle-oauth2]: https://github.com/finagle/finagle-oauth2
 [json4s]: http://json4s.org
+[playjson]: https://www.playframework.com/documentation/2.4.x/ScalaJson
 [scaladoc]: http://finagle.github.io/finch/docs/#io.finch.package
 [typelevel]: http://typelevel.org/
 [conduct]: http://typelevel.org/conduct.html

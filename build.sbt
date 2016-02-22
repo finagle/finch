@@ -126,7 +126,7 @@ lazy val finch = project.in(file("."))
         |import io.circe._
       """.stripMargin
   )
-  .aggregate(core, argonaut, jackson, json4s, circe, benchmarks, test, jsonTest, oauth2, examples)
+  .aggregate(core, argonaut, jackson, json4s, circe, playjson, benchmarks, test, jsonTest, oauth2, examples)
   .dependsOn(core, circe)
 
 lazy val core = project
@@ -186,6 +186,12 @@ lazy val circe = project
       "io.circe" %% "circe-jackson" % circeVersion
     )
   )
+  .dependsOn(core, jsonTest % "test")
+
+lazy val playjson = project
+  .settings(moduleName :="finch-playJson")
+  .settings(allSettings)
+  .settings(libraryDependencies += "com.typesafe.play" %% "play-json" % "2.4.6")
   .dependsOn(core, jsonTest % "test")
 
 lazy val oauth2 = project
