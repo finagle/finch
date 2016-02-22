@@ -3,7 +3,7 @@ import ScoverageSbtPlugin._
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  version := "0.10.0-SNAPSHOT",
+  version := "0.11.0-SNAPSHOT",
   scalaVersion := "2.11.7",
   crossScalaVersions := Seq("2.10.6", "2.11.7")
 )
@@ -30,7 +30,9 @@ lazy val compilerOptions = Seq(
 
 val testDependencies = Seq(
   "org.scalacheck" %% "scalacheck" % "1.12.5",
-  "org.scalatest" %% "scalatest" % "2.2.5"
+  "org.scalatest" %% "scalatest" % "2.2.5",
+  "org.typelevel" %% "cats-laws" % catsVersion,
+  "org.typelevel" %% "discipline" % "0.4"
 )
 
 val baseSettings = Seq(

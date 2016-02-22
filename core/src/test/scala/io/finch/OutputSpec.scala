@@ -1,11 +1,13 @@
 package io.finch
 
 import com.twitter.io.Buf
-import com.twitter.finagle.http.{Response, Status}
+import com.twitter.finagle.http.Status
 
 class OutputSpec extends FinchSpec {
 
-  "Output" should "propagate status to response" in {
+  behavior of "Output"
+
+  it should "propagate status to response" in {
     check { o: Output[String] => o.toResponse().status == o.status }
   }
 
@@ -70,21 +72,22 @@ class OutputSpec extends FinchSpec {
     InsufficientStorage(cause).status shouldBe Status.InsufficientStorage
   }
 
-  "Failure" should "propagate cause to response" in {
+  it should "propagate cause to response" in {
     check { of: Output.Failure =>
       (of: Output[Unit]).toResponse().content === EncodeResponse.encodeException(of.cause)
     }
   }
 
-  "Empty" should "propagate empytiness to response" in {
+  it should "propagate empytiness to response" in {
     check { of: Output.Empty =>
       (of: Output[Unit]).toResponse().content === Buf.Empty
     }
   }
 
-  "Payload" should "propagate payload to response" in {
+  it should "propagate payload to response" in {
     check { op: Output.Payload[String] =>
-      Some(op.toResponse().contentString) === Buf.Utf8.unapply(EncodeResponse.encodeString(op.value))
+      Some(op.toResponse().contentString) ===
+        Buf.Utf8.unapply(EncodeResponse.encodeString(op.value))
     }
   }
 }

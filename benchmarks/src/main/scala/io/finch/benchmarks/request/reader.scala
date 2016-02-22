@@ -26,16 +26,10 @@ case class Foo(s: String, d: Double, i: Int, l: Long, b: Boolean)
 @Fork(2)
 class SuccessfulRequestReaderBenchmark extends FooReadersAndRequests {
   @Benchmark
-  def monadicReader: Foo = Await.result(monadicFooReader(goodFooRequest))
+  def hlistGenericReader: Foo = hlistGenericFooReader(goodFooRequest).value.get
 
   @Benchmark
-  def hlistGenericReader: Foo = Await.result(hlistGenericFooReader(goodFooRequest))
-
-  @Benchmark
-  def hlistApplyReader: Foo = Await.result(hlistApplyFooReader(goodFooRequest))
-
-  @Benchmark
-  def derivedReader: Foo = Await.result(derivedFooReader(goodFooRequest))
+  def derivedReader: Foo = derivedFooReader(goodFooRequest).value.get
 }
 
 /**
@@ -53,31 +47,17 @@ class SuccessfulRequestReaderBenchmark extends FooReadersAndRequests {
 @Fork(2)
 class FailingRequestReaderBenchmark extends FooReadersAndRequests {
   @Benchmark
-  def monadicReader: Try[Foo] = Await.result(monadicFooReader(badFooRequest).liftToTry)
+  def hlistGenericReader: Try[Foo] = hlistGenericFooReader(badFooRequest).poll.get
 
   @Benchmark
-  def hlistGenericReader: Try[Foo] = Await.result(hlistGenericFooReader(badFooRequest).liftToTry)
-
-  @Benchmark
-  def hlistApplyReader: Try[Foo] = Await.result(hlistApplyFooReader(badFooRequest).liftToTry)
-
-  @Benchmark
-  def derivedReader: Try[Foo] = Await.result(derivedFooReader(badFooRequest).liftToTry)
+  def derivedReader: Try[Foo] = derivedFooReader(badFooRequest).poll.get
 }
 
 /**
  * Provides request readers and example requests.
  */
 class FooReadersAndRequests {
-  val monadicFooReader: RequestReader[Foo] = for {
-    s <- param("s")
-    d <- param("d").as[Double]
-    i <- param("i").as[Int]
-    l <- param("l").as[Long]
-    b <- param("b").as[Boolean]
-  } yield Foo(s, d, i, l, b)
-
-  val hlistGenericFooReader: RequestReader[Foo] = (
+  val hlistGenericFooReader: Endpoint[Foo] = (
     param("s") ::
     param("d").as[Double] ::
     param("i").as[Int] ::
@@ -85,31 +65,23 @@ class FooReadersAndRequests {
     param("b").as[Boolean]
   ).as[Foo]
 
-  val hlistApplyFooReader: RequestReader[Foo] = (
-    param("s") ::
-    param("d").as[Double] ::
-    param("i").as[Int] ::
-    param("l").as[Long] ::
-    param("b").as[Boolean]
-  ) ~> Foo.apply _
+  val derivedFooReader: Endpoint[Foo] = Endpoint.derive[Foo].fromParams
 
-  val derivedFooReader: RequestReader[Foo] = RequestReader.derive[Foo].fromParams
-
-  val goodFooRequest: Request = Request(
+  val goodFooRequest: Input = Input(Request(
     "s" -> "Man hands on misery to man. It deepens like a coastal shelf.",
     "d" -> "0.234567",
     "i" -> "123456",
     "l" -> "1234567890",
     "b" -> "true"
-  )
+  ))
 
-  val badFooRequest: Request = Request(
+  val badFooRequest: Input = Input(Request(
     "s" -> "Man hands on misery to man. It deepens like a coastal shelf.",
     "d" -> "0.23h4567",
     "i" -> "123456",
     "l" -> "1234567890x",
     "b" -> "true"
-  )
+  ))
 
   val goodFooResult: Foo = Foo(
     "Man hands on misery to man. It deepens like a coastal shelf.",

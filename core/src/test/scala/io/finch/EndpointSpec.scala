@@ -2,12 +2,14 @@ package io.finch
 
 import java.util.UUID
 
-import com.twitter.finagle.http.{Method, Cookie}
-import com.twitter.util.{Try, Future}
+import com.twitter.finagle.http.{Request, Method, Cookie}
+import com.twitter.util.{Throw, Try, Future}
 
 class EndpointSpec extends FinchSpec {
 
-  "An Endpoint" should "extract one path segment" in {
+  behavior of "Endpoint"
+
+  it should "extract one path segment" in {
     def extractOne[A](e: Endpoint[A], f: String => A): Input => Boolean = { i: Input =>
       val o = e(i)
       val v = i.headOption.flatMap(s => Try(f(s)).toOption)
@@ -47,7 +49,7 @@ class EndpointSpec extends FinchSpec {
     }
   }
 
-  it should "propagate the default (Ok) output through its map'd/embedFlatMap'd/ap'd version" in {
+  it should "propagate the default (Ok) output through its map'd/mapAsync'd/ap'd version" in {
     check { i: Input =>
       val expected = i.headOption.map(s => Ok(s.length))
       string.map(s => s.length)(i).output === expected &&
@@ -56,7 +58,7 @@ class EndpointSpec extends FinchSpec {
     }
   }
 
-  it should "propagate the output through femap and /" in {
+  it should "propagate the output through mapOutputAsync and /" in {
     def expected(i: Int): Output[Int] =
       Created(i)
         .withHeader("A" -> "B")
@@ -65,12 +67,16 @@ class EndpointSpec extends FinchSpec {
         .withCharset(Some("F"))
 
     check { i: Input =>
-      string.mapOutputAsync(s => Future.value(expected(s.length)))(i).output === i.headOption.map(s => expected(s.length))
+      string.mapOutputAsync(s => Future.value(expected(s.length)))(i).output ===
+        i.headOption.map(s => expected(s.length))
     }
 
     check { i: Input =>
-      val e = i.path.dropRight(1).map(s => s: Endpoint0).foldLeft[Endpoint0](/)((acc, ee) => acc / ee)
-      val v = (e / string).mapOutputAsync(s => Future.value(expected(s.length)))(i)
+      val e = i.path.dropRight(1)
+        .map(s => s: Endpoint0)
+        .foldLeft[Endpoint0](/)((acc, ee) => acc :: ee)
+
+      val v = (e :: string).mapOutputAsync(s => Future.value(expected(s.length)))(i)
       v.output === i.path.lastOption.map(s => expected(s.length))
     }
   }
@@ -95,7 +101,8 @@ class EndpointSpec extends FinchSpec {
   it should "match the HTTP method" in {
     def matchMethod(m: Method, f: Endpoint0 => Endpoint0): Input => Boolean = { i: Input =>
       val v = f(/)(i)
-      (i.request.method === m && v.remainder === Some(i)) || (i.request.method != m && v.remainder === None)
+      (i.request.method === m && v.remainder === Some(i)) ||
+      (i.request.method != m && v.remainder === None)
     }
 
     check(matchMethod(Method.Get, get))
@@ -117,14 +124,14 @@ class EndpointSpec extends FinchSpec {
 
   it should "match the entire input" in {
     check { i: Input =>
-      val e = i.path.map(s => s: Endpoint0).foldLeft[Endpoint0](/)((acc, e) => acc / e)
+      val e = i.path.map(s => s: Endpoint0).foldLeft[Endpoint0](/)((acc, e) => acc :: e)
       e(i).remainder == Some(i.copy(path = Nil))
     }
   }
 
   it should "not match the entire input if one of the underlying endpoints is failed" in {
     check { (i: Input, s: String) =>
-      (* / s).apply(i).remainder === None
+      (* :: s).apply(i).remainder === None
     }
   }
 
@@ -163,7 +170,7 @@ class EndpointSpec extends FinchSpec {
 
     check { (s: String, i: Int) => (s: Endpoint0).map(_ => i).toString === s }
     check { (s: String, t: String) => ((s: Endpoint0) | (t: Endpoint0)).toString === s"($s|$t)" }
-    check { (s: String, t: String) => ((s: Endpoint0) / (t: Endpoint0)).toString === s"$s/$t" }
+    check { (s: String, t: String) => ((s: Endpoint0) :: (t: Endpoint0)).toString === s"$s/$t" }
     check { s: String => (s: Endpoint0).ap[String](*.map(_ => _ => "foo")).toString === s }
     check { (s: String, t: String) => (s: Endpoint0).mapAsync(_ => Future.value(t)).toString === s }
 
@@ -181,7 +188,7 @@ class EndpointSpec extends FinchSpec {
     uuids.toString shouldBe ":uuid*"
     booleans.toString shouldBe ":boolean*"
 
-    (int / string).toString shouldBe ":int/:string"
+    (int :: string).toString shouldBe ":int/:string"
     (boolean :+: long).toString shouldBe "(:boolean|:long)"
   }
 
@@ -194,7 +201,7 @@ class EndpointSpec extends FinchSpec {
 
   it should "support the as[A] method" in {
     case class Foo(s: String, i: Int, b: Boolean)
-    val foo = (string / int / boolean).as[Foo]
+    val foo = (string :: int :: boolean).as[Foo]
     check { (s: String, i: Int, b: Boolean) =>
       foo(Input(null, Seq(s, i.toString, b.toString))).value === Some(Foo(s, i, b))
     }
@@ -202,14 +209,20 @@ class EndpointSpec extends FinchSpec {
 
   it should "rescue the exception occurred in it" in {
     check { (i: Input, s: String, e: Exception) =>
-      Endpoint(Ok(Future.exception(e))).handle({ case _ => Created(s) })(i).output === Some(Created(s))
+      Endpoint(Ok(Future.exception(e)))
+        .handle({ case _ => Created(s) })(i)
+        .output === Some(Created(s))
     }
   }
 
-  it should "be composable with RequestReader" in {
-    check { (i: Input, p: String) =>
-      (/ ? RequestReader.value(p)).apply(i).value === Some(p)
-    }
+  it should "throw NotPresent if an item is not found" in {
+    val i = Input(Request())
+
+    Seq(
+      param("foo"), header("foo"), body, cookie("foo").map(_.value),
+      fileUpload("foo").map(_.fileName), paramsNonEmpty("foo").map(_.mkString),
+      binaryBody.map(new String(_))
+    ).foreach { ii => ii(i).poll shouldBe Some(Throw(Error.NotPresent(ii.item))) }
   }
 
   it should "maps lazily to values" in {
@@ -229,7 +242,7 @@ class EndpointSpec extends FinchSpec {
       Future { flag = true; nil }
     }
 
-    val e = ("a" / 10) | endpointWithFailedFuture
+    val e = ("a" :: 10) | endpointWithFailedFuture
     e(i).isDefined shouldBe true
     flag shouldBe false
   }
@@ -238,8 +251,8 @@ class EndpointSpec extends FinchSpec {
     val a = Input(null, Seq("a", "10"))
     val b = Input(null, Seq("a"))
 
-    val e1: Endpoint0 = "a" | "b" | ("a" / 10)
-    val e2: Endpoint0 = ("a" / 10) | "b" |  "a"
+    val e1: Endpoint0 = "a" | "b" | ("a" :: 10)
+    val e2: Endpoint0 = ("a" :: 10) | "b" |  "a"
 
     e1(a).remainder shouldBe Some(a.drop(2))
     e1(b).remainder shouldBe Some(b.drop(2))

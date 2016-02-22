@@ -30,8 +30,10 @@ private[finch] trait LowPriorityEncodeResponseInstances {
    * Convenience method for creating new [[EncodeResponse]] instances that treat String contents.
    * @group LowPriorityEncodeResponse
    */
-  def fromString[A](ct: String, cs: Option[String] = Some("utf-8"))(fn: A => String): EncodeResponse[A] =
-    apply(ct, cs)(fn.andThen(Buf.Utf8.apply))
+  def fromString[A](
+    ct: String,
+    cs: Option[String] = Some("utf-8")
+  )(fn: A => String): EncodeResponse[A] = apply(ct, cs)(fn.andThen(Buf.Utf8.apply))
 
   /**
    * @group LowPriorityEncodeResponse

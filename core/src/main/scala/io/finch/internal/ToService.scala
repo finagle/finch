@@ -16,14 +16,15 @@ import shapeless.ops.coproduct.Folder
  * @groupprio LowPriorityToService 0
  */
 @implicitNotFound(
-"""You can only convert a router into a Finagle service if the result type of the router is one of the following:
+"""You can only convert a router into a Finagle service if the result type of the router is one of
+the following:
 
   * A Response
   * A value of a type with an EncodeResponse instance
   * A coproduct made up of some combination of the above
 
-${A} does not satisfy the requirement. You may need to provide an EncodeResponse instance for ${A} (or for some  part of
-${A}).
+${A} does not satisfy the requirement. You may need to provide an EncodeResponse instance for ${A}
+(or for some  part of ${A}).
 """
 )
 trait ToService[A] {
@@ -73,8 +74,8 @@ private[finch] trait LowPriorityToServiceInstances {
     }
 
   /**
-   * A polymorphic function value that accepts types that can be transformed into a Finagle service from a request-like
-   * type to a [[Response]].
+   * A polymorphic function value that accepts types that can be transformed into a Finagle service
+   * from a request-like type to a [[Response]].
    */
   protected object EncodeAll extends Poly1 {
     /**

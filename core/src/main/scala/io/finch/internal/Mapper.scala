@@ -15,94 +15,77 @@ import shapeless.ops.function.FnToProduct
 trait Mapper[A] {
   type Out
 
-  def apply(r: Endpoint[A]): Endpoint[Out]
+  def apply(e: Endpoint[A]): Endpoint[Out]
 }
 
 private[finch] trait LowPriorityMapperConversions {
   type Aux[A, B] = Mapper[A] { type Out = B }
 
   /**
-    * @group LowPriorityMapper
-    */
-  implicit def mapperFromOutputFunction[A, B](f: A => Output[B]): Mapper.Aux[A, B] = new Mapper[A] {
+   * @group LowPriorityMapper
+   */
+  def instance[A, B](f: Endpoint[A] => Endpoint[B]): Mapper.Aux[A, B] = new Mapper[A] {
     type Out = B
-    def apply(r: Endpoint[A]): Endpoint[Out] = r.mapOutput(f)
+    def apply(e: Endpoint[A]): Endpoint[B] = f(e)
   }
 
   /**
-    * @group LowPriorityMapper
-    */
-  implicit def mapperFromOutputFutureFunction[A, B](f: A => Output[Future[B]]): Mapper.Aux[A, B] =
-    new Mapper[A] {
-      type Out = B
-      def apply(r: Endpoint[A]): Endpoint[Out] = r.mapOutputAsync(f.andThen(ofb => ofb.traverse(identity)))
-    }
+   * @group LowPriorityMapper
+   */
+  implicit def mapperFromOutputFunction[A, B](f: A => Output[B]): Mapper.Aux[A, B] =
+    instance(_.mapOutput(f))
 
   /**
-    * @group LowPriorityMapper
-    */
+   * @group LowPriorityMapper
+   */
+  implicit def mapperFromOutputFutureFunction[A, B](f: A => Output[Future[B]]): Mapper.Aux[A, B] =
+    instance(_.mapOutputAsync(f.andThen(ofb => ofb.traverse(identity))))
+
+  /**
+   * @group LowPriorityMapper
+   */
   implicit def mapperFromFutureOutputFunction[A, B](f: A => Future[Output[B]]): Mapper.Aux[A, B] =
-    new Mapper[A] {
-      type Out = B
-      def apply(r: Endpoint[A]): Endpoint[Out] = r.mapOutputAsync(f)
-    }
+    instance(_.mapOutputAsync(f))
 }
+
 
 private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConversions {
-
   /**
-    * @group HighPriorityMapper
-    */
+   * @group HighPriorityMapper
+   */
   implicit def mapperFromOutputHFunction[A, B, F, OB](f: F)(implicit
-    ftp: FnToProduct.Aux[F, A => OB],
-    ev: OB <:< Output[B]
-  ): Mapper.Aux[A, B] = new Mapper[A] {
-    type Out = B
-    def apply(r: Endpoint[A]): Endpoint[Out] = r.mapOutput(value => ev(ftp(f)(value)))
-  }
+                                                            ftp: FnToProduct.Aux[F, A => OB],
+                                                            ev: OB <:< Output[B]
+  ): Mapper.Aux[A, B] = instance(_.mapOutput(value => ev(ftp(f)(value))))
 
   /**
-    * @group HighPriorityMapper
-    */
-  implicit def mapperFromOutputValue[A](o: => Output[A]): Mapper.Aux[HNil, A] = new Mapper[HNil] {
-    type Out = A
-    def apply(r: Endpoint[HNil]): Endpoint[Out] = r.mapOutput(_ => o)
-  }
+   * @group HighPriorityMapper
+   */
+  implicit def mapperFromOutputValue[A](o: => Output[A]): Mapper.Aux[HNil, A] =
+    instance(_.mapOutput(_ => o))
 
   /**
-    * @group HighPriorityMapper
-    */
+   * @group HighPriorityMapper
+   */
   implicit def mapperFromOutputFutureValue[A](o: => Output[Future[A]]): Mapper.Aux[HNil, A] =
-    new Mapper[HNil] {
-      type Out = A
-      def apply(r: Endpoint[HNil]): Endpoint[Out] = r.mapOutputAsync(_ => o.traverse(identity))
-    }
+    instance(_.mapOutputAsync(_ => o.traverse(identity)))
 
   /**
-    * @group HighPriorityMapper
-    */
+   * @group HighPriorityMapper
+   */
   implicit def mapperFromFutureOutputValue[A](o: => Future[Output[A]]): Mapper.Aux[HNil, A] =
-    new Mapper[HNil] {
-      type Out = A
-      def apply(r: Endpoint[HNil]): Endpoint[Out] = r.mapOutputAsync(_ => o)
-    }
+    instance(_.mapOutputAsync(_ => o))
 }
+
 
 object Mapper extends HighPriorityMapperConversions {
   implicit def mapperFromOutputFutureHFunction[A, B, F, OFB](f: F)(implicit
      ftp: FnToProduct.Aux[F, A => OFB],
      ev: OFB <:< Output[Future[B]]
-  ): Mapper.Aux[A, B] = new Mapper[A] {
-    type Out = B
-    def apply(r: Endpoint[A]): Endpoint[Out] =
-      r.mapOutputAsync(value => ev(ftp(f)(value)).traverse(identity))
-  }
+  ): Mapper.Aux[A, B] = instance(_.mapOutputAsync(value => ev(ftp(f)(value)).traverse(identity)))
 
   implicit def mapperFromFutureOutputHFunction[A, B, F, FOB](f: F)(implicit
     ftp: FnToProduct.Aux[F, A => FOB],
     ev: FOB <:< Future[Output[B]]
-  ): Mapper.Aux[A, B] = new Mapper[A] {
-    type Out = B
-    def apply(r: Endpoint[A]): Endpoint[Out] = r.mapOutputAsync(value => ev(ftp(f)(value)))
-  }
+  ): Mapper.Aux[A, B] = instance(_.mapOutputAsync(value => ev(ftp(f)(value))))
 }

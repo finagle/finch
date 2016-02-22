@@ -37,7 +37,7 @@ object Main extends App {
 
   val execute: Eval = new Eval()
 
-  val eval: Endpoint[Output] = post("eval" ? body.as[Input]) { i: Input =>
+  val eval: Endpoint[Output] = post("eval" :: body.as[Input]) { i: Input =>
     Ok(Output(execute[Any](i.expression).toString))
   } handle {
     case e: Exception => BadRequest(e)

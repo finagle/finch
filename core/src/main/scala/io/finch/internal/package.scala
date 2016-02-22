@@ -3,7 +3,8 @@ package io.finch
 /**
  * This package contains an internal-use only type-classes and utilities that power Finch's API.
  *
- * It's not recommended to use any of the internal API directly, since it might change without any deprecation cycles.
+ * It's not recommended to use any of the internal API directly, since it might change without any
+ * deprecation cycles.
  */
 package object internal {
 
@@ -69,15 +70,19 @@ package object internal {
     }
 
     /**
-     * Converts this string to the optional integer value. The maximum allowed length for a number string is 32.
+     * Converts this string to the optional integer value. The maximum allowed length for a number
+     * string is 32.
      */
     def tooInt: Option[Int] =
-      if (s.length == 0 || s.length > 32) None else parseLong(s, Int.MinValue, Int.MaxValue).map(_.toInt)
+      if (s.length == 0 || s.length > 32) None
+      else parseLong(s, Int.MinValue, Int.MaxValue).map(_.toInt)
 
     /**
-     * Converts this string to the optional integer value. The maximum allowed length for a number string is 32.
+     * Converts this string to the optional integer value. The maximum allowed length for a number
+     * string is 32.
      */
     def tooLong: Option[Long] =
-      if (s.length == 0 || s.length > 32) None else parseLong(s, Long.MinValue, Long.MaxValue)
+      if (s.length == 0 || s.length > 32) None
+      else parseLong(s, Long.MinValue, Long.MaxValue)
   }
 }
