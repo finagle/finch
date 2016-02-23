@@ -189,9 +189,9 @@ lazy val circe = project
   .dependsOn(core, jsonTest % "test")
 
 lazy val playjson = project
-  .settings(moduleName :="finch-playJson")
+  .settings(moduleName :="finch-playjson")
   .settings(allSettings)
-  .settings(libraryDependencies += "com.typesafe.play" %% "play-json" % "2.4.6")
+  .settings(libraryDependencies += "com.typesafe.play" %% "play-json" % "2.3.9")
   .dependsOn(core, jsonTest % "test")
 
 lazy val oauth2 = project
