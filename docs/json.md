@@ -4,6 +4,7 @@
 * [Argonaut](json.md#argonaut)
 * [Jackson](json.md#jackson)
 * [Json4s](json.md#json4s)
+* [PlayJson](json.md#playjson)
 
 --
 
@@ -98,12 +99,29 @@ import org.json4s.DefaultFormats
 implicit val formats: Formats = DefaultFormats ++ JodaTimeSerializers.all
 ```
 
+### PlayJson
+
+* Bring the dependency to the `finch-playjson` module.
+* For any type you want to serialize or deserialize you are required to create the appropriate Play JSON `Reads` and `Writes`.
+
+```scala
+import io.finch.playjson._
+import play.api.libs.json._
+
+case class Foo(name: String,age: Int)
+
+object Foo {
+  implicit val fooReads: Reads[Foo] = Json.reads[Foo]
+  implicit val fooWrites: Writes[Foo] = Json.writes[Foo]
+}
+```
+
 [argonaut]: http://argonaut.io
 [jackson]: http://wiki.fasterxml.com/JacksonHome
 [json4s]: http://json4s.org/
 [circe]: https://github.com/travisbrown/circe
 [circe-jackson]: https://github.com/travisbrown/circe/pull/111
+[playjson]: https://www.playframework.com/documentation/2.4.x/ScalaJson
 
 --
 Read Next: [Cookbook](cookbook.md)
-
