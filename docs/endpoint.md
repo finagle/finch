@@ -175,6 +175,13 @@ Finch provides the following instances for reading HTTP params (evaluating endpo
 In addition to these evaluating endpoints, there is also one matching endpoint `paramExists("foo")`
 that only matches requests with "foo" param.
 
+You can extract params by composing endpoint definitions
+```
+get("/hello" :: param("name")) { name: String => Ok(s"Hello, $name!") }
+
+get("/hello" :: paramOption("name")) { name: Option[String] => Ok(s"Hello, ${name.getOrElse("world")}!") }
+```
+
 #### Headers
 
 Instances for reading HTTP headers include both evaluating and matching instances.
