@@ -12,6 +12,9 @@ import shapeless.ops.coproduct.Folder
 /**
  * Represents a conversion from an [[Endpoint]] returning a result type `A` to a Finagle service
  * from a request-like type `R` to a [[Response]].
+ *
+ * @groupname LowPriorityToService Low priority `ToService`
+ * @groupprio LowPriorityToService 0
  */
 @implicitNotFound(
 """You can only convert a router into a Finagle service if the result type of the router is one of
@@ -29,15 +32,17 @@ trait ToService[A] {
   def apply(endpoint: Endpoint[A]): Service[Request, Response]
 }
 
-trait LowPriorityToServiceInstances {
+private[finch] trait LowPriorityToServiceInstances {
 
   /**
    * Returns an instance for a given type.
+   * @group LowPriorityToService
    */
   def apply[A](implicit ts: ToService[A]): ToService[A] = ts
 
   /**
    * Constructs an instance for a given type.
+   * @group LowPriorityToService
    */
   def instance[A](f: Endpoint[A] => Service[Request, Response]): ToService[A] = new ToService[A] {
     def apply(endpoint: Endpoint[A]): Service[Request, Response] = f(endpoint)
@@ -49,6 +54,7 @@ trait LowPriorityToServiceInstances {
 
   /**
    * An instance for types that can be transformed into a Finagle service.
+   * @group LowPriorityToService
    */
   implicit def valueRouterToService[A](implicit
     polyCase: EncodeAll.Case.Aux[A, Response],
@@ -75,6 +81,7 @@ trait LowPriorityToServiceInstances {
   protected object EncodeAll extends Poly1 {
     /**
      * Transforms an encodeable value into a constant service.
+     * @group LowPriorityToService
      */
     implicit def toResponseToResponse[A](implicit tr: ToResponse[A]): Case.Aux[A, Response] =
       at(a => tr(a))
