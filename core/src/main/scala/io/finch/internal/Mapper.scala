@@ -54,8 +54,8 @@ private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConv
    * @group HighPriorityMapper
    */
   implicit def mapperFromOutputHFunction[A, B, F, OB](f: F)(implicit
-                                                            ftp: FnToProduct.Aux[F, A => OB],
-                                                            ev: OB <:< Output[B]
+    ftp: FnToProduct.Aux[F, A => OB],
+    ev: OB <:< Output[B]
   ): Mapper.Aux[A, B] = instance(_.mapOutput(value => ev(ftp(f)(value))))
 
   /**
