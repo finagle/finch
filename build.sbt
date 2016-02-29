@@ -209,15 +209,22 @@ lazy val examples = project
   .settings(noPublish)
   .settings(resolvers += "TM" at "http://maven.twttr.com")
   .settings(coverageExcludedPackages :=
-    "io\\.finch\\.div\\..*;io\\.finch\\.todo\\..*;io\\.finch\\.eval\\..*;io\\.finch\\.streaming\\..*")
+    """
+      |io\.finch\.div\..*;
+      |io\.finch\.todo\..*;
+      |io\.finch\.eval\..*;
+      |io\.finch\.streaming\..*;
+      |io\.finch\.oauth2\..*
+    """.stripMargin)
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-generic" % circeVersion,
       "com.twitter" %% "twitter-server" % "1.18.0",
-      "com.twitter" %% "util-eval" % "6.32.0"
+      "com.twitter" %% "util-eval" % "6.32.0",
+      "com.github.finagle" %% "finagle-oauth2" % "0.1.6"
     )
   )
-  .dependsOn(core, circe, jackson)
+  .dependsOn(core, circe, jackson, oauth2)
 
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")
