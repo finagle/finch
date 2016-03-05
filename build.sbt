@@ -122,10 +122,14 @@ lazy val finch = project.in(file("."))
         |import com.twitter.concurrent.AsyncStream
         |import com.twitter.io.{Buf, Reader}
         |import com.twitter.finagle.Service
+        |import com.twitter.finagle.Http
         |import com.twitter.finagle.http.{Request, Response, Status, Version}
         |import io.circe._
       """.stripMargin
   )
+  .settings(libraryDependencies ++= Seq(
+    "io.circe" %% "circe-generic" % circeVersion
+  ))
   .aggregate(core, argonaut, jackson, json4s, circe, playjson, benchmarks, test, jsonTest, oauth2, examples)
   .dependsOn(core, circe)
 
