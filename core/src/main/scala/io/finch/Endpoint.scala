@@ -128,6 +128,18 @@ trait Endpoint[A] { self =>
   }
 
   /**
+  * Transforms this endpoint to the given function `Future[Output[A]] => Future[Output[B]]`
+  */
+  final def transform[B](fn: Future[Output[A]] => Future[Output[B]]): Endpoint[B] = new Endpoint[B] {
+    override def apply(input: Input): Result[B] = {
+      self(input).map {
+        case (remainder, output) =>
+          (remainder, output.map(fn))
+      }
+    }
+  }
+
+  /**
    * Maps this endpoint to `Endpoint[A => B]`.
    */
   final def ap[B](fn: Endpoint[A => B]): Endpoint[B] = new Endpoint[B] {

@@ -43,6 +43,13 @@ class EndpointSpec extends FinchSpec {
     }
   }
 
+  it should "support transform" in {
+    check { i: Input =>
+      val fn = (fs: Future[Output[String]]) => fs.map(_.map(_ * 2))
+      string.transform(fn)(i).value === i.headOption.map(_ * 2)
+    }
+  }
+
   it should "propagate the default (Ok) output" in {
     check { i: Input =>
       string(i).output === i.headOption.map(s => Ok(s))
