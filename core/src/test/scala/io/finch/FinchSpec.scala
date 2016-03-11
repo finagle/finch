@@ -2,9 +2,12 @@ package io.finch
 
 import java.util.UUID
 
+import cats.Eval
 import cats.std.AllInstances
 import com.twitter.finagle.http._
 import com.twitter.io.Buf
+import com.twitter.util.Future
+import io.finch.Endpoint.Result
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.prop.Checkers
 import org.scalatest.{Matchers, FlatSpec}
@@ -130,6 +133,20 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
       r
     }
   )
+
+  implicit def genString: Gen[String] = Arbitrary.arbitrary[String]
+  implicit def genStringAp: Gen[String => String] = genString.map(str => (_: String) => str)
+
+  implicit def arbitraryEndpointString[A](implicit gen: Gen[A]): Arbitrary[Endpoint[A]] = Arbitrary {
+    for {
+      value <- gen
+    } yield {
+      val endpoint: Endpoint[A] = new Endpoint[A] {
+        override def apply(input: Input): Result[A] = Some(input -> Eval.now(Future.value(Ok(value))))
+      }
+      endpoint
+    }
+  }
 
   implicit def arbitraryInput: Arbitrary[Input] =
     Arbitrary(arbitraryRequest.arbitrary.map(Input.apply))
