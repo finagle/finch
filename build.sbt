@@ -4,8 +4,8 @@ import ScoverageSbtPlugin._
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   version := "0.11.0-SNAPSHOT",
-  scalaVersion := "2.11.7",
-  crossScalaVersions := Seq("2.10.6", "2.11.7")
+  scalaVersion := "2.11.8",
+  crossScalaVersions := Seq("2.10.6", "2.11.8")
 )
 
 lazy val finagleVersion = "6.33.0"
@@ -41,7 +41,7 @@ val baseSettings = Seq(
     "org.typelevel" %% "cats-core" % catsVersion,
     "com.twitter" %% "finagle-http" % finagleVersion,
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-    compilerPlugin("org.scalamacros" % "paradise" % "2.0.1" cross CrossVersion.full)
+    compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
   ) ++ testDependencies.map(_ % "test"),
   resolvers ++= Seq(
     Resolver.sonatypeRepo("releases"),
@@ -159,8 +159,8 @@ lazy val argonaut = project
   .settings(allSettings)
   .settings(libraryDependencies ++= Seq(
     "io.argonaut" %% "argonaut" % "6.1",
-    "org.spire-math" %% "jawn-parser" % "0.8.3",
-    "org.spire-math" %% "jawn-argonaut" % "0.8.3"
+    "org.spire-math" %% "jawn-parser" % "0.8.4",
+    "org.spire-math" %% "jawn-argonaut" % "0.8.4"
   ))
   .dependsOn(core, jsonTest % "test")
 
