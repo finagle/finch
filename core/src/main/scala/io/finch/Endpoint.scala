@@ -2,7 +2,7 @@ package io.finch
 
 import scala.reflect.ClassTag
 
-import cats.Eval
+import cats.{Alternative, Eval}
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Cookie, Request, Response}
 import com.twitter.util.{Future, Return, Throw, Try}
@@ -494,4 +494,31 @@ object Endpoint {
    * Generically derive a very basic instance of [[Endpoint]] for a given type `A`.
    */
   def derive[A]: GenericDerivation[A] = new GenericDerivation[A]
+
+  implicit val alternativeEndpoint: Alternative[Endpoint] = new Alternative[Endpoint] {
+
+    override def ap[A, B](ff: Endpoint[(A) => B])(fa: Endpoint[A]): Endpoint[B] = fa.ap(ff)
+
+    override def map[A, B](fa: Endpoint[A])(f: (A) => B): Endpoint[B] = fa.map(f)
+
+    override def product[A, B](fa: Endpoint[A], fb: Endpoint[B]): Endpoint[(A, B)] = {
+      fa.ap(fb.map(b => (a: A) => a -> b))
+    }
+
+    override def pure[A](x: A): Endpoint[A] = new Endpoint[A] {
+      override def apply(input: Input): Result[A] = Some(input -> Eval.now(Future.value(Ok(x))))
+    }
+
+    override def pureEval[A](x: Eval[A]): Endpoint[A] = new Endpoint[A] {
+      override def apply(input: Input): Result[A] = Some(input -> x.map(out => Future.value(Ok(out))))
+    }
+
+    override def empty[A]: Endpoint[A] = new Endpoint[A] {
+      override def apply(input: Input): Result[A] = None
+    }
+
+    override def combineK[A](x: Endpoint[A], y: Endpoint[A]): Endpoint[A] = x | y
+
+  }
+
 }
