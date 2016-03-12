@@ -2,11 +2,12 @@ package io.finch
 
 import java.util.UUID
 
-import cats.Eval
+import algebra.Eq
+import cats.{ Alternative, Eval }
 import cats.std.AllInstances
 import com.twitter.finagle.http._
 import com.twitter.io.Buf
-import com.twitter.util.Future
+import com.twitter.util.{Await, Future, Try}
 import io.finch.Endpoint.Result
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.prop.Checkers
@@ -130,17 +131,53 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
     }
   )
 
-  implicit def genString: Gen[String] = Arbitrary.arbitrary[String]
-  implicit def genStringAp: Gen[String => String] = genString.map(str => (_: String) => str)
-
-  implicit def arbitraryEndpointString[A](implicit gen: Gen[A]): Arbitrary[Endpoint[A]] = Arbitrary {
-    for {
-      value <- gen
-    } yield {
-      val endpoint: Endpoint[A] = new Endpoint[A] {
-        override def apply(input: Input): Result[A] = Some(input -> Eval.now(Future.value(Ok(value))))
+  implicit def arbitraryEndpoint[A](implicit A: Arbitrary[A]): Arbitrary[Endpoint[A]] = Arbitrary(
+    Gen.oneOf(
+      Gen.const(Alternative[Endpoint].empty[A]),
+      A.arbitrary.map(a => Alternative[Endpoint].pure(a)),
+      arbitraryOutput.arbitrary.map { output =>
+        new Endpoint[A] {
+          override def apply(input: Input): Result[A] =
+            Some(input -> Eval.now(Future.value(output)))
+        }
+      },
+      Arbitrary.arbitrary[Throwable].map { error =>
+        new Endpoint[A] {
+          override def apply(input: Input): Result[A] =
+            Some(input -> Eval.now(Future.exception(error)))
+        }
+      },
+      Arbitrary.arbitrary[Input => Output[A]].map { f =>
+        new Endpoint[A] {
+          override def apply(input: Input): Result[A] =
+            Some(input -> Eval.now(Future.value(f(input))))
+        }
       }
-      endpoint
+    )
+  )
+
+  /**
+   * Equality instance for [[io.finch.Endpoint]].
+   *
+   * We attempt to verify that two endpoints are the same by applying them to a
+   * fixed number of randomly generated inputs.
+   */
+  implicit def eqEndpoint[A: Eq]: Eq[Endpoint[A]] = new Eq[Endpoint[A]] {
+    private[this] def count: Int = 32
+
+    private[this] def await(result: Endpoint.Result[A]): Option[Try[Output[A]]] = result.map {
+      case (_, eval) => Await.result(eval.value.liftToTry)
+    }
+
+    private[this] def inputs: Stream[Input] = Stream.continually(
+      Arbitrary.arbitrary[Input].sample
+    ).flatten
+
+    override def eqv(x: Endpoint[A], y: Endpoint[A]): Boolean = inputs.take(count).forall { input =>
+      val resultX = await(x(input))
+      val resultY = await(y(input))
+
+      Eq[Option[Try[Output[A]]]].eqv(resultX, resultY)
     }
   }
 

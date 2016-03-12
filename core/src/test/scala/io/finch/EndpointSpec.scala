@@ -2,10 +2,13 @@ package io.finch
 
 import java.util.UUID
 
+import cats.laws.discipline.AlternativeTests
+import cats.laws.discipline.eq._
 import com.twitter.finagle.http.{Request, Method, Cookie}
 import com.twitter.util.{Throw, Try, Future}
 
 class EndpointSpec extends FinchSpec {
+  checkAll("Endpoint[String]", AlternativeTests[Endpoint].applicative[String, String, String])
 
   behavior of "Endpoint"
 

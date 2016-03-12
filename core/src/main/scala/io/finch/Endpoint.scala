@@ -498,7 +498,7 @@ object Endpoint {
    */
   def derive[A]: GenericDerivation[A] = new GenericDerivation[A]
 
-  implicit val alternativeEndpoint: Alternative[Endpoint] = new Alternative[Endpoint] {
+  implicit val endpointInstance: Alternative[Endpoint] = new Alternative[Endpoint] {
 
     override def ap[A, B](ff: Endpoint[(A) => B])(fa: Endpoint[A]): Endpoint[B] = fa.ap(ff)
 
