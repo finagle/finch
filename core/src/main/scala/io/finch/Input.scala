@@ -1,5 +1,6 @@
 package io.finch
 
+import algebra.Eq
 import com.twitter.finagle.http.Request
 
 /**
@@ -16,4 +17,6 @@ final case class Input(request: Request, path: Seq[String]) {
  */
 object Input {
   def apply(req: Request): Input = Input(req, req.path.split("/").toList.drop(1))
+
+  implicit val inputEq: Eq[Input] = Eq.fromUniversalEquals
 }

@@ -4,6 +4,7 @@ import java.util.UUID
 
 import algebra.Eq
 import cats.{ Alternative, Eval }
+import cats.laws.discipline.eq._
 import cats.std.AllInstances
 import com.twitter.finagle.http._
 import com.twitter.io.Buf
@@ -135,22 +136,21 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
     Gen.oneOf(
       Gen.const(Alternative[Endpoint].empty[A]),
       A.arbitrary.map(a => Alternative[Endpoint].pure(a)),
-      arbitraryOutput.arbitrary.map { output =>
-        new Endpoint[A] {
-          override def apply(input: Input): Result[A] =
-            Some(input -> Eval.now(Future.value(output)))
-        }
-      },
       Arbitrary.arbitrary[Throwable].map { error =>
         new Endpoint[A] {
           override def apply(input: Input): Result[A] =
             Some(input -> Eval.now(Future.exception(error)))
         }
       },
-      Arbitrary.arbitrary[Input => Output[A]].map { f =>
+      /**
+       * Note that we don't provide instances of arbitrary endpoints wrapping
+       * `Input => Output[A]` since `Endpoint` isn't actually lawful in this
+       * respect.
+       */
+      Arbitrary.arbitrary[Input => A].map { f =>
         new Endpoint[A] {
           override def apply(input: Input): Result[A] =
-            Some(input -> Eval.now(Future.value(f(input))))
+            Some(input -> Eval.now(Future.value(Ok(f(input)))))
         }
       }
     )
@@ -163,11 +163,12 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
    * fixed number of randomly generated inputs.
    */
   implicit def eqEndpoint[A: Eq]: Eq[Endpoint[A]] = new Eq[Endpoint[A]] {
-    private[this] def count: Int = 32
+    private[this] def count: Int = 16
 
-    private[this] def await(result: Endpoint.Result[A]): Option[Try[Output[A]]] = result.map {
-      case (_, eval) => Await.result(eval.value.liftToTry)
-    }
+    private[this] def await(result: Endpoint.Result[A]): Option[(Input, Try[Output[A]])] =
+      result.map {
+        case (input, eval) => (input, Await.result(eval.value.liftToTry))
+      }
 
     private[this] def inputs: Stream[Input] = Stream.continually(
       Arbitrary.arbitrary[Input].sample
@@ -177,7 +178,7 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
       val resultX = await(x(input))
       val resultY = await(y(input))
 
-      Eq[Option[Try[Output[A]]]].eqv(resultX, resultY)
+      Eq[Option[(Input, Try[Output[A]])]].eqv(resultX, resultY)
     }
   }
 

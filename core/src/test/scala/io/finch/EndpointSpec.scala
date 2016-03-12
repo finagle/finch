@@ -52,12 +52,12 @@ class EndpointSpec extends FinchSpec {
     }
   }
 
-  it should "propagate the default (Ok) output through its map'd/mapAsync'd/ap'd version" in {
+  it should "propagate the default (Ok) output through its map'd/mapAsync'd/apWith'd version" in {
     check { i: Input =>
       val expected = i.headOption.map(s => Ok(s.length))
       string.map(s => s.length)(i).output === expected &&
       string.mapAsync(s => Future.value(s.length))(i).output === expected &&
-      string.ap[Int](/.map(_ => s => s.length))(i).output == expected
+      string.apWith[Int](/.map(_ => s => s.length))(i).output == expected
     }
   }
 
@@ -172,7 +172,7 @@ class EndpointSpec extends FinchSpec {
     check { (s: String, i: Int) => (s: Endpoint0).map(_ => i).toString === s }
     check { (s: String, t: String) => ((s: Endpoint0) | (t: Endpoint0)).toString === s"($s|$t)" }
     check { (s: String, t: String) => ((s: Endpoint0) :: (t: Endpoint0)).toString === s"$s/$t" }
-    check { s: String => (s: Endpoint0).ap[String](*.map(_ => _ => "foo")).toString === s }
+    check { s: String => (s: Endpoint0).product[String](*.map(_ => "foo")).toString === s }
     check { (s: String, t: String) => (s: Endpoint0).mapAsync(_ => Future.value(t)).toString === s }
 
     *.toString shouldBe "*"
