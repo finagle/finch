@@ -3,6 +3,7 @@ package io.finch.eval
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.twitter.finagle.Http
+import com.twitter.io.Buf
 import com.twitter.util.{Await, Eval}
 import io.finch._
 import io.finch.jackson._
@@ -28,9 +29,9 @@ object Main extends App {
 
   implicit val objectMapper: ObjectMapper = new ObjectMapper().registerModule(DefaultScalaModule)
 
-  implicit val ee: EncodeResponse[Exception] = EncodeResponse.fromString("application/json") { e =>
-    objectMapper.writeValueAsString(Map("error" -> e.getMessage))
-  }
+  implicit val ee: Encode.ApplicationJson[Exception] = Encode.applicationJson(e =>
+    Buf.Utf8(objectMapper.writeValueAsString(Map("error" -> e.getMessage)))
+  )
 
   case class Input(expression: String)
   case class Output(result: String)

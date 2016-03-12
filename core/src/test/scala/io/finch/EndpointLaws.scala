@@ -12,7 +12,7 @@ import scala.reflect.ClassTag
 
 trait EndpointLaws[A] extends Laws with MissingInstances with AllInstances {
 
-  def decoder: DecodeRequest[A]
+  def decoder: Decode[A]
   def classTag: ClassTag[A]
   def endpoint: Endpoint[Option[String]]
   def serialize: String => Input
@@ -33,10 +33,10 @@ trait EndpointLaws[A] extends Laws with MissingInstances with AllInstances {
 }
 
 object EndpointLaws {
-  def apply[A: DecodeRequest: ClassTag](
+  def apply[A: Decode: ClassTag](
     e: Endpoint[Option[String]]
   )(f: String => Input): EndpointLaws[A] = new EndpointLaws[A] {
-    val decoder: DecodeRequest[A] = DecodeRequest[A]
+    val decoder: Decode[A] = Decode[A]
     val classTag: ClassTag[A] = implicitly[ClassTag[A]]
     val endpoint: Endpoint[Option[String]] = e
     val serialize: String => Input = f

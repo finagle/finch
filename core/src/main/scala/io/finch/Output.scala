@@ -28,16 +28,6 @@ sealed trait Output[+A] { self =>
   def cookies: Seq[Cookie] = meta.cookies
 
   /**
-   * The content type of this [[Output]].
-   */
-  def contentType: Option[String] = meta.contentType
-
-  /**
-   * The charset of this [[Output]].
-   */
-  def charset: Option[String] = meta.charset
-
-  /**
    * Returns the payload value of this [[Output]] or throws an exception.
    */
   def value: A
@@ -53,10 +43,8 @@ sealed trait Output[+A] { self =>
       val ob = fn(v)
       ob.withMeta(ob.meta.copy(
         headers = ob.headers ++ p.headers,
-        cookies = ob.cookies ++ p.cookies,
-        contentType = ob.contentType.orElse(p.contentType),
-        charset = ob.charset.orElse(p.charset)
-        )
+        cookies = ob.cookies ++ p.cookies
+      )
       )
 
     case f @ Output.Failure(_, _) => f
@@ -92,41 +80,6 @@ sealed trait Output[+A] { self =>
    */
   def withCookie(cookie: Cookie): Output[A] =
     withMeta(meta.copy(cookies = cookies :+ cookie))
-
-  /**
-   * Overrides the content type value of this [[Output]].
-   */
-  def withContentType(contentType: Option[String]): Output[A] =
-    withMeta(meta.copy(contentType = contentType))
-
-  /**
-   * Overrides the charset value of this [[Output]].
-   */
-  def withCharset(charset: Option[String]): Output[A] =
-    withMeta(meta.copy(charset = charset))
-
-  /**
-   * Converts this [[Output]] to the HTTP response of the given `version`.
-   */
-  def toResponse(version: Version = Version.Http11)(implicit
-    payloadToResponse: ToResponse[A],
-    failureToResponse: ToResponse[Exception]
-  ): Response = {
-    val rep = this match {
-      case Output.Payload(v, _) => payloadToResponse(v)
-      case Output.Failure(x, _) => failureToResponse(x)
-      case Output.Empty(_) => Response()
-    }
-    rep.version = version
-    rep.status = status
-    headers.foreach { case (k, v) => rep.headerMap.set(k, v) }
-    cookies.foreach(rep.cookies.add)
-    val cs = rep.charset
-    contentType.foreach { ct => rep.contentType = ct }
-    charset.orElse(cs).foreach { chr => rep.charset = chr }
-
-    rep
-  }
 }
 
 object Output {
@@ -138,9 +91,7 @@ object Output {
   private[finch] case class Meta(
     status: Status = Status.Ok,
     headers: Map[String, String] = Map.empty[String, String],
-    cookies: Seq[Cookie] = Seq.empty[Cookie],
-    contentType: Option[String] = Option.empty,
-    charset: Option[String] = Option.empty
+    cookies: Seq[Cookie] = Seq.empty[Cookie]
   )
 
   /**
@@ -200,5 +151,28 @@ object Output {
     private[finch] def output: Option[Output[A]] = o.map({ case (_, oa) => Await.result(oa.value) })
     private[finch] def value: Option[A] = output.map(oa => oa.value)
     private[finch] def remainder: Option[Input] = o.map(_._1)
+  }
+
+  implicit class OutputOps[A](val o: Output[A]) extends AnyVal {
+
+    /**
+     * Converts this [[Output]] to the HTTP response of the given `version`.
+     */
+    def toResponse[CT <: String](version: Version = Version.Http11)(implicit
+      payloadToResponse: ToResponse.Aux[A, CT],
+      failureToResponse: ToResponse.Aux[Exception, CT]
+    ): Response = {
+      val rep = o match {
+        case Output.Payload(v, _) => payloadToResponse(v)
+        case Output.Failure(x, _) => failureToResponse(x)
+        case Output.Empty(_) => Response()
+      }
+      rep.version = version
+      rep.status = o.status
+      o.headers.foreach { case (k, v) => rep.headerMap.set(k, v) }
+      o.cookies.foreach(rep.cookies.add)
+
+      rep
+    }
   }
 }

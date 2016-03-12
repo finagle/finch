@@ -6,9 +6,12 @@ package io
  */
 package object finch extends Endpoints with Outputs with ValidationRules {
 
-  /**
-   * Representations for the various types that can be processed with [[RequestReader]]s.
-   */
+  @deprecated("Use io.finch.Decode instead", "0.11")
+  type DecodeRequest[A] = Decode[A]
+
+  @deprecated("Use io.finch.Encode instead", "0.11")
+  type EncodeResponse[A] = Encode[A]
+
   object items {
     sealed abstract class RequestItem(val kind: String, val nameOption:Option[String] = None) {
       val description = kind + nameOption.fold("")(" '" + _ + "'")

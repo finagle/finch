@@ -7,6 +7,7 @@ import com.twitter.finagle.Http
 import com.twitter.io.Buf
 import com.twitter.util.{Await, Try}
 import io.finch._
+import shapeless.Witness
 
 /**
  * A simple Finch application featuring very basic, `Buf`-based streaming support.
@@ -65,6 +66,6 @@ object Main extends App {
 
   Await.result(Http.server
     .withStreaming(enabled = true)
-    .serve(":8081", (sumSoFar :+: sumTo :+: totalSum).toService)
+    .serve(":8081", (sumSoFar :+: sumTo :+: totalSum).toServiceAs[Witness.`"text/plain"`.T])
   )
 }

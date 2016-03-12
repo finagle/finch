@@ -4,7 +4,7 @@ import argonaut.{CodecJson, DecodeJson, EncodeJson, Parse}
 import argonaut.Argonaut.{casecodec3, casecodec5}
 import com.twitter.io.Buf.Utf8
 import com.twitter.util.Return
-import io.finch.{DecodeRequest, EncodeResponse}
+import io.finch.{Decode, Encode}
 import org.scalacheck.Arbitrary
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Prop.BooleanOperators
@@ -52,15 +52,15 @@ trait JsonCodecProviderProperties { self: Matchers with Checkers =>
   /**
    * Confirm that this encoder can encode instances of our case class.
    */
-  def encodeNestedCaseClass(implicit encoder: EncodeResponse[ExampleNestedCaseClass]): Unit =
+  def encodeNestedCaseClass(implicit ee: Encode.ApplicationJson[ExampleNestedCaseClass]): Unit =
     check { (e: ExampleNestedCaseClass) =>
-      Parse.decodeOption(Utf8.unapply(encoder(e)).get)(exampleNestedCaseClassCodecJson) === Some(e)
+      Parse.decodeOption(Utf8.unapply(ee(e)).get)(exampleNestedCaseClassCodecJson) === Some(e)
     }
 
   /**
    * Confirm that this encoder can decode instances of our case class.
    */
-  def decodeNestedCaseClass(implicit decoder: DecodeRequest[ExampleNestedCaseClass]): Unit =
+  def decodeNestedCaseClass(implicit decoder: Decode[ExampleNestedCaseClass]): Unit =
     check { (e: ExampleNestedCaseClass) =>
       decoder(exampleNestedCaseClassCodecJson.encode(e).nospaces) === Return(e)
     }
@@ -69,7 +69,7 @@ trait JsonCodecProviderProperties { self: Matchers with Checkers =>
    * Confirm that this encoder fails on invalid input (both ill-formed JSON and
    * invalid JSON).
    */
-  def failToDecodeInvalidJson(implicit decoder: DecodeRequest[ExampleNestedCaseClass]): Unit = {
+  def failToDecodeInvalidJson(implicit decoder: Decode[ExampleNestedCaseClass]): Unit = {
     check { (badJson: String) =>
       Parse.decodeOption(badJson)(exampleNestedCaseClassCodecJson).isEmpty ==>
         decoder(badJson).isThrow
@@ -82,7 +82,7 @@ trait JsonCodecProviderProperties { self: Matchers with Checkers =>
   /**
    * Confirm that this encoder can encode top-level lists of instances of our case class.
    */
-  def encodeCaseClassList(implicit encoder: EncodeResponse[List[ExampleNestedCaseClass]]): Unit =
+  def encodeCaseClassList(implicit encoder: Encode[List[ExampleNestedCaseClass]]): Unit =
     check { (es: List[ExampleNestedCaseClass]) =>
       Parse.decodeOption(Utf8.unapply(encoder(es)).getOrElse(""))(exampleNestedCaseClassListCodecJson) === Some(es)
     }
@@ -90,7 +90,7 @@ trait JsonCodecProviderProperties { self: Matchers with Checkers =>
   /**
    * Confirm that this encoder can decode top-level lists of instances of our case class.
    */
-  def decodeCaseClassList(implicit decoder: DecodeRequest[List[ExampleNestedCaseClass]]): Unit =
+  def decodeCaseClassList(implicit decoder: Decode[List[ExampleNestedCaseClass]]): Unit =
     check { (es: List[ExampleNestedCaseClass]) =>
       decoder(exampleNestedCaseClassListCodecJson.encode(es).nospaces) === Return(es)
     }
@@ -98,8 +98,7 @@ trait JsonCodecProviderProperties { self: Matchers with Checkers =>
   /**
    * Confirm that this encoder has the correct content type.
    */
-  def checkContentType(implicit encoder: EncodeResponse[ExampleNestedCaseClass]): Unit =
-    encoder.contentType shouldBe "application/json"
+  def checkContentType(implicit ee: Encode.ApplicationJson[ExampleNestedCaseClass]): Unit = ()
 }
 
 /**

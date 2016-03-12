@@ -37,14 +37,16 @@ import io.finch.circe._
   */
 object Main extends App {
 
+  case class UnprotectedUser(name: String)
+
   val users: Endpoint[OAuthUser] = get("users" :: "current" :: authorize(InMemoryDataHandler)) {
     ai: AuthInfo[OAuthUser] => Ok(ai.user)
   }
 
   val tokens: Endpoint[GrantHandlerResult] = post("users" :: "auth" :: issueAccessToken(InMemoryDataHandler))
 
-  val unprotected: Endpoint[String] = get("users" :: "unprotected") {
-    Ok("I'm an unprotected resource!")
+  val unprotected: Endpoint[UnprotectedUser] = get("users" :: "unprotected") {
+    Ok(UnprotectedUser("unprotected"))
   }
 
   Await.ready(Http.server.serve(":8081", (tokens :+: users :+: unprotected).toService))
