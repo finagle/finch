@@ -6,7 +6,6 @@ import cats.{Alternative, Eval}
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Cookie, Request, Response}
 import com.twitter.util.{Future, Return, Throw, Try}
-import io.finch.Endpoint.Result
 import io.finch.internal.{FromParams, Mapper, PairAdjoin, ToService}
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
@@ -125,6 +124,18 @@ trait Endpoint[A] { self =>
 
     override def item = self.item
     override def toString = self.toString
+  }
+
+  /**
+   * Transforms this endpoint to the given function `Future[Output[A]] => Future[Output[B]]`
+   */
+  final def transform[B](fn: Future[Output[A]] => Future[Output[B]]): Endpoint[B] = new Endpoint[B] {
+    override def apply(input: Input): Endpoint.Result[B] = {
+      self(input).map {
+        case (remainder, output) =>
+          (remainder, output.map(fn))
+      }
+    }
   }
 
   final def product[B](other: Endpoint[B]): Endpoint[(A, B)] = new Endpoint[(A, B)] {
@@ -326,7 +337,7 @@ trait Endpoint[A] { self =>
    * Lifts this endpoint into one that always succeeds, with an empty `Option` representing failure.
    */
   final def lift: Endpoint[Option[A]] = new Endpoint[Option[A]] {
-    def apply(input: Input): Result[Option[A]] =
+    def apply(input: Input): Endpoint.Result[Option[A]] =
       self(input).map {
         case (remainder, output) =>
           (remainder, output.map(f =>
