@@ -168,17 +168,6 @@ trait Endpoint[A] { self =>
   }
 
   /**
-   * Apply the given function in an endpoint to the value (if any) in this endpoint.
-   *
-   * Note that the order of input consumption and errors is the opposite of that
-   * provided by the previous `ap` implementation. The new behavior follows the
-   * behavior for `ap` that Cats has standardized on.
-   */
-  final def apWith[B](fn: Endpoint[A => B]): Endpoint[B] = fn.product(this).map {
-    case (f, a) => f(a)
-  }
-
-  /**
    * Composes this endpoint with the given `that` endpoint. The resulting endpoint will succeed only
    * if both this and `that` endpoints succeed.
    */
@@ -516,7 +505,9 @@ object Endpoint {
 
   implicit val endpointInstance: Alternative[Endpoint] = new Alternative[Endpoint] {
 
-    override def ap[A, B](ff: Endpoint[A => B])(fa: Endpoint[A]): Endpoint[B] = fa.apWith(ff)
+    override def ap[A, B](ff: Endpoint[A => B])(fa: Endpoint[A]): Endpoint[B] = ff.product(fa).map {
+      case (f, a) => f(a)
+    }
 
     override def map[A, B](fa: Endpoint[A])(f: A => B): Endpoint[B] = fa.map(f)
 

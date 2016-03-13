@@ -2,6 +2,7 @@ package io.finch
 
 import java.util.UUID
 
+import cats.Applicative
 import cats.laws.discipline.AlternativeTests
 import cats.laws.discipline.eq._
 import com.twitter.finagle.http.{Request, Method, Cookie}
@@ -52,12 +53,12 @@ class EndpointSpec extends FinchSpec {
     }
   }
 
-  it should "propagate the default (Ok) output through its map'd/mapAsync'd/apWith'd version" in {
+  it should "propagate the default (Ok) output through its map'd/mapAsync'd/ap'd version" in {
     check { i: Input =>
       val expected = i.headOption.map(s => Ok(s.length))
       string.map(s => s.length)(i).output === expected &&
       string.mapAsync(s => Future.value(s.length))(i).output === expected &&
-      string.apWith[Int](/.map(_ => s => s.length))(i).output == expected
+      Applicative[Endpoint].ap(/.map(_ => (_: String).length))(string)(i).output == expected
     }
   }
 
