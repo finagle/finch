@@ -162,7 +162,7 @@ trait Endpoint[A] { self =>
   /**
    * Maps this endpoint to `Endpoint[A => B]`.
    */
-  @deprecated("Use apWith", "0.11.0")
+  @deprecated("Use product or Applicative[Endpoint].ap", "0.11.0")
   final def ap[B](fn: Endpoint[A => B]): Endpoint[B] = product(fn).map {
     case (a, f) => f(a)
   }
