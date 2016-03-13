@@ -127,21 +127,18 @@ trait Endpoint[A] { self =>
     override def toString = self.toString
   }
 
-  /**
-   * Maps this endpoint to `Endpoint[A => B]`.
-   */
-  final def ap[B](fn: Endpoint[A => B]): Endpoint[B] = new Endpoint[B] {
+  final def product[B](other: Endpoint[B]): Endpoint[(A, B)] = new Endpoint[(A, B)] {
     private[this] def join(
       foa: Future[Output[A]],
-      fof: Future[Output[A => B]]
-    ): Future[Output[B]] = Future.join(foa.liftToTry, fof.liftToTry).flatMap {
-      case (Return(oa), Return(of)) => Future.value(oa.flatMap(a => of.map(f => f(a))))
-      case (Throw(oa), Throw(of)) => Future.exception(collectExceptions(oa, of))
+      fob: Future[Output[B]]
+    ): Future[Output[(A, B)]] = Future.join(foa.liftToTry, fob.liftToTry).flatMap {
+      case (Return(oa), Return(ob)) => Future.value(oa.flatMap(a => ob.map(b => (a, b))))
+      case (Throw(oa), Throw(ob)) => Future.exception(collectExceptions(oa, ob))
       case (Throw(e), _) => Future.exception(e)
       case (_, Throw(e)) => Future.exception(e)
     }
 
-    def collectExceptions(a: Throwable, b: Throwable): Error.RequestErrors = {
+    private[this] def collectExceptions(a: Throwable, b: Throwable): Error.RequestErrors = {
       def collect(e: Throwable): Seq[Throwable] = e match {
         case Error.RequestErrors(errors) => errors
         case other => Seq(other)
@@ -150,11 +147,11 @@ trait Endpoint[A] { self =>
       Error.RequestErrors(collect(a) ++ collect(b))
     }
 
-    def apply(input: Input): Endpoint.Result[B] =
+    def apply(input: Input): Endpoint.Result[(A, B)] =
       self(input).flatMap {
-        case (remainder1, outputA) => fn(remainder1).map {
-          case (remainder2, outputF) =>
-            (remainder2, for { ofa <- outputA; off <- outputF } yield join(ofa, off))
+        case (remainder1, outputA) => other(remainder1).map {
+          case (remainder2, outputB) =>
+            (remainder2, for { ofa <- outputA; ofb <- outputB } yield join(ofa, ofb))
         }
       }
 
@@ -163,14 +160,22 @@ trait Endpoint[A] { self =>
   }
 
   /**
+   * Maps this endpoint to `Endpoint[A => B]`.
+   */
+  @deprecated("Use product or Applicative[Endpoint].ap", "0.11.0")
+  final def ap[B](fn: Endpoint[A => B]): Endpoint[B] = product(fn).map {
+    case (a, f) => f(a)
+  }
+
+  /**
    * Composes this endpoint with the given `that` endpoint. The resulting endpoint will succeed only
    * if both this and `that` endpoints succeed.
    */
   final def adjoin[B](that: Endpoint[B])(implicit pa: PairAdjoin[A, B]): Endpoint[pa.Out] =
     new Endpoint[pa.Out] {
-      val inner = self.ap(
-        that.map { b => (a: A) => pa(a, b) }
-      )
+      val inner = self.product(that).map {
+        case (a, b) => pa(a, b)
+      }
       def apply(input: Input): Endpoint.Result[pa.Out] = inner(input)
 
       override def item = items.MultipleItems
@@ -498,15 +503,15 @@ object Endpoint {
    */
   def derive[A]: GenericDerivation[A] = new GenericDerivation[A]
 
-  implicit val alternativeEndpoint: Alternative[Endpoint] = new Alternative[Endpoint] {
+  implicit val endpointInstance: Alternative[Endpoint] = new Alternative[Endpoint] {
 
-    override def ap[A, B](ff: Endpoint[(A) => B])(fa: Endpoint[A]): Endpoint[B] = fa.ap(ff)
-
-    override def map[A, B](fa: Endpoint[A])(f: (A) => B): Endpoint[B] = fa.map(f)
-
-    override def product[A, B](fa: Endpoint[A], fb: Endpoint[B]): Endpoint[(A, B)] = {
-      fa.ap(fb.map(b => (a: A) => a -> b))
+    override def ap[A, B](ff: Endpoint[A => B])(fa: Endpoint[A]): Endpoint[B] = ff.product(fa).map {
+      case (f, a) => f(a)
     }
+
+    override def map[A, B](fa: Endpoint[A])(f: A => B): Endpoint[B] = fa.map(f)
+
+    override def product[A, B](fa: Endpoint[A], fb: Endpoint[B]): Endpoint[(A, B)] = fa.product(fb)
 
     override def pure[A](x: A): Endpoint[A] = new Endpoint[A] {
       override def apply(input: Input): Result[A] = Some(input -> Eval.now(Future.value(Ok(x))))
@@ -521,7 +526,5 @@ object Endpoint {
     }
 
     override def combineK[A](x: Endpoint[A], y: Endpoint[A]): Endpoint[A] = x | y
-
   }
-
 }

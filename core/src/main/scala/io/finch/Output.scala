@@ -1,5 +1,6 @@
 package io.finch
 
+import algebra.Eq
 import com.twitter.finagle.http.{Cookie, Response, Status, Version}
 import com.twitter.util.{Await, Future, Try}
 import io.finch.internal.ToResponse
@@ -144,6 +145,13 @@ object Output {
   private[finch] final case class Empty(meta: Meta) extends Output[Nothing] {
     override protected def withMeta(meta: Meta): Output[Nothing] = copy(meta = meta)
     override def value: Nothing = throw new IllegalStateException("empty output")
+  }
+
+  implicit def outputEq[A](implicit A: Eq[A]): Eq[Output[A]] = Eq.instance {
+    case (Payload(av, am), Payload(bv, bm)) => A.eqv(av, bv) && am == bm
+    case (Failure(ac, am), Failure(bc, bm)) => ac == bc && am == bm
+    case (Empty(am), Empty(bm)) => am == bm
+    case (_, _) => false
   }
 
   implicit class EndpointResultOps[A](val o: Endpoint.Result[A]) extends AnyVal {

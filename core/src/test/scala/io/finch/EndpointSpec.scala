@@ -2,10 +2,14 @@ package io.finch
 
 import java.util.UUID
 
+import cats.Applicative
+import cats.laws.discipline.AlternativeTests
+import cats.laws.discipline.eq._
 import com.twitter.finagle.http.{Request, Method, Cookie}
 import com.twitter.util.{Throw, Try, Future}
 
 class EndpointSpec extends FinchSpec {
+  checkAll("Endpoint[String]", AlternativeTests[Endpoint].applicative[String, String, String])
 
   behavior of "Endpoint"
 
@@ -54,7 +58,7 @@ class EndpointSpec extends FinchSpec {
       val expected = i.headOption.map(s => Ok(s.length))
       string.map(s => s.length)(i).output === expected &&
       string.mapAsync(s => Future.value(s.length))(i).output === expected &&
-      string.ap[Int](/.map(_ => s => s.length))(i).output == expected
+      Applicative[Endpoint].ap(/.map(_ => (_: String).length))(string)(i).output == expected
     }
   }
 
@@ -169,7 +173,7 @@ class EndpointSpec extends FinchSpec {
     check { (s: String, i: Int) => (s: Endpoint0).map(_ => i).toString === s }
     check { (s: String, t: String) => ((s: Endpoint0) | (t: Endpoint0)).toString === s"($s|$t)" }
     check { (s: String, t: String) => ((s: Endpoint0) :: (t: Endpoint0)).toString === s"$s/$t" }
-    check { s: String => (s: Endpoint0).ap[String](*.map(_ => _ => "foo")).toString === s }
+    check { s: String => (s: Endpoint0).product[String](*.map(_ => "foo")).toString === s }
     check { (s: String, t: String) => (s: Endpoint0).mapAsync(_ => Future.value(t)).toString === s }
 
     *.toString shouldBe "*"
