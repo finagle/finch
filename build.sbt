@@ -207,6 +207,19 @@ lazy val oauth2 = project
   ))
   .dependsOn(core)
 
+lazy val iteratee = project
+  .settings(moduleName := "finch-iteratee")
+  .settings(allSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.catbird" %% "catbird-util" % "0.2.0",
+      "io.circe" %% "circe-jawn" % circeVersion,
+      "io.circe" %% "circe-streaming" % circeVersion,
+      "io.iteratee" %% "iteratee-core" % "0.2.1"
+    )
+  )
+  .dependsOn(core)
+
 lazy val examples = project
   .settings(moduleName := "finch-examples")
   .settings(allSettings)
