@@ -3,6 +3,8 @@ package io.finch
 import scala.reflect.ClassTag
 
 import cats.{Alternative, Eval}
+import cats.data.StateT
+import cats.std.option._
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Cookie, Request, Response}
 import com.twitter.util.{Future, Return, Throw, Try}
@@ -56,16 +58,22 @@ import shapeless.ops.hlist.Tupler
  *   Http.server.serve(foobar.toService)
  * }}}
  */
-trait Endpoint[A] { self =>
+abstract class Endpoint[A] extends Serializable { self =>
 
-  type ContentType <: String
+  /**
+   * The [[StateT]] instance underneath this endpoint.
+   */
+  def embed: Endpoint.State[A]
 
+  /**
+   * Request item (part) that's this endpoint work with.
+   */
   def item: items.RequestItem = items.MultipleItems
 
   /**
    * Maps this endpoint to either `A => Output[B]` or `A => Output[Future[B]]`.
    */
-  def apply(mapper: Mapper[A]): Endpoint[mapper.Out] = mapper(self)
+  final def apply(mapper: Mapper[A]): Endpoint[mapper.Out] = mapper(this)
 
   // There is a reason why `apply` can't be renamed to `run` as per
   //   https://github.com/finagle/finch/issues/371.
@@ -73,9 +81,9 @@ trait Endpoint[A] { self =>
   //   http://stackoverflow.com/questions/32064375/magnet-pattern-and-overloaded-methods
 
   /**
-   * Runs this endpoint.
+   * Runs this endpoint on the given `input`.
    */
-  def apply(input: Input): Endpoint.Result[A]
+  final def apply(input: Input): Endpoint.Result[A] = embed.run(input)
 
   /**
    * Maps this endpoint to the given function `A => B`.
@@ -86,16 +94,8 @@ trait Endpoint[A] { self =>
   /**
    * Maps this endpoint to the given function `A => Future[B]`.
    */
-  final def mapAsync[B](fn: A => Future[B]): Endpoint[B] = new Endpoint[B] {
-    def apply(input: Input): Endpoint.Result[B] =
-      self(input).map {
-        case (remainder, output) =>
-          (remainder, output.map(f => f.flatMap(oa => oa.traverse(a => fn(a)))))
-      }
-
-    override def item = self.item
-    override def toString = self.toString
-  }
+  final def mapAsync[B](fn: A => Future[B]): Endpoint[B] =
+    modify(embed.map(o => o.map(f => f.flatMap(oa => oa.traverse(a => fn(a))))))
 
   /**
    * Maps this endpoint to the given function `A => Output[B]`.
@@ -106,40 +106,40 @@ trait Endpoint[A] { self =>
   /**
    * Maps this endpoint to the given function `A => Future[Output[B]]`.
    */
-  final def mapOutputAsync[B](fn: A => Future[Output[B]]): Endpoint[B] = new Endpoint[B] {
-    def apply(input: Input): Endpoint.Result[B] =
-      self(input).map {
-        case (remainder, output) =>
-          (remainder, output.map(f => f.flatMap { oa =>
-            val fob = oa.traverse(fn).map(oob => oob.flatten)
+  final def mapOutputAsync[B](fn: A => Future[Output[B]]): Endpoint[B] =
+    modify(embed.map(o => o.map(f => f.flatMap { oa =>
+      val fob = oa.traverse(fn).map(oob => oob.flatten)
 
-            fob.map { ob =>
-              val ob1 = oa.headers.foldLeft(ob)((acc, x) => acc.withHeader(x))
-              val ob2 = oa.cookies.foldLeft(ob1)((acc, x) => acc.withCookie(x))
+      fob.map { ob =>
+        val ob1 = oa.headers.foldLeft(ob)((acc, x) => acc.withHeader(x))
+        val ob2 = oa.cookies.foldLeft(ob1)((acc, x) => acc.withCookie(x))
 
-              ob2
-            }
-          }))
+        ob2
       }
-
-    override def item = self.item
-    override def toString = self.toString
-  }
+    })))
 
   /**
-   * Transforms this endpoint to the given function `Future[Output[A]] => Future[Output[B]]`
+   * Transforms this endpoint to the given function `Future[Output[A]] => Future[Output[B]]`.
+   *
+   * Might be useful to perform some extra action on the underlying `Future`. For example, time
+   * the latency of the given endpoint.
+   *
+   * {{{
+   *   import io.finch._
+   *   import com.twitter.finagle.stats._
+   *
+   *   def time[A](stat: Stat, e: Endpoint[A]): Endpoint[A] =
+   *     e.transform(f => Stat.timeFuture(s)(f))
+   * }}}
    */
-  final def transform[B](fn: Future[Output[A]] => Future[Output[B]]): Endpoint[B] = new Endpoint[B] {
-    override def apply(input: Input): Endpoint.Result[B] = {
-      self(input).map {
-        case (remainder, output) =>
-          (remainder, output.map(fn))
-      }
-    }
-  }
+  final def transform[B](fn: Future[Output[A]] => Future[Output[B]]): Endpoint[B] =
+    modify(embed.map(o => o.map(fn)))
 
-  final def product[B](other: Endpoint[B]): Endpoint[(A, B)] = new Endpoint[(A, B)] {
-    private[this] def join(
+  /**
+   * Composes this endpoint with the given `that` endpoint into an endpoint of product (tuple).
+   */
+  final def product[B](that: Endpoint[B]): Endpoint[(A, B)] = {
+    def join(
       foa: Future[Output[A]],
       fob: Future[Output[B]]
     ): Future[Output[(A, B)]] = Future.join(foa.liftToTry, fob.liftToTry).flatMap {
@@ -149,7 +149,7 @@ trait Endpoint[A] { self =>
       case (_, Throw(e)) => Future.exception(e)
     }
 
-    private[this] def collectExceptions(a: Throwable, b: Throwable): Error.RequestErrors = {
+    def collectExceptions(a: Throwable, b: Throwable): Error.RequestErrors = {
       def collect(e: Throwable): Seq[Throwable] = e match {
         case Error.RequestErrors(errors) => errors
         case other => Seq(other)
@@ -158,16 +158,10 @@ trait Endpoint[A] { self =>
       Error.RequestErrors(collect(a) ++ collect(b))
     }
 
-    def apply(input: Input): Endpoint.Result[(A, B)] =
-      self(input).flatMap {
-        case (remainder1, outputA) => other(remainder1).map {
-          case (remainder2, outputB) =>
-            (remainder2, for { ofa <- outputA; ofb <- outputB } yield join(ofa, ofb))
-        }
-      }
-
-    override def item = self.item
-    override def toString = self.toString
+    modify(
+      for { oa <- self.embed; ob <- that.embed }
+      yield oa.flatMap(ofa => ob.map(off => join(ofa, off)))
+    )
   }
 
   /**
@@ -184,13 +178,10 @@ trait Endpoint[A] { self =>
    */
   final def adjoin[B](that: Endpoint[B])(implicit pa: PairAdjoin[A, B]): Endpoint[pa.Out] =
     new Endpoint[pa.Out] {
-      val inner = self.product(that).map {
-        case (a, b) => pa(a, b)
-      }
-      def apply(input: Input): Endpoint.Result[pa.Out] = inner(input)
-
-      override def item = items.MultipleItems
-      override def toString = s"${self.toString}/${that.toString}"
+      override val embed: Endpoint.State[pa.Out] =
+        self.product(that).map { case (a, b) => pa(a, b) }.embed
+      override val item: items.RequestItem = self.item
+      override def toString: String = s"${self.toString} :: ${that.toString}"
     }
 
   /**
@@ -221,19 +212,15 @@ trait Endpoint[A] { self =>
     private[this] def aToB(o: Endpoint.Result[A]): Endpoint.Result[B] =
       o.map { case (r, oo) => (r, oo.map(_.asInstanceOf[Future[Output[B]]])) }
 
-    def apply(input: Input): Endpoint.Result[B] =
-      (self(input), that(input)) match {
-        case (aa @ Some((a, _)), bb @ Some((b, _))) =>
-          if (a.path.length <= b.path.length) aToB(aa) else bb
-        case (a, b) => aToB(a).orElse(b)
-      }
+    override val embed: Endpoint.State[B] = StateT(i => (self(i), that(i)) match {
+      case (aa @ Some((a, _)), bb @ Some((b, _))) =>
+        if (a.path.length <= b.path.length) aToB(aa) else bb
+      case (a, b) => aToB(a).orElse(b)
+    })
 
-    override def item = items.MultipleItems
-    override def toString = s"(${self.toString}|${that.toString})"
+    override val item: items.RequestItem = self.item
+    override def toString: String = s"(${self.toString}|${that.toString})"
   }
-
-  // A workaround for https://issues.scala-lang.org/browse/SI-1336
-  def withFilter(p: A => Boolean): Endpoint[A] = self
 
   /**
    * Composes this endpoint with another in such a way that coproducts are flattened.
@@ -242,38 +229,18 @@ trait Endpoint[A] { self =>
     that.map(b => adjoin(Inl[B, A :+: CNil](b))) |
     self.map(a => adjoin(Inr[B, A :+: CNil](Inl[A, CNil](a))))
 
-  def withHeader(header: (String, String)): Endpoint[A] =
+  final def withHeader(header: (String, String)): Endpoint[A] =
     withOutput(o => o.withHeader(header))
-  def withCookie(cookie: Cookie): Endpoint[A] =
+
+  final def withCookie(cookie: Cookie): Endpoint[A] =
     withOutput(o => o.withCookie(cookie))
-
-  /**
-   * Converts this endpoint to a Finagle service `Request => Future[Response]`.
-   */
-  final def toService(implicit ts: ToService.Aux[A, Witness.`"application/json"`.T]): Service[Request, Response] =
-    ts(this)
-
-  /**
-   * Converts this endpoint to a Finagle service `Request => Future[Response]`.
-   */
-  final def toServiceAs[CT <: String](implicit ts: ToService.Aux[A, CT]): Service[Request, Response] =
-    ts(this)
 
   /**
    * Recovers from any exception occurred in this endpoint by creating a new endpoint that will
    * handle any matching throwable from the underlying future.
    */
   final def rescue[B >: A](pf: PartialFunction[Throwable, Future[Output[B]]]): Endpoint[B] =
-    new Endpoint[B] {
-      def apply(input: Input): Endpoint.Result[B] =
-        self(input).map {
-          case (remainder, output) =>
-            (remainder, output.map(f => f.rescue(pf)))
-        }
-
-      override def item = self.item
-      override def toString = self.toString
-   }
+    modify(embed.map(o => o.map(f => f.rescue(pf))))
 
   /**
    * Recovers from any exception occurred in this endpoint by creating a new endpoint that will
@@ -294,7 +261,7 @@ trait Endpoint[A] { self =>
    */
   final def should(rule: String)(predicate: A => Boolean): Endpoint[A] = mapAsync(a =>
     if (predicate(a)) Future.value(a)
-    else Future.exception(Error.NotValid(self.item, "should " + rule))
+    else Future.exception(Error.NotValid(item, "should " + rule))
   )
 
   /**
@@ -336,28 +303,34 @@ trait Endpoint[A] { self =>
   /**
    * Lifts this endpoint into one that always succeeds, with an empty `Option` representing failure.
    */
-  final def lift: Endpoint[Option[A]] = new Endpoint[Option[A]] {
-    def apply(input: Input): Endpoint.Result[Option[A]] =
-      self(input).map {
-        case (remainder, output) =>
-          (remainder, output.map(f =>
-            f.liftToTry.map(f =>
-              f.toOption.fold(Output.None: Output[Option[A]])(o => o.map(Some.apply)))))
-      }
+  final def lift: Endpoint[Option[A]] =
+    modify(embed.map(o => o.map(f => f.liftToTry.map(f =>
+      f.toOption.fold(Output.None: Output[Option[A]])(o => o.map(Some.apply)))))
+    )
 
-    override def item = self.item
-    override def toString = self.toString
-  }
+  /**
+   * Converts this endpoint to a Finagle service `Request => Future[Response]`.
+   */
+  final def toService(implicit
+    ts: ToService.Aux[A, Witness.`"application/json"`.T]
+  ): Service[Request, Response] = ts(self)
 
-  private[this] def withOutput[B](fn: Output[A] => Output[B]): Endpoint[B] = new Endpoint[B] {
-    def apply(input: Input): Endpoint.Result[B] =
-      self(input).map {
-        case (remainder, output) => (remainder, output.map(f => f.map(o => fn(o))))
-      }
+  /**
+   * Converts this endpoint to a Finagle service `Request => Future[Response]`.
+   */
+  final def toServiceAs[CT <: String](implicit
+    ts: ToService.Aux[A, CT]
+  ): Service[Request, Response] = ts(self)
 
-    override def item = self.item
-    override def toString = self.toString
-  }
+  private[this] def withOutput[B](fn: Output[A] => Output[B]): Endpoint[B] =
+    modify(embed.map(o => o.map(f => f.map(o => fn(o)))))
+
+  private[this] def modify[B](newRun: Endpoint.State[B]): Endpoint[B] =
+    new Endpoint[B] {
+      override val embed: Endpoint.State[B] = newRun
+      override val item: items.RequestItem = self.item
+      override def toString: String = self.toString
+    }
 }
 
 /**
@@ -365,6 +338,7 @@ trait Endpoint[A] { self =>
  */
 object Endpoint {
 
+  type State[A] = StateT[Option, Input, Eval[Future[Output[A]]]]
   type Result[A] = Option[(Input, Eval[Future[Output[A]]])]
 
   /**
@@ -378,11 +352,10 @@ object Endpoint {
 
   private[finch] def embed[A](i: items.RequestItem)(f: Input => Result[A]): Endpoint[A] =
     new Endpoint[A] {
-      def apply(input: Input): Result[A] = f(input)
-
-      override def item: items.RequestItem = i
+      override val embed: Endpoint.State[A] = StateT(f)
+      override val item: items.RequestItem = i
       override def toString: String =
-        s"${item.kind}${item.nameOption.map(n => "(" + n + ")").getOrElse("")}"
+        s"${i.kind}${i.nameOption.map(n => "(" + n + ")").getOrElse("")}"
     }
 
   final implicit class ValueEndpointOps[B](val self: Endpoint[B]) extends AnyVal {
@@ -516,24 +489,25 @@ object Endpoint {
 
   implicit val endpointInstance: Alternative[Endpoint] = new Alternative[Endpoint] {
 
-    override def ap[A, B](ff: Endpoint[A => B])(fa: Endpoint[A]): Endpoint[B] = ff.product(fa).map {
-      case (f, a) => f(a)
-    }
+    override def ap[A, B](ff: Endpoint[A => B])(fa: Endpoint[A]): Endpoint[B] =
+      ff.product(fa).map { case (f, a) => f(a) }
 
-    override def map[A, B](fa: Endpoint[A])(f: A => B): Endpoint[B] = fa.map(f)
+    override def map[A, B](fa: Endpoint[A])(f: A => B): Endpoint[B] =
+      fa.map(f)
 
-    override def product[A, B](fa: Endpoint[A], fb: Endpoint[B]): Endpoint[(A, B)] = fa.product(fb)
+    override def product[A, B](fa: Endpoint[A], fb: Endpoint[B]): Endpoint[(A, B)] =
+      fa.product(fb)
 
     override def pure[A](x: A): Endpoint[A] = new Endpoint[A] {
-      override def apply(input: Input): Result[A] = Some(input -> Eval.now(Future.value(Ok(x))))
+      override val embed: Endpoint.State[A] = StateT.pure(Eval.now(Future.value(Ok(x))))
     }
 
     override def pureEval[A](x: Eval[A]): Endpoint[A] = new Endpoint[A] {
-      override def apply(input: Input): Result[A] = Some(input -> x.map(out => Future.value(Ok(out))))
+      override val embed: Endpoint.State[A] = StateT.pure(x.map(out => Future.value(Ok(out))))
     }
 
     override def empty[A]: Endpoint[A] = new Endpoint[A] {
-      override def apply(input: Input): Result[A] = None
+      override val embed: Endpoint.State[A] = StateT(_ => None: Endpoint.Result[A])
     }
 
     override def combineK[A](x: Endpoint[A], y: Endpoint[A]): Endpoint[A] = x | y

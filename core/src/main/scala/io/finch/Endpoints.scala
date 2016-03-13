@@ -3,6 +3,9 @@ package io.finch
 import java.util.UUID
 
 import cats.Eval
+import cats.data.StateT
+import cats.std.option._
+import cats.syntax.option._
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.finagle.http.exp.Multipart.FileUpload
@@ -24,16 +27,13 @@ trait Endpoints {
   type Endpoint2[A, B] = Endpoint[A :: B :: HNil]
   type Endpoint3[A, B, C] = Endpoint[A :: B :: C :: HNil]
 
-  /**
-   * An universal [[Endpoint]] that matches the given string.
-   */
   private[finch] class Matcher(s: String) extends Endpoint[HNil] {
-    def apply(input: Input): Endpoint.Result[HNil] =
+    override val embed: Endpoint.State[HNil] = StateT(input =>
       input.headOption.flatMap {
-        case `s` => Some((input.drop(1), hnilFutureOutput))
-        case _ => None
+        case `s` => (input.drop(1), hnilFutureOutput).some
+        case _ => none
       }
-
+    )
     override def toString = s
   }
 
@@ -46,23 +46,23 @@ trait Endpoints {
    * from the string.
    */
   private[finch] case class Extractor[A](name: String, f: String => Option[A]) extends Endpoint[A] {
-    def apply(input: Input): Endpoint.Result[A] =
+    override val embed: Endpoint.State[A] = StateT(input =>
       for {
         ss <- input.headOption
         aa <- f(ss)
       } yield (input.drop(1), Eval.now(Future.value(Output.payload(aa))))
+    )
 
     def apply(n: String): Endpoint[A] = copy[A](name = n)
-
     override def toString: String = s":$name"
   }
 
   private[finch] case class StringExtractor(name: String) extends Endpoint[String] {
-    def apply(input: Input): Endpoint.Result[String] =
+    override val embed: Endpoint.State[String] = StateT(input =>
       input.headOption.map(s => (input.drop(1), Eval.now(Future.value(Output.payload(s)))))
+    )
 
     def apply(n: String): Endpoint[String] = copy(name = n)
-
     override def toString: String = s":$name"
   }
 
@@ -70,13 +70,15 @@ trait Endpoints {
    * An extractor that extracts a value of type `Seq[A]` from the tail of the route.
    */
   private[finch] case class TailExtractor[A](
-      name: String,
-      f: String => Option[A]) extends Endpoint[Seq[A]] {
-    def apply(input: Input): Endpoint.Result[Seq[A]] =
-      Some((input.copy(path = Nil), Eval.now(Future.value(Output.payload(for {
+    name: String,
+    f: String => Option[A]
+  ) extends Endpoint[Seq[A]] {
+    override val embed: Endpoint.State[Seq[A]] = StateT(input =>
+      (input.copy(path = Nil), Eval.now(Future.value(Output.payload(for {
         s <- input.path
         a <- f(s)
-      } yield a)))))
+      } yield a)))).some
+    )
 
     def apply(n: String): Endpoint[Seq[A]] = copy[A](name = n)
 
@@ -96,8 +98,9 @@ trait Endpoints {
    * @note This is an experimental API and might be removed without any notice.
    */
   val path: Endpoint[String] = new Endpoint[String] {
-    def apply(input: Input): Endpoint.Result[String] =
+    override val embed: Endpoint.State[String] = StateT(input =>
       input.headOption.map(s => result(input, s))
+    )
 
     override def toString: String = ":path"
   }
@@ -107,14 +110,15 @@ trait Endpoints {
    * [[internal.Capture]] instances defined for `A`) from the current path segment.
    */
   def path[A](implicit c: internal.Capture[A]): Endpoint[A] = new Endpoint[A] {
-    def apply(input: Input): Endpoint.Result[A] = for {
-      ss <- input.headOption
-      aa <- c(ss)
-    } yield result(input, aa)
+    override val embed: Endpoint.State[A] = StateT(input =>
+      for {
+        ss <- input.headOption
+        aa <- c(ss)
+      } yield result(input, aa)
+    )
 
     override def toString: String = ":path"
   }
-
   /**
    * A matching [[Endpoint]] that reads an integer value from the current path segment.
    */
@@ -169,9 +173,9 @@ trait Endpoints {
    * An [[Endpoint]] that skips all path segments.
    */
   object * extends Endpoint[HNil] {
-    def apply(input: Input): Endpoint.Result[HNil] =
-      Some((input.copy(path = Nil), hnilFutureOutput))
-
+    override val embed: Endpoint.State[HNil] = StateT(input =>
+      (input.copy(path = Nil), hnilFutureOutput).some
+    )
     override def toString: String = "*"
   }
 
@@ -179,18 +183,17 @@ trait Endpoints {
    * An identity [[Endpoint]].
    */
   object / extends Endpoint[HNil] {
-    def apply(input: Input): Endpoint.Result[HNil] =
-      Some((input, hnilFutureOutput))
-
+    override val embed: Endpoint.State[HNil] = StateT.pure(hnilFutureOutput)
     override def toString: String = ""
   }
 
-  private[this] def method[A](m: Method)(r: Endpoint[A]): Endpoint[A] = new Endpoint[A] {
-    def apply(input: Input): Endpoint.Result[A] =
-      if (input.request.method == m) r(input)
-      else None
+  private[this] def method[A](m: Method)(e: Endpoint[A]): Endpoint[A] = new Endpoint[A] {
+    override val embed: Endpoint.State[A] = StateT(input =>
+      if (input.request.method == m) e(input)
+      else none
+    )
 
-    override def toString: String = s"${m.toString().toUpperCase} /${r.toString}"
+    override def toString: String = s"${m.toString().toUpperCase} /${e.toString}"
   }
 
   /**
@@ -278,16 +281,16 @@ trait Endpoints {
         // This check is mostly about a safeguard.
         // TODO: Use proper charset
         if (buffer.hasArray) Some(new String(buffer.array(), 0, buffer.readableBytes(), "UTF-8"))
-        else Some(buffer.toString(Charsets.Utf8))
+        else buffer.toString(Charsets.Utf8).some
       case _ => None
     }
 
   private[this] def requestUpload(upload: String)(req: Request): Option[FileUpload] =
-    Try(req.multipart).getOrElse(None).flatMap(m => m.files.get(upload).flatMap(fs => fs.headOption))
+    Try(req.multipart).getOrElse(none).flatMap(m => m.files.get(upload).flatMap(fs => fs.headOption))
 
   private[this] def option[A](item: items.RequestItem)(f: Request => A): Endpoint[A] =
     Endpoint.embed(item)(input =>
-      Some((input, Eval.later(Future.value(Output.payload(f(input.request))))))
+      (input, Eval.later(Future.value(Output.payload(f(input.request))))).some
     )
 
   private[this] def exists[A](item: items.RequestItem)(f: Request => Option[A]): Endpoint[A] =
@@ -299,8 +302,8 @@ trait Endpoints {
     (item: items.RequestItem)
     (p: Request => Boolean)
     (f: Request => A): Endpoint[A] = Endpoint.embed(item)(input =>
-      if (p(input.request)) Some((input, Eval.later(Future.value(Output.payload(f(input.request))))))
-      else None
+      if (p(input.request)) (input, Eval.later(Future.value(Output.payload(f(input.request))))).some
+      else none
     )
 
   /**
@@ -370,8 +373,8 @@ trait Endpoints {
   val binaryBodyOption: Endpoint[Option[Array[Byte]]] =
     matches(items.BodyItem)(!_.isChunked)(req =>
       req.contentLength match {
-        case Some(n) if n > 0 => Some(Buf.ByteArray.Shared.extract(req.content))
-        case _ => None
+        case Some(n) if n > 0 => Buf.ByteArray.Shared.extract(req.content).some
+        case _ => none
       }
     )
 
@@ -446,11 +449,12 @@ trait Endpoints {
       private[this] val failedOutput: Eval[Future[Output[A]]] =
         Eval.now(Future.value(Unauthorized(BasicAuthFailed)))
 
-      def apply(input: Input): Endpoint.Result[A] =
+      override val embed: Endpoint.State[A] = StateT(input =>
         input.request.authorization.flatMap {
           case `expected` => e(input)
-          case _ => Some((input.copy(path = Seq.empty), failedOutput))
+          case _ => (input.copy(path = Seq.empty), failedOutput).some
         }
+      )
 
       override def toString: String = s"BasicAuth($e)"
     }
