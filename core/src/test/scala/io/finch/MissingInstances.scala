@@ -3,6 +3,8 @@ package io.finch
 import java.util.UUID
 
 import algebra.Eq
+import cats.Show
+import com.twitter.io.Buf
 import com.twitter.util.{Return, Throw, Try}
 
 /**
@@ -14,5 +16,10 @@ trait MissingInstances {
     case (Throw(x), Throw(y)) => x == y
     case _ => false
   }
+
   implicit def eqUUID: Eq[UUID] = Eq.fromUniversalEquals
+
+  implicit def showUUID: Show[UUID] = Show.fromToString
+
+  implicit def eqBuf: Eq[Buf] = Eq.fromUniversalEquals
 }

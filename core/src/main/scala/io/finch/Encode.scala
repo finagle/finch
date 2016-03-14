@@ -1,5 +1,6 @@
 package io.finch
 
+import cats.Show
 import com.twitter.io.Buf
 import shapeless.Witness
 
@@ -30,6 +31,9 @@ trait LowPriorityEncodeInstances {
 
   def textPlain[A](fn: A => Buf): TextPlain[A] =
     instance[A, Witness.`"text/plain"`.T](fn)
+
+  implicit def encodeShow[A](implicit s: Show[A]): TextPlain[A] =
+    textPlain(a => Buf.Utf8(s.show(a)))
 }
 
 object Encode extends LowPriorityEncodeInstances {
