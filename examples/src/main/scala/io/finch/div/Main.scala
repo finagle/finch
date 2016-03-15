@@ -1,5 +1,6 @@
 package io.finch.div
 
+import cats.std.int._
 import com.twitter.finagle.Http
 import com.twitter.util.Await
 import io.finch._
@@ -23,8 +24,10 @@ import shapeless._
  */
 object Main extends App {
 
-  val div: Endpoint[String] = post(int :: int) { (a: Int, b: Int) =>
-    Ok((a / b).toString)
+  // We can serve Ints as plain/text responses since there is cats.Show[Int]
+  // available via the cats.std.int._ import.
+  val div: Endpoint[Int] = post(int :: int) { (a: Int, b: Int) =>
+    Ok(a / b)
   } handle {
     case e: ArithmeticException => BadRequest(e)
   }
