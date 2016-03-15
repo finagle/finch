@@ -1,30 +1,30 @@
-package io.finch.benchmarks.request
+package io.finch.benchmarks
 
 import io.finch._, items._
 import com.twitter.util.{Throw, Try}
 import org.scalatest.{FlatSpec, Matchers}
 import scala.reflect.classTag
 
-class SuccessfulRequestReaderBenchmarkSpec extends FlatSpec with Matchers {
+class SuccessfulEndpointBenchmarkSpec extends FlatSpec with Matchers {
 
   behavior of "Successful Endpoint"
 
-  val benchmark = new SuccessfulRequestReaderBenchmark
+  val benchmark = new SuccessfulEndpointBenchmark
 
   it should "parse the input correctly (manual)" in {
-    benchmark.hlistGenericReader shouldBe benchmark.goodFooResult
+    benchmark.hlistGenericEndpoint shouldBe benchmark.goodFooResult
   }
 
   it should "parse the input correctly (derived)" in {
-    benchmark.derivedReader shouldBe benchmark.goodFooResult
+    benchmark.derivedEndpoint shouldBe benchmark.goodFooResult
   }
 }
 
-class FailingRequestReaderBenchmarkSpec extends FlatSpec with Matchers {
+class FailingEndpointBenchmarkSpec extends FlatSpec with Matchers {
 
   behavior of "Failed Endpoint"
 
-  val benchmark = new FailingRequestReaderBenchmark
+  val benchmark = new FailingEndpointBenchmark
 
   def matchesAggregatedErrors(result: Try[Foo]) = result match {
     case Throw(
@@ -39,10 +39,10 @@ class FailingRequestReaderBenchmarkSpec extends FlatSpec with Matchers {
   }
 
   it should "fail correctly on invalid input (manual)" in {
-    matchesAggregatedErrors(benchmark.hlistGenericReader)
+    matchesAggregatedErrors(benchmark.hlistGenericEndpoint)
   }
 
   it should "fail correctly on invalid input (derived)" in {
-    matchesAggregatedErrors(benchmark.derivedReader)
+    matchesAggregatedErrors(benchmark.derivedEndpoint)
   }
 }

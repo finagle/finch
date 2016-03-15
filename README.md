@@ -66,32 +66,19 @@ See [examples](examples/src/main/scala/io/finch) sub-project for more complete e
 Performance
 -----------
 
-We use end-to-end [service benchmark][service-benchmark] to compare performance between bare-bones
-[Finagle][finagle] service using [Jackson][jackson] for JSON parsing/serialization against Finch service
-empowered by [Circe][circe]. Roughly, the Finch + Circe configuration gives the overhead less than
-**5%** in terms of performance and less than **10%** in terms of allocations, compared to Finagle +
-Jackson.
+We use [wrk][wrk] to load test [Finch+Circe][finch-bench] against [Finagle+Jackson][finagle-bench]
+to get some insight on how much overhead, an idiomatic Finch application written in a purely
+functional way, involves on top of Finagle/Jackson. The results are quite impressive (for a pre-1.0
+version): Finch performs on **82% of Finagle's throughput**.
 
-**GET /JSON-Object**
+| Benchmark         | Run 1          | Run 2          | Run 3          |
+|-------------------|----------------|----------------|----------------|
+| Finch + Circe     | 29099.13 req/s | 37153.31 req/s | 37197.17 req/s |
+| Finagle + Jackson | 38085.51 req/s | 44921.62 req/s | 45362.89 req/s |
 
-```
-Benchmark                                             Mode  Cnt          Score        Error   Unit
-
-FinchCirce.getJsonObj                                 avgt   10        352.658 ±     49.267  ms/op
-FinchCirce.getJsonObj:·gc.alloc.rate.norm             avgt   10  366909071.657 ±  19659.934   B/op
-FinagleJackson.getJsonObj                             avgt   10        372.074 ±     57.819  ms/op
-FinagleJackson.getJsonObj:·gc.alloc.rate.norm         avgt   10  328441359.200 ±  78088.424   B/op
-```
-
-**POST /JSON-Object**
-```
-Benchmark                                             Mode  Cnt      Score            Error   Unit
-
-FinchCirce.postJsonObj                                avgt   10        243.935 ±     29.455  ms/op
-FinchCirce.postJsonObj:·gc.alloc.rate.norm            avgt   10  399187222.400 ±  84523.131   B/op
-FinagleJackson.postJsonObj                            avgt   10        235.564 ±     46.433  ms/op
-FinagleJackson.postJsonObj:·gc.alloc.rate.norm        avgt   10  376365652.800 ± 169854.875   B/op
-```
+Finch is also load tested against a number of Scala HTTP frameworks and libraries as par of the
+[TechEmpower benchmark][tempower]. The most recent round showed that Finch performs really well
+there, [scoring a second place][finch-is-fast] across all the Scala libraries.
 
 Documentation
 -------------
@@ -139,7 +126,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 [gitter]: https://gitter.im/finagle/finch
-[service-benchmark]: https://github.com/finagle/finch/blob/master/benchmarks/src/main/scala/io/finch/benchmarks/service/UserServiceBenchmark.scala
 [finagle]: https://github.com/twitter/finagle
 [circe]: https://github.com/travisbrown/circe
 [jackson]: http://wiki.fasterxml.com/JacksonHome
@@ -150,3 +136,8 @@ limitations under the License.
 [scaladoc]: http://finagle.github.io/finch/docs/#io.finch.package
 [typelevel]: http://typelevel.org/
 [conduct]: http://typelevel.org/conduct.html
+[wrk]: https://github.com/wg/wrk
+[finch-bench]: https://github.com/finagle/finch/blob/master/benchmarks/src/main/scala/io/finch/benchmarks/wrk/Finch.scala
+[finagle-bench]: https://github.com/finagle/finch/blob/master/benchmarks/src/main/scala/io/finch/benchmarks/wrk/Finagle.scala
+[tempower]: https://www.techempower.com/benchmarks/#section=data-r12&hw=peak&test=json&l=6bk
+[finch-is-fast]: http://vkostyukov.net/posts/how-fast-is-finch/
