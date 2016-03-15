@@ -132,7 +132,7 @@ val file: Endpoint[AsyncStream[Buf]] = get("stream-of-file") {
 }
 
 Http.server
-  .withStreamig(enabled = true)
+  .withStreaming(enabled = true)
   .serve(":8081", file.toService)
 ```
 
