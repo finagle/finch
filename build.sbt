@@ -235,11 +235,10 @@ lazy val benchmarks = project
   .enablePlugins(JmhPlugin)
   .settings(allSettings)
   .settings(noPublish)
-  .configs(IntegrationTest)
-  .settings(Defaults.itSettings)
-  .settings(parallelExecution in IntegrationTest := false)
-  .settings(coverageExcludedPackages := "io\\.finch\\.benchmarks\\.service\\.UserServiceBenchmark")
   .settings(libraryDependencies += "io.circe" %% "circe-generic" % circeVersion)
+  .settings(
+    coverageExcludedPackages := "io\\.finch\\.benchmarks\\..*;io\\.finch\\.benchmarks\\.wrk\\..*"
+  )
   .settings(
     javaOptions in run ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
@@ -260,11 +259,4 @@ lazy val benchmarks = project
       "-server"
     )
   )
-  .dependsOn(
-    core,
-    argonaut,
-    jackson,
-    json4s,
-    circe,
-    test % "it"
-  )
+  .dependsOn(core, circe, jackson)

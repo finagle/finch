@@ -1,9 +1,7 @@
-package io.finch.benchmarks.request
-
-import java.util.concurrent.TimeUnit
+package io.finch.benchmarks
 
 import com.twitter.finagle.http.Request
-import com.twitter.util.{Await, Try}
+import com.twitter.util.Try
 import io.finch._
 import org.openjdk.jmh.annotations._
 
@@ -16,20 +14,14 @@ case class Foo(s: String, d: Double, i: Int, l: Long, b: Boolean)
  * The following command will run the request reader benchmarks with reasonable
  * settings:
  *
- * > sbt 'project benchmarks' 'run -prof gc io.finch.benchmarks.request.*Benchmark.*'
+ * > sbt 'project benchmarks' 'run -prof gc io.finch.benchmarks.EndpointBenchmark'
  */
-@State(Scope.Thread)
-@BenchmarkMode(Array(Mode.AverageTime))
-@OutputTimeUnit(TimeUnit.SECONDS)
-@Warmup(iterations = 10, time = 3, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 10, time = 3, timeUnit = TimeUnit.SECONDS)
-@Fork(2)
-class SuccessfulRequestReaderBenchmark extends FooReadersAndRequests {
+class SuccessfulEndpointBenchmark extends FinchBenchmark with FooEndpointsAndRequests {
   @Benchmark
-  def hlistGenericReader: Foo = hlistGenericFooReader(goodFooRequest).value.get
+  def hlistGenericEndpoint: Foo = hlistGenericFooReader(goodFooRequest).value.get
 
   @Benchmark
-  def derivedReader: Foo = derivedFooReader(goodFooRequest).value.get
+  def derivedEndpoint: Foo = derivedFooReader(goodFooRequest).value.get
 }
 
 /**
@@ -39,24 +31,18 @@ class SuccessfulRequestReaderBenchmark extends FooReadersAndRequests {
  * Note that the monadic reader shouldn't be compared directly to the other
  * readers for invalid inputs, since it fails on the first error.
  */
-@State(Scope.Thread)
-@BenchmarkMode(Array(Mode.AverageTime))
-@OutputTimeUnit(TimeUnit.SECONDS)
-@Warmup(iterations = 10, time = 3, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 10, time = 3, timeUnit = TimeUnit.SECONDS)
-@Fork(2)
-class FailingRequestReaderBenchmark extends FooReadersAndRequests {
+class FailingEndpointBenchmark extends FinchBenchmark with FooEndpointsAndRequests {
   @Benchmark
-  def hlistGenericReader: Try[Foo] = hlistGenericFooReader(badFooRequest).poll.get
+  def hlistGenericEndpoint: Try[Foo] = hlistGenericFooReader(badFooRequest).poll.get
 
   @Benchmark
-  def derivedReader: Try[Foo] = derivedFooReader(badFooRequest).poll.get
+  def derivedEndpoint: Try[Foo] = derivedFooReader(badFooRequest).poll.get
 }
 
 /**
  * Provides request readers and example requests.
  */
-class FooReadersAndRequests {
+trait FooEndpointsAndRequests {
   val hlistGenericFooReader: Endpoint[Foo] = (
     param("s") ::
     param("d").as[Double] ::
