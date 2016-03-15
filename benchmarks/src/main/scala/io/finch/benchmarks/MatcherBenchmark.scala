@@ -11,9 +11,11 @@ class MatcherBenchmark extends FinchBenchmark {
   val empty: Input = Input(Request())
   val fooBarBaz: Input = Input(Request("/foo/bar/baz"))
 
-  @Benchmark
-  def stringSome: Option[HNil] = "foo".apply(fooBarBaz).value
+  val foo: Endpoint0 = "foo"
 
   @Benchmark
-  def stringNone: Option[HNil] = "foo".apply(empty).value
+  def stringSome: Option[HNil] = foo(fooBarBaz).value
+
+  @Benchmark
+  def stringNone: Option[HNil] = foo(empty).value
 }

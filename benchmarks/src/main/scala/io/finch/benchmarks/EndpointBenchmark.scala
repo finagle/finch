@@ -16,6 +16,7 @@ case class Foo(s: String, d: Double, i: Int, l: Long, b: Boolean)
  *
  * > sbt 'project benchmarks' 'run -prof gc io.finch.benchmarks.EndpointBenchmark'
  */
+@State(Scope.Benchmark)
 class SuccessfulEndpointBenchmark extends FinchBenchmark with FooEndpointsAndRequests {
   @Benchmark
   def hlistGenericEndpoint: Foo = hlistGenericFooReader(goodFooRequest).value.get
@@ -31,6 +32,7 @@ class SuccessfulEndpointBenchmark extends FinchBenchmark with FooEndpointsAndReq
  * Note that the monadic reader shouldn't be compared directly to the other
  * readers for invalid inputs, since it fails on the first error.
  */
+@State(Scope.Benchmark)
 class FailingEndpointBenchmark extends FinchBenchmark with FooEndpointsAndRequests {
   @Benchmark
   def hlistGenericEndpoint: Try[Foo] = hlistGenericFooReader(badFooRequest).poll.get

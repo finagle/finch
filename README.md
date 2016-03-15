@@ -69,12 +69,12 @@ Performance
 We use [wrk][wrk] to load test [Finch+Circe][finch-bench] against [Finagle+Jackson][finagle-bench]
 to get some insight on how much overhead, an idiomatic Finch application written in a purely
 functional way, involves on top of Finagle/Jackson. The results are quite impressive (for a pre-1.0
-version): Finch performs on **82% of Finagle's throughput**.
+version): Finch performs on **85% of Finagle's throughput**.
 
 | Benchmark         | Run 1          | Run 2          | Run 3          |
 |-------------------|----------------|----------------|----------------|
-| Finch + Circe     | 29099.13 req/s | 37153.31 req/s | 37197.17 req/s |
-| Finagle + Jackson | 38085.51 req/s | 44921.62 req/s | 45362.89 req/s |
+| Finagle + Jackson | 33867.56 req/s | 43781.26 req/s | 43854.92 req/s |
+| Finch + Circe     | 27126.25 req/s | 36720.75 req/s | 37191.58 req/s |
 
 Finch is also load tested against a number of Scala HTTP frameworks and libraries as par of the
 [TechEmpower benchmark][tempower]. The most recent round showed that Finch performs really well
