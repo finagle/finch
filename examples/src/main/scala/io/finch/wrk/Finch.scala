@@ -18,6 +18,7 @@ import shapeless.Witness
  *   c = t * n * 1.5
  */
 object Finch extends App {
+
   val roundTrip: Endpoint[Payload] = post(body.as[Payload])
 
   serve(roundTrip.toServiceAs[Witness.`"application/json"`.T])

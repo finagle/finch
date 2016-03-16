@@ -137,7 +137,7 @@ limitations under the License.
 [typelevel]: http://typelevel.org/
 [conduct]: http://typelevel.org/conduct.html
 [wrk]: https://github.com/wg/wrk
-[finch-bench]: https://github.com/finagle/finch/blob/master/benchmarks/src/main/scala/io/finch/benchmarks/wrk/Finch.scala
-[finagle-bench]: https://github.com/finagle/finch/blob/master/benchmarks/src/main/scala/io/finch/benchmarks/wrk/Finagle.scala
+[finch-bench]: https://github.com/finagle/finch/blob/master/examples/src/main/scala/io/finch/wrk/Finch.scala
+[finagle-bench]: https://github.com/finagle/finch/blob/master/examples/src/main/scala/io/finch/wrk/Finagle.scala
 [tempower]: https://www.techempower.com/benchmarks/#section=data-r12&hw=peak&test=json&l=6bk
 [finch-is-fast]: http://vkostyukov.net/posts/how-fast-is-finch/
