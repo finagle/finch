@@ -423,7 +423,16 @@ object Endpoint {
    * The resulting reader will fail when type conversion fails.
    */
   implicit class StringEndpointOps(val self: Endpoint[String]) extends AnyVal {
-    def as[A](implicit decoder: Decode[String, A], tag: ClassTag[A]): Endpoint[A] =
+    @deprecated("Use asText or asJson depending on expecting Content-Type", "0.11.0")
+    def as[A](implicit decoder: Decode.TextPlain[String, A], tag: ClassTag[A]): Endpoint[A] = asText
+
+    def asText[A](implicit decoder: Decode.TextPlain[String, A], tag: ClassTag[A]): Endpoint[A] =
+      decode
+
+    def asJson[A](implicit decoder: Decode.ApplicationJson[String, A], tag: ClassTag[A]): Endpoint[A] =
+      decode
+
+    private def decode[A, CT <: String](implicit decoder: Decode.Aux[String, A, CT], tag: ClassTag[A]): Endpoint[A] =
       self.mapAsync(value => Future.const(decoder(value).rescue(notParsed[A](self, tag))))
   }
 
