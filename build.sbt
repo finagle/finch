@@ -218,7 +218,8 @@ lazy val examples = project
       |io\.finch\.todo\..*;
       |io\.finch\.eval\..*;
       |io\.finch\.streaming\..*;
-      |io\.finch\.oauth2\..*
+      |io\.finch\.oauth2\..*;
+      |io\.finch\.wrk\..*;
     """.stripMargin)
   .settings(
     libraryDependencies ++= Seq(
@@ -237,7 +238,7 @@ lazy val benchmarks = project
   .settings(noPublish)
   .settings(libraryDependencies += "io.circe" %% "circe-generic" % circeVersion)
   .settings(
-    coverageExcludedPackages := "io\\.finch\\.benchmarks\\..*;io\\.finch\\.benchmarks\\.wrk\\..*"
+    coverageExcludedPackages := "io\\.finch\\.benchmarks\\..*;"
   )
   .settings(
     javaOptions in run ++= Seq(

@@ -1,4 +1,4 @@
-package io.finch.benchmarks
+package io.finch
 
 import com.twitter.finagle.{Http, Service}
 import com.twitter.finagle.http.{Request, Response}
