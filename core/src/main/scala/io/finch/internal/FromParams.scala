@@ -20,7 +20,7 @@ object FromParams {
   }
 
   implicit def hconsFromParams[HK <: Symbol, HV, T <: HList](implicit
-    dh: Decode[HV],
+    dh: Decode[String, HV],
     ct: ClassTag[HV],
     key: Witness.Aux[HK],
     fpt: FromParams[T]

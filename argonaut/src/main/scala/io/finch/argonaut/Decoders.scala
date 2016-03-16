@@ -13,11 +13,13 @@ trait Decoders {
   /**
    * Maps Argonaut's [[DecodeJson]] to Finch's [[Decode]].
    */
-  implicit def decodeArgonaut[A](implicit d: DecodeJson[A]): Decode[A] = Decode.instance[A] { s =>
-    val err: (String, CursorHistory) => Try[A] = { (str, hist) => Throw[A](Error(str)) }
-    Parser.parseFromString[Json](s)(facade) match {
-      case Success(value) => d.decodeJson(value).fold[Try[A]](err, Return(_))
-      case Failure(error) => Throw[A](Error(error.getMessage))
+  implicit def decodeArgonaut[A](implicit d: DecodeJson[A]): Decode.ApplicationJson[String, A] = {
+    Decode.applicationJson { s =>
+      val err: (String, CursorHistory) => Try[A] = { (str, hist) => Throw[A](Error(str)) }
+      Parser.parseFromString[Json](s)(facade) match {
+        case Success(value) => d.decodeJson(value).fold[Try[A]](err, Return(_))
+        case Failure(error) => Throw[A](Error(error.getMessage))
+      }
     }
   }
 }

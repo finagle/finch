@@ -16,7 +16,7 @@ class EndToEndSpec extends FinchSpec {
     implicit val encodeFoo: Encode.TextPlain[Foo] =
       Encode.textPlain(s => Buf.Utf8(s.s))
 
-    implicit val decodeFoo: Decode[Foo] =
+    implicit val decodeFoo: Decode[String, Foo] =
       Decode.instance(s => Return(Foo(s)))
 
     implicit val encodeException: Encode.TextPlain[Exception] =

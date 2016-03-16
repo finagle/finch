@@ -12,8 +12,8 @@ package object json4s {
    * @param formats json4s `Formats` to use for decoding
    * @tparam A the type of data to decode into
    */
-  implicit def decodeJson[A : Manifest](implicit formats: Formats): Decode[A] =
-    Decode.instance(input => Try(JsonMethods.parse(input).extract[A]))
+  implicit def decodeJson[A : Manifest](implicit formats: Formats): Decode.ApplicationJson[String, A] =
+    Decode.applicationJson(input => Try(JsonMethods.parse(input).extract[A]))
 
   /**
    * @param formats json4s `Formats` to use for decoding

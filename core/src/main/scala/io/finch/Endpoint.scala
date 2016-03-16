@@ -423,7 +423,7 @@ object Endpoint {
    * The resulting reader will fail when type conversion fails.
    */
   implicit class StringEndpointOps(val self: Endpoint[String]) extends AnyVal {
-    def as[A](implicit decoder: Decode[A], tag: ClassTag[A]): Endpoint[A] =
+    def as[A](implicit decoder: Decode[String, A], tag: ClassTag[A]): Endpoint[A] =
       self.mapAsync(value => Future.const(decoder(value).rescue(notParsed[A](self, tag))))
   }
 
@@ -468,7 +468,7 @@ object Endpoint {
      * this class can safely extends AnyVal.
      */
 
-    def as[A](implicit decoder: Decode[A], tag: ClassTag[A]): Endpoint[Seq[A]] =
+    def as[A](implicit decoder: Decode[String, A], tag: ClassTag[A]): Endpoint[Seq[A]] =
       self.mapAsync { items =>
         val decoded = items.map(decoder.apply)
         val errors = decoded.collect {
@@ -488,7 +488,7 @@ object Endpoint {
    * will succeed if the result is empty or type conversion succeeds.
    */
   implicit class StringOptionEndpointOps(val self: Endpoint[Option[String]]) extends AnyVal {
-    def as[A](implicit decoder: Decode[A], tag: ClassTag[A]): Endpoint[Option[A]] =
+    def as[A](implicit decoder: Decode[String, A], tag: ClassTag[A]): Endpoint[Option[A]] =
       self.mapAsync {
         case Some(value) =>
           Future.const(decoder(value).rescue(notParsed[A](self, tag)).map(Some.apply))

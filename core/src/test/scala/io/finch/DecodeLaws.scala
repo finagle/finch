@@ -10,7 +10,7 @@ import org.typelevel.discipline.Laws
 
 trait DecodeLaws[A] extends Laws with MissingInstances with AllInstances {
 
-  def decode: Decode[A]
+  def decode: Decode[String, A]
 
   def roundTrip(a: A): IsEq[Try[A]] =
     decode(a.toString) <-> Return(a)
@@ -23,7 +23,7 @@ trait DecodeLaws[A] extends Laws with MissingInstances with AllInstances {
 }
 
 object DecodeLaws {
-  def apply[A: Decode]: DecodeLaws[A] = new DecodeLaws[A] {
-    val decode: Decode[A] = Decode[A]
+  def apply[A](implicit d: Decode[String, A]): DecodeLaws[A] = new DecodeLaws[A] {
+    val decode: Decode[String, A] = d
   }
 }

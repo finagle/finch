@@ -10,7 +10,7 @@ trait Decoders {
   /**
    * Maps a Circe's [[Decoder]] to Finch's [[Decode]].
    */
-  implicit def decodeCirce[A](implicit d: Decoder[A]): Decode[A] = Decode.instance(s =>
+  implicit def decodeCirce[A](implicit d: Decoder[A]): Decode.ApplicationJson[String, A] = Decode.applicationJson(s =>
     decode[A](s).fold[Try[A]](
       error => Throw[A](Error(error.getMessage)),
       value => Return(value)

@@ -10,8 +10,8 @@ package object playjson {
    * @param reads Play JSON `Reads` to use for decoding
    * @tparam A the type of the data to decode into
    */
-  implicit def decodePlayJson[A](implicit reads: Reads[A]): Decode[A] =
-    Decode.instance(input => Try(Json.parse(input).as[A]))
+  implicit def decodePlayJson[A](implicit reads: Reads[A]): Decode.ApplicationJson[String, A] =
+    Decode.applicationJson(input => Try(Json.parse(input).as[A]))
 
   /**
    * @param writes Play JSON `Writes` to use for encoding
