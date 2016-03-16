@@ -12,6 +12,7 @@ lazy val finagleVersion = "6.34.0"
 lazy val circeVersion = "0.3.0"
 lazy val shapelessVersion = "2.3.0"
 lazy val catsVersion = "0.4.1"
+lazy val sprayVersion = "1.3.2"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -128,9 +129,10 @@ lazy val finch = project.in(file("."))
       """.stripMargin
   )
   .settings(libraryDependencies ++= Seq(
-    "io.circe" %% "circe-generic" % circeVersion
+    "io.circe" %% "circe-generic" % circeVersion,
+    "io.spray" %%  "spray-json" % sprayVersion
   ))
-  .aggregate(core, argonaut, jackson, json4s, circe, playjson, benchmarks, test, jsonTest, oauth2, examples)
+  .aggregate(core, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest, oauth2, examples)
   .dependsOn(core, circe)
 
 lazy val core = project
@@ -196,6 +198,12 @@ lazy val playjson = project
   .settings(moduleName :="finch-playjson")
   .settings(allSettings)
   .settings(libraryDependencies += "com.typesafe.play" %% "play-json" % "2.3.9")
+  .dependsOn(core, jsonTest % "test")
+
+lazy val sprayjson = project
+  .settings(moduleName := "finch-sprayjson")
+  .settings(allSettings)
+  .settings(libraryDependencies += "io.spray" %%  "spray-json" % sprayVersion)
   .dependsOn(core, jsonTest % "test")
 
 lazy val oauth2 = project

@@ -7,6 +7,7 @@ import com.twitter.util.Return
 import io.finch.{Decode, Encode}
 import org.scalacheck.Arbitrary
 import org.scalacheck.Arbitrary.arbitrary
+import org.scalacheck.Gen
 import org.scalacheck.Prop.BooleanOperators
 import org.scalatest.prop.Checkers
 import org.scalatest.Matchers
@@ -23,7 +24,7 @@ case class ExampleNestedCaseClass(
 object ExampleCaseClass {
   implicit val exampleCaseClassArbitrary: Arbitrary[ExampleCaseClass] = Arbitrary(
     for {
-      a <- arbitrary[String]
+      a <- Gen.alphaStr
       b <- arbitrary[Int]
       c <- arbitrary[Boolean]
     } yield ExampleCaseClass(a, b, c)
@@ -33,7 +34,7 @@ object ExampleCaseClass {
 object ExampleNestedCaseClass {
   implicit val exampleNestedCaseClassArbitrary: Arbitrary[ExampleNestedCaseClass] = Arbitrary(
     for {
-      s <- arbitrary[String]
+      s <- Gen.alphaStr
       d <- arbitrary[Double]
       l <- arbitrary[Long]
       i <- arbitrary[List[Int]]

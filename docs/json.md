@@ -116,12 +116,32 @@ object Foo {
 }
 ```
 
+### Spray-Json
+
+* Bring the dependency to the `finch-sprayjson` module.
+* Create an implicit format convertor value for any type you denfined.
+
+```scala
+import io.finch.sprayjson._
+import spray.json._
+import Defaultjsonprotocol._
+
+case class Foo(name: String, age: Int)
+
+object Foo {
+  //Note: `2` means Foo has two members;
+  //       No need for apply if there is no companion object
+  implicit val fooformat = jsonFormat2(Foo.apply)
+}
+``
+
 [argonaut]: http://argonaut.io
 [jackson]: http://wiki.fasterxml.com/JacksonHome
 [json4s]: http://json4s.org/
 [circe]: https://github.com/travisbrown/circe
 [circe-jackson]: https://github.com/travisbrown/circe/pull/111
 [playjson]: https://www.playframework.com/documentation/2.4.x/ScalaJson
+[spray-json]: https://github.com/spray/spray-json
 
 --
 Read Next: [Cookbook](cookbook.md)
