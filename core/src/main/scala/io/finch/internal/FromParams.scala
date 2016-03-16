@@ -20,13 +20,13 @@ object FromParams {
   }
 
   implicit def hconsFromParams[HK <: Symbol, HV, T <: HList](implicit
-    dh: Decode[String, HV],
+    dh: Decode.TextPlain[String, HV],
     ct: ClassTag[HV],
     key: Witness.Aux[HK],
     fpt: FromParams[T]
   ): FromParams[FieldType[HK, HV] :: T] = new FromParams[FieldType[HK, HV] :: T] {
     def endpoint: Endpoint[FieldType[HK, HV] :: T] =
-      param(key.value.name).as(dh, ct).map(field[HK](_)) :: fpt.endpoint
+      param(key.value.name).asText(dh, ct).map(field[HK](_)) :: fpt.endpoint
   }
 }
 
