@@ -214,7 +214,7 @@ instances (evaluating endpoints that also only match non-chunked requests).
 
 - `fileUpload("foo")` - required, non-chunked (only matches non-chunked requests) file upload with
   name "foo"
-- `fileUploadOption("foo"` - optional, non-chunked (only matches non-chunked requests) file upload
+- `fileUploadOption("foo")` - optional, non-chunked (only matches non-chunked requests) file upload
   with name "foo"
 
 #### Cookies
@@ -222,7 +222,7 @@ instances (evaluating endpoints that also only match non-chunked requests).
 There are also two instances (evaluating endpoints) for reading cookies from HTTP requests/headers.
 
 - `cookie("foo")` - required cookie with name "foo"
-- `cookieOption("foo)` - optional cookie with name "foo"
+- `cookieOption("foo")` - optional cookie with name "foo"
 
 ### Composing Endpoints
 
