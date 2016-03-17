@@ -9,19 +9,19 @@ class OutputSpec extends FinchSpec {
   behavior of "Output"
 
   it should "propagate status to response" in {
-    check { o: Output[String] => o.toResponse().status == o.status }
+    check { o: Output[String] => o.toResponse[Witness.`"text/plain"`.T]().status == o.status }
   }
 
   it should "propagate headers to response" in {
     check { (o: Output[String], headers: Headers) =>
-      val rep = headers.m.foldLeft(o)((acc, h) => acc.withHeader(h._1 -> h._2)).toResponse()
+      val rep = headers.m.foldLeft(o)((acc, h) => acc.withHeader(h._1 -> h._2)).toResponse[Witness.`"text/plain"`.T]()
       headers.m.forall(h => rep.headerMap(h._1) === h._2)
     }
   }
 
   it should "propagate cookies to response" in {
     check { (o: Output[String], cookies: Cookies) =>
-      val rep = cookies.c.foldLeft(o)((acc, c) => acc.withCookie(c)).toResponse()
+      val rep = cookies.c.foldLeft(o)((acc, c) => acc.withCookie(c)).toResponse[Witness.`"text/plain"`.T]()
       cookies.c.forall(c => rep.cookies(c.name) === c)
     }
   }
@@ -72,7 +72,7 @@ class OutputSpec extends FinchSpec {
 
   it should "propagate payload to response" in {
     check { op: Output.Payload[String] =>
-      Some(op.toResponse().contentString) ===
+      Some(op.toResponse[Witness.`"text/plain"`.T]().contentString) ===
         Buf.Utf8.unapply(Encode.encodeString(op.value))
     }
   }
