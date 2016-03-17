@@ -12,5 +12,5 @@ trait Encoders {
    * Maps Circe's [[Encoder]] to Finch's [[Encode]].
    */
   implicit def encodeCirce[A](implicit e: Encoder[A]): Encode.ApplicationJson[A] =
-    Encode.applicationJson(a => Buf.Utf8(print(e(a))))
+    Encode.json(a => Buf.Utf8(print(e(a))))
 }

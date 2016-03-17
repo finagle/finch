@@ -14,10 +14,6 @@ package object finch extends Endpoints with Outputs with ValidationRules {
   @deprecated("Use io.finch.Encode instead", "0.11")
   type EncodeResponse[A] = Encode[A]
 
-  type JSON = Witness.`"application/json"`.T
-  type Text = Witness.`"text/plain"`.T
-  type HTML = Witness.`"text/html"`.T
-
   object items {
     sealed abstract class RequestItem(val kind: String, val nameOption:Option[String] = None) {
       val description = kind + nameOption.fold("")(" '" + _ + "'")
@@ -27,5 +23,21 @@ package object finch extends Endpoints with Outputs with ValidationRules {
     final case class CookieItem(name: String) extends RequestItem("cookie", Some(name))
     case object BodyItem extends RequestItem("body")
     case object MultipleItems extends RequestItem("request")
+  }
+
+  object Application {
+    type Json = Witness.`"application/json"`.T
+    type Xml = Witness.`"application/xml"`.T
+    type AtomXml = Witness.`"application/atom+xml"`.T
+    type Csv = Witness.`"application/csv"`.T
+    type Javascript = Witness.`"application/javascript"`.T
+    type OctetStream = Witness.`"application/octet-stream"`.T
+    type RssXml = Witness.`"application/rss+xml"`.T
+    type WwwFormUrlencoded = Witness.`"application/x-www-form-urlencoded"`.T
+  }
+
+  object Text {
+    type Plain = Witness.`"text/plain"`.T
+    type Html = Witness.`"text/html"`.T
   }
 }

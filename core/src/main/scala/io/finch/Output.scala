@@ -167,18 +167,10 @@ object Output {
      * Converts this [[Output]] to the HTTP response of the given `version`.
      */
     def toResponse[CT <: String](version: Version = Version.Http11)(implicit
-      payloadToResponse: ToResponse.Aux[A, CT],
-      failureToResponse: ToResponse.Aux[Exception, CT]
+      tro: ToResponse.Aux[Output[A], CT]
     ): Response = {
-      val rep = o match {
-        case Output.Payload(v, _) => payloadToResponse(v)
-        case Output.Failure(x, _) => failureToResponse(x)
-        case Output.Empty(_) => Response()
-      }
+      val rep = tro(o)
       rep.version = version
-      rep.status = o.status
-      o.headers.foreach { case (k, v) => rep.headerMap.set(k, v) }
-      o.cookies.foreach(rep.cookies.add)
 
       rep
     }

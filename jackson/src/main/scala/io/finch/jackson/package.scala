@@ -15,5 +15,5 @@ package object jackson {
   )
 
   implicit def encodeJackson[A](implicit mapper: ObjectMapper): Encode.ApplicationJson[A] =
-    Encode.applicationJson(a => Buf.Utf8(mapper.writeValueAsString(a)))
+    Encode.json(a => Buf.Utf8(mapper.writeValueAsString(a)))
 }
