@@ -3,11 +3,13 @@ package io.finch.streaming
 import java.util.concurrent.atomic.AtomicLong
 
 import com.twitter.concurrent.AsyncStream
-import com.twitter.finagle.Http
+import com.twitter.finagle.{Http, Service}
+import com.twitter.finagle.http.{Request, Response, Status}
 import com.twitter.io.Buf
-import com.twitter.util.{Await, Try}
+import com.twitter.util.{Await, Future, Try}
+import io.circe.generic.auto._
 import io.finch._
-import shapeless.Witness
+import io.finch.circe._
 
 /**
  * A simple Finch application featuring very basic, `Buf`-based streaming support.
@@ -53,6 +55,10 @@ object Main extends App {
     Ok(loop(1, 0).map(i => Buf.Utf8(i.toString)))
   }
 
+  val exampleGenerator: Endpoint[AsyncStream[Example]] = get("examples" :: int) { num: Int =>
+    Ok(AsyncStream.fromSeq(List.tabulate(num)(i => Example(i))))
+  }
+
   // This endpoint takes a streaming request (a stream of numbers) and responds
   // to each number (chunk) a sum that has been collected so far.
   //
@@ -64,8 +70,22 @@ object Main extends App {
       ))
     }
 
+  val textPlainService = (sumSoFar :+: sumTo :+: totalSum).toServiceAs[Text]
+  val jsonService = exampleGenerator.toService
+
+  val service = new Service[Request, Response] {
+    override def apply(request: Request): Future[Response] = {
+      textPlainService(request).flatMap {
+        case response if response.status == Status.NotFound => jsonService(request)
+        case response => Future value response
+      }
+    }
+  }
+
   Await.result(Http.server
     .withStreaming(enabled = true)
-    .serve(":8081", (sumSoFar :+: sumTo :+: totalSum).toServiceAs[Witness.`"text/plain"`.T])
+    .serve(":8081", service)
   )
 }
+
+case class Example(x: Int)

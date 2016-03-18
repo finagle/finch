@@ -3,7 +3,7 @@ package io.finch.internal
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.Response
 import com.twitter.io.Buf
-import io.finch.Encode
+import io.finch.{Encode, JSON}
 import shapeless._
 
 /**
@@ -44,13 +44,27 @@ trait LowPriorityToResponseInstances {
 
 object ToResponse extends LowPriorityToResponseInstances {
 
+  private val newLineDelimeter = Buf.Utf8("\n")
+
   implicit def asyncBufToResponse[CT <: String](implicit
     w: Witness.Aux[CT]
-  ): Aux[AsyncStream[Buf], CT] = instance { a =>
+  ): Aux[AsyncStream[Buf], CT] = asyncStreamResponseBuilder(identity)
+
+  implicit def asyncStreamToResponse[A](implicit
+    e: Encode.ApplicationJson[A]
+  ): Aux[AsyncStream[A], JSON] = {
+    asyncStreamResponseBuilder[A, JSON](data => e(data).concat(newLineDelimeter))
+  }
+
+  private def asyncStreamResponseBuilder[A, CT <: String](writer: A => Buf)(implicit
+    w: Witness.Aux[CT]
+  ): Aux[AsyncStream[A], CT] = instance { a =>
     val rep = Response()
+    rep.setChunked(true)
+
     val writable = rep.writer
 
-    a.foreachF(writable.write).ensure(writable.close())
+    a.foreachF(data => writable.write(writer(data))).ensure(writable.close())
     rep.contentType = w.value
 
     rep
