@@ -179,7 +179,7 @@ class EndpointSpec extends FinchSpec {
 
     check { (s: String, i: Int) => (s: Endpoint0).map(_ => i).toString === s }
     check { (s: String, t: String) => ((s: Endpoint0) | (t: Endpoint0)).toString === s"($s|$t)" }
-    check { (s: String, t: String) => ((s: Endpoint0) :: (t: Endpoint0)).toString === s"$s/$t" }
+    check { (s: String, t: String) => ((s: Endpoint0) :: (t: Endpoint0)).toString === s"$s :: $t" }
     check { s: String => (s: Endpoint0).product[String](*.map(_ => "foo")).toString === s }
     check { (s: String, t: String) => (s: Endpoint0).mapAsync(_ => Future.value(t)).toString === s }
 
@@ -197,7 +197,7 @@ class EndpointSpec extends FinchSpec {
     uuids.toString shouldBe ":uuid*"
     booleans.toString shouldBe ":boolean*"
 
-    (int :: string).toString shouldBe ":int/:string"
+    (int :: string).toString shouldBe ":int :: :string"
     (boolean :+: long).toString shouldBe "(:boolean|:long)"
   }
 

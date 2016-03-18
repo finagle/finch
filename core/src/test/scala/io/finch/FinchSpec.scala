@@ -3,13 +3,13 @@ package io.finch
 import java.util.UUID
 
 import algebra.Eq
+import cats.data.StateT
 import cats.{ Alternative, Eval }
 import cats.laws.discipline.eq._
 import cats.std.AllInstances
 import com.twitter.finagle.http._
 import com.twitter.io.Buf
 import com.twitter.util.{Await, Future, Try}
-import io.finch.Endpoint.Result
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.prop.Checkers
 import org.scalatest.{Matchers, FlatSpec}
@@ -138,8 +138,9 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
       A.arbitrary.map(a => Alternative[Endpoint].pure(a)),
       Arbitrary.arbitrary[Throwable].map { error =>
         new Endpoint[A] {
-          override def apply(input: Input): Result[A] =
+          override val embed: Endpoint.State[A] = StateT(input =>
             Some(input -> Eval.now(Future.exception(error)))
+          )
         }
       },
       /**
@@ -149,8 +150,9 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
        */
       Arbitrary.arbitrary[Input => A].map { f =>
         new Endpoint[A] {
-          override def apply(input: Input): Result[A] =
+          override val embed: Endpoint.State[A] = StateT(input =>
             Some(input -> Eval.now(Future.value(Ok(f(input)))))
+          )
         }
       }
     )

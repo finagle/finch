@@ -1,7 +1,7 @@
 package io.finch.internal
 
 import com.twitter.concurrent.AsyncStream
-import com.twitter.finagle.http.Response
+import com.twitter.finagle.http.{Response, Status, Version}
 import com.twitter.io.Buf
 import io.finch.{Encode, JSON}
 import shapeless._
@@ -71,7 +71,7 @@ object ToResponse extends LowPriorityToResponseInstances {
   }
 
   implicit def cnilToResponse[CT <: String]: Aux[CNil, CT] =
-    instance(_ => sys.error("impossible"))
+    instance(_ => Response(Version.Http11, Status.NotFound))
 
   implicit def coproductToResponse[H, T <: Coproduct, CT <: String](implicit
     trH: ToResponse.Aux[H, CT],
