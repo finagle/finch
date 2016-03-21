@@ -133,7 +133,7 @@ object Foo {
   //       No need for apply if there is no companion object
   implicit val fooformat = jsonFormat2(Foo.apply)
 }
-``
+```
 
 [argonaut]: http://argonaut.io
 [jackson]: http://wiki.fasterxml.com/JacksonHome
