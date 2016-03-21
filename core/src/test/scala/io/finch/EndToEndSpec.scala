@@ -14,13 +14,13 @@ class EndToEndSpec extends FinchSpec {
     case class Foo(s: String)
 
     implicit val encodeFoo: Encode.TextPlain[Foo] =
-      Encode.textPlain(s => Buf.Utf8(s.s))
+      Encode.text(s => Buf.Utf8(s.s))
 
     implicit val decodeFoo: Decode[Foo] =
       Decode.instance(s => Return(Foo(s)))
 
     implicit val encodeException: Encode.TextPlain[Exception] =
-      Encode.textPlain(_ => Buf.Utf8("ERR!"))
+      Encode.text(_ => Buf.Utf8("ERR!"))
 
     val service: Service[Request, Response] = (
       get("foo" :: string) { s: String => Ok(Foo(s)) } :+:

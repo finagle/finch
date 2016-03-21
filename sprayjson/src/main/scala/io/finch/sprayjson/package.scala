@@ -19,5 +19,5 @@ package object sprayjson{
     * @tparam A the type of the data to decode from
     */
   implicit def encodeSpray[A](implicit format: JsonFormat[A]): Encode.ApplicationJson[A] =
-    Encode.applicationJson(a => Buf.Utf8(a.toJson.prettyPrint))
+    Encode.json(a => Buf.Utf8(a.toJson.prettyPrint))
 }

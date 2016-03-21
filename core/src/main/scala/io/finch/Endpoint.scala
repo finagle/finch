@@ -4,9 +4,9 @@ import scala.reflect.ClassTag
 
 import cats.{Alternative, Eval}
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Cookie, Request, Response}
+import com.twitter.finagle.http.{Cookie, Request, Response, Status}
 import com.twitter.util.{Future, Return, Throw, Try}
-import io.finch.internal.{FromParams, Mapper, PairAdjoin, ToService}
+import io.finch.internal._
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.hlist.Tupler
@@ -58,14 +58,15 @@ import shapeless.ops.hlist.Tupler
  */
 trait Endpoint[A] { self =>
 
-  type ContentType <: String
-
+  /**
+   * Request item (part) that's this endpoint work with.
+   */
   def item: items.RequestItem = items.MultipleItems
 
   /**
    * Maps this endpoint to either `A => Output[B]` or `A => Output[Future[B]]`.
    */
-  def apply(mapper: Mapper[A]): Endpoint[mapper.Out] = mapper(self)
+  final def apply(mapper: Mapper[A]): Endpoint[mapper.Out] = mapper(self)
 
   // There is a reason why `apply` can't be renamed to `run` as per
   //   https://github.com/finagle/finch/issues/371.
@@ -127,7 +128,19 @@ trait Endpoint[A] { self =>
   }
 
   /**
-   * Transforms this endpoint to the given function `Future[Output[A]] => Future[Output[B]]`
+   * Transforms this endpoint to the given function `Future[Output[A]] => Future[Output[B]]`.
+   *
+   *
+   * Might be useful to perform some extra action on the underlying `Future`. For example, time
+   * the latency of the given endpoint.
+   *
+   * {{{
+   *   import io.finch._
+   *   import com.twitter.finagle.stats._
+   *
+   *   def time[A](stat: Stat, e: Endpoint[A]): Endpoint[A] =
+   *     e.transform(f => Stat.timeFuture(s)(f))
+   * }}}
    */
   final def transform[B](fn: Future[Output[A]] => Future[Output[B]]): Endpoint[B] = new Endpoint[B] {
     override def apply(input: Input): Endpoint.Result[B] = {
@@ -152,7 +165,7 @@ trait Endpoint[A] { self =>
     private[this] def collectExceptions(a: Throwable, b: Throwable): Error.RequestErrors = {
       def collect(e: Throwable): Seq[Throwable] = e match {
         case Error.RequestErrors(errors) => errors
-        case other => Seq(other)
+        case rest => Seq(rest)
       }
 
       Error.RequestErrors(collect(a) ++ collect(b))
@@ -179,85 +192,100 @@ trait Endpoint[A] { self =>
   }
 
   /**
-   * Composes this endpoint with the given `that` endpoint. The resulting endpoint will succeed only
-   * if both this and `that` endpoints succeed.
+   * Composes this endpoint with the given `other` endpoint. The resulting endpoint will succeed
+   * only if both this and `that` endpoints succeed.
    */
-  final def adjoin[B](that: Endpoint[B])(implicit pa: PairAdjoin[A, B]): Endpoint[pa.Out] =
-    new Endpoint[pa.Out] {
-      val inner = self.product(that).map {
-        case (a, b) => pa(a, b)
-      }
-      def apply(input: Input): Endpoint.Result[pa.Out] = inner(input)
-
-      override def item = items.MultipleItems
-      override def toString = s"${self.toString}/${that.toString}"
+  final def adjoin[B](other: Endpoint[B])(implicit
+    pairAdjoin: PairAdjoin[A, B]
+  ): Endpoint[pairAdjoin.Out] = new Endpoint[pairAdjoin.Out] {
+    val inner = self.product(other).map {
+      case (a, b) => pairAdjoin(a, b)
     }
+    def apply(input: Input): Endpoint.Result[pairAdjoin.Out] = inner(input)
+
+    override def item = items.MultipleItems
+    override def toString = s"${self.toString}/${other.toString}"
+  }
 
   /**
    * Composes this endpoint with the given [[Endpoint]].
    */
   @deprecated("Use :: instead", "0.11")
-  final def ?[B](that: Endpoint[B])(implicit pa: PairAdjoin[A, B]): Endpoint[pa.Out] =
-    self.adjoin(that)
+  final def ?[B](other: Endpoint[B])(implicit adjoin: PairAdjoin[A, B]): Endpoint[adjoin.Out] =
+    self.adjoin(other)
 
   /**
    * Composes this endpoint with the given [[Endpoint]].
    */
   @deprecated("Use :: instead", "0.11")
-  final def /[B](that: Endpoint[B])(implicit pa: PairAdjoin[A, B]): Endpoint[pa.Out] =
-    self.adjoin(that)
+  final def /[B](other: Endpoint[B])(implicit adjoin: PairAdjoin[A, B]): Endpoint[adjoin.Out] =
+    self.adjoin(other)
 
   /**
    * Composes this endpoint with the given [[Endpoint]].
    */
-  final def ::[B](that: Endpoint[B])(implicit pa: PairAdjoin[B, A]): Endpoint[pa.Out] =
-    that.adjoin(self)
+  final def ::[B](other: Endpoint[B])(implicit adjoin: PairAdjoin[B, A]): Endpoint[adjoin.Out] =
+    other.adjoin(self)
 
   /**
-   * Sequentially composes this endpoint with the given `that` endpoint. The resulting endpoint will
-   * succeed if either this or `that` endpoints are succeed.
+   * Sequentially composes this endpoint with the given `other` endpoint. The resulting endpoint
+   * will succeed if either this or `that` endpoints are succeed.
    */
-  final def |[B >: A](that: Endpoint[B]): Endpoint[B] = new Endpoint[B] {
+  final def |[B >: A](other: Endpoint[B]): Endpoint[B] = new Endpoint[B] {
     private[this] def aToB(o: Endpoint.Result[A]): Endpoint.Result[B] =
       o.map { case (r, oo) => (r, oo.map(_.asInstanceOf[Future[Output[B]]])) }
 
     def apply(input: Input): Endpoint.Result[B] =
-      (self(input), that(input)) match {
+      (self(input), other(input)) match {
         case (aa @ Some((a, _)), bb @ Some((b, _))) =>
           if (a.path.length <= b.path.length) aToB(aa) else bb
         case (a, b) => aToB(a).orElse(b)
       }
 
     override def item = items.MultipleItems
-    override def toString = s"(${self.toString}|${that.toString})"
+    override def toString = s"(${self.toString}|${other.toString})"
   }
-
-  // A workaround for https://issues.scala-lang.org/browse/SI-1336
-  def withFilter(p: A => Boolean): Endpoint[A] = self
 
   /**
    * Composes this endpoint with another in such a way that coproducts are flattened.
    */
-  final def :+:[B](that: Endpoint[B])(implicit adjoin: Adjoin[B :+: A :+: CNil]): Endpoint[adjoin.Out] =
-    that.map(b => adjoin(Inl[B, A :+: CNil](b))) |
-    self.map(a => adjoin(Inr[B, A :+: CNil](Inl[A, CNil](a))))
+  final def :+:[B](that: Endpoint[B])(implicit a: Adjoin[B :+: A :+: CNil]): Endpoint[a.Out] =
+    that.map(x => a(Inl[B, A :+: CNil](x))) |
+    self.map(x => a(Inr[B, A :+: CNil](Inl[A, CNil](x))))
 
-  def withHeader(header: (String, String)): Endpoint[A] =
+  final def withHeader(header: (String, String)): Endpoint[A] =
     withOutput(o => o.withHeader(header))
-  def withCookie(cookie: Cookie): Endpoint[A] =
+
+  final def withCookie(cookie: Cookie): Endpoint[A] =
     withOutput(o => o.withCookie(cookie))
 
   /**
-   * Converts this endpoint to a Finagle service `Request => Future[Response]`.
+   * Converts this endpoint to a Finagle service `Request => Future[Response]` that serves JSON.
    */
-  final def toService(implicit ts: ToService.Aux[A, Witness.`"application/json"`.T]): Service[Request, Response] =
-    ts(this)
+  final def toService(implicit
+    tro: ToResponse.Aux[Output[A], Witness.`"application/json"`.T]
+  ): Service[Request, Response] = toServiceAs[Witness.`"application/json"`.T]
 
   /**
-   * Converts this endpoint to a Finagle service `Request => Future[Response]`.
+   * Converts this endpoint to a Finagle service `Request => Future[Response]` that serves custom
+   * content-type `CT`.
    */
-  final def toServiceAs[CT <: String](implicit ts: ToService.Aux[A, CT]): Service[Request, Response] =
-    ts(this)
+  final def toServiceAs[CT <: String](implicit
+    tro: ToResponse.Aux[Output[A], CT]
+  ): Service[Request, Response] = new Service[Request, Response] {
+
+    private[this] val basicEndpointHandler: PartialFunction[Throwable, Output[Nothing]] = {
+      case e: io.finch.Error => Output.failure(e, Status.BadRequest)
+    }
+
+    private[this] val safeEndpoint = self.handle(basicEndpointHandler)
+
+    def apply(req: Request): Future[Response] = safeEndpoint(Input(req)) match {
+      case Some((remainder, output)) if remainder.isEmpty =>
+        output.map(f => f.map(o => o.toResponse[CT](req.version))).value
+      case _ => Future.value(Response(req.version, Status.NotFound))
+    }
+  }
 
   /**
    * Recovers from any exception occurred in this endpoint by creating a new endpoint that will

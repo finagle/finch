@@ -29,7 +29,7 @@ object Main extends App {
 
   implicit val objectMapper: ObjectMapper = new ObjectMapper().registerModule(DefaultScalaModule)
 
-  implicit val ee: Encode.ApplicationJson[Exception] = Encode.applicationJson(e =>
+  implicit val ee: Encode.ApplicationJson[Exception] = Encode.json(e =>
     Buf.Utf8(objectMapper.writeValueAsString(Map("error" -> e.getMessage)))
   )
 

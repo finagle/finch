@@ -12,5 +12,5 @@ trait Encoders {
    * Maps Argonaut's [[EncodeJson]] to Finch's [[Encode]].
    */
   implicit def encodeArgonaut[A](implicit e: EncodeJson[A]): Encode.ApplicationJson[A] =
-    Encode.applicationJson(a => Buf.Utf8(printer.pretty(e.encode(a))))
+    Encode.json(a => Buf.Utf8(printer.pretty(e.encode(a))))
 }

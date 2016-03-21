@@ -2,6 +2,7 @@ package io.finch.streaming
 
 import java.util.concurrent.atomic.AtomicLong
 
+import cats.std.long._
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.{Http, Service}
 import com.twitter.finagle.http.{Request, Response, Status}
@@ -12,21 +13,24 @@ import io.finch._
 import io.finch.circe._
 
 /**
- * A simple Finch application featuring very basic, `Buf`-based streaming support.
- *
- * There are three endpoints in this example:
- *
- *  1. `totalSum` - streaming request
- *  2. `sumTo` - streaming response
- *  3. `sumSoFar` - end-to-end (request - response) streaming
- *
- * Use the following sbt command to run the application.
- *
- * {{{
- *   $ sbt 'examples/runMain io.finch.streaming.Main'
- * }}}
- */
+* A simple Finch application featuring very basic, `Buf`-based streaming support.
+*
+* There are three endpoints in this example:
+*
+*  1. `totalSum` - streaming request
+*  2. `sumTo` - streaming response
+*  3. `sumSoFar` - end-to-end (request - response) streaming
+*
+* Use the following sbt command to run the application.
+*
+* {{{
+*   $ sbt 'examples/runMain io.finch.streaming.Main'
+* }}}
+*/
 object Main extends App {
+
+  // An examples domain type.
+  case class Example(x: Int)
 
   val sum: AtomicLong = new AtomicLong(0)
 
@@ -38,8 +42,8 @@ object Main extends App {
   // returns a simple response with a total sum.
   //
   // For example, if input stream is `1, 2, 3` then output response would be `6`.
-  val totalSum: Endpoint[String] = post("totalSum" :: asyncBody) { as: AsyncStream[Buf] =>
-    as.foldLeft(0L)((acc, b) => acc + bufToLong(b)).map(s => Ok(s.toString))
+  val totalSum: Endpoint[Long] = post("totalSum" :: asyncBody) { as: AsyncStream[Buf] =>
+    Ok(as.foldLeft(0L)((acc, b) => acc + bufToLong(b)))
   }
 
   // This endpoint takes a simple request with an integer number N and returns a
@@ -47,12 +51,12 @@ object Main extends App {
   //
   // For example, if an input value is `3` then output stream would be
   // `1 (1), 3 (1 + 2), 5 (1 + 2 + 3)`.
-  val sumTo: Endpoint[AsyncStream[Buf]] = post("sumTo" :: int) { to: Int =>
-    def loop(n: Int, s: Int): AsyncStream[Int] =
-      if (n > to) AsyncStream.empty[Int]
+  val sumTo: Endpoint[AsyncStream[Long]] = post("sumTo" :: long) { to: Long =>
+    def loop(n: Long, s: Long): AsyncStream[Long] =
+      if (n > to) AsyncStream.empty[Long]
       else (n + s) +:: loop(n + 1, n + s)
 
-    Ok(loop(1, 0).map(i => Buf.Utf8(i.toString)))
+    Ok(loop(1, 0))
   }
 
   val exampleGenerator: Endpoint[AsyncStream[Example]] = get("examples" :: int) { num: Int =>
@@ -63,16 +67,15 @@ object Main extends App {
   // to each number (chunk) a sum that has been collected so far.
   //
   // For example, if input stream is `1, 2, 3` then output stream would be `1, 3, 6`.
-  val sumSoFar: Endpoint[AsyncStream[Buf]] =
+  val sumSoFar: Endpoint[AsyncStream[Long]] =
     post("sumSoFar" :: asyncBody) { as: AsyncStream[Buf] =>
-      Ok(as.map(b =>
-        Buf.Utf8(sum.addAndGet(bufToLong(b)).toString)
-      ))
+      Ok(as.map(b => sum.addAndGet(bufToLong(b))))
     }
 
-  val textPlainService = (sumSoFar :+: sumTo :+: totalSum).toServiceAs[Text]
+  val textPlainService = (sumSoFar :+: sumTo :+: totalSum).toServiceAs[Text.Plain]
   val jsonService = exampleGenerator.toService
 
+  // TOOD: Fix this once we support multiple content-types
   val service = new Service[Request, Response] {
     override def apply(request: Request): Future[Response] = {
       textPlainService(request).flatMap {
@@ -87,5 +90,3 @@ object Main extends App {
     .serve(":8081", service)
   )
 }
-
-case class Example(x: Int)
