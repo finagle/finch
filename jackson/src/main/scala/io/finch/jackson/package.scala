@@ -10,7 +10,7 @@ package object jackson {
 
   implicit def decodeJackson[A](implicit
     mapper: ObjectMapper, ct: ClassTag[A]
-  ): Decode[A] = Decode.instance(s =>
+  ): Decode.ApplicationJson[String, A] = Decode.applicationJson(s =>
     Try(mapper.readValue(s, ct.runtimeClass.asInstanceOf[Class[A]]))
   )
 

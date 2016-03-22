@@ -451,7 +451,16 @@ object Endpoint {
    * The resulting reader will fail when type conversion fails.
    */
   implicit class StringEndpointOps(val self: Endpoint[String]) extends AnyVal {
-    def as[A](implicit decoder: Decode[A], tag: ClassTag[A]): Endpoint[A] =
+    @deprecated("Use asText or asJson depending on expected Content-Type", "0.11.0")
+    def as[A](implicit decoder: Decode.TextPlain[String, A], tag: ClassTag[A]): Endpoint[A] = asText
+
+    def asText[A](implicit decoder: Decode.TextPlain[String, A], tag: ClassTag[A]): Endpoint[A] =
+      decode
+
+    def asJson[A](implicit decoder: Decode.ApplicationJson[String, A], tag: ClassTag[A]): Endpoint[A] =
+      decode
+
+    private def decode[A, CT <: String](implicit decoder: Decode.Aux[String, A, CT], tag: ClassTag[A]): Endpoint[A] =
       self.mapAsync(value => Future.const(decoder(value).rescue(notParsed[A](self, tag))))
   }
 
@@ -496,7 +505,18 @@ object Endpoint {
      * this class can safely extends AnyVal.
      */
 
-    def as[A](implicit decoder: Decode[A], tag: ClassTag[A]): Endpoint[Seq[A]] =
+    @deprecated("Use asText or asJson depending on expected Content-Type", "0.11.0")
+    def as[A](implicit decoder: Decode.TextPlain[String, A], tag: ClassTag[A]): Endpoint[Seq[A]] = asText
+
+    def asText[A](implicit decoder: Decode.TextPlain[String, A], tag: ClassTag[A]): Endpoint[Seq[A]] =
+      decode
+
+    def asJson[A](implicit decoder: Decode.ApplicationJson[String, A], tag: ClassTag[A]): Endpoint[Seq[A]] =
+      decode
+
+    private def decode[A, CT <: String](implicit
+      decoder: Decode.Aux[String, A, CT], tag: ClassTag[A]
+    ): Endpoint[Seq[A]] = {
       self.mapAsync { items =>
         val decoded = items.map(decoder.apply)
         val errors = decoded.collect {
@@ -506,6 +526,7 @@ object Endpoint {
         if (errors.isEmpty) Future.const(Try.collect(decoded))
         else Future.exception(Error.RequestErrors(errors))
       }
+    }
   }
 
   /**
@@ -516,13 +537,26 @@ object Endpoint {
    * will succeed if the result is empty or type conversion succeeds.
    */
   implicit class StringOptionEndpointOps(val self: Endpoint[Option[String]]) extends AnyVal {
-    def as[A](implicit decoder: Decode[A], tag: ClassTag[A]): Endpoint[Option[A]] =
+
+    @deprecated("Use asText or asJson depending on expected Content-Type", "0.11.0")
+    def as[A](implicit decoder: Decode.TextPlain[String, A], tag: ClassTag[A]): Endpoint[Option[A]] = asText
+
+    def asText[A](implicit decoder: Decode.TextPlain[String, A], tag: ClassTag[A]): Endpoint[Option[A]] =
+      decode
+
+    def asJson[A](implicit decoder: Decode.ApplicationJson[String, A], tag: ClassTag[A]): Endpoint[Option[A]] =
+      decode
+
+    private def decode[A, CT <: String](implicit
+      decoder: Decode.Aux[String, A, CT], tag: ClassTag[A]
+    ): Endpoint[Option[A]] = {
       self.mapAsync {
         case Some(value) =>
           Future.const(decoder(value).rescue(notParsed[A](self, tag)).map(Some.apply))
         case None =>
           Future.None
       }
+    }
 
     private[finch] def noneIfEmpty: Endpoint[Option[String]] = self.map {
       case Some(value) if value.isEmpty => None

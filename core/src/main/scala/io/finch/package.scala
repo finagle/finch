@@ -9,7 +9,7 @@ import shapeless.Witness
 package object finch extends Endpoints with Outputs with ValidationRules {
 
   @deprecated("Use io.finch.Decode instead", "0.11")
-  type DecodeRequest[A] = Decode[A]
+  type DecodeRequest[A] = Decode[String, A]
 
   @deprecated("Use io.finch.Encode instead", "0.11")
   type EncodeResponse[A] = Encode[A]

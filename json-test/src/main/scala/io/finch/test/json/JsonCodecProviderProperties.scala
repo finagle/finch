@@ -61,7 +61,7 @@ trait JsonCodecProviderProperties { self: Matchers with Checkers =>
   /**
    * Confirm that this encoder can decode instances of our case class.
    */
-  def decodeNestedCaseClass(implicit decoder: Decode[ExampleNestedCaseClass]): Unit =
+  def decodeNestedCaseClass(implicit decoder: Decode[String, ExampleNestedCaseClass]): Unit =
     check { (e: ExampleNestedCaseClass) =>
       decoder(exampleNestedCaseClassCodecJson.encode(e).nospaces) === Return(e)
     }
@@ -70,7 +70,7 @@ trait JsonCodecProviderProperties { self: Matchers with Checkers =>
    * Confirm that this encoder fails on invalid input (both ill-formed JSON and
    * invalid JSON).
    */
-  def failToDecodeInvalidJson(implicit decoder: Decode[ExampleNestedCaseClass]): Unit = {
+  def failToDecodeInvalidJson(implicit decoder: Decode[String, ExampleNestedCaseClass]): Unit = {
     check { (badJson: String) =>
       Parse.decodeOption(badJson)(exampleNestedCaseClassCodecJson).isEmpty ==>
         decoder(badJson).isThrow
@@ -91,7 +91,7 @@ trait JsonCodecProviderProperties { self: Matchers with Checkers =>
   /**
    * Confirm that this encoder can decode top-level lists of instances of our case class.
    */
-  def decodeCaseClassList(implicit decoder: Decode[List[ExampleNestedCaseClass]]): Unit =
+  def decodeCaseClassList(implicit decoder: Decode[String, List[ExampleNestedCaseClass]]): Unit =
     check { (es: List[ExampleNestedCaseClass]) =>
       decoder(exampleNestedCaseClassListCodecJson.encode(es).nospaces) === Return(es)
     }
