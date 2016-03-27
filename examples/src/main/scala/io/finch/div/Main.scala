@@ -4,7 +4,6 @@ import cats.std.int._
 import com.twitter.finagle.Http
 import com.twitter.util.Await
 import io.finch._
-import shapeless._
 
 /**
  * A tiny Finch application that serves a single endpoint `POST /:a/b:` that divides `a` by `b`.
@@ -32,5 +31,7 @@ object Main extends App {
     case e: ArithmeticException => BadRequest(e)
   }
 
-  Await.ready(Http.server.serve(":8081", div.toServiceAs[Text.Plain]))
+  Await.ready(Http.server.serve(":8081",
+    ServiceBuilder().respond[Text.Plain](div).toService
+  ))
 }

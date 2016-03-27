@@ -4,7 +4,7 @@ import scala.reflect.ClassTag
 
 import cats.Alternative
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Cookie, Request, Response, Status}
+import com.twitter.finagle.http.{Cookie, Request, Response}
 import com.twitter.util.{Future, Return, Throw, Try}
 import io.catbird.util.Rerunnable
 import io.finch.internal._
@@ -260,30 +260,10 @@ trait Endpoint[A] { self =>
   /**
    * Converts this endpoint to a Finagle service `Request => Future[Response]` that serves JSON.
    */
+  @deprecated("Use ServiceBuilder().respond[ContentType](endpoint).toService instead", "0.11")
   final def toService(implicit
-    tro: ToResponse.Aux[Output[A], Witness.`"application/json"`.T]
-  ): Service[Request, Response] = toServiceAs[Witness.`"application/json"`.T]
-
-  /**
-   * Converts this endpoint to a Finagle service `Request => Future[Response]` that serves custom
-   * content-type `CT`.
-   */
-  final def toServiceAs[CT <: String](implicit
-    tro: ToResponse.Aux[Output[A], CT]
-  ): Service[Request, Response] = new Service[Request, Response] {
-
-    private[this] val basicEndpointHandler: PartialFunction[Throwable, Output[Nothing]] = {
-      case e: io.finch.Error => Output.failure(e, Status.BadRequest)
-    }
-
-    private[this] val safeEndpoint = self.handle(basicEndpointHandler)
-
-    def apply(req: Request): Future[Response] = safeEndpoint(Input(req)) match {
-      case Some((remainder, output)) if remainder.isEmpty =>
-        output.map(oa => oa.toResponse[CT](req.version)).run
-      case _ => Future.value(Response(req.version, Status.NotFound))
-    }
-  }
+    ts: ToService[Endpoint[A] :: HNil, Application.Json :: HNil]
+  ): Service[Request, Response] = ServiceBuilder().respond[Application.Json](this).toService
 
   /**
    * Recovers from any exception occurred in this endpoint by creating a new endpoint that will

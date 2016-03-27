@@ -5,9 +5,9 @@ import java.util.concurrent.atomic.AtomicLong
 import cats.std.long._
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.{Http, Service}
-import com.twitter.finagle.http.{Request, Response, Status}
+import com.twitter.finagle.http.{Request, Response}
 import com.twitter.io.Buf
-import com.twitter.util.{Await, Future, Try}
+import com.twitter.util.{Await, Try}
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
@@ -72,18 +72,10 @@ object Main extends App {
       Ok(as.map(b => sum.addAndGet(bufToLong(b))))
     }
 
-  val textPlainService = (sumSoFar :+: sumTo :+: totalSum).toServiceAs[Text.Plain]
-  val jsonService = exampleGenerator.toService
-
-  // TOOD: Fix this once we support multiple content-types
-  val service = new Service[Request, Response] {
-    override def apply(request: Request): Future[Response] = {
-      textPlainService(request).flatMap {
-        case response if response.status == Status.NotFound => jsonService(request)
-        case response => Future value response
-      }
-    }
-  }
+  val service: Service[Request, Response] = ServiceBuilder()
+    .respond[Text.Plain](sumSoFar :+: sumTo :+: totalSum)
+    .respond[Application.Json](exampleGenerator)
+    .toService
 
   Await.result(Http.server
     .withStreaming(enabled = true)

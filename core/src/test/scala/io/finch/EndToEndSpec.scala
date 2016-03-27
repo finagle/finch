@@ -4,7 +4,6 @@ import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response, Status}
 import com.twitter.io.Buf
 import com.twitter.util.{Await, Return}
-import shapeless.Witness
 
 class EndToEndSpec extends FinchSpec {
 
@@ -22,12 +21,14 @@ class EndToEndSpec extends FinchSpec {
     implicit val encodeException: Encode.TextPlain[Exception] =
       Encode.text(_ => Buf.Utf8("ERR!"))
 
-    val service: Service[Request, Response] = (
-      get("foo" :: string) { s: String => Ok(Foo(s)) } :+:
-      get("bar") { Created("bar") } :+:
-      get("baz") { BadRequest(new IllegalArgumentException("foo")): Output[Unit] } :+:
-      get("qux" :: param("foo").as[Foo]) { f: Foo => Created(f) }
-    ).toServiceAs[Witness.`"text/plain"`.T]
+    val service: Service[Request, Response] = ServiceBuilder()
+      .respond[Text.Plain](
+        get("foo" :: string) { s: String => Ok(Foo(s)) } :+:
+        get("bar") { Created("bar") } :+:
+        get("baz") { BadRequest(new IllegalArgumentException("foo")): Output[Unit] } :+:
+        get("qux" :: param("foo").as[Foo]) { f: Foo => Created(f) }
+      )
+      .toService
 
     val rep1 = Await.result(service(Request("/foo/bar")))
     rep1.contentString shouldBe "bar"
@@ -48,7 +49,8 @@ class EndToEndSpec extends FinchSpec {
 
   it should "convert value Endpoints into Services" in {
     val e: Endpoint[String] = get("foo") { Created("bar") }
-    val s: Service[Request, Response] = e.toServiceAs[Witness.`"text/plain"`.T]
+    val s: Service[Request, Response] =
+      ServiceBuilder().respond[Text.Plain](e).toService
 
     val rep = Await.result(s(Request("/foo")))
     rep.contentString shouldBe "bar"

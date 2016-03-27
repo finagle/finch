@@ -44,5 +44,7 @@ object Main extends App {
     case e: Exception => BadRequest(e)
   }
 
-  Await.ready(Http.server.serve(":8081", eval.toService))
+  Await.ready(Http.server.serve(":8081",
+    ServiceBuilder().respond[Application.Json](eval).toService
+  ))
 }
