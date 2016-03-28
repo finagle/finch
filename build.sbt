@@ -9,7 +9,7 @@ lazy val buildSettings = Seq(
 )
 
 lazy val finagleVersion = "6.34.0"
-lazy val circeVersion = "0.3.0"
+lazy val circeVersion = "0.4.0-RC1"
 lazy val shapelessVersion = "2.3.0"
 lazy val catsVersion = "0.4.1"
 lazy val sprayVersion = "1.3.2"
