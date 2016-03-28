@@ -1,9 +1,9 @@
 package io.finch
 
-import cats.Eval
 import com.twitter.finagle.OAuth2
 import com.twitter.finagle.http.Status
 import com.twitter.finagle.oauth2.{AuthInfo, DataHandler, GrantHandlerResult, OAuthError}
+import io.catbird.util.Rerunnable
 
 package object oauth2 {
 
@@ -22,7 +22,9 @@ package object oauth2 {
    */
   def authorize[U](dataHandler: DataHandler[U]): Endpoint[AuthInfo[U]] =
     Endpoint.embed(items.MultipleItems)(i =>
-      Some((i, Eval.later(OAuth2.authorize(i.request, dataHandler).map(Output.payload(_)))))
+      Some(i -> new Rerunnable[Output[AuthInfo[U]]] {
+        override def run = OAuth2.authorize(i.request, dataHandler).map(Output.payload(_))
+      })
     ).handle(handleOAuthError)
 
   /**
@@ -31,6 +33,8 @@ package object oauth2 {
    */
   def issueAccessToken[U](dataHandler: DataHandler[U]): Endpoint[GrantHandlerResult] =
     Endpoint.embed(items.MultipleItems)(i =>
-      Some((i, Eval.later(OAuth2.issueAccessToken(i.request, dataHandler).map(Output.payload(_)))))
+      Some(i -> new Rerunnable[Output[GrantHandlerResult]] {
+        override def run = OAuth2.issueAccessToken(i.request, dataHandler).map(Output.payload(_))
+      })
     ).handle(handleOAuthError)
 }
