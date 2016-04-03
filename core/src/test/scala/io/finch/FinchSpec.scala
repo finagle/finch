@@ -3,12 +3,13 @@ package io.finch
 import java.util.UUID
 
 import algebra.Eq
-import cats.{ Alternative, Eval }
+import cats.Alternative
 import cats.laws.discipline.eq._
 import cats.std.AllInstances
 import com.twitter.finagle.http._
 import com.twitter.io.Buf
 import com.twitter.util.{Await, Future, Try}
+import io.catbird.util.Rerunnable
 import io.finch.Endpoint.Result
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.prop.Checkers
@@ -139,7 +140,7 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
       Arbitrary.arbitrary[Throwable].map { error =>
         new Endpoint[A] {
           override def apply(input: Input): Result[A] =
-            Some(input -> Eval.now(Future.exception(error)))
+            Some(input -> Rerunnable.fromFuture(Future.exception(error)))
         }
       },
       /**
@@ -150,7 +151,7 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
       Arbitrary.arbitrary[Input => A].map { f =>
         new Endpoint[A] {
           override def apply(input: Input): Result[A] =
-            Some(input -> Eval.now(Future.value(Ok(f(input)))))
+            Some(input -> Rerunnable.fromFuture(Future.value(Ok(f(input)))))
         }
       }
     )
@@ -167,7 +168,7 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
 
     private[this] def await(result: Endpoint.Result[A]): Option[(Input, Try[Output[A]])] =
       result.map {
-        case (input, eval) => (input, Await.result(eval.value.liftToTry))
+        case (input, rerun) => (input, Await.result(rerun.liftToTry.run))
       }
 
     private[this] def inputs: Stream[Input] = Stream.continually(

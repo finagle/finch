@@ -2,10 +2,11 @@ package io.finch
 
 import scala.reflect.ClassTag
 
-import cats.{Alternative, Eval}
+import cats.Alternative
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Cookie, Request, Response, Status}
 import com.twitter.util.{Future, Return, Throw, Try}
+import io.catbird.util.Rerunnable
 import io.finch.internal._
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
@@ -90,8 +91,7 @@ trait Endpoint[A] { self =>
   final def mapAsync[B](fn: A => Future[B]): Endpoint[B] = new Endpoint[B] {
     def apply(input: Input): Endpoint.Result[B] =
       self(input).map {
-        case (remainder, output) =>
-          (remainder, output.map(f => f.flatMap(oa => oa.traverse(a => fn(a)))))
+        case (remainder, output) => remainder -> output.flatMapF(oa => oa.traverse(a => fn(a)))
       }
 
     override def item = self.item
@@ -110,8 +110,7 @@ trait Endpoint[A] { self =>
   final def mapOutputAsync[B](fn: A => Future[Output[B]]): Endpoint[B] = new Endpoint[B] {
     def apply(input: Input): Endpoint.Result[B] =
       self(input).map {
-        case (remainder, output) =>
-          (remainder, output.map(f => f.flatMap { oa =>
+        case (remainder, output) => remainder -> output.flatMapF { oa =>
             val fob = oa.traverse(fn).map(oob => oob.flatten)
 
             fob.map { ob =>
@@ -120,7 +119,7 @@ trait Endpoint[A] { self =>
 
               ob2
             }
-          }))
+          }
       }
 
     override def item = self.item
@@ -145,22 +144,21 @@ trait Endpoint[A] { self =>
   final def transform[B](fn: Future[Output[A]] => Future[Output[B]]): Endpoint[B] = new Endpoint[B] {
     override def apply(input: Input): Endpoint.Result[B] = {
       self(input).map {
-        case (remainder, output) =>
-          (remainder, output.map(fn))
+        case (remainder, output) => remainder -> new Rerunnable[Output[B]] {
+          override def run: Future[Output[B]] = fn(output.run)
+        }
       }
     }
   }
 
   final def product[B](other: Endpoint[B]): Endpoint[(A, B)] = new Endpoint[(A, B)] {
-    private[this] def join(
-      foa: Future[Output[A]],
-      fob: Future[Output[B]]
-    ): Future[Output[(A, B)]] = Future.join(foa.liftToTry, fob.liftToTry).flatMap {
-      case (Return(oa), Return(ob)) => Future.value(oa.flatMap(a => ob.map(b => (a, b))))
-      case (Throw(oa), Throw(ob)) => Future.exception(collectExceptions(oa, ob))
-      case (Throw(e), _) => Future.exception(e)
-      case (_, Throw(e)) => Future.exception(e)
-    }
+    private[this] def join(both: (Try[Output[A]], Try[Output[B]])): Future[Output[(A, B)]] =
+      both match {
+        case (Return(oa), Return(ob)) => Future.value(oa.flatMap(a => ob.map(b => (a, b))))
+        case (Throw(oa), Throw(ob)) => Future.exception(collectExceptions(oa, ob))
+        case (Throw(e), _) => Future.exception(e)
+        case (_, Throw(e)) => Future.exception(e)
+      }
 
     private[this] def collectExceptions(a: Throwable, b: Throwable): Error.RequestErrors = {
       def collect(e: Throwable): Seq[Throwable] = e match {
@@ -175,7 +173,7 @@ trait Endpoint[A] { self =>
       self(input).flatMap {
         case (remainder1, outputA) => other(remainder1).map {
           case (remainder2, outputB) =>
-            (remainder2, for { ofa <- outputA; ofb <- outputB } yield join(ofa, ofb))
+            remainder2 -> outputA.liftToTry.product(outputB.liftToTry).flatMapF(join)
         }
       }
 
@@ -233,7 +231,7 @@ trait Endpoint[A] { self =>
    */
   final def |[B >: A](other: Endpoint[B]): Endpoint[B] = new Endpoint[B] {
     private[this] def aToB(o: Endpoint.Result[A]): Endpoint.Result[B] =
-      o.map { case (r, oo) => (r, oo.map(_.asInstanceOf[Future[Output[B]]])) }
+      o.asInstanceOf[Endpoint.Result[B]]
 
     def apply(input: Input): Endpoint.Result[B] =
       (self(input), other(input)) match {
@@ -282,7 +280,7 @@ trait Endpoint[A] { self =>
 
     def apply(req: Request): Future[Response] = safeEndpoint(Input(req)) match {
       case Some((remainder, output)) if remainder.isEmpty =>
-        output.map(f => f.map(o => o.toResponse[CT](req.version))).value
+        output.map(oa => oa.toResponse[CT](req.version)).run
       case _ => Future.value(Response(req.version, Status.NotFound))
     }
   }
@@ -292,16 +290,7 @@ trait Endpoint[A] { self =>
    * handle any matching throwable from the underlying future.
    */
   final def rescue[B >: A](pf: PartialFunction[Throwable, Future[Output[B]]]): Endpoint[B] =
-    new Endpoint[B] {
-      def apply(input: Input): Endpoint.Result[B] =
-        self(input).map {
-          case (remainder, output) =>
-            (remainder, output.map(f => f.rescue(pf)))
-        }
-
-      override def item = self.item
-      override def toString = self.toString
-   }
+    transform(foa => foa.rescue(pf))
 
   /**
    * Recovers from any exception occurred in this endpoint by creating a new endpoint that will
@@ -368,24 +357,16 @@ trait Endpoint[A] { self =>
     def apply(input: Input): Endpoint.Result[Option[A]] =
       self(input).map {
         case (remainder, output) =>
-          (remainder, output.map(f =>
-            f.liftToTry.map(f =>
-              f.toOption.fold(Output.None: Output[Option[A]])(o => o.map(Some.apply)))))
+          remainder -> output.liftToTry
+            .map(toa => toa.toOption.fold(Output.None: Output[Option[A]])(o => o.map(Some.apply)))
       }
 
     override def item = self.item
     override def toString = self.toString
   }
 
-  private[this] def withOutput[B](fn: Output[A] => Output[B]): Endpoint[B] = new Endpoint[B] {
-    def apply(input: Input): Endpoint.Result[B] =
-      self(input).map {
-        case (remainder, output) => (remainder, output.map(f => f.map(o => fn(o))))
-      }
-
-    override def item = self.item
-    override def toString = self.toString
-  }
+  private[this] def withOutput[B](fn: Output[A] => Output[B]): Endpoint[B] =
+    transform(foa => foa.map(oa => fn(oa)))
 }
 
 /**
@@ -393,7 +374,7 @@ trait Endpoint[A] { self =>
  */
 object Endpoint {
 
-  type Result[A] = Option[(Input, Eval[Future[Output[A]]])]
+  type Result[A] = Option[(Input, Rerunnable[Output[A]])]
 
   /**
    * Creates an [[Endpoint]] from the given [[Output]].
@@ -401,7 +382,7 @@ object Endpoint {
   def apply(mapper: Mapper[shapeless.HNil]): Endpoint[mapper.Out] = mapper(/)
 
   private[finch] val Empty: Endpoint[HNil] = embed(items.MultipleItems)(input =>
-    Some((input, Eval.now(Future.value(Output.payload(HNil: HNil)))))
+    Some(input -> Rerunnable(Output.payload(HNil: HNil)))
   )
 
   private[finch] def embed[A](i: items.RequestItem)(f: Input => Result[A]): Endpoint[A] =
@@ -553,11 +534,7 @@ object Endpoint {
     override def product[A, B](fa: Endpoint[A], fb: Endpoint[B]): Endpoint[(A, B)] = fa.product(fb)
 
     override def pure[A](x: A): Endpoint[A] = new Endpoint[A] {
-      override def apply(input: Input): Result[A] = Some(input -> Eval.now(Future.value(Ok(x))))
-    }
-
-    override def pureEval[A](x: Eval[A]): Endpoint[A] = new Endpoint[A] {
-      override def apply(input: Input): Result[A] = Some(input -> x.map(out => Future.value(Ok(out))))
+      override def apply(input: Input): Result[A] = Some(input -> Rerunnable(Output.payload(x)))
     }
 
     override def empty[A]: Endpoint[A] = new Endpoint[A] {

@@ -2,13 +2,13 @@ package io.finch
 
 import java.util.UUID
 
-import cats.Eval
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.finagle.http.exp.Multipart.FileUpload
 import com.twitter.finagle.netty3.ChannelBufferBuf
 import com.twitter.io.{Buf, Charsets}
 import com.twitter.util.{Base64StringEncoder, Future, Try}
+import io.catbird.util.Rerunnable
 import io.finch.internal.TooFastString
 import shapeless._
 
@@ -17,8 +17,9 @@ import shapeless._
  */
 trait Endpoints {
 
-  private[this] val hnilFutureOutput: Eval[Future[Output[HNil]]] =
-    Eval.now(Future.value(Output.payload(HNil)))
+  private[this] val hnilFutureOutput: Rerunnable[Output[HNil]] = new Rerunnable[Output[HNil]] {
+    override val run = Future.value(Output.payload(HNil))
+  }
 
   type Endpoint0 = Endpoint[HNil]
   type Endpoint2[A, B] = Endpoint[A :: B :: HNil]
@@ -30,7 +31,7 @@ trait Endpoints {
   private[finch] class Matcher(s: String) extends Endpoint[HNil] {
     def apply(input: Input): Endpoint.Result[HNil] =
       input.headOption.flatMap {
-        case `s` => Some((input.drop(1), hnilFutureOutput))
+        case `s` => Some(input.drop(1) -> hnilFutureOutput)
         case _ => None
       }
 
@@ -50,7 +51,9 @@ trait Endpoints {
       for {
         ss <- input.headOption
         aa <- f(ss)
-      } yield (input.drop(1), Eval.now(Future.value(Output.payload(aa))))
+      } yield input.drop(1) -> new Rerunnable[Output[A]] {
+        override def run = Future.value(Output.payload(aa))
+      }
 
     def apply(n: String): Endpoint[A] = copy[A](name = n)
 
@@ -59,7 +62,9 @@ trait Endpoints {
 
   private[finch] case class StringExtractor(name: String) extends Endpoint[String] {
     def apply(input: Input): Endpoint.Result[String] =
-      input.headOption.map(s => (input.drop(1), Eval.now(Future.value(Output.payload(s)))))
+      input.headOption.map(s => input.drop(1) -> new Rerunnable[Output[String]] {
+        override def run = Future.value(Output.payload(s))
+      })
 
     def apply(n: String): Endpoint[String] = copy(name = n)
 
@@ -73,10 +78,12 @@ trait Endpoints {
       name: String,
       f: String => Option[A]) extends Endpoint[Seq[A]] {
     def apply(input: Input): Endpoint.Result[Seq[A]] =
-      Some((input.copy(path = Nil), Eval.now(Future.value(Output.payload(for {
-        s <- input.path
-        a <- f(s)
-      } yield a)))))
+      Some(input.copy(path = Nil) -> new Rerunnable[Output[Seq[A]]] {
+        override def run = Future.value(Output.payload(for {
+          s <- input.path
+          a <- f(s)
+        } yield a))
+      })
 
     def apply(n: String): Endpoint[Seq[A]] = copy[A](name = n)
 
@@ -87,8 +94,10 @@ trait Endpoints {
     if (s.length != 36) None
     else try Some(UUID.fromString(s)) catch { case _: Exception => None }
 
-  private[this] def result[A](i: Input, a: A): (Input, Eval[Future[Output[A]]]) =
-    (i.drop(1), Eval.now(Future.value(Output.payload(a))))
+  private[this] def result[A](i: Input, a: A): (Input, Rerunnable[Output[A]]) =
+    i.drop(1) -> new Rerunnable[Output[A]] {
+      override def run = Future.value(Output.payload(a))
+    }
 
   /**
    * A matching [[Endpoint]] that reads a string value from the current path segment.
@@ -170,7 +179,7 @@ trait Endpoints {
    */
   object * extends Endpoint[HNil] {
     def apply(input: Input): Endpoint.Result[HNil] =
-      Some((input.copy(path = Nil), hnilFutureOutput))
+      Some(input.copy(path = Nil) -> hnilFutureOutput)
 
     override def toString: String = "*"
   }
@@ -180,7 +189,7 @@ trait Endpoints {
    */
   object / extends Endpoint[HNil] {
     def apply(input: Input): Endpoint.Result[HNil] =
-      Some((input, hnilFutureOutput))
+      Some(input -> hnilFutureOutput)
 
     override def toString: String = ""
   }
@@ -287,20 +296,24 @@ trait Endpoints {
 
   private[this] def option[A](item: items.RequestItem)(f: Request => A): Endpoint[A] =
     Endpoint.embed(item)(input =>
-      Some((input, Eval.later(Future.value(Output.payload(f(input.request))))))
-    )
+      Some(input -> new Rerunnable[Output[A]] {
+        override def run = Future.value(Output.payload(f(input.request)))
+      }))
 
   private[this] def exists[A](item: items.RequestItem)(f: Request => Option[A]): Endpoint[A] =
     Endpoint.embed(item)(input =>
-      f(input.request).map(s => (input, Eval.now(Future.value(Output.payload(s)))))
+      f(input.request).map(s => input -> new Rerunnable[Output[A]] {
+        override def run = Future.value(Output.payload(s))
+      })
     )
 
   private[this] def matches[A]
     (item: items.RequestItem)
     (p: Request => Boolean)
     (f: Request => A): Endpoint[A] = Endpoint.embed(item)(input =>
-      if (p(input.request)) Some((input, Eval.later(Future.value(Output.payload(f(input.request))))))
-      else None
+      if (p(input.request)) Some(input -> new Rerunnable[Output[A]] {
+        override def run = Future.value(Output.payload(f(input.request)))
+      }) else None
     )
 
   /**
@@ -443,13 +456,14 @@ trait Endpoints {
     private[this] val expected = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
 
     def apply[A](e: Endpoint[A]): Endpoint[A] = new Endpoint[A] {
-      private[this] val failedOutput: Eval[Future[Output[A]]] =
-        Eval.now(Future.value(Unauthorized(BasicAuthFailed)))
+      private[this] val failedOutput = new Rerunnable[Output[A]] {
+        override def run = Future.value(Unauthorized(BasicAuthFailed))
+      }
 
       def apply(input: Input): Endpoint.Result[A] =
         input.request.authorization.flatMap {
           case `expected` => e(input)
-          case _ => Some((input.copy(path = Seq.empty), failedOutput))
+          case _ => Some(input.copy(path = Seq.empty) -> failedOutput)
         }
 
       override def toString: String = s"BasicAuth($e)"
