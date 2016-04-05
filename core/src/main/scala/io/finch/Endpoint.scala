@@ -3,6 +3,8 @@ package io.finch
 import scala.reflect.ClassTag
 
 import cats.Alternative
+import cats.data.NonEmptyList
+import cats.std.list._
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Cookie, Request, Response, Status}
 import com.twitter.util.{Future, Return, Throw, Try}
@@ -458,13 +460,44 @@ object Endpoint {
   }
 
   /**
-   * Implicit conversion that allows to call `as[A]` on any `Endpoint[Seq[String]]` to perform a
-   * type conversion based on an implicit ``DecodeRequest[A]` which must be in scope.
+   * Implicit conversion that allows to call `as[A]` on any `Endpoint[NonEmptyList[String]]` to perform a
+   * type conversion based on an implicit `Decode[A]` which must be in scope.
    *
-   * The resulting endpoint will fail when the result is non-empty and type conversion fails on one
-   * or more of the elements in the `Seq`. It will succeed if the result is empty or type conversion
-   * succeeds for all elements.
+   * The resulting endpoint will fail when type conversion fails on one
+   * or more of the elements in the `NonEmptyList`. It will succeed if type conversion succeeds for all elements.
    */
+  implicit class StringNelEndpointOps(val self: Endpoint[NonEmptyList[String]]) {
+
+    /* IMPLEMENTATION NOTE: This implicit class should extend AnyVal like all the other ones, to
+     * avoid instance creation for each invocation of the extension method. However, this let's us
+     * run into a compiler bug when we compile for Scala 2.10:
+     * https://issues.scala-lang.org/browse/SI-8018. The bug is caused by the combination of four
+     * things: 1) an implicit class, 2) extending AnyVal, 3) wrapping a class with type parameters,
+     * 4) a partial function in the body. 2) is the only thing we can easily remove here, otherwise
+     * we'd need to move the body of the method somewhere else. Once we drop support for Scala 2.10,
+     * this class can safely extends AnyVal.
+     */
+
+    def as[A](implicit decoder: Decode[A], tag: ClassTag[A]): Endpoint[NonEmptyList[A]] =
+      self.mapAsync { items =>
+        val decoded = items.unwrap.map(decoder.apply)
+        val errors = decoded.collect {
+          case Throw(e) => Error.NotParsed(self.item, tag, e)
+        }
+
+        if (errors.isEmpty) Future.const(Try.collect(decoded).map(seq => NonEmptyList(seq.head, seq.tail.toList)))
+        else Future.exception(Error.RequestErrors(errors))
+      }
+  }
+
+  /**
+    * Implicit conversion that allows to call `as[A]` on any `Endpoint[Seq[String]]` to perform a
+    * type conversion based on an implicit ``DecodeRequest[A]` which must be in scope.
+    *
+    * The resulting endpoint will fail when the result is non-empty and type conversion fails on one
+    * or more of the elements in the `Seq`. It will succeed if the result is empty or type conversion
+    * succeeds for all elements.
+    */
   implicit class StringSeqEndpointOps(val self: Endpoint[Seq[String]]) {
 
     /* IMPLEMENTATION NOTE: This implicit class should extend AnyVal like all the other ones, to

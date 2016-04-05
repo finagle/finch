@@ -2,6 +2,7 @@ package io.finch
 
 import java.util.UUID
 
+import cats.data.NonEmptyList
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.finagle.http.exp.Multipart.FileUpload
@@ -350,11 +351,25 @@ trait Endpoints {
    * at least one element) multi-value query-string param `name` from the request into a `Seq` or
    * raises a [[Error.NotPresent]] exception when the params are missing or empty.
    */
+  @deprecated("Use paramsNel and NonEmptyList instead", "0.11")
   def paramsNonEmpty(name: String): Endpoint[Seq[String]] =
     option(items.ParamItem(name))(requestParams(name)).mapAsync({
       case Nil => Future.exception(Error.NotPresent(items.ParamItem(name)))
       case unfiltered => Future.value(unfiltered.filter(_.nonEmpty))
     }).shouldNot("be empty")(_.isEmpty)
+
+  /**
+   * An evaluating [[Endpoint]] that reads a required multi-value query-string param `name`
+   * from the request into a `NonEmptyList` or raises a [[Error.NotPresent]] exception
+   * when the params are missing or empty.
+   */
+  def paramsNel(name: String): Endpoint[NonEmptyList[String]] =
+    option(items.ParamItem(name))(requestParams(name)).mapAsync { values =>
+      values.filter(_.nonEmpty).toList match {
+        case Nil => Future.exception(Error.NotPresent(items.ParamItem(name)))
+        case seq => Future.value(NonEmptyList(seq.head, seq.tail))
+      }
+    }
 
   /**
    * An evaluating [[Endpoint]] that reads a required HTTP header `name` from the request or raises

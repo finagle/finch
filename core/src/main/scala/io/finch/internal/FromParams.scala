@@ -2,6 +2,7 @@ package io.finch.internal
 
 import scala.reflect.ClassTag
 
+import cats.data.NonEmptyList
 import io.finch._
 import shapeless._
 import shapeless.labelled._
@@ -40,11 +41,18 @@ private[internal] object Extractor extends Poly1 {
     paramOption(key).as(dh, ct)
   }
 
-  implicit def collectionExtractor[V](implicit
+  implicit def seqExtractor[V](implicit
     dh: Decode[V],
     ct: ClassTag[V]
   ): Case.Aux[String, Endpoint[Seq[V]]] = at[String] { key =>
     params(key).as(dh, ct)
+  }
+
+  implicit def nelExtractor[V](implicit
+    dh: Decode[V],
+    ct: ClassTag[V]
+  ): Case.Aux[String, Endpoint[NonEmptyList[V]]] = at[String] { key =>
+    paramsNel(key).as(dh, ct)
   }
 
   implicit def extractor[V](implicit
