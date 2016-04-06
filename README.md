@@ -88,6 +88,7 @@ Documentation
 Adopters
 --------
 * [Despegar] (http://www.despegar.com)
+* [Earnest] (http://meetearnest.com)
 * [Globo.com] (http://globo.com)
 * [Glopart] (https://glopart.ru)
 * [Hotel Urbano] (http://www.hotelurbano.com)
