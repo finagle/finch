@@ -24,6 +24,10 @@ Given that major Finch's abstractions are pretty generic, you can make them
 [to have any faces you like][faceless] as long as it makes programming fun again: some of the Finch
 users write [Jersey-style][diar] programs, some of them stick with [CRUD-style][issue263] ones.
 
+To better organize your code and put endpoints in sort-of controllers you can use
+[Finchrich][finchrich]. This external project allows you to combine endpoints in controllers,
+nest them, and convert controllers into the endpoint coproducts without any kind of runtime reflection.
+
 Note that all of the Finch examples are written in the "Vanilla Finch" style, when no additional
 levels of indirections are layered on top of endpoints.
 
@@ -251,3 +255,4 @@ useful server-side features that might be useful for most of the use cases.
 [finagle-servers]: http://twitter.github.io/finagle/guide/Servers.html
 [finagle-config]: http://twitter.github.io/finagle/guide/Configuration.html
 [finagle-concurrency]: http://twitter.github.io/finagle/guide/Servers.html#concurrency-limit
+[finchrich]: https://github.com/akozhemiakin/finchrich
