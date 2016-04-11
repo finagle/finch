@@ -273,7 +273,7 @@ val either: Endpoint[Int :+: String :+: CNil] = i :+: s
 ```
 
 Any coproduct endpoint may be converted into a Finagle HTTP service (i.e.,
-`Service[Request, Response]`) under the certain circumstances: every type in a coproduct should has
+`Service[Request, Response]`) under the certain circumstances: every type in a coproduct should have
 a corresponding implicit instance of `EncodeResponse` in the scope.
 
 ### Mapping Endpoints
@@ -524,7 +524,7 @@ requests):
 - `io.finch.Error.NotFound` - when a required request part/item (header, param, body, cookie) was
   missing
 - `io.finch.Error.NotParsed` - when type conversion failed
-- `io.finch.Error.NoValid` - when a validation rule defined on an endpoint did not pass
+- `io.finch.Error.NotValid` - when a validation rule defined on an endpoint did not pass
 
 ### Error Handling
 
