@@ -4,10 +4,10 @@ import scala.reflect.ClassTag
 
 import cats.data.NonEmptyList
 import io.finch._
+import io.finch.Endpoint._
 import shapeless._
 import shapeless.labelled._
 import shapeless.poly._
-import io.finch.Endpoint._
 
 /**
  * A type class empowering a generic derivation of [[Endpoint]]s from query string params.
