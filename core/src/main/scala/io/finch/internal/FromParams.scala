@@ -7,6 +7,7 @@ import io.finch._
 import shapeless._
 import shapeless.labelled._
 import shapeless.poly._
+import io.finch.Endpoint._
 
 /**
  * A type class empowering a generic derivation of [[Endpoint]]s from query string params.
@@ -33,6 +34,13 @@ object FromParams {
 }
 
 private[internal] object Extractor extends Poly1 {
+
+  implicit def nestedExtractor[Repr <: HList,V](implicit
+    gen: LabelledGeneric.Aux[V, Repr],
+    fp:  FromParams[Repr]
+  ): Case.Aux[String,Endpoint[V]] = at[String]{key =>
+    derive[V].fromParams
+  }
 
   implicit def optionalExtractor[V](implicit
     dh: Decode[V],
