@@ -41,6 +41,13 @@ private[internal] object Extractor extends Poly1 {
   ): Case.Aux[String,Endpoint[V]] = at[String]{key =>
     derive[V].fromParams
   }
+  
+  implicit def nestedExtractorLifted[Repr <: HList,V](implicit
+    gen: LabelledGeneric.Aux[V, Repr],
+    fp:  FromParams[Repr]
+  ): Case.Aux[String,Endpoint[Option[V]]] = at[String]{key =>
+    derive[V].fromParams.lift
+  }  
 
   implicit def optionalExtractor[V](implicit
     dh: Decode[V],
