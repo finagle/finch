@@ -26,11 +26,18 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
       }
   }
 
+  case class BasicAuthCredentials(user: String, pass: String)
+
   case class Headers(m: Map[String, String])
   case class Params(p: Map[String, String])
   case class Cookies(c: Seq[Cookie])
 
   case class OptionalNonEmptyString(o: Option[String])
+
+  def genBasicAuthCredentials: Gen[BasicAuthCredentials] = for {
+    u <- Gen.alphaStr.suchThat(!_.contains(':'))
+    p <- Gen.alphaStr
+  } yield BasicAuthCredentials(u, p)
 
   def genNonEmptyString: Gen[String] = Gen.nonEmptyListOf(Gen.alphaChar).map(_.mkString)
 
@@ -189,6 +196,8 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
   implicit def arbitraryUUID: Arbitrary[UUID] = Arbitrary(Gen.uuid)
 
   implicit def arbitraryStatus: Arbitrary[Status] = Arbitrary(genStatus)
+
+  implicit def arbitraryBasicAuthCredentials: Arbitrary[BasicAuthCredentials] = Arbitrary(genBasicAuthCredentials)
 
   implicit def arbitraryHeaders: Arbitrary[Headers] = Arbitrary(genHeaders)
 

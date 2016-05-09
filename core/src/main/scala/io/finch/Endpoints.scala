@@ -466,22 +466,44 @@ trait Endpoints {
   /**
    * Maintains Basic HTTP Auth for an arbitrary [[Endpoint]].
    */
-  case class BasicAuth(user: String, password: String) {
-    private[this] val userInfo = s"$user:$password"
-    private[this] val expected = "Basic " + Base64StringEncoder.encode(userInfo.getBytes)
-
+  case class BasicAuth(realm: String)(authenticate: (String, String) => Future[Boolean]) {
     def apply[A](e: Endpoint[A]): Endpoint[A] = new Endpoint[A] {
-      private[this] val failedOutput = new Rerunnable[Output[A]] {
-        override def run = Future.value(Unauthorized(BasicAuthFailed))
+      private[this] val unauthorized = new Rerunnable[Output[A]] {
+        override def run = Future.value(Unauthorized(BasicAuthFailed)
+          .withHeader("WWW-Authenticate" -> s"""Basic realm="$realm""""))
       }
 
       def apply(input: Input): Endpoint.Result[A] =
-        input.request.authorization.flatMap {
-          case `expected` => e(input)
-          case _ => Some(input.copy(path = Seq.empty) -> failedOutput)
+        e(input).map { case (input, output) =>
+          input -> authenticated(input).flatMap(if (_) output else unauthorized)
         }
 
-      override def toString: String = s"BasicAuth($e)"
+      private[this] def authenticated(input: Input): Rerunnable[Boolean] =
+        Rerunnable.fromFuture(
+          input.request.authorization
+            .flatMap(parse)
+            .map(authenticate.tupled)
+            .getOrElse(Future.False))
+
+      private[this] def parse(authorization: String): Option[(String, String)] = for {
+        (scheme, params) <- parseAuthorization(authorization)
+        if scheme == "basic"
+        (username, password) <- parseCredentials(params)
+      } yield (username, password)
+
+      private[this] def parseAuthorization(authorization: String): Option[(String, String)] =
+        authorization.split(" ", 2) match {
+          case Array(scheme, params) => Some((scheme.toLowerCase, params))
+          case _ => None
+        }
+
+      private[this] def parseCredentials(params: String): Option[(String, String)] =
+        new String(Base64StringEncoder.decode(params)).split(":", 2) match {
+          case Array(username, password) => Some((username, password))
+          case _ => None
+        }
+
+      override def toString: String = s"""BasicAuth(realm="$realm", $e)"""
     }
   }
 
