@@ -40,7 +40,9 @@ include its serialization logic into n instance of `EncodeResponse[Exception]`.
 ```scala
 import io.finch._
 
-val basicAuth: BasicAuth = BasicAuth("user", "password")
+val basicAuth: BasicAuth = BasicAuth("realm") { (user, password) =>
+  user == "user" && password == "password"
+}
 val e: Endpoint[String] = basicAuth(Endpoint(Ok("secret place")))
 ```
 
