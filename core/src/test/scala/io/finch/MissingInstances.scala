@@ -2,7 +2,7 @@ package io.finch
 
 import java.util.UUID
 
-import cats.kernel.Eq
+import cats.Eq
 import cats.Show
 import com.twitter.io.Buf
 import com.twitter.util.{Return, Throw, Try}

@@ -2,7 +2,7 @@ package io.finch
 
 import java.util.UUID
 
-import cats.kernel.Eq
+import cats.Eq
 import cats.Alternative
 import cats.laws.discipline.eq._
 import cats.std.AllInstances

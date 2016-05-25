@@ -1,6 +1,6 @@
 package io.finch
 
-import cats.kernel.Eq
+import cats.Eq
 import com.twitter.finagle.http.{Cookie, Response, Status, Version}
 import com.twitter.util.{Await, Future, Try}
 import io.finch.internal.ToResponse

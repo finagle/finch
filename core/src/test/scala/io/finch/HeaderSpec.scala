@@ -2,7 +2,7 @@ package io.finch
 
 import java.util.UUID
 
-import cats.kernel.Eq
+import cats.Eq
 import com.twitter.finagle.http.Request
 import org.scalacheck.Arbitrary
 

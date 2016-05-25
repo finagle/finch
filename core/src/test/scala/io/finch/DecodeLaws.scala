@@ -1,6 +1,6 @@
 package io.finch
 
-import cats.kernel.Eq
+import cats.Eq
 import cats.std.AllInstances
 import cats.laws._
 import cats.laws.discipline._
