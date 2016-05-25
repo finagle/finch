@@ -1,6 +1,6 @@
 package io.finch
 
-import algebra.Eq
+import cats.kernel.Eq
 import com.twitter.finagle.http.Request
 
 /**

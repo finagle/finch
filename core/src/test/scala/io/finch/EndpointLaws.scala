@@ -1,6 +1,6 @@
 package io.finch
 
-import algebra.Eq
+import cats.kernel.Eq
 import cats.laws.IsEq
 import cats.std.AllInstances
 import cats.laws._
