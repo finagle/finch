@@ -8,11 +8,11 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.10.6", "2.11.8")
 )
 
-lazy val finagleVersion = "6.34.0"
-lazy val circeVersion = "0.4.1"
-lazy val catbirdVersion = "0.3.0"
-lazy val shapelessVersion = "2.3.0"
-lazy val catsVersion = "0.4.1"
+lazy val finagleVersion = "6.35.0"
+lazy val circeVersion = "0.5.0-M1"
+lazy val catbirdVersion = "0.5.0"
+lazy val shapelessVersion = "2.3.1"
+lazy val catsVersion = "0.6.0"
 lazy val sprayVersion = "1.3.2"
 
 lazy val compilerOptions = Seq(
@@ -32,7 +32,7 @@ lazy val compilerOptions = Seq(
 
 val testDependencies = Seq(
   "org.scalacheck" %% "scalacheck" % "1.12.5",
-  "org.scalatest" %% "scalatest" % "2.2.5",
+  "org.scalatest" %% "scalatest" % "2.2.6",
   "org.typelevel" %% "cats-laws" % catsVersion,
   "org.typelevel" %% "discipline" % "0.4"
 )
@@ -199,7 +199,7 @@ lazy val circe = project
 lazy val playjson = project
   .settings(moduleName :="finch-playjson")
   .settings(allSettings)
-  .settings(libraryDependencies += "com.typesafe.play" %% "play-json" % "2.3.9")
+  .settings(libraryDependencies += "com.typesafe.play" %% "play-json" % "2.3.10")
   .dependsOn(core, jsonTest % "test")
 
 lazy val sprayjson = project
