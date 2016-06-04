@@ -169,7 +169,7 @@ Finch provides the following instances for reading HTTP params (evaluating endpo
 
 - `param("foo")` - required param "foo"
 - `paramOption("foo")` - optional param "foo"
-- `params("foos")` - multi-value param "foo" that might return an empty list
+- `params("foos")` - multi-value param "foo" that might return an empty sequence
 - `paramsNonEmpty("foos")` - multi-value param "foo" that fails when empty
 
 In addition to these evaluating endpoints, there is also one matching endpoint `paramExists("foo")`
@@ -180,6 +180,8 @@ You can extract params by composing endpoint definitions
 get("/hello" :: param("name")) { name: String => Ok(s"Hello, $name!") }
 
 get("/hello" :: paramOption("name")) { name: Option[String] => Ok(s"Hello, ${name.getOrElse("world")}!") }
+
+get("/hello" :: params("uids")) { uids: Seq[String] => Ok(s"Hello, ${uids.mkString(" and ")}!") }
 ```
 
 #### Headers
