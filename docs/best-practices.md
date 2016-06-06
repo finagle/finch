@@ -7,6 +7,7 @@
 * [Monitor your application](best-practices.md#monitor-your-application)
 * [Picking HTTP statuses for responses](best-practices.md#picking-http-statuses-for-responses)
 * [Configuring Finagle](best-practices.md#configuring-finagle)
+* [Finagle Filters vs. Finch Endpoints](best-practices.md#finagle-filters-vs-finc-endpoints)
 
 --
 
@@ -22,11 +23,8 @@ promote composability and compile-time guarantees for its abstractions.
 
 Given that major Finch's abstractions are pretty generic, you can make them
 [to have any faces you like][faceless] as long as it makes programming fun again: some of the Finch
-users write [Jersey-style][diar] programs, some of them stick with [CRUD-style][issue263] ones.
-
-To better organize your code and put endpoints in sort-of controllers you can use
-[Finchrich][finchrich]. This external project allows you to combine endpoints in controllers,
-nest them, and convert controllers into the endpoint coproducts without any kind of runtime reflection.
+users write [Jersey-style][diar] programs; some of them stick with [CRUD-style][issue263] ones;
+others use macros to group endpoints in [controllers-like][finchrich] structures.
 
 Note that all of the Finch examples are written in the "Vanilla Finch" style, when no additional
 levels of indirections are layered on top of endpoints.
@@ -237,6 +235,31 @@ useful server-side features that might be useful for most of the use cases.
    )
    .serve(":8080", service)
  ```
+
+### Finagle Filters vs. Finch Endpoints
+
+Finch endpoints are designed to be able to substitute (when it's reasonable) both Finagle
+services and filters. While it's totally clear that an `Endpoint` in Finch is a core
+abstraction and it should be used whenever a `Service` is used in Finagle, it's not so obvious
+about filters vs. endpoints.
+
+Due to the `Output` ADT, a Finch endpoint might easily simulate a Finagle filter and *reject* a
+request by responding `Output.failure`. Although, this doesn't completely mean endpoints should
+be preferred to filters in all the cases.
+
+The following rule of thumb might be used to determine what building block (filter or endpoint) to
+pick for a given use case.
+
+Use `Filter` instead of `Endpoint[HNil]` (only `Endpoint[HNil]` might be replaced with a filter)
+when:
+
+- It implements the logic that might be shared across all the endpoints in the program
+  (e.g., authorization, CORS).
+- It only used for side-effects (e.g., logging, metrics).
+
+Please note that "error handling" is a special case in Finch. While it seems like a shared logic
+that might be placed into a filter, it's preferred to use `Endpoint.handle` that allows to convert
+exceptions into `Output.failure`s in the fine grained way.
 
 [issue263]: https://github.com/finagle/finch/issues/263
 [future-finch]: https://gist.github.com/vkostyukov/411a9184f44a136e2ad9
