@@ -6,6 +6,7 @@
 * [Defining endpoints returning empty responses](cookbook.md#defining-endpoints-returning-empty-responses)
 * [Defining redirecting endpoints](cookbook.md#defining-redirecting-endpoints)
 * [Defining custom endpoints](cookbook.md#defining-custom-endpoints)
+* [CORS in Finch](cookbook.md#cors-in-finch)
 * [Converting between Scala futures and Twitter futures](cookbook.md#converting-between-scala-futures-and-twitter-futures)
 
 This is a collection of short recipes of "How to X in Finch".
@@ -317,6 +318,30 @@ val dateTime: Endpoint[LocalDateTime] = get("time" :: path[LocalDateTime]) { t: 
 **Note:** `io.finch.internal.Extractor` is an experimental API that will be (or not) eventually
 promoted to non-experimental.
 
+
+### CORS in Finch
+
+There is a [Finagle filter][cors-filter] that's when applied, enriches a given HTTP service with
+[CORS][cors] behaviour. The following example builds a CORS filter that allows `GET` and `POST`
+requests with `Accept` header from any origin.
+
+```scala
+import com.twitter.finagle.http.filter.Cors
+import com.twitter.finagle.http.{Request, Response}
+import com.twitter.finagle.Service
+import io.finch._
+
+val service: Service[Request, Response] = Endpoint(Ok("Hello, world!")).toService
+
+val policy: Cors.Policy = Cors.Policy(
+  allowsOrigin = _ => Some("*"), 
+  allowsMethods = _ => Some(Seq("GET", "POST")), 
+  allowsHeaders = _ => Some(Seq("Accept"))
+)
+
+val corsService: Service[Request, Response] = new Cors.HttpFilter(policy).andThen(service)
+```
+
 ### Converting between Scala futures and Twitter futures
 
 Since Finch is built on top of Finagle, it shares its utilities, including [futures][futures]. While
@@ -363,3 +388,6 @@ Read Next: [Best Practices](best-practices.md)
 [futures]: http://twitter.github.io/finagle/guide/Futures.html
 [bijection]: https://github.com/twitter/bijection
 [as]: https://github.com/twitter/util/blob/develop/util-core/src/main/scala/com/twitter/concurrent/AsyncStream.scala
+[cors-filter]: https://github.com/twitter/finagle/blob/develop/finagle-http/src/main/scala/com/twitter/finagle/http/filter/Cors.scala
+[cors]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
+
