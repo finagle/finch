@@ -8,6 +8,7 @@
 * [Picking HTTP statuses for responses](best-practices.md#picking-http-statuses-for-responses)
 * [Configuring Finagle](best-practices.md#configuring-finagle)
 * [Finagle Filters vs. Finch Endpoints](best-practices.md#finagle-filters-vs-finc-endpoints)
+* [Pulling it all Together](best-practices.md#pulling-it-all-together)
 
 --
 
@@ -260,6 +261,13 @@ when:
 Please note that "error handling" is a special case in Finch. While it seems like a shared logic
 that might be placed into a filter, it's preferred to use `Endpoint.handle` that allows to convert
 exceptions into `Output.failure`s in the fine grained way.
+
+### Pulling it all Together
+
+The best practices described here provide a good starting point for building a Finch-based app, but there are other, more fully featured requirments when building out services using Finch. There are several community efforts to build a simple service template for getting a fully-fledged service up & running quickly.
+
+* [Finch HTTP Service Template](https://github.com/tomjadams/finch-template)
+* [finch-server](https://github.com/BenWhitehead/finch-server)
 
 [issue263]: https://github.com/finagle/finch/issues/263
 [future-finch]: https://gist.github.com/vkostyukov/411a9184f44a136e2ad9
