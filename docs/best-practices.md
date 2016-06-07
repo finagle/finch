@@ -239,14 +239,14 @@ useful server-side features that might be useful for most of the use cases.
 
 ### Finagle Filters vs. Finch Endpoints
 
-Finch endpoints are designed to be able to substitute (when it's reasonable) both Finagle
-services and filters. While it's totally clear that an `Endpoint` in Finch is a core
-abstraction and it should be used whenever a `Service` is used in Finagle, it's not so obvious
-about filters vs. endpoints.
+Finch endpoints are designed to be able to substitute (when it's reasonable) for both Finagle
+services and filters. While it's clear that an Endpoint in Finch is a core abstraction and can
+be thought of as analogous to a Finagle `Service`, it's not always clear when you should use an
+endpoint over a Finagle `Filter` for things such as authentication.
 
-Due to the `Output` ADT, a Finch endpoint might easily simulate a Finagle filter and *reject* a
-request by responding `Output.failure`. Although, this doesn't completely mean endpoints should
-be preferred to filters in all the cases.
+Due to the `Output` ADT, a Finch endpoint can easily simulate a Finagle filter and *reject* a
+with an `Output.failure`. Although, this doesn't completely mean endpoints should
+be preferred to filters in all cases.
 
 The following rule of thumb might be used to determine what building block (filter or endpoint) to
 pick for a given use case.
@@ -254,9 +254,9 @@ pick for a given use case.
 Use `Filter` instead of `Endpoint[HNil]` (only `Endpoint[HNil]` might be replaced with a filter)
 when:
 
-- It implements the logic that might be shared across all the endpoints in the program
+- You want to implement logic that might be shared across all the endpoints in the program
   (e.g., authorization, CORS).
-- It only used for side-effects (e.g., logging, metrics).
+- It's only used for side-effects (e.g., logging, metrics).
 
 Please note that "error handling" is a special case in Finch. While it seems like a shared logic
 that might be placed into a filter, it's preferred to use `Endpoint.handle` that allows to convert
