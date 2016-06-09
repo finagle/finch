@@ -295,7 +295,34 @@ empty) and only `Output.Payload` is considered a success. Simply speaking, calli
 an endpoint returning non-`Output.Payload` output considered failed and its `map*` call won't be
 evaluated.
 
-**Example 3: custom path matcher**
+**Example 3: asynchronous authentication**
+
+Sometimes authenticating a request requires an asynchronous call (e.g., to a database or another
+HTTP service). Luckily, in addition to the `mapOutput` method used in the previous example, which
+takes a function of type `(A) => Output[B]`, `Endpoint`s also have a method called `mapOutputAsync`
+that takes a function of type `(A) => Future[Output[B]]`.
+
+The previous example's `auth` endpoint can be updated as follows:
+
+```scala
+def fetchUserForToken(token: String): Future[Option[User]] = ???
+
+val auth: Endpoint[User] = header("User").mapOutputAsync(u =>
+  if (u == "secret user") Future.value(Ok(User(10)))
+  else fetchUserForToken(u).map {
+    case Some(user) => Ok(user)
+    case None => Unauthorized(new Exception(s"Invalid token: $u"))
+  }
+).handle {
+  // if header "User" is missing we respond 401
+  case e: Error.NotPresent => Unauthorized(e)
+}
+```
+
+The `getCurrentUser` endpoint doesn't need to change at all, since `auth` is still an
+`Endpoint[User]`.
+
+**Example 4: custom path matcher**
 
 Let's say you want to write a custom _matching_ endpoint that only matches requests whose current
 path segment might be extracted as (converted to) Java 8's `LocalDateTime`.
