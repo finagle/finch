@@ -8,7 +8,7 @@
 ### Authentication with OAuth2
 
 There is [finagle-oauth2](https://github.com/finagle/finagle-oauth2) server-side provider that is
-supported in Finch via `finch-oauth2` package:
+supported in Finch via the `finch-oauth2` package:
 
 *Authorize*
 ```scala
@@ -30,11 +30,11 @@ val token: Endpoint[GrandHandlerResult] = issueAccessToken(dataHandler)
 
 Note that both `token` and `authorize` may throw `com.twitter.finagle.oauth2.OAuthError`, which is
 already _handled_ by a returned endpoint but needs to be serialized. This means you might want to
-include its serialization logic into n instance of `EncodeResponse[Exception]`.
+include its serialization logic into an instance of `EncodeResponse[Exception]`.
 
 ### Authentication with Basic HTTP
 
-[Basic HTTP Auth](http://en.wikipedia.org/wiki/Basic_access_authentication) is implemented as
+[Basic HTTP Auth](http://en.wikipedia.org/wiki/Basic_access_authentication) is implemented as the
 `BasicAuth` combinator available in `finch-core`.
 
 ```scala
