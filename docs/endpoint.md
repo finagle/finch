@@ -28,28 +28,28 @@ it's known how to compose/merge `(A, B)` into `C`.
 Endpoints are composed in two ways: in terms of _and then_ and in terms of _or else_ combinators.
 
 At the end of the day, an `Endpoint[A]` might be converted into a Finagle HTTP service so it might
-be served within Finagle ecosystem.
+be served within the Finagle ecosystem.
 
 ### Endpoint Internals
 
-Internally, an `Endpoint[A]` represented as a function `Request => Option[Future[Output[A]]]`. This
-might seem like a complex type, although it's pretty straightforward when viewed separately.
+Internally, an `Endpoint[A]` is represented as a function `Request => Option[Future[Output[A]]]`.
+This might seem like a complex type, although it's pretty straightforward when viewed separately.
 
 - `scala.Option` represents a success/failure of the _match_. Basically, `None` means "route not
   found" and will be converted into a very basic 404 response.
 - `com.twitter.util.Future` represents an _async computation_, which might fail. An unhandled
-  exceptions from `Future` is converted into a very basic 500 response.
+  exception from `Future` is converted into a very basic 500 response.
 - `io.finch.Output[A]` represents an _output context_ (headers, HTTP status, content type, etc),
-  which is used when serializing the underlying value of the `A` into a HTTP response.
+  which is used when serializing the underlying value of the `A` into an HTTP response.
 
 You shouldn't deal directly with that type, everything explained above happens internally.
 The only type that matters in this signature is `A`, a type of the value returned from the endpoint
-and will be serialized into an HTTP response.
+which will be serialized into an HTTP response.
 
-Finch encourages you to write low coupled and reusable endpoints that easy reason about. One
+Finch encourages you to write low coupled and reusable endpoints that are easy to reason about. One
 may say that a single `Endpoint` represents a particular _microservice_, which is nothing more than
 just a simple function. In this case, an HTTP server (a Finagle HTTP `Service` that might be served
-within Finagle ecosystem) is represented as a composition of endpoints.
+within the Finagle ecosystem) is represented as a composition of endpoints.
 
 ### Understanding Endpoints
 
@@ -58,9 +58,9 @@ This work is usually done by a service to which an endpoint is converted (wrappe
 Finagle service wrapping an endpoint 1) takes an HTTP request 2) converts it into a format Finch can
 understand 3) runs an endpoint 4) returns the value returned from the endpoint run/call.
 
-Everything from above seems pretty straightforward, except for what does it really mean to _run_ an
+Everything above seems pretty straightforward, except for what it really means to _run_ an
 endpoint. Running an endpoint consists of two stages: _match_ and _evaluate_. When the request comes
-in, it's matched against all the endpoints (composed in terms of _or else_) and then the one that's
+in, it's matched against all the endpoints (composed in terms of _or else_) and then the one that
 matched is evaluated.
 
 An important thing to understand is that the _match_ stage (represented as an `Option`) never fails,
@@ -125,9 +125,9 @@ Each extracting endpoint has a corresponding _tail extracting_ endpoints.
 There are also tail extracting endpoints available out of the box. For example, the `strings`
 endpoint has type `Endpoint[Seq[String]]` and extracts the rest of the path in the input.
 
-By default, extractors named be their types, i.e., `"string"`, `"boolean"`, etc. But you can specify
-the custom name for the extractor by calling the `apply` method on it. In the example below, the
-string representation of the endpoint `b` is `":flag"`.
+By default, extractors are named after their types, i.e., `"string"`, `"boolean"`, etc. But you can
+specify the custom name for the extractor by calling the `apply` method on it. In the example
+below, the string representation of the endpoint `b` is `":flag"`.
 
 ```scala
 scala> import io.finch._
@@ -160,17 +160,17 @@ res2: Boolean = true
 #### Params
 
 Finch aggregates for you all the possible param sources (query-string params, urlencoded params and
-multipart params) behind a single namespace `param*`. With that said, an endpoint `param("foo")`
-works as follows: 1) tries to fetch param `foo` from the query string 2) if previous step failed,
-tries to fetch param `foo` from the urlencoded body 3) if previous step fails, tries to fetch param
-`fom` from the multipart body.
+multipart params) behind a single namespace `param*`. That being said, an endpoint `param("foo")`
+works as follows: 1) tries to fetch param `foo` from the query string 2) if the previous step
+failed, tries to fetch param `foo` from the urlencoded body 3) if the previous step failed, tries
+to fetch param `foo` from the multipart body.
 
 Finch provides the following instances for reading HTTP params (evaluating endpoints):
 
 - `param("foo")` - required param "foo"
 - `paramOption("foo")` - optional param "foo"
-- `params("foos")` - multi-value param "foo" that might return an empty sequence
-- `paramsNonEmpty("foos")` - multi-value param "foo" that fails when empty
+- `params("foos")` - multivalued param "foo" that might return an empty sequence
+- `paramsNonEmpty("foos")` - multivalued param "foo" that fails when empty
 
 In addition to these evaluating endpoints, there is also one matching endpoint `paramExists("foo")`
 that only matches requests with "foo" param.
@@ -195,8 +195,8 @@ Instances for reading HTTP headers include both evaluating and matching instance
 #### Bodies
 
 All the instances for reading HTTP bodies are evaluating endpoints that also involve matching in
-some way: before evaluate an HTTP body they also check/match whether the request is
-chunked/non-chinked. This is mostly about what API Finagle provides for streaming: chunked requests
+some way: before evaluating an HTTP body they also check/match whether the request is
+chunked/non-chunked. This is mostly about what API Finagle provides for streaming: chunked requests
 may read via `request.reader`, non-chunked via `request.content`.
 
 - `body` - required, non-chunked (only matches non-chunked requests) body represented as a string
@@ -228,21 +228,22 @@ There are also two instances (evaluating endpoints) for reading cookies from HTT
 
 ### Composing Endpoints
 
-It's time to catch the beauty of endpoint combinators API by composing the complex endpoints out of
-the simple endpoints we've seen before. There are just two operators you will need to deal with:
+It's time to see the beauty of the endpoint combinators API in action by composing the complex
+endpoints out of the simple endpoints we've seen before. There are just two operators you will
+need to deal with:
 
-- `::` that composes two endpoints in terms of _and then_ combinator into a product endpoint
+- `::` that composes two endpoints in terms of the _and then_ combinator into a product endpoint
   `Endpoint[L <: HList]` (see [Shapeless' HList][hlist])
-- `:+:` that composes two endpoints of different types in terms of _or else_ combinator into a
+- `:+:` that composes two endpoints of different types in terms of the _or else_ combinator into a
   coproduct endpoint `Endpoint[C <: Coproduct]` (see [Shapeless' Coproduct][coproduct])
 
-As you may noticed, Finch heavily uses [Shapeless][shapeless] to empower its composability in a
+As you may have noticed, Finch heavily uses [Shapeless][shapeless] to empower its composability in a
 type-safe, boilerplate-less way.
 
 #### Product Endpoints
 
 A product endpoint returns a product type represented as an `HList`. For example, a product endpoint
-`Endpoint[Foo :: Bar :: HNil]` return two values of types `Foo` and `Bar` wrapped with `HList`. To
+`Endpoint[Foo :: Bar :: HNil]` returns two values of types `Foo` and `Bar` wrapped with `HList`. To
 build a product endpoint, use the `::` combinator.
 
 ```scala
@@ -254,16 +255,15 @@ val s: Endpoint[String] = ???
 val both: Endpoint[Int :: String :: HNil] = i :: s
 ```
 
-No matter what are the types of left-hand/right-hand endpoints (`HList`-based endpoint or value
-endpoint) when applied to `::` compositor, the correctly constructed `HList` will be yielded as a
-result.
+No matter what the types of left-hand/right-hand endpoints are (`HList`-based endpoint or value
+endpoint), when applied to the `::` compositor, the correctly constructed `HList` will be yielded.
 
 #### Coproduct Endpoints
 
 A coproduct `Endpoint[A :+: B :+: CNil]` represents an endpoint that returns a value of either type
-`A` or type `B`. The `:+:` (i.e., space invader) combinator  mechanic is close to `orElse` function
-defined of `Option` and `Try`: if the first endpoint fails to match the input, it fails through to
-the second one.
+`A` or type `B`. The `:+:` (i.e., space invader) combinator  mechanic is close to the `orElse`
+function defined in `Option` and `Try`: if the first endpoint fails to match the input, it fails
+through to the second one.
 
 ```scala
 import io.finch._
@@ -275,16 +275,16 @@ val either: Endpoint[Int :+: String :+: CNil] = i :+: s
 ```
 
 Any coproduct endpoint may be converted into a Finagle HTTP service (i.e.,
-`Service[Request, Response]`) under the certain circumstances: every type in a coproduct should have
+`Service[Request, Response]`) under certain circumstances: every type in a coproduct should have
 a corresponding implicit instance of `EncodeResponse` in the scope.
 
 ### Mapping Endpoints
 
 A business logic in Finch is represented as an endpoint _transformation_ in a form of either
 `A => Future[Output[B]]` or `A => Output[B]`. An endpoint is enriched with lightweight syntax
-allowing to use same method for both transformations: the `Endpoint.apply` method takes care about
-applying the given function to the underlying `HList` with appropriate arity as well as wrapping the
-right hand side `Output[B]` into a `Future`.
+allowing us to use the same method for both transformations: the `Endpoint.apply` method takes
+care of applying the given function to the underlying `HList` with appropriate arity as well as
+wrapping the right hand side `Output[B]` into a `Future`.
 
 In the following example, an `Endpoint[Int :: Int :: HNil]` is mapped to a function
 `(Int, Int) => Output[Int]`.
@@ -337,8 +337,8 @@ object Output {
 }
 ```
 
-Having an `Output` defined as an ADT allows to return both payloads and failures from the same
-endpoint depending on the condition result.
+Having an `Output` defined as an ADT allows us to return both payloads and failures from the same
+endpoint depending on the conditional result.
 
 ```scala
 import io.finch._
@@ -349,23 +349,23 @@ val divOrFail: Endpoint[Int] = post("div" :: int :: int) { (a: Int, b: Int) =>
 }
 ```
 
-Payloads and failures are symmetric in terms of serializing `Output` into an HTTP response. With
-that said, in order to convert an `Endpoint` into a Finagle service, there is should be an implicit
-instance of `EncodeResponse[Exception]` available in the scope. For example, it might be defined in
-terms of Circe's `Encoder`:
+Payloads and failures are symmetric in terms of serializing `Output` into an HTTP response. In
+order to convert an `Endpoint` into a Finagle service, there should be an implicit instance of
+`EncodeResponse[Exception]` available in the scope. For example, it might be defined in terms of
+Circe's `Encoder`:
 
 ```scala
 implicit val encodeException: Encoder[Exception] = Encoder.instance(e =>
   Json.obj("message" -> Json.string(e.getMessage)))
 ```
 
-By default, all the exception are converted into `plain/text` HTTP response containing the exception
-message in their bodies.
+By default, all the exceptions are converted into `plain/text` HTTP responses containing the
+exception messages in their bodies.
 
 While this approach works perfectly well with JSON libraries empowering type-classes as
 decoders/encoders, it doesn't really fit well with libraries using runtime-reflection. Thus, when it
-comes to exception encoding, it involves some workaround to enable [Jackson](json.md#jackson)
-support in Finch. See [eval][eval] for an idiomatic example.
+comes to exception encoding, there is some workaround involved in order to enable
+[Jackson](json.md#jackson) support in Finch. See [eval][eval] for an idiomatic example.
 
 ### Type Conversion
 
@@ -391,7 +391,7 @@ scala> params("bazs").as[Int]
 res3: io.finch.Endpoint[Seq[Int]] = param(bazs)
 ```
 
-The same method `as[A]` is also available on any `Endpoint[L <: HList]` to perform a
+The same method `as[A]` is also available on any `Endpoint[L <: HList]` to perform
 [Shapeless][shapeless]-powered generic conversions from `HList`s to case classes with appropriately
 typed members.
 
@@ -410,8 +410,8 @@ foo: io.finch.Endpoint[Foo] = param(i) :: param(s)
 ```
 
 Note that while both methods take different implicit params and use different techniques to perform
-type-conversions, they're basically doing the same thing: transforming the underlying type `A` into
-some type `B` (that's why they have similar names.
+type-conversion, they're basically doing the same thing: transforming the underlying type `A` into
+some type `B` (that's why they have similar names).
 
 ### Custom Decoders
 
@@ -429,7 +429,7 @@ implicit val dateTimeDecoder: DecodeRequest[DateTime] =
 All you need to implement is a simple function from `String` to `Try[A]`.
 
 As long as the implicit declared above is in scope, you can then use your custom decoder in the same
-way as any of the built-in decoders (in this case for creating a JodaTime `Interval`:
+way as any of the built-in decoders (in this case for creating a JodaTime `Interval`):
 
 ```scala
 import io.finch._
@@ -471,7 +471,7 @@ The `should` and `shouldNot` methods on `Endpoint` allow you to perform validati
 specified predicate does not hold, the reader will fail with a `io.finch.Error.NotValid` exception.
 
 Note that for an optional reader, the validation will be skipped for `None` results, but if the
-value is non-empty then all validation must succeed for the reader to succeed.
+value is non-empty then all validations must succeed for the reader to succeed.
 
 For validation logic only needed in one place, the most convenient way is to declare it inline:
 
@@ -512,9 +512,9 @@ or `beShorterThan(n: Int)`.
 
 An endpoint may fail (it may evaluate into a `Future.exception`) by a number of reasons: it was
 transformed/mapped to one that fails; it's an evaluating endpoint that fails if the incoming request
-doesn't satisfy some condition (e.g., should has a query string param `foo`).
+doesn't satisfy some condition (e.g., should have a query string param `foo`).
 
-With that said, you might want to _handle_ exceptions from the endpoint (even a coproduct one) to
+Having said that, you might want to _handle_ exceptions from the endpoint (even a coproduct one) to
 make sure a remote client will receive them in a serialized form. Otherwise they will be dropped -
 converted into very basic 500 responses that don't carry any payload.
 
