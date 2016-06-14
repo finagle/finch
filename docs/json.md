@@ -14,16 +14,17 @@ while switching the JSON backend.
 
 Finch comes with a rich support of many modern JSON libraries. While it's totally possible to use
 Finch with runtime reflection based libraries such as [Jackson][jackson], it's highly recommended to
-use compile-time based solutions such as [Circe][circe] and [Argonaut][argonaut]. At start, Circe
-would be the best possible choice as a JSON library with great performance and no boilerplate.
+use compile-time based solutions such as [Circe][circe] and [Argonaut][argonaut]. When starting
+out, Circe would be the best possible choice as a JSON library due to its great performance and
+lack of boilerplate.
 
-Use the following instructions to enable a support for a particular JSON library.
+Use the following instructions to enable support for a particular JSON library.
 
 ### Circe
 
-* Bring the dependency to the `finch-circe` module.
-* Make sure for each domain type there are implicit instances of `io.circe.Encoder[A]` and
-  `io.circe.Decoder[A]` in the scope or Circe's generic auto derivation is used via
+* Add the dependency to the `finch-circe` module.
+* Make sure for each domain type that there are implicit instances of `io.circe.Encoder[A]` and
+  `io.circe.Decoder[A]` in the scope or that Circe's generic auto derivation is used via
   `import io.circe.generic.auto_`.
 
 ```scala
@@ -31,7 +32,7 @@ import io.finch.circe._
 import io.circe.generic.auto._
 ```
 
-It's also possible to import the Circe configuration that uses a pretty printer configured with
+It's also possible to import the Circe configuration which uses a pretty printer configured with
 `dropNullKeys = true`. Use the following imports instead:
 
 ```scala
@@ -40,8 +41,8 @@ import io.circe.generic.auto._
 ```
 
 Unless it's absolutely necessary to customize Circe's output format (i.e., drop null keys), always
-prefer [Jackson serializer][circe-jackson] for better performance. The following two imports shows
-how to switch Circe to use Jackson while serializing instead of built-in pretty printer.
+prefer the [Jackson serializer][circe-jackson] for better performance. The following two imports
+show how to make Circe use Jackson while serializing instead of the built-in pretty printer.
 
 ```scala
 import io.finch.circe.jacksonSerializer._
@@ -50,7 +51,7 @@ import io.circe.generic.auto._
 
 ### Argonaut
 
-* Bring the dependency to the `finch-argonaut` module.
+* Add the dependency to the `finch-argonaut` module.
 * Make sure for each domain type there are instances of `argonaut.EncodeJson[A]` and
   `argonaut.DecodeJson[A]` in the scope.
 
@@ -66,16 +67,16 @@ implicit val d: DecodeJson[_] = ???
 In addition to the very basic Argonaut pretty printer (available via `import io.finch.argonaut._`),
 there are three additional configurations available out of the box:
 
-* `import io.finch.argonaut.dropNullKeys._` - brings both decoder and encoder (uses pretty printer
-  that drops null keys) in the scope
-* `import io.finch.argonaut.preserveOrder._` - brings both decoder and encoder (uses pretty printer
-  that preserves fields order) in the scope
+* `import io.finch.argonaut.dropNullKeys._` - brings both decoder and encoder (uses the pretty
+  printer that drops null keys) in the scope
+* `import io.finch.argonaut.preserveOrder._` - brings both decoder and encoder (uses the pretty
+  printer that preserves fields order) in the scope
 * `import io.finch.argonaut.preserveOrderAndDropNullKeys._` - brings both decoder and encoder (uses
-  pretty printer that preserves fields order as well as drop null keys) in the scope
+  the pretty printer that preserves fields order as well as drops null keys) in the scope
 
 ### Jackson
 
-* Bring the dependency to the `finch-jackson` module.
+* Add the dependency to the `finch-jackson` module.
 * Make sure there is an implicit instance of `com.fasterxml.jackson.databind.ObjectMapper` in the
   scope.
 
@@ -89,7 +90,7 @@ implicit val objectMapper: ObjectMapper = new ObjectMapper().registerModule(Defa
 
 ### Json4s
 
-* Bring the dependency to the `finch-json4s` module.
+* Add the dependency to the `finch-json4s` module.
 * Make sure there is an implicit instance of `Formats` in the scope.
 
 ```scala
@@ -101,8 +102,9 @@ implicit val formats: Formats = DefaultFormats ++ JodaTimeSerializers.all
 
 ### PlayJson
 
-* Bring the dependency to the `finch-playjson` module.
-* For any type you want to serialize or deserialize you are required to create the appropriate Play JSON `Reads` and `Writes`.
+* Add the dependency to the `finch-playjson` module.
+* For any type you want to serialize or deserialize you are required to create the appropriate
+  Play JSON `Reads` and `Writes`.
 
 ```scala
 import io.finch.playjson._
@@ -118,8 +120,8 @@ object Foo {
 
 ### Spray-Json
 
-* Bring the dependency to the `finch-sprayjson` module.
-* Create an implicit format convertor value for any type you denfined.
+* Add the dependency to the `finch-sprayjson` module.
+* Create an implicit format convertor value for any type you defined.
 
 ```scala
 import io.finch.sprayjson._
