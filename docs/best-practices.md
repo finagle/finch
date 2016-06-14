@@ -14,35 +14,36 @@
 
 ### The big picture
 
-There were a lot of discussions and thoughts on "What an idiomatic Finch program look like?" (see
-the [Best Practices and Abstractions][issue263] issue and the [Future Finch][future-finch] writeup),
-but we're not sure we should end up sticking with "one-size-fits-all" style in Finch. In fact, zero
-lines of Finch's code were written with some particular style in mind, rather than reasonable
-composition and reuse of its building blocks. That said, Finch will always be a _library_ that
-doesn't promote any concrete style of organizing a code base (frameworks usually do that), but does
-promote composability and compile-time guarantees for its abstractions.
+There were a lot of discussions and thoughts on "What does an idiomatic Finch program look like?"
+(see the [Best Practices and Abstractions][issue263] issue and the [Future Finch][future-finch]
+writeup), but we're not sure we should end up sticking with a "one-size-fits-all" style in Finch.
+In fact, zero lines of Finch's code were written with some particular style in mind, rather
+reasonable composition and reuse of its building blocks. That said, Finch will always be a
+_library_ that doesn't promote any concrete style for organizing a code base (frameworks usually
+do that), but does promote composability and compile-time guarantees for its abstractions.
 
 Given that major Finch's abstractions are pretty generic, you can make them
-[to have any faces you like][faceless] as long as it makes programming fun again: some of the Finch
+[have any faces you like][faceless] as long as it makes programming fun again: some of the Finch
 users write [Jersey-style][diar] programs; some of them stick with [CRUD-style][issue263] ones;
 others use macros to group endpoints in [controllers-like][finchrich] structures.
 
-Note that all of the Finch examples are written in the "Vanilla Finch" style, when no additional
+Note that all of the Finch examples are written in the "Vanilla Finch" style, where no additional
 levels of indirections are layered on top of endpoints.
 
 ### Picking a JSON library
 
 It's highly recommended to use [Circe][circe], whose purely functional nature aligns very well with
-Finch (see [JSON docs](json.md#circe) on how to enable Circe support in Finch). In addition to a
-[compile-time derived decoders][generic-decoders] and encoders, Circe comes with
-[a great performance][circe-performance] and very useful features such as case class patchers and
+Finch (see [JSON docs](json.md#circe) on how to enable Circe support in Finch). In addition to
+[compile-time derived decoders][generic-decoders] and encoders, Circe has
+[great performance][circe-performance] and very useful features such as case class patchers and
 incomplete decoders.
 
 Case class patchers are extremely useful for `PATCH` and `PUT` HTTP endpoints, when it's required to
 _update_ the case class instance with new data parsed from a JSON object. In Finch, Circe's case
 class patchers are usually represented as `RequestReader[A => A]`, which
 
-1. parses an HTTP request for a partial JSON object that contains fields need to be updated and
+1. parses an HTTP request for a partial JSON object that contains the fields which need to be
+   updated and
 2. represents that partial JSON object as a function `A => A` that takes a case class and updates
    it with all the values from a JSON object
 
@@ -82,12 +83,12 @@ val postTodo: Endpoint[Todo] = post("todos" :: postedTodo) { t: Todo =>
 }
 ```
 
-By default Finch uses Circe's `Printer` to serialize JSON values into strings, which is quite
+By default, Finch uses Circe's `Printer` to serialize JSON values into strings, which is quite
 convenient given that it's possible to _configure_ and enable some extra options (eg., to drop null
 keys in the output string, replace the `io.finch.circe._` import with `io.finch.circe.dropNullKeys._`
-one), but it's not the most performant printer in Circe. Always use
-[Jackson-powered printer with Circe][circe-jackson] (i.e., replace the `io.finch.circe._` import
-with `io.finch.circe.jacksonSerializer` one) unless you absolutely not happy with its output format
+), but it's not the most efficient printer in Circe. Always use
+[the Jackson-powered printer with Circe][circe-jackson] (i.e., replace the `io.finch.circe._` import
+with `io.finch.circe.jacksonSerializer`) unless you are really unhappy with its output format
 (i.e., want to drop null keys).
 
 ### Do not block an endpoint
@@ -111,10 +112,10 @@ val expensive: Endpoint[BigInt] = get(int) { i: Int =>
 
 Always serve Finch endpoints within [TwitterServer][twitter-server], a lightweight server template
 used in production at Twitter. TwitterServer wraps a Finagle application with a bunch of useful
-features such as command line flags, logging and more importantly HTTP admin interface that can tell
-a lot on what's happening with your server. One of the most powerful features of the admin interface
-is [Metrics][metrics], which captures a snapshot of all the system-wide stats (free memory, CPU
-usage, request success rate, request latency and many more) exported in a JSON format.
+features such as command line flags, logging and more importantly an HTTP admin interface that can
+tell a lot on what's happening with your server. One of the most powerful features of the admin
+interface is [Metrics][metrics], which captures a snapshot of all the system-wide stats (free
+memory, CPU usage, request success rate, request latency and many more) exported in a JSON format.
 
 Use the following template to empower your Finch application with TwitterServer.
 
@@ -149,7 +150,7 @@ Use [Metrics][metrics] to export domain-specific metrics from your application a
 automatically with [TwitterServer][twitter-server]. Metrics are extremely valuable and helps you
 better understand your application under different circumstances.
 
-One of the easiest things to export is a _counters_ that captures the number of times some event
+One of the easiest things to export is a _counter_ that captures the number of times some event
 occurred.
 
 ```scala
@@ -170,7 +171,7 @@ object Main extends TwitterServer {
 }
 ```
 
-It's also possible to export histograms over the random values (latencies, number of active users,
+It's also possible to export histograms over random values (latencies, number of active users,
 etc).
 
 ```scala
@@ -189,21 +190,21 @@ object Main extends TwitterServer {
 }
 ```
 
-Both Finagle and user defined stats are available via TwitterServer's HTTP admin interface or HTTP
-endpoint `/admin/metrics.json`.
+Both Finagle and user-defined stats are available via the TwitterServer's HTTP admin interface or
+through the `/admin/metrics.json` HTTP endpoint.
 
 ### Picking HTTP statuses for responses
 
 There is no one-size-fits-all answer on what HTTP status code to use for a particular response, but
-there are [best practices][rest-api-bb] established by community as well as
-[world-famous APIs][statuses]. Finch is trying to take a neutral stand in this question by providing
+there are [best practices][rest-api-bb] established by the community as well as
+[world-famous APIs][statuses]. Finch is trying to take a neutral stand on this question by providing
 an `Output` API abstracted over the HTTP statuses so any of them might be used to construct a
-payload, a failure of an empty output. On the other hand, there is an _optional_ and lightweight API
+payload, a failure or an empty output. On the other hand, there is an _optional_ and lightweight API
 (i.e., methods `Ok`, `BadRequest`, `NoContent`, etc) providing a reasonable mapping between response
-type (payload, failure, empty) and its status code. This API (mapping) shouldn't be blindly followed
-since there are always exceptions (specific applications, opinionated design principles) from the
-general rule. Simply speaking, you're more than welcome to use the mapping we believe makes sense,
-but you don't have to stick with that and can always drop down to the `Output.*` API.
+type (payload, failure, empty) and their status code. This API (mapping) shouldn't be blindly
+followed since there are always exceptions (specific applications, opinionated design principles)
+from the general rule. Simply speaking, you're more than welcome to use the mapping we believe
+makes sense, but you don't have to stick with that and can always drop down to the `Output.*` API.
 
 The current Finch's mapping is following.
 
@@ -240,13 +241,13 @@ useful server-side features that might be useful for most of the use cases.
 ### Finagle Filters vs. Finch Endpoints
 
 Finch endpoints are designed to be able to substitute (when it's reasonable) for both Finagle
-services and filters. While it's clear that an Endpoint in Finch is a core abstraction and can
+services and filters. While it's clear that an `Endpoint` in Finch is a core abstraction and can
 be thought of as analogous to a Finagle `Service`, it's not always clear when you should use an
 endpoint over a Finagle `Filter` for things such as authentication.
 
-Due to the `Output` ADT, a Finch endpoint can easily simulate a Finagle filter and *reject* a
-with an `Output.failure`. Although, this doesn't completely mean endpoints should
-be preferred to filters in all cases.
+Due to the `Output` ADT, a Finch endpoint can easily simulate a Finagle filter and *reject* an
+authentication request with an `Output.failure`. Although, this doesn't completely mean endpoints
+should be preferred to filters in all cases.
 
 The following rule of thumb might be used to determine what building block (filter or endpoint) to
 pick for a given use case.
@@ -264,7 +265,10 @@ exceptions into `Output.failure`s in the fine grained way.
 
 ### Pulling it all Together
 
-The best practices described here provide a good starting point for building a Finch-based app, but there are other, more fully featured requirments when building out services using Finch. There are several community efforts to build a simple service template for getting a fully-fledged service up & running quickly.
+The best practices described here provide a good starting point for building a Finch-based app,
+but there are other, more fully-featured requirements when building out services using Finch.
+There are several community efforts to build a simple service template for getting a
+fully-fledged service up & running quickly.
 
 * [Finch HTTP Service Template](https://github.com/tomjadams/finch-template)
 * [finch-server](https://github.com/BenWhitehead/finch-server)
