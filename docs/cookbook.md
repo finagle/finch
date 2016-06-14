@@ -13,11 +13,11 @@ This is a collection of short recipes of "How to X in Finch".
 
 ### Fixing the `.toService` compile error
 
-Finch promotes a type-full functional programming style, where an API server is represented as
+Finch promotes a type-full functional programming style, where an API server is represented as a
 coproduct of all the possible types it might return. That said, a Finch server is type-checked
-by a compiler to ensure that it's known how to convert every part of coproduct into an HTTP
-response. Simply speaking, as a Finch user, you get a compile-time grantee that for every
-endpoint in your application it's was possible to find an appropriate encoder. Otherwise you will
+by the compiler to ensure that it's known how to convert every part of coproduct into an HTTP
+response. Simply speaking, as a Finch user, you get a compile-time guarantee that for every
+endpoint in your application it's possible to find an appropriate encoder. Otherwise you will
 get a compile error that looks like this.
 
 ```
@@ -34,7 +34,7 @@ get a compile error that looks like this.
 [error] io.finch.eval.Main.Output).
 ```
 
-That means, a compiler wasn't able to find an instance of `EncodeResponse` type-class for type
+Which means: the compiler wasn't able to find an instance of `EncodeResponse` type-class for type
 `Output`. To fix that you could either provide that instance (seriously, don't do that unless you
 have an absolutely specific use case) or use one of the supported JSON libraries and get it for
 free (preferred).
@@ -49,13 +49,13 @@ import io.finch.circe._
 
 **Note:** IntelliJ usually marks those imports unused (grey). Don't. Trust. It.
 
-In addition to `EncodeResponse` instance for return (success) types, Finch also requires an instance
-for `Exception` (failure) that might be thrown by the endpoint. That said, both failures and
-success values should be serialised and propagated to the client over the wire.
+In addition to an `EncodeResponse` instance for return (success) types, Finch also requires an
+instance for `Exception` (failure) that might be thrown by the endpoint. That said, both failures
+and successes values should be serialized and propagated to the client over the wire.
 
-It's relatively easy to provide such instance with JSON libraries featuring compile-time reflection
-and type-classes for decoding/encoding (Circe, Argonaut). For example, with Circe it might be
-defined as follows.
+It's relatively easy to provide such an instance with JSON libraries featuring compile-time
+reflection and type-classes for decoding/encoding (Circe, Argonaut). For example, with Circe it
+might be defined as follows.
 
 ```scala
 import io.circe.{Encoder, Json}
@@ -68,8 +68,8 @@ implicit val encodeException: Encoder[Exception] = Encoder.instance(e =>
 )
 ```
 
-Anyways, this may be tricky to do with libraries using runtime-reflection (Jackson, JSON4S) since
-they are usually able to serialise `Any` values, which means it's possible to compile a `.toService`
+However, this may be tricky to do with libraries using runtime-reflection (Jackson, JSON4S) since
+they are usually able to serialize `Any` values, which means it's possible to compile a `.toService`
 call without an explicitly provided `EncodeResponse[Exception]`. This may lead to some unexpected
 results (even `StackOverflowException`s). As a workaround, you might define a raw instance of
 `EncodeResponse[Exception]` that wraps a call to the underlying JSON library. The following example,
@@ -92,13 +92,13 @@ implicit val ee: EncodeResponse[Exception] =
 ### Serving static content
 
 Finch was designed with type-classes powered _extensibility_ in mind, which means it's possible to
-define an `Endpoint` of any type `A` as long as there is a type-class instance of`EncodeResponse[A]`
-available for that type. Needless to say, it's pretty much straightforward to define a _blocking_
-instance of `EncodeResponse[File]` that turns a given `File` into a `Buf`. Although, it might be
-tricky to come up with _non-blocking_ way of serving a static content with Finch. The cornerstone
-idea is to return a `Buf` instance from the endpoint so we could use an identity `EncodeResponse`,
-thereby lifting the encoding part onto endpoint itself (where it's quite legal to return a
-`Future[Buf]`).
+define an `Endpoint` of any type `A` as long as there is a type-class instance of
+`EncodeResponse[A]` available for that type. Needless to say, it's pretty much straightforward to
+define a _blocking_ instance of `EncodeResponse[File]` that turns a given `File` into a `Buf`.
+Although, it might be tricky to come up with a _non-blocking_ way of serving static content with
+Finch, there is a way. The cornerstone idea is to return a `Buf` instance from the endpoint so we
+could use an identity `EncodeResponse`, thereby lifting the encoding part onto the endpoint itself
+(where it's quite legal to return a `Future[Buf]`).
 
 ```scala
 import io.finch._
@@ -111,11 +111,12 @@ val file: Endpoint[Buf] = get("file") {
   Ok(Reader.readAll(reader)).withContentType(Some("text/plain"))
 }
 ```
-**Note:** It's usually not a great idea to use tools like Finch (or similar) while serving a static
+**Note:** It's usually not a great idea to use tools like Finch (or similar) to serve static
 content given their _dynamic_ nature. Instead, a static HTTP server (i.e., [Nginx][nginx]) would be
-a perfect tool to use.
+the perfect fit.
 
-Since Finch 0.10 it's possible to _stream_ the file content to the client using [`AsyncStream`][as].
+Since Finch 0.10, it's possible to _stream_ the file content to the client using
+[`AsyncStream`][as].
 
 ```scala
 import io.finch._
@@ -141,13 +142,14 @@ Http.server
 
 For the sake of errors accumulating, Finch exceptions are encoded into a recursive ADT, where
 `Error.RequestErrors` wraps a `Seq[Error]`. Thus is might be tricky to write an encoder (i.e,
-`EncodeResponse[Exception]`) for this. Although, this kind of problem shouldn't be a surprise for
-Scala programmers, who deal with recursive ADTs and pattern matching on a daily basis.
+`EncodeResponse[Exception]`) for this. Yet, this kind of problem shouldn't be a surprise for
+Scala programmers who deal with recursive ADTs and pattern matching on a daily basis.
 
 The general idea is to write a recursive function converting a `Throwable` to `Seq[Json]` (where
-`Json` represents an AST in a particular JSON library) and then convert `Seq[Json]` into JSON array.
+`Json` represents an AST in a particular JSON library) and then convert `Seq[Json]` into a JSON
+array.
 
-With [Circe][circe] the complete implementation might look as follows.
+With [Circe][circe] the complete implementation might look like the following.
 
 ```scala
 import io.finch._
@@ -171,7 +173,7 @@ implicit val ee: Encoder[Exception] =
 
 ### Defining endpoints returning empty responses
 
-As well as in any Scala program you can define a function returning an empty result (a unit
+Just like in any Scala program you can define a function returning an empty result (a unit
 value), in Finch, you can define an endpoint returning an empty response (an empty/unit output).
 An `Endpoint[Unit]` represents an endpoint that doesn't return any payload in the response.
 
@@ -183,9 +185,9 @@ val empty: Endpoint[Unit] = get("empty" :: string) { s: String =>
 }
 ```
 
-There are also cases when an endpoint returns either payload or empty response. While it's probably
-a better idea to use failures in order to explain the remote client why there is no payload in the
-response, it's totally possible to send empty ones instead.
+There are also cases when an endpoint returns either a payload or an empty response. While it's
+probably a better idea to use failures in order to explain to the remote client why there is no
+payload in the response, it's totally possible to send empty ones instead.
 
 ```scala
 import io.finch._
@@ -193,13 +195,13 @@ import com.twitter.finagle.http.Status
 
 case class Foo(s: String)
 
-// This possible to do
+// This is possible
 val fooOrEmpty: Endpoint[Foo] = get("foo" :: string) { s: String =>
   if (s != "") Ok(Foo(s))
   else NoContent
 }
 
-// This is recommend to do 
+// This is recommended
 val fooOrFailure: Endpoint[Foo] = get("foo" :: string) { s: String =>
   if (s != "") Ok(Foo(s))
   else BadRequest(new IllegalArgumentException("empty string"))
@@ -208,7 +210,7 @@ val fooOrFailure: Endpoint[Foo] = get("foo" :: string) { s: String =>
 
 ### Defining redirecting endpoints
 
-Redirects are still weird in Finch. Util [reversed routes/endpoints][issue191] are shipped, the
+Redirects are still weird in Finch. Until [reversed routes/endpoints][issue191] are shipped, the
 reasonable way of defining redirecting endpoints is to represent them as `Endpoint[Unit]` (empty
 output) indicating that there is no payload returned.
 
@@ -228,15 +230,15 @@ on a predefined endpoint it becomes "custom". Anyways, there are endpoints (at l
 more complex endpoints) that might be decoupled and shared across other endpoints in your
 application.
 
-One way or another, Finch is a library promoting functional programming, which means it prefers
-composition over inheritance. Thus, building new instances in Finch is never about extending some
-base class, but about composing existing instances together.
+Finch is a library promoting functional programming, which means it prefers composition over
+inheritance. Thus, building new instances in Finch is never about extending some base class, but
+about composing existing instances together.
 
 **Example 1: aka request reader**
 
-Before 0.10 there was a `RequestReader` abstraction in Finch that has been replaced with _evaluating
-endpoints_. Even that the name was changed, the request-reader-flavored API (and behaviour) wasn't
-touched at all.
+Before 0.10, there was a `RequestReader` abstraction in Finch that has been replaced with
+_evaluating endpoints_. Even though the name was changed, the request-reader-flavored API (and
+behavior) wasn't touched at all.
 
 In the following example, we define a new endpoint `foo` that reads an instance of the case class
 `Foo` from the request during the _evaluation_ stage. So it won't affect matching.
@@ -255,7 +257,7 @@ val getFoo: Endpoint[Foo] = get("foo" :: foo) { f: Foo =>
 **Note:** The endpoint body from the example above will never be evaluated if the `foo` endpoint
 fails (e.g., one of the params is missing). This shouldn't be a big surprise given that such
 behavior is quite natural for a functor (i.e., `map` function) - an endpoint on which `mapOutput` is
-called (via the syntactic sugar around `apply`) might be already failed.
+called (via the syntactic sugar around `apply`) might have already failed.
 
 **Example 2: authentication**
 
@@ -264,8 +266,8 @@ possible to define self-contained instances that also handle exceptions (convert
 outputs).
 
 In this example, we define an evaluating endpoint `auth` that takes a request and tries to
-authenticate it by the user name passed in the `User` header. If the header is missing the request
-considered unauthorized.
+authenticate it by the user name passed in the `User` header. If the header is missing, the request
+is considered unauthorized.
 
 ```scala
 import io.finch._
@@ -286,13 +288,13 @@ val getCurrentUser: Endpoint[User] = get("user" :: auth) { u: User =>
 }
 ```
 
-**Note:** Even though an endpoint `auth` can't fail since we explicitly handled its only possible
+**Note:** Even though an endpoint `auth` can't fail, since we explicitly handled its only possible
 exception, the body of the `getCurrentUser` endpoint will only be evaluated if the incoming request
 contains a header `User: secret user` and a path `/user`. This comes from `io.finch.Output`, which
 provides a monadic API over the three cases (payload (i.e., `Ok`), failure (i.e., `BadRequest`) and
 empty) and only `Output.Payload` is considered a success. Simply speaking, calling `map*` on either
 `Output.Failure` or `Output.Empty` is the same as calling `map*` on `None: Option[Nothing]`. Thus,
-an endpoint returning non-`Output.Payload` output considered failed and its `map*` call won't be
+an endpoint returning non-`Output.Payload` output is considered failed and its `map*` call won't be
 evaluated.
 
 **Example 3: asynchronous authentication**
@@ -348,9 +350,9 @@ promoted to non-experimental.
 
 ### CORS in Finch
 
-There is a [Finagle filter][cors-filter] that's when applied, enriches a given HTTP service with
-[CORS][cors] behaviour. The following example builds a CORS filter that allows `GET` and `POST`
-requests with `Accept` header from any origin.
+There is a [Finagle filter][cors-filter] which, when applied, enriches a given HTTP service with
+[CORS][cors] behavior. The following example builds a CORS filter that allows `GET` and `POST`
+requests with an `Accept` header from any origin.
 
 ```scala
 import com.twitter.finagle.http.filter.Cors
@@ -361,8 +363,8 @@ import io.finch._
 val service: Service[Request, Response] = Endpoint(Ok("Hello, world!")).toService
 
 val policy: Cors.Policy = Cors.Policy(
-  allowsOrigin = _ => Some("*"), 
-  allowsMethods = _ => Some(Seq("GET", "POST")), 
+  allowsOrigin = _ => Some("*"),
+  allowsMethods = _ => Some(Seq("GET", "POST")),
   allowsHeaders = _ => Some(Seq("Accept"))
 )
 
@@ -374,7 +376,7 @@ val corsService: Service[Request, Response] = new Cors.HttpFilter(policy).andThe
 Since Finch is built on top of Finagle, it shares its utilities, including [futures][futures]. While
 there is already an official tool for performing conversions between Scala futures and Twitter
 futures (i.e., [Twitter Bijection][bijection]), it usually makes sense to avoid an extra dependency
-because of a couple of functions, which are fairly easy to implement.
+because of a couple of functions which are fairly easy to implement.
 
 ```scala
 import com.twitter.util.{Future => TFuture, Promise => TPromise, Return, Throw}
