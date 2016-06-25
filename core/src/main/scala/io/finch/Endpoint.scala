@@ -383,9 +383,12 @@ object Endpoint {
    */
   def apply(mapper: Mapper[shapeless.HNil]): Endpoint[mapper.Out] = mapper(/)
 
-  private[finch] val Empty: Endpoint[HNil] = embed(items.MultipleItems)(input =>
-    Some(input -> Rerunnable(Output.payload(HNil: HNil)))
-  )
+  /**
+   * Creates an empty [[Endpoint]] (an endpoint that never matches) for a given type.
+   */
+  def empty[A]: Endpoint[A] = new Endpoint[A] {
+    override def apply(input: Input): Result[A] = None
+  }
 
   private[finch] def embed[A](i: items.RequestItem)(f: Input => Result[A]): Endpoint[A] =
     new Endpoint[A] {
@@ -570,9 +573,7 @@ object Endpoint {
       override def apply(input: Input): Result[A] = Some(input -> Rerunnable(Output.payload(x)))
     }
 
-    override def empty[A]: Endpoint[A] = new Endpoint[A] {
-      override def apply(input: Input): Result[A] = None
-    }
+    override def empty[A]: Endpoint[A] = Endpoint.empty[A]
 
     override def combineK[A](x: Endpoint[A], y: Endpoint[A]): Endpoint[A] = x | y
   }

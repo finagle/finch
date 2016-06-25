@@ -318,6 +318,11 @@ trait Endpoints {
     )
 
   /**
+   * A root [[Endpoint]] that always matches and extracts the current request.
+   */
+  val root: Endpoint[Request] = option(items.MultipleItems)(identity)
+
+  /**
    * An evaluating [[Endpoint]] that reads an optional query-string param `name` from the request
    * into an `Option`.
    */
