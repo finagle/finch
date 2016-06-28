@@ -73,9 +73,10 @@ object Main extends App {
 
 ### Finch Talks
 
-* [Finch: Your REST API as a Monad][scalax] by [@vkostyukov][vkostyukov] on Dec 2015
-* [On the history of Finch][sfscala-vk] by [@vkostyukov][vkostyukov] on Apr 2015
-* [Some possible features for Finch][sfscala-tb] [@travisbrown][travisbrown] on Apr 2015
+* [Typed Services Using Finch][ylj16] by [@tomjadams][tomjadams] in Apr 2016
+* [Finch: Your REST API as a Monad][scalax] by [@vkostyukov][vkostyukov] in Dec 2015
+* [On the history of Finch][sfscala-vk] by [@vkostyukov][vkostyukov] in Apr 2015
+* [Some possible features for Finch][sfscala-tb] [@travisbrown][travisbrown] in Apr 2015
 
 # User Guide
 
@@ -87,8 +88,11 @@ object Main extends App {
 
 [finagle]: http://twitter.github.io/finagle/
 [circe]: https://github.com/travisbrown/circe
+[ylj16]: https://www.youtube.com/watch?v=xkZOyY9PG88
 [scalax]: https://skillsmatter.com/skillscasts/6876-finch-your-rest-api-as-a-monad
 [sfscala-vk]: https://www.youtube.com/watch?v=bbzRTxGDFhs
 [sfscala-tb]: https://www.youtube.com/watch?v=noCyZ6B__iE
 [vkostyukov]: https://twitter.com/vkostyukov
 [travisbrown]: https://twitter.com/travisbrown
+[tomjadams]: https://twitter.com/tomjadams
+
