@@ -23,6 +23,8 @@ trait LowPriorityToResponseInstances {
     def apply(a: A): Response = fn(a)
   }
 
+  implicit def responseToResponse[CT <: String]: Aux[Response, CT] = instance(identity)
+
   private[this] def asyncStreamResponseBuilder[A, CT <: String](writer: A => Buf)(implicit
     w: Witness.Aux[CT]
   ): Aux[AsyncStream[A], CT] = instance { as =>

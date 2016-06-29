@@ -31,5 +31,7 @@ object Main extends App {
     case e: ArithmeticException => BadRequest(e)
   }
 
-  Await.ready(Http.server.serve(":8081", div.toServiceAs[Text.Plain]))
+  Await.ready(Http.server.serve(":8081",
+    ServiceBuilder().respond[Text.Plain](div).toService
+  ))
 }

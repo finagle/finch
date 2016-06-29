@@ -3,8 +3,7 @@ package io.finch.todo
 import java.util.UUID
 
 import com.twitter.app.Flag
-import com.twitter.finagle.{Http, Service}
-import com.twitter.finagle.http.{Request, Response}
+import com.twitter.finagle.Http
 import com.twitter.finagle.stats.Counter
 import com.twitter.server.TwitterServer
 import com.twitter.util.Await
@@ -79,18 +78,20 @@ object Main extends TwitterServer {
       }
     }
 
-  val api: Service[Request, Response] = (
-    getTodos :+: postTodo :+: deleteTodo :+: deleteTodos :+: patchTodo
-  ).handle({
+  val api = (getTodos :+: postTodo :+: deleteTodo :+: deleteTodos :+: patchTodo).handle {
     case e: TodoNotFound => NotFound(e)
-  }).toService
+  }
 
   def main(): Unit = {
     log.info("Serving the Todo application")
 
     val server = Http.server
       .withStatsReceiver(statsReceiver)
-      .serve(s":${port()}", api)
+      .serve(s":${port()}", ServiceBuilder()
+        .respond[Application.Json](api)
+        .respond[Text.Plain](get("ping") { Ok("pong") } )
+        .toService
+      )
 
     onExit { server.close() }
 

@@ -3,7 +3,6 @@ package io.finch.wrk
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
-import shapeless.Witness
 
 /**
  * How to benchmark this:
@@ -21,5 +20,5 @@ object Finch extends App {
 
   val roundTrip: Endpoint[Payload] = post(body.as[Payload])
 
-  serve(roundTrip.toServiceAs[Witness.`"application/json"`.T])
+  serve(ServiceBuilder().respond[Application.Json](roundTrip).toService)
 }
