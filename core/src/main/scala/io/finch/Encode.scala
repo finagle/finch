@@ -35,6 +35,12 @@ trait LowPriorityEncodeInstances {
 
   implicit def encodeShow[A](implicit s: Show[A]): TextPlain[A] =
     text(a => Buf.Utf8(s.show(a)))
+
+  implicit def encodeExceptionAsTextPlain[EE <: Exception]: TextPlain[EE] =
+    text(e => Buf.Utf8(Option(e.getMessage).getOrElse("")))
+
+  implicit def encodeExceptionAsJson[EE <: Exception]: ApplicationJson[EE] =
+    json(e => Buf.Utf8(s"""{"message": "${Option(e.getMessage).getOrElse("")}"}"""))
 }
 
 object Encode extends LowPriorityEncodeInstances {
@@ -52,12 +58,6 @@ object Encode extends LowPriorityEncodeInstances {
 
   implicit def encodeBuf[CT <: String]: Aux[Buf, CT] =
     instance(identity)
-
-  implicit val encodeExceptionAsTextPlain: TextPlain[Exception] =
-    text(e => Buf.Utf8(Option(e.getMessage).getOrElse("")))
-
-  implicit val encodeExceptionAsJson: ApplicationJson[Exception] =
-    json(e => Buf.Utf8(s"""{"message": "${Option(e.getMessage).getOrElse("")}""""))
 
   implicit val encodeString: TextPlain[String] =
     text(Buf.Utf8.apply)
