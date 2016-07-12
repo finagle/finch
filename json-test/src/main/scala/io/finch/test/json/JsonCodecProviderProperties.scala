@@ -3,6 +3,7 @@ package io.finch.test.json
 import argonaut.{CodecJson, DecodeJson, EncodeJson, Parse}
 import argonaut.Argonaut.{casecodec3, casecodec5}
 import com.twitter.io.Buf.Utf8
+import com.twitter.io.Charsets
 import com.twitter.util.Return
 import io.finch.{Decode, Encode}
 import org.scalacheck.Arbitrary
@@ -53,9 +54,10 @@ trait JsonCodecProviderProperties { self: Matchers with Checkers =>
   /**
    * Confirm that this encoder can encode instances of our case class.
    */
-  def encodeNestedCaseClass(implicit ee: Encode.ApplicationJson[ExampleNestedCaseClass]): Unit =
+  def encodeNestedCaseClass(implicit ee: Encode.Json[ExampleNestedCaseClass]): Unit =
     check { (e: ExampleNestedCaseClass) =>
-      Parse.decodeOption(Utf8.unapply(ee(e)).get)(exampleNestedCaseClassCodecJson) === Some(e)
+      Parse.decodeOption(Utf8.unapply(ee(e, Charsets.Utf8)).get)(exampleNestedCaseClassCodecJson) ===
+        Some(e)
     }
 
   /**
@@ -83,9 +85,11 @@ trait JsonCodecProviderProperties { self: Matchers with Checkers =>
   /**
    * Confirm that this encoder can encode top-level lists of instances of our case class.
    */
-  def encodeCaseClassList(implicit encoder: Encode[List[ExampleNestedCaseClass]]): Unit =
+  def encodeCaseClassList(implicit encoder: Encode.Json[List[ExampleNestedCaseClass]]): Unit =
     check { (es: List[ExampleNestedCaseClass]) =>
-      Parse.decodeOption(Utf8.unapply(encoder(es)).getOrElse(""))(exampleNestedCaseClassListCodecJson) === Some(es)
+      Parse
+        .decodeOption(Utf8.unapply(encoder(es, Charsets.Utf8))
+        .getOrElse(""))(exampleNestedCaseClassListCodecJson) === Some(es)
     }
 
   /**
@@ -99,7 +103,7 @@ trait JsonCodecProviderProperties { self: Matchers with Checkers =>
   /**
    * Confirm that this encoder has the correct content type.
    */
-  def checkContentType(implicit ee: Encode.ApplicationJson[ExampleNestedCaseClass]): Unit = ()
+  def checkContentType(implicit ee: Encode.Json[ExampleNestedCaseClass]): Unit = ()
 }
 
 /**

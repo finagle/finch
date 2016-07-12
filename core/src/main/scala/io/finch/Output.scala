@@ -2,8 +2,10 @@ package io.finch
 
 import cats.Eq
 import com.twitter.finagle.http.{Cookie, Response, Status, Version}
+import com.twitter.io.Charsets
 import com.twitter.util.{Await, Future, Try}
 import io.finch.internal.ToResponse
+import java.nio.charset.Charset
 
 /**
  * An output of [[Endpoint]].
@@ -27,6 +29,11 @@ sealed trait Output[+A] { self =>
    * The cookie list of this [[Output]].
    */
   def cookies: Seq[Cookie] = meta.cookies
+
+  /**
+   * The charset of this [[Output]].
+   */
+  def charset: Option[Charset] = meta.charset
 
   /**
    * Returns the payload value of this [[Output]] or throws an exception.
@@ -65,7 +72,13 @@ sealed trait Output[+A] { self =>
   }
 
   /**
-   * Overrides the status code of this [[Output]].
+   * Overrides `charset` of this [[Output]].
+   */
+  def withCharset(charset: Charset): Output[A] =
+    withMeta(meta.copy(charset = Some(charset)))
+
+  /**
+   * Overrides the `status` code of this [[Output]].
    */
   def withStatus(status: Status): Output[A] =
     withMeta(meta.copy(status = status))
@@ -91,6 +104,7 @@ object Output {
    */
   private[finch] case class Meta(
     status: Status = Status.Ok,
+    charset: Option[Charset] = Option.empty,
     headers: Map[String, String] = Map.empty[String, String],
     cookies: Seq[Cookie] = Seq.empty[Cookie]
   )
@@ -167,10 +181,21 @@ object Output {
      * Converts this [[Output]] to the HTTP response of the given `version`.
      */
     def toResponse[CT <: String](version: Version = Version.Http11)(implicit
-      tro: ToResponse.Aux[Output[A], CT]
+      tr: ToResponse.Aux[A, CT],
+      tre: ToResponse.Aux[Exception, CT]
     ): Response = {
-      val rep = tro(o)
+      val rep = o match {
+        case Output.Payload(v, m) => tr(v, m.charset.getOrElse(Charsets.Utf8))
+        case Output.Failure(x, m) => tre(x, m.charset.getOrElse(Charsets.Utf8))
+        case Output.Empty(_) => Response()
+      }
+
+      rep.status = o.status
       rep.version = version
+
+      o.headers.foreach { case (k, v) => rep.headerMap.set(k, v) }
+      o.cookies.foreach(rep.cookies.add)
+      o.charset.foreach(c => rep.charset = c.displayName.toLowerCase)
 
       rep
     }

@@ -1,8 +1,8 @@
 package io.finch.circe
 
-import com.twitter.io.Buf
 import io.circe.{Encoder, Json}
 import io.finch.Encode
+import io.finch.internal.BufText
 
 trait Encoders {
 
@@ -11,6 +11,6 @@ trait Encoders {
   /**
    * Maps Circe's [[Encoder]] to Finch's [[Encode]].
    */
-  implicit def encodeCirce[A](implicit e: Encoder[A]): Encode.ApplicationJson[A] =
-    Encode.json(a => Buf.Utf8(print(e(a))))
+  implicit def encodeCirce[A](implicit e: Encoder[A]): Encode.Json[A] =
+    Encode.json((a, cs) => BufText(print(e(a)), cs))
 }

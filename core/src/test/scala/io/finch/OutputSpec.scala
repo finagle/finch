@@ -1,27 +1,34 @@
 package io.finch
 
-import com.twitter.io.Buf
 import com.twitter.finagle.http.Status
-import shapeless.Witness
+import com.twitter.io.{Buf, Charsets}
+import java.nio.charset.Charset
 
 class OutputSpec extends FinchSpec {
 
   behavior of "Output"
 
   it should "propagate status to response" in {
-    check { o: Output[String] => o.toResponse[Witness.`"text/plain"`.T]().status == o.status }
+    check { o: Output[String] => o.toResponse[Text.Plain]().status == o.status }
+  }
+
+  it should "propagate charset to response" in {
+    check { (o: Output[String], cs: Charset) =>
+      val rep = o.withCharset(cs).toResponse[Text.Plain]()
+      rep.content.isEmpty || Some(cs.displayName.toLowerCase) === rep.charset
+    }
   }
 
   it should "propagate headers to response" in {
     check { (o: Output[String], headers: Headers) =>
-      val rep = headers.m.foldLeft(o)((acc, h) => acc.withHeader(h._1 -> h._2)).toResponse[Witness.`"text/plain"`.T]()
+      val rep = headers.m.foldLeft(o)((acc, h) => acc.withHeader(h._1 -> h._2)).toResponse[Text.Plain]()
       headers.m.forall(h => rep.headerMap(h._1) === h._2)
     }
   }
 
   it should "propagate cookies to response" in {
     check { (o: Output[String], cookies: Cookies) =>
-      val rep = cookies.c.foldLeft(o)((acc, c) => acc.withCookie(c)).toResponse[Witness.`"text/plain"`.T]()
+      val rep = cookies.c.foldLeft(o)((acc, c) => acc.withCookie(c)).toResponse[Text.Plain]()
       cookies.c.forall(c => rep.cookies(c.name) === c)
     }
   }
@@ -59,21 +66,21 @@ class OutputSpec extends FinchSpec {
 
   it should "propagate cause to response" in {
     check { of: Output.Failure =>
-      (of: Output[Unit]).toResponse[Witness.`"text/plain"`.T]().content ===
-        Encode.encodeExceptionAsTextPlain(of.cause)
+      (of: Output[Unit]).toResponse[Text.Plain]().content ===
+        Encode.encodeExceptionAsTextPlain(of.cause, of.charset.getOrElse(Charsets.Utf8))
     }
   }
 
   it should "propagate empytiness to response" in {
     check { of: Output.Empty =>
-      (of: Output[Unit]).toResponse[Witness.`"text/plain"`.T]().content === Buf.Empty
+      (of: Output[Unit]).toResponse[Text.Plain]().content === Buf.Empty
     }
   }
 
   it should "propagate payload to response" in {
     check { op: Output.Payload[String] =>
-      Some(op.toResponse[Witness.`"text/plain"`.T]().contentString) ===
-        Buf.Utf8.unapply(Encode.encodeString(op.value))
+      op.toResponse[Text.Plain]().content ===
+        Encode.encodeString(op.value, op.charset.getOrElse(Charsets.Utf8))
     }
   }
 }

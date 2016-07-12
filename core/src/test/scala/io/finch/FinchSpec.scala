@@ -1,19 +1,19 @@
 package io.finch
 
+import scala.collection.JavaConverters._
 import java.util.UUID
-
-import cats.Eq
+import java.nio.charset.Charset
 import cats.Alternative
-import cats.laws.discipline.eq._
+import cats.Eq
 import cats.std.AllInstances
 import com.twitter.finagle.http._
-import com.twitter.io.Buf
+import com.twitter.io.{Buf, Charsets}
 import com.twitter.util.{Await, Future, Try}
 import io.catbird.util.Rerunnable
 import io.finch.Endpoint.Result
 import org.scalacheck.{Arbitrary, Gen}
+import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers
-import org.scalatest.{Matchers, FlatSpec}
 import org.typelevel.discipline.Laws
 
 trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
@@ -79,8 +79,13 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
     Status.NotExtended, Status.NetworkAuthenticationRequired
   )
 
+  def genCharset: Gen[Charset] = Gen.oneOf(
+    Charsets.UsAscii, Charsets.Utf8, Charsets.Utf16BE,
+    Charsets.Utf16, Charsets.Iso8859_1, Charsets.Utf16LE
+  )
+
   def genOutputMeta: Gen[Output.Meta] =
-    genStatus.map(s => Output.Meta(s, Map.empty[String, String], Seq.empty[Cookie]))
+    genStatus.map(s => Output.Meta(s, Option.empty, Map.empty[String, String], Seq.empty[Cookie]))
 
   def genEmptyOutput: Gen[Output.Empty] = for {
     m <- genOutputMeta
@@ -204,6 +209,8 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
   implicit def arbitraryCookies: Arbitrary[Cookies] = Arbitrary(genCookies)
 
   implicit def arbitraryParams: Arbitrary[Params] = Arbitrary(genParams)
+
+  implicit def arbitraryCharset: Arbitrary[Charset] = Arbitrary(genCharset)
 
   implicit def arbitraryOptionalNonEmptyString: Arbitrary[OptionalNonEmptyString] =
     Arbitrary(genOptionalNonEmptyString)

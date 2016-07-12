@@ -1,7 +1,7 @@
 package io.finch
 
-import com.twitter.io.Buf
 import com.twitter.util.Try
+import io.finch.internal.BufText
 import org.json4s._
 import org.json4s.jackson.JsonMethods
 import org.json4s.jackson.Serialization._
@@ -20,6 +20,6 @@ package object json4s {
    * @tparam A the type of data to encode
    * @return
    */
-  implicit def encodeJson[A <: AnyRef](implicit formats: Formats): Encode.ApplicationJson[A] =
-    Encode.json(a => Buf.Utf8(write(a)))
+  implicit def encodeJson[A <: AnyRef](implicit formats: Formats): Encode.Json[A] =
+    Encode.json((a, cs) => BufText(write(a), cs))
 }
