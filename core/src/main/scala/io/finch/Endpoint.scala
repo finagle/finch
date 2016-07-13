@@ -10,6 +10,7 @@ import com.twitter.finagle.http.{Cookie, Request, Response, Status}
 import com.twitter.util.{Future, Return, Throw, Try}
 import io.catbird.util.Rerunnable
 import io.finch.internal._
+import java.nio.charset.Charset
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.hlist.Tupler
@@ -259,19 +260,24 @@ trait Endpoint[A] { self =>
   final def withCookie(cookie: Cookie): Endpoint[A] =
     withOutput(o => o.withCookie(cookie))
 
+  final def withCharset(charset: Charset): Endpoint[A] =
+    withOutput(o => o.withCharset(charset))
+
   /**
    * Converts this endpoint to a Finagle service `Request => Future[Response]` that serves JSON.
    */
   final def toService(implicit
-    tro: ToResponse.Aux[Output[A], Witness.`"application/json"`.T]
-  ): Service[Request, Response] = toServiceAs[Witness.`"application/json"`.T]
+    tr: ToResponse.Aux[A, Application.Json],
+    tre: ToResponse.Aux[Exception, Application.Json]
+  ): Service[Request, Response] = toServiceAs[Application.Json]
 
   /**
    * Converts this endpoint to a Finagle service `Request => Future[Response]` that serves custom
    * content-type `CT`.
    */
   final def toServiceAs[CT <: String](implicit
-    tro: ToResponse.Aux[Output[A], CT]
+    tr: ToResponse.Aux[A, CT],
+    tre: ToResponse.Aux[Exception, CT]
   ): Service[Request, Response] = new Service[Request, Response] {
 
     private[this] val basicEndpointHandler: PartialFunction[Throwable, Output[Nothing]] = {

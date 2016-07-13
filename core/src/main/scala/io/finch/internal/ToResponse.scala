@@ -1,5 +1,7 @@
 package io.finch.internal
 
+import java.nio.charset.Charset
+
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.{Response, Status, Version}
 import com.twitter.io.Buf
@@ -12,26 +14,26 @@ import shapeless._
 trait ToResponse[A] {
   type ContentType <: String
 
-  def apply(a: A): Response
+  def apply(a: A, cs: Charset): Response
 }
 
 trait LowPriorityToResponseInstances {
   type Aux[A, CT] = ToResponse[A] { type ContentType = CT }
 
-  def instance[A, CT <: String](fn: A => Response): Aux[A, CT] = new ToResponse[A] {
+  def instance[A, CT <: String](fn: (A, Charset) => Response): Aux[A, CT] = new ToResponse[A] {
     type ContentType = CT
-    def apply(a: A): Response = fn(a)
+    def apply(a: A, cs: Charset): Response = fn(a, cs)
   }
 
-  private[this] def asyncStreamResponseBuilder[A, CT <: String](writer: A => Buf)(implicit
+  private[this] def asyncResponseBuilder[A, CT <: String](writer: (A, Charset) => Buf)(implicit
     w: Witness.Aux[CT]
-  ): Aux[AsyncStream[A], CT] = instance { as =>
+  ): Aux[AsyncStream[A], CT] = instance { (as, cs) =>
     val rep = Response()
     rep.setChunked(true)
 
     val writable = rep.writer
 
-    as.foreachF(chunk => writable.write(writer(chunk))).ensure(writable.close())
+    as.foreachF(chunk => writable.write(writer(chunk, cs))).ensure(writable.close())
     rep.contentType = w.value
 
     rep
@@ -39,18 +41,20 @@ trait LowPriorityToResponseInstances {
 
   implicit def asyncBufToResponse[CT <: String](implicit
     w: Witness.Aux[CT]
-  ): Aux[AsyncStream[Buf], CT] = asyncStreamResponseBuilder(identity)
+  ): Aux[AsyncStream[Buf], CT] = asyncResponseBuilder((a, _) => a)
 
   private[this] val newLine: Buf = Buf.Utf8("\n")
 
   implicit def jsonAsyncStreamToResponse[A](implicit
-    e: Encode.ApplicationJson[A],
+    e: Encode.Json[A],
     w: Witness.Aux[Application.Json]
-  ): Aux[AsyncStream[A], Application.Json] = asyncStreamResponseBuilder(a => e(a).concat(newLine))
+  ): Aux[AsyncStream[A], Application.Json] =
+    asyncResponseBuilder((a, cs) => e(a, cs).concat(newLine))
 
   implicit def textAsyncStreamToResponse[A](implicit
-    e: Encode.TextPlain[A]
-  ): Aux[AsyncStream[A], Text.Plain] = asyncStreamResponseBuilder(a => e(a).concat(newLine))
+    e: Encode.Text[A]
+  ): Aux[AsyncStream[A], Text.Plain] =
+    asyncResponseBuilder((a, cs) => e(a, cs).concat(newLine))
 }
 
 trait HighPriorityToResponseInstances extends LowPriorityToResponseInstances {
@@ -69,36 +73,19 @@ trait HighPriorityToResponseInstances extends LowPriorityToResponseInstances {
   implicit def valueToResponse[A, CT <: String](implicit
     e: Encode.Aux[A, CT],
     w: Witness.Aux[CT]
-  ): Aux[A, CT] = instance(a => bufToResponse(e(a), w.value))
-
-  implicit def outputToResponse[A, CT <: String](implicit
-    tr: ToResponse.Aux[A, CT],
-    e: Encode.Aux[Exception, CT],
-    w: Witness.Aux[CT]
-  ): Aux[Output[A], CT] = instance { o =>
-    val rep = o match {
-      case Output.Payload(v, _) => tr(v)
-      case Output.Failure(x, _) => bufToResponse(e(x), w.value)
-      case Output.Empty(_) => Response()
-    }
-    rep.status = o.status
-    o.headers.foreach { case (k, v) => rep.headerMap.set(k, v) }
-    o.cookies.foreach(rep.cookies.add)
-
-    rep
-  }
+  ): Aux[A, CT] = instance((a, cs) => bufToResponse(e(a, cs), w.value))
 }
 
 object ToResponse extends HighPriorityToResponseInstances {
 
   implicit def cnilToResponse[CT <: String]: Aux[CNil, CT] =
-    instance(_ => Response(Version.Http10, Status.NotFound))
+    instance((_, _) => Response(Version.Http10, Status.NotFound))
 
   implicit def coproductToResponse[H, T <: Coproduct, CT <: String](implicit
     trH: ToResponse.Aux[H, CT],
     trT: ToResponse.Aux[T, CT]
   ): Aux[H :+: T, CT] = instance {
-    case Inl(h) => trH(h)
-    case Inr(t) => trT(t)
+    case (Inl(h), cs) => trH(h, cs)
+    case (Inr(t), cs) => trT(t, cs)
   }
 }

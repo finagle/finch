@@ -1,5 +1,9 @@
 package io.finch
 
+import com.twitter.io.{Buf, Charsets}
+import java.nio.CharBuffer
+import java.nio.charset.Charset
+
 /**
  * This package contains an internal-use only type-classes and utilities that power Finch's API.
  *
@@ -84,5 +88,20 @@ package object internal {
     def tooLong: Option[Long] =
       if (s.length == 0 || s.length > 32) None
       else parseLong(s, Long.MinValue, Long.MaxValue)
+  }
+
+  // TODO: Move to twitter/util
+  object BufText {
+    def apply(s: String, cs: Charset): Buf =  {
+      val enc = Charsets.encoder(cs)
+      val cb = CharBuffer.wrap(s.toCharArray)
+      Buf.ByteBuffer.Owned(enc.encode(cb))
+    }
+
+    def extract(buf: Buf, cs: Charset): String = {
+      val dec = Charsets.decoder(cs)
+      val bb = Buf.ByteBuffer.Owned.extract(buf).asReadOnlyBuffer
+      dec.decode(bb).toString
+    }
   }
 }

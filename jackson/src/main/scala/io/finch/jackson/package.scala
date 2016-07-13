@@ -3,8 +3,8 @@ package io.finch
 import scala.reflect.ClassTag
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.twitter.io.Buf
 import com.twitter.util.Try
+import io.finch.internal.BufText
 
 package object jackson {
 
@@ -14,6 +14,6 @@ package object jackson {
     Try(mapper.readValue(s, ct.runtimeClass.asInstanceOf[Class[A]]))
   )
 
-  implicit def encodeJackson[A](implicit mapper: ObjectMapper): Encode.ApplicationJson[A] =
-    Encode.json(a => Buf.Utf8(mapper.writeValueAsString(a)))
+  implicit def encodeJackson[A](implicit mapper: ObjectMapper): Encode.Json[A] =
+    Encode.json((a, cs) => BufText(mapper.writeValueAsString(a), cs))
 }
