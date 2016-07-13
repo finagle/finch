@@ -3,15 +3,15 @@ package io.finch.test
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.util.{Await, Duration}
-import org.scalatest.Outcome
-import org.scalatest.fixture.FlatSpec
+import org.scalatest.{fixture, Outcome}
 
 /**
  * A convenience class that is designed to make it easier to test HTTP services
  * both directly and in integration tests that are served locally. Implementing
- * classes must extend [[org.scalatest.fixture.FlatSpec]].
+ * classes must extend [[org.scalatest.fixture.Suite]] through [[org.scalatest.fixture.FlatSpec]]
+ * for example.
  */
-trait ServiceSuite { self: FlatSpec =>
+trait ServiceSuite { self: fixture.Suite =>
 
   /**
    * Create an instance of the service to be tested.
