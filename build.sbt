@@ -3,13 +3,13 @@ import ScoverageSbtPlugin._
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  version := "0.11.0-SNAPSHOT",
+  version := "0.11.0-M1",
   scalaVersion := "2.11.8",
   crossScalaVersions := Seq("2.10.6", "2.11.8")
 )
 
 lazy val finagleVersion = "6.35.0"
-lazy val circeVersion = "0.5.0-M1"
+lazy val circeVersion = "0.5.0-M2"
 lazy val catbirdVersion = "0.5.0"
 lazy val shapelessVersion = "2.3.1"
 lazy val catsVersion = "0.6.0"

@@ -34,7 +34,7 @@ Every Finch module is published at Maven Central. Use the following _sbt_ snippe
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "[finch-module]" % "0.10.0"
+  "com.github.finagle" %% "[finch-module]" % "0.11.0-M1"
 )
 ```
 
@@ -44,13 +44,13 @@ libraryDependencies ++= Seq(
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "[finch-module]" % "0.11.0-SNAPSHOT" changing()
+  "com.github.finagle" %% "[finch-module]" % "0.12.0-SNAPSHOT" changing()
 )
 ```
 
 Hello World!
 ------------
-This "Hello World!" example is built with the `0.11.0-SNAPSHOT` version of `finch-core`.
+This "Hello World!" example is built with the `0.12.0-SNAPSHOT` version of `finch-core`.
 
 ```scala
 import io.finch._
@@ -58,7 +58,7 @@ import com.twitter.finagle.Http
 
 val api: Endpoint[String] = get("hello") { Ok("Hello, World!") }
 
-Http.serve(":8080", api.toService)
+Http.server.serve(":8080", api.toServiceAs[Plain.Text])
 ```
 
 See [examples](examples/src/main/scala/io/finch) sub-project for more complete examples.
