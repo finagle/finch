@@ -194,7 +194,11 @@ object Output {
 
       o.headers.foreach { case (k, v) => rep.headerMap.set(k, v) }
       o.cookies.foreach(rep.cookies.add)
-      o.charset.foreach(c => rep.charset = c.displayName.toLowerCase)
+      o.charset.foreach { c =>
+        if (!rep.content.isEmpty) {
+          rep.charset = c.displayName.toLowerCase
+        }
+      }
 
       rep
     }
