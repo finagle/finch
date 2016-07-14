@@ -59,21 +59,22 @@ trait LowPriorityToResponseInstances {
 
 trait HighPriorityToResponseInstances extends LowPriorityToResponseInstances {
 
-  private[this] def bufToResponse(buf: Buf, ct: String): Response = {
-    val rep = Response()
-
-    if (!buf.isEmpty) {
-      rep.content = buf
-      rep.contentType = ct
-    }
-
-    rep
-  }
+  implicit def responseToResponse[CT <: String]: Aux[Response, CT] = instance((r, _) => r)
 
   implicit def valueToResponse[A, CT <: String](implicit
     e: Encode.Aux[A, CT],
     w: Witness.Aux[CT]
-  ): Aux[A, CT] = instance((a, cs) => bufToResponse(e(a, cs), w.value))
+  ): Aux[A, CT] = instance { (a, cs) =>
+    val buf = e(a, cs)
+    val rep = Response()
+
+    if (!buf.isEmpty) {
+      rep.content = buf
+      rep.contentType = w.value
+    }
+
+    rep
+  }
 }
 
 object ToResponse extends HighPriorityToResponseInstances {

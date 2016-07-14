@@ -52,8 +52,7 @@ sealed trait Output[+A] { self =>
       ob.withMeta(ob.meta.copy(
         headers = ob.headers ++ p.headers,
         cookies = ob.cookies ++ p.cookies
-      )
-      )
+      ))
 
     case f @ Output.Failure(_, _) => f
     case e @ Output.Empty(_) => e
