@@ -25,7 +25,7 @@ trait LowPriorityToResponseInstances {
     def apply(a: A, cs: Charset): Response = fn(a, cs)
   }
 
-  private[this] def asyncResponseBuilder[A, CT <: String](writer: (A, Charset) => Buf)(implicit
+  protected def asyncResponseBuilder[A, CT <: String](writer: (A, Charset) => Buf)(implicit
     w: Witness.Aux[CT]
   ): Aux[AsyncStream[A], CT] = instance { (as, cs) =>
     val rep = Response()
@@ -42,12 +42,14 @@ trait LowPriorityToResponseInstances {
   implicit def asyncBufToResponse[CT <: String](implicit
     w: Witness.Aux[CT]
   ): Aux[AsyncStream[Buf], CT] = asyncResponseBuilder((a, _) => a)
+}
+
+trait HighPriorityToResponseInstances extends LowPriorityToResponseInstances {
 
   private[this] val newLine: Buf = Buf.Utf8("\n")
 
   implicit def jsonAsyncStreamToResponse[A](implicit
-    e: Encode.Json[A],
-    w: Witness.Aux[Application.Json]
+    e: Encode.Json[A]
   ): Aux[AsyncStream[A], Application.Json] =
     asyncResponseBuilder((a, cs) => e(a, cs).concat(newLine))
 
@@ -55,9 +57,6 @@ trait LowPriorityToResponseInstances {
     e: Encode.Text[A]
   ): Aux[AsyncStream[A], Text.Plain] =
     asyncResponseBuilder((a, cs) => e(a, cs).concat(newLine))
-}
-
-trait HighPriorityToResponseInstances extends LowPriorityToResponseInstances {
 
   implicit def responseToResponse[CT <: String]: Aux[Response, CT] = instance((r, _) => r)
 

@@ -4,7 +4,6 @@ import java.util.UUID
 
 import cats.Applicative
 import cats.laws.discipline.AlternativeTests
-import cats.laws.discipline.eq._
 import com.twitter.finagle.http.{Request, Method, Cookie}
 import com.twitter.util.{Throw, Try, Future}
 
@@ -134,7 +133,7 @@ class EndpointSpec extends FinchSpec {
   it should "match the entire input" in {
     check { i: Input =>
       val e = i.path.map(s => s: Endpoint0).foldLeft[Endpoint0](/)((acc, e) => acc :: e)
-      e(i).remainder == Some(i.copy(path = Nil))
+      e(i).remainder === Some(i.copy(path = Nil))
     }
   }
 

@@ -61,7 +61,7 @@ object Encode extends LowPriorityEncodeInstances {
   )
 
   implicit val encodeExceptionAsJson: Json[Exception] = json(
-    (e, cs) => BufText(s"""{"message": "${Option(e.getMessage).getOrElse("")}"""", cs)
+    (e, cs) => BufText(s"""{"message":"${Option(e.getMessage).getOrElse("")}"}""", cs)
   )
 
   implicit val encodeString: Text[String] =
