@@ -1,8 +1,8 @@
 package io.finch
 
-import scala.collection.JavaConverters._
-import java.util.UUID
 import java.nio.charset.Charset
+import java.util.UUID
+
 import cats.Alternative
 import cats.Eq
 import cats.std.AllInstances
@@ -211,6 +211,8 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
   implicit def arbitraryParams: Arbitrary[Params] = Arbitrary(genParams)
 
   implicit def arbitraryCharset: Arbitrary[Charset] = Arbitrary(genCharset)
+
+  implicit def arbitraryBuf: Arbitrary[Buf] = Arbitrary(genBuf)
 
   implicit def arbitraryOptionalNonEmptyString: Arbitrary[OptionalNonEmptyString] =
     Arbitrary(genOptionalNonEmptyString)

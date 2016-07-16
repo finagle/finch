@@ -2,15 +2,13 @@ package io.finch.streaming
 
 import java.util.concurrent.atomic.AtomicLong
 
+import cats.Show
 import cats.std.long._
 import com.twitter.concurrent.AsyncStream
-import com.twitter.finagle.{Http, Service}
-import com.twitter.finagle.http.{Request, Response, Status}
+import com.twitter.finagle.Http
 import com.twitter.io.Buf
-import com.twitter.util.{Await, Future, Try}
-import io.circe.generic.auto._
+import com.twitter.util.{Await, Try}
 import io.finch._
-import io.finch.circe._
 
 /**
 * A simple Finch application featuring very basic, `Buf`-based streaming support.
@@ -31,6 +29,9 @@ object Main extends App {
 
   // An examples domain type.
   case class Example(x: Int)
+  object Example {
+    implicit val show: Show[Example] = Show.fromToString
+  }
 
   val sum: AtomicLong = new AtomicLong(0)
 
@@ -59,7 +60,8 @@ object Main extends App {
     Ok(loop(1, 0))
   }
 
-  val exampleGenerator: Endpoint[AsyncStream[Example]] = get("examples" :: int) { num: Int =>
+  // This endpoint will stream back a given number of `Example` objects in plain/text.
+  val examples: Endpoint[AsyncStream[Example]] = get("examples" :: int) { num: Int =>
     Ok(AsyncStream.fromSeq(List.tabulate(num)(i => Example(i))))
   }
 
@@ -72,21 +74,8 @@ object Main extends App {
       Ok(as.map(b => sum.addAndGet(bufToLong(b))))
     }
 
-  val textPlainService = (sumSoFar :+: sumTo :+: totalSum).toServiceAs[Text.Plain]
-  val jsonService = exampleGenerator.toService
-
-  // TOOD: Fix this once we support multiple content-types
-  val service = new Service[Request, Response] {
-    override def apply(request: Request): Future[Response] = {
-      textPlainService(request).flatMap {
-        case response if response.status == Status.NotFound => jsonService(request)
-        case response => Future value response
-      }
-    }
-  }
-
   Await.result(Http.server
     .withStreaming(enabled = true)
-    .serve(":8081", service)
+    .serve(":8081", (sumSoFar :+: sumTo :+: totalSum :+: examples).toServiceAs[Text.Plain])
   )
 }
