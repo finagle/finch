@@ -22,7 +22,8 @@ Finch uses multi-project structure and contains of the following _modules_:
 * [`finch-jackson`](jackson) - the JSON API support for the [Jackson][jackson] library
 * [`finch-json4s`](json4s) - the JSON API support for the [JSON4S][json4s] library
 * [`finch-circe`](circe) - the JSON API support for the [Circe][circe] library
-* [`finch-playjson`](playjson) - The JSON API support for the [PlayJson][playjson] library - Not published yet. Will be available for 0.11.0 version.
+* [`finch-playjson`](playjson) - The JSON API support for the [PlayJson][playjson] library
+* [`finch-sprayjson`](sprayjson) - The JSON API support for the [SprayJson][sprayjson] library
 * [`finch-test`](test) - the test support classes/functions
 * [`finch-oauth2`](oauth2) - the OAuth2 support backed by the [finagle-oauth2][finagle-oauth2] library
 
@@ -34,7 +35,7 @@ Every Finch module is published at Maven Central. Use the following _sbt_ snippe
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "[finch-module]" % "0.11.0-M1"
+  "com.github.finagle" %% "[finch-module]" % "0.11.0-M2"
 )
 ```
 
@@ -44,13 +45,13 @@ libraryDependencies ++= Seq(
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "[finch-module]" % "0.12.0-SNAPSHOT" changing()
+  "com.github.finagle" %% "[finch-module]" % "0.11.0-SNAPSHOT" changing()
 )
 ```
 
 Hello World!
 ------------
-This "Hello World!" example is built with the `0.12.0-SNAPSHOT` version of `finch-core`.
+This "Hello World!" example is built with the `0.11.0-M2` version of `finch-core`.
 
 ```scala
 import io.finch._
@@ -134,6 +135,7 @@ limitations under the License.
 [finagle-oauth2]: https://github.com/finagle/finagle-oauth2
 [json4s]: http://json4s.org
 [playjson]: https://www.playframework.com/documentation/2.4.x/ScalaJson
+[sprayjson]: https://github.com/spray/spray-json
 [scaladoc]: http://finagle.github.io/finch/docs/#io.finch.package
 [typelevel]: http://typelevel.org/
 [conduct]: http://typelevel.org/conduct.html

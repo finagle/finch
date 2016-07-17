@@ -16,8 +16,8 @@ build.sbt:
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "finch-core" % "0.11.0-M1",
-  "com.github.finagle" %% "finch-circe" % "0.11.0-M1",
+  "com.github.finagle" %% "finch-core" % "0.11.0-M2",
+  "com.github.finagle" %% "finch-circe" % "0.11.0-M2",
   "io.circe" %% "circe-generic" % "0.5.0-M2"
 )
 ```
