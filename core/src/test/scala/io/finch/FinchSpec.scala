@@ -225,4 +225,5 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
     Arbitrary(genPayloadOutput[A])
 
   implicit def arbitraryOutput[A: Arbitrary]: Arbitrary[Output[A]] = Arbitrary(genOutput[A])
+
 }

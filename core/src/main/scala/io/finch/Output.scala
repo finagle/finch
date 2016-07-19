@@ -168,10 +168,10 @@ object Output {
   }
 
   implicit class EndpointResultOps[A](val o: Endpoint.Result[A]) extends AnyVal {
-    private[finch] def poll: Option[Try[A]] = o.flatMap(_._2.run.poll.map(_.map(_.value)))
-    private[finch] def output: Option[Output[A]] = o.map({ case (_, oa) => Await.result(oa.run) })
-    private[finch] def value: Option[A] = output.map(oa => oa.value)
-    private[finch] def remainder: Option[Input] = o.map(_._1)
+    def poll: Option[Try[A]] = o.flatMap(_._2.run.poll.map(_.map(_.value)))
+    def output: Option[Output[A]] = o.map({ case (_, oa) => Await.result(oa.run) })
+    def value: Option[A] = output.map(oa => oa.value)
+    def remainder: Option[Input] = o.map(_._1)
   }
 
   implicit class OutputOps[A](val o: Output[A]) extends AnyVal {
