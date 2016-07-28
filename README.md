@@ -102,6 +102,7 @@ Adopters
 * [QuizUp] (http://www.quizup.com)
 * [Lookout] (http://www.lookout.com)
 * [Project September](http://projectseptember.com/)
+* [Sigma](http://thesigma.com)
 * *Submit a pull-request to include your company/project into the list*
 
 Contributing
