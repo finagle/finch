@@ -1,20 +1,19 @@
 package io.finch.pickling
 
-
-import java.util.Base64
-
 import scala.pickling.Pickle
 import scala.pickling.binary.BinaryPickle
 import scala.pickling.json.JSONPickle
 
+import org.apache.commons.codec.binary.Base64
+
 object Converters {
 
   private def byteMaker(input: String) = {
-    Base64.getDecoder.decode(input)
+    Base64.decodeBase64(input)
   }
 
   private def byteBreaker(input: Array[Byte]) = {
-    Base64.getEncoder.encodeToString(input)
+    Base64.encodeBase64(input).map(_.toChar).mkString
   }
 
 
@@ -30,3 +29,4 @@ object Converters {
   }
 
 }
+
