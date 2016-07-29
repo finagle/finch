@@ -1,10 +1,9 @@
 package io.finch.pickling
 
-import java.util.Base64
+import org.apache.commons.codec.binary.Base64
 
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers
-
 
 class PicklingBinarySpec extends FlatSpec with Matchers with Checkers with PicklingSerialCodecProperties {
 
@@ -13,7 +12,7 @@ class PicklingBinarySpec extends FlatSpec with Matchers with Checkers with Pickl
   import io.finch.pickling.Converters.pickleStringWriter
 
   private def byteMaker(input: String) = {
-    Base64.getDecoder.decode(input)
+    Base64.decodeBase64(input)
   }
 
   implicit def c(input: String): Array[Byte] = byteMaker(input)
