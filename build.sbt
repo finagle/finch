@@ -134,7 +134,7 @@ lazy val finch = project.in(file("."))
     "io.circe" %% "circe-generic" % circeVersion,
     "io.spray" %%  "spray-json" % sprayVersion
   ))
-  .aggregate(core, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest, oauth2, examples)
+  .aggregate(core, argonaut, jackson, json4s, circe, playjson, sprayjson, pickling, benchmarks, test, jsonTest, oauth2, examples)
   .dependsOn(core, circe)
 
 lazy val core = project
@@ -208,6 +208,14 @@ lazy val sprayjson = project
   .settings(libraryDependencies += "io.spray" %%  "spray-json" % sprayVersion)
   .dependsOn(core, jsonTest % "test")
 
+lazy val pickling = project
+  .settings(moduleName := "finch-pickling")
+  .settings(allSettings)
+  .settings(
+    libraryDependencies += "org.scala-lang.modules" %% "scala-pickling" % "0.10.1"
+  )
+  .dependsOn(core)
+
 lazy val oauth2 = project
   .settings(moduleName := "finch-oauth2")
   .settings(allSettings)
@@ -239,7 +247,7 @@ lazy val examples = project
       "com.github.finagle" %% "finagle-oauth2" % "0.1.6"
     )
   )
-  .dependsOn(core, circe, jackson, oauth2)
+  .dependsOn(core, circe, jackson, pickling, oauth2)
 
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")
