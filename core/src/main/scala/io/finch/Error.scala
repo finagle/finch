@@ -16,9 +16,9 @@ object Error {
   }
 
   /**
-   * An exception that collects multiple request reader errors.
+   * An exception that collects multiple endpoint errors.
    *
-   * @param errors the errors collected from various request readers
+   * @param errors the errors collected from various endpoints
    */
   final case class RequestErrors(errors: Seq[Throwable]) extends Error {
     override def getMessage: String =

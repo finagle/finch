@@ -19,10 +19,10 @@ elsewhere.
 
 * Code and comments should be formatted to a width no greater than 120 columns
 * Files should be exempt of trailing spaces
-* Each abstraction with corresponding implementations should live in its own Scala file, i.e `RequestReader.scala`
+* Each abstraction with corresponding implementations should live in its own Scala file, i.e `Endpoint.scala`
 * Each implicit conversion (if possible) should be defined in the corresponding companion object
 
-That said, the Scala style checker `sbt scalastyle` should pass on the code. 
+That said, the Scala style checker `sbt scalastyle` should pass on the code.
 
 ## Write Tests
 Finch uses both [ScalaTest][2] and [ScalaCheck][3] with the following settings:
@@ -39,7 +39,7 @@ Write clean and simple docs in the `docs` folder.
 * PR should be submitted from a separate branch (use `git checkout -b "fix-123"`)
 * PR should generally contain only one commit (use `git commit --amend` and `git --force push` or [squash][4] existing commits into one)
 * PR should not decrease the code coverage more than by 1%
-* PR's commit message should use present tense and be capitalized properly (i.e., `Fix #123: Add tests for RequestReader`)
+* PR's commit message should use present tense and be capitalized properly (i.e., `Fix #123: Add tests for Endpoint`)
 
 [0]: https://help.github.com/articles/using-pull-requests/
 [1]: http://twitter.github.io/effectivescala/

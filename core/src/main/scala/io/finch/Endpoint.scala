@@ -336,7 +336,7 @@ trait Endpoint[A] { self =>
 
   /**
    * Validates the result of this endpoint using a predefined `rule`. This method allows for rules
-   * to be reused across multiple request readers.
+   * to be reused across multiple endpoints.
    *
    * @param rule the predefined [[ValidationRule]] that will return true if the data is
    *             valid
@@ -348,7 +348,7 @@ trait Endpoint[A] { self =>
 
   /**
    * Validates the result of this endpoint using a predefined `rule`. This method allows for rules
-   * to be reused across multiple request readers.
+   * to be reused across multiple endpoints.
    *
    * @param rule the predefined [[ValidationRule]] that will return false if the data is
    *             valid
