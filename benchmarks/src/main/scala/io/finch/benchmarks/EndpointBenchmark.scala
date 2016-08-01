@@ -8,11 +8,9 @@ import org.openjdk.jmh.annotations._
 case class Foo(s: String, d: Double, i: Int, l: Long, b: Boolean)
 
 /**
- * Compares the performance of different ways of creating request readers on
- * valid input.
+ * Compares the performance of different ways of creating endpoints on valid input.
  *
- * The following command will run the request reader benchmarks with reasonable
- * settings:
+ * The following command will run the endpoint benchmarks with reasonable settings:
  *
  * > sbt 'project benchmarks' 'run -prof gc io.finch.benchmarks.EndpointBenchmark'
  */
@@ -26,8 +24,7 @@ class SuccessfulEndpointBenchmark extends FinchBenchmark with FooEndpointsAndReq
 }
 
 /**
- * Compares the performance of different ways of creating request readers on
- * invalid input.
+ * Compares the performance of different ways of creating endpoints on invalid input.
  *
  * Note that the monadic reader shouldn't be compared directly to the other
  * readers for invalid inputs, since it fails on the first error.
@@ -42,7 +39,7 @@ class FailingEndpointBenchmark extends FinchBenchmark with FooEndpointsAndReques
 }
 
 /**
- * Provides request readers and example requests.
+ * Provides endpoints and example requests.
  */
 trait FooEndpointsAndRequests {
   val hlistGenericFooReader: Endpoint[Foo] = (

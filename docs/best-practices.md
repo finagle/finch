@@ -40,7 +40,7 @@ incomplete decoders.
 
 Case class patchers are extremely useful for `PATCH` and `PUT` HTTP endpoints, when it's required to
 _update_ the case class instance with new data parsed from a JSON object. In Finch, Circe's case
-class patchers are usually represented as `RequestReader[A => A]`, which
+class patchers are usually represented as `Endpoint[A => A]`, which
 
 1. parses an HTTP request for a partial JSON object that contains the fields which need to be
    updated and
@@ -76,7 +76,7 @@ import io.finch._
 import io.finch.circe._
 import io.circe.generic.auto._
 
-val postedTodo: RequestReader[Todo] = body.as[UUID => Todo].map(_(UUID.randomUUID()))
+val postedTodo: Endpoint[Todo] = body.as[UUID => Todo].map(_(UUID.randomUUID()))
 val postTodo: Endpoint[Todo] = post("todos" :: postedTodo) { t: Todo =>
   // store t in the DB
   Ok(t)
