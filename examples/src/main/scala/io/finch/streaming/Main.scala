@@ -44,7 +44,7 @@ object Main extends App {
   //
   // For example, if input stream is `1, 2, 3` then output response would be `6`.
   val totalSum: Endpoint[Long] = post("totalSum" :: asyncBody) { as: AsyncStream[Buf] =>
-    Ok(as.foldLeft(0L)((acc, b) => acc + bufToLong(b)))
+    as.foldLeft(0L)((acc, b) => acc + bufToLong(b)).map(Ok)
   }
 
   // This endpoint takes a simple request with an integer number N and returns a
