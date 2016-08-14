@@ -223,6 +223,12 @@ class EndpointSpec extends FinchSpec {
     }
   }
 
+  it should "split comma separated param values" in {
+    val i = Input(Request("/index?foo=a,b"))
+    val e = params("foo")
+    e(i).value shouldBe Some(Seq("a", "b"))
+  }
+
   it should "throw NotPresent if an item is not found" in {
     val i = Input(Request())
 
