@@ -272,7 +272,7 @@ trait Endpoints {
       .orElse(req.multipart.flatMap(m => m.attributes.get(param).flatMap(_.headOption)))
 
   private[this] def requestParams(params: String)(req: Request): Seq[String] =
-    req.params.getAll(params).toList.flatMap(_.split(","))
+    req.params.getAll(params).toList
 
   private[this] def requestHeader(header: String)(req: Request): Option[String] =
     req.headerMap.get(header)
@@ -349,7 +349,7 @@ trait Endpoints {
    * `Seq` may be empty) multi-value query-string param `name` from the request into a `Seq`.
    */
   def params(name: String): Endpoint[Seq[String]] =
-    option(items.ParamItem(name))(i => requestParams(name)(i).filter(_.nonEmpty))
+    option(items.ParamItem(name))(i => requestParams(name)(i))
 
   /**
    * An evaluating [[Endpoint]] that reads a required (in a meaning that a resulting `Seq` will have
