@@ -1,6 +1,7 @@
 package io.finch.internal
 
 import java.nio.charset.Charset
+import scala.annotation.implicitNotFound
 
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.{Response, Status, Version}
@@ -18,6 +19,18 @@ trait ToResponse[A] {
 }
 
 trait LowPriorityToResponseInstances {
+  @implicitNotFound(
+"""An Endpoint you're trying to convert into a Finagle service is missing one or more encoders.
+
+  Make sure ${A} is one of the following:
+
+  * A com.twitter.finagle.Response
+  * A value of a type with an io.finch.Encode instance (with the corresponding content-type)
+  * A coproduct made up of some combination of the above
+
+  See https://github.com/finagle/finch/blob/master/docs/cookbook.md#fixing-the-toservice-compile-error
+"""
+  )
   type Aux[A, CT] = ToResponse[A] { type ContentType = CT }
 
   def instance[A, CT <: String](fn: (A, Charset) => Response): Aux[A, CT] = new ToResponse[A] {

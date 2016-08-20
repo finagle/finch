@@ -8,7 +8,7 @@
 
 --
 
-Finch uses type classes `EncodeResponse` and `DecodeRequest` to make its JSON support pluggable.
+Finch uses type classes `io.finch.Encode` and `io.finch.Deocde` to make its JSON support pluggable.
 Thus in most of the cases it's not necessary to make any code changes (except for import statements)
 while switching the JSON backend.
 
