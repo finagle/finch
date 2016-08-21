@@ -1,6 +1,6 @@
 package io.finch.div
 
-import cats.std.int._
+import cats.instances.int._
 import com.twitter.finagle.Http
 import com.twitter.util.Await
 import io.finch._
@@ -24,7 +24,7 @@ import io.finch._
 object Main extends App {
 
   // We can serve Ints as plain/text responses since there is cats.Show[Int]
-  // available via the cats.std.int._ import.
+  // available via the cats.instances.int._ import.
   val div: Endpoint[Int] = post(int :: int) { (a: Int, b: Int) =>
     Ok(a / b)
   } handle {

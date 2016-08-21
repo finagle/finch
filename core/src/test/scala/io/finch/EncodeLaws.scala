@@ -3,7 +3,7 @@ package io.finch
 import cats.Eq
 import cats.laws._
 import cats.laws.discipline._
-import cats.std.AllInstances
+import cats.instances.AllInstances
 import com.twitter.io.Buf
 import io.finch.internal.BufText
 import java.nio.charset.Charset

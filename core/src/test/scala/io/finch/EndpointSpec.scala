@@ -235,7 +235,7 @@ class EndpointSpec extends FinchSpec {
     Seq(
       param("foo"), header("foo"), body, cookie("foo").map(_.value),
       fileUpload("foo").map(_.fileName), paramsNonEmpty("foo").map(_.mkString),
-      paramsNel("foor").map(_.unwrap.mkString), binaryBody.map(new String(_))
+      paramsNel("foor").map(_.toList.mkString), binaryBody.map(new String(_))
     ).foreach { ii => ii(i).poll shouldBe Some(Throw(Error.NotPresent(ii.item))) }
   }
 

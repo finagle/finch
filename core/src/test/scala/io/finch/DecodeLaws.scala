@@ -1,7 +1,7 @@
 package io.finch
 
 import cats.Eq
-import cats.std.AllInstances
+import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
 import com.twitter.util.{Return, Try}
