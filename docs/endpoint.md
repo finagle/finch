@@ -9,9 +9,13 @@
   * [Coproduct Endpoints](endpoint.md#coproduct-endpoints)
 * [Mapping Endpoints](endpoint.md#mapping-endpoints)
 * [Outputs](endpoint.md#outputs)
-* [Type Conversion](endpoint.md#type-conversion)
-* [Custom Decoders](endpoint.md#custom-decoders)
-* [Integration with JSON Libraries](endpoint.md#integration-with-json-libraries)
+* [Decoding](endpoint.md#decoding)
+  * [Type Conversion](endpoint.md#type-conversion)
+  * [Custom Decoders](endpoint.md#custom-decoders)
+  * [Decoding from JSON](endpoint.md#decoding-from-json)
+* [Encoding](endpoint.md#encoding)
+  * [Type-level Content-Type](endpoint.md#type-level-content-type)
+  * [Encoding to JSON](endpoint.md#encoding-to-json)
 * [Validation](endpoint.md#validation)
 * [Errors](endpoint.md#errors)
 * [Error Handling](endpoint.md#error-handling)
@@ -21,9 +25,9 @@
 ### Overview
 
 An `Endpoint[A]` represents an HTTP endpoint that takes an HTTP request and returns a value of
-type `A`. From the perspective of the category theory, this is an _applicative functor_, which means
-two endpoints `Endpoint[A]` and `Endpoint[B]` might be composed/merged into an `Endpoint[C]` when
-it's known how to compose/merge `(A, B)` into `C`.
+type `A`. From the perspective of the category theory, this is an _applicative_ that embeds _state_,
+which means two endpoints `Endpoint[A]` and `Endpoint[B]` might be composed/merged into an
+`Endpoint[C]` when it's known how to compose/merge `(A, B)` into `C`.
 
 Endpoints are composed in two ways: in terms of _and then_ and in terms of _or else_ combinators.
 
@@ -169,20 +173,12 @@ Finch provides the following instances for reading HTTP params (evaluating endpo
 
 - `param("foo")` - required param "foo"
 - `paramOption("foo")` - optional param "foo"
-- `params("foos")` - multivalued param "foo" that might return an empty sequence
-- `paramsNonEmpty("foos")` - multivalued param "foo" that fails when empty
+- `params("foos")` - multi-value param "foos" that might return an empty sequence
+- `paramsNel("foos")` - multi-value param "foos" that return `cats.data.NonEmptyList` or failed
+  future
 
 In addition to these evaluating endpoints, there is also one matching endpoint `paramExists("foo")`
 that only matches requests with "foo" param.
-
-You can extract params by composing endpoint definitions
-```
-get("/hello" :: param("name")) { name: String => Ok(s"Hello, $name!") }
-
-get("/hello" :: paramOption("name")) { name: Option[String] => Ok(s"Hello, ${name.getOrElse("world")}!") }
-
-get("/hello" :: params("uids")) { uids: Seq[String] => Ok(s"Hello, ${uids.mkString(" and ")}!") }
-```
 
 #### Headers
 
@@ -367,14 +363,24 @@ decoders/encoders, it doesn't really fit well with libraries using runtime-refle
 comes to exception encoding, there is some workaround involved in order to enable
 [Jackson](json.md#jackson) support in Finch. See [eval][eval] for an idiomatic example.
 
-### Type Conversion
+### Decoding
+
+While Finch takes care about extracting some particular parts of a request (i.e., body, params,
+headers) in their origin form (usually as `String`s), it's user's responsibility to convert/decode
+them into the domain types.
+
+Most of the means for decoding in Finch are built around `io.finch.Decode[A]` type class that takes
+a string and covert that into a required type. The machinery behind this approach is quite popular
+within the Scala community and pmomotes a compile-time safe deserialization.
+
+#### Type Conversion
 
 For all `String`-based endpoints, Finch provides an `as[A]` method to perform type conversions. It
 is available for any `Endpoint[String]`, `Endpoint[Option[String]]` or `Endpoint[Seq[String]]` as
-long as a matching implicit `DecodeRequest[A]` type-class is in the scope.
+long as a matching implicit `io.finch.Decode[A]` type-class is in the scope.
 
 This facility is designed to be intuitive, meaning that you do not have to provide a
-`DecodeRequest[Seq[MyType]]` for converting a sequence. A decoder for a single item will allow you
+`io.finch.Decode[Seq[MyType]]` for converting a sequence. A decoder for a single item will allow you
 to convert `Option[String]` and `Seq[String]`, too:
 
 ```scala
@@ -413,7 +419,7 @@ Note that while both methods take different implicit params and use different te
 type-conversion, they're basically doing the same thing: transforming the underlying type `A` into
 some type `B` (that's why they have similar names).
 
-### Custom Decoders
+#### Custom Decoders
 
 Writing a new decoder for a type not supported out of the box is very easy, too. The following
 example shows a decoder for a Joda `DateTime` from a `Long` representing the number of milliseconds
@@ -422,8 +428,8 @@ since the epoch:
 ```scala
 import io.finch._
 
-implicit val dateTimeDecoder: DecodeRequest[DateTime] =
-  DecodeRequest.instance(s => Try(new DateTime(s.toLong)))
+implicit val dateTimeDecoder: Decode[DateTime] =
+  Decode.instance(s => Try(new DateTime(s.toLong)))
 ```
 
 All you need to implement is a simple function from `String` to `Try[A]`.
@@ -440,13 +446,13 @@ val interval: Endpoint[Interval] = (
 ).as[Interval]
 ```
 
-### Integration with JSON Libraries
+#### Decoding from JSON
 
 A third way of using the `as[A]` type conversion facility is to use one of the JSON library
 integrations Finch offers. Finch comes with support for a number of [JSON libraries](json.md).
 
 All these integration modules do is make the library-specific JSON decoders available for use as a
-`DecodeRequest[A]`. To take Argonaut as an example, you only have to import `io.finch.argonaut._`
+`io.finch.Decode[A]`. To take Argonaut as an example, you only have to import `io.finch.argonaut._`
 to have implicit Argonaut `DecodeJSON` instances in scope:
 
 ```scala
@@ -456,14 +462,52 @@ implicit def PersonDecodeJson: DecodeJson[Person] =
   jdecode2L(Person.apply)("name", "age")
 ```
 
-Finch will automatically adapt these implicits to its own `DecodeRequest[Person]` type,  so that you
-can use the `as[A]` method on an endpoint `body` to read the HTTP body sent in a JSON format:
+Finch will automatically adapt these implicits to its own `io.finch.Decode[Person]` type,  so that
+you can use the `as[A]` method on an endpoint `body` to read the HTTP body sent in a JSON format:
 
 ```scala
 val person: Endpoint[Person] = body.as[Person]
 ```
 
 The integration for the other JSON libraries works in a similar way.
+
+### Encoding
+
+Behind-the-scene encoding of values returned from endpoint was always the essential part of Finch's
+design. This what makes it all about domain types, not HTTP primitives. By analogy with decoding,
+encoding is built around `io.finch.Encode[A]` type-class that takes a value of an arbitrary type
+and coverts that into a binary buffer that can be served in the HTTP payload/body.
+
+#### Type-level Content-Type
+
+Finch brings HTTP `Content-Type` to the type-level as a singleton string (i.e., `CT <: String`) to
+make it affect implicit resolution and make sure that the right encoder will be picked by a compiler.
+Simply speaking, a `Text.Plain` service won't compile when only Circe's JSON encoders are available
+in the scope.
+
+Given that `Content-Type` is a separate concept, which is neither attached to `Endpoint` nor `Output`,
+a way to specify it is to explicitly pass a requested `Content-Type` to a `toService` method call
+(using the `toServiceAs` variant).
+
+```scala
+val e: Endpoint[String] = get(/) { Ok("Hello, World!") }
+val s: Service[Request, Response] = e.toServiceAs[Text.Plain]
+```
+
+The program above will do the right thing (will pick the right decoder) even when JSON encoders are
+imported into the scope.
+
+By default, Finch defines type-aliases for `text/plain` and `application/json` encoders as
+`Encode.Text[A]` and `Encode.Json[A]`. For everything else, `Encode.Aux[A, CT <: String]` should be
+used instead.
+
+#### Encoding to JSON
+
+Encoding to JSON is not different from encoding to `application/xml` or anything else besides having
+`Encode.Json[A]` instances in the scope for each type returned from the endpoints.
+
+Even though Finch is abstracted over the concrete `Content-Type` it's still biased towards JSON.
+This is why the `toService` call defaults to JSON and UTF-8 considered the default charset.
 
 ### Validation
 
@@ -549,7 +593,18 @@ val divOrFail: Endpoint[Int] = post("div" :: int :: int) { (a: Int, b: Int) =>
 All the unhandled exceptions are converted into very basic 500 responses that don't carry any
 payload. Only Finch's errors (i.e., `io.finch.Error`) are treated in a special way and converted
 into 400 responses with their messages serialized according to the rules defined in the
-`EncodeResponse[Exception]` instance.
+`io.finch.Encode[Exception]` instance.
+
+Finch provides both `Encode.Json` and `Encode.Text` instances for `Exception`s that simply dumps
+their message. Define your own instance if you want to override that behaviour.
+
+```scala
+import io.finch.internal.BufText
+
+implicit val e: Encode.Text[Exception] = Encode.text((exception, charset) =>
+  BufText("Bad thing happened.", cs)
+)
+```
 
 --
 Read Next: [Authentication](auth.md)

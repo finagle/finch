@@ -1,6 +1,7 @@
 ## Cookbook
 
 * [Fixing the `.toService` compile error](cookbook.md#fixing-the-toservice-compile-error)
+* [Serving multiple content types](cookbook.md#serving-multiple-content-types)
 * [Serving static content](cookbook.md#serving-static-content)
 * [Converting `Error.RequestErrors` into JSON](cookbook.md#converting-errorrequesterrors-into-json)
 * [Defining endpoints returning empty responses](cookbook.md#defining-endpoints-returning-empty-responses)
@@ -21,22 +22,20 @@ endpoint in your application it's possible to find an appropriate encoder. Other
 get a compile error that looks like this.
 
 ```
-[error] /Users/vkostyukov/e/src/main/scala/io/finch/eval/Main.scala:46:
-[error] You can only convert a router into a Finagle service if the result type of the router is one
-[error] of the following:
-[error]
-[error]   * A Response
-[error]   * A value of a type with an EncodeResponse instance
-[error]   * A coproduct made up of some combination of the above
-[error]
-[error] io.finch.eval.Main.Output does not satisfy the requirement. You may need to provide an
-[error] EncodeResponse instance for io.finch.eval.Main.Output (or for some  part of
-[error] io.finch.eval.Main.Output).
+<console>:34: error: An Endpoint you're trying to convert into a Finagle service is missing one or more encoders.
+
+  Make sure shapeless.:+:[Foo,shapeless.:+:[Bar,shapeless.CNil]] is one of the following:
+
+  * A com.twitter.finagle.Response
+  * A value of a type with an io.finch.Encode instance (with the corresponding content-type)
+  * A coproduct made up of some combination of the above
+
+       (e :+: q).toServiceAs[Application.Json]
 ```
 
-Which means: the compiler wasn't able to find an instance of `EncodeResponse` type-class for type
-`Output`. To fix that you could either provide that instance (seriously, don't do that unless you
-have an absolutely specific use case) or use one of the supported JSON libraries and get it for
+Which means: the compiler wasn't able to find an instance of `Encode.Json` type-class for types
+`Foo` and `Bar`. To fix that you could either provide that instance (seriously, don't do that unless
+you have an absolutely specific use case) or use one of the supported JSON libraries and get it for
 free (preferred).
 
 For example, to bring the [Circe][circe] support and benefit from its auto-derivation of codecs
@@ -49,7 +48,7 @@ import io.finch.circe._
 
 **Note:** IntelliJ usually marks those imports unused (grey). Don't. Trust. It.
 
-In addition to an `EncodeResponse` instance for return (success) types, Finch also requires an
+In addition to an `Encode.Json` instance for return (success) types, Finch also requires an
 instance for `Exception` (failure) that might be thrown by the endpoint. That said, both failures
 and successes values should be serialized and propagated to the client over the wire.
 
@@ -70,34 +69,84 @@ implicit val encodeException: Encoder[Exception] = Encoder.instance(e =>
 
 However, this may be tricky to do with libraries using runtime-reflection (Jackson, JSON4S) since
 they are usually able to serialize `Any` values, which means it's possible to compile a `.toService`
-call without an explicitly provided `EncodeResponse[Exception]`. This may lead to some unexpected
+call without an explicitly provided `Encode.Json[Exception]`. This may lead to some unexpected
 results (even `StackOverflowException`s). As a workaround, you might define a raw instance of
-`EncodeResponse[Exception]` that wraps a call to the underlying JSON library. The following example,
+`Encode.Json[Exception]` that wraps a call to the underlying JSON library. The following example,
 demonstrates how to do that with Jackson.
 
 ```scala
 import io.finch._
+import io.finch.internal._
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 
 implicit val objectMapper: ObjectMapper =
   new ObjectMapper().registerModule(DefaultScalaModule)
 
-implicit val ee: EncodeResponse[Exception] =
-  EncodeResponse.fromString("application/json") { e =>
-    objectMapper.writeValueAsString(Map("error" -> e.getMessage))
-  }
+implicit val ee: Encode.Json[Exception] =
+  Encode.json((e, cs) =>
+    BufText(objectMapper.writeValueAsString(Map("error" -> e.getMessage)), cs)
+  )
 ````
+
+### Serving multiple content types
+
+In it's current form (as per 0.11-M2) Finch natively supports only single content type per Finagle
+service. This restriction is encoded in the API such that `toServiceAs` call only takes single type
+parameter, single content type.
+
+Even though this restriction is temporary and should be removed in 0.11 (or 1.0), there is an
+essential workaround in Finch that will always be supported (even after 1.0). The general idea is
+to downgrade an endpoint that returns a payload of a content type that's different from one passed
+to the `toServiceAs` call to `Endpoint[Response]`.
+
+An `Endpoint[Response]` has a special meaning:
+
+- It's not necessary to wrap a `Response` with `Output` when mapping endpoint
+- There is an identity (pass through) encoder for `Response` defined in Finch
+
+That said, Finagle's `Response`s have (and will always be having) a first-class support in Finch to
+accommodate use cases when decoupling from HTTP types and primitives implies unnecessary complexity
+or simply not possible in the current implementation.
+
+Putting it all together and assuming that most of the Finch applications serve JSON payloads, it's
+reasonable to pass  `Application.Json` to the `toServiceAs` call and downgrade non-JSON endpoints to
+`Endpoint[Response]`.
+
+```scala
+import com.twitter.finagle.Http
+import com.twitter.finagle.http.Response
+import con.twitter.io.Buf
+import io.circe.generic.auto._
+import io.finch._
+import io.finch.circe._
+
+case class Message(message: String)
+
+val json: Endpoint[Message] = get("json") {
+  Ok(Message("Hello, World!"))
+}
+
+val text: Endpoint[Response] = get("text") {
+  val rep = Response()
+  rep.content = Buf.Utf8("Hello, World!")
+  rep.contentType = "text/plain"
+
+  rep
+}
+
+Http.server.serve(":8081", (json :+: text).toServiceAs[Application.Json])
+```
 
 ### Serving static content
 
 Finch was designed with type-classes powered _extensibility_ in mind, which means it's possible to
-define an `Endpoint` of any type `A` as long as there is a type-class instance of
-`EncodeResponse[A]` available for that type. Needless to say, it's pretty much straightforward to
-define a _blocking_ instance of `EncodeResponse[File]` that turns a given `File` into a `Buf`.
-Although, it might be tricky to come up with a _non-blocking_ way of serving static content with
-Finch, there is a way. The cornerstone idea is to return a `Buf` instance from the endpoint so we
-could use an identity `EncodeResponse`, thereby lifting the encoding part onto the endpoint itself
+define an `Endpoint` of any type `A` as long as there is a type-class instance of `Encode[A]`
+available for that type. Needless to say, it's pretty much straightforward to define a _blocking_
+instance of `Encode[File]` that turns a given `File` into a `Buf`. Although, it might be tricky to
+come up with a _non-blocking_ way of serving static content with Finch, there is a way. The
+cornerstone idea is to return a `Buf` instance from the endpoint so we could use an identity
+`Encode[Buf]`, thereby lifting the encoding part onto the endpoint itself
 (where it's quite legal to return a `Future[Buf]`).
 
 ```scala
@@ -108,15 +157,16 @@ import java.io.File
 val reader: Reader = Reader.fromFile(new File("/dev/urandom"))
 
 val file: Endpoint[Buf] = get("file") {
-  Ok(Reader.readAll(reader)).withContentType(Some("text/plain"))
+  Ok(Reader.readAll(reader))
 }
+
+Http.server.serve(":8081", file.toServiceAs[Text.Plain])
 ```
 **Note:** It's usually not a great idea to use tools like Finch (or similar) to serve static
 content given their _dynamic_ nature. Instead, a static HTTP server (i.e., [Nginx][nginx]) would be
 the perfect fit.
 
-Since Finch 0.10, it's possible to _stream_ the file content to the client using
-[`AsyncStream`][as].
+It's also possible to _stream_ the file content to the client using [`AsyncStream`][as].
 
 ```scala
 import io.finch._
@@ -135,7 +185,7 @@ val file: Endpoint[AsyncStream[Buf]] = get("stream-of-file") {
 
 Http.server
   .withStreaming(enabled = true)
-  .serve(":8081", file.toService)
+  .serve(":8081", file.toServiceAs[Text.Plain])
 ```
 
 ### Converting `Error.RequestErrors` into JSON
