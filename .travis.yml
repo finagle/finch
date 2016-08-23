@@ -1,8 +1,11 @@
 language: scala
 sudo: false
 scala:
-  - 2.11.8
+  - 2.10.6
+  - 2.11.7
 jdk:
+  - openjdk7
+  - oraclejdk7
   - oraclejdk8
 script:
   - sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport scalastyle
