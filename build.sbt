@@ -8,7 +8,7 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.10.6", "2.11.8")
 )
 
-lazy val finagleVersion = "6.36.0"
+lazy val finagleVersion = "6.35.0"
 lazy val circeVersion = "0.5.0-M3"
 lazy val catbirdVersion = "0.7.0"
 lazy val shapelessVersion = "2.3.2"
@@ -43,7 +43,7 @@ val baseSettings = Seq(
     "org.typelevel" %% "cats-core" % catsVersion,
     "com.twitter" %% "finagle-http" % finagleVersion,
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-    "io.catbird" %% "catbird-util" % catbirdVersion,
+    "io.catbird" %% "catbird-util634" % catbirdVersion,
     compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
   ) ++ testDependencies.map(_ % "test"),
   resolvers ++= Seq(
