@@ -5,7 +5,7 @@ import java.util.UUID
 
 import cats.Alternative
 import cats.Eq
-import cats.std.AllInstances
+import cats.instances.AllInstances
 import com.twitter.finagle.http._
 import com.twitter.io.{Buf, Charsets}
 import com.twitter.util.{Await, Future, Try}

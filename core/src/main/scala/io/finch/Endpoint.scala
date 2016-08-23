@@ -4,7 +4,7 @@ import scala.reflect.ClassTag
 
 import cats.Alternative
 import cats.data.NonEmptyList
-import cats.std.list._
+import cats.instances.list._
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Cookie, Request, Response, Status}
 import com.twitter.util.{Future, Return, Throw, Try}
@@ -489,7 +489,7 @@ object Endpoint {
 
     def as[A](implicit decoder: Decode[A], tag: ClassTag[A]): Endpoint[NonEmptyList[A]] =
       self.mapAsync { items =>
-        val decoded = items.unwrap.map(decoder.apply)
+        val decoded = items.toList.map(decoder.apply)
         val errors = decoded.collect {
           case Throw(e) => Error.NotParsed(self.item, tag, e)
         }

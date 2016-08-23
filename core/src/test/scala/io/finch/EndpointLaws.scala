@@ -2,7 +2,7 @@ package io.finch
 
 import cats.Eq
 import cats.laws.IsEq
-import cats.std.AllInstances
+import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
 import org.scalacheck.{Prop, Arbitrary}

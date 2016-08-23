@@ -3,7 +3,7 @@ package io.finch.streaming
 import java.util.concurrent.atomic.AtomicLong
 
 import cats.Show
-import cats.std.long._
+import cats.instances.long._
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.Http
 import com.twitter.io.Buf
