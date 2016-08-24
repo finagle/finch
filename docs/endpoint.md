@@ -289,7 +289,7 @@ In the following example, an `Endpoint[Int :: Int :: HNil]` is mapped to a funct
 import io.finch._
 import io.shapeless._
 
-val both: Endpoint[Int :: Int :: HNIl] = ???
+val both: Endpoint[Int :: Int :: HNil] = ???
 val sum: Endpoint[Int] = both { (a: Int, b: Int) => Ok(a + b) }
 ```
 
@@ -301,7 +301,7 @@ import io.finch._
 import shapeless._
 
 case class Foo(i: Int, s: String)
-val is: Endpoint[Int :: String :: HNIl] = ???
+val is: Endpoint[Int :: String :: HNil] = ???
 
 val foo: Endpoint[Foo] = is.as[Foo]
 ```
@@ -370,8 +370,8 @@ headers) in their origin form (usually as `String`s), it's user's responsibility
 them into the domain types.
 
 Most of the means for decoding in Finch are built around `io.finch.Decode[A]` type class that takes
-a string and covert that into a required type. The machinery behind this approach is quite popular
-within the Scala community and pmomotes a compile-time safe deserialization.
+a string and convert that into a required type. The machinery behind this approach is quite popular
+within the Scala community and promotes a compile-time safe deserialization.
 
 #### Type Conversion
 
@@ -476,7 +476,7 @@ The integration for the other JSON libraries works in a similar way.
 Behind-the-scene encoding of values returned from endpoint was always the essential part of Finch's
 design. This what makes it all about domain types, not HTTP primitives. By analogy with decoding,
 encoding is built around `io.finch.Encode[A]` type-class that takes a value of an arbitrary type
-and coverts that into a binary buffer that can be served in the HTTP payload/body.
+and converts that into a binary buffer that can be served in the HTTP payload/body.
 
 #### Type-level Content-Type
 
