@@ -230,6 +230,7 @@ lazy val examples = project
       |io\.finch\.streaming\..*;
       |io\.finch\.oauth2\..*;
       |io\.finch\.wrk\..*;
+      |io\.finch\.circe\..*;
     """.stripMargin)
   .settings(
     libraryDependencies ++= Seq(
