@@ -31,6 +31,7 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
   case class Headers(m: Map[String, String])
   case class Params(p: Map[String, String])
   case class Cookies(c: Seq[Cookie])
+  case class Path(p: String)
 
   case class OptionalNonEmptyString(o: Option[String])
 
@@ -112,7 +113,7 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
 
   def genVersion: Gen[Version] = Gen.oneOf(Version.Http10, Version.Http11)
 
-  def genPath: Gen[String] = for {
+  def genPath: Gen[Path] = for {
     n <- Gen.choose(0, 20)
     ss <- Gen.listOfN(n, Gen.oneOf(
       Gen.alphaStr.suchThat(_.nonEmpty),
@@ -120,7 +121,7 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
       Gen.posNum[Long].map(_.toString),
       Gen.oneOf(true, false).map(_.toString)
     ))
-  } yield "/" + ss.mkString("/")
+  } yield Path("/" + ss.mkString("/"))
 
   def genBuf: Gen[Buf] = for {
     s <- Arbitrary.arbitrary[String]
@@ -137,7 +138,7 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
       s <- genPath
       b <- genBuf
     } yield {
-      val r = Request(v, m, s)
+      val r = Request(v, m, s.p)
       r.content = b
       r.contentLength = b.length.toLong
       r.charset = "utf-8"
@@ -196,7 +197,7 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
   }
 
   implicit def arbitraryInput: Arbitrary[Input] =
-    Arbitrary(arbitraryRequest.arbitrary.map(Input.apply))
+    Arbitrary(arbitraryRequest.arbitrary.map(Input.request))
 
   implicit def arbitraryUUID: Arbitrary[UUID] = Arbitrary(Gen.uuid)
 
@@ -209,6 +210,8 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
   implicit def arbitraryCookies: Arbitrary[Cookies] = Arbitrary(genCookies)
 
   implicit def arbitraryParams: Arbitrary[Params] = Arbitrary(genParams)
+
+  implicit def arbitraryPath: Arbitrary[Path] = Arbitrary(genPath)
 
   implicit def arbitraryCharset: Arbitrary[Charset] = Arbitrary(genCharset)
 

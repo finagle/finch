@@ -1,16 +1,15 @@
 package io.finch.benchmarks
 
-import com.twitter.finagle.http.Request
 import io.finch._
 import org.openjdk.jmh.annotations._
 
 @State(Scope.Benchmark)
 class ExtractorBenchmark extends FinchBenchmark {
 
-  val empty: Input = Input(Request())
-  val fooBarBaz: Input = Input(Request("/foo/bar/baz"))
-  val tenTwenty: Input = Input(Request("/10/20"))
-  val trueFalse: Input = Input(Request("/true/false"))
+  val empty: Input = Input.get("/")
+  val fooBarBaz: Input = Input.get("/foo/bar/baz")
+  val tenTwenty: Input = Input.get("/10/20")
+  val trueFalse: Input = Input.get("/true/false")
 
   @Benchmark
   def stringSome: Option[String] = string(fooBarBaz).value

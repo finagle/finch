@@ -2,13 +2,11 @@ package io.finch
 
 import java.util.UUID
 
-import com.twitter.finagle.http.Request
-
 class ParamSpec extends FinchSpec {
 
   behavior of "param*"
 
-  def withParam(k: String)(v: String): Input = Input(Request(k -> v))
+  def withParam(k: String)(v: String): Input = Input.get("/", k -> v)
 
   checkAll("Param[String]", EndpointLaws[String](paramOption("x"))(withParam("x")).evaluating)
   checkAll("Param[Int]", EndpointLaws[Int](paramOption("x"))(withParam("x")).evaluating)

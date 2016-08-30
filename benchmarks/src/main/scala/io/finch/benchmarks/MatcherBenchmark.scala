@@ -1,6 +1,5 @@
 package io.finch.benchmarks
 
-import com.twitter.finagle.http.Request
 import io.finch._
 import org.openjdk.jmh.annotations._
 import shapeless.HNil
@@ -8,8 +7,8 @@ import shapeless.HNil
 @State(Scope.Benchmark)
 class MatcherBenchmark extends FinchBenchmark {
 
-  val empty: Input = Input(Request())
-  val fooBarBaz: Input = Input(Request("/foo/bar/baz"))
+  val empty: Input = Input.get("/")
+  val fooBarBaz: Input = Input.get("/foo/bar/baz")
 
   val foo: Endpoint0 = "foo"
 

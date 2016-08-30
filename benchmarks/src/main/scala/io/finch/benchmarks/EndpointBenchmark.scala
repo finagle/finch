@@ -1,6 +1,5 @@
 package io.finch.benchmarks
 
-import com.twitter.finagle.http.Request
 import com.twitter.util.Try
 import io.finch._
 import org.openjdk.jmh.annotations._
@@ -52,21 +51,21 @@ trait FooEndpointsAndRequests {
 
   val derivedFooReader: Endpoint[Foo] = Endpoint.derive[Foo].fromParams
 
-  val goodFooRequest: Input = Input(Request(
+  val goodFooRequest: Input = Input.get("/",
     "s" -> "Man hands on misery to man. It deepens like a coastal shelf.",
     "d" -> "0.234567",
     "i" -> "123456",
     "l" -> "1234567890",
     "b" -> "true"
-  ))
+  )
 
-  val badFooRequest: Input = Input(Request(
+  val badFooRequest: Input = Input.get("/",
     "s" -> "Man hands on misery to man. It deepens like a coastal shelf.",
     "d" -> "0.23h4567",
     "i" -> "123456",
     "l" -> "1234567890x",
     "b" -> "true"
-  ))
+  )
 
   val goodFooResult: Foo = Foo(
     "Man hands on misery to man. It deepens like a coastal shelf.",

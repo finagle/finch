@@ -1,6 +1,6 @@
 package io.finch.oauth2
 
-import com.twitter.finagle.http.{Status, Request}
+import com.twitter.finagle.http.Status
 import com.twitter.finagle.oauth2._
 import com.twitter.util.Future
 import org.scalatest.mock.MockitoSugar
@@ -28,8 +28,8 @@ class OAuth2Spec extends FlatSpec with Matchers with Checkers with MockitoSugar 
       Ok(ai.user)
     }
 
-    val i1 = Input(Request("/user", "access_token" -> "bar"))
-    val i2 = Input(Request("/user"))
+    val i1 = Input.get("/user", "access_token" -> "bar")
+    val i2 = Input.get("/user")
 
     e(i1).output shouldBe Some(Ok(42))
     val Some(error) = e(i2).output
@@ -52,10 +52,11 @@ class OAuth2Spec extends FlatSpec with Matchers with Checkers with MockitoSugar 
       Ok(ghr.accessToken)
     }
 
-    val i1 = Input(Request("/token",
+    val i1 = Input.get("/token",
       "grant_type" -> "password", "username" -> "u", "password" -> "p", "client_id" -> "id"
-    ))
-    val i2 = Input(Request("/token"))
+    )
+
+    val i2 = Input.get("/token")
 
     e(i1).output shouldBe Some(Ok("foobar"))
     val Some(error) = e(i2).output

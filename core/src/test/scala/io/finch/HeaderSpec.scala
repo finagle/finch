@@ -3,19 +3,13 @@ package io.finch
 import java.util.UUID
 
 import cats.Eq
-import com.twitter.finagle.http.Request
 import org.scalacheck.Arbitrary
 
 class HeaderSpec extends FinchSpec {
 
   behavior of "header*"
 
-  def withHeader(k: String)(v: String): Input = Input {
-    val req = Request()
-    req.headerMap.put(k, v)
-
-    req
-  }
+  def withHeader(k: String)(v: String): Input = Input.get("/").withHeaders(k -> v)
 
   checkAll("Header[String]",
     EndpointLaws[String](headerOption("x"))(withHeader("x"))

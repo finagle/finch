@@ -106,10 +106,10 @@ import io.finch._
 scala> val e: Endpoint0 = "foo"
 e: io.finch.Endpoint0 = foo
 
-scala> e(Input(Request("/foo"))).isDefined
+scala> e(Input.get("/foo")).isDefined
 res1: Boolean = true
 
-scala> e(Input(Request("/bar"))).isDefined
+scala> e(Input.get("/bar")).isDefined
 res2: Boolean = false
 ```
 
@@ -154,10 +154,10 @@ import com.twitter.finagle.http.{Request, Method}
 scala> val e = get(/)
 e: io.finch.Endpoint[shapeless.HNil] = GET /
 
-scala> e(Input(Request(Method.Post, "/"))).isDefined
+scala> e(Input.post("/")).isDefined
 res1: Boolean = false
 
-scala> e(Input(Request(Method.Get, "/"))).isDefined
+scala> e(Input.get("/")).isDefined
 res2: Boolean = true
 ```
 
