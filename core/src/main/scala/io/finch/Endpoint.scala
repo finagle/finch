@@ -4,7 +4,6 @@ import scala.reflect.ClassTag
 
 import cats.Alternative
 import cats.data.NonEmptyList
-import cats.instances.list._
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Cookie, Request, Response, Status}
 import com.twitter.util.{Future, Return, Throw, Try}
@@ -286,7 +285,7 @@ trait Endpoint[A] { self =>
 
     private[this] val safeEndpoint = self.handle(basicEndpointHandler)
 
-    def apply(req: Request): Future[Response] = safeEndpoint(Input(req)) match {
+    def apply(req: Request): Future[Response] = safeEndpoint(Input.request(req)) match {
       case Some((remainder, output)) if remainder.isEmpty =>
         output.map(oa => oa.toResponse[CT](req.version)).run
       case _ => Future.value(Response(req.version, Status.NotFound))

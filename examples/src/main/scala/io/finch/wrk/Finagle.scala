@@ -28,10 +28,10 @@ object Finagle extends App {
       if (req.method != Method.Post) Future.value(Response(req.version, Status.NotFound))
       else {
         val payloadIn = mapper.readValue(req.contentString, classOf[Payload])
-        val payloadOut = mapper.writeValueAsString(payloadIn)
+        val payloadOut = mapper.writeValueAsBytes(payloadIn)
 
         val rep = Response(req.version, Status.Ok)
-        rep.content =  Buf.Utf8(payloadOut)
+        rep.content =  Buf.ByteArray.Owned(payloadOut)
         rep.contentType = "application/json"
 
         Future.value(rep)

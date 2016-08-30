@@ -1,6 +1,5 @@
 package io.finch.benchmarks
 
-import com.twitter.finagle.http.Request
 import com.twitter.io.Buf
 import io.finch._
 import org.openjdk.jmh.annotations.{Benchmark, Scope, State}
@@ -8,14 +7,7 @@ import org.openjdk.jmh.annotations.{Benchmark, Scope, State}
 @State(Scope.Benchmark)
 class BodyBenchmark extends FinchBenchmark {
 
-  val input = {
-    val r = Request()
-    val content = Buf.Utf8("x" * 1024)
-    r.content = content
-    r.contentLength = content.length.toLong
-
-    Input(r)
-  }
+  val input = Input.post("/").withBody(Buf.Utf8("x" * 1024))
 
   @Benchmark
   def stringOption: Option[String] = bodyOption(input).value.get

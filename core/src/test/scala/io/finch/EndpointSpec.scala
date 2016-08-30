@@ -4,7 +4,7 @@ import java.util.UUID
 
 import cats.Applicative
 import cats.laws.discipline.AlternativeTests
-import com.twitter.finagle.http.{Request, Method, Cookie}
+import com.twitter.finagle.http.{Method, Cookie}
 import com.twitter.util.{Throw, Try, Future}
 
 class EndpointSpec extends FinchSpec {
@@ -224,13 +224,13 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "not split comma separated param values" in {
-    val i = Input(Request("/index?foo=a,b"))
+    val i = Input.get("/index", "foo" -> "a,b")
     val e = params("foo")
     e(i).value shouldBe Some(Seq("a,b"))
   }
 
   it should "throw NotPresent if an item is not found" in {
-    val i = Input(Request())
+    val i = Input.get("/")
 
     Seq(
       param("foo"), header("foo"), body, cookie("foo").map(_.value),

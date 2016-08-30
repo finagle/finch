@@ -2,21 +2,13 @@ package io.finch
 
 import java.util.UUID
 
-import com.twitter.finagle.http.Request
 import com.twitter.io.Buf
 
 class BodySpec extends FinchSpec {
 
   behavior of "param*"
 
-  def withBody(b: String): Input = Input {
-    val req = Request()
-    val buf = Buf.Utf8(b)
-    req.content = buf
-    req.headerMap.put("Content-Length", buf.length.toString)
-
-    req
-  }
+  def withBody(b: String): Input = Input.post("/").withBody(Buf.Utf8(b))
 
   checkAll("Body[String]", EndpointLaws[String](bodyOption)(withBody).evaluating)
   checkAll("Body[Int]", EndpointLaws[Int](bodyOption)(withBody).evaluating)
