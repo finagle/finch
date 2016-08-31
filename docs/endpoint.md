@@ -19,6 +19,7 @@
 * [Validation](endpoint.md#validation)
 * [Errors](endpoint.md#errors)
 * [Error Handling](endpoint.md#error-handling)
+* [Testing Endpoints](endpoint.md#testing-endpoints)
 
 --
 
@@ -604,6 +605,68 @@ import io.finch.internal.BufText
 implicit val e: Encode.Text[Exception] = Encode.text((exception, charset) =>
   BufText("Bad thing happened.", cs)
 )
+```
+
+### Testing Endpoints
+
+One of the advantages of typeful endpoints in Finch is that they can be unit-tested independently in
+a way similar to how functions are tested. The machinery is pretty straightforward: an endpoint
+takes an `Input` and returns `Output` (wrapping a payload).
+
+There is a lightweight API around `Input`s to make them easy to build. For example, the following
+call builds a `GET /foo?a=1&b=2` request:
+
+```scala
+import io.finch._
+
+val foo: Input = Input.get("/foo", "a" -> "2", "b" -> "3")
+```
+
+Similarly a payload (`application/x-www-form-urlencoded` in this case) with headers may be added
+to an input:
+
+```scala
+import io.finch._
+val bar: Input = Input.post("/bar")
+  .withForm("a" -> "1", "b" -> "2")
+  .withHeaders("X-Header" -> "Y")
+```
+
+At this point, there is no JSON-specific support encoded in the `Input` API (but will be in 0.11)
+so a generic `withBody` method may be used instead.
+
+```scala
+import io.circe._
+import io.circe.syntax._
+import io.finch._
+import com.twitter.io.Buf
+
+val baz: Input = Input.put("/baz")
+  .withBody(Buf.Utf8(Map("a" -> "b").asJson.toString), Some("application/json;charset=utf8"))
+```
+
+Similarly when an `Output` is returned form the `Endpoint` it might be queried with a number of
+methods: `tryValue`, `tryOutput`, `output`, and `value`. Please, note that all of those are blocking
+on the underlying `Future` with the upper bound of 10 seconds.
+
+In general, it's recommended to use `try*` variants (since they don't throw exceptions), but for the
+sake of simplicity, in this user guide `value` and `output` serve sufficiently.
+
+```
+scala> val divOrFail: Endpoint[Int] = post(int :: int) { (a: Int, b: Int) =>
+     |   if (b == 0) BadRequest(new Exception("div by 0"))
+     |   else Ok(a / b)
+     | }
+divOrFail: io.finch.Endpoint[Int] = POST /:int/:int
+
+scala> divOrFail(Input.post("/20/10")).value == Some(2)
+res3: Boolean = true
+
+scala> divOrFail(Input.get("/20/10")).value == None
+res4: Boolean = true
+
+scala> divOrFail(Input.post("/20/0")).output.map(_.status) == Some(Status.BadRequest)
+res6: Boolean = true
 ```
 
 --

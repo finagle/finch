@@ -43,7 +43,8 @@ object Main extends App {
     ai: AuthInfo[OAuthUser] => Ok(ai.user)
   }
 
-  val tokens: Endpoint[GrantHandlerResult] = post("users" :: "auth" :: issueAccessToken(InMemoryDataHandler))
+  val tokens: Endpoint[GrantHandlerResult] =
+    post("users" :: "auth" :: issueAccessToken(InMemoryDataHandler))
 
   val unprotected: Endpoint[UnprotectedUser] = get("users" :: "unprotected") {
     Ok(UnprotectedUser("unprotected"))

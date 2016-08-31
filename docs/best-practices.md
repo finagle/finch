@@ -7,7 +7,7 @@
 * [Monitor your application](best-practices.md#monitor-your-application)
 * [Picking HTTP statuses for responses](best-practices.md#picking-http-statuses-for-responses)
 * [Configuring Finagle](best-practices.md#configuring-finagle)
-* [Finagle Filters vs. Finch Endpoints](best-practices.md#finagle-filters-vs-finc-endpoints)
+* [Finagle Filters vs. Finch Endpoints](best-practices.md#finagle-filters-vs-finch-endpoints)
 * [Pulling it all Together](best-practices.md#pulling-it-all-together)
 
 --

@@ -31,10 +31,10 @@ class SuccessfulEndpointBenchmark extends FinchBenchmark with FooEndpointsAndReq
 @State(Scope.Benchmark)
 class FailingEndpointBenchmark extends FinchBenchmark with FooEndpointsAndRequests {
   @Benchmark
-  def hlistGenericEndpoint: Try[Foo] = hlistGenericFooReader(badFooRequest).poll.get
+  def hlistGenericEndpoint: Try[Foo] = hlistGenericFooReader(badFooRequest).tryValue.get
 
   @Benchmark
-  def derivedEndpoint: Try[Foo] = derivedFooReader(badFooRequest).poll.get
+  def derivedEndpoint: Try[Foo] = derivedFooReader(badFooRequest).tryValue.get
 }
 
 /**
