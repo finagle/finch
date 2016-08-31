@@ -236,7 +236,7 @@ class EndpointSpec extends FinchSpec {
       param("foo"), header("foo"), body, cookie("foo").map(_.value),
       fileUpload("foo").map(_.fileName), paramsNonEmpty("foo").map(_.mkString),
       paramsNel("foor").map(_.toList.mkString), binaryBody.map(new String(_))
-    ).foreach { ii => ii(i).poll shouldBe Some(Throw(Error.NotPresent(ii.item))) }
+    ).foreach { ii => ii(i).tryValue shouldBe Some(Throw(Error.NotPresent(ii.item))) }
   }
 
   it should "maps lazily to values" in {

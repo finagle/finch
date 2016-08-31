@@ -3,7 +3,7 @@ package io.finch
 import cats.Eq
 import com.twitter.finagle.http.{Cookie, Response, Status, Version}
 import com.twitter.io.Charsets
-import com.twitter.util.{Await, Future, Try}
+import com.twitter.util.{Await, Duration, Future, Try}
 import io.finch.internal.ToResponse
 import java.nio.charset.Charset
 
@@ -167,10 +167,66 @@ object Output {
     case (_, _) => false
   }
 
+  /**
+   * Exposes an API for testing [[Endpoint]]s.
+   */
   implicit class EndpointResultOps[A](val o: Endpoint.Result[A]) extends AnyVal {
-    def poll: Option[Try[A]] = o.flatMap(_._2.run.poll.map(_.map(_.value)))
-    def output: Option[Output[A]] = o.map({ case (_, oa) => Await.result(oa.run) })
+
+    /**
+     * Queries an [[Output]] wrapped with [[Try]] (indicating if the [[Future]] is failed).
+     *
+     * @note This method is blocking and awaits on the underlying [[Future]] with the upper
+     *       bound of 10 seconds.
+     *
+     * @return `Some(output)` if this endpoint was matched on a given input,
+     *         `None` otherwise.
+     */
+    def tryOutput: Option[Try[Output[A]]] =
+      o.map({ case (_, oa) => Await.result(oa.liftToTry.run, Duration.fromSeconds(10)) })
+
+    /**
+     * Queries a value from the [[Output]] wrapped with [[Try]] (indicating if either the
+     * [[Future]] is failed or [[Output]] wasn't a payload).
+     *
+     * @note This method is blocking and awaits on the underlying [[Future]] with the upper
+     *       bound of 10 seconds.
+     *
+     * @return `Some(value)` if this endpoint was matched on a given input,
+     *         `None` otherwise.
+     */
+    def tryValue: Option[Try[A]] =
+      tryOutput.map(toa => toa.flatMap(oa => Try(oa.value)))
+
+    /**
+     * Queries an [[Output]] of the [[Endpoint]] result or throws an exception if an underlying
+     * [[Future]] is failed.
+     *
+     * @note This method is blocking and awaits on the underlying [[Future]] with the upper
+     *       bound of 10 seconds.
+     *
+     * @return `Some(output)` if this endpoint was matched on a given input,
+     *         `None` otherwise.
+     */
+    def output: Option[Output[A]] = tryOutput.map(tao => tao.get)
+
+    /**
+     * Queries the value from the [[Output]] or throws an exception if either an underlying
+     * [[Future]] is failed or [[Output]] wasn't a payload.
+     *
+     * @note This method is blocking and awaits on the underlying [[Future]] with the upper
+     *       bound of 10 seconds.
+     *
+     * @return `Some(value)` if this endpoint was matched on a given input,
+     *         `None` otherwise.
+     */
     def value: Option[A] = output.map(oa => oa.value)
+
+    /**
+     * Returns the remainder of the [[Input]] after an [[Endpoint]] is matched.
+     *
+     * @return `Some(remainder)` if this endpoint was matched on a given input,
+     *         `None` otherwise.
+     */
     def remainder: Option[Input] = o.map(_._1)
   }
 
