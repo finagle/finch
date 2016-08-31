@@ -47,13 +47,13 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">ToResponse</span>
+        <span class="name">ToResponse</span><span class="result"> extends <a href="HighPriorityToResponseInstances.html" class="extype" name="io.finch.internal.HighPriorityToResponseInstances">HighPriorityToResponseInstances</a></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <div class="superTypes hiddenContent"><a href="HighPriorityToResponseInstances.html" class="extype" name="io.finch.internal.HighPriorityToResponseInstances">HighPriorityToResponseInstances</a>, <a href="LowPriorityToResponseInstances.html" class="extype" name="io.finch.internal.LowPriorityToResponseInstances">LowPriorityToResponseInstances</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
         
 
@@ -64,20 +64,20 @@
               <ol>
                 
                 <li class="alpha in"><span>Alphabetic</span></li>
-                <li class="inherit out"><span>By inheritance</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
               </ol>
             </div>
         <div id="ancestors">
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="io.finch.internal.ToResponse"><span>ToResponse</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="io.finch.internal.ToResponse"><span>ToResponse</span></li><li class="in" name="io.finch.internal.HighPriorityToResponseInstances"><span>HighPriorityToResponseInstances</span></li><li class="in" name="io.finch.internal.LowPriorityToResponseInstances"><span>LowPriorityToResponseInstances</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
             <ol>
               <li class="hideall out"><span>Hide All</span></li>
-              <li class="showall in"><span>Show all</span></li>
+              <li class="showall in"><span>Show All</span></li>
             </ol>
           </div>
         <div id="visbl">
@@ -90,7 +90,33 @@
         <div id="allMembers">
         
 
-        
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="io.finch.internal.LowPriorityToResponseInstances.Aux" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}"></a>
+      <a id="Aux[A,CT]:Aux[A,CT]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Aux</span><span class="tparams">[<span name="A">A</span>, <span name="CT">CT</span>]</span><span class="result"> = <a href="ToResponse.html" class="extype" name="io.finch.internal.ToResponse">ToResponse</a>[<span class="extype" name="io.finch.internal.LowPriorityToResponseInstances.Aux.A">A</span>] { type ContentType = CT }</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.ToResponse$@Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityToResponseInstances.html" class="extype" name="io.finch.internal.LowPriorityToResponseInstances">LowPriorityToResponseInstances</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@implicitNotFound</span><span class="args">(<span>
+      
+      <span class="defval" name="&quot;&quot;&quot;An Endpoint you're trying to convert into a Finagle service is missing one or more encoders.<br/><br/>  Make sure ${A} is one of the following:<br/><br/>  * A com.twitter.finagle.Response<br/>  * A value of a type with an io.finch.Encode instance (with the corresponding content-type)<br/>  * A coproduct made up of some combination of the above<br/><br/>  See https://github.com/finagle/finch/blob/master/docs/cookbook.md#fixing-the-toservice-compile-error<br/>&quot;&quot;&quot;">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li></ol>
+            </div>
 
         
 
@@ -105,7 +131,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.internal.ToResponse$@!=(x$1:Any):Boolean" title="Permalink" target="_top">
@@ -122,7 +148,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.internal.ToResponse$@##():Int" title="Permalink" target="_top">
@@ -139,7 +165,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.internal.ToResponse$@==(x$1:Any):Boolean" title="Permalink" target="_top">
@@ -147,27 +173,6 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.finch.internal.ToResponse#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply[A](implicittr:io.finch.internal.ToResponse[A]):io.finch.internal.ToResponse[A]"></a>
-      <a id="apply[A](ToResponse[A]):ToResponse[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="tr">tr: <a href="ToResponse.html" class="extype" name="io.finch.internal.ToResponse">ToResponse</a>[<span class="extype" name="io.finch.internal.ToResponse.apply.A">A</span>]</span>)</span><span class="result">: <a href="ToResponse.html" class="extype" name="io.finch.internal.ToResponse">ToResponse</a>[<span class="extype" name="io.finch.internal.ToResponse.apply.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.internal.ToResponse$@apply[A](implicittr:io.finch.internal.ToResponse[A]):io.finch.internal.ToResponse[A]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Returns an instance for a given type.</p><div class="fullcomment"><div class="comment cmt"><p>Returns an instance for a given type.
-</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@inline</span><span class="args">()</span>
-              
-        </dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -185,26 +190,40 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.finch.internal.ToResponse#asyncToResponse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="asyncToResponse:io.finch.internal.ToResponse[com.twitter.concurrent.AsyncStream[com.twitter.io.Buf]]"></a>
-      <a id="asyncToResponse:ToResponse[AsyncStream[Buf]]"></a>
+    </li><li name="io.finch.internal.LowPriorityToResponseInstances#asyncBufToResponse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asyncBufToResponse[CT&lt;:String](implicitw:shapeless.Witness.Aux[CT]):LowPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[com.twitter.io.Buf],CT]"></a>
+      <a id="asyncBufToResponse[CT&lt;:String](shapeless.Witness.Aux[CT]):Aux[AsyncStream[Buf],CT]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">asyncToResponse</span><span class="result">: <a href="ToResponse.html" class="extype" name="io.finch.internal.ToResponse">ToResponse</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.concurrent.AsyncStream" class="extype" target="_top">AsyncStream</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.io.Buf" class="extype" target="_top">Buf</a>]]</span>
+        <span class="name">asyncBufToResponse</span><span class="tparams">[<span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="w">w: <span class="extype" name="shapeless.Witness.Aux">shapeless.Witness.Aux</span>[<span class="extype" name="io.finch.internal.LowPriorityToResponseInstances.asyncBufToResponse.CT">CT</span>]</span>)</span><span class="result">: <a href="#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">Aux</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.concurrent.AsyncStream" class="extype" target="_top">AsyncStream</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.io.Buf" class="extype" target="_top">Buf</a>], <span class="extype" name="io.finch.internal.LowPriorityToResponseInstances.asyncBufToResponse.CT">CT</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.internal.ToResponse$@asyncToResponse:io.finch.internal.ToResponse[com.twitter.concurrent.AsyncStream[com.twitter.io.Buf]]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.internal.ToResponse$@asyncBufToResponse[CT&lt;:String](implicitw:shapeless.Witness.Aux[CT]):LowPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[com.twitter.io.Buf],CT]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Provides implicit ToResponse for <code>AsyncStream[Buf]</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Provides implicit ToResponse for <code>AsyncStream[Buf]</code>.
-If it reaches the end of the stream it closes the connection.
-</p></div><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>Http server should be initialized with <code>.withStreaming(enabled = true)</code> to get advantage
-      of streaming (chunked requests).</p></span></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityToResponseInstances.html" class="extype" name="io.finch.internal.LowPriorityToResponseInstances">LowPriorityToResponseInstances</a></dd></dl></div>
+    </li><li name="io.finch.internal.LowPriorityToResponseInstances#asyncResponseBuilder" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asyncResponseBuilder[A,CT&lt;:String](writer:(A,java.nio.charset.Charset)=&gt;com.twitter.io.Buf)(implicitw:shapeless.Witness.Aux[CT]):LowPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[A],CT]"></a>
+      <a id="asyncResponseBuilder[A,CT&lt;:String]((A,Charset)⇒Buf)(shapeless.Witness.Aux[CT]):Aux[AsyncStream[A],CT]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asyncResponseBuilder</span><span class="tparams">[<span name="A">A</span>, <span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="params">(<span name="writer">writer: (<span class="extype" name="io.finch.internal.LowPriorityToResponseInstances.asyncResponseBuilder.A">A</span>, <span class="extype" name="java.nio.charset.Charset">Charset</span>) ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.io.Buf" class="extype" target="_top">Buf</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="w">w: <span class="extype" name="shapeless.Witness.Aux">shapeless.Witness.Aux</span>[<span class="extype" name="io.finch.internal.LowPriorityToResponseInstances.asyncResponseBuilder.CT">CT</span>]</span>)</span><span class="result">: <a href="#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">Aux</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.concurrent.AsyncStream" class="extype" target="_top">AsyncStream</a>[<span class="extype" name="io.finch.internal.LowPriorityToResponseInstances.asyncResponseBuilder.A">A</span>], <span class="extype" name="io.finch.internal.LowPriorityToResponseInstances.asyncResponseBuilder.CT">CT</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.ToResponse$@asyncResponseBuilder[A,CT&lt;:String](writer:(A,java.nio.charset.Charset)=&gt;com.twitter.io.Buf)(implicitw:shapeless.Witness.Aux[CT]):LowPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[A],CT]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="LowPriorityToResponseInstances.html" class="extype" name="io.finch.internal.LowPriorityToResponseInstances">LowPriorityToResponseInstances</a></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -214,7 +233,7 @@ If it reaches the end of the stream it closes the connection.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.internal.ToResponse$@clone():Object" title="Permalink" target="_top">
@@ -228,19 +247,36 @@ If it reaches the end of the stream it closes the connection.
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.finch.internal.ToResponse#encodeableToResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="encodeableToResponse[A](implicite:io.finch.EncodeResponse[A]):io.finch.internal.ToResponse[A]"></a>
-      <a id="encodeableToResponse[A](EncodeResponse[A]):ToResponse[A]"></a>
+    </li><li name="io.finch.internal.ToResponse#cnilToResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="cnilToResponse[CT&lt;:String]:io.finch.internal.ToResponse.Aux[shapeless.CNil,CT]"></a>
+      <a id="cnilToResponse[CT&lt;:String]:Aux[CNil,CT]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">encodeableToResponse</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="e">e: <a href="../EncodeResponse.html" class="extype" name="io.finch.EncodeResponse">EncodeResponse</a>[<span class="extype" name="io.finch.internal.ToResponse.encodeableToResponse.A">A</span>]</span>)</span><span class="result">: <a href="ToResponse.html" class="extype" name="io.finch.internal.ToResponse">ToResponse</a>[<span class="extype" name="io.finch.internal.ToResponse.encodeableToResponse.A">A</span>]</span>
+        <span class="name">cnilToResponse</span><span class="tparams">[<span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="result">: <a href="#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">Aux</a>[<span class="extype" name="shapeless.CNil">CNil</span>, <span class="extype" name="io.finch.internal.ToResponse.cnilToResponse.CT">CT</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.internal.ToResponse$@encodeableToResponse[A](implicite:io.finch.EncodeResponse[A]):io.finch.internal.ToResponse[A]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.internal.ToResponse$@cnilToResponse[CT&lt;:String]:io.finch.internal.ToResponse.Aux[shapeless.CNil,CT]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.internal.ToResponse#coproductToResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="coproductToResponse[H,T&lt;:shapeless.Coproduct,CT&lt;:String](implicittrH:io.finch.internal.ToResponse.Aux[H,CT],implicittrT:io.finch.internal.ToResponse.Aux[T,CT]):io.finch.internal.ToResponse.Aux[shapeless.:+:[H,T],CT]"></a>
+      <a id="coproductToResponse[H,T&lt;:Coproduct,CT&lt;:String](Aux[H,CT],Aux[T,CT]):Aux[:+:[H,T],CT]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">coproductToResponse</span><span class="tparams">[<span name="H">H</span>, <span name="T">T &lt;: <span class="extype" name="shapeless.Coproduct">Coproduct</span></span>, <span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="trH">trH: <a href="#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">Aux</a>[<span class="extype" name="io.finch.internal.ToResponse.coproductToResponse.H">H</span>, <span class="extype" name="io.finch.internal.ToResponse.coproductToResponse.CT">CT</span>]</span>, <span name="trT">trT: <a href="#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">Aux</a>[<span class="extype" name="io.finch.internal.ToResponse.coproductToResponse.T">T</span>, <span class="extype" name="io.finch.internal.ToResponse.coproductToResponse.CT">CT</span>]</span>)</span><span class="result">: <a href="#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">Aux</a>[<span class="extype" name="shapeless.:+:">:+:</span>[<span class="extype" name="io.finch.internal.ToResponse.coproductToResponse.H">H</span>, <span class="extype" name="io.finch.internal.ToResponse.coproductToResponse.T">T</span>], <span class="extype" name="io.finch.internal.ToResponse.coproductToResponse.CT">CT</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.ToResponse$@coproductToResponse[H,T&lt;:shapeless.Coproduct,CT&lt;:String](implicittrH:io.finch.internal.ToResponse.Aux[H,CT],implicittrT:io.finch.internal.ToResponse.Aux[T,CT]):io.finch.internal.ToResponse.Aux[shapeless.:+:[H,T],CT]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -254,7 +290,7 @@ If it reaches the end of the stream it closes the connection.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.internal.ToResponse$@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
@@ -271,7 +307,7 @@ If it reaches the end of the stream it closes the connection.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.internal.ToResponse$@equals(x$1:Any):Boolean" title="Permalink" target="_top">
@@ -288,7 +324,7 @@ If it reaches the end of the stream it closes the connection.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">finalize</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.internal.ToResponse$@finalize():Unit" title="Permalink" target="_top">
@@ -328,7 +364,7 @@ If it reaches the end of the stream it closes the connection.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.internal.ToResponse$@hashCode():Int" title="Permalink" target="_top">
@@ -336,23 +372,23 @@ If it reaches the end of the stream it closes the connection.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.finch.internal.ToResponse#instance" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="instance[A](f:A=&gt;com.twitter.finagle.http.Response):io.finch.internal.ToResponse[A]"></a>
-      <a id="instance[A]((A)⇒Response):ToResponse[A]"></a>
+    </li><li name="io.finch.internal.LowPriorityToResponseInstances#instance" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="instance[A,CT&lt;:String](fn:(A,java.nio.charset.Charset)=&gt;com.twitter.finagle.http.Response):LowPriorityToResponseInstances.this.Aux[A,CT]"></a>
+      <a id="instance[A,CT&lt;:String]((A,Charset)⇒Response):Aux[A,CT]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">instance</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="io.finch.internal.ToResponse.instance.A">A</span>) ⇒ <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a></span>)</span><span class="result">: <a href="ToResponse.html" class="extype" name="io.finch.internal.ToResponse">ToResponse</a>[<span class="extype" name="io.finch.internal.ToResponse.instance.A">A</span>]</span>
+        <span class="name">instance</span><span class="tparams">[<span name="A">A</span>, <span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="io.finch.internal.LowPriorityToResponseInstances.instance.A">A</span>, <span class="extype" name="java.nio.charset.Charset">Charset</span>) ⇒ <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a></span>)</span><span class="result">: <a href="#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">Aux</a>[<span class="extype" name="io.finch.internal.LowPriorityToResponseInstances.instance.A">A</span>, <span class="extype" name="io.finch.internal.LowPriorityToResponseInstances.instance.CT">CT</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.internal.ToResponse$@instance[A](f:A=&gt;com.twitter.finagle.http.Response):io.finch.internal.ToResponse[A]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.internal.ToResponse$@instance[A,CT&lt;:String](fn:(A,java.nio.charset.Charset)=&gt;com.twitter.finagle.http.Response):LowPriorityToResponseInstances.this.Aux[A,CT]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Constructs an instance from a function.</p>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityToResponseInstances.html" class="extype" name="io.finch.internal.LowPriorityToResponseInstances">LowPriorityToResponseInstances</a></dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -362,7 +398,7 @@ If it reaches the end of the stream it closes the connection.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.internal.ToResponse$@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
@@ -370,6 +406,23 @@ If it reaches the end of the stream it closes the connection.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.finch.internal.HighPriorityToResponseInstances#jsonAsyncStreamToResponse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="jsonAsyncStreamToResponse[A](implicite:io.finch.Encode.Json[A]):HighPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[A],io.finch.Application.Json]"></a>
+      <a id="jsonAsyncStreamToResponse[A](Encode.Json[A]):Aux[AsyncStream[A],Json]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">jsonAsyncStreamToResponse</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="e">e: <a href="../Encode$.html#Json[A]=LowPriorityEncodeInstances.this.Aux[A,io.finch.Application.Json]" class="extmbr" name="io.finch.Encode.Json">Encode.Json</a>[<span class="extype" name="io.finch.internal.HighPriorityToResponseInstances.jsonAsyncStreamToResponse.A">A</span>]</span>)</span><span class="result">: <a href="#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">Aux</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.concurrent.AsyncStream" class="extype" target="_top">AsyncStream</a>[<span class="extype" name="io.finch.internal.HighPriorityToResponseInstances.jsonAsyncStreamToResponse.A">A</span>], <a href="../package$$Application$.html#Json=String(&quot;application/json&quot;)" class="extmbr" name="io.finch.Application.Json">Json</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.ToResponse$@jsonAsyncStreamToResponse[A](implicite:io.finch.Encode.Json[A]):HighPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[A],io.finch.Application.Json]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HighPriorityToResponseInstances.html" class="extype" name="io.finch.internal.HighPriorityToResponseInstances">HighPriorityToResponseInstances</a></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -379,7 +432,7 @@ If it reaches the end of the stream it closes the connection.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.internal.ToResponse$@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
@@ -396,7 +449,7 @@ If it reaches the end of the stream it closes the connection.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">notify</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.internal.ToResponse$@notify():Unit" title="Permalink" target="_top">
@@ -413,7 +466,7 @@ If it reaches the end of the stream it closes the connection.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.internal.ToResponse$@notifyAll():Unit" title="Permalink" target="_top">
@@ -421,23 +474,23 @@ If it reaches the end of the stream it closes the connection.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="io.finch.internal.ToResponse#responseToResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="responseToResponse:io.finch.internal.ToResponse[com.twitter.finagle.http.Response]"></a>
-      <a id="responseToResponse:ToResponse[Response]"></a>
+    </li><li name="io.finch.internal.HighPriorityToResponseInstances#responseToResponse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="responseToResponse[CT&lt;:String]:HighPriorityToResponseInstances.this.Aux[com.twitter.finagle.http.Response,CT]"></a>
+      <a id="responseToResponse[CT&lt;:String]:Aux[Response,CT]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">responseToResponse</span><span class="result">: <a href="ToResponse.html" class="extype" name="io.finch.internal.ToResponse">ToResponse</a>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a>]</span>
+        <span class="name">responseToResponse</span><span class="tparams">[<span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="result">: <a href="#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">Aux</a>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a>, <span class="extype" name="io.finch.internal.HighPriorityToResponseInstances.responseToResponse.CT">CT</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.internal.ToResponse$@responseToResponse:io.finch.internal.ToResponse[com.twitter.finagle.http.Response]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.internal.ToResponse$@responseToResponse[CT&lt;:String]:HighPriorityToResponseInstances.this.Aux[com.twitter.finagle.http.Response,CT]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HighPriorityToResponseInstances.html" class="extype" name="io.finch.internal.HighPriorityToResponseInstances">HighPriorityToResponseInstances</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -455,6 +508,23 @@ If it reaches the end of the stream it closes the connection.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="io.finch.internal.HighPriorityToResponseInstances#textAsyncStreamToResponse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="textAsyncStreamToResponse[A](implicite:io.finch.Encode.Text[A]):HighPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[A],io.finch.Text.Plain]"></a>
+      <a id="textAsyncStreamToResponse[A](Encode.Text[A]):Aux[AsyncStream[A],Plain]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">textAsyncStreamToResponse</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="e">e: <a href="../Encode$.html#Text[A]=LowPriorityEncodeInstances.this.Aux[A,io.finch.Text.Plain]" class="extmbr" name="io.finch.Encode.Text">Encode.Text</a>[<span class="extype" name="io.finch.internal.HighPriorityToResponseInstances.textAsyncStreamToResponse.A">A</span>]</span>)</span><span class="result">: <a href="#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">Aux</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.concurrent.AsyncStream" class="extype" target="_top">AsyncStream</a>[<span class="extype" name="io.finch.internal.HighPriorityToResponseInstances.textAsyncStreamToResponse.A">A</span>], <a href="../package$$Text$.html#Plain=String(&quot;text/plain&quot;)" class="extmbr" name="io.finch.Text.Plain">Plain</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.ToResponse$@textAsyncStreamToResponse[A](implicite:io.finch.Encode.Text[A]):HighPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[A],io.finch.Text.Plain]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HighPriorityToResponseInstances.html" class="extype" name="io.finch.internal.HighPriorityToResponseInstances">HighPriorityToResponseInstances</a></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
@@ -472,6 +542,23 @@ If it reaches the end of the stream it closes the connection.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="io.finch.internal.HighPriorityToResponseInstances#valueToResponse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="valueToResponse[A,CT&lt;:String](implicite:io.finch.Encode.Aux[A,CT],implicitw:shapeless.Witness.Aux[CT]):HighPriorityToResponseInstances.this.Aux[A,CT]"></a>
+      <a id="valueToResponse[A,CT&lt;:String](Encode.Aux[A,CT],shapeless.Witness.Aux[CT]):Aux[A,CT]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">valueToResponse</span><span class="tparams">[<span name="A">A</span>, <span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="e">e: <a href="../Encode$.html#Aux[A,CT&lt;:String]=io.finch.Encode[A]{typeContentType=CT}" class="extmbr" name="io.finch.Encode.Aux">Encode.Aux</a>[<span class="extype" name="io.finch.internal.HighPriorityToResponseInstances.valueToResponse.A">A</span>, <span class="extype" name="io.finch.internal.HighPriorityToResponseInstances.valueToResponse.CT">CT</span>]</span>, <span name="w">w: <span class="extype" name="shapeless.Witness.Aux">shapeless.Witness.Aux</span>[<span class="extype" name="io.finch.internal.HighPriorityToResponseInstances.valueToResponse.CT">CT</span>]</span>)</span><span class="result">: <a href="#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">Aux</a>[<span class="extype" name="io.finch.internal.HighPriorityToResponseInstances.valueToResponse.A">A</span>, <span class="extype" name="io.finch.internal.HighPriorityToResponseInstances.valueToResponse.CT">CT</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.internal.ToResponse$@valueToResponse[A,CT&lt;:String](implicite:io.finch.Encode.Aux[A,CT],implicitw:shapeless.Witness.Aux[CT]):HighPriorityToResponseInstances.this.Aux[A,CT]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HighPriorityToResponseInstances.html" class="extype" name="io.finch.internal.HighPriorityToResponseInstances">HighPriorityToResponseInstances</a></dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
@@ -481,7 +568,7 @@ If it reaches the end of the stream it closes the connection.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">wait</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.internal.ToResponse$@wait():Unit" title="Permalink" target="_top">
@@ -504,7 +591,7 @@ If it reaches the end of the stream it closes the connection.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.internal.ToResponse$@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
@@ -527,7 +614,7 @@ If it reaches the end of the stream it closes the connection.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.internal.ToResponse$@wait(x$1:Long):Unit" title="Permalink" target="_top">
@@ -550,10 +637,14 @@ If it reaches the end of the stream it closes the connection.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
-              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+        <div class="parent" name="io.finch.internal.HighPriorityToResponseInstances">
+              <h3>Inherited from <a href="HighPriorityToResponseInstances.html" class="extype" name="io.finch.internal.HighPriorityToResponseInstances">HighPriorityToResponseInstances</a></h3>
+            </div><div class="parent" name="io.finch.internal.LowPriorityToResponseInstances">
+              <h3>Inherited from <a href="LowPriorityToResponseInstances.html" class="extype" name="io.finch.internal.LowPriorityToResponseInstances">LowPriorityToResponseInstances</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
-              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.7/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
             </div>
         
         </div>
