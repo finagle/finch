@@ -614,7 +614,7 @@ a way similar to how functions are tested. The machinery is pretty straightforwa
 takes an `Input` and returns `Output` (wrapping a payload).
 
 There is a lightweight API around `Input`s to make them easy to build. For example, the following
-call builds a `GET /foo?a=1&b=2` request:
+builds a `GET /foo?a=1&b=2` request:
 
 ```scala
 import io.finch._
@@ -650,9 +650,9 @@ methods: `tryValue`, `tryOutput`, `output`, and `value`. Please, note that all o
 on the underlying `Future` with the upper bound of 10 seconds.
 
 In general, it's recommended to use `try*` variants (since they don't throw exceptions), but for the
-sake of simplicity, in this user guide `value` and `output` serve sufficiently.
+sake of simplicity, in this user guide `value` and `output` are used instead.
 
-```
+```scala
 scala> val divOrFail: Endpoint[Int] = post(int :: int) { (a: Int, b: Int) =>
      |   if (b == 0) BadRequest(new Exception("div by 0"))
      |   else Ok(a / b)

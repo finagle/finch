@@ -108,6 +108,8 @@ val expensive: Endpoint[BigInt] = get(int) { i: Int =>
 }
 ```
 
+Refer to this [blog post][block-party] to find out how much time a Finagle service spend blocking.
+
 ### Use TwitterServer
 
 Always serve Finch endpoints within [TwitterServer][twitter-server], a lightweight server template
@@ -291,3 +293,4 @@ fully-fledged service up & running quickly.
 [finagle-config]: http://twitter.github.io/finagle/guide/Configuration.html
 [finagle-concurrency]: http://twitter.github.io/finagle/guide/Servers.html#concurrency-limit
 [finchrich]: https://github.com/akozhemiakin/finchrich
+[block-party]: http://finagle.github.io/blog/2016/09/01/block-party/
