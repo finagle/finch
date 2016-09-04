@@ -25,7 +25,7 @@ object Main extends App {
 
   // We can serve Ints as plain/text responses since there is cats.Show[Int]
   // available via the cats.instances.int._ import.
-  val div: Endpoint[Int] = post(int :: int) { (a: Int, b: Int) =>
+  def div: Endpoint[Int] = post(int :: int) { (a: Int, b: Int) =>
     Ok(a / b)
   } handle {
     case e: ArithmeticException => BadRequest(e)

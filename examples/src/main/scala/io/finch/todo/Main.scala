@@ -25,8 +25,9 @@ import io.finch.circe._
  *
  * {{{
  *   $ http POST :8081/todos title=foo order:=0 completed:=false
- *   $ http PATCH :8081/todos/<UUID> completed:=false
+ *   $ http PATCH :8081/todos/<UUID> completed:=true
  *   $ http :8081/todos
+ *   $ http DELETE :8081/todos/<UUID>
  *   $ http DELETE :8081/todos
  * }}}
  */
@@ -36,37 +37,19 @@ object Main extends TwitterServer {
 
   val todos: Counter = statsReceiver.counter("todos")
 
-  val postedTodo: Endpoint[Todo] =
+  def postedTodo: Endpoint[Todo] =
     body.as[UUID => Todo].map(_(UUID.randomUUID()))
 
-  val getTodos: Endpoint[List[Todo]] = get("todos") {
-    Ok(Todo.list())
-  }
-
-  val postTodo: Endpoint[Todo] = post("todos" :: postedTodo) { t: Todo =>
+  def postTodo: Endpoint[Todo] = post("todos" :: postedTodo) { t: Todo =>
     todos.incr()
     Todo.save(t)
 
     Created(t)
   }
 
-  val deleteTodo: Endpoint[Todo] = delete("todos" :: uuid) { id: UUID =>
-    Todo.get(id) match {
-      case Some(t) => Todo.delete(id); Ok(t)
-      case None => throw new TodoNotFound(id)
-    }
-  }
+  def patchedTodo: Endpoint[Todo => Todo] = body.as[Todo => Todo]
 
-  val deleteTodos: Endpoint[List[Todo]] = delete("todos") {
-    val all: List[Todo] = Todo.list()
-    all.foreach(t => Todo.delete(t.id))
-
-    Ok(all)
-  }
-
-  val patchedTodo: Endpoint[Todo => Todo] = body.as[Todo => Todo]
-
-  val patchTodo: Endpoint[Todo] =
+  def patchTodo: Endpoint[Todo] =
     patch("todos" :: uuid :: patchedTodo) { (id: UUID, pt: Todo => Todo) =>
       Todo.get(id) match {
         case Some(currentTodo) =>
@@ -78,6 +61,24 @@ object Main extends TwitterServer {
         case None => throw TodoNotFound(id)
       }
     }
+
+  def getTodos: Endpoint[List[Todo]] = get("todos") {
+    Ok(Todo.list())
+  }
+
+  def deleteTodo: Endpoint[Todo] = delete("todos" :: uuid) { id: UUID =>
+    Todo.get(id) match {
+      case Some(t) => Todo.delete(id); Ok(t)
+      case None => throw new TodoNotFound(id)
+    }
+  }
+
+  def deleteTodos: Endpoint[List[Todo]] = delete("todos") {
+    val all: List[Todo] = Todo.list()
+    all.foreach(t => Todo.delete(t.id))
+
+    Ok(all)
+  }
 
   val api: Service[Request, Response] = (
     getTodos :+: postTodo :+: deleteTodo :+: deleteTodos :+: patchTodo

@@ -4,7 +4,7 @@ import cats.Eq
 import com.twitter.finagle.http.{MediaType, Method, Request}
 import com.twitter.finagle.netty3.ChannelBufferBuf
 import com.twitter.io.{Buf, ConcatBuf}
-import org.jboss.netty.handler.codec.http.{DefaultHttpRequest, HttpMethod, HttpRequest, HttpVersion}
+import org.jboss.netty.handler.codec.http.{DefaultHttpRequest, HttpMethod, HttpVersion}
 import org.jboss.netty.handler.codec.http.multipart.{DefaultHttpDataFactory, HttpPostRequestEncoder}
 
 /**

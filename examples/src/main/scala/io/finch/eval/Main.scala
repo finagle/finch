@@ -25,7 +25,7 @@ import io.finch.jackson._
  *   $ http POST :8081/eval expression=\"abc\".toList.headOption
  * }}}
  */
-object Main extends App {
+object Main {
 
   implicit val objectMapper: ObjectMapper = new ObjectMapper().registerModule(DefaultScalaModule)
 
@@ -38,11 +38,12 @@ object Main extends App {
 
   val execute: Eval = new Eval()
 
-  val eval: Endpoint[Output] = post("eval" :: body.as[Input]) { i: Input =>
+  def eval: Endpoint[Output] = post("eval" :: body.as[Input]) { i: Input =>
     Ok(Output(execute[Any](i.expression).toString))
   } handle {
     case e: Exception => BadRequest(e)
   }
 
-  Await.ready(Http.server.serve(":8081", eval.toService))
+  def main(): Unit =
+    Await.ready(Http.server.serve(":8081", eval.toService))
 }
