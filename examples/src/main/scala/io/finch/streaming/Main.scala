@@ -18,22 +18,28 @@ import io.finch._
 *  1. `totalSum` - streaming request
 *  2. `sumTo` - streaming response
 *  3. `sumSoFar` - end-to-end (request - response) streaming
+*  4. `examples` - streaming response of examples objects
 *
 * Use the following sbt command to run the application.
 *
 * {{{
 *   $ sbt 'examples/runMain io.finch.streaming.Main'
 * }}}
+*
+* Use the following HTTPie/curl commands to test endpoints.
+*
+* {{{
+*   $ curl -X POST --header "Transfer-Encoding: chunked" -d 4 localhost:8081/totalSum
+*
+*   $ http --stream POST :8081/sumTo/3
+*
+*   $ curl -X POST --header "Transfer-Encoding: chunked" -d 4 localhost:8081/sumSoFar
+*   $ curl -X POST --header "Transfer-Encoding: chunked" -d 3 localhost:8081/sumSoFar
+*
+*   $ http --stream GET :8081/examples/3
+* }}}
 */
-object Main extends App {
-
-  // An examples domain type.
-  case class Example(x: Int)
-  object Example {
-    implicit val show: Show[Example] = Show.fromToString
-  }
-
-  val sum: AtomicLong = new AtomicLong(0)
+object Main {
 
   // we decode a long value from a Buf
   private[this] def bufToLong(buf: Buf): Long =
@@ -43,7 +49,7 @@ object Main extends App {
   // returns a simple response with a total sum.
   //
   // For example, if input stream is `1, 2, 3` then output response would be `6`.
-  val totalSum: Endpoint[Long] = post("totalSum" :: asyncBody) { as: AsyncStream[Buf] =>
+  def totalSum: Endpoint[Long] = post("totalSum" :: asyncBody) { as: AsyncStream[Buf] =>
     as.foldLeft(0L)((acc, b) => acc + bufToLong(b)).map(Ok)
   }
 
@@ -52,7 +58,7 @@ object Main extends App {
   //
   // For example, if an input value is `3` then output stream would be
   // `1 (1), 3 (1 + 2), 5 (1 + 2 + 3)`.
-  val sumTo: Endpoint[AsyncStream[Long]] = post("sumTo" :: long) { to: Long =>
+  def sumTo: Endpoint[AsyncStream[Long]] = post("sumTo" :: long) { to: Long =>
     def loop(n: Long, s: Long): AsyncStream[Long] =
       if (n > to) AsyncStream.empty[Long]
       else (n + s) +:: loop(n + 1, n + s)
@@ -60,22 +66,29 @@ object Main extends App {
     Ok(loop(1, 0))
   }
 
-  // This endpoint will stream back a given number of `Example` objects in plain/text.
-  val examples: Endpoint[AsyncStream[Example]] = get("examples" :: int) { num: Int =>
-    Ok(AsyncStream.fromSeq(List.tabulate(num)(i => Example(i))))
-  }
-
+  val sum: AtomicLong = new AtomicLong(0)
   // This endpoint takes a streaming request (a stream of numbers) and responds
   // to each number (chunk) a sum that has been collected so far.
   //
   // For example, if input stream is `1, 2, 3` then output stream would be `1, 3, 6`.
-  val sumSoFar: Endpoint[AsyncStream[Long]] =
+  def sumSoFar: Endpoint[AsyncStream[Long]] =
     post("sumSoFar" :: asyncBody) { as: AsyncStream[Buf] =>
       Ok(as.map(b => sum.addAndGet(bufToLong(b))))
     }
 
-  Await.result(Http.server
-    .withStreaming(enabled = true)
-    .serve(":8081", (sumSoFar :+: sumTo :+: totalSum :+: examples).toServiceAs[Text.Plain])
+  // An example domain type.
+  case class Example(x: Int)
+  object Example {
+    implicit val show: Show[Example] = Show.fromToString
+  }
+  // This endpoint will stream back a given number of `Example` objects in plain/text.
+  def examples: Endpoint[AsyncStream[Example]] = get("examples" :: int) { num: Int =>
+    Ok(AsyncStream.fromSeq(List.tabulate(num)(i => Example(i))))
+  }
+
+  def main(): Unit =
+    Await.result(Http.server
+      .withStreaming(enabled = true)
+      .serve(":8081", (sumSoFar :+: sumTo :+: totalSum :+: examples).toServiceAs[Text.Plain])
   )
 }

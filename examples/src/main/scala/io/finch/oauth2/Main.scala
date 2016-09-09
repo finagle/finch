@@ -27,7 +27,7 @@ import io.finch.circe._
   *
   *   $ http POST :8081/users/auth grant_type==authorization_code code==user_auth_code client_id==user_id
   *
-  *   $ http GET :8081/users/users/current access_token=='AT-5b0e7e3b-943f-479f-beab-7814814d0315'
+  *   $ http GET :8081/users/current access_token=='AT-5b0e7e3b-943f-479f-beab-7814814d0315'
   *
   *   $ http POST :8081/users/auth client_id==user_id grant_type==refresh_token\
   *     refresh_token=='RT-7e1bbf43-e7ba-4a8a-a38e-baf62ce3ceae'
@@ -39,14 +39,14 @@ object Main extends App {
 
   case class UnprotectedUser(name: String)
 
-  val users: Endpoint[OAuthUser] = get("users" :: "current" :: authorize(InMemoryDataHandler)) {
+  def users: Endpoint[OAuthUser] = get("users" :: "current" :: authorize(InMemoryDataHandler)) {
     ai: AuthInfo[OAuthUser] => Ok(ai.user)
   }
 
-  val tokens: Endpoint[GrantHandlerResult] =
+  def tokens: Endpoint[GrantHandlerResult] =
     post("users" :: "auth" :: issueAccessToken(InMemoryDataHandler))
 
-  val unprotected: Endpoint[UnprotectedUser] = get("users" :: "unprotected") {
+  def unprotected: Endpoint[UnprotectedUser] = get("users" :: "unprotected") {
     Ok(UnprotectedUser("unprotected"))
   }
 
