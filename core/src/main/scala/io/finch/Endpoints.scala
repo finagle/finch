@@ -280,16 +280,18 @@ trait Endpoints {
   private[this] def requestCookie(cookie: String)(req: Request): Option[Cookie] =
     req.cookies.get(cookie)
 
+  private[this] val someEmptyString = Some("")
   private[this] def requestBody(req: Request): Option[String] =
     req.contentLength match {
-      case Some(n) if n > 0 =>
+      case Some(0) => someEmptyString
+      case Some(_) =>
         val buffer = ChannelBufferBuf.Owned.extract(req.content)
         // Note: We usually have an array underneath the ChannelBuffer (at least on Netty 3).
         // This check is mostly about a safeguard.
         // TODO: Use proper charset
         if (buffer.hasArray) Some(new String(buffer.array(), 0, buffer.readableBytes(), "UTF-8"))
         else Some(buffer.toString(Charsets.Utf8))
-      case _ => None
+      case None => None
     }
 
   private[this] def requestUpload(upload: String)(req: Request): Option[FileUpload] =
@@ -327,7 +329,7 @@ trait Endpoints {
    * into an `Option`.
    */
   def paramOption(name: String): Endpoint[Option[String]] =
-    option(items.ParamItem(name))(requestParam(name)).noneIfEmpty
+    option(items.ParamItem(name))(requestParam(name))
 
   /**
    * An evaluating [[Endpoint]] that reads a required query-string param `name` from the
@@ -335,7 +337,7 @@ trait Endpoints {
    * [[Error.NotValid]] exception is the param is empty.
    */
   def param(name: String): Endpoint[String] =
-    paramOption(name).failIfNone.shouldNot(beEmpty)
+    paramOption(name).failIfNone
 
   /**
    * A matching [[Endpoint]] that only matches the requests that contain a given query-string
@@ -381,14 +383,14 @@ trait Endpoints {
    * an [[Error.NotPresent]] exception when the header is missing.
    */
   def header(name: String): Endpoint[String] =
-    option(items.HeaderItem(name))(requestHeader(name)).failIfNone.shouldNot(beEmpty)
+    option(items.HeaderItem(name))(requestHeader(name)).failIfNone
 
   /**
    * An evaluating [[Endpoint]] that reads an optional HTTP header `name` from the request into an
    * `Option`.
    */
   def headerOption(name: String): Endpoint[Option[String]] =
-    option(items.HeaderItem(name))(requestHeader(name)).noneIfEmpty
+    option(items.HeaderItem(name))(requestHeader(name))
 
   /**
    * A matching [[Endpoint]] that only matches the requests that contain a given header `name`.
@@ -400,11 +402,13 @@ trait Endpoints {
    * An evaluating [[Endpoint]] that reads a binary request body, interpreted as a `Array[Byte]`,
    * into an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
    */
+  private[this] val someEmptyByteArray = Some(Array.empty[Byte])
   val binaryBodyOption: Endpoint[Option[Array[Byte]]] =
     matches(items.BodyItem)(!_.isChunked)(req =>
       req.contentLength match {
-        case Some(n) if n > 0 => Some(Buf.ByteArray.Shared.extract(req.content))
-        case _ => None
+        case Some(0) => someEmptyByteArray
+        case Some(_) => Some(Buf.ByteArray.Shared.extract(req.content))
+        case None => None
       }
     )
 
@@ -511,6 +515,4 @@ trait Endpoints {
       override def toString: String = s"""BasicAuth(realm="$realm", $e)"""
     }
   }
-
-  private[finch] val beEmpty: ValidationRule[String] = ValidationRule("be empty")(_.isEmpty)
 }
