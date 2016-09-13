@@ -1,9 +1,11 @@
 package io.finch
 
+import java.nio.charset.Charset
+
 import cats.Eq
 import com.twitter.finagle.http.{MediaType, Method, Request}
 import com.twitter.finagle.netty3.ChannelBufferBuf
-import com.twitter.io.{Buf, ConcatBuf}
+import com.twitter.io.{Buf, Charsets, ConcatBuf}
 import org.jboss.netty.handler.codec.http.{DefaultHttpRequest, HttpMethod, HttpVersion}
 import org.jboss.netty.handler.codec.http.multipart.{DefaultHttpDataFactory, HttpPostRequestEncoder}
 
@@ -30,6 +32,20 @@ final case class Input(request: Request, path: Seq[String]) {
 
     this
   }
+
+  /**
+   * Overrides (mutates) the payload of this input in order to reflect `a` as json and returns
+   * `this`.
+   *
+   * @note application/json will be passed as content type as well as the charset used to encode
+   *       the json
+   */
+  def withJson[A](a: A, charset: Option[Charset] = Some(Charsets.Utf8))(
+      implicit e: Encode.Json[A]): Input =
+    charset match {
+      case Some(cs) => withBody(e(a, cs), Some(s"application/json;charset=$cs"))
+      case None => withBody(e(a, Charsets.Utf8), Some("application/json"))
+    }
 
   /**
    * Adds (mutates) new `headers` to this input and returns `this`.

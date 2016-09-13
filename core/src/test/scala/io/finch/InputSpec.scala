@@ -1,7 +1,10 @@
 package io.finch
 
+import java.nio.charset.Charset
+
 import com.twitter.finagle.http.Method
 import com.twitter.io.Buf
+import io.finch.internal.BufText
 
 class InputSpec extends FinchSpec {
 
@@ -33,6 +36,15 @@ class InputSpec extends FinchSpec {
   it should "add content through withBody" in {
     check { (i: Input, b: Buf) =>
       i.withBody(b).request.content === b
+    }
+  }
+
+  it should "add content corresponding to a class through withJson" in {
+    check { (i: Input, s: String, cs: Charset) =>
+      implicit val encode = Encode.encodeExceptionAsJson
+      val input = i.withJson(new Exception(s), Some(cs))
+      input.request.content === BufText(s"""{"message":"$s"}""", cs)
+      input.request.contentType === Some(s"application/json;charset=$cs")
     }
   }
 

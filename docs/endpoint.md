@@ -632,18 +632,19 @@ val bar: Input = Input.post("/bar")
   .withHeaders("X-Header" -> "Y")
 ```
 
-At this point, there is no JSON-specific support encoded in the `Input` API (but will be in 0.11)
-so a generic `withBody` method may be used instead.
+Additionally, there is JSON-specific support in the `Input` API through `withJson`.
 
 ```scala
-import io.circe._
-import io.circe.syntax._
+import io.circe.generic.auto._
 import io.finch._
-import com.twitter.io.Buf
+import io.finch.circe._
 
-val baz: Input = Input.put("/baz")
-  .withBody(Buf.Utf8(Map("a" -> "b").asJson.toString), Some("application/json;charset=utf8"))
+case class Baz(m: Map[String, String])
+val baz: Input = Input.put("/baz").withJson(Baz(Map("a" -> "b")))
 ```
+
+Note that, assuming UTF-8 as the encoding, which is the default, `application/json;charset=UTF-8`
+will be added as content type.
 
 Similarly when an `Output` is returned form the `Endpoint` it might be queried with a number of
 methods: `tryValue`, `tryOutput`, `output`, and `value`. Please, note that all of those are blocking
