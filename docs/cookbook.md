@@ -152,15 +152,17 @@ cornerstone idea is to return a `Buf` instance from the endpoint so we could use
 ```scala
 import io.finch._
 import com.twitter.io.{Reader, Buf}
+import com.twitter.finagle.Http
+import com.twitter.util.Await
 import java.io.File
 
 val reader: Reader = Reader.fromFile(new File("/dev/urandom"))
 
 val file: Endpoint[Buf] = get("file") {
-  Ok(Reader.readAll(reader))
+  Reader.readAll(reader).map(Ok)
 }
 
-Http.server.serve(":8081", file.toServiceAs[Text.Plain])
+Await.ready(Http.server.serve(":8081", file.toServiceAs[Text.Plain]))
 ```
 **Note:** It's usually not a great idea to use tools like Finch (or similar) to serve static
 content given their _dynamic_ nature. Instead, a static HTTP server (i.e., [Nginx][nginx]) would be
@@ -469,4 +471,3 @@ Read Next: [Best Practices](best-practices.md)
 [as]: https://github.com/twitter/util/blob/develop/util-core/src/main/scala/com/twitter/concurrent/AsyncStream.scala
 [cors-filter]: https://github.com/twitter/finagle/blob/develop/finagle-http/src/main/scala/com/twitter/finagle/http/filter/Cors.scala
 [cors]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
-
