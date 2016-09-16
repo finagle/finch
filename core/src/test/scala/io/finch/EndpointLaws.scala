@@ -21,7 +21,7 @@ trait EndpointLaws[A] extends Laws with MissingInstances with AllInstances {
     val s = a.toString
     val i = serialize(s)
     val e = endpoint.as(decoder, classTag)
-    e(i).value.flatten <-> (if (s.isEmpty) None else Some(a))
+    e(i).value.flatten <-> Some(a)
   }
 
   def evaluating(implicit A: Arbitrary[A], eq: Eq[A]): RuleSet =

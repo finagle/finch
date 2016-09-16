@@ -545,11 +545,6 @@ object Endpoint {
         case None =>
           Future.None
       }
-
-    private[finch] def noneIfEmpty: Endpoint[Option[String]] = self.map {
-      case Some(value) if value.isEmpty => None
-      case other => other
-    }
   }
 
   class GenericDerivation[A] {
