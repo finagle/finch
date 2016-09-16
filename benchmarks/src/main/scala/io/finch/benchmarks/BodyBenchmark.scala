@@ -7,7 +7,7 @@ import org.openjdk.jmh.annotations.{Benchmark, Scope, State}
 @State(Scope.Benchmark)
 class BodyBenchmark extends FinchBenchmark {
 
-  val input = Input.post("/").withBody(Buf.Utf8("x" * 1024))
+  val input = Input.post("/").withBody[Text.Plain](Buf.Utf8("x" * 1024))
 
   @Benchmark
   def stringOption: Option[String] = bodyOption(input).value.get

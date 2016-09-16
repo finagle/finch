@@ -3,11 +3,12 @@ package io.finch
 import java.nio.charset.Charset
 
 import cats.Eq
-import com.twitter.finagle.http.{MediaType, Method, Request}
+import com.twitter.finagle.http.{Method, Request}
 import com.twitter.finagle.netty3.ChannelBufferBuf
-import com.twitter.io.{Buf, Charsets, ConcatBuf}
+import com.twitter.io.{Charsets, ConcatBuf}
 import org.jboss.netty.handler.codec.http.{DefaultHttpRequest, HttpMethod, HttpVersion}
 import org.jboss.netty.handler.codec.http.multipart.{DefaultHttpDataFactory, HttpPostRequestEncoder}
+import shapeless.Witness
 
 /**
  * An input for [[Endpoint]].
@@ -18,34 +19,17 @@ final case class Input(request: Request, path: Seq[String]) {
   def isEmpty: Boolean = path.isEmpty
 
   /**
-   * Overrides (mutates) the payload (`buf` and `contentType`) of this input and
-   * returns `this`.
+   * Overrides (mutates) the payload of this input and returns `this`. This requires the
+   * content-type as a first type parameter (won't be infered).
    *
-   * @note The `contentType` value is passed as an HTTP header so it might also
-   *       contain a charset separated by `;`.
-   */
-  def withBody(buf: Buf, contentType: Option[String] = None): Input = {
-    request.content = buf
-
-    request.contentLength = buf.length.toLong
-    contentType.foreach(ct => request.contentType = ct)
-
-    this
-  }
-
-  /**
-   * Overrides (mutates) the payload of this input in order to reflect `a` as json and returns
-   * `this`.
+   * ```
+   *  import io.finch._, io.circe._
    *
-   * @note application/json will be passed as content type as well as the charset used to encode
-   *       the json
+   *  val text: Input = Input.post("/").withBody[Text.Plain]("Text Body")
+   *  val json: Input = Input.post("/").withBody[Application.Json](Map("json" -> "object"))
+   *```
    */
-  def withJson[A](a: A, charset: Option[Charset] = Some(Charsets.Utf8))(
-      implicit e: Encode.Json[A]): Input =
-    charset match {
-      case Some(cs) => withBody(e(a, cs), Some(s"application/json;charset=$cs"))
-      case None => withBody(e(a, Charsets.Utf8), Some("application/json"))
-    }
+  def withBody[CT <: String]: Input.Body[CT] = new Input.Body[CT](this)
 
   /**
    * Adds (mutates) new `headers` to this input and returns `this`.
@@ -84,7 +68,7 @@ final case class Input(request: Request, path: Seq[String]) {
       )
     } else ChannelBufferBuf.Owned(req.getContent)
 
-    withBody(content, Some(MediaType.WwwForm + ";charset=utf-8"))
+    withBody[Application.WwwFormUrlencoded](content, Some(Charsets.Utf8))
   }
 }
 
@@ -92,6 +76,24 @@ final case class Input(request: Request, path: Seq[String]) {
  * Creates an input for [[Endpoint]] from [[Request]].
  */
 object Input {
+
+  /**
+   * A helper class that captures the `Content-Type` of the payload.
+   */
+  class Body[CT <: String](i: Input) {
+    def apply[A](body: A, charset: Option[Charset] = None)(implicit
+      e: Encode.Aux[A, CT], w: Witness.Aux[CT]
+    ): Input = {
+      val content = e(body, charset.getOrElse(Charsets.Utf8))
+
+      i.request.content = content
+      i.request.contentType = w.value
+      i.request.contentLength = content.length.toLong
+      charset.foreach(cs => i.request.charset = cs.displayName().toLowerCase)
+
+      i
+    }
+  }
 
   implicit val inputEq: Eq[Input] = Eq.fromUniversalEquals
 

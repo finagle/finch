@@ -35,26 +35,23 @@ class InputSpec extends FinchSpec {
 
   it should "add content through withBody" in {
     check { (i: Input, b: Buf) =>
-      i.withBody(b).request.content === b
+      i.withBody[Text.Plain](b).request.content === b
     }
   }
 
-  it should "add content corresponding to a class through withJson" in {
+  it should "add content corresponding to a class through withBody[JSON]" in {
     check { (i: Input, s: String, cs: Charset) =>
-      implicit val encode = Encode.encodeExceptionAsJson
-      val input = i.withJson(new Exception(s), Some(cs))
-      input.request.content === BufText(s"""{"message":"$s"}""", cs)
-      input.request.contentType === Some(s"application/json;charset=$cs")
+      val input = i.withBody[Application.Json](new Exception(s), Some(cs))
+
+      input.request.content === BufText(s"""{"message":"$s"}""", cs) &&
+      input.request.contentType === Some(s"application/json;charset=${cs.displayName.toLowerCase}")
     }
   }
 
   it should "add headers through withHeaders" in {
     check { (i: Input, hs: Headers) =>
       val hm = i.withHeaders(hs.m.toSeq: _*).request.headerMap
-      hs.m.forall { case (k, v) =>
-        hm.contains(k)
-        hm(k) === v
-      }
+      hs.m.forall { case (k, v) => hm.contains(k) && hm(k) === v}
     }
   }
 
