@@ -5,8 +5,8 @@ import java.util.UUID
 import com.twitter.finagle.http.Status
 import com.twitter.io.Buf
 import io.circe.generic.auto._
-import io.circe.syntax._
 import io.finch.Input
+import io.finch.circe._
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers
@@ -24,8 +24,7 @@ class TodoSpec extends FlatSpec with Matchers with Checkers {
   implicit def arbitraryTodoWithoutId: Arbitrary[TodoWithoutId] = Arbitrary(genTodoWithoutId)
   it should "create a todo" in {
     check { (todoWithoutId: TodoWithoutId) =>
-      val input = Input.post("/todos")
-        .withBody(Buf.Utf8(todoWithoutId.asJson.toString), Some("application/json;charset=utf8"))
+      val input = Input.post("/todos").withJson(todoWithoutId)
       val res = postTodo(input)
       res.output.map(_.status) === Some(Status.Created)
       res.value.isDefined === true
