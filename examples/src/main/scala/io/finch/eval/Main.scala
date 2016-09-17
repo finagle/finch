@@ -33,13 +33,13 @@ object Main {
     BufText(objectMapper.writeValueAsString(Map("error" -> e.getMessage)), cs)
   )
 
-  case class Input(expression: String)
-  case class Output(result: String)
+  case class EvalInput(expression: String)
+  case class EvalOutput(result: String)
 
   val execute: Eval = new Eval()
 
-  def eval: Endpoint[Output] = post("eval" :: body.as[Input]) { i: Input =>
-    Ok(Output(execute[Any](i.expression).toString))
+  def eval: Endpoint[EvalOutput] = post("eval" :: body.as[EvalInput]) { i: EvalInput =>
+    Ok(EvalOutput(execute[Any](i.expression).toString))
   } handle {
     case e: Exception => BadRequest(e)
   }

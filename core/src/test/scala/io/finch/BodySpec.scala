@@ -8,7 +8,7 @@ class BodySpec extends FinchSpec {
 
   behavior of "param*"
 
-  def withBody(b: String): Input = Input.post("/").withBody(Buf.Utf8(b))
+  def withBody(b: String): Input = Input.post("/").withBody[Text.Plain](Buf.Utf8(b))
 
   checkAll("Body[String]", EndpointLaws[String](bodyOption)(withBody).evaluating)
   checkAll("Body[Int]", EndpointLaws[Int](bodyOption)(withBody).evaluating)

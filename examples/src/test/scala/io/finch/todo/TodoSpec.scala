@@ -3,9 +3,9 @@ package io.finch.todo
 import java.util.UUID
 
 import com.twitter.finagle.http.Status
-import com.twitter.io.Buf
+import com.twitter.io.{Buf, Charsets}
 import io.circe.generic.auto._
-import io.finch.Input
+import io.finch._
 import io.finch.circe._
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.{FlatSpec, Matchers}
@@ -15,16 +15,22 @@ class TodoSpec extends FlatSpec with Matchers with Checkers {
   import Main._
 
   behavior of "the postTodo endpoint"
+
   case class TodoWithoutId(title: String, completed: Boolean, order: Int)
+
   def genTodoWithoutId: Gen[TodoWithoutId] = for {
     t <- Gen.alphaStr
     c <- Gen.oneOf(true, false)
     o <- Gen.choose(Int.MinValue, Int.MaxValue)
   } yield TodoWithoutId(t, c, o)
+
   implicit def arbitraryTodoWithoutId: Arbitrary[TodoWithoutId] = Arbitrary(genTodoWithoutId)
+
   it should "create a todo" in {
     check { (todoWithoutId: TodoWithoutId) =>
-      val input = Input.post("/todos").withJson(todoWithoutId)
+      val input = Input.post("/todos")
+        .withBody[Application.Json](todoWithoutId, Some(Charsets.Utf8))
+
       val res = postTodo(input)
       res.output.map(_.status) === Some(Status.Created)
       res.value.isDefined === true
@@ -37,39 +43,49 @@ class TodoSpec extends FlatSpec with Matchers with Checkers {
   }
 
   behavior of "the patchTodo endpoint"
+
   it should "modify an existing todo if its id has been found" in {
     val todo = createTodo()
     val input = Input.patch(s"/todos/${todo.id}")
-      .withBody(Buf.Utf8("{\"completed\": true}"), Some("application/json;charset=utf8"))
+      .withBody[Application.Json](Buf.Utf8("{\"completed\": true}"), Some(Charsets.Utf8))
+
     patchTodo(input).value shouldBe Some(todo.copy(completed = true))
     Todo.get(todo.id) shouldBe Some(todo.copy(completed = true))
   }
   it should "throw an exception if the uuid hasn't been found" in {
     val id = UUID.randomUUID()
     Todo.get(id) shouldBe None
+
     val input = Input.patch(s"/todos/$id")
-      .withBody(Buf.Utf8("{\"completed\": true}"), Some("application/json;charset=utf8"))
+      .withBody[Application.Json](Buf.Utf8("{\"completed\": true}"), Some(Charsets.Utf8))
+
     a[TodoNotFound] shouldBe thrownBy(patchTodo(input).value)
   }
+
   it should "give back the same todo with non-related json" in {
     val todo = createTodo()
     val input = Input.patch(s"/todos/${todo.id}")
-      .withBody(Buf.Utf8("{\"bla\": true}"), Some("application/json;charset=utf8"))
+      .withBody[Application.Json](Buf.Utf8("{\"bla\": true}"), Some(Charsets.Utf8))
+
     patchTodo(input).value shouldBe Some(todo)
     Todo.get(todo.id) shouldBe Some(todo)
   }
 
   behavior of "the getTodos endpoint"
+
   it should "retrieve all available todos" in {
     getTodos(Input.get("/todos")).value shouldBe Some(Todo.list())
   }
 
   behavior of "the deleteTodo endpoint"
+
   it should "delete the specified todo" in {
     val todo = createTodo()
+
     deleteTodo(Input.delete(s"/todos/${todo.id}")).value shouldBe Some(todo)
     Todo.get(todo.id) shouldBe None
   }
+
   it should "throw an exception if the uuid hasn't been found" in {
     val id = UUID.randomUUID()
     Todo.get(id) shouldBe None
@@ -77,6 +93,7 @@ class TodoSpec extends FlatSpec with Matchers with Checkers {
   }
 
   behavior of "the deleteTodos endpoint"
+
   it should "delete all todos" in {
     val todos = Todo.list()
     deleteTodos(Input.delete("/todos")).value shouldBe Some(todos)

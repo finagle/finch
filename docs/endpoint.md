@@ -640,7 +640,7 @@ import io.finch._
 import io.finch.circe._
 
 case class Baz(m: Map[String, String])
-val baz: Input = Input.put("/baz").withJson(Baz(Map("a" -> "b")))
+val baz: Input = Input.put("/baz").withBody[Application.Json](Baz(Map("a" -> "b")))
 ```
 
 Note that, assuming UTF-8 as the encoding, which is the default, `application/json;charset=UTF-8`
