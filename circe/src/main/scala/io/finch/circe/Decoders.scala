@@ -1,5 +1,6 @@
 package io.finch.circe
 
+import cats.syntax.show._
 import com.twitter.util.{Return, Throw, Try}
 import io.circe.Decoder
 import io.circe.jawn.decode
@@ -12,7 +13,7 @@ trait Decoders {
    */
   implicit def decodeCirce[A](implicit d: Decoder[A]): Decode[A] = Decode.instance(s =>
     decode[A](s).fold[Try[A]](
-      error => Throw[A](Error(error.getMessage)),
+      error => Throw[A](Error(error.show)),
       value => Return(value)
     )
   )
