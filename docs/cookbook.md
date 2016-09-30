@@ -91,7 +91,7 @@ implicit val ee: Encode.Json[Exception] =
 
 ### Serving multiple content types
 
-In it's current form (as per 0.11-M2) Finch natively supports only single content type per Finagle
+In its current form (as per 0.11-M2) Finch natively supports only single content type per Finagle
 service. This restriction is encoded in the API such that `toServiceAs` call only takes single type
 parameter, single content type.
 
