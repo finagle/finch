@@ -1,5 +1,4 @@
 import sbtunidoc.Plugin.UnidocKeys._
-import ScoverageSbtPlugin._
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
@@ -144,7 +143,7 @@ lazy val core = project
 lazy val test = project
   .settings(moduleName := "finch-test")
   .settings(allSettings)
-  .settings(ScoverageKeys.coverageExcludedPackages := "io\\.finch\\.test\\..*")
+  .settings(coverageExcludedPackages := "io\\.finch\\.test\\..*")
   .settings(libraryDependencies ++= testDependencies)
   .dependsOn(core)
 
@@ -152,7 +151,7 @@ lazy val jsonTest = project.in(file("json-test"))
   .settings(moduleName := "finch-json-test")
   .settings(allSettings)
   .settings(noPublish)
-  .settings(ScoverageKeys.coverageExcludedPackages := "io\\.finch\\.test\\..*")
+  .settings(coverageExcludedPackages := "io\\.finch\\.test\\..*")
   .settings(
     libraryDependencies ++= "io.argonaut" %% "argonaut" % "6.1" +: testDependencies
   )
@@ -222,7 +221,7 @@ lazy val examples = project
   .settings(allSettings)
   .settings(noPublish)
   .settings(resolvers += "TM" at "http://maven.twttr.com")
-  .settings(ScoverageKeys.coverageExcludedPackages :=
+  .settings(coverageExcludedPackages :=
     """
       |io\.finch\.div\..*;
       |io\.finch\.todo\..*;
@@ -247,9 +246,7 @@ lazy val benchmarks = project
   .settings(allSettings)
   .settings(noPublish)
   .settings(libraryDependencies += "io.circe" %% "circe-generic" % circeVersion)
-  .settings(
-    ScoverageKeys.coverageExcludedPackages := "io\\.finch\\.benchmarks\\..*;"
-  )
+  .settings(coverageExcludedPackages := "io\\.finch\\.benchmarks\\..*;")
   .settings(
     javaOptions in run ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
