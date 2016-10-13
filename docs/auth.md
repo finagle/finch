@@ -1,7 +1,7 @@
 ## Authentication
 
-* [OAuth2](auth.md#authorization-with-oauth2)
-* [Basic Auth](auth.md#basic-http-auth)
+* [OAuth2](auth.md#authentication-with-oauth2)
+* [Basic Auth](auth.md#authentication-with-basic-http)
 
 --
 
