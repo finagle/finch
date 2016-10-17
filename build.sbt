@@ -2,13 +2,16 @@ import sbtunidoc.Plugin.UnidocKeys._
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  version := "0.11.0-M3",
+  version := "0.11.0-M4",
   scalaVersion := "2.11.8",
   crossScalaVersions := Seq("2.10.6", "2.11.8")
 )
 
 lazy val finagleVersion = "6.35.0"
-lazy val circeVersion = "0.5.1"
+lazy val utilVersion = "6.34.0"
+lazy val twitterServerVersion = "1.20.0"
+lazy val finagleOAuth2Version = "0.1.7"
+lazy val circeVersion = "0.5.3"
 lazy val catbirdVersion = "0.7.0"
 lazy val shapelessVersion = "2.3.2"
 lazy val catsVersion = "0.7.2"
@@ -127,6 +130,8 @@ lazy val finch = project.in(file("."))
         |import com.twitter.finagle.Http
         |import com.twitter.finagle.http.{Request, Response, Status, Version}
         |import io.circe._
+        |import io.circe.generic.auto._
+        |import shapeless._
       """.stripMargin
   )
   .settings(libraryDependencies ++= Seq(
@@ -211,7 +216,7 @@ lazy val oauth2 = project
   .settings(moduleName := "finch-oauth2")
   .settings(allSettings)
   .settings(libraryDependencies ++= Seq(
-    "com.github.finagle" %% "finagle-oauth2" % "0.1.6",
+    "com.github.finagle" %% "finagle-oauth2" % finagleOAuth2Version,
     "org.mockito" % "mockito-all" % "1.10.19" % "test"
   ))
   .dependsOn(core)
@@ -233,9 +238,9 @@ lazy val examples = project
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-generic" % circeVersion,
-      "com.twitter" %% "twitter-server" % "1.19.0",
-      "com.twitter" %% "util-eval" % "6.33.0",
-      "com.github.finagle" %% "finagle-oauth2" % "0.1.6"
+      "com.twitter" %% "twitter-server" % twitterServerVersion,
+      "com.twitter" %% "util-eval" % utilVersion,
+      "com.github.finagle" %% "finagle-oauth2" % finagleOAuth2Version
     )
   )
   .dependsOn(core, circe, jackson, oauth2)
