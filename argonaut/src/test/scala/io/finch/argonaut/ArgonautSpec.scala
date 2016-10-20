@@ -3,8 +3,8 @@ package io.finch.argonaut
 import argonaut._
 import argonaut.Argonaut._
 import io.finch.test.json._
-import org.scalatest.prop.Checkers
 import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.prop.Checkers
 
 class ArgonautSpec extends FlatSpec with Matchers with Checkers with JsonCodecProviderProperties {
 

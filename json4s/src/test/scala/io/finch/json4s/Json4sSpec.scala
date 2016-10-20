@@ -2,8 +2,8 @@ package io.finch.json4s
 
 import io.finch.test.json.JsonCodecProviderProperties
 import org.json4s.DefaultFormats
+import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers
-import org.scalatest.{Matchers, FlatSpec}
 
 class Json4sSpec extends FlatSpec with Matchers with Checkers with JsonCodecProviderProperties {
   implicit val formats = DefaultFormats

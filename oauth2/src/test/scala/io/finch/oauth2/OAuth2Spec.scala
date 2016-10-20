@@ -3,11 +3,11 @@ package io.finch.oauth2
 import com.twitter.finagle.http.Status
 import com.twitter.finagle.oauth2._
 import com.twitter.util.Future
+import io.finch._
+import org.mockito.Mockito._
+import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.prop.Checkers
-import org.scalatest.{Matchers, FlatSpec}
-import org.mockito.Mockito._
-import io.finch._
 
 class OAuth2Spec extends FlatSpec with Matchers with Checkers with MockitoSugar {
 

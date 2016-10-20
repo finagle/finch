@@ -50,5 +50,5 @@ object Main extends App {
     Ok(UnprotectedUser("unprotected"))
   }
 
-  Await.ready(Http.server.serve(":8081", (tokens :+: users :+: unprotected).toService))
+  Await.ready(Http.server.serve(":8081", (tokens :+: users :+: unprotected).toServiceAs[Application.Json]))
 }

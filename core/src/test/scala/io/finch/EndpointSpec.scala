@@ -4,13 +4,15 @@ import java.util.UUID
 
 import cats.Applicative
 import cats.laws.discipline.AlternativeTests
-import com.twitter.finagle.http.{Method, Cookie}
-import com.twitter.util.{Throw, Try, Future}
+import com.twitter.finagle.http.{Cookie, Method, Request}
+import com.twitter.util.{Future, Throw, Try}
 
 class EndpointSpec extends FinchSpec {
   checkAll("Endpoint[String]", AlternativeTests[Endpoint].applicative[String, String, String])
 
   behavior of "Endpoint"
+
+  private[this] val emptyRequest = Request()
 
   it should "extract one path segment" in {
     def extractOne[A](e: Endpoint[A], f: String => A): Input => Boolean = { i: Input =>
@@ -29,7 +31,7 @@ class EndpointSpec extends FinchSpec {
 
   it should "extract tail of the path" in {
     def extractTail[A](e: Endpoint[Seq[A]]): Seq[A] => Boolean = { s: Seq[A] =>
-      val i = Input(null, s.map(_.toString))
+      val i = Input(emptyRequest, s.map(_.toString))
       e(i).remainder === Some(i.copy(path = Nil))
     }
 
@@ -211,7 +213,7 @@ class EndpointSpec extends FinchSpec {
     case class Foo(s: String, i: Int, b: Boolean)
     val foo = (string :: int :: boolean).as[Foo]
     check { (s: String, i: Int, b: Boolean) =>
-      foo(Input(null, Seq(s, i.toString, b.toString))).value === Some(Foo(s, i, b))
+      foo(Input(emptyRequest, Seq(s, i.toString, b.toString))).value === Some(Foo(s, i, b))
     }
   }
 
@@ -234,13 +236,13 @@ class EndpointSpec extends FinchSpec {
 
     Seq(
       param("foo"), header("foo"), body, cookie("foo").map(_.value),
-      fileUpload("foo").map(_.fileName), paramsNonEmpty("foo").map(_.mkString),
-      paramsNel("foor").map(_.toList.mkString), binaryBody.map(new String(_))
+      fileUpload("foo").map(_.fileName), paramsNel("foo").map(_.toList.mkString),
+      paramsNel("foor").map(_.toList.mkString), bodyByteArray.map(new String(_))
     ).foreach { ii => ii(i).tryValue shouldBe Some(Throw(Error.NotPresent(ii.item))) }
   }
 
   it should "maps lazily to values" in {
-    val i = Input(null, Seq.empty)
+    val i = Input(emptyRequest, Seq.empty)
     var c = 0
     val e = * { c = c + 1; Ok(c) }
 
@@ -249,7 +251,7 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "not evaluate Futures until matched" in {
-    val i = Input(null, Seq("a", "10"))
+    val i = Input(emptyRequest, Seq("a", "10"))
     var flag = false
 
     val endpointWithFailedFuture = "a".mapAsync { nil =>
@@ -262,8 +264,8 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "be greedy in terms of | compositor" in {
-    val a = Input(null, Seq("a", "10"))
-    val b = Input(null, Seq("a"))
+    val a = Input(emptyRequest, Seq("a", "10"))
+    val b = Input(emptyRequest, Seq("a"))
 
     val e1: Endpoint0 = "a" | "b" | ("a" :: 10)
     val e2: Endpoint0 = ("a" :: 10) | "b" |  "a"

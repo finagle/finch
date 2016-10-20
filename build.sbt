@@ -281,3 +281,16 @@ lazy val benchmarks = project
     )
   )
   .dependsOn(core, circe, jackson)
+
+val validateCommands = List(
+  "clean",
+  "scalastyle",
+  "test:scalastyle",
+  "compile",
+  "test:compile",
+  "coverage",
+  "test",
+  "coverageReport",
+  "coverageAggregate"
+)
+addCommandAlias("validate", validateCommands.mkString(";", ";", ""))

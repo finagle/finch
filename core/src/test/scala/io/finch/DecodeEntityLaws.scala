@@ -5,7 +5,7 @@ import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
 import com.twitter.util.{Return, Try}
-import org.scalacheck.{Prop, Arbitrary}
+import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
 trait DecodeEntityLaws[A] extends Laws with MissingInstances with AllInstances {

@@ -45,5 +45,5 @@ object Main {
   }
 
   def main(): Unit =
-    Await.ready(Http.server.serve(":8081", eval.toService))
+    Await.ready(Http.server.serve(":8081", eval.toServiceAs[Application.Json]))
 }

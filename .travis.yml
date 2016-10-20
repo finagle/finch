@@ -7,8 +7,14 @@ jdk:
   - openjdk7
   - oraclejdk7
   - oraclejdk8
+before_cache:
+  - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
+  - find $HOME/.sbt -name "*.lock" -delete
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/boot/
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport scalastyle
-  - sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
+  - sbt ++$TRAVIS_SCALA_VERSION validate
 after_success:
   - bash <(curl -s https://codecov.io/bash)

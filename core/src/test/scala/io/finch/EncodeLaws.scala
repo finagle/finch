@@ -1,12 +1,13 @@
 package io.finch
 
+import java.nio.charset.Charset
+
 import cats.Eq
+import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
-import cats.instances.AllInstances
 import com.twitter.io.Buf
 import io.finch.internal.BufText
-import java.nio.charset.Charset
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
