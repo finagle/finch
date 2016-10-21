@@ -24,7 +24,7 @@ trait LowPriorityToResponseInstances {
 
   Make sure ${A} is one of the following:
 
-  * A com.twitter.finagle.Response
+  * A com.twitter.finagle.http.Response
   * A value of a type with an io.finch.Encode instance (with the corresponding content-type)
   * A coproduct made up of some combination of the above
 

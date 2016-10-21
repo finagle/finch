@@ -26,7 +26,7 @@ get a compile error that looks like this.
 
   Make sure shapeless.:+:[Foo,shapeless.:+:[Bar,shapeless.CNil]] is one of the following:
 
-  * A com.twitter.finagle.Response
+  * A com.twitter.finagle.http.Response
   * A value of a type with an io.finch.Encode instance (with the corresponding content-type)
   * A coproduct made up of some combination of the above
 
