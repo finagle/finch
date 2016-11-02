@@ -11,7 +11,7 @@ import com.twitter.io.{Buf, Charsets}
 import com.twitter.util.{Await, Future, Try}
 import io.catbird.util.Rerunnable
 import io.finch.Endpoint.Result
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.{Arbitrary, Cogen, Gen}
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers
 import org.typelevel.discipline.Laws
@@ -146,6 +146,11 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
     }
   )
 
+  implicit def cogenRequest: Cogen[Request] =
+    Cogen[(String, String, String, Array[Byte])].contramap { r =>
+      (r.method.toString, r.version.toString, r.path, Buf.ByteArray.Owned.extract(r.content))
+    }
+
   implicit def arbitraryEndpoint[A](implicit A: Arbitrary[A]): Arbitrary[Endpoint[A]] = Arbitrary(
     Gen.oneOf(
       Gen.const(Alternative[Endpoint].empty[A]),
@@ -198,6 +203,9 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
 
   implicit def arbitraryInput: Arbitrary[Input] =
     Arbitrary(arbitraryRequest.arbitrary.map(Input.request))
+
+  implicit def cogenInput: Cogen[Input] =
+    Cogen[(Request, Seq[String])].contramap(input => (input.request, input.path))
 
   implicit def arbitraryUUID: Arbitrary[UUID] = Arbitrary(Gen.uuid)
 

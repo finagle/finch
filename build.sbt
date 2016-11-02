@@ -11,10 +11,10 @@ lazy val finagleVersion = "6.35.0"
 lazy val utilVersion = "6.34.0"
 lazy val twitterServerVersion = "1.20.0"
 lazy val finagleOAuth2Version = "0.1.7"
-lazy val circeVersion = "0.5.3"
-lazy val catbirdVersion = "0.7.0"
+lazy val circeVersion = "0.6.0-RC1"
+lazy val catbirdVersion = "0.8.0"
 lazy val shapelessVersion = "2.3.2"
-lazy val catsVersion = "0.7.2"
+lazy val catsVersion = "0.8.0"
 lazy val sprayVersion = "1.3.2"
 
 lazy val compilerOptions = Seq(
@@ -33,10 +33,10 @@ lazy val compilerOptions = Seq(
 )
 
 val testDependencies = Seq(
-  "org.scalacheck" %% "scalacheck" % "1.12.5",
-  "org.scalatest" %% "scalatest" % "2.2.6",
+  "org.scalacheck" %% "scalacheck" % "1.13.3",
+  "org.scalatest" %% "scalatest" % "3.0.0",
   "org.typelevel" %% "cats-laws" % catsVersion,
-  "org.typelevel" %% "discipline" % "0.4"
+  "org.typelevel" %% "discipline" % "0.7.1"
 )
 
 val baseSettings = Seq(

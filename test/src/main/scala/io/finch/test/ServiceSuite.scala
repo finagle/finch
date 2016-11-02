@@ -11,7 +11,7 @@ import org.scalatest.{fixture, Outcome}
  * classes must extend [[org.scalatest.fixture.Suite]] through [[org.scalatest.fixture.FlatSpec]]
  * for example.
  */
-trait ServiceSuite { self: fixture.Suite =>
+trait ServiceSuite { self: fixture.TestSuite =>
 
   /**
    * Create an instance of the service to be tested.
