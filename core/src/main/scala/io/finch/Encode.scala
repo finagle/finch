@@ -1,7 +1,6 @@
 package io.finch
 
 import cats.Show
-import cats.data.Xor
 import com.twitter.io.Buf
 import io.finch.internal.BufText
 import java.nio.charset.Charset
@@ -67,10 +66,10 @@ object Encode extends LowPriorityEncodeInstances {
   implicit val encodeString: Text[String] =
     text((s, cs) => BufText(s, cs))
 
-  implicit def encodeXor[A, B, CT <: String](implicit
+  implicit def encodeEither[A, B, CT <: String](implicit
     ae: Encode.Aux[A, CT],
     be: Encode.Aux[B, CT]
-  ): Encode.Aux[A Xor B, CT] = instance[A Xor B, CT](
-    (xor, cs) => xor.fold(a => ae(a, cs), b => be(b, cs))
+  ): Encode.Aux[Either[A, B], CT] = instance[Either[A, B], CT](
+    (either, cs) => either.fold(a => ae(a, cs), b => be(b, cs))
   )
 }

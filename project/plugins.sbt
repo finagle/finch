@@ -6,10 +6,10 @@ resolvers ++= Seq(
   Resolver.sonatypeRepo("snapshots")
 )
 
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.4.0")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.0-RC2")
 addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8.3")
 addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.5.4")
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.14.2")
 addSbtPlugin("com.eed3si9n" % "sbt-unidoc" % "0.3.3")
 addSbtPlugin("org.scalastyle" % "scalastyle-sbt-plugin" % "0.8.0")
-addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.2.11")
+addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.2.16")

@@ -8,7 +8,7 @@ import org.scalatest.{fixture, Outcome}
 /**
  * Extends [[ServiceSuite]] to support integration testing for services.
  */
-trait ServiceIntegrationSuite extends ServiceSuite { self: fixture.Suite =>
+trait ServiceIntegrationSuite extends ServiceSuite { self: fixture.TestSuite =>
 
   /**
    * Override in implementing classes if a different port is desired for
