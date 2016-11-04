@@ -138,7 +138,9 @@ lazy val finch = project.in(file("."))
     "io.circe" %% "circe-generic" % circeVersion,
     "io.spray" %%  "spray-json" % sprayVersion
   ))
-  .aggregate(core, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest, oauth2, examples)
+  .aggregate(
+    core, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest, oauth2, examples, sse
+  )
   .dependsOn(core, circe)
 
 lazy val core = project
@@ -221,6 +223,11 @@ lazy val oauth2 = project
   ))
   .dependsOn(core)
 
+lazy val sse = project
+  .settings(moduleName := "finch-sse")
+  .settings(allSettings)
+  .dependsOn(core)
+
 lazy val examples = project
   .settings(moduleName := "finch-examples")
   .settings(allSettings)
@@ -234,6 +241,7 @@ lazy val examples = project
       |io\.finch\.streaming\..*;
       |io\.finch\.oauth2\..*;
       |io\.finch\.wrk\..*;
+      |io\.finch\.sse\..*;
     """.stripMargin)
   .settings(
     libraryDependencies ++= Seq(
