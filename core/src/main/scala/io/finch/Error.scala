@@ -1,6 +1,10 @@
 package io.finch
 
+import scala.compat.Platform.EOL
 import scala.reflect.ClassTag
+
+import cats.data.NonEmptyList
+import io.finch.items.RequestItem
 
 /**
  * A basic error from a Finch application.
@@ -9,10 +13,13 @@ trait Error extends Exception
 
 object Error {
 
-  import items._
-
   def apply(message: String): Error = new Error {
     override def getMessage: String = message
+  }
+
+  object RequestErrors {
+    @deprecated("Use Multiple instead", "0.11")
+    def unapply(e: Throwable): Option[Seq[Throwable]] = Some(Seq(e))
   }
 
   /**
@@ -20,9 +27,9 @@ object Error {
    *
    * @param errors the errors collected from various endpoints
    */
-  final case class RequestErrors(errors: Seq[Throwable]) extends Error {
+  final case class Multiple(errors: NonEmptyList[Throwable]) extends Error {
     override def getMessage: String =
-      "One or more errors reading request: " + errors.map(_.getMessage).mkString("\n  ","\n  ","")
+      "One or more errors reading request:" + errors.map(_.getMessage).toList.mkString(EOL + "  ", EOL + "  ","")
   }
 
   /**

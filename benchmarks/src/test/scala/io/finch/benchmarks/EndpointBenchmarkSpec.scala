@@ -1,9 +1,10 @@
 package io.finch.benchmarks
 
+import scala.reflect.classTag
+
 import com.twitter.util.{Throw, Try}
 import io.finch._, items._
 import org.scalatest.{FlatSpec, Matchers}
-import scala.reflect.classTag
 
 class SuccessfulEndpointBenchmarkSpec extends FlatSpec with Matchers {
 
@@ -27,14 +28,13 @@ class FailingEndpointBenchmarkSpec extends FlatSpec with Matchers {
   val benchmark = new FailingEndpointBenchmark
 
   private[this] def matchesAggregatedErrors(result: Try[Foo]) = result match {
-    case Throw(
-      Error.RequestErrors(
-        Seq(
-          Error.NotParsed(ParamItem("d"), dTag, _: NumberFormatException),
-          Error.NotParsed(ParamItem("l"), lTag, _: NumberFormatException)
-        )
-      )
-    ) => dTag == classTag[Double] && lTag == classTag[Long]
+    case Throw(Error.Multiple(nel)) => nel.toList match {
+      case Seq(
+        Error.NotParsed(ParamItem("d"), dTag, _: NumberFormatException),
+        Error.NotParsed(ParamItem("l"), lTag, _: NumberFormatException)
+      ) => dTag == classTag[Double] && lTag == classTag[Long]
+      case _ => false
+    }
     case _ => false
   }
 
