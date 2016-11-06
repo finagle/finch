@@ -8,11 +8,11 @@ class ParamSpec extends FinchSpec {
 
   def withParam(k: String)(v: String): Input = Input.get("/", k -> v)
 
-  checkAll("Param[String]", EndpointLaws[String](paramOption("x"))(withParam("x")).evaluating)
-  checkAll("Param[Int]", EndpointLaws[Int](paramOption("x"))(withParam("x")).evaluating)
-  checkAll("Param[Long]", EndpointLaws[Long](paramOption("x"))(withParam("x")).evaluating)
-  checkAll("Param[Boolean]", EndpointLaws[Boolean](paramOption("x"))(withParam("x")).evaluating)
-  checkAll("Param[Float]", EndpointLaws[Float](paramOption("x"))(withParam("x")).evaluating)
-  checkAll("Param[Double]", EndpointLaws[Double](paramOption("x"))(withParam("x")).evaluating)
-  checkAll("Param[UUID]", EndpointLaws[UUID](paramOption("x"))(withParam("x")).evaluating)
+  checkAll("Param[String]", EntityEndpointLaws[String](paramOption("x"))(withParam("x")).evaluating)
+  checkAll("Param[Int]", EntityEndpointLaws[Int](paramOption("x"))(withParam("x")).evaluating)
+  checkAll("Param[Long]", EntityEndpointLaws[Long](paramOption("x"))(withParam("x")).evaluating)
+  checkAll("Param[Boolean]", EntityEndpointLaws[Boolean](paramOption("x"))(withParam("x")).evaluating)
+  checkAll("Param[Float]", EntityEndpointLaws[Float](paramOption("x"))(withParam("x")).evaluating)
+  checkAll("Param[Double]", EntityEndpointLaws[Double](paramOption("x"))(withParam("x")).evaluating)
+  checkAll("Param[UUID]", EntityEndpointLaws[UUID](paramOption("x"))(withParam("x")).evaluating)
 }

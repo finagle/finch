@@ -2,10 +2,12 @@ package io.finch.test.json
 
 import argonaut.{CodecJson, DecodeJson, EncodeJson, Parse}
 import argonaut.Argonaut.{casecodec3, casecodec5}
+import com.twitter.io.Buf
 import com.twitter.io.Buf.Utf8
-import com.twitter.io.Charsets
 import com.twitter.util.Return
 import io.finch.{Decode, Encode}
+import io.finch.internal.BufText
+import java.nio.charset.StandardCharsets
 import org.scalacheck.Arbitrary
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
@@ -55,49 +57,51 @@ trait JsonCodecProviderProperties { self: Matchers with Checkers =>
    * Confirm that this encoder can encode instances of our case class.
    */
   def encodeNestedCaseClass(implicit ee: Encode.Json[ExampleNestedCaseClass]): Unit =
-    check { (e: ExampleNestedCaseClass) =>
-      Parse.decodeOption(Utf8.unapply(ee(e, Charsets.Utf8)).get)(exampleNestedCaseClassCodecJson) ===
-        Some(e)
+    check { e: ExampleNestedCaseClass =>
+      val jsonString = BufText.extract(ee(e, StandardCharsets.UTF_8), StandardCharsets.UTF_8)
+      Parse.decodeOption(jsonString)(exampleNestedCaseClassCodecJson) === Some(e)
     }
 
   /**
    * Confirm that this encoder can decode instances of our case class.
    */
-  def decodeNestedCaseClass(implicit decoder: Decode[ExampleNestedCaseClass]): Unit =
-    check { (e: ExampleNestedCaseClass) =>
-      decoder(exampleNestedCaseClassCodecJson.encode(e).nospaces) === Return(e)
+  def decodeNestedCaseClass(implicit dd: Decode.Json[ExampleNestedCaseClass]): Unit =
+    check { e: ExampleNestedCaseClass =>
+      val jsonString = Buf.Utf8(exampleNestedCaseClassCodecJson.encode(e).nospaces)
+      dd(jsonString, StandardCharsets.UTF_8) === Return(e)
     }
 
   /**
    * Confirm that this encoder fails on invalid input (both ill-formed JSON and
    * invalid JSON).
    */
-  def failToDecodeInvalidJson(implicit decoder: Decode[ExampleNestedCaseClass]): Unit = {
+  def failToDecodeInvalidJson(implicit dd: Decode.Json[ExampleNestedCaseClass]): Unit = {
     check { (badJson: String) =>
       Parse.decodeOption(badJson)(exampleNestedCaseClassCodecJson).isEmpty ==>
-        decoder(badJson).isThrow
+        dd(Buf.Utf8(badJson), StandardCharsets.UTF_8).isThrow
     }
     check { (e: ExampleCaseClass) =>
-      decoder(exampleCaseClassCodecJson.encode(e).nospaces).isThrow
+      dd(Buf.Utf8(exampleCaseClassCodecJson.encode(e).nospaces), StandardCharsets.UTF_8).isThrow
     }
   }
 
   /**
    * Confirm that this encoder can encode top-level lists of instances of our case class.
    */
-  def encodeCaseClassList(implicit encoder: Encode.Json[List[ExampleNestedCaseClass]]): Unit =
+  def encodeCaseClassList(implicit ee: Encode.Json[List[ExampleNestedCaseClass]]): Unit =
     check { (es: List[ExampleNestedCaseClass]) =>
       Parse
-        .decodeOption(Utf8.unapply(encoder(es, Charsets.Utf8))
+        .decodeOption(Utf8.unapply(ee(es, StandardCharsets.UTF_8))
         .getOrElse(""))(exampleNestedCaseClassListCodecJson) === Some(es)
     }
 
   /**
    * Confirm that this encoder can decode top-level lists of instances of our case class.
    */
-  def decodeCaseClassList(implicit decoder: Decode[List[ExampleNestedCaseClass]]): Unit =
+  def decodeCaseClassList(implicit dd: Decode[List[ExampleNestedCaseClass]]): Unit =
     check { (es: List[ExampleNestedCaseClass]) =>
-      decoder(exampleNestedCaseClassListCodecJson.encode(es).nospaces) === Return(es)
+      val jsonString = Buf.Utf8(exampleNestedCaseClassListCodecJson.encode(es).nospaces)
+      dd(jsonString, StandardCharsets.UTF_8) === Return(es)
     }
 
   /**

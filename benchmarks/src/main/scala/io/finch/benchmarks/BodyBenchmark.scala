@@ -10,14 +10,20 @@ class BodyBenchmark extends FinchBenchmark {
   val input = Input.post("/").withBody[Text.Plain](Buf.Utf8("x" * 1024))
 
   @Benchmark
-  def stringOption: Option[String] = bodyOption(input).value.get
+  def bufOption: Option[Buf] = bodyOption(input).value.get
 
   @Benchmark
-  def string: String = body(input).value.get
+  def buf: Buf = body(input).value.get
 
   @Benchmark
-  def byteArrayOption: Option[Array[Byte]] = binaryBodyOption(input).value.get
+  def stringOption: Option[String] = bodyStringOption(input).value.get
 
   @Benchmark
-  def byteArray: Array[Byte] = binaryBody(input).value.get
+  def string: String = bodyString(input).value.get
+
+  @Benchmark
+  def byteArrayOption: Option[Array[Byte]] = bodyByteArrayOption(input).value.get
+
+  @Benchmark
+  def byteArray: Array[Byte] = bodyByteArray(input).value.get
 }

@@ -1,16 +1,15 @@
 package io.finch
 
-import java.util.UUID
-
 import cats.data.NonEmptyList
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.finagle.http.exp.Multipart.FileUpload
 import com.twitter.finagle.netty3.ChannelBufferBuf
-import com.twitter.io.{Buf, Charsets}
+import com.twitter.io.Buf
 import com.twitter.util.{Base64StringEncoder, Future, Try}
 import io.catbird.util.Rerunnable
-import io.finch.internal.TooFastString
+import io.finch.internal._
+import java.util.UUID
 import shapeless._
 
 /**
@@ -114,9 +113,9 @@ trait Endpoints {
 
   /**
    * A matching [[Endpoint]] that reads a value of type `A` (using the implicit
-   * [[internal.Capture]] instances defined for `A`) from the current path segment.
+   * [[DecodePath]] instances defined for `A`) from the current path segment.
    */
-  def path[A](implicit c: internal.Capture[A]): Endpoint[A] = new Endpoint[A] {
+  def path[A](implicit c: DecodePath[A]): Endpoint[A] = new Endpoint[A] {
     def apply(input: Input): Endpoint.Result[A] = for {
       ss <- input.headOption
       aa <- c(ss)
@@ -281,16 +280,32 @@ trait Endpoints {
     req.cookies.get(cookie)
 
   private[this] val someEmptyString = Some("")
-  private[this] def requestBody(req: Request): Option[String] =
+  private[this] def requestBodyString(req: Request): Option[String] =
     req.contentLength match {
       case Some(0) => someEmptyString
       case Some(_) =>
         val buffer = ChannelBufferBuf.Owned.extract(req.content)
+        val charset = req.charsetOrUtf8
         // Note: We usually have an array underneath the ChannelBuffer (at least on Netty 3).
         // This check is mostly about a safeguard.
-        // TODO: Use proper charset
-        if (buffer.hasArray) Some(new String(buffer.array(), 0, buffer.readableBytes(), "UTF-8"))
-        else Some(buffer.toString(Charsets.Utf8))
+        if (buffer.hasArray) Some(new String(buffer.array(), 0, buffer.readableBytes(), charset))
+        else Some(buffer.toString(charset))
+      case None => None
+    }
+
+  private[this] val someEmptyBuf = Some(Buf.Empty)
+  private[this] def requestBody(req: Request): Option[Buf] =
+    req.contentLength match {
+      case Some(0) => someEmptyBuf
+      case Some(_) => Some(req.content)
+      case None => None
+    }
+
+  private[this] val someEmptyByteArray = Some(Array.empty[Byte])
+  private[this] def requestBodyByteArray(req: Request): Option[Array[Byte]] =
+    req.contentLength match {
+      case Some(0) => someEmptyByteArray
+      case Some(_) => Some(Buf.ByteArray.Shared.extract(req.content))
       case None => None
     }
 
@@ -402,35 +417,59 @@ trait Endpoints {
    * An evaluating [[Endpoint]] that reads a binary request body, interpreted as a `Array[Byte]`,
    * into an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
    */
-  private[this] val someEmptyByteArray = Some(Array.empty[Byte])
-  val binaryBodyOption: Endpoint[Option[Array[Byte]]] =
-    matches(items.BodyItem)(!_.isChunked)(req =>
-      req.contentLength match {
-        case Some(0) => someEmptyByteArray
-        case Some(_) => Some(Buf.ByteArray.Shared.extract(req.content))
-        case None => None
-      }
-    )
+  val bodyByteArrayOption: Endpoint[Option[Array[Byte]]] =
+    matches(items.BodyItem)(!_.isChunked)(requestBodyByteArray)
 
   /**
    * An evaluating [[Endpoint]] that reads a required binary request body, interpreted as an
    * `Array[Byte]`, or throws a [[Error.NotPresent]] exception. The returned [[Endpoint]] only
    * matches non-chunked (non-streamed) requests.
    */
-  val binaryBody: Endpoint[Array[Byte]] = binaryBodyOption.failIfNone
+  val bodyByteArray: Endpoint[Array[Byte]] = bodyByteArrayOption.failIfNone
+
+  /**
+   * An evaluating [[Endpoint]] that reads a binary request body, interpreted as a `Array[Byte]`,
+   * into an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
+   */
+  @deprecated("Use bodyByteArrayOption instead.", "0.11")
+  val binaryBodyOption: Endpoint[Option[Array[Byte]]] = bodyByteArrayOption
+
+  /**
+   * An evaluating [[Endpoint]] that reads a required binary request body, interpreted as an
+   * `Array[Byte]`, or throws a [[Error.NotPresent]] exception. The returned [[Endpoint]] only
+   * matches non-chunked (non-streamed) requests.
+   */
+  @deprecated("Use bodyByteArray instead.", "0.11")
+  val binaryBody: Endpoint[Array[Byte]] = bodyByteArray
 
   /**
    * An evaluating [[Endpoint]] that reads an optional request body, interpreted as a `String`, into
    * an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
    */
-  val bodyOption: Endpoint[Option[String]] = matches(items.BodyItem)(!_.isChunked)(requestBody)
+  val bodyStringOption: Endpoint[Option[String]] =
+    matches(items.BodyItem)(!_.isChunked)(requestBodyString)
 
   /**
-   * An evaluating[[Endpoint]] that reads the required request body, interpreted as a `String`, or
+   * An evaluating [[Endpoint]] that reads the required request body, interpreted as a `String`, or
    * throws an [[Error.NotPresent]] exception. The returned [[Endpoint]] only matches non-chunked
    * (non-streamed) requests.
    */
-  val body: Endpoint[String] = bodyOption.failIfNone
+  val bodyString: Endpoint[String] = bodyStringOption.failIfNone
+
+
+  /**
+   * An [[Endpoint]] that reads an optional request body, interpreted as [[Buf]], into
+   * an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
+   */
+  val bodyOption: Endpoint[Option[Buf]] =
+    matches(items.BodyItem)(!_.isChunked)(requestBody)
+
+  /**
+   * An [[Endpoint]] that reads the required request body, interpreted as [[Buf]], or
+   * throws an [[Error.NotPresent]] exception. The returned [[Endpoint]] only matches non-chunked
+   * (non-streamed) requests.
+   */
+  val body: Endpoint[Buf] = bodyOption.failIfNone
 
   /**
    * An evaluating [[Endpoint]] that reads a required chunked streaming binary body, interpreted as

@@ -2,10 +2,9 @@ package io.finch
 
 import cats.Eq
 import com.twitter.finagle.http.{Cookie, Response, Status, Version}
-import com.twitter.io.Charsets
 import com.twitter.util.{Await, Duration, Future, Try}
 import io.finch.internal.ToResponse
-import java.nio.charset.Charset
+import java.nio.charset.{Charset, StandardCharsets}
 
 /**
  * An output of [[Endpoint]].
@@ -240,8 +239,8 @@ object Output {
       tre: ToResponse.Aux[Exception, CT]
     ): Response = {
       val rep = o match {
-        case Output.Payload(v, m) => tr(v, m.charset.getOrElse(Charsets.Utf8))
-        case Output.Failure(x, m) => tre(x, m.charset.getOrElse(Charsets.Utf8))
+        case Output.Payload(v, m) => tr(v, m.charset.getOrElse(StandardCharsets.UTF_8))
+        case Output.Failure(x, m) => tre(x, m.charset.getOrElse(StandardCharsets.UTF_8))
         case Output.Empty(_) => Response()
       }
 

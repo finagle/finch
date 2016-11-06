@@ -4,11 +4,9 @@ import cats.Show
 import com.twitter.io.Buf
 import io.finch.internal.BufText
 import java.nio.charset.Charset
-import shapeless.Witness
 
 /**
- * An abstraction that is responsible for encoding the value of type `A` into a `Buf` with a given
- * charset.
+ * Encodes an HTTP payload (represented as an arbitrary type `A`) with a given [[Charset]].
  */
 trait Encode[A] {
   type ContentType <: String
@@ -41,13 +39,10 @@ trait LowPriorityEncodeInstances {
 
 object Encode extends LowPriorityEncodeInstances {
 
-  class Implicitly[A] {
-    def apply[CT <: String](w: Witness.Aux[CT])(implicit
-      e: Encode.Aux[A, CT]
-    ): Encode.Aux[A, CT] = e
-  }
-
-  @inline def apply[A]: Implicitly[A] = new Implicitly[A]
+  /**
+   * Returns a [[Encode]] instance for a given type (with required content type).
+   */
+  @inline def apply[A, CT <: String](implicit e: Aux[A, CT]): Aux[A, CT] = e
 
   implicit def encodeUnit[CT <: String]: Aux[Unit, CT] =
     instance((_, _) => Buf.Empty)

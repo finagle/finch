@@ -1,15 +1,15 @@
 package io.finch
 
-import scala.reflect.ClassTag
-
 import cats.Alternative
 import cats.data.NonEmptyList
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Cookie, Request, Response, Status}
+import com.twitter.io.Buf
 import com.twitter.util.{Future, Return, Throw, Try}
 import io.catbird.util.Rerunnable
 import io.finch.internal._
 import java.nio.charset.Charset
+import scala.reflect.ClassTag
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.hlist.Tupler
@@ -265,6 +265,7 @@ trait Endpoint[A] { self =>
   /**
    * Converts this endpoint to a Finagle service `Request => Future[Response]` that serves JSON.
    */
+  @deprecated("Use toServiceAs[Application.Json] instead", "0.11")
   final def toService(implicit
     tr: ToResponse.Aux[A, Application.Json],
     tre: ToResponse.Aux[Exception, Application.Json]
@@ -392,7 +393,7 @@ object Endpoint {
    * Creates an empty [[Endpoint]] (an endpoint that never matches) for a given type.
    */
   def empty[A]: Endpoint[A] = new Endpoint[A] {
-    override def apply(input: Input): Result[A] = None
+    def apply(input: Input): Result[A] = None
   }
 
   private[finch] def embed[A](i: items.RequestItem)(f: Input => Result[A]): Endpoint[A] =
@@ -426,7 +427,7 @@ object Endpoint {
      * Note that this will fail at compile time if this this [[shapeless.HList]] contains more than
      * 22 elements.
      */
-    def asTuple(implicit tupler: Tupler[L]): Endpoint[tupler.Out] = self.map(tupler(_))
+    def asTuple(implicit t: Tupler[L]): Endpoint[t.Out] = self.map(t(_))
   }
 
   private[this] def notParsed[A](
@@ -437,13 +438,22 @@ object Endpoint {
 
   /**
    * Implicit conversion that allows to call `as[A]` on any `Endpoint[String]` to perform a type
-   * conversion based on an implicit `DecodeRequest[A]` which must be in scope.
+   * conversion based on an implicit `DecodeEntity[A]` which must be in scope.
    *
-   * The resulting reader will fail when type conversion fails.
+   * The resulting endpoint will fail when type conversion fails.
    */
   implicit class StringEndpointOps(val self: Endpoint[String]) extends AnyVal {
-    def as[A](implicit decoder: Decode[A], tag: ClassTag[A]): Endpoint[A] =
-      self.mapAsync(value => Future.const(decoder(value).rescue(notParsed[A](self, tag))))
+    def as[A](implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[A] =
+      self.mapAsync(value => Future.const(d(value).rescue(notParsed[A](self, tag))))
+  }
+
+  implicit class BufEndpointOps(self: Endpoint[Buf]) {
+    def as[A](implicit d: Decode.Json[A]): Endpoint[A] = new Endpoint[A] {
+      // TODO: Will be better with StateT
+      // See https://github.com/finagle/finch/pull/559
+      def apply(input: Input): Endpoint.Result[A] =
+        self.mapAsync(value => Future.const(d(value, input.request.charsetOrUtf8))).apply(input)
+    }
   }
 
   /**
@@ -486,15 +496,17 @@ object Endpoint {
      * this class can safely extends AnyVal.
      */
 
-    def as[A](implicit decoder: Decode[A], tag: ClassTag[A]): Endpoint[NonEmptyList[A]] =
+    def as[A](implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[NonEmptyList[A]] =
       self.mapAsync { items =>
-        val decoded = items.toList.map(decoder.apply)
+        val decoded = items.toList.map(d.apply)
         val errors = decoded.collect {
           case Throw(e) => Error.NotParsed(self.item, tag, e)
         }
 
-        if (errors.isEmpty) Future.const(Try.collect(decoded).map(seq => NonEmptyList(seq.head, seq.tail.toList)))
-        else Future.exception(Error.RequestErrors(errors))
+        if (errors.isEmpty)
+          Future.const(Try.collect(decoded).map(seq => NonEmptyList(seq.head, seq.tail.toList)))
+        else
+          Future.exception(Error.RequestErrors(errors))
       }
   }
 
@@ -518,9 +530,9 @@ object Endpoint {
      * this class can safely extends AnyVal.
      */
 
-    def as[A](implicit decoder: Decode[A], tag: ClassTag[A]): Endpoint[Seq[A]] =
+    def as[A](implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[Seq[A]] =
       self.mapAsync { items =>
-        val decoded = items.map(decoder.apply)
+        val decoded = items.map(d.apply)
         val errors = decoded.collect {
           case Throw(e) => Error.NotParsed(self.item, tag, e)
         }
@@ -538,13 +550,28 @@ object Endpoint {
    * will succeed if the result is empty or type conversion succeeds.
    */
   implicit class StringOptionEndpointOps(val self: Endpoint[Option[String]]) extends AnyVal {
-    def as[A](implicit decoder: Decode[A], tag: ClassTag[A]): Endpoint[Option[A]] =
+    def as[A](implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[Option[A]] =
       self.mapAsync {
         case Some(value) =>
-          Future.const(decoder(value).rescue(notParsed[A](self, tag)).map(Some.apply))
+          Future.const(d(value).rescue(notParsed[A](self, tag))).map(Some.apply)
         case None =>
           Future.None
       }
+  }
+
+  implicit class BufOptionEndpointOps(self: Endpoint[Option[Buf]]) {
+    def as[A](implicit d: Decode.Json[A]): Endpoint[Option[A]] = new Endpoint[Option[A]] {
+      // TODO: Will be better with StateT
+      // See https://github.com/finagle/finch/pull/559
+      def apply(input: Input): Endpoint.Result[Option[A]] = {
+        val underlying = self.mapAsync {
+          case Some(value) => Future.const(d(value, input.request.charsetOrUtf8)).map(Some.apply)
+          case None => Future.None
+        }
+
+        underlying(input)
+      }
+    }
   }
 
   class GenericDerivation[A] {
