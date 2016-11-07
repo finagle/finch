@@ -9,6 +9,7 @@
 * [Defining custom endpoints](cookbook.md#defining-custom-endpoints)
 * [CORS in Finch](cookbook.md#cors-in-finch)
 * [Converting between Scala futures and Twitter futures](cookbook.md#converting-between-scala-futures-and-twitter-futures)
+* [Server Sent Events](cookbook.md#server-sent-events)
 
 This is a collection of short recipes of "How to X in Finch".
 
@@ -459,6 +460,36 @@ implicit class RichSFuture[A](val f: SFuture[A]) extends AnyVal {
   }
 }
 ```
+
+### Server Sent Events
+
+Finch offers support for Server Sent Events through the `finch-sse` sub-project.
+Server Sent Events are represented as `AsyncStream`s:
+```scala
+import com.twitter.concurrent.AsyncStream
+import com.twitter.conversions.time._
+import com.twitter.finagle.Http
+import com.twitter.util.Future
+import io.finch._
+import io.finch.sse.ServerSentEvent
+
+def stream[A](sse: AsyncStream[ServerSentEvent[A]]): Output[AsyncStream[ServerSentEvent[A]]] = {
+  Ok(sse).withHeader("Cache-Control" -> "no-cache").withHeader("Connection" -> "keep-alive")
+}
+
+def currentTime: String = java.util.Calendar.getInstance().getTime.toString
+
+def time: AsyncStream[ServerSentEvent[String]] = {
+  ServerSentEvent(currentTime) +::
+    AsyncStream.fromFuture(Future.sleep(1000.millis)).flatMap(_ => time)
+}
+
+val sse: Endpoint[AsyncStream[ServerSentEvent[String]]] = get("sse")(stream(time))
+Http.server.serve(":8081", sse.toServiceAs[Text.EventStream])
+```
+In this example, the `stream` method sets up an `Output` that returns a stream with the necessary headers.
+It is then used as one uses anyh other Finch endpoint.
+To serve it as a Server Sent Event, the service creation is parameterized over `Text.EventStream`.
 
 --
 Read Next: [Best Practices](best-practices.md)

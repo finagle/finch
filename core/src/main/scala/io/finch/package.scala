@@ -39,5 +39,6 @@ package object finch extends Endpoints with Outputs with ValidationRules {
   object Text {
     type Plain = Witness.`"text/plain"`.T
     type Html = Witness.`"text/html"`.T
+    type EventStream = Witness.`"text/event-stream"`.T
   }
 }

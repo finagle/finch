@@ -38,7 +38,7 @@ trait LowPriorityToResponseInstances {
     def apply(a: A, cs: Charset): Response = fn(a, cs)
   }
 
-  protected def asyncResponseBuilder[A, CT <: String](writer: (A, Charset) => Buf)(implicit
+  protected[finch] def asyncResponseBuilder[A, CT <: String](writer: (A, Charset) => Buf)(implicit
     w: Witness.Aux[CT]
   ): Aux[AsyncStream[A], CT] = instance { (as, cs) =>
     val rep = Response()
