@@ -463,33 +463,40 @@ implicit class RichSFuture[A](val f: SFuture[A]) extends AnyVal {
 
 ### Server Sent Events
 
-Finch offers support for Server Sent Events through the `finch-sse` sub-project.
-Server Sent Events are represented as `AsyncStream`s:
+Finch offers support for [Server Sent Events](server-sent-events) through the `finch-sse` sub-project.
+Server Sent Events are represented as `AsyncStream`s and streamed over the chunked HTTP transport.
+
+The `ServerSentEvent` case class caries an arbitrary `data` field and it's possible to encode any
+`ServerSentEvent[A]` for which `cats.Show[A]` is defined.
+
+In this example, every next second we stream instances of `java.util.Date` as server sent events on
+the `time` endpoint.
+
+NOTE: SSE requires `Cache-Control` to be disabled.
+
 ```scala
+import cats.Show
 import com.twitter.concurrent.AsyncStream
 import com.twitter.conversions.time._
 import com.twitter.finagle.Http
+import com.twitter.finagle.util.DefaultTimer._
 import com.twitter.util.Future
 import io.finch._
-import io.finch.sse.ServerSentEvent
+import io.finch.sse._
+import java.util.Date
 
-def stream[A](sse: AsyncStream[ServerSentEvent[A]]): Output[AsyncStream[ServerSentEvent[A]]] = {
-  Ok(sse).withHeader("Cache-Control" -> "no-cache").withHeader("Connection" -> "keep-alive")
+implicit val showDate: Show[Date] = Show.fromToString[Date]
+
+def streamTime(): AsyncStream[ServerSentEvent[Date]] =
+  AsyncStream.fromFuture(Future.sleep(1.seconds).map(_ => new Date())) ++ streamTime()
+
+val time: Endpoint[AsyncStream[ServerSentEvent[Date]]] = get("time") {
+  Ok(streamTime())
+    .withHeader("Cache-Control" -> "no-cache")
 }
 
-def currentTime: String = java.util.Calendar.getInstance().getTime.toString
-
-def time: AsyncStream[ServerSentEvent[String]] = {
-  ServerSentEvent(currentTime) +::
-    AsyncStream.fromFuture(Future.sleep(1000.millis)).flatMap(_ => time)
-}
-
-val sse: Endpoint[AsyncStream[ServerSentEvent[String]]] = get("sse")(stream(time))
-Http.server.serve(":8081", sse.toServiceAs[Text.EventStream])
+Http.server.serve(":8081", time.toServiceAs[Text.EventStream])
 ```
-In this example, the `stream` method sets up an `Output` that returns a stream with the necessary headers.
-It is then used as one uses anyh other Finch endpoint.
-To serve it as a Server Sent Event, the service creation is parameterized over `Text.EventStream`.
 
 --
 Read Next: [Best Practices](best-practices.md)
@@ -502,3 +509,4 @@ Read Next: [Best Practices](best-practices.md)
 [as]: https://github.com/twitter/util/blob/develop/util-core/src/main/scala/com/twitter/concurrent/AsyncStream.scala
 [cors-filter]: https://github.com/twitter/finagle/blob/develop/finagle-http/src/main/scala/com/twitter/finagle/http/filter/Cors.scala
 [cors]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
+[server-sent-events]: https://en.wikipedia.org/wiki/Server-sent_events
