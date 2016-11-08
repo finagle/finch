@@ -10,8 +10,11 @@ package object jackson {
 
   implicit def decodeJackson[A](implicit
     mapper: ObjectMapper, ct: ClassTag[A]
-  ): Decode[A] = Decode.instance(s =>
-    Try(mapper.readValue(s, ct.runtimeClass.asInstanceOf[Class[A]]))
+  ): Decode.Json[A] = Decode.json((b, cs) =>
+    // TODO: Eliminate toString conversion
+    // See https://github.com/finagle/finch/issues/511
+    // Jackson can parse from byte[] automatically detecting the encoding.
+    Try(mapper.readValue(BufText.extract(b, cs), ct.runtimeClass.asInstanceOf[Class[A]]))
   )
 
   implicit def encodeJackson[A](implicit mapper: ObjectMapper): Encode.Json[A] =

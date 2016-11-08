@@ -12,12 +12,12 @@ class HeaderSpec extends FinchSpec {
   def withHeader(k: String)(v: String): Input = Input.get("/").withHeaders(k -> v)
 
   checkAll("Header[String]",
-    EndpointLaws[String](headerOption("x"))(withHeader("x"))
+    EntityEndpointLaws[String](headerOption("x"))(withHeader("x"))
       .evaluating(Arbitrary(genNonEmptyString), Eq[String]))
-  checkAll("Header[Int]", EndpointLaws[Int](headerOption("x"))(withHeader("x")).evaluating)
-  checkAll("Header[Long]", EndpointLaws[Long](headerOption("x"))(withHeader("x")).evaluating)
-  checkAll("Header[Boolean]", EndpointLaws[Boolean](headerOption("x"))(withHeader("x")).evaluating)
-  checkAll("Header[Float]", EndpointLaws[Float](headerOption("x"))(withHeader("x")).evaluating)
-  checkAll("Header[Double]", EndpointLaws[Double](headerOption("x"))(withHeader("x")).evaluating)
-  checkAll("Header[UUID]", EndpointLaws[UUID](headerOption("x"))(withHeader("x")).evaluating)
+  checkAll("Header[Int]", EntityEndpointLaws[Int](headerOption("x"))(withHeader("x")).evaluating)
+  checkAll("Header[Long]", EntityEndpointLaws[Long](headerOption("x"))(withHeader("x")).evaluating)
+  checkAll("Header[Boolean]", EntityEndpointLaws[Boolean](headerOption("x"))(withHeader("x")).evaluating)
+  checkAll("Header[Float]", EntityEndpointLaws[Float](headerOption("x"))(withHeader("x")).evaluating)
+  checkAll("Header[Double]", EntityEndpointLaws[Double](headerOption("x"))(withHeader("x")).evaluating)
+  checkAll("Header[UUID]", EntityEndpointLaws[UUID](headerOption("x"))(withHeader("x")).evaluating)
 }

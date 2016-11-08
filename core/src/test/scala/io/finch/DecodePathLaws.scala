@@ -1,16 +1,15 @@
-package io.finch.internal
+package io.finch
 
 import cats.Eq
 import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
-import io.finch.MissingInstances
-import org.scalacheck.{Prop, Arbitrary}
+import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
-trait CaptureLaws[A] extends Laws with MissingInstances with AllInstances {
+trait DecodePathLaws[A] extends Laws with MissingInstances with AllInstances {
 
-  def capture: Capture[A]
+  def capture: DecodePath[A]
 
   def roundTrip(a: A): IsEq[Option[A]] =
     capture(a.toString) <-> Some(a)
@@ -22,8 +21,8 @@ trait CaptureLaws[A] extends Laws with MissingInstances with AllInstances {
   )
 }
 
-object CaptureLaws {
-  def apply[A: Capture] = new CaptureLaws[A] {
-    def capture: Capture[A] = Capture[A]
+object DecodePathLaws {
+  def apply[A: DecodePath]: DecodePathLaws[A] = new DecodePathLaws[A] {
+    def capture: DecodePath[A] = DecodePath[A]
   }
 }

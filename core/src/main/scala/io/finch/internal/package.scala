@@ -1,8 +1,9 @@
 package io.finch
 
+import com.twitter.finagle.http.Message
 import com.twitter.io.{Buf, Charsets}
 import java.nio.CharBuffer
-import java.nio.charset.Charset
+import java.nio.charset.{Charset, StandardCharsets}
 
 /**
  * This package contains an internal-use only type-classes and utilities that power Finch's API.
@@ -102,6 +103,14 @@ package object internal {
       val dec = Charsets.decoder(cs)
       val bb = Buf.ByteBuffer.Owned.extract(buf).asReadOnlyBuffer
       dec.decode(bb).toString
+    }
+  }
+
+  implicit class HttpMessage(val self: Message) extends AnyVal {
+    // Returns message's charset or UTF-8 if it's not defined.
+    def charsetOrUtf8: Charset = self.charset match {
+      case Some(cs) => Charset.forName(cs)
+      case None => StandardCharsets.UTF_8
     }
   }
 }

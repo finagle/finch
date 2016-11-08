@@ -7,6 +7,7 @@ import com.twitter.io.Buf
 import io.finch.internal.BufText
 
 class EncodeSpec extends FinchSpec {
+
   checkAll("Encode.Text[String]", EncodeLaws.text[String].all)
   checkAll("Encode.Text[Int]", EncodeLaws.text[Int].all)
   checkAll("Encode.Text[Option[Boolean]]", EncodeLaws.text[Option[Boolean]].all)
@@ -14,14 +15,14 @@ class EncodeSpec extends FinchSpec {
   checkAll("Encode.Text[Either[UUID, Float]]", EncodeLaws.text[Either[UUID, Float]].all)
 
   it should "round trip Unit" in {
-    check { (ct: String, cs: Charset) =>
-      Encode[Unit](ct).apply((), cs) === Buf.Empty
+    check { cs: Charset =>
+      implicitly[Encode[Unit]].apply((), cs) === Buf.Empty
     }
   }
 
   it should "round trip Buf" in {
-    check { (ct: String, cs: Charset, buf: Buf) =>
-      Encode[Buf](ct).apply(buf, cs) === buf
+    check { (cs: Charset, buf: Buf) =>
+      implicitly[Encode[Buf]].apply(buf, cs) === buf
     }
   }
 
@@ -29,8 +30,8 @@ class EncodeSpec extends FinchSpec {
     check { (s: String, cs: Charset) =>
       val e = new Exception(s)
 
-      val json = Encode[Exception]("application/json").apply(e, cs)
-      val text = Encode[Exception]("text/plain").apply(e, cs)
+      val json = Encode[Exception, Application.Json].apply(e, cs)
+      val text = Encode[Exception, Text.Plain].apply(e, cs)
 
       json === BufText(s"""{"message":"$s"}""", cs) && text === BufText(s, cs)
     }

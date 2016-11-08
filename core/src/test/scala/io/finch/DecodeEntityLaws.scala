@@ -8,9 +8,9 @@ import com.twitter.util.{Return, Try}
 import org.scalacheck.{Prop, Arbitrary}
 import org.typelevel.discipline.Laws
 
-trait DecodeLaws[A] extends Laws with MissingInstances with AllInstances {
+trait DecodeEntityLaws[A] extends Laws with MissingInstances with AllInstances {
 
-  def decode: Decode[A]
+  def decode: DecodeEntity[A]
 
   def roundTrip(a: A): IsEq[Try[A]] =
     decode(a.toString) <-> Return(a)
@@ -22,8 +22,8 @@ trait DecodeLaws[A] extends Laws with MissingInstances with AllInstances {
   )
 }
 
-object DecodeLaws {
-  def apply[A: Decode]: DecodeLaws[A] = new DecodeLaws[A] {
-    val decode: Decode[A] = Decode[A]
+object DecodeEntityLaws {
+  def apply[A: DecodeEntity]: DecodeEntityLaws[A] = new DecodeEntityLaws[A] {
+    def decode: DecodeEntity[A] = DecodeEntity[A]
   }
 }
