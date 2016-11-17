@@ -1,9 +1,9 @@
 package io.finch.circe
 
-import io.finch.test.json._
 import io.circe.generic.auto._
-import org.scalatest.prop.Checkers
+import io.finch.test.json._
 import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.prop.Checkers
 
 class CirceSpec extends FlatSpec with Matchers with Checkers with JsonCodecProviderProperties {
   "The circe codec provider" should "encode a case class as JSON" in encodeNestedCaseClass

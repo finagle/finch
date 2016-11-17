@@ -1,8 +1,8 @@
 package io.finch.sprayjson
 
 import io.finch.test.json._
-import org.scalatest.prop.Checkers
 import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.prop.Checkers
 import spray.json._
 import DefaultJsonProtocol._
 

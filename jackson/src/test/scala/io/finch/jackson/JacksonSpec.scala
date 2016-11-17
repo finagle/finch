@@ -3,8 +3,8 @@ package io.finch.jackson
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import io.finch.test.json.JsonCodecProviderProperties
+import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers
-import org.scalatest.{Matchers, FlatSpec}
 
 class JacksonSpec extends FlatSpec with Matchers with Checkers with JsonCodecProviderProperties {
 

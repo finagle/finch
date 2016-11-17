@@ -1,7 +1,7 @@
 package io.finch.benchmarks
 
-import io.finch._, items._
 import com.twitter.util.{Throw, Try}
+import io.finch._, items._
 import org.scalatest.{FlatSpec, Matchers}
 import scala.reflect.classTag
 
@@ -26,7 +26,7 @@ class FailingEndpointBenchmarkSpec extends FlatSpec with Matchers {
 
   val benchmark = new FailingEndpointBenchmark
 
-  def matchesAggregatedErrors(result: Try[Foo]) = result match {
+  private[this] def matchesAggregatedErrors(result: Try[Foo]) = result match {
     case Throw(
       Error.RequestErrors(
         Seq(

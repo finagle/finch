@@ -84,7 +84,7 @@ object Main extends TwitterServer {
     getTodos :+: postTodo :+: deleteTodo :+: deleteTodos :+: patchTodo
   ).handle({
     case e: TodoNotFound => NotFound(e)
-  }).toService
+  }).toServiceAs[Application.Json]
 
   def main(): Unit = {
     log.info("Serving the Todo application")

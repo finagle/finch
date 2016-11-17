@@ -3,8 +3,8 @@ package io.finch.internal
 import com.twitter.util.Try
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
-import org.scalatest.prop.Checkers
 import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.prop.Checkers
 
 class TooFastStringSpec extends FlatSpec with Matchers with Checkers {
 

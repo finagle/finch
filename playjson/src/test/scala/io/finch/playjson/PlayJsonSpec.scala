@@ -1,10 +1,10 @@
 package io.finch.playjson
 
-import io.finch.test.json.JsonCodecProviderProperties
 import io.finch.test.json.ExampleCaseClass
 import io.finch.test.json.ExampleNestedCaseClass
-import org.scalatest.prop.Checkers
+import io.finch.test.json.JsonCodecProviderProperties
 import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.prop.Checkers
 import play.api.libs.json._
 
 class PlayJsonSpec extends FlatSpec with Matchers with Checkers with JsonCodecProviderProperties {
