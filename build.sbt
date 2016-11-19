@@ -2,7 +2,7 @@ import sbtunidoc.Plugin.UnidocKeys._
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  version := "0.11.0-M4",
+  version := "0.11.0-SNAPSHOT",
   scalaVersion := "2.11.8",
   crossScalaVersions := Seq("2.10.6", "2.11.8")
 )
