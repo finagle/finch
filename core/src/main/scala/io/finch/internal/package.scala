@@ -4,6 +4,7 @@ import com.twitter.finagle.http.Message
 import com.twitter.io.{Buf, Charsets}
 import java.nio.CharBuffer
 import java.nio.charset.{Charset, StandardCharsets}
+import org.jboss.netty.buffer.ChannelBuffer
 
 /**
  * This package contains an internal-use only type-classes and utilities that power Finch's API.
@@ -59,6 +60,23 @@ package object internal {
     Some(if (negative) result else -result)
   }
   // scalastyle:on return
+
+  /** Extract a byte array from a ChannelBuffer that is backed by an array.
+    * Precondition: buf.hasArray == true
+    *
+    * @param buf The ChannelBuffer to extract the array from
+    * @return An array of bytes
+    */
+  def extractBytesFromArrayBackedBuf(buf: ChannelBuffer): Array[Byte] = {
+    val rawArray = buf.array
+    val size = buf.readableBytes()
+    if (rawArray.length == size) rawArray
+    else {
+      val dst = new Array[Byte](size)
+      System.arraycopy(buf.array(), 0, dst, 0, size)
+      dst
+    }
+  }
 
   /**
    * Enriches any string with fast `tooX` conversions.
