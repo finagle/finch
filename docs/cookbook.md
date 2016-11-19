@@ -10,6 +10,7 @@
 * [CORS in Finch](cookbook.md#cors-in-finch)
 * [Converting between Scala futures and Twitter futures](cookbook.md#converting-between-scala-futures-and-twitter-futures)
 * [Server Sent Events](cookbook.md#server-sent-events)
+* [JSONP](cookbook#jsonp)
 
 This is a collection of short recipes of "How to X in Finch".
 
@@ -498,6 +499,51 @@ val time: Endpoint[AsyncStream[ServerSentEvent[Date]]] = get("time") {
 Http.server.serve(":8081", time.toServiceAs[Text.EventStream])
 ```
 
+### JSONP
+
+Not going into the details on why [JSONP considered insecure][insecure-jsonp], there is a Finagle
+filter `JsonpFilter` that can be applied to an HTTP service returning JSON to "upgrade" it to JSONP.
+
+Here is a small example on how to wire this filter with Finch's endpoint.
+
+```scala
+import com.twitter.finagle.Http
+import com.twitter.finagle.http.filter.JsonpFilter
+import io.finch._
+import io.finch.circe._
+
+val endpoint: Endpoint[Map[String, String]] = get("jsonp") {
+  Ok(Map("foo" -> "bar"))
+}
+
+val service = endpoint.toServiceAs[Application.Json]
+
+Http.server.serve(":8080", JsonpFilter.andThen(service))
+```
+
+`JsonpFilter` is dead simple. It checks the returned HTTP payload and if it's a JSON string, wraps
+it with a call to a function whose name is passed in the `callback` query-string param (and changes
+the content-type to `application/javascript` correspondingly). Using httpie, this would look as:
+
+```
+$ http :8081/jsonp
+HTTP/1.1 200 OK
+Content-Encoding: gzip
+Content-Length: 39
+Content-Type: application/json
+
+{
+    "foo": "bar"
+}
+
+$ http :8080/jsonp?callback=myfunction
+HTTP/1.1 200 OK
+Content-Encoding: gzip
+Content-Length: 56
+Content-Type: application/javascript
+
+/**/myfunction({"foo":"bar"});
+```
 --
 Read Next: [Best Practices](best-practices.md)
 
@@ -510,3 +556,4 @@ Read Next: [Best Practices](best-practices.md)
 [cors-filter]: https://github.com/twitter/finagle/blob/develop/finagle-http/src/main/scala/com/twitter/finagle/http/filter/Cors.scala
 [cors]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
 [server-sent-events]: https://en.wikipedia.org/wiki/Server-sent_events
+[insecure-jsonp]: http://erlend.oftedal.no/blog/?blogid=97
