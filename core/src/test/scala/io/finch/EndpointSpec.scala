@@ -5,7 +5,10 @@ import java.util.UUID
 import cats.Applicative
 import cats.laws.discipline.AlternativeTests
 import com.twitter.finagle.http.{Cookie, Method, Request}
+import com.twitter.io.Buf
 import com.twitter.util.{Future, Throw, Try}
+import io.finch.items.BodyItem
+import scala.reflect.ClassTag
 
 class EndpointSpec extends FinchSpec {
   checkAll("Endpoint[String]", AlternativeTests[Endpoint].applicative[String, String, String])
@@ -214,6 +217,30 @@ class EndpointSpec extends FinchSpec {
     val foo = (string :: int :: boolean).as[Foo]
     check { (s: String, i: Int, b: Boolean) =>
       foo(Input(emptyRequest, Seq(s, i.toString, b.toString))).value === Some(Foo(s, i, b))
+    }
+  }
+
+  it should "throw Error.NotParsed if as[A] method fails" in {
+    case class Foo(s: String)
+
+    val cause = new Exception("can't parse this")
+    implicit val failingDecode: Decode.Json[Foo] =
+      Decode.json((b, c) => Throw(cause))
+
+    val foo = body.as[Foo]
+    val fooOption = bodyOption.as[Foo]
+    val i = (s: String) => Input.post("/").withBody[Text.Plain](Buf.Utf8(s))
+
+    check { (s: String) =>
+      foo(i(s)).tryValue === Some(Throw(
+        Error.NotParsed(BodyItem, implicitly[ClassTag[Foo]], cause)
+      ))
+    }
+
+    check { (s: String) =>
+      fooOption(i(s)).tryValue === Some(Throw(
+        Error.NotParsed(BodyItem, implicitly[ClassTag[Foo]], cause)
+      ))
     }
   }
 
