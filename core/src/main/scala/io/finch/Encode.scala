@@ -2,7 +2,7 @@ package io.finch
 
 import cats.Show
 import com.twitter.io.Buf
-import io.finch.internal.BufText
+import io.finch.internal.{BufText, JsonUtils}
 import java.nio.charset.Charset
 
 /**
@@ -55,7 +55,7 @@ object Encode extends LowPriorityEncodeInstances {
   )
 
   implicit val encodeExceptionAsJson: Json[Exception] = json(
-    (e, cs) => BufText(s"""{"message":"${Option(e.getMessage).getOrElse("")}"}""", cs)
+    (e, cs) => BufText(s"""{"message":"${Option(e.getMessage).map(JsonUtils.escape).getOrElse("")}"}""", cs)
   )
 
   implicit val encodeString: Text[String] =
