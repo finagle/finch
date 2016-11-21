@@ -1,20 +1,27 @@
 package io.finch
 
+import com.twitter.finagle.netty3.ChannelBufferBuf
 import com.twitter.util.Try
-import io.finch.internal.BufText
+import io.finch.internal.{extractBytesFromArrayBackedBuf, BufText}
+import java.nio.charset.StandardCharsets
 import spray.json._
 
-package object sprayjson{
+package object sprayjson {
 
   /**
     * @param format spray-json support for convert JSON val to specific type object
     * @tparam A the type of the data to decode into
     */
   implicit def decodeSpray[A](implicit format: JsonFormat[A]): Decode.Json[A] =
-    // TODO: Eliminate toString conversion
-    // See https://github.com/finagle/finch/issues/511
-    // SprayJson can parse from byte[] if it represents a UTF-8 string.
-    Decode.json((b, cs) => Try(BufText.extract(b, cs).parseJson.convertTo[A]))
+    Decode.json { (b, cs) =>
+      cs match {
+        case StandardCharsets.UTF_8 =>
+          val buf = ChannelBufferBuf.Owned.extract(b)
+          if (buf.hasArray) Try(JsonParser(extractBytesFromArrayBackedBuf(buf)).convertTo[A])
+          else Try(JsonParser(buf.toString(cs)).convertTo[A])
+        case _ => Try(BufText.extract(b, cs).parseJson.convertTo[A])
+      }
+    }
 
   /**
     * @param format spray-json support for convert JSON val to specific type object
