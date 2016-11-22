@@ -5,7 +5,7 @@ import java.nio.charset.Charset
 import cats.Show
 import com.twitter.concurrent.AsyncStream
 import com.twitter.io.Buf
-import io.finch.{Encode, Ok, Output, Text}
+import io.finch.{Encode, Text}
 import io.finch.internal.{BufText, ToResponse}
 
 case class ServerSentEvent[A](
@@ -20,7 +20,7 @@ object ServerSentEvent {
   implicit def sseAsyncToResponse[A](implicit
      e: Encode.Aux[A, Text.EventStream]
   ): ToResponse.Aux[AsyncStream[A], Text.EventStream] =
-    ToResponse.asyncResponseBuilder((a, cs) => e(a, cs).concat(Buf.Utf8("\n")))
+    ToResponse.asyncResponseBuilder((a, cs) => e(a, cs).concat(ToResponse.NewLine))
 
   implicit def encodeEventStream[A](implicit s: Show[A]): Encode.Aux[ServerSentEvent[A], Text.EventStream] = {
     Encode.instance[ServerSentEvent[A], Text.EventStream]({ (event: ServerSentEvent[A], c: Charset) =>

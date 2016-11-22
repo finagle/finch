@@ -1,8 +1,8 @@
 package io.finch
 
-import com.twitter.finagle.netty3.ChannelBufferBuf
 import com.twitter.util.Try
-import io.finch.internal.{extractBytesFromArrayBackedBuf, BufText}
+import io.finch.internal.{BufText, HttpContent, Utf32}
+import java.nio.charset.StandardCharsets
 import play.api.libs.json._
 
 package object playjson {
@@ -12,10 +12,11 @@ package object playjson {
    * @tparam A the type of the data to decode into
    */
   implicit def decodePlayJson[A](implicit reads: Reads[A]): Decode.Json[A] =
-    Decode.json { (b, cs) =>
-      val buf = ChannelBufferBuf.Owned.extract(b)
-      if (buf.hasArray) Try(Json.parse(extractBytesFromArrayBackedBuf(buf)).as[A])
-      else Try(Json.parse(buf.toString(cs)).as[A])
+    Decode.json {
+      case (buf, StandardCharsets.UTF_8 | StandardCharsets.UTF_16 | Utf32) =>
+        Try(Json.parse(buf.asByteArray).as[A])
+      case (buf, cs) =>
+        Try(Json.parse(BufText.extract(buf, cs)).as[A])
     }
 
   /**
