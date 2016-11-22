@@ -4,7 +4,7 @@ import java.nio.charset.Charset
 import java.util.UUID
 
 import com.twitter.io.Buf
-import io.finch.internal.BufText
+import io.finch.internal.{BufText, JsonUtils}
 
 class EncodeSpec extends FinchSpec {
 
@@ -33,7 +33,7 @@ class EncodeSpec extends FinchSpec {
       val json = Encode[Exception, Application.Json].apply(e, cs)
       val text = Encode[Exception, Text.Plain].apply(e, cs)
 
-      json === BufText(s"""{"message":"$s"}""", cs) && text === BufText(s, cs)
+      json === BufText(s"""{"message":"${JsonUtils.escape(s)}"}""", cs) && text === BufText(s, cs)
     }
   }
 }
