@@ -12,7 +12,7 @@ package object sprayjson {
     * @param format spray-json support for convert JSON val to specific type object
     * @tparam A the type of the data to decode into
     */
-  implicit def decodeSpray[A](implicit format: JsonFormat[A]): Decode.Json[A] =
+  implicit def decodeSpray[A](implicit format: JsonReader[A]): Decode.Json[A] =
     Decode.json { (b, cs) =>
       cs match {
         case StandardCharsets.UTF_8 =>
@@ -27,6 +27,10 @@ package object sprayjson {
     * @param format spray-json support for convert JSON val to specific type object
     * @tparam A the type of the data to decode from
     */
-  implicit def encodeSpray[A](implicit format: JsonFormat[A]): Encode.Json[A] =
+  implicit def encodeSpray[A](implicit format: JsonWriter[A]): Encode.Json[A] =
     Encode.json((a, cs) => BufText(a.toJson.prettyPrint, cs))
+
+  implicit def encodeExceptionSpray[A <: Exception]: JsonWriter[A] = new JsonWriter[A] {
+    override def write(e: A): JsValue = JsObject("message" -> JsString(e.getMessage))
+  }
 }
