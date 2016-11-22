@@ -448,11 +448,13 @@ object Endpoint {
   }
 
   implicit class BufEndpointOps(self: Endpoint[Buf]) {
-    def as[A](implicit d: Decode.Json[A]): Endpoint[A] = new Endpoint[A] {
+    def as[A](implicit d: Decode.Json[A], tag: ClassTag[A]): Endpoint[A] = new Endpoint[A] {
       // TODO: Will be better with StateT
       // See https://github.com/finagle/finch/pull/559
       def apply(input: Input): Endpoint.Result[A] =
-        self.mapAsync(value => Future.const(d(value, input.request.charsetOrUtf8))).apply(input)
+        self.mapAsync(value =>
+          Future.const(d(value, input.request.charsetOrUtf8).rescue(notParsed[A](self, tag)))
+        ).apply(input)
     }
   }
 
@@ -560,12 +562,15 @@ object Endpoint {
   }
 
   implicit class BufOptionEndpointOps(self: Endpoint[Option[Buf]]) {
-    def as[A](implicit d: Decode.Json[A]): Endpoint[Option[A]] = new Endpoint[Option[A]] {
+    def as[A](implicit d: Decode.Json[A], tag: ClassTag[A]): Endpoint[Option[A]] = new Endpoint[Option[A]] {
       // TODO: Will be better with StateT
       // See https://github.com/finagle/finch/pull/559
       def apply(input: Input): Endpoint.Result[Option[A]] = {
         val underlying = self.mapAsync {
-          case Some(value) => Future.const(d(value, input.request.charsetOrUtf8)).map(Some.apply)
+          case Some(value) =>
+            Future.const(
+              d(value, input.request.charsetOrUtf8).rescue(notParsed[A](self, tag))
+            ).map(Some.apply)
           case None => Future.None
         }
 
