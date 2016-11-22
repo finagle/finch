@@ -11,10 +11,10 @@ lazy val finagleVersion = "6.35.0"
 lazy val utilVersion = "6.34.0"
 lazy val twitterServerVersion = "1.20.0"
 lazy val finagleOAuth2Version = "0.1.7"
-lazy val circeVersion = "0.6.0"
+lazy val circeVersion = "0.6.1"
 lazy val catbirdVersion = "0.8.0"
 lazy val shapelessVersion = "2.3.2"
-lazy val catsVersion = "0.8.0"
+lazy val catsVersion = "0.8.1"
 lazy val sprayVersion = "1.3.2"
 
 lazy val compilerOptions = Seq(
