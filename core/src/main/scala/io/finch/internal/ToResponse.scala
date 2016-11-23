@@ -52,17 +52,17 @@ trait LowPriorityToResponseInstances {
     rep
   }
 
-  private[this] val newLine: Buf = Buf.Utf8("\n")
+  private[finch] val NewLine: Buf = Buf.Utf8("\n")
 
   implicit def jsonAsyncStreamToResponse[A](implicit
     e: Encode.Json[A]
   ): Aux[AsyncStream[A], Application.Json] =
-    asyncResponseBuilder((a, cs) => e(a, cs).concat(newLine))
+    asyncResponseBuilder((a, cs) => e(a, cs).concat(NewLine))
 
   implicit def textAsyncStreamToResponse[A](implicit
     e: Encode.Text[A]
   ): Aux[AsyncStream[A], Text.Plain] =
-    asyncResponseBuilder((a, cs) => e(a, cs).concat(newLine))
+    asyncResponseBuilder((a, cs) => e(a, cs).concat(NewLine))
 }
 
 trait HighPriorityToResponseInstances extends LowPriorityToResponseInstances {

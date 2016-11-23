@@ -1,10 +1,10 @@
 package io.finch
 
 import com.twitter.finagle.http.Message
+import com.twitter.finagle.netty3.ChannelBufferBuf
 import com.twitter.io.{Buf, Charsets}
-import java.nio.CharBuffer
+import java.nio.{ByteBuffer, CharBuffer}
 import java.nio.charset.{Charset, StandardCharsets}
-import org.jboss.netty.buffer.ChannelBuffer
 
 /**
  * This package contains an internal-use only type-classes and utilities that power Finch's API.
@@ -16,6 +16,9 @@ package object internal {
 
   @inline private[this] final val someTrue: Option[Boolean] = Some(true)
   @inline private[this] final val someFalse: Option[Boolean] = Some(false)
+
+  // Missing in StandardCharsets.
+  val Utf32: Charset = Charset.forName("UTF-32")
 
   // adopted from Java's Long.parseLong
   // scalastyle:off return
@@ -60,23 +63,6 @@ package object internal {
     Some(if (negative) result else -result)
   }
   // scalastyle:on return
-
-  /** Extract a byte array from a ChannelBuffer that is backed by an array.
-    * Precondition: buf.hasArray == true
-    *
-    * @param buf The ChannelBuffer to extract the array from
-    * @return An array of bytes
-    */
-  def extractBytesFromArrayBackedBuf(buf: ChannelBuffer): Array[Byte] = {
-    val rawArray = buf.array
-    val size = buf.readableBytes()
-    if (rawArray.length == size) rawArray
-    else {
-      val dst = new Array[Byte](size)
-      System.arraycopy(buf.array(), 0, dst, 0, size)
-      dst
-    }
-  }
 
   /**
    * Enriches any string with fast `tooX` conversions.
@@ -129,6 +115,34 @@ package object internal {
     def charsetOrUtf8: Charset = self.charset match {
       case Some(cs) => Charset.forName(cs)
       case None => StandardCharsets.UTF_8
+    }
+  }
+
+  implicit class HttpContent(val self: Buf) extends AnyVal {
+    // Returns content as ByteBuffer (tries to avoid copying).
+    def asByteBuffer: ByteBuffer = self match {
+      case ChannelBufferBuf.Owned(cb) => cb.toByteBuffer
+      case buf => Buf.ByteBuffer.Owned.extract(buf)
+    }
+
+    // Returns content as ByteArray (tries to avoid copying).
+    def asByteArrayWithOffsetAndLength: (Array[Byte], Int, Int) = self match {
+      case ChannelBufferBuf.Owned(cb) if cb.hasArray =>
+        (cb.array(), cb.readerIndex(), cb.readableBytes())
+      case buf =>
+        val array = Buf.ByteArray.Owned.extract(buf)
+
+        (array, 0, array.length)
+    }
+
+    // Returns content as ByteArray (tries to avoid copying).
+    def asByteArray: Array[Byte] = asByteArrayWithOffsetAndLength match {
+      case (array, offset, length) if offset == 0 && length == array.length => array
+      case (array, offset, length) =>
+        val result = new Array[Byte](length)
+        System.arraycopy(array, offset, result, 0, length)
+
+        result
     }
   }
 }
