@@ -15,4 +15,5 @@ class JacksonSpec extends FlatSpec with Matchers with Checkers with JsonCodecPro
   it should "properly fail to decode invalid JSON into a case class" in failToDecodeInvalidJson
   it should "encode a list of case class instances as JSON" in encodeCaseClassList
   it should "provide encoders with the correct content type" in checkContentType
+  it should "encode an exception" in encodeException
 }

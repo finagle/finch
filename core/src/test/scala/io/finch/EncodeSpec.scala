@@ -30,10 +30,9 @@ class EncodeSpec extends FinchSpec {
     check { (s: String, cs: Charset) =>
       val e = new Exception(s)
 
-      val json = Encode[Exception, Application.Json].apply(e, cs)
       val text = Encode[Exception, Text.Plain].apply(e, cs)
 
-      json === BufText(s"""{"message":"$s"}""", cs) && text === BufText(s, cs)
+      text === BufText(s, cs)
     }
   }
 }

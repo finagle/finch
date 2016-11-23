@@ -17,4 +17,5 @@ class sprayjsonSpec extends FlatSpec with Matchers with Checkers with JsonCodecP
   it should "encode a list of case class instances as JSON" in encodeCaseClassList
   it should "decode a list of case class instances from JSON" in decodeCaseClassList
   it should "provide encoders with the correct content type" in checkContentType
+  it should "encode an exception" in encodeException
 }

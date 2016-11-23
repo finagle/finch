@@ -40,6 +40,10 @@ class InputSpec extends FinchSpec {
   }
 
   it should "add content corresponding to a class through withBody[JSON]" in {
+    implicit val encodeException: Encode.Json[Exception] = Encode.json(
+      (a, cc) => BufText(s"""{"message":"${a.getMessage}"}""", cc)
+    )
+
     check { (i: Input, s: String, cs: Charset) =>
       val input = i.withBody[Application.Json](new Exception(s), Some(cs))
 

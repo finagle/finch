@@ -24,4 +24,8 @@ package object playjson {
    */
   implicit def encodePlayJson[A](implicit writes: Writes[A]): Encode.Json[A] =
     Encode.json((a, cs) => BufText(Json.stringify(Json.toJson(a)), cs))
+
+  implicit val encodeExceptionPlayJson: Writes[Exception] = new Writes[Exception] {
+    override def writes(e: Exception): JsValue = Json.obj("message" -> e.getMessage)
+  }
 }

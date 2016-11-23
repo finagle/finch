@@ -1,7 +1,7 @@
 package io.finch.test.json
 
-import argonaut.{CodecJson, DecodeJson, EncodeJson, Parse}
-import argonaut.Argonaut.{casecodec3, casecodec5}
+import argonaut.{CodecJson, DecodeJson, EncodeJson, Json, Parse}
+import argonaut.Argonaut.{casecodec3, casecodec5, jString}
 import com.twitter.io.Buf
 import com.twitter.io.Buf.Utf8
 import com.twitter.util.Return
@@ -23,6 +23,7 @@ case class ExampleNestedCaseClass(
   ints: List[Int],
   example: ExampleCaseClass
 )
+class ExampleException(m: String) extends Exception(m)
 
 object ExampleCaseClass {
   implicit val exampleCaseClassArbitrary: Arbitrary[ExampleCaseClass] = Arbitrary(
@@ -43,6 +44,12 @@ object ExampleNestedCaseClass {
       i <- arbitrary[List[Int]]
       e <- arbitrary[ExampleCaseClass]
     } yield ExampleNestedCaseClass(s, d, l, i, e)
+  )
+}
+
+object ExampleException {
+  implicit val exampleExceptionArbitrary: Arbitrary[ExampleException] = Arbitrary(
+    Gen.alphaStr.map(s => new ExampleException(s))
   )
 }
 
@@ -108,6 +115,16 @@ trait JsonCodecProviderProperties { self: Matchers with Checkers =>
    * Confirm that this encoder has the correct content type.
    */
   def checkContentType(implicit ee: Encode.Json[ExampleNestedCaseClass]): Unit = ()
+
+  /**
+    * Confirm that this encoder can encode exceptions.
+    */
+  def encodeException(implicit ee: Encode.Json[Exception]): Unit = {
+    check { e: ExampleException =>
+      val jsonString = BufText.extract(ee(e, StandardCharsets.UTF_8), StandardCharsets.UTF_8)
+      Parse.parseOption(jsonString) === Some(Json("message" -> jString(e.getMessage)))
+    }
+  }
 }
 
 /**

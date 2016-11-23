@@ -18,4 +18,11 @@ package object jackson {
 
   implicit def encodeJackson[A](implicit mapper: ObjectMapper): Encode.Json[A] =
     Encode.json((a, cs) => BufText(mapper.writeValueAsString(a), cs))
+
+  implicit def encodeExceptionJackson[A <: Exception](implicit mapper: ObjectMapper): Encode.Json[A] =
+    Encode.json((a, cs) => {
+      val rootNode = mapper.createObjectNode()
+      rootNode.put("message", a.getMessage)
+      BufText(mapper.writeValueAsString(rootNode), cs)
+    })
 }
