@@ -1,5 +1,6 @@
 package io.finch
 
+
 import scala.compat.Platform.EOL
 import scala.reflect.ClassTag
 
@@ -14,7 +15,7 @@ class ErrorSpec extends FinchSpec {
   behavior of "Error"
 
   it should "construct Error messages for all RequestErrors" in {
-    check { (t: NonEmptyList[Throwable]) =>
+    check { (t: NonEmptyList[Error]) =>
       val sut = Multiple(t)
       val accResult = t.foldLeft("")((acc, b) => acc + EOL + "  " + Try(b.getMessage).getOrElse("Input was null"))
       sut.getMessage.contains(accResult)
@@ -66,20 +67,44 @@ class ErrorSpec extends FinchSpec {
   }
 
   it should "construct an Error message for a Multiple with multiple Throwables" in {
-    val sut = Multiple(NonEmptyList.of(new Throwable("My Throwable"), Error("My Error")))
+    val sut = Multiple(NonEmptyList.of(Error("My Custom Error"), Error("My Error")))
     sut.getMessage shouldBe
       """One or more errors reading request:
-        |  My Throwable
+        |  My Custom Error
         |  My Error""".stripMargin
   }
 
   it should "unapply existing RequestErrors matches" in {
     val t = new Throwable("My Throwable")
-    val result = t match {
-      case Error.RequestErrors(errors) => errors
-      case rest => fail()
+    val ex = new Exception("My Exception")
+    val e = Multiple(NonEmptyList.of(Error("a"), Error("b")))
+
+    Error.RequestErrors.unapply(e) shouldBe Some(Seq(Error("a"), Error("b")))
+    Error.RequestErrors.unapply(t) shouldBe None
+    Error.RequestErrors.unapply(ex) shouldBe None
+  }
+
+  it should "equal anonymous Error classes with the same message" in {
+    val error = Error("message")
+    val sameerror = Error("message")
+    val differenterror = Error("other message")
+    error.equals(error) shouldBe true
+    error.equals(sameerror) shouldBe true
+    error.equals(differenterror) shouldBe false
+  }
+
+  it should "not equal other throwables" in {
+    val error = Error("message")
+    val ex = new Exception("message")
+
+    error.equals(ex) shouldBe false
+  }
+
+  it should "have hashcode implemented correctly" in {
+    check { (e: Error, ee: Error) =>
+      val coll = collection.mutable.HashSet(e)
+      coll.contains(e) && !coll.contains(ee)
     }
-    result shouldBe Seq(t)
   }
 
 }

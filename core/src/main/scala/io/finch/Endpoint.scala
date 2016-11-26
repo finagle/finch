@@ -164,9 +164,11 @@ trait Endpoint[A] { self =>
       }
 
     private[this] def collectExceptions(a: Throwable, b: Throwable): Error.Multiple = {
-      def collect(e: Throwable): NonEmptyList[Throwable] = e match {
+      def collect(e: Throwable): NonEmptyList[Error] = e match {
         case Error.Multiple(errors) => errors
-        case rest => NonEmptyList.of(rest)
+        case rest => NonEmptyList.of(
+          Error(Try(rest.getMessage).getOrElse("Exception message was null"))
+        )
       }
 
       Error.Multiple(collect(a).concat(collect(b)))

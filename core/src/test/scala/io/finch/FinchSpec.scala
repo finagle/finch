@@ -42,6 +42,8 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
 
   def genNonEmptyString: Gen[String] = Gen.nonEmptyListOf(Gen.alphaChar).map(_.mkString)
 
+  def genError: Gen[Error] = Gen.alphaStr.map(Error(_))
+
   def genNonEmptyTuple: Gen[(String, String)] = for {
     key <- genNonEmptyString
     value <- genNonEmptyString
@@ -237,4 +239,5 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
 
   implicit def arbitraryOutput[A: Arbitrary]: Arbitrary[Output[A]] = Arbitrary(genOutput[A])
 
+  implicit def arbitraryError: Arbitrary[Error] = Arbitrary(genError)
 }
