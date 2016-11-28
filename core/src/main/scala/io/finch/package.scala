@@ -34,6 +34,8 @@ package object finch extends Endpoints with Outputs with ValidationRules {
     type OctetStream = Witness.`"application/octet-stream"`.T
     type RssXml = Witness.`"application/rss+xml"`.T
     type WwwFormUrlencoded = Witness.`"application/x-www-form-urlencoded"`.T
+    type ThriftBinary = Witness.`"application/vnd.apache.thrift.binary"`.T
+    type ThriftCompact = Witness.`"application/vnd.apache.thrift.compact"`.T
   }
 
   object Text {
