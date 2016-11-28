@@ -67,7 +67,7 @@ class OutputSpec extends FinchSpec {
   it should "propagate cause to response" in {
     check { of: Output.Failure =>
       (of: Output[Unit]).toResponse[Text.Plain]().content ===
-        Encode.encodeExceptionAsTextPlain(of.cause, of.charset.getOrElse(Charsets.Utf8))
+        Encode[Exception, Text.Plain].apply(of.cause, of.charset.getOrElse(Charsets.Utf8))
     }
   }
 
@@ -80,7 +80,7 @@ class OutputSpec extends FinchSpec {
   it should "propagate payload to response" in {
     check { op: Output.Payload[String] =>
       op.toResponse[Text.Plain]().content ===
-        Encode.encodeString(op.value, op.charset.getOrElse(Charsets.Utf8))
+        Encode[String, Text.Plain].apply(op.value, op.charset.getOrElse(Charsets.Utf8))
     }
   }
 }

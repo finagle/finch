@@ -36,11 +36,4 @@ object ServerSentEvent {
     val restBuf = BufText(eventType + id + retry, cs)
     dataBuf.concat(restBuf)
   }
-
-  /** By default Finch encodes an exception as a Comment */
-  implicit val encodeSseException: Encode.Aux[Exception, Text.EventStream] = {
-    Encode.instance[Exception, Text.EventStream]({ (e: Exception, c: Charset) =>
-      BufText(s":${Option(e.getMessage).getOrElse("Unknown Error")}\n", c)
-    })
-  }
 }
