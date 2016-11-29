@@ -1,13 +1,13 @@
 package io.finch
 
-import java.nio.charset.Charset
+import java.nio.charset.{Charset, StandardCharsets}
 import java.util.UUID
 
 import cats.Alternative
 import cats.Eq
 import cats.instances.AllInstances
 import com.twitter.finagle.http._
-import com.twitter.io.{Buf, Charsets}
+import com.twitter.io.Buf
 import com.twitter.util.{Await, Future, Try}
 import io.catbird.util.Rerunnable
 import io.finch.Endpoint.Result
@@ -81,8 +81,8 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
   )
 
   def genCharset: Gen[Charset] = Gen.oneOf(
-    Charsets.UsAscii, Charsets.Utf8, Charsets.Utf16BE,
-    Charsets.Utf16, Charsets.Iso8859_1, Charsets.Utf16LE
+    StandardCharsets.ISO_8859_1, StandardCharsets.US_ASCII, StandardCharsets.UTF_8,
+    StandardCharsets.UTF_16, StandardCharsets.UTF_16BE, StandardCharsets.UTF_16LE
   )
 
   def genOutputMeta: Gen[Output.Meta] =

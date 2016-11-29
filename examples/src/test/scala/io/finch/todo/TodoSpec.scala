@@ -1,12 +1,12 @@
 package io.finch.todo
 
-import java.util.UUID
-
 import com.twitter.finagle.http.Status
-import com.twitter.io.{Buf, Charsets}
+import com.twitter.io.Buf
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
+import java.nio.charset.StandardCharsets
+import java.util.UUID
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers
@@ -29,7 +29,7 @@ class TodoSpec extends FlatSpec with Matchers with Checkers {
   it should "create a todo" in {
     check { (todoWithoutId: TodoWithoutId) =>
       val input = Input.post("/todos")
-        .withBody[Application.Json](todoWithoutId, Some(Charsets.Utf8))
+        .withBody[Application.Json](todoWithoutId, Some(StandardCharsets.UTF_8))
 
       val res = postTodo(input)
       res.output.map(_.status) === Some(Status.Created)
@@ -47,7 +47,7 @@ class TodoSpec extends FlatSpec with Matchers with Checkers {
   it should "modify an existing todo if its id has been found" in {
     val todo = createTodo()
     val input = Input.patch(s"/todos/${todo.id}")
-      .withBody[Application.Json](Buf.Utf8("{\"completed\": true}"), Some(Charsets.Utf8))
+      .withBody[Application.Json](Buf.Utf8("{\"completed\": true}"), Some(StandardCharsets.UTF_8))
 
     patchTodo(input).value shouldBe Some(todo.copy(completed = true))
     Todo.get(todo.id) shouldBe Some(todo.copy(completed = true))
@@ -57,7 +57,7 @@ class TodoSpec extends FlatSpec with Matchers with Checkers {
     Todo.get(id) shouldBe None
 
     val input = Input.patch(s"/todos/$id")
-      .withBody[Application.Json](Buf.Utf8("{\"completed\": true}"), Some(Charsets.Utf8))
+      .withBody[Application.Json](Buf.Utf8("{\"completed\": true}"), Some(StandardCharsets.UTF_8))
 
     a[TodoNotFound] shouldBe thrownBy(patchTodo(input).value)
   }
@@ -65,7 +65,7 @@ class TodoSpec extends FlatSpec with Matchers with Checkers {
   it should "give back the same todo with non-related json" in {
     val todo = createTodo()
     val input = Input.patch(s"/todos/${todo.id}")
-      .withBody[Application.Json](Buf.Utf8("{\"bla\": true}"), Some(Charsets.Utf8))
+      .withBody[Application.Json](Buf.Utf8("{\"bla\": true}"), Some(StandardCharsets.UTF_8))
 
     patchTodo(input).value shouldBe Some(todo)
     Todo.get(todo.id) shouldBe Some(todo)

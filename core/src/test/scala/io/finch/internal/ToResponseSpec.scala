@@ -2,9 +2,9 @@ package io.finch.internal
 
 import com.twitter.concurrent.AsyncStream
 import com.twitter.io.Buf
-import com.twitter.io.Charsets
 import com.twitter.util.Await
 import io.finch.FinchSpec
+import java.nio.charset.StandardCharsets
 
 class ToResponseSpec extends FinchSpec {
   "ToResponse" should "pick correct instance for AsyncStream[Buf]" in {
@@ -14,7 +14,7 @@ class ToResponseSpec extends FinchSpec {
 
     check { (chunks: List[Buf]) =>
       val in = AsyncStream.fromSeq(chunks)
-      val out = AsyncStream.fromReader(tr(in, Charsets.Utf8).reader)
+      val out = AsyncStream.fromReader(tr(in, StandardCharsets.UTF_8).reader)
       Await.result(in.toSeq) === Await.result(out.toSeq)
     }
   }
