@@ -1,11 +1,10 @@
 package io.finch
 
-import java.nio.charset.Charset
-
 import cats.Eq
 import com.twitter.finagle.http.{Method, Request}
 import com.twitter.finagle.netty3.ChannelBufferBuf
-import com.twitter.io.{Charsets, ConcatBuf}
+import com.twitter.io.ConcatBuf
+import java.nio.charset.{Charset, StandardCharsets}
 import org.jboss.netty.handler.codec.http.{DefaultHttpRequest, HttpMethod, HttpVersion}
 import org.jboss.netty.handler.codec.http.multipart.{DefaultHttpDataFactory, HttpPostRequestEncoder}
 import shapeless.Witness
@@ -68,7 +67,7 @@ final case class Input(request: Request, path: Seq[String]) {
       )
     } else ChannelBufferBuf.Owned(req.getContent)
 
-    withBody[Application.WwwFormUrlencoded](content, Some(Charsets.Utf8))
+    withBody[Application.WwwFormUrlencoded](content, Some(StandardCharsets.UTF_8))
   }
 }
 
@@ -84,7 +83,7 @@ object Input {
     def apply[A](body: A, charset: Option[Charset] = None)(implicit
       e: Encode.Aux[A, CT], w: Witness.Aux[CT]
     ): Input = {
-      val content = e(body, charset.getOrElse(Charsets.Utf8))
+      val content = e(body, charset.getOrElse(StandardCharsets.UTF_8))
 
       i.request.content = content
       i.request.contentType = w.value

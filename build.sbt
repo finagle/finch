@@ -3,19 +3,20 @@ import sbtunidoc.Plugin.UnidocKeys._
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   version := "0.11.0-SNAPSHOT",
-  scalaVersion := "2.11.8",
-  crossScalaVersions := Seq("2.10.6", "2.11.8")
+  scalaVersion := "2.11.8"
 )
 
-lazy val finagleVersion = "6.35.0"
-lazy val utilVersion = "6.34.0"
-lazy val twitterServerVersion = "1.20.0"
-lazy val finagleOAuth2Version = "0.1.7"
+lazy val finagleVersion = "6.40.0"
+lazy val utilVersion = "6.39.0"
+lazy val twitterServerVersion = "1.25.0"
+lazy val finagleOAuth2Version = "0.2.0"
 lazy val circeVersion = "0.6.1"
-lazy val catbirdVersion = "0.8.0"
+lazy val catbirdVersion = "0.9.0"
 lazy val shapelessVersion = "2.3.2"
 lazy val catsVersion = "0.8.1"
 lazy val sprayVersion = "1.3.2"
+lazy val playVersion = "2.3.10"
+lazy val jacksonVersion = "2.5.3"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -36,7 +37,7 @@ val testDependencies = Seq(
   "org.scalacheck" %% "scalacheck" % "1.13.3",
   "org.scalatest" %% "scalatest" % "3.0.0",
   "org.typelevel" %% "cats-laws" % catsVersion,
-  "org.typelevel" %% "discipline" % "0.7.1"
+  "org.typelevel" %% "discipline" % "0.7.2"
 )
 
 val baseSettings = Seq(
@@ -45,19 +46,13 @@ val baseSettings = Seq(
     "org.typelevel" %% "cats-core" % catsVersion,
     "com.twitter" %% "finagle-http" % finagleVersion,
     "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-    "io.catbird" %% "catbird-util634" % catbirdVersion,
-    compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+    "io.catbird" %% "catbird-util" % catbirdVersion
   ) ++ testDependencies.map(_ % "test"),
   resolvers ++= Seq(
     Resolver.sonatypeRepo("releases"),
     Resolver.sonatypeRepo("snapshots")
   ),
-  scalacOptions ++= compilerOptions ++ (
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 11)) => Seq("-Ywarn-unused-import")
-      case _ => Seq.empty
-    }
-  ),
+  scalacOptions ++= compilerOptions ++ Seq("-Ywarn-unused-import"),
   scalacOptions in (Compile, console) ~= (_ filterNot (_ == "-Ywarn-unused-import")),
   scalacOptions in (Compile, console) += "-Yrepl-class-based"
 )
@@ -139,7 +134,8 @@ lazy val finch = project.in(file("."))
     "io.spray" %%  "spray-json" % sprayVersion
   ))
   .aggregate(
-    core, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest, oauth2, examples, sse
+    core, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest, oauth2,
+    examples, sse
   )
   .dependsOn(core, circe)
 
@@ -177,7 +173,9 @@ lazy val argonaut = project
 lazy val jackson = project
   .settings(moduleName := "finch-jackson")
   .settings(allSettings)
-  .settings(libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.5.3")
+  .settings(
+    libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion
+  )
   .dependsOn(core, jsonTest % "test")
 
 lazy val json4s = project
@@ -205,7 +203,7 @@ lazy val circe = project
 lazy val playjson = project
   .settings(moduleName :="finch-playjson")
   .settings(allSettings)
-  .settings(libraryDependencies += "com.typesafe.play" %% "play-json" % "2.3.10")
+  .settings(libraryDependencies += "com.typesafe.play" %% "play-json" % playVersion)
   .dependsOn(core, jsonTest % "test")
 
 lazy val sprayjson = project

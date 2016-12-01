@@ -1,11 +1,10 @@
 package io.finch.sse
 
-import java.nio.charset.Charset
-
 import cats.Show
 import com.twitter.concurrent.AsyncStream
-import com.twitter.io.{Charsets, ConcatBuf}
+import com.twitter.io.ConcatBuf
 import io.finch.internal.BufText
+import java.nio.charset.{Charset, StandardCharsets}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Gen.Choose
 import org.scalacheck.Prop.BooleanOperators
@@ -13,9 +12,17 @@ import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers
 
 class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
+
   behavior of "ServerSentEvent"
 
   import ServerSentEvent._
+
+  def genCharset: Gen[Charset] = Gen.oneOf(
+    StandardCharsets.ISO_8859_1, StandardCharsets.US_ASCII, StandardCharsets.UTF_8,
+    StandardCharsets.UTF_16, StandardCharsets.UTF_16BE, StandardCharsets.UTF_16LE
+  )
+
+  implicit def arbitraryCharset: Arbitrary[Charset] = Arbitrary(genCharset)
 
   def dataOnlySse: Gen[ServerSentEvent[String]] = for {
     data  <- Gen.alphaStr
@@ -40,14 +47,9 @@ class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
     strs <- Gen.nonEmptyListOf(dataOnlySse)
   } yield AsyncStream.fromSeq(strs)
 
-  def genCharset: Gen[Charset] = Gen.oneOf(
-    Charsets.UsAscii, Charsets.Utf8, Charsets.Utf16BE,
-    Charsets.Utf16, Charsets.Iso8859_1, Charsets.Utf16LE
-  )
 
-  implicit def arbitrarySse: Arbitrary[AsyncStream[ServerSentEvent[String]]] = Arbitrary(streamDataOnlyGenerator)
-
-  implicit def arbitraryCharset: Arbitrary[Charset] = Arbitrary(genCharset)
+  implicit def arbitrarySse: Arbitrary[AsyncStream[ServerSentEvent[String]]] =
+    Arbitrary(streamDataOnlyGenerator)
 
   val encoder = encodeEventStream[String](Show.fromToString)
 

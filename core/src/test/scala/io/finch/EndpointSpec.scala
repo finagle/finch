@@ -1,6 +1,7 @@
 package io.finch
 
 import java.util.UUID
+import scala.reflect.ClassTag
 
 import cats.Applicative
 import cats.laws.discipline.AlternativeTests
@@ -8,7 +9,6 @@ import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.io.Buf
 import com.twitter.util.{Future, Throw, Try}
 import io.finch.items.BodyItem
-import scala.reflect.ClassTag
 
 class EndpointSpec extends FinchSpec {
   checkAll("Endpoint[String]", AlternativeTests[Endpoint].applicative[String, String, String])

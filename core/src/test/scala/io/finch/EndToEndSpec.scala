@@ -1,9 +1,9 @@
 package io.finch
 
-import cats.Show
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response, Status}
-import com.twitter.util.{Await, Return}
+import com.twitter.util.Await
+import io.finch.data.Foo
 import io.finch.internal.BufText
 
 class EndToEndSpec extends FinchSpec {
@@ -11,14 +11,6 @@ class EndToEndSpec extends FinchSpec {
   behavior of "Finch"
 
   it should "convert coproduct Endpoints into Services" in {
-    case class Foo(s: String)
-    object Foo {
-      implicit val showFoo: Show[Foo] = Show.show(_.s)
-    }
-
-    implicit val decodeFoo: DecodeEntity[Foo] =
-      DecodeEntity.instance(s => Return(Foo(s)))
-
     implicit val encodeException: Encode.Text[Exception] =
       Encode.text((_, cs) => BufText("ERR!", cs))
 

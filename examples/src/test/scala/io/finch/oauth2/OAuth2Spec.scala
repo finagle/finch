@@ -20,7 +20,7 @@ class OAuth2Spec extends FlatSpec with Matchers {
   it should "give an access token with the client credentials grant type" in {
     val input = Input.post("/users/auth")
       .withForm("grant_type" -> "client_credentials")
-      .withHeaders("Authorization" -> "OAuth dXNlcl9pZDp1c2VyX3NlY3JldA==")
+      .withHeaders("Authorization" -> "Basic dXNlcl9pZDp1c2VyX3NlY3JldA==")
     tokens(input).value.map(_.tokenType) shouldBe Some("Bearer")
   }
   it should "give an access token with the auth code grant type" in {
@@ -49,7 +49,7 @@ class OAuth2Spec extends FlatSpec with Matchers {
   it should "work if the access token is a valid one" in {
     val input = Input.post("/users/auth")
       .withForm("grant_type" -> "client_credentials")
-      .withHeaders("Authorization" -> "OAuth dXNlcl9pZDp1c2VyX3NlY3JldA==")
+      .withHeaders("Authorization" -> "Basic dXNlcl9pZDp1c2VyX3NlY3JldA==")
     val authdUser = tokens(input).value
       .map(_.accessToken)
       .flatMap(t =>  users(Input.get("/users/current").withForm("access_token" -> t)).value)
