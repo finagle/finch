@@ -1,5 +1,9 @@
 package io.finch
 
+import cats.{Eq, Show}
+import cats.instances.string._
+import cats.syntax.eq._
+
 import scala.reflect.ClassTag
 
 /**
@@ -13,6 +17,14 @@ object Error {
 
   def apply(message: String): Error = new Error {
     override def getMessage: String = message
+  }
+
+  implicit val eq: Eq[Error] = Eq.instance[Error] { (error1, error2) =>
+    error1.getMessage === error2.getMessage
+  }
+
+  implicit val valueShow: Show[Error] = Show.show[Error] { error =>
+    error.getMessage
   }
 
   /**
