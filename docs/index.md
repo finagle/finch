@@ -73,6 +73,7 @@ object Main extends App {
 
 ### Finch Talks
 
+* [Functional Microservices with Finch and Circe][ucon16] by [@davegurnell][davegurnell] in Nov 16
 * [Typed Services Using Finch][ylj16] by [@tomjadams][tomjadams] in Apr 2016
 * [Finch: Your REST API as a Monad][scalax] by [@vkostyukov][vkostyukov] in Dec 2015
 * [On the history of Finch][sfscala-vk] by [@vkostyukov][vkostyukov] in Apr 2015
@@ -89,10 +90,12 @@ object Main extends App {
 [finagle]: http://twitter.github.io/finagle/
 [circe]: https://github.com/travisbrown/circe
 [ylj16]: https://www.youtube.com/watch?v=xkZOyY9PG88
+[ucon16]: https://skillsmatter.com/skillscasts/9335-high-flying-free-and-easy-functional-microservices-with-finch
 [scalax]: https://skillsmatter.com/skillscasts/6876-finch-your-rest-api-as-a-monad
 [sfscala-vk]: https://www.youtube.com/watch?v=bbzRTxGDFhs
 [sfscala-tb]: https://www.youtube.com/watch?v=noCyZ6B__iE
 [vkostyukov]: https://twitter.com/vkostyukov
 [travisbrown]: https://twitter.com/travisbrown
 [tomjadams]: https://twitter.com/tomjadams
+[davegurnell]: https://twitter.com/davegurnell
 
