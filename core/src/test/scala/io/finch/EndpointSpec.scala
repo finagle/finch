@@ -4,10 +4,12 @@ import java.util.UUID
 import scala.reflect.ClassTag
 
 import cats.Applicative
+import cats.data.NonEmptyList
 import cats.laws.discipline.AlternativeTests
 import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.io.Buf
 import com.twitter.util.{Future, Throw, Try}
+import io.finch.Error.Multiple
 import io.finch.items.BodyItem
 
 class EndpointSpec extends FinchSpec {
@@ -301,5 +303,29 @@ class EndpointSpec extends FinchSpec {
     e1(b).remainder shouldBe Some(b.drop(2))
     e2(a).remainder shouldBe Some(a.drop(2))
     e2(b).remainder shouldBe Some(b.drop(2))
+  }
+
+  it should "support the as[A] method on Endpoint[Seq[String]]" in {
+    case class Foo(s: String)
+    val endpoint: Endpoint[Seq[Foo]] = params("testEndpoint").as[Foo]
+    endpoint(Input.get("/index", "testEndpoint" -> "a")).value shouldBe Some(Seq(Foo("a")))
+  }
+
+  it should "collect errors on Endpoint[Seq[String]] failure" in {
+    implicit val decoder = DecodeEntity.decodeUUID
+    val endpoint: Endpoint[Seq[UUID]] = params("testEndpoint").as[UUID]
+    an[Multiple] shouldBe thrownBy (endpoint(Input.get("/index", "testEndpoint" -> "a")).value)
+  }
+
+  it should "support the as[A] method on Endpoint[NonEmptyList[A]]" in {
+    case class Foo(s: String)
+    val endpoint: Endpoint[NonEmptyList[Foo]] = paramsNel("testEndpoint").as[Foo]
+    endpoint(Input.get("/index", "testEndpoint" -> "a")).value shouldBe Some(NonEmptyList.of(Foo("a")))
+  }
+
+  it should "collect errors on Endpoint[NonEmptyList[String]] failure" in {
+    implicit val decoder = DecodeEntity.decodeUUID
+    val endpoint: Endpoint[NonEmptyList[UUID]] = paramsNel("testEndpoint").as[UUID]
+    an[Multiple] shouldBe thrownBy (endpoint(Input.get("/index", "testEndpoint" -> "a")).value)
   }
 }

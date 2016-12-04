@@ -1,18 +1,42 @@
 package io.finch
 
+import scala.compat.Platform.EOL
 import scala.reflect.ClassTag
+
+import cats.data.NonEmptyList
+import io.finch.items.RequestItem
 
 /**
  * A basic error from a Finch application.
  */
-trait Error extends Exception
+trait Error extends Exception {
+  def canEqual(other: Any): Boolean = other.isInstanceOf[Error]
+
+  override def hashCode(): Int = (super.hashCode, getMessage).##
+
+  override def equals(other: Any): Boolean = other match {
+    case that: Error => that.canEqual(this) && that.getMessage == this.getMessage
+    case _ => false
+  }
+}
 
 object Error {
 
-  import items._
-
   def apply(message: String): Error = new Error {
     override def getMessage: String = message
+  }
+
+  object RequestErrors {
+    /**
+      * For backward compatibility we will supply an `unapply` method in the RequestErrors object.
+      * @param e the throwable to match
+      * @return The unwrapped throwable
+      */
+    @deprecated("Use Multiple instead", "0.11")
+    def unapply(e: Throwable): Option[Seq[Throwable]] = e match {
+      case Multiple(err) => Some(err.toList)
+      case _ => None
+    }
   }
 
   /**
@@ -20,9 +44,9 @@ object Error {
    *
    * @param errors the errors collected from various endpoints
    */
-  final case class RequestErrors(errors: Seq[Throwable]) extends Error {
+  final case class Multiple(errors: NonEmptyList[Error]) extends Error {
     override def getMessage: String =
-      "One or more errors reading request: " + errors.map(_.getMessage).mkString("\n  ","\n  ","")
+      "One or more errors reading request:" + errors.map(_.getMessage).toList.mkString(EOL + "  ", EOL + "  ","")
   }
 
   /**

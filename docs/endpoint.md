@@ -566,7 +566,7 @@ converted into very basic 500 responses that don't carry any payload.
 Finch itself throws exceptions extending `io.finch.Error` that are already handled as 400s (bad
 requests):
 
-- `io.finch.Error.RequestErrors` - when multiple errors occurred during the
+- `io.finch.Error.Multiple` - when multiple errors occurred during the
   endpoint evaluation they are _accumulated_ into this instance
 - `io.finch.Error.NotFound` - when a required request part/item (header, param, body, cookie) was
   missing

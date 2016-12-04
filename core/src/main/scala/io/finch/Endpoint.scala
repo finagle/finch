@@ -1,6 +1,9 @@
 package io.finch
 
-import cats.Alternative
+import java.nio.charset.Charset
+import scala.reflect.ClassTag
+
+import cats.{Alternative, Functor}
 import cats.data.NonEmptyList
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Cookie, Request, Response, Status}
@@ -8,8 +11,6 @@ import com.twitter.io.Buf
 import com.twitter.util.{Future, Return, Throw, Try}
 import io.catbird.util.Rerunnable
 import io.finch.internal._
-import java.nio.charset.Charset
-import scala.reflect.ClassTag
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.hlist.Tupler
@@ -162,13 +163,15 @@ trait Endpoint[A] { self =>
         case (_, Throw(e)) => Future.exception(e)
       }
 
-    private[this] def collectExceptions(a: Throwable, b: Throwable): Error.RequestErrors = {
-      def collect(e: Throwable): Seq[Throwable] = e match {
-        case Error.RequestErrors(errors) => errors
-        case rest => Seq(rest)
+    private[this] def collectExceptions(a: Throwable, b: Throwable): Error.Multiple = {
+      def collect(e: Throwable): NonEmptyList[Error] = e match {
+        case Error.Multiple(errors) => errors
+        case rest => NonEmptyList.of(
+          Error(Try(rest.getMessage).getOrElse("Exception message was null"))
+        )
       }
 
-      Error.RequestErrors(collect(a) ++ collect(b))
+      Error.Multiple(collect(a).concat(collect(b)))
     }
 
     def apply(input: Input): Endpoint.Result[(A, B)] =
@@ -505,16 +508,16 @@ object Endpoint {
           case Throw(e) => Error.NotParsed(self.item, tag, e)
         }
 
-        if (errors.isEmpty)
-          Future.const(Try.collect(decoded).map(seq => NonEmptyList(seq.head, seq.tail.toList)))
-        else
-          Future.exception(Error.RequestErrors(errors))
+        NonEmptyList.fromList(errors) match {
+          case None => Future.const(Try.collect(decoded).map(seq => NonEmptyList(seq.head, seq.tail.toList)))
+          case Some(err) => Future.exception(Error.Multiple(Functor[NonEmptyList].widen(err)))
+        }
       }
   }
 
   /**
     * Implicit conversion that allows to call `as[A]` on any `Endpoint[Seq[String]]` to perform a
-    * type conversion based on an implicit ``DecodeRequest[A]` which must be in scope.
+    * type conversion based on an implicit `DecodeRequest[A]` which must be in scope.
     *
     * The resulting endpoint will fail when the result is non-empty and type conversion fails on one
     * or more of the elements in the `Seq`. It will succeed if the result is empty or type conversion
@@ -539,8 +542,10 @@ object Endpoint {
           case Throw(e) => Error.NotParsed(self.item, tag, e)
         }
 
-        if (errors.isEmpty) Future.const(Try.collect(decoded))
-        else Future.exception(Error.RequestErrors(errors))
+        NonEmptyList.fromList(errors.toList) match {
+          case None => Future.const(Try.collect(decoded))
+          case Some(err) => Future.exception(Error.Multiple(Functor[NonEmptyList].widen(err)))
+        }
       }
   }
 

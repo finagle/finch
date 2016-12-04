@@ -3,7 +3,7 @@
 * [Fixing the `.toService` compile error](cookbook.md#fixing-the-toservice-compile-error)
 * [Serving multiple content types](cookbook.md#serving-multiple-content-types)
 * [Serving static content](cookbook.md#serving-static-content)
-* [Converting `Error.RequestErrors` into JSON](cookbook.md#converting-errorrequesterrors-into-json)
+* [Converting `Error.Multiple` into JSON](cookbook.md#converting-errormultiple-into-json)
 * [Defining endpoints returning empty responses](cookbook.md#defining-endpoints-returning-empty-responses)
 * [Defining redirecting endpoints](cookbook.md#defining-redirecting-endpoints)
 * [Defining custom endpoints](cookbook.md#defining-custom-endpoints)
@@ -192,10 +192,10 @@ Http.server
   .serve(":8081", file.toServiceAs[Text.Plain])
 ```
 
-### Converting `Error.RequestErrors` into JSON
+### Converting `Error.Multiple` into JSON
 
 For the sake of errors accumulating, Finch exceptions are encoded into a recursive ADT, where
-`Error.RequestErrors` wraps a `Seq[Error]`. Thus is might be tricky to write an encoder (i.e,
+`Error.Multiple` wraps a `cats.data.NonEmptyList[Error]`. Thus it might be tricky to write an encoder (i.e,
 `EncodeResponse[Exception]`) for this. Yet, this kind of problem shouldn't be a surprise for
 Scala programmers who deal with recursive ADTs and pattern matching on a daily basis.
 
@@ -206,23 +206,23 @@ array.
 With [Circe][circe] the complete implementation might look like the following.
 
 ```scala
+import io.circe.{Encoder, Json}
 import io.finch._
 import io.finch.circe._
-import io.circe.{Encoder, Json}
 
 def exceptionToJson(t: Throwable): Seq[Json] = t match {
   case Error.NotPresent(_) =>
-    Seq(Json.obj("error" -> Json.string("something_not_present")))
+    Seq(Json.obj("error" -> Json.fromString("something_not_present")))
   case Error.NotParsed(_, _, _) =>
-    Seq(Json.obj("error" -> Json.string("something_not_parsed")))
+    Seq(Json.obj("error" -> Json.fromString("something_not_parsed")))
   case Error.NotValid(_, _) =>
-    Seq(Json.obj("error" -> Json.string("something_not_valid")))
-  case Error.RequestErrors(ts) =>
-    ts.map(exceptionToJson).flatten
+    Seq(Json.obj("error" -> Json.fromString("something_not_valid")))
+  case Error.Multiple(ts) =>
+    ts.toList.flatMap(exceptionToJson)
 }
 
 implicit val ee: Encoder[Exception] =
-  Encoder.instance(e => Json.array(exceptionToJson(e): _*))
+  Encoder.instance(e => Json.arr(exceptionToJson(e): _*))
 ```
 
 ### Defining endpoints returning empty responses
