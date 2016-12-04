@@ -53,13 +53,6 @@ trait HighPriorityEncodeInstances extends LowPriorityEncodeInstances {
 
   implicit def encodeBuf[CT <: String]: Aux[Buf, CT] =
     bufToBuf.asInstanceOf[Aux[Buf, CT]]
-
-  implicit def encodeEither[A, B, CT <: String](implicit
-    ae: Encode.Aux[A, CT],
-    be: Encode.Aux[B, CT]
-  ): Aux[Either[A, B], CT] = instance[Either[A, B], CT](
-    (either, cs) => either.fold(a => ae(a, cs), b => be(b, cs))
-  )
 }
 
 object Encode extends HighPriorityEncodeInstances {
