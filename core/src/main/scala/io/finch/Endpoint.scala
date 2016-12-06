@@ -390,6 +390,7 @@ object Endpoint {
   /**
    * Creates an [[Endpoint]] from the given [[Output]].
    */
+  @deprecated("Use one of the liftX variants", "0.11")
   def apply(mapper: Mapper[shapeless.HNil]): Endpoint[mapper.Out] = mapper(/)
 
   /**
@@ -397,6 +398,53 @@ object Endpoint {
    */
   def empty[A]: Endpoint[A] = new Endpoint[A] {
     def apply(input: Input): Result[A] = None
+  }
+
+  /**
+   * Creates an [[Endpoint]] that always matches and returns a given value (evaluated eagerly).
+   */
+  def const[A](a: A): Endpoint[A] = new Endpoint[A] {
+    def apply(input: Input): Result[A] = Some(input -> rerunnable(Output.payload(a)))
+  }
+
+  /**
+   * Creates an [[Endpoint]] that always matches and returns a given value (evaluated lazily).
+   *
+   * This might be useful for wrapping functions returning arbitrary value within [[Endpoint]]
+   * context.
+   *
+   * Example: the following endpoint will recompute a random integer on each request.
+   *
+   * {{{
+   *   val nextInt: Endpoint[Int] = Endpoint.lift(scala.util.random.nextInt)
+   * }}}
+   */
+  def lift[A](a: => A): Endpoint[A] = new Endpoint[A] {
+    def apply(input: Input): Result[A] =
+      Some(input -> Rerunnable(Output.payload(a)))
+  }
+
+  /**
+   * Creates an [[Endpoint]] that always matches and returns a given `Future` (evaluated lazily).
+   */
+  def liftFuture[A](fa: => Future[A]): Endpoint[A] = new Endpoint[A] {
+    def apply(input: Input): Result[A] =
+      Some(input -> Rerunnable.fromFuture(fa).map(a => Output.payload(a)))
+  }
+
+  /**
+   * Creates an [[Endpoint]] that always matches and returns a given `Output` (evaluated lazily).
+   */
+  def liftOutput[A](oa: => Output[A]): Endpoint[A] = new Endpoint[A] {
+    def apply(input: Input): Result[A] = Some(input -> Rerunnable(oa))
+  }
+
+  /**
+   * Creates an [[Endpoint]] that always matches and returns a given `Future[Output]`
+   * (evaluated lazily).
+   */
+  def liftFutureOutput[A](foa: => Future[Output[A]]): Endpoint[A] = new Endpoint[A] {
+    def apply(input: Input): Result[A] = Some(input -> Rerunnable.fromFuture(foa))
   }
 
   private[finch] def embed[A](i: items.RequestItem)(f: Input => Result[A]): Endpoint[A] =

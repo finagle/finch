@@ -3,6 +3,8 @@ package io.finch
 import com.twitter.finagle.http.Message
 import com.twitter.finagle.netty3.ChannelBufferBuf
 import com.twitter.io.{Buf, Charsets}
+import com.twitter.util.Future
+import io.catbird.util.Rerunnable
 import java.nio.{ByteBuffer, CharBuffer}
 import java.nio.charset.{Charset, StandardCharsets}
 
@@ -13,6 +15,11 @@ import java.nio.charset.{Charset, StandardCharsets}
  * deprecation cycles.
  */
 package object internal {
+
+  // See https://github.com/travisbrown/catbird/pull/32
+  def rerunnable[A](a: A): Rerunnable[A] = new Rerunnable[A] {
+    override def run: Future[A] = Future.value(a)
+  }
 
   @inline private[this] final val someTrue: Option[Boolean] = Some(true)
   @inline private[this] final val someFalse: Option[Boolean] = Some(false)

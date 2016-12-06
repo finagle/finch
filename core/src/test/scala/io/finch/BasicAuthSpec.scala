@@ -24,7 +24,7 @@ class BasicAuthSpec extends FinchSpec {
     check { (c: BasicAuthCredentials, realm: String, req: Request) =>
       req.authorization = encode(c.user, c.pass)
 
-      val e = BasicAuth(realm)((u, p) => Future(u == c.user && p == c.pass))(Endpoint(Ok("foo")))
+      val e = BasicAuth(realm)((u, p) => Future(u == c.user && p == c.pass))(Endpoint.const("foo"))
       val i = Input.request(req)
 
       e(i).output === Some(Ok("foo")) && {
@@ -35,7 +35,7 @@ class BasicAuthSpec extends FinchSpec {
   }
 
   it should "reach the unprotected endpoint" in {
-    val e = BasicAuth("realm")((_, _) => Future.False)("a") :+: ("b" :: Endpoint(Ok("foo")))
+    val e = BasicAuth("realm")((_, _) => Future.False)("a") :+: ("b" :: Endpoint.const("foo"))
 
     val protectedInput = Input.get("/a")
     e(protectedInput).remainder shouldBe Some(protectedInput.drop(1))
