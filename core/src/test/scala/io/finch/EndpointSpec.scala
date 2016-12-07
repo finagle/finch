@@ -208,9 +208,15 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "always respond with the same output if it's a constant Endpoint" in {
-    check { (i: Input, s: String) =>
-      val expected = Ok(s)
-      Endpoint(expected)(i).output === Some(expected)
+    check { s: String =>
+      Endpoint.const(s)(Input.get("/")).value === Some(s) &&
+      Endpoint.lift(s)(Input.get("/")).value === Some(s) &&
+      Endpoint.liftFuture(Future.value(s))(Input.get("/")).value === Some(s)
+    }
+
+    check { o: Output[String] =>
+      Endpoint.liftOutput(o)(Input.get("/")).output === Some(o) &&
+      Endpoint.liftFutureOutput(Future.value(o))(Input.get("/")).output === Some(o)
     }
   }
 
@@ -248,7 +254,7 @@ class EndpointSpec extends FinchSpec {
 
   it should "rescue the exception occurred in it" in {
     check { (i: Input, s: String, e: Exception) =>
-      Endpoint(Future.exception(e).map(Ok))
+      Endpoint.liftFuture[Unit](Future.exception(e))
         .handle({ case _ => Created(s) })(i)
         .output === Some(Created(s))
     }
@@ -324,7 +330,6 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "collect errors on Endpoint[NonEmptyList[String]] failure" in {
-    implicit val decoder = DecodeEntity.decodeUUID
     val endpoint: Endpoint[NonEmptyList[UUID]] = paramsNel("testEndpoint").as[UUID]
     an[Multiple] shouldBe thrownBy (endpoint(Input.get("/index", "testEndpoint" -> "a")).value)
   }
