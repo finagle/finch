@@ -28,7 +28,7 @@ class FailingEndpointBenchmarkSpec extends FlatSpec with Matchers {
   val benchmark = new FailingEndpointBenchmark
 
   private[this] def matchesAggregatedErrors(result: Try[Foo]) = result match {
-    case Throw(Error.Multiple(nel)) => nel.toList match {
+    case Throw(Errors(nel)) => nel.toList match {
       case Seq(
         Error.NotParsed(ParamItem("d"), dTag, _: NumberFormatException),
         Error.NotParsed(ParamItem("l"), lTag, _: NumberFormatException)

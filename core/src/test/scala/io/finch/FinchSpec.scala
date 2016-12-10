@@ -3,8 +3,8 @@ package io.finch
 import java.nio.charset.{Charset, StandardCharsets}
 import java.util.UUID
 
-import cats.Alternative
 import cats.Eq
+import cats.data.NonEmptyList
 import cats.instances.AllInstances
 import com.twitter.finagle.http._
 import com.twitter.io.Buf
@@ -15,6 +15,7 @@ import org.scalacheck.{Arbitrary, Cogen, Gen}
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers
 import org.typelevel.discipline.Laws
+import scala.reflect.ClassTag
 
 trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
   with MissingInstances {
@@ -42,7 +43,26 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
 
   def genNonEmptyString: Gen[String] = Gen.nonEmptyListOf(Gen.alphaChar).map(_.mkString)
 
-  def genError: Gen[Error] = Gen.alphaStr.map(Error(_))
+  def genRequestItem: Gen[items.RequestItem] = for {
+    s <- genNonEmptyString
+    i <- Gen.oneOf(
+      items.BodyItem, items.ParamItem(s), items.HeaderItem(s),
+      items.MultipleItems, items.CookieItem(s)
+    )
+  } yield i
+
+  def genError: Gen[Error] = for {
+    i <- genRequestItem
+    s <- genNonEmptyString
+    e <- Gen.oneOf(
+      Error.NotPresent(i),
+      Error.NotParsed(i, implicitly[ClassTag[Int]], new Exception(s)),
+      Error.NotValid(i, s)
+    )
+  } yield e
+
+  def genErrors: Gen[Errors] =
+    Gen.nonEmptyListOf(genError).map(l => Errors(NonEmptyList.fromListUnsafe(l)))
 
   def genNonEmptyTuple: Gen[(String, String)] = for {
     key <- genNonEmptyString
@@ -155,8 +175,8 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
 
   implicit def arbitraryEndpoint[A](implicit A: Arbitrary[A]): Arbitrary[Endpoint[A]] = Arbitrary(
     Gen.oneOf(
-      Gen.const(Alternative[Endpoint].empty[A]),
-      A.arbitrary.map(a => Alternative[Endpoint].pure(a)),
+      Gen.const(Endpoint.empty[A]),
+      A.arbitrary.map(a => Endpoint.const(a)),
       Arbitrary.arbitrary[Throwable].map { error =>
         new Endpoint[A] {
           override def apply(input: Input): Result[A] =
@@ -239,5 +259,12 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
 
   implicit def arbitraryOutput[A: Arbitrary]: Arbitrary[Output[A]] = Arbitrary(genOutput[A])
 
-  implicit def arbitraryError: Arbitrary[Error] = Arbitrary(genError)
+  implicit def arbitraryRequestItem: Arbitrary[items.RequestItem] =
+    Arbitrary(genRequestItem)
+
+  implicit def arbitraryError: Arbitrary[Error] =
+    Arbitrary(genError)
+
+  implicit def arbitraryErrors: Arbitrary[Errors] =
+    Arbitrary(genErrors)
 }

@@ -1,52 +1,45 @@
 package io.finch
 
-import scala.compat.Platform.EOL
-import scala.reflect.ClassTag
-
 import cats.data.NonEmptyList
 import io.finch.items.RequestItem
+import scala.compat.Platform.EOL
+import scala.reflect.ClassTag
+import scala.util.control.NoStackTrace
 
 /**
- * A basic error from a Finch application.
+ * A single error from an [[Endpoint]].
+ *
+ * This indicates that one of the Finch's built-in components failed. This includes, but not
+ * limited by:
+ *
+ * - reading a required param, body, header, etc.
+ * - parsing a string-based endpoint with `.as[T]` combinator
+ * - validating an endpoint with `.should` or `shouldNot` combinators
  */
-trait Error extends Exception {
-  def canEqual(other: Any): Boolean = other.isInstanceOf[Error]
+sealed abstract class Error extends Exception with NoStackTrace
 
-  override def hashCode(): Int = (super.hashCode, getMessage).##
-
-  override def equals(other: Any): Boolean = other match {
-    case that: Error => that.canEqual(this) && that.getMessage == this.getMessage
-    case _ => false
-  }
+/**
+ * Multiple errors from an [[Endpoint]].
+ *
+ * This type of error indicates that an endpoint is able to accumulate multiple [[Error]]s
+ * into a single instance of [[Errors]] that embeds a non-empty list.
+ *
+ * Error accumulation happens as part of the `.product` (or `adjoin`, `::`) combinator.
+ */
+case class Errors(errors: NonEmptyList[Error]) extends Exception with NoStackTrace {
+  override def getMessage: String =
+    "One or more errors reading request:" +
+      errors.map(_.getMessage).toList.mkString(EOL + "  ", EOL + "  ","")
 }
 
 object Error {
 
-  def apply(message: String): Error = new Error {
-    override def getMessage: String = message
-  }
-
   object RequestErrors {
-    /**
-      * For backward compatibility we will supply an `unapply` method in the RequestErrors object.
-      * @param e the throwable to match
-      * @return The unwrapped throwable
-      */
-    @deprecated("Use Multiple instead", "0.11")
+    @deprecated("Use Errors instead", "0.11")
     def unapply(e: Throwable): Option[Seq[Throwable]] = e match {
-      case Multiple(err) => Some(err.toList)
+      case Errors(err) => Some(err.toList)
       case _ => None
     }
-  }
-
-  /**
-   * An exception that collects multiple endpoint errors.
-   *
-   * @param errors the errors collected from various endpoints
-   */
-  final case class Multiple(errors: NonEmptyList[Error]) extends Error {
-    override def getMessage: String =
-      "One or more errors reading request:" + errors.map(_.getMessage).toList.mkString(EOL + "  ", EOL + "  ","")
   }
 
   /**
