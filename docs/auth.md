@@ -25,7 +25,7 @@ val e: Endpoint[Int] = get("user" :: auth) { ai: AuthInfo[Int] => Ok(ai.user) }
 import com.twitter.finagle.oauth2._
 import io.finch.oauth2._
 
-val token: Endpoint[GrandHandlerResult] = issueAccessToken(dataHandler)
+val token: Endpoint[GrantHandlerResult] = issueAccessToken(dataHandler)
 ```
 
 Note that both `token` and `authorize` may throw `com.twitter.finagle.oauth2.OAuthError`, which is
