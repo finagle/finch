@@ -154,25 +154,32 @@ trait Endpoint[A] { self =>
     }
   }
 
+  /**
+   * Returns a product of this and `other` endpoint. The resulting endpoint returns a tuple
+   * of both values.
+   *
+   * This combinator is an important piece for Finch's error accumulation. In its current form,
+   * `product` will accumulate Finch's own errors (i.e., [[Error]]s) into [[Errors]] and
+   * will fail-fast with the first non-Finch error (just ordinary `Exception`) observed.
+   */
   final def product[B](other: Endpoint[B]): Endpoint[(A, B)] = new Endpoint[(A, B)] {
-    private[this] def join(both: (Try[Output[A]], Try[Output[B]])): Future[Output[(A, B)]] =
+    private[this] final def collect(a: Throwable, b: Throwable): Throwable = (a, b) match {
+      case (aa: Error, bb: Error) => Errors(NonEmptyList.of(aa, bb))
+      case (aa: Error, Errors(bs)) => Errors(aa :: bs)
+      case (Errors(as), bb: Error) => Errors(bb :: as)
+      case (Errors(as), Errors(bs)) => Errors(as.concat(bs))
+      case (_: Error, _) => b // we fail-fast with first non-Error observed
+      case (_: Errors, _) => b // we fail-fast with first non-Error observed
+      case _ => a
+    }
+
+    private[this] final def join(both: (Try[Output[A]], Try[Output[B]])): Future[Output[(A, B)]] =
       both match {
         case (Return(oa), Return(ob)) => Future.value(oa.flatMap(a => ob.map(b => (a, b))))
-        case (Throw(oa), Throw(ob)) => Future.exception(collectExceptions(oa, ob))
-        case (Throw(e), _) => Future.exception(e)
-        case (_, Throw(e)) => Future.exception(e)
+        case (Throw(a), Throw(b)) => Future.exception(collect(a, b))
+        case (Throw(a), _) => Future.exception(a)
+        case (_, Throw(b)) => Future.exception(b)
       }
-
-    private[this] def collectExceptions(a: Throwable, b: Throwable): Error.Multiple = {
-      def collect(e: Throwable): NonEmptyList[Error] = e match {
-        case Error.Multiple(errors) => errors
-        case rest => NonEmptyList.of(
-          Error(Try(rest.getMessage).getOrElse("Exception message was null"))
-        )
-      }
-
-      Error.Multiple(collect(a).concat(collect(b)))
-    }
 
     def apply(input: Input): Endpoint.Result[(A, B)] =
       self(input).flatMap {
@@ -558,7 +565,7 @@ object Endpoint {
 
         NonEmptyList.fromList(errors) match {
           case None => Future.const(Try.collect(decoded).map(seq => NonEmptyList(seq.head, seq.tail.toList)))
-          case Some(err) => Future.exception(Error.Multiple(Functor[NonEmptyList].widen(err)))
+          case Some(err) => Future.exception(Errors(Functor[NonEmptyList].widen(err)))
         }
       }
   }
@@ -592,7 +599,7 @@ object Endpoint {
 
         NonEmptyList.fromList(errors.toList) match {
           case None => Future.const(Try.collect(decoded))
-          case Some(err) => Future.exception(Error.Multiple(Functor[NonEmptyList].widen(err)))
+          case Some(err) => Future.exception(Errors(Functor[NonEmptyList].widen(err)))
         }
       }
   }

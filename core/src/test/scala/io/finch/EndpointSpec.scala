@@ -9,7 +9,7 @@ import cats.laws.discipline.AlternativeTests
 import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.io.Buf
 import com.twitter.util.{Future, Throw, Try}
-import io.finch.Error.Multiple
+import io.finch.data.Foo
 import io.finch.items.BodyItem
 
 class EndpointSpec extends FinchSpec {
@@ -229,8 +229,6 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "throw Error.NotParsed if as[A] method fails" in {
-    case class Foo(s: String)
-
     val cause = new Exception("can't parse this")
     implicit val failingDecode: Decode.Json[Foo] =
       Decode.json((b, c) => Throw(cause))
@@ -311,26 +309,77 @@ class EndpointSpec extends FinchSpec {
     e2(b).remainder shouldBe Some(b.drop(2))
   }
 
+  it should "collect errors on its product" in {
+    check { (a: Error, b: Error) =>
+      val aa = Endpoint.liftFuture[Unit](Future.exception(a))
+      val bb = Endpoint.liftFuture[Unit](Future.exception(b))
+
+      val aabb = aa.product(bb)
+      val bbaa = bb.product(aa)
+      aabb(Input.get("/")).tryValue === Some(Throw(Errors(NonEmptyList.of(a, b)))) &&
+      bbaa(Input.get("/")).tryValue === Some(Throw(Errors(NonEmptyList.of(b, a))))
+    }
+
+    check { (a: Error, bs: Errors) =>
+      val aa = Endpoint.liftFuture[Unit](Future.exception(a))
+      val bb = Endpoint.liftFuture[Unit](Future.exception(bs))
+
+      val aabb = aa.product(bb)
+      val bbaa = bb.product(aa)
+      val expected = Throw(Errors(a :: bs.errors))
+
+      aabb(Input.get("/")).tryValue === Some(expected) &&
+      bbaa(Input.get("/")).tryValue === Some(expected)
+    }
+
+    check { (as: Errors, bs: Errors) =>
+      val aa = Endpoint.liftFuture[Unit](Future.exception(as))
+      val bb = Endpoint.liftFuture[Unit](Future.exception(bs))
+
+      val aabb = aa.product(bb)
+      val bbaa = bb.product(aa)
+
+      aabb(Input.get("/")).tryValue === Some(Throw(Errors(as.errors.concat(bs.errors)))) &&
+      bbaa(Input.get("/")).tryValue === Some(Throw(Errors(bs.errors.concat(as.errors))))
+    }
+  }
+
+  it should "fail-fast with the first non-error observed" in {
+    check { (a: Error, b: Errors, e: Exception) =>
+      val aa = Endpoint.liftFuture[Unit](Future.exception(a))
+      val bb = Endpoint.liftFuture[Unit](Future.exception(b))
+      val ee = Endpoint.liftFuture[Unit](Future.exception(e))
+
+      val aaee = aa.product(ee)
+      val eeaa = ee.product(aa)
+
+      val bbee = bb.product(ee)
+      val eebb = ee.product(bb)
+
+      aaee(Input.get("/")).tryValue === Some(Throw(e)) &&
+      eeaa(Input.get("/")).tryValue === Some(Throw(e)) &&
+      bbee(Input.get("/")).tryValue === Some(Throw(e)) &&
+      eebb(Input.get("/")).tryValue === Some(Throw(e))
+    }
+  }
+
   it should "support the as[A] method on Endpoint[Seq[String]]" in {
-    case class Foo(s: String)
     val endpoint: Endpoint[Seq[Foo]] = params("testEndpoint").as[Foo]
     endpoint(Input.get("/index", "testEndpoint" -> "a")).value shouldBe Some(Seq(Foo("a")))
   }
 
   it should "collect errors on Endpoint[Seq[String]] failure" in {
-    implicit val decoder = DecodeEntity.decodeUUID
     val endpoint: Endpoint[Seq[UUID]] = params("testEndpoint").as[UUID]
-    an[Multiple] shouldBe thrownBy (endpoint(Input.get("/index", "testEndpoint" -> "a")).value)
+    an[Errors] shouldBe thrownBy (endpoint(Input.get("/index", "testEndpoint" -> "a")).value)
   }
 
   it should "support the as[A] method on Endpoint[NonEmptyList[A]]" in {
-    case class Foo(s: String)
     val endpoint: Endpoint[NonEmptyList[Foo]] = paramsNel("testEndpoint").as[Foo]
     endpoint(Input.get("/index", "testEndpoint" -> "a")).value shouldBe Some(NonEmptyList.of(Foo("a")))
   }
 
   it should "collect errors on Endpoint[NonEmptyList[String]] failure" in {
     val endpoint: Endpoint[NonEmptyList[UUID]] = paramsNel("testEndpoint").as[UUID]
-    an[Multiple] shouldBe thrownBy (endpoint(Input.get("/index", "testEndpoint" -> "a")).value)
+    an[Errors] shouldBe thrownBy (endpoint(Input.get("/index", "testEndpoint" -> "a")).value)
   }
 }

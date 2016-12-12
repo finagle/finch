@@ -16,7 +16,7 @@ trait Decoders {
    */
   implicit def decodeArgonaut[A](implicit d: DecodeJson[A]): Decode.Json[A] =
     Decode.json { (b, cs) =>
-      val err: (String, CursorHistory) => Try[A] = { (str, hist) => Throw(Error(str)) }
+      val err: (String, CursorHistory) => Try[A] = { (str, hist) => Throw(new Exception(str)) }
 
       val attemptJson = cs match {
         case StandardCharsets.UTF_8 =>
