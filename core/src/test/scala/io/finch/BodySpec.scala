@@ -2,7 +2,10 @@ package io.finch
 
 import java.util.UUID
 
+import com.twitter.finagle.http.Request
 import com.twitter.io.Buf
+import com.twitter.util.{Return, Throw}
+import io.finch.data.Foo
 
 class BodySpec extends FinchSpec {
 
@@ -10,11 +13,39 @@ class BodySpec extends FinchSpec {
 
   def withBody(b: String): Input = Input.post("/").withBody[Text.Plain](Buf.Utf8(b))
 
-  checkAll("Body[String]", EntityEndpointLaws[String](bodyStringOption)(withBody).evaluating)
-  checkAll("Body[Int]", EntityEndpointLaws[Int](bodyStringOption)(withBody).evaluating)
-  checkAll("Body[Long]", EntityEndpointLaws[Long](bodyStringOption)(withBody).evaluating)
-  checkAll("Body[Boolean]", EntityEndpointLaws[Boolean](bodyStringOption)(withBody).evaluating)
-  checkAll("Body[Float]", EntityEndpointLaws[Float](bodyStringOption)(withBody).evaluating)
-  checkAll("Body[Double]", EntityEndpointLaws[Double](bodyStringOption)(withBody).evaluating)
-  checkAll("Body[UUID]", EntityEndpointLaws[UUID](bodyStringOption)(withBody).evaluating)
+  checkAll("Body[String]", EntityEndpointLaws[String](stringBodyOption)(withBody).evaluating)
+  checkAll("Body[Int]", EntityEndpointLaws[Int](stringBodyOption)(withBody).evaluating)
+  checkAll("Body[Long]", EntityEndpointLaws[Long](stringBodyOption)(withBody).evaluating)
+  checkAll("Body[Boolean]", EntityEndpointLaws[Boolean](stringBodyOption)(withBody).evaluating)
+  checkAll("Body[Float]", EntityEndpointLaws[Float](stringBodyOption)(withBody).evaluating)
+  checkAll("Body[Double]", EntityEndpointLaws[Double](stringBodyOption)(withBody).evaluating)
+  checkAll("Body[UUID]", EntityEndpointLaws[UUID](stringBodyOption)(withBody).evaluating)
+
+  it should "respond with NotFound when it's required" in {
+    body[Foo, Text.Plain].apply(Input.get("/")).tryValue ===
+      Some(Throw(Error.NotPresent(items.BodyItem)))
+  }
+
+  it should "respond with None when it's optional" in {
+    body[Foo, Text.Plain].apply(Input.get("/")).tryValue === Some(Return(None))
+  }
+
+  it should "not match on streaming requests" in {
+    val req = Request()
+    req.setChunked(true)
+    body[Foo, Text.Plain].apply(Input.request(req)).value === None
+  }
+
+  it should "respond with a value when present and required" in {
+    check { f: Foo =>
+      body[Foo, Text.Plain].apply(Input.post("/").withBody[Text.Plain](f)).value === Some(f)
+    }
+  }
+
+  it should "respond with Some(value) when it's present and optional" in {
+    check { f: Foo =>
+      bodyOption[Foo, Text.Plain].apply(Input.post("/").withBody[Text.Plain](f)).value ===
+        Some(Some(f))
+    }
+  }
 }

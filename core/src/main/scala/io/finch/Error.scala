@@ -60,8 +60,7 @@ object Error {
   }
 
   /**
-   * An exception that indicates a broken [[[io.finch.request.ValidationRule ValidationRule]] on the
-   * request item.
+   * An exception that indicates a broken [[ValidationRule]] on the request item.
    *
    * @param item the invalid request item
    * @param rule the rule description

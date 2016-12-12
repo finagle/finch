@@ -16,11 +16,6 @@ import java.nio.charset.{Charset, StandardCharsets}
  */
 package object internal {
 
-  // See https://github.com/travisbrown/catbird/pull/32
-  def rerunnable[A](a: A): Rerunnable[A] = new Rerunnable[A] {
-    override def run: Future[A] = Future.value(a)
-  }
-
   @inline private[this] final val someTrue: Option[Boolean] = Some(true)
   @inline private[this] final val someFalse: Option[Boolean] = Some(false)
 
