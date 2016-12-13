@@ -1,6 +1,9 @@
 package io.finch
 
+import cats.{Eq, Show}
 import cats.data.NonEmptyList
+import cats.instances.string._
+import cats.syntax.eq._
 import io.finch.items.RequestItem
 import scala.compat.Platform.EOL
 import scala.reflect.ClassTag
@@ -33,6 +36,14 @@ case class Errors(errors: NonEmptyList[Error]) extends Exception with NoStackTra
 }
 
 object Error {
+
+  implicit val eq: Eq[Error] = Eq.instance[Error] { (error1, error2) =>
+    error1.getMessage === error2.getMessage
+  }
+
+  implicit val valueShow: Show[Error] = Show.show[Error] { error =>
+    error.getMessage
+  }
 
   object RequestErrors {
     @deprecated("Use Errors instead", "0.11")
