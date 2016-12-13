@@ -112,7 +112,7 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityToResponseInstances.html" class="extype" name="io.finch.internal.LowPriorityToResponseInstances">LowPriorityToResponseInstances</a></dd><dt>Annotations</dt><dd>
                 <span class="name">@implicitNotFound</span><span class="args">(<span>
       
-      <span class="defval" name="&quot;&quot;&quot;An Endpoint you're trying to convert into a Finagle service is missing one or more encoders.<br/><br/>  Make sure ${A} is one of the following:<br/><br/>  * A com.twitter.finagle.Response<br/>  * A value of a type with an io.finch.Encode instance (with the corresponding content-type)<br/>  * A coproduct made up of some combination of the above<br/><br/>  See https://github.com/finagle/finch/blob/master/docs/cookbook.md#fixing-the-toservice-compile-error<br/>&quot;&quot;&quot;">...</span>
+      <span class="defval" name="&quot;&quot;&quot;An Endpoint you're trying to convert into a Finagle service is missing one or more encoders.<br/><br/>  Make sure ${A} is one of the following:<br/><br/>  * A com.twitter.finagle.http.Response<br/>  * A value of a type with an io.finch.Encode instance (with the corresponding content-type)<br/>  * A coproduct made up of some combination of the above<br/><br/>  See https://github.com/finagle/finch/blob/master/docs/cookbook.md#fixing-the-toservice-compile-error<br/>&quot;&quot;&quot;">...</span>
     </span>)</span>
               
         </dd></dl></div>
@@ -191,8 +191,8 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.finch.internal.LowPriorityToResponseInstances#asyncBufToResponse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="asyncBufToResponse[CT&lt;:String](implicitw:shapeless.Witness.Aux[CT]):LowPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[com.twitter.io.Buf],CT]"></a>
+    </li><li name="io.finch.internal.HighPriorityToResponseInstances#asyncBufToResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="asyncBufToResponse[CT&lt;:String](implicitw:shapeless.Witness.Aux[CT]):HighPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[com.twitter.io.Buf],CT]"></a>
       <a id="asyncBufToResponse[CT&lt;:String](shapeless.Witness.Aux[CT]):Aux[AsyncStream[Buf],CT]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -200,14 +200,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">asyncBufToResponse</span><span class="tparams">[<span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="w">w: <span class="extype" name="shapeless.Witness.Aux">shapeless.Witness.Aux</span>[<span class="extype" name="io.finch.internal.LowPriorityToResponseInstances.asyncBufToResponse.CT">CT</span>]</span>)</span><span class="result">: <a href="#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.HighPriorityToResponseInstances.Aux">Aux</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.concurrent.AsyncStream" class="extype" target="_top">AsyncStream</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.io.Buf" class="extype" target="_top">Buf</a>], <span class="extype" name="io.finch.internal.LowPriorityToResponseInstances.asyncBufToResponse.CT">CT</span>]</span>
+        <span class="name">asyncBufToResponse</span><span class="tparams">[<span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="w">w: <span class="extype" name="shapeless.Witness.Aux">shapeless.Witness.Aux</span>[<span class="extype" name="io.finch.internal.HighPriorityToResponseInstances.asyncBufToResponse.CT">CT</span>]</span>)</span><span class="result">: <a href="#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.HighPriorityToResponseInstances.Aux">Aux</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.concurrent.AsyncStream" class="extype" target="_top">AsyncStream</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.io.Buf" class="extype" target="_top">Buf</a>], <span class="extype" name="io.finch.internal.HighPriorityToResponseInstances.asyncBufToResponse.CT">CT</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.internal.HighPriorityToResponseInstances@asyncBufToResponse[CT&lt;:String](implicitw:shapeless.Witness.Aux[CT]):LowPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[com.twitter.io.Buf],CT]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.internal.HighPriorityToResponseInstances@asyncBufToResponse[CT&lt;:String](implicitw:shapeless.Witness.Aux[CT]):HighPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[com.twitter.io.Buf],CT]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityToResponseInstances.html" class="extype" name="io.finch.internal.LowPriorityToResponseInstances">LowPriorityToResponseInstances</a></dd></dl></div>
+      
     </li><li name="io.finch.internal.LowPriorityToResponseInstances#asyncResponseBuilder" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asyncResponseBuilder[A,CT&lt;:String](writer:(A,java.nio.charset.Charset)=&gt;com.twitter.io.Buf)(implicitw:shapeless.Witness.Aux[CT]):LowPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[A],CT]"></a>
       <a id="asyncResponseBuilder[A,CT&lt;:String]((A,Charset)⇒Buf)(shapeless.Witness.Aux[CT]):Aux[AsyncStream[A],CT]"></a>
@@ -224,7 +224,7 @@
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="LowPriorityToResponseInstances.html" class="extype" name="io.finch.internal.LowPriorityToResponseInstances">LowPriorityToResponseInstances</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../package.html" class="extype" name="io.finch">io.finch</a>] </dd><dt>Definition Classes</dt><dd><a href="LowPriorityToResponseInstances.html" class="extype" name="io.finch.internal.LowPriorityToResponseInstances">LowPriorityToResponseInstances</a></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -373,8 +373,8 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.finch.internal.HighPriorityToResponseInstances#jsonAsyncStreamToResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="jsonAsyncStreamToResponse[A](implicite:io.finch.Encode.Json[A]):HighPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[A],io.finch.Application.Json]"></a>
+    </li><li name="io.finch.internal.LowPriorityToResponseInstances#jsonAsyncStreamToResponse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="jsonAsyncStreamToResponse[A](implicite:io.finch.Encode.Json[A]):LowPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[A],io.finch.Application.Json]"></a>
       <a id="jsonAsyncStreamToResponse[A](Encode.Json[A]):Aux[AsyncStream[A],Json]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -382,14 +382,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">jsonAsyncStreamToResponse</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="e">e: <a href="../Encode$.html#Json[A]=LowPriorityEncodeInstances.this.Aux[A,io.finch.Application.Json]" class="extmbr" name="io.finch.Encode.Json">Encode.Json</a>[<span class="extype" name="io.finch.internal.HighPriorityToResponseInstances.jsonAsyncStreamToResponse.A">A</span>]</span>)</span><span class="result">: <a href="#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.HighPriorityToResponseInstances.Aux">Aux</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.concurrent.AsyncStream" class="extype" target="_top">AsyncStream</a>[<span class="extype" name="io.finch.internal.HighPriorityToResponseInstances.jsonAsyncStreamToResponse.A">A</span>], <a href="../package$$Application$.html#Json=String(&quot;application/json&quot;)" class="extmbr" name="io.finch.Application.Json">Json</a>]</span>
+        <span class="name">jsonAsyncStreamToResponse</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="e">e: <a href="../Encode$.html#Json[A]=LowPriorityEncodeInstances.this.Aux[A,io.finch.Application.Json]" class="extmbr" name="io.finch.Encode.Json">Encode.Json</a>[<span class="extype" name="io.finch.internal.LowPriorityToResponseInstances.jsonAsyncStreamToResponse.A">A</span>]</span>)</span><span class="result">: <a href="#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.HighPriorityToResponseInstances.Aux">Aux</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.concurrent.AsyncStream" class="extype" target="_top">AsyncStream</a>[<span class="extype" name="io.finch.internal.LowPriorityToResponseInstances.jsonAsyncStreamToResponse.A">A</span>], <a href="../package$$Application$.html#Json=String(&quot;application/json&quot;)" class="extmbr" name="io.finch.Application.Json">Json</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.internal.HighPriorityToResponseInstances@jsonAsyncStreamToResponse[A](implicite:io.finch.Encode.Json[A]):HighPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[A],io.finch.Application.Json]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.internal.HighPriorityToResponseInstances@jsonAsyncStreamToResponse[A](implicite:io.finch.Encode.Json[A]):LowPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[A],io.finch.Application.Json]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityToResponseInstances.html" class="extype" name="io.finch.internal.LowPriorityToResponseInstances">LowPriorityToResponseInstances</a></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -475,8 +475,8 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="io.finch.internal.HighPriorityToResponseInstances#textAsyncStreamToResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="textAsyncStreamToResponse[A](implicite:io.finch.Encode.Text[A]):HighPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[A],io.finch.Text.Plain]"></a>
+    </li><li name="io.finch.internal.LowPriorityToResponseInstances#textAsyncStreamToResponse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="textAsyncStreamToResponse[A](implicite:io.finch.Encode.Text[A]):LowPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[A],io.finch.Text.Plain]"></a>
       <a id="textAsyncStreamToResponse[A](Encode.Text[A]):Aux[AsyncStream[A],Plain]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -484,14 +484,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">textAsyncStreamToResponse</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="e">e: <a href="../Encode$.html#Text[A]=LowPriorityEncodeInstances.this.Aux[A,io.finch.Text.Plain]" class="extmbr" name="io.finch.Encode.Text">Encode.Text</a>[<span class="extype" name="io.finch.internal.HighPriorityToResponseInstances.textAsyncStreamToResponse.A">A</span>]</span>)</span><span class="result">: <a href="#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.HighPriorityToResponseInstances.Aux">Aux</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.concurrent.AsyncStream" class="extype" target="_top">AsyncStream</a>[<span class="extype" name="io.finch.internal.HighPriorityToResponseInstances.textAsyncStreamToResponse.A">A</span>], <a href="../package$$Text$.html#Plain=String(&quot;text/plain&quot;)" class="extmbr" name="io.finch.Text.Plain">Plain</a>]</span>
+        <span class="name">textAsyncStreamToResponse</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="e">e: <a href="../Encode$.html#Text[A]=LowPriorityEncodeInstances.this.Aux[A,io.finch.Text.Plain]" class="extmbr" name="io.finch.Encode.Text">Encode.Text</a>[<span class="extype" name="io.finch.internal.LowPriorityToResponseInstances.textAsyncStreamToResponse.A">A</span>]</span>)</span><span class="result">: <a href="#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.HighPriorityToResponseInstances.Aux">Aux</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.concurrent.AsyncStream" class="extype" target="_top">AsyncStream</a>[<span class="extype" name="io.finch.internal.LowPriorityToResponseInstances.textAsyncStreamToResponse.A">A</span>], <a href="../package$$Text$.html#Plain=String(&quot;text/plain&quot;)" class="extmbr" name="io.finch.Text.Plain">Plain</a>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.internal.HighPriorityToResponseInstances@textAsyncStreamToResponse[A](implicite:io.finch.Encode.Text[A]):HighPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[A],io.finch.Text.Plain]" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.internal.HighPriorityToResponseInstances@textAsyncStreamToResponse[A](implicite:io.finch.Encode.Text[A]):LowPriorityToResponseInstances.this.Aux[com.twitter.concurrent.AsyncStream[A],io.finch.Text.Plain]" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityToResponseInstances.html" class="extype" name="io.finch.internal.LowPriorityToResponseInstances">LowPriorityToResponseInstances</a></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>

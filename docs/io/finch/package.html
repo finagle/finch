@@ -124,7 +124,44 @@ types atop of Finagle for writing lightweight HTTP services.
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">An abstraction that is responsible for decoding the value of type <code>A</code>.</p>
+      <p class="shortcomment cmt">Decodes an HTTP payload represented as <span class="extype" name="Buf">Buf</span> (encoded with <span class="extype" name="Charset">Charset</span>) into
+an arbitrary type <code>A</code>.</p>
+    </li><li name="io.finch.DecodeEntity" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="DecodeEntity[A]extendsAnyRef"></a>
+      <a id="DecodeEntity[A]:DecodeEntity[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="DecodeEntity.html"><span class="name">DecodeEntity</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@DecodeEntity[A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Decodes an HTTP entity (eg: header, query-string param) represented as UTF-8 <code>String</code> into
+an arbitrary type <code>A</code>.</p>
+    </li><li name="io.finch.DecodePath" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="DecodePath[A]extendsAnyRef"></a>
+      <a id="DecodePath[A]:DecodePath[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="DecodePath.html"><span class="name">DecodePath</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@DecodePath[A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Decodes an HTTP path (eg: /foo/bar/baz) represented as UTF-8 <code>String</code> into
+an arbitrary type <code>A</code>.</p>
     </li><li name="io.finch.Encode" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="Encode[A]extendsAnyRef"></a>
       <a id="Encode[A]:Encode[A]"></a>
@@ -141,8 +178,7 @@ types atop of Finagle for writing lightweight HTTP services.
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">An abstraction that is responsible for encoding the value of type <code>A</code> into a <code>Buf</code> with a given
-charset.</p>
+      <p class="shortcomment cmt">Encodes an HTTP payload (represented as an arbitrary type <code>A</code>) with a given <span class="extype" name="Charset">Charset</span>.</p>
     </li><li name="io.finch.Endpoint" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="Endpoint[A]extendsAnyRef"></a>
       <a id="Endpoint[A]:Endpoint[A]"></a>
@@ -248,23 +284,63 @@ Http.server.serve(foobar.toService)</pre></div></div>
       </a>
     </span>
       <p class="shortcomment cmt">A collection of <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> combinators.</p>
-    </li><li name="io.finch.Error" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="ErrorextendsException"></a>
+    </li><li name="io.finch.Error" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ErrorextendsExceptionwithNoStackTrace"></a>
       <a id="Error:Error"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Error.html"><span class="name">Error</span></a><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.util.control.NoStackTrace" class="extype" target="_top">NoStackTrace</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@ErrorextendsExceptionwithNoStackTrace" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A single error from an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>.</p><div class="fullcomment"><div class="comment cmt"><p>A single error from an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>.</p><p>This indicates that one of the Finch's built-in components failed. This includes, but not
+limited by:</p><p>- reading a required param, body, header, etc.
+- parsing a string-based endpoint with <code>.as[T]</code> combinator
+- validating an endpoint with <code>.should</code> or <code>shouldNot</code> combinators
+</p></div></div>
+    </li><li name="io.finch.Errors" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ErrorsextendsExceptionwithNoStackTracewithProductwithSerializable"></a>
+      <a id="Errors:Errors"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Errors.html"><span class="name">Errors</span></a><span class="params">(<span name="errors">errors: <a href="http://typelevel.org/cats/api/index.html#cats.data.NonEmptyList" class="extype" target="_top">NonEmptyList</a>[<a href="Error.html" class="extype" name="io.finch.Error">Error</a>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.util.control.NoStackTrace" class="extype" target="_top">NoStackTrace</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@ErrorsextendsExceptionwithNoStackTracewithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Multiple errors from an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Multiple errors from an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>.</p><p>This type of error indicates that an endpoint is able to accumulate multiple <a href="Error.html" class="extype" name="io.finch.Error">Error</a>s
+into a single instance of <a href="Errors.html" class="extype" name="io.finch.Errors">Errors</a> that embeds a non-empty list.</p><p>Error accumulation happens as part of the <code>.product</code> (or <code>adjoin</code>, <code>::</code>) combinator.
+</p></div></div>
+    </li><li name="io.finch.HighPriorityEncodeInstances" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="HighPriorityEncodeInstancesextendsLowPriorityEncodeInstances"></a>
+      <a id="HighPriorityEncodeInstances:HighPriorityEncodeInstances"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="Error.html"><span class="name">Error</span></a><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span></span>
+        <a href="HighPriorityEncodeInstances.html"><span class="name">HighPriorityEncodeInstances</span></a><span class="result"> extends <a href="LowPriorityEncodeInstances.html" class="extype" name="io.finch.LowPriorityEncodeInstances">LowPriorityEncodeInstances</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.package@ErrorextendsException" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.package@HighPriorityEncodeInstancesextendsLowPriorityEncodeInstances" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">A basic error from a Finch application.</p>
+      
     </li><li name="io.finch.Input" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="InputextendsProductwithSerializable"></a>
       <a id="Input:Input"></a>
@@ -282,23 +358,6 @@ Http.server.serve(foobar.toService)</pre></div></div>
       </a>
     </span>
       <p class="shortcomment cmt">An input for <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>.</p>
-    </li><li name="io.finch.LowPriorityDecodeInstances" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="LowPriorityDecodeInstancesextendsAnyRef"></a>
-      <a id="LowPriorityDecodeInstances:LowPriorityDecodeInstances"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="LowPriorityDecodeInstances.html"><span class="name">LowPriorityDecodeInstances</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.package@LowPriorityDecodeInstancesextendsAnyRef" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      
     </li><li name="io.finch.LowPriorityEncodeInstances" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="LowPriorityEncodeInstancesextendsAnyRef"></a>
       <a id="LowPriorityEncodeInstances:LowPriorityEncodeInstances"></a>
@@ -603,10 +662,44 @@ with other </code>ValidationRule<code>s using logical methods </code>and<code> a
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Decode$.html"><span class="name">Decode</span></a><span class="result"> extends <a href="LowPriorityDecodeInstances.html" class="extype" name="io.finch.LowPriorityDecodeInstances">LowPriorityDecodeInstances</a></span>
+        <a href="Decode$.html"><span class="name">Decode</span></a>
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.finch.package@Decode" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.DecodeEntity" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DecodeEntity"></a>
+      <a id="DecodeEntity:DecodeEntity"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="DecodeEntity$.html"><span class="name">DecodeEntity</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@DecodeEntity" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.DecodePath" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DecodePath"></a>
+      <a id="DecodePath:DecodePath"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="DecodePath$.html"><span class="name">DecodePath</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@DecodePath" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -620,7 +713,7 @@ with other </code>ValidationRule<code>s using logical methods </code>and<code> a
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Encode$.html"><span class="name">Encode</span></a><span class="result"> extends <a href="LowPriorityEncodeInstances.html" class="extype" name="io.finch.LowPriorityEncodeInstances">LowPriorityEncodeInstances</a></span>
+        <a href="Encode$.html"><span class="name">Encode</span></a><span class="result"> extends <a href="HighPriorityEncodeInstances.html" class="extype" name="io.finch.HighPriorityEncodeInstances">HighPriorityEncodeInstances</a></span>
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.finch.package@Encode" title="Permalink" target="_top">
@@ -1255,45 +1348,46 @@ into an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt
 into an <code>Option</code>. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> only matches non-chunked (non-streamed) requests.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoints.html" class="extype" name="io.finch.Endpoints">Endpoints</a></dd></dl></div>
     </li><li name="io.finch.Endpoints#body" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="body:io.finch.Endpoint[String]"></a>
-      <a id="body:Endpoint[String]"></a>
+      <a id="body[A,CT&lt;:String](implicitd:io.finch.Decode.Aux[A,CT],implicitct:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a>
+      <a id="body[A,CT&lt;:String](Aux[A,CT],ClassTag[A]):Endpoint[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">body</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">body</span><span class="tparams">[<span name="A">A</span>, <span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="Decode$.html#Aux[A,CT&lt;:String]=io.finch.Decode[A]{typeContentType=CT}" class="extmbr" name="io.finch.Decode.Aux">Aux</a>[<span class="extype" name="io.finch.Endpoints.body.A">A</span>, <span class="extype" name="io.finch.Endpoints.body.CT">CT</span>]</span>, <span name="ct">ct: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoints.body.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.body.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.package@body:io.finch.Endpoint[String]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.package@body[A,CT&lt;:String](implicitd:io.finch.Decode.Aux[A,CT],implicitct:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">An evaluating<a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads the required request body, interpreted as a <code>String</code>, or
-throws an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating<a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads the required request body, interpreted as a <code>String</code>, or
-throws an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> only matches non-chunked
-(non-streamed) requests.
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads the required request body represented as <code>CT</code> (<code>ContentType</code>) and
+interpreted as <code>A</code>, or throws an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception.</p><div class="fullcomment"><div class="comment cmt"><p>An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads the required request body represented as <code>CT</code> (<code>ContentType</code>) and
+interpreted as <code>A</code>, or throws an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>
+only matches non-chunked (non-streamed) requests.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoints.html" class="extype" name="io.finch.Endpoints">Endpoints</a></dd></dl></div>
     </li><li name="io.finch.Endpoints#bodyOption" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="bodyOption:io.finch.Endpoint[Option[String]]"></a>
-      <a id="bodyOption:Endpoint[Option[String]]"></a>
+      <a id="bodyOption[A,CT&lt;:String](implicitd:io.finch.Decode.Aux[A,CT],implicitct:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]"></a>
+      <a id="bodyOption[A,CT&lt;:String](Aux[A,CT],ClassTag[A]):Endpoint[Option[A]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">bodyOption</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="name">bodyOption</span><span class="tparams">[<span name="A">A</span>, <span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="Decode$.html#Aux[A,CT&lt;:String]=io.finch.Decode[A]{typeContentType=CT}" class="extmbr" name="io.finch.Decode.Aux">Aux</a>[<span class="extype" name="io.finch.Endpoints.bodyOption.A">A</span>, <span class="extype" name="io.finch.Endpoints.bodyOption.CT">CT</span>]</span>, <span name="ct">ct: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoints.bodyOption.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoints.bodyOption.A">A</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.package@bodyOption:io.finch.Endpoint[Option[String]]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.package@bodyOption[A,CT&lt;:String](implicitd:io.finch.Decode.Aux[A,CT],implicitct:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional request body, interpreted as a <code>String</code>, into
-an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional request body, interpreted as a <code>String</code>, into
-an <code>Option</code>. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> only matches non-chunked (non-streamed) requests.
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional request body represented as <code>CT</code> (<code>ContentType</code>) and
+interpreted as <code>A</code>, into an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional request body represented as <code>CT</code> (<code>ContentType</code>) and
+interpreted as <code>A</code>, into an <code>Option</code>. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> only matches non-chunked
+(non-streamed) requests.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoints.html" class="extype" name="io.finch.Endpoints">Endpoints</a></dd></dl></div>
     </li><li name="io.finch.Endpoints.boolean" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="boolean"></a>
@@ -1706,6 +1800,42 @@ deprecation cycles.
       </a>
     </span>
       
+    </li><li name="io.finch.Endpoints#jsonBody" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="jsonBody[A](implicitevidence$1:io.finch.Decode.Json[A],implicitevidence$2:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a>
+      <a id="jsonBody[A](Json[A],ClassTag[A]):Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">jsonBody</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="Decode$.html#Json[A]=io.finch.Decode.Aux[A,io.finch.Application.Json]" class="extmbr" name="io.finch.Decode.Json">Json</a>[<span class="extype" name="io.finch.Endpoints.jsonBody.A">A</span>]</span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoints.jsonBody.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.jsonBody.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@jsonBody[A](implicitevidence$1:io.finch.Decode.Json[A],implicitevidence$2:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Alias for <code>body[A, Application.Json]</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Alias for <code>body[A, Application.Json]</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoints.html" class="extype" name="io.finch.Endpoints">Endpoints</a></dd></dl></div>
+    </li><li name="io.finch.Endpoints#jsonBodyOption" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="jsonBodyOption[A](implicitevidence$3:io.finch.Decode.Json[A],implicitevidence$4:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]"></a>
+      <a id="jsonBodyOption[A](Json[A],ClassTag[A]):Endpoint[Option[A]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">jsonBodyOption</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="Decode$.html#Json[A]=io.finch.Decode.Aux[A,io.finch.Application.Json]" class="extmbr" name="io.finch.Decode.Json">Json</a>[<span class="extype" name="io.finch.Endpoints.jsonBodyOption.A">A</span>]</span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoints.jsonBodyOption.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoints.jsonBodyOption.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@jsonBodyOption[A](implicitevidence$3:io.finch.Decode.Json[A],implicitevidence$4:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Alias for <code>bodyOption[A, Application.Json]</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Alias for <code>bodyOption[A, Application.Json]</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoints.html" class="extype" name="io.finch.Endpoints">Endpoints</a></dd></dl></div>
     </li><li name="io.finch.Endpoints.long" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="long"></a>
       <a id="long:long"></a>
@@ -1904,24 +2034,24 @@ resulting <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoi
 endpoint succeeds on it.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoints.html" class="extype" name="io.finch.Endpoints">Endpoints</a></dd></dl></div>
     </li><li name="io.finch.Endpoints#path" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="path[A](implicitc:io.finch.internal.Capture[A]):io.finch.Endpoint[A]"></a>
-      <a id="path[A](Capture[A]):Endpoint[A]"></a>
+      <a id="path[A](implicitc:io.finch.DecodePath[A]):io.finch.Endpoint[A]"></a>
+      <a id="path[A](DecodePath[A]):Endpoint[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">path</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="c">c: <a href="internal/Capture.html" class="extype" name="io.finch.internal.Capture">Capture</a>[<span class="extype" name="io.finch.Endpoints.path.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.path.A">A</span>]</span>
+        <span class="name">path</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="c">c: <a href="DecodePath.html" class="extype" name="io.finch.DecodePath">DecodePath</a>[<span class="extype" name="io.finch.Endpoints.path.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.path.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.package@path[A](implicitc:io.finch.internal.Capture[A]):io.finch.Endpoint[A]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.package@path[A](implicitc:io.finch.DecodePath[A]):io.finch.Endpoint[A]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a value of type <code>A</code> (using the implicit
-<a href="internal/Capture.html" class="extype" name="io.finch.internal.Capture">internal.Capture</a> instances defined for <code>A</code>) from the current path segment.</p><div class="fullcomment"><div class="comment cmt"><p>A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a value of type <code>A</code> (using the implicit
-<a href="internal/Capture.html" class="extype" name="io.finch.internal.Capture">internal.Capture</a> instances defined for <code>A</code>) from the current path segment.
+<a href="DecodePath.html" class="extype" name="io.finch.DecodePath">DecodePath</a> instances defined for <code>A</code>) from the current path segment.</p><div class="fullcomment"><div class="comment cmt"><p>A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a value of type <code>A</code> (using the implicit
+<a href="DecodePath.html" class="extype" name="io.finch.DecodePath">DecodePath</a> instances defined for <code>A</code>) from the current path segment.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoints.html" class="extype" name="io.finch.Endpoints">Endpoints</a></dd></dl></div>
     </li><li name="io.finch.Endpoints#path" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="path:io.finch.Endpoint[String]"></a>
@@ -1999,6 +2129,23 @@ endpoint succeeds on it.
     </span>
       <p class="shortcomment cmt">A root <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that always matches and extracts the current request.</p><div class="fullcomment"><div class="comment cmt"><p>A root <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that always matches and extracts the current request.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoints.html" class="extype" name="io.finch.Endpoints">Endpoints</a></dd></dl></div>
+    </li><li name="io.finch.sse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="sse"></a>
+      <a id="sse:sse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="sse/package.html"><span class="name">sse</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@sse" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="io.finch.streaming" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="streaming"></a>
       <a id="streaming:streaming"></a>
@@ -2033,6 +2180,47 @@ endpoint succeeds on it.
       </a>
     </span>
       <p class="shortcomment cmt">A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a string value from the current path segment.</p><div class="fullcomment"><div class="comment cmt"><p>A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a string value from the current path segment.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoints.html" class="extype" name="io.finch.Endpoints">Endpoints</a></dd></dl></div>
+    </li><li name="io.finch.Endpoints#stringBody" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="stringBody:io.finch.Endpoint[String]"></a>
+      <a id="stringBody:Endpoint[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">stringBody</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@stringBody:io.finch.Endpoint[String]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads the required request body, interpreted as a <code>String</code>, or
+throws an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads the required request body, interpreted as a <code>String</code>, or
+throws an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> only matches non-chunked
+(non-streamed) requests.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoints.html" class="extype" name="io.finch.Endpoints">Endpoints</a></dd></dl></div>
+    </li><li name="io.finch.Endpoints#stringBodyOption" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="stringBodyOption:io.finch.Endpoint[Option[String]]"></a>
+      <a id="stringBodyOption:Endpoint[Option[String]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">stringBodyOption</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@stringBodyOption:io.finch.Endpoint[Option[String]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional request body, interpreted as a <code>String</code>, into
+an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional request body, interpreted as a <code>String</code>, into
+an <code>Option</code>. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> only matches non-chunked (non-streamed) requests.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoints.html" class="extype" name="io.finch.Endpoints">Endpoints</a></dd></dl></div>
     </li><li name="io.finch.Endpoints#stringToMatcher" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="stringToMatcher(s:String):Endpoints.this.Endpoint0"></a>
@@ -2086,6 +2274,44 @@ endpoint succeeds on it.
       </a>
     </span>
       
+    </li><li name="io.finch.Endpoints#textBody" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="textBody[A](implicitevidence$5:io.finch.Decode.Text[A],implicitevidence$6:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a>
+      <a id="textBody[A](Text[A],ClassTag[A]):Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">textBody</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="Decode$.html#Text[A]=io.finch.Decode.Aux[A,io.finch.Text.Plain]" class="extmbr" name="io.finch.Decode.Text">Text</a>[<span class="extype" name="io.finch.Endpoints.textBody.A">A</span>]</span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoints.textBody.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.textBody.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@textBody[A](implicitevidence$5:io.finch.Decode.Text[A],implicitevidence$6:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Alias for <code>body[A, Text.Plain]</code>
+</p><div class="fullcomment"><div class="comment cmt"><p>Alias for <code>body[A, Text.Plain]</code>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoints.html" class="extype" name="io.finch.Endpoints">Endpoints</a></dd></dl></div>
+    </li><li name="io.finch.Endpoints#textBodyOption" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="textBodyOption[A](implicitevidence$7:io.finch.Decode.Text[A],implicitevidence$8:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]"></a>
+      <a id="textBodyOption[A](Text[A],ClassTag[A]):Endpoint[Option[A]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">textBodyOption</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="Decode$.html#Text[A]=io.finch.Decode.Aux[A,io.finch.Text.Plain]" class="extmbr" name="io.finch.Decode.Text">Text</a>[<span class="extype" name="io.finch.Endpoints.textBodyOption.A">A</span>]</span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoints.textBodyOption.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoints.textBodyOption.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@textBodyOption[A](implicitevidence$7:io.finch.Decode.Text[A],implicitevidence$8:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Alias for <code>bodyOption[A, Text.Plain]</code>
+</p><div class="fullcomment"><div class="comment cmt"><p>Alias for <code>bodyOption[A, Text.Plain]</code>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoints.html" class="extype" name="io.finch.Endpoints">Endpoints</a></dd></dl></div>
     </li><li name="io.finch.ValidationRules#toOptionalInlineRule" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toOptionalInlineRule[A](fn:A=&gt;Boolean):Option[A]=&gt;Boolean"></a>
       <a id="toOptionalInlineRule[A]((A)⇒Boolean):(Option[A])⇒Boolean"></a>
@@ -2204,7 +2430,54 @@ router endpoint on it.
 
         <div id="values" class="values members">
               <h3>Deprecated Value Members</h3>
-              <ol><li name="io.finch.Endpoints#paramsNonEmpty" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+              <ol><li name="io.finch.Endpoints#body" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="body:io.finch.Endpoint[com.twitter.io.Buf]"></a>
+      <a id="body:Endpoint[Buf]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.11) Use body[A, ContentType] instead">body</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.io.Buf" class="extype" target="_top">Buf</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@body:io.finch.Endpoint[com.twitter.io.Buf]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads the required request body, interpreted as <span class="extype" name="Buf">Buf</span>, or
+throws an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception.</p><div class="fullcomment"><div class="comment cmt"><p>An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads the required request body, interpreted as <span class="extype" name="Buf">Buf</span>, or
+throws an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> only matches non-chunked
+(non-streamed) requests.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoints.html" class="extype" name="io.finch.Endpoints">Endpoints</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.11)</i> Use body[A, ContentType] instead</p></dd></dl></div>
+    </li><li name="io.finch.Endpoints#bodyOption" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="bodyOption:io.finch.Endpoint[Option[com.twitter.io.Buf]]"></a>
+      <a id="bodyOption:Endpoint[Option[Buf]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.11) Use bodyOption[A, ContentType] instead">bodyOption</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.io.Buf" class="extype" target="_top">Buf</a>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.package@bodyOption:io.finch.Endpoint[Option[com.twitter.io.Buf]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional request body, interpreted as <span class="extype" name="Buf">Buf</span>, into
+an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional request body, interpreted as <span class="extype" name="Buf">Buf</span>, into
+an <code>Option</code>. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> only matches non-chunked (non-streamed) requests.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoints.html" class="extype" name="io.finch.Endpoints">Endpoints</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.11)</i> Use bodyOption[A, ContentType] instead</p></dd></dl></div>
+    </li><li name="io.finch.Endpoints#paramsNonEmpty" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="paramsNonEmpty(name:String):io.finch.Endpoint[Seq[String]]"></a>
       <a id="paramsNonEmpty(String):Endpoint[Seq[String]]"></a>
       <h4 class="signature">

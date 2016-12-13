@@ -505,26 +505,27 @@
               
         </dd></dl></div>
     </li><li name="io.finch.Input#withBody" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withBody(buf:com.twitter.io.Buf,contentType:Option[String]):io.finch.Input"></a>
-      <a id="withBody(Buf,Option[String]):Input"></a>
+      <a id="withBody[CT&lt;:String]:io.finch.Input.Body[CT]"></a>
+      <a id="withBody[CT&lt;:String]:Body[CT]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">withBody</span><span class="params">(<span name="buf">buf: <a href="https://twitter.github.io/util/docs/index.html#com.twitter.io.Buf" class="extype" target="_top">Buf</a></span>, <span name="contentType">contentType: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Input">Input</a></span>
+        <span class="name">withBody</span><span class="tparams">[<span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="result">: <a href="Input$$Body.html" class="extype" name="io.finch.Input.Body">Body</a>[<span class="extype" name="io.finch.Input.withBody.CT">CT</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Input@withBody(buf:com.twitter.io.Buf,contentType:Option[String]):io.finch.Input" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Input@withBody[CT&lt;:String]:io.finch.Input.Body[CT]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Overrides (mutates) the payload (<code>buf</code> and <code>contentType</code>) of this input and
-returns <code>this</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Overrides (mutates) the payload (<code>buf</code> and <code>contentType</code>) of this input and
-returns <code>this</code>.
-</p></div><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>The <code>contentType</code> value is passed as an HTTP header so it might also
-      contain a charset separated by <code>;</code>.</p></span></dd></dl></div>
+      <p class="shortcomment cmt">Overrides (mutates) the payload of this input and returns <code>this</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Overrides (mutates) the payload of this input and returns <code>this</code>. This requires the
+content-type as a first type parameter (won't be infered).</p><p><code><code><code>
+ import io.finch._, io.circe._</code></code></code></p><p> val text: Input = Input.post(&quot;/&quot;).withBody[Text.Plain](&quot;Text Body&quot;)
+ val json: Input = Input.post(&quot;/&quot;).withBody[Application.Json](Map(&quot;json&quot; -&gt; &quot;object&quot;))
+<code><code><code>
+</code></code></code></p></div></div>
     </li><li name="io.finch.Input#withForm" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withForm(params:(String,String)*):io.finch.Input"></a>
       <a id="withForm((String,String)*):Input"></a>

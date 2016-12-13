@@ -54,7 +54,7 @@
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div><div class="toggleContainer block">
             <span class="toggle">Known Subclasses</span>
-            <div class="subClasses hiddenContent"><a href="Encode$.html" class="extype" name="io.finch.Encode">Encode</a></div>
+            <div class="subClasses hiddenContent"><a href="Encode$.html" class="extype" name="io.finch.Encode">Encode</a>, <a href="HighPriorityEncodeInstances.html" class="extype" name="io.finch.HighPriorityEncodeInstances">HighPriorityEncodeInstances</a></div>
           </div></div>
         
 
@@ -242,19 +242,19 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.finch.LowPriorityEncodeInstances#encodeShow" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="encodeShow[A](implicits:cats.Show[A]):LowPriorityEncodeInstances.this.Text[A]"></a>
-      <a id="encodeShow[A](Show[A]):Text[A]"></a>
+    </li><li name="io.finch.LowPriorityEncodeInstances#encodeShowAsTextPlain" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="encodeShowAsTextPlain[A](implicits:cats.Show[A]):LowPriorityEncodeInstances.this.Text[A]"></a>
+      <a id="encodeShowAsTextPlain[A](Show[A]):Text[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">encodeShow</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="s">s: <a href="http://typelevel.org/cats/api/index.html#cats.Show" class="extype" target="_top">Show</a>[<span class="extype" name="io.finch.LowPriorityEncodeInstances.encodeShow.A">A</span>]</span>)</span><span class="result">: <a href="#Text[A]=LowPriorityEncodeInstances.this.Aux[A,io.finch.Text.Plain]" class="extmbr" name="io.finch.LowPriorityEncodeInstances.Text">Text</a>[<span class="extype" name="io.finch.LowPriorityEncodeInstances.encodeShow.A">A</span>]</span>
+        <span class="name">encodeShowAsTextPlain</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="s">s: <a href="http://typelevel.org/cats/api/index.html#cats.Show" class="extype" target="_top">Show</a>[<span class="extype" name="io.finch.LowPriorityEncodeInstances.encodeShowAsTextPlain.A">A</span>]</span>)</span><span class="result">: <a href="#Text[A]=LowPriorityEncodeInstances.this.Aux[A,io.finch.Text.Plain]" class="extmbr" name="io.finch.LowPriorityEncodeInstances.Text">Text</a>[<span class="extype" name="io.finch.LowPriorityEncodeInstances.encodeShowAsTextPlain.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.LowPriorityEncodeInstances@encodeShow[A](implicits:cats.Show[A]):LowPriorityEncodeInstances.this.Text[A]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.LowPriorityEncodeInstances@encodeShowAsTextPlain[A](implicits:cats.Show[A]):LowPriorityEncodeInstances.this.Text[A]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
@@ -355,7 +355,7 @@
       <a id="instance[A,CT&lt;:String]((A,Charset)⇒Buf):Aux[A,CT]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
@@ -389,7 +389,7 @@
       <a id="json[A]((A,Charset)⇒Buf):Json[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
@@ -474,7 +474,7 @@
       <a id="text[A]((A,Charset)⇒Buf):Text[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">

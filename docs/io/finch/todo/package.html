@@ -146,8 +146,9 @@
       </a>
     </span>
       <p class="shortcomment cmt">A simple Finch application implementing the backend for the TodoMVC project.</p><div class="fullcomment"><div class="comment cmt"><p>A simple Finch application implementing the backend for the TodoMVC project.</p><p>Use the following sbt command to run the application.</p><pre>$ sbt 'examples/runMain io.finch.todo.Main<span class="lit">'</span></pre><p>Use the following HTTPie commands to test endpoints.</p><pre>$ http POST :<span class="num">8081</span>/todos title=foo order:=<span class="num">0</span> completed:=<span class="kw">false</span>
-$ http PATCH :<span class="num">8081</span>/todos/&lt;UUID&gt; completed:=<span class="kw">false</span>
+$ http PATCH :<span class="num">8081</span>/todos/&lt;UUID&gt; completed:=<span class="kw">true</span>
 $ http :<span class="num">8081</span>/todos
+$ http DELETE :<span class="num">8081</span>/todos/&lt;UUID&gt;
 $ http DELETE :<span class="num">8081</span>/todos</pre></div></div>
     </li><li name="io.finch.todo.Todo" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Todo"></a>

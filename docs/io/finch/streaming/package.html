@@ -79,7 +79,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Main$.html"><span class="name">Main</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.App" class="extype" target="_top">App</a></span>
+        <a href="Main$.html"><span class="name">Main</span></a>
       </span>
       </h4><span class="permalink">
       <a href="../../../index.html#io.finch.streaming.package@Main" title="Permalink" target="_top">
@@ -88,7 +88,15 @@
     </span>
       <p class="shortcomment cmt">A simple Finch application featuring very basic, <code>Buf</code>-based streaming support.</p><div class="fullcomment"><div class="comment cmt"><p>A simple Finch application featuring very basic, <code>Buf</code>-based streaming support.</p><p>There are three endpoints in this example:</p><ol class="decimal"><li><code>totalSum</code> - streaming request
  2. <code>sumTo</code> - streaming response
- 3. <code>sumSoFar</code> - end-to-end (request - response) streaming</li></ol><p>Use the following sbt command to run the application.</p><pre>$ sbt 'examples/runMain io.finch.streaming.Main<span class="lit">'</span></pre></div></div>
+ 3. <code>sumSoFar</code> - end-to-end (request - response) streaming
+ 4. <code>examples</code> - streaming response of examples objects</li></ol><p>Use the following sbt command to run the application.</p><pre>$ sbt 'examples/runMain io.finch.streaming.Main<span class="lit">'</span></pre><p>Use the following HTTPie/curl commands to test endpoints.</p><pre>$ curl -X POST --header <span class="lit">"Transfer-Encoding: chunked"</span> -d <span class="num">4</span> localhost:<span class="num">8081</span>/totalSum
+
+$ http --stream POST :<span class="num">8081</span>/sumTo/<span class="num">3</span>
+
+$ curl -X POST --header <span class="lit">"Transfer-Encoding: chunked"</span> -d <span class="num">4</span> localhost:<span class="num">8081</span>/sumSoFar
+$ curl -X POST --header <span class="lit">"Transfer-Encoding: chunked"</span> -d <span class="num">3</span> localhost:<span class="num">8081</span>/sumSoFar
+
+$ http --stream GET :<span class="num">8081</span>/examples/<span class="num">3</span></pre></div></div>
     </li></ol>
             </div>
 

@@ -597,7 +597,11 @@ handle any matching throwable from the underlying future.
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
+      <p class="shortcomment cmt">Returns a product of this and <code>other</code> endpoint.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a product of this and <code>other</code> endpoint. The resulting endpoint returns a tuple
+of both values.</p><p>This combinator is an important piece for Finch's error accumulation. In its current form,
+<code>product</code> will accumulate Finch's own errors (i.e., <a href="Error.html" class="extype" name="io.finch.Error">Error</a>s) into <a href="Errors.html" class="extype" name="io.finch.Errors">Errors</a> and
+will fail-fast with the first non-Finch error (just ordinary <code>Exception</code>) observed.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
     </li><li name="io.finch.Endpoint#rescue" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="rescue[B&gt;:A](pf:PartialFunction[Throwable,com.twitter.util.Future[io.finch.Output[B]]]):io.finch.Endpoint[B]"></a>
       <a id="rescue[B&gt;:Seq[String]](PartialFunction[Throwable,Future[Output[B]]]):Endpoint[B]"></a>
@@ -716,24 +720,6 @@ to be reused across multiple endpoints.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="io.finch.Endpoint#toService" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toService(implicittr:io.finch.internal.ToResponse.Aux[A,io.finch.Application.Json],implicittre:io.finch.internal.ToResponse.Aux[Exception,io.finch.Application.Json]):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]"></a>
-      <a id="toService(internal.ToResponse.Aux[Seq[String],Json],internal.ToResponse.Aux[Exception,Json]):Service[Request,Response]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toService</span><span class="params">(<span class="implicit">implicit </span><span name="tr">tr: <a href="internal/ToResponse$.html#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">internal.ToResponse.Aux</a>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>], <a href="package$$Application$.html#Json=String(&quot;application/json&quot;)" class="extmbr" name="io.finch.Application.Json">Json</a>]</span>, <span name="tre">tre: <a href="internal/ToResponse$.html#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">internal.ToResponse.Aux</a>[<span class="extype" name="scala.Exception">Exception</span>, <a href="package$$Application$.html#Json=String(&quot;application/json&quot;)" class="extmbr" name="io.finch.Application.Json">Json</a>]</span>)</span><span class="result">: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.Service" class="extype" target="_top">Service</a>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Request" class="extype" target="_top">Request</a>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoints$strings$@toService(implicittr:io.finch.internal.ToResponse.Aux[A,io.finch.Application.Json],implicittre:io.finch.internal.ToResponse.Aux[Exception,io.finch.Application.Json]):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Converts this endpoint to a Finagle service <code>Request =&gt; Future[Response]</code> that serves JSON.</p><div class="fullcomment"><div class="comment cmt"><p>Converts this endpoint to a Finagle service <code>Request =&gt; Future[Response]</code> that serves JSON.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd></dl></div>
     </li><li name="io.finch.Endpoint#toServiceAs" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toServiceAs[CT&lt;:String](implicittr:io.finch.internal.ToResponse.Aux[A,CT],implicittre:io.finch.internal.ToResponse.Aux[Exception,CT]):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]"></a>
       <a id="toServiceAs[CT&lt;:String](internal.ToResponse.Aux[Seq[String],CT],internal.ToResponse.Aux[Exception,CT]):Service[Request,Response]"></a>
@@ -1002,6 +988,27 @@ will succeed if either this or <code>that</code> endpoints are succeed.
                 <span class="name">@deprecated</span>
               
         </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.11.0)</i> Use product or Applicative[Endpoint].ap</p></dd></dl></div>
+    </li><li name="io.finch.Endpoint#toService" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toService(implicittr:io.finch.internal.ToResponse.Aux[A,io.finch.Application.Json],implicittre:io.finch.internal.ToResponse.Aux[Exception,io.finch.Application.Json]):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]"></a>
+      <a id="toService(internal.ToResponse.Aux[Seq[String],Json],internal.ToResponse.Aux[Exception,Json]):Service[Request,Response]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.11) Use toServiceAs[Application.Json] instead">toService</span><span class="params">(<span class="implicit">implicit </span><span name="tr">tr: <a href="internal/ToResponse$.html#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">internal.ToResponse.Aux</a>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>], <a href="package$$Application$.html#Json=String(&quot;application/json&quot;)" class="extmbr" name="io.finch.Application.Json">Json</a>]</span>, <span name="tre">tre: <a href="internal/ToResponse$.html#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">internal.ToResponse.Aux</a>[<span class="extype" name="scala.Exception">Exception</span>, <a href="package$$Application$.html#Json=String(&quot;application/json&quot;)" class="extmbr" name="io.finch.Application.Json">Json</a>]</span>)</span><span class="result">: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.Service" class="extype" target="_top">Service</a>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Request" class="extype" target="_top">Request</a>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints$strings$@toService(implicittr:io.finch.internal.ToResponse.Aux[A,io.finch.Application.Json],implicittre:io.finch.internal.ToResponse.Aux[Exception,io.finch.Application.Json]):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Converts this endpoint to a Finagle service <code>Request =&gt; Future[Response]</code> that serves JSON.</p><div class="fullcomment"><div class="comment cmt"><p>Converts this endpoint to a Finagle service <code>Request =&gt; Future[Response]</code> that serves JSON.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.11)</i> Use toServiceAs[Application.Json] instead</p></dd></dl></div>
     </li></ol>
             </div>
         </div>

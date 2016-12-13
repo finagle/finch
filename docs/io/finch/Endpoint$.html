@@ -93,7 +93,41 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="io.finch.Endpoint.GenericDerivation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="io.finch.Endpoint.BufEndpointOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BufEndpointOpsextendsAnyRef"></a>
+      <a id="BufEndpointOps:BufEndpointOps"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoint$$BufEndpointOps.html"><span class="name">BufEndpointOps</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@BufEndpointOpsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.Endpoint.BufOptionEndpointOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BufOptionEndpointOpsextendsAnyRef"></a>
+      <a id="BufOptionEndpointOps:BufOptionEndpointOps"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Endpoint$$BufOptionEndpointOps.html"><span class="name">BufOptionEndpointOps</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@BufOptionEndpointOpsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.Endpoint.GenericDerivation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="GenericDerivation[A]extendsAnyRef"></a>
       <a id="GenericDerivation[A]:GenericDerivation[A]"></a>
       <h4 class="signature">
@@ -178,8 +212,8 @@
       </a>
     </span>
       <p class="shortcomment cmt">Implicit conversion that allows to call <code>as[A]</code> on any <code>Endpoint[String]</code> to perform a type
-conversion based on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion that allows to call <code>as[A]</code> on any <code>Endpoint[String]</code> to perform a type
-conversion based on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><p>The resulting reader will fail when type conversion fails.
+conversion based on an implicit <code>DecodeEntity[A]</code> which must be in scope.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion that allows to call <code>as[A]</code> on any <code>Endpoint[String]</code> to perform a type
+conversion based on an implicit <code>DecodeEntity[A]</code> which must be in scope.</p><p>The resulting endpoint will fail when type conversion fails.
 </p></div></div>
     </li><li name="io.finch.Endpoint.StringNelEndpointOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="StringNelEndpointOpsextendsAnyRef"></a>
@@ -240,8 +274,8 @@ will succeed if the result is empty or type conversion succeeds.
       </a>
     </span>
       <p class="shortcomment cmt">Implicit conversion that allows to call <code>as[A]</code> on any <code>Endpoint[Seq[String]]</code> to perform a
-type conversion based on an implicit <code><code>DecodeRequest[A]</code> which must be in scope.</code></p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion that allows to call <code>as[A]</code> on any <code>Endpoint[Seq[String]]</code> to perform a
-type conversion based on an implicit <code><code>DecodeRequest[A]</code> which must be in scope.</code></p><p>The resulting endpoint will fail when the result is non-empty and type conversion fails on one
+type conversion based on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversion that allows to call <code>as[A]</code> on any <code>Endpoint[Seq[String]]</code> to perform a
+type conversion based on an implicit <code>DecodeRequest[A]</code> which must be in scope.</p><p>The resulting endpoint will fail when the result is non-empty and type conversion fails on one
 or more of the elements in the <code>Seq</code>. It will succeed if the result is empty or type conversion
 succeeds for all elements.
 </p></div></div>
@@ -320,23 +354,6 @@ succeeds for all elements.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.finch.Endpoint#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply(mapper:io.finch.internal.Mapper[shapeless.HNil]):io.finch.Endpoint[mapper.Out]"></a>
-      <a id="apply(Mapper[HNil]):Endpoint[Out]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="mapper">mapper: <a href="internal/Mapper.html" class="extype" name="io.finch.internal.Mapper">Mapper</a>[<span class="extype" name="shapeless.HNil">HNil</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="internal/Mapper.html#Out" class="extmbr" name="io.finch.internal.Mapper.Out">Out</a>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoint$@apply(mapper:io.finch.internal.Mapper[shapeless.HNil]):io.finch.Endpoint[mapper.Out]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> from the given <a href="Output.html" class="extype" name="io.finch.Output">Output</a>.</p>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -377,6 +394,23 @@ succeeds for all elements.
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="io.finch.Endpoint#const" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="const[A](a:A):io.finch.Endpoint[A]"></a>
+      <a id="const[A](A):Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">const</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="a">a: <span class="extype" name="io.finch.Endpoint.const.A">A</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.const.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@const[A](a:A):io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that always matches and returns a given value (evaluated eagerly).</p>
     </li><li name="io.finch.Endpoint#derive" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="derive[A]:io.finch.Endpoint.GenericDerivation[A]"></a>
       <a id="derive[A]:GenericDerivation[A]"></a>
@@ -536,6 +570,76 @@ succeeds for all elements.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.finch.Endpoint#lift" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="lift[A](a:=&gt;A):io.finch.Endpoint[A]"></a>
+      <a id="lift[A](⇒A):Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">lift</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="a">a: ⇒ <span class="extype" name="io.finch.Endpoint.lift.A">A</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.lift.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@lift[A](a:=&gt;A):io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that always matches and returns a given value (evaluated lazily).</p><div class="fullcomment"><div class="comment cmt"><p>Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that always matches and returns a given value (evaluated lazily).</p><p>This might be useful for wrapping functions returning arbitrary value within <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>
+context.</p><p>Example: the following endpoint will recompute a random integer on each request.</p><pre><span class="kw">val</span> nextInt: Endpoint[<span class="std">Int</span>] = Endpoint.lift(scala.util.random.nextInt)</pre></div></div>
+    </li><li name="io.finch.Endpoint#liftFuture" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="liftFuture[A](fa:=&gt;com.twitter.util.Future[A]):io.finch.Endpoint[A]"></a>
+      <a id="liftFuture[A](⇒Future[A]):Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">liftFuture</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="fa">fa: ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<span class="extype" name="io.finch.Endpoint.liftFuture.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.liftFuture.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@liftFuture[A](fa:=&gt;com.twitter.util.Future[A]):io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that always matches and returns a given <code>Future</code> (evaluated lazily).</p>
+    </li><li name="io.finch.Endpoint#liftFutureOutput" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="liftFutureOutput[A](foa:=&gt;com.twitter.util.Future[io.finch.Output[A]]):io.finch.Endpoint[A]"></a>
+      <a id="liftFutureOutput[A](⇒Future[Output[A]]):Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">liftFutureOutput</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="foa">foa: ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Endpoint.liftFutureOutput.A">A</span>]]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.liftFutureOutput.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@liftFutureOutput[A](foa:=&gt;com.twitter.util.Future[io.finch.Output[A]]):io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that always matches and returns a given <code>Future[Output]</code>
+(evaluated lazily).</p>
+    </li><li name="io.finch.Endpoint#liftOutput" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="liftOutput[A](oa:=&gt;io.finch.Output[A]):io.finch.Endpoint[A]"></a>
+      <a id="liftOutput[A](⇒Output[A]):Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">liftOutput</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="oa">oa: ⇒ <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Endpoint.liftOutput.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.liftOutput.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@liftOutput[A](oa:=&gt;io.finch.Output[A]):io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that always matches and returns a given <code>Output</code> (evaluated lazily).</p>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -695,7 +799,31 @@ succeeds for all elements.
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="io.finch.Endpoint#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="apply(mapper:io.finch.internal.Mapper[shapeless.HNil]):io.finch.Endpoint[mapper.Out]"></a>
+      <a id="apply(Mapper[HNil]):Endpoint[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.11) Use one of the liftX variants">apply</span><span class="params">(<span name="mapper">mapper: <a href="internal/Mapper.html" class="extype" name="io.finch.internal.Mapper">Mapper</a>[<span class="extype" name="shapeless.HNil">HNil</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="internal/Mapper.html#Out" class="extmbr" name="io.finch.internal.Mapper.Out">Out</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoint$@apply(mapper:io.finch.internal.Mapper[shapeless.HNil]):io.finch.Endpoint[mapper.Out]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> from the given <a href="Output.html" class="extype" name="io.finch.Output">Output</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> from the given <a href="Output.html" class="extype" name="io.finch.Output">Output</a>.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.11)</i> Use one of the liftX variants</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">

@@ -51,7 +51,8 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>An abstraction that is responsible for decoding the value of type <code>A</code>.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Decodes an HTTP payload represented as <span class="extype" name="Buf">Buf</span> (encoded with <span class="extype" name="Charset">Charset</span>) into
+an arbitrary type <code>A</code>.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></div>
@@ -91,23 +92,43 @@
         <div id="allMembers">
         
 
-        
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="io.finch.Decode.ContentType" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ContentType&lt;:String"></a>
+      <a id="ContentType:ContentType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ContentType</span><span class="result"> &lt;: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Decode@ContentType&lt;:String" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
 
         <div id="values" class="values members">
               <h3>Abstract Value Members</h3>
               <ol><li name="io.finch.Decode#apply" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="apply(s:String):com.twitter.util.Try[A]"></a>
-      <a id="apply(String):Try[A]"></a>
+      <a id="apply(b:com.twitter.io.Buf,cs:java.nio.charset.Charset):com.twitter.util.Try[A]"></a>
+      <a id="apply(Buf,Charset):Try[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="s">s: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Try" class="extype" target="_top">Try</a>[<span class="extype" name="io.finch.Decode.A">A</span>]</span>
+        <span class="name">apply</span><span class="params">(<span name="b">b: <a href="https://twitter.github.io/util/docs/index.html#com.twitter.io.Buf" class="extype" target="_top">Buf</a></span>, <span name="cs">cs: <span class="extype" name="java.nio.charset.Charset">Charset</span></span>)</span><span class="result">: <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Try" class="extype" target="_top">Try</a>[<span class="extype" name="io.finch.Decode.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Decode@apply(s:String):com.twitter.util.Try[A]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Decode@apply(b:com.twitter.io.Buf,cs:java.nio.charset.Charset):com.twitter.util.Try[A]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>

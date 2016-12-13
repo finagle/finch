@@ -45,15 +45,23 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">Main</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.App" class="extype" target="_top">App</a></span>
+        <span class="name">Main</span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A simple Finch application featuring very basic, <code>Buf</code>-based streaming support.</p><p>There are three endpoints in this example:</p><ol class="decimal"><li><code>totalSum</code> - streaming request
  2. <code>sumTo</code> - streaming response
- 3. <code>sumSoFar</code> - end-to-end (request - response) streaming</li></ol><p>Use the following sbt command to run the application.</p><pre>$ sbt 'examples/runMain io.finch.streaming.Main<span class="lit">'</span></pre></div><div class="toggleContainer block">
+ 3. <code>sumSoFar</code> - end-to-end (request - response) streaming
+ 4. <code>examples</code> - streaming response of examples objects</li></ol><p>Use the following sbt command to run the application.</p><pre>$ sbt 'examples/runMain io.finch.streaming.Main<span class="lit">'</span></pre><p>Use the following HTTPie/curl commands to test endpoints.</p><pre>$ curl -X POST --header <span class="lit">"Transfer-Encoding: chunked"</span> -d <span class="num">4</span> localhost:<span class="num">8081</span>/totalSum
+
+$ http --stream POST :<span class="num">8081</span>/sumTo/<span class="num">3</span>
+
+$ curl -X POST --header <span class="lit">"Transfer-Encoding: chunked"</span> -d <span class="num">4</span> localhost:<span class="num">8081</span>/sumSoFar
+$ curl -X POST --header <span class="lit">"Transfer-Encoding: chunked"</span> -d <span class="num">3</span> localhost:<span class="num">8081</span>/sumSoFar
+
+$ http --stream GET :<span class="num">8081</span>/examples/<span class="num">3</span></pre></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.App" class="extype" target="_top">App</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.DelayedInit" class="extype" target="_top">DelayedInit</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
         
 
@@ -71,7 +79,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="io.finch.streaming.Main"><span>Main</span></li><li class="in" name="scala.App"><span>App</span></li><li class="in" name="scala.DelayedInit"><span>DelayedInit</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="io.finch.streaming.Main"><span>Main</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -184,32 +192,6 @@
       </a>
     </span>
       
-    </li><li name="scala.App#args" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="args:Array[String]"></a>
-      <a id="args:Array[String]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">args</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Array" class="extype" target="_top">Array</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.streaming.Main$@args:Array[String]" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>App</dd><dt>Annotations</dt><dd>
-                <span class="name">@deprecatedOverriding</span><span class="args">(<span>
-      
-      <span class="symbol">&quot;args should not be overridden&quot;</span>
-    </span>, <span>
-      
-      <span class="symbol">&quot;2.11.0&quot;</span>
-    </span>)</span>
-              
-        </dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -290,7 +272,7 @@
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">examples</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.concurrent.AsyncStream" class="extype" target="_top">AsyncStream</a>[<a href="Main$$Example.html" class="extype" name="io.finch.streaming.Main.Example">Example</a>]]</span>
@@ -301,23 +283,6 @@
       </a>
     </span>
       
-    </li><li name="scala.App#executionStart" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="executionStart:Long"></a>
-      <a id="executionStart:Long"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">executionStart</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Long" class="extype" target="_top">Long</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.streaming.Main$@executionStart:Long" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>App</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -392,32 +357,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scala.App#main" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="main(args:Array[String]):Unit"></a>
-      <a id="main(Array[String]):Unit"></a>
+    </li><li name="io.finch.streaming.Main#main" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="main():Unit"></a>
+      <a id="main():Unit"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">main</span><span class="params">(<span name="args">args: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Array" class="extype" target="_top">Array</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">main</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.streaming.Main$@main(args:Array[String]):Unit" title="Permalink" target="_top">
+      <a href="../../../index.html#io.finch.streaming.Main$@main():Unit" title="Permalink" target="_top">
         <img src="../../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>App</dd><dt>Annotations</dt><dd>
-                <span class="name">@deprecatedOverriding</span><span class="args">(<span>
       
-      <span class="symbol">&quot;main should not be overridden&quot;</span>
-    </span>, <span>
-      
-      <span class="symbol">&quot;2.11.0&quot;</span>
-    </span>)</span>
-              
-        </dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -492,7 +448,7 @@
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">sumSoFar</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.concurrent.AsyncStream" class="extype" target="_top">AsyncStream</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Long" class="extype" target="_top">Long</a>]]</span>
@@ -509,7 +465,7 @@
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">sumTo</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.concurrent.AsyncStream" class="extype" target="_top">AsyncStream</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Long" class="extype" target="_top">Long</a>]]</span>
@@ -560,7 +516,7 @@
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">totalSum</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Long" class="extype" target="_top">Long</a>]</span>
@@ -645,38 +601,11 @@
 
         
 
-        <div id="values" class="values members">
-              <h3>Deprecated Value Members</h3>
-              <ol><li name="scala.App#delayedInit" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="delayedInit(body:=&gt;Unit):Unit"></a>
-      <a id="delayedInit(⇒Unit):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version 2.11.0) The delayedInit mechanism will disappear.">delayedInit</span><span class="params">(<span name="body">body: ⇒ <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../../index.html#io.finch.streaming.Main$@delayedInit(body:=&gt;Unit):Unit" title="Permalink" target="_top">
-        <img src="../../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>App → DelayedInit</dd><dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 2.11.0)</i> The delayedInit mechanism will disappear.</p></dd></dl></div>
-    </li></ol>
-            </div>
+        
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.App">
-              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.App" class="extype" target="_top">App</a></h3>
-            </div><div class="parent" name="scala.DelayedInit">
-              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.DelayedInit" class="extype" target="_top">DelayedInit</a></h3>
-            </div><div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.AnyRef">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></h3>

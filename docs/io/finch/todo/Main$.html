@@ -50,8 +50,9 @@
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A simple Finch application implementing the backend for the TodoMVC project.</p><p>Use the following sbt command to run the application.</p><pre>$ sbt 'examples/runMain io.finch.todo.Main<span class="lit">'</span></pre><p>Use the following HTTPie commands to test endpoints.</p><pre>$ http POST :<span class="num">8081</span>/todos title=foo order:=<span class="num">0</span> completed:=<span class="kw">false</span>
-$ http PATCH :<span class="num">8081</span>/todos/&lt;UUID&gt; completed:=<span class="kw">false</span>
+$ http PATCH :<span class="num">8081</span>/todos/&lt;UUID&gt; completed:=<span class="kw">true</span>
 $ http :<span class="num">8081</span>/todos
+$ http DELETE :<span class="num">8081</span>/todos/&lt;UUID&gt;
 $ http DELETE :<span class="num">8081</span>/todos</pre></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="https://twitter.github.io/twitter-server/docs/index.html#com.twitter.server.TwitterServer" class="extype" target="_top">TwitterServer</a>, <a href="https://twitter.github.io/twitter-server/docs/index.html#com.twitter.server.Stats" class="extype" target="_top">Stats</a>, <a href="https://twitter.github.io/twitter-server/docs/index.html#com.twitter.server.Lifecycle" class="extype" target="_top">Lifecycle</a>, <a href="https://twitter.github.io/twitter-server/docs/index.html#com.twitter.server.Admin" class="extype" target="_top">Admin</a>, <a href="https://twitter.github.io/twitter-server/docs/index.html#com.twitter.server.AdminHttpServer" class="extype" target="_top">AdminHttpServer</a>, <a href="https://twitter.github.io/twitter-server/docs/index.html#com.twitter.server.Hooks" class="extype" target="_top">Hooks</a>, <a href="https://twitter.github.io/twitter-server/docs/index.html#com.twitter.server.LogFormat" class="extype" target="_top">LogFormat</a>, <a href="https://twitter.github.io/twitter-server/docs/index.html#com.twitter.server.EventSink" class="extype" target="_top">EventSink</a>, <a href="https://twitter.github.io/util/docs/index.html#com.twitter.logging.Logging" class="extype" target="_top">Logging</a>, <a href="https://twitter.github.io/twitter-server/docs/index.html#com.twitter.server.Linters" class="extype" target="_top">Linters</a>, <a href="https://twitter.github.io/util/docs/index.html#com.twitter.app.App" class="extype" target="_top">App</a>, <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.CloseAwaitably" class="extype" target="_top">CloseAwaitably</a>, <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.CloseAwaitably0" class="extype" target="_top">CloseAwaitably0</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a>], <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Awaitable" class="extype" target="_top">Awaitable</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a>], <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Closable" class="extype" target="_top">Closable</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></div>
@@ -335,6 +336,40 @@ $ http DELETE :<span class="num">8081</span>/todos</pre></div><div class="toggle
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="com.twitter.logging.Logging#asyncFlag" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asyncFlag:com.twitter.app.Flag[Boolean]"></a>
+      <a id="asyncFlag:Flag[Boolean]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asyncFlag</span><span class="result">: <a href="https://twitter.github.io/util/docs/index.html#com.twitter.app.Flag" class="extype" target="_top">Flag</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.todo.Main$@asyncFlag:com.twitter.app.Flag[Boolean]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[this] </dd><dt>Definition Classes</dt><dd>Logging</dd></dl></div>
+    </li><li name="com.twitter.logging.Logging#asyncMaxSizeFlag" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asyncMaxSizeFlag:com.twitter.app.Flag[Int]"></a>
+      <a id="asyncMaxSizeFlag:Flag[Int]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asyncMaxSizeFlag</span><span class="result">: <a href="https://twitter.github.io/util/docs/index.html#com.twitter.app.Flag" class="extype" target="_top">Flag</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.todo.Main$@asyncMaxSizeFlag:com.twitter.app.Flag[Int]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[this] </dd><dt>Definition Classes</dt><dd>Logging</dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -443,6 +478,23 @@ $ http DELETE :<span class="num">8081</span>/todos</pre></div><div class="toggle
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>App</dd></dl></div>
+    </li><li name="com.twitter.logging.Logging#configureLoggerFactories" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="configureLoggerFactories():Unit"></a>
+      <a id="configureLoggerFactories():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">configureLoggerFactories</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.todo.Main$@configureLoggerFactories():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>Logging</dd></dl></div>
     </li><li name="com.twitter.logging.Logging#defaultAppend" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="defaultAppend:Boolean"></a>
       <a id="defaultAppend:Boolean"></a>
@@ -585,7 +637,7 @@ $ http DELETE :<span class="num">8081</span>/todos</pre></div><div class="toggle
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">deleteTodo</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="Todo.html" class="extype" name="io.finch.todo.Todo">Todo</a>]</span>
@@ -602,7 +654,7 @@ $ http DELETE :<span class="num">8081</span>/todos</pre></div><div class="toggle
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">deleteTodos</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.List">List</span>[<a href="Todo.html" class="extype" name="io.finch.todo.Todo">Todo</a>]]</span>
@@ -744,7 +796,7 @@ $ http DELETE :<span class="num">8081</span>/todos</pre></div><div class="toggle
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">getTodos</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.List">List</span>[<a href="Todo.html" class="extype" name="io.finch.todo.Todo">Todo</a>]]</span>
@@ -755,6 +807,23 @@ $ http DELETE :<span class="num">8081</span>/todos</pre></div><div class="toggle
       </a>
     </span>
       
+    </li><li name="com.twitter.server.Lifecycle#group" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="group:String"></a>
+      <a id="group:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">group</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.todo.Main$@group:String" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Lifecycle</dd></dl></div>
     </li><li name="com.twitter.logging.Logging#handlers" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="handlers:List[()=&gt;com.twitter.logging.Handler]"></a>
       <a id="handlers:List[()⇒Handler]"></a>
@@ -874,6 +943,40 @@ $ http DELETE :<span class="num">8081</span>/todos</pre></div><div class="toggle
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[this] </dd><dt>Definition Classes</dt><dd>Logging</dd></dl></div>
+    </li><li name="com.twitter.server.AdminHttpServer#libraryName" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="libraryName:String"></a>
+      <a id="libraryName:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">libraryName</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.todo.Main$@libraryName:String" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>AdminHttpServer</dd></dl></div>
+    </li><li name="com.twitter.server.Linters#linterRules" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="linterRules:Seq[com.twitter.util.lint.Rule]"></a>
+      <a id="linterRules:Seq[Rule]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">linterRules</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.lint.Rule" class="extype" target="_top">Rule</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.finch.todo.Main$@linterRules:Seq[com.twitter.util.lint.Rule]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Linters</dd></dl></div>
     </li><li name="com.twitter.logging.Logging#log" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="log:com.twitter.logging.Logger"></a>
       <a id="log:Logger"></a>
@@ -1067,7 +1170,7 @@ $ http DELETE :<span class="num">8081</span>/todos</pre></div><div class="toggle
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">patchTodo</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="Todo.html" class="extype" name="io.finch.todo.Todo">Todo</a>]</span>
@@ -1084,7 +1187,7 @@ $ http DELETE :<span class="num">8081</span>/todos</pre></div><div class="toggle
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">patchedTodo</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[(<a href="Todo.html" class="extype" name="io.finch.todo.Todo">Todo</a>) ⇒ <a href="Todo.html" class="extype" name="io.finch.todo.Todo">Todo</a>]</span>
@@ -1118,7 +1221,7 @@ $ http DELETE :<span class="num">8081</span>/todos</pre></div><div class="toggle
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">postTodo</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="Todo.html" class="extype" name="io.finch.todo.Todo">Todo</a>]</span>
@@ -1135,7 +1238,7 @@ $ http DELETE :<span class="num">8081</span>/todos</pre></div><div class="toggle
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
         <span class="name">postedTodo</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="Todo.html" class="extype" name="io.finch.todo.Todo">Todo</a>]</span>

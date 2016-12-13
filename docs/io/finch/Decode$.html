@@ -47,13 +47,13 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">Decode</span><span class="result"> extends <a href="LowPriorityDecodeInstances.html" class="extype" name="io.finch.LowPriorityDecodeInstances">LowPriorityDecodeInstances</a></span>
+        <span class="name">Decode</span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="LowPriorityDecodeInstances.html" class="extype" name="io.finch.LowPriorityDecodeInstances">LowPriorityDecodeInstances</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
         
 
@@ -71,7 +71,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="io.finch.Decode"><span>Decode</span></li><li class="in" name="io.finch.LowPriorityDecodeInstances"><span>LowPriorityDecodeInstances</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="io.finch.Decode"><span>Decode</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -90,7 +90,61 @@
         <div id="allMembers">
         
 
-        
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="io.finch.Decode.Aux" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Aux[A,CT&lt;:String]=io.finch.Decode[A]{typeContentType=CT}"></a>
+      <a id="Aux[A,CT&lt;:String]:Aux[A,CT]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Aux</span><span class="tparams">[<span name="A">A</span>, <span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="result"> = <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a>[<span class="extype" name="io.finch.Decode.Aux.A">A</span>] { type ContentType = CT }</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Decode$@Aux[A,CT&lt;:String]=io.finch.Decode[A]{typeContentType=CT}" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.Decode.Json" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Json[A]=io.finch.Decode.Aux[A,io.finch.Application.Json]"></a>
+      <a id="Json[A]:Json[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Json</span><span class="tparams">[<span name="A">A</span>]</span><span class="result"> = <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a>[<span class="extype" name="io.finch.Decode.Json.A">A</span>] { type ContentType = io.finch.Application.Json }</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Decode$@Json[A]=io.finch.Decode.Aux[A,io.finch.Application.Json]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li><li name="io.finch.Decode.Text" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Text[A]=io.finch.Decode.Aux[A,io.finch.Text.Plain]"></a>
+      <a id="Text[A]:Text[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Text</span><span class="tparams">[<span name="A">A</span>]</span><span class="result"> = <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a>[<span class="extype" name="io.finch.Decode.Text.A">A</span>] { type ContentType = io.finch.Text.Plain }</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Decode$@Text[A]=io.finch.Decode.Aux[A,io.finch.Text.Plain]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
 
         
 
@@ -148,22 +202,22 @@
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="io.finch.Decode#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply[A](implicitdr:io.finch.Decode[A]):io.finch.Decode[A]"></a>
-      <a id="apply[A](Decode[A]):Decode[A]"></a>
+      <a id="apply[A,CT&lt;:String](implicitd:io.finch.Decode.Aux[A,CT]):io.finch.Decode.Aux[A,CT]"></a>
+      <a id="apply[A,CT&lt;:String](Aux[A,CT]):Aux[A,CT]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="dr">dr: <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a>[<span class="extype" name="io.finch.Decode.apply.A">A</span>]</span>)</span><span class="result">: <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a>[<span class="extype" name="io.finch.Decode.apply.A">A</span>]</span>
+        <span class="name">apply</span><span class="tparams">[<span name="A">A</span>, <span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="#Aux[A,CT&lt;:String]=io.finch.Decode[A]{typeContentType=CT}" class="extmbr" name="io.finch.Decode.Aux">Aux</a>[<span class="extype" name="io.finch.Decode.apply.A">A</span>, <span class="extype" name="io.finch.Decode.apply.CT">CT</span>]</span>)</span><span class="result">: <a href="#Aux[A,CT&lt;:String]=io.finch.Decode[A]{typeContentType=CT}" class="extmbr" name="io.finch.Decode.Aux">Aux</a>[<span class="extype" name="io.finch.Decode.apply.A">A</span>, <span class="extype" name="io.finch.Decode.apply.CT">CT</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Decode$@apply[A](implicitdr:io.finch.Decode[A]):io.finch.Decode[A]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Decode$@apply[A,CT&lt;:String](implicitd:io.finch.Decode.Aux[A,CT]):io.finch.Decode.Aux[A,CT]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Returns an instance for a given type.</p><div class="fullcomment"><div class="comment cmt"><p>Returns an instance for a given type.
+      <p class="shortcomment cmt">Returns a <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a> instance for a given type (with required content type).</p><div class="fullcomment"><div class="comment cmt"><p>Returns a <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a> instance for a given type (with required content type).
 </p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
                 <span class="name">@inline</span><span class="args">()</span>
               
@@ -208,145 +262,6 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.finch.Decode#decodeBoolean" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="decodeBoolean:io.finch.Decode[Boolean]"></a>
-      <a id="decodeBoolean:Decode[Boolean]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">decodeBoolean</span><span class="result">: <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Decode$@decodeBoolean:io.finch.Decode[Boolean]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a> instance for <code>Boolean</code>.</p>
-    </li><li name="io.finch.Decode#decodeDouble" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="decodeDouble:io.finch.Decode[Double]"></a>
-      <a id="decodeDouble:Decode[Double]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">decodeDouble</span><span class="result">: <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Double" class="extype" target="_top">Double</a>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Decode$@decodeDouble:io.finch.Decode[Double]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a> instance for <code>Double</code>.</p>
-    </li><li name="io.finch.Decode#decodeFloat" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="decodeFloat:io.finch.Decode[Float]"></a>
-      <a id="decodeFloat:Decode[Float]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">decodeFloat</span><span class="result">: <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Float" class="extype" target="_top">Float</a>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Decode$@decodeFloat:io.finch.Decode[Float]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a> instance for <code>Float</code>.</p>
-    </li><li name="io.finch.LowPriorityDecodeInstances#decodeFromGeneric" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="decodeFromGeneric[A](implicitgen:shapeless.Generic.Aux[A,shapeless.::[String,shapeless.HNil]]):io.finch.Decode[A]"></a>
-      <a id="decodeFromGeneric[A](Aux[A,::[String,HNil]]):Decode[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">decodeFromGeneric</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="gen">gen: <span class="extype" name="shapeless.Generic.Aux">Aux</span>[<span class="extype" name="io.finch.LowPriorityDecodeInstances.decodeFromGeneric.A">A</span>, <span class="extype" name="shapeless.::">::</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="shapeless.HNil">HNil</span>]]</span>)</span><span class="result">: <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a>[<span class="extype" name="io.finch.LowPriorityDecodeInstances.decodeFromGeneric.A">A</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Decode$@decodeFromGeneric[A](implicitgen:shapeless.Generic.Aux[A,shapeless.::[String,shapeless.HNil]]):io.finch.Decode[A]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Creates a <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a> from <span class="extype" name="shapeless.Generic">shapeless.Generic</span>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a> from <span class="extype" name="shapeless.Generic">shapeless.Generic</span>.</p><p>Note: This is mostly a workaround for <code>Endpoint[String].as[CaseClassOfASingleString]</code>,
-      because by some reason, compiler doesn't pick <code>ValueEndpointOps</code> for
-      <code>Endpoint[String]</code>.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityDecodeInstances.html" class="extype" name="io.finch.LowPriorityDecodeInstances">LowPriorityDecodeInstances</a></dd></dl></div>
-    </li><li name="io.finch.Decode#decodeInt" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="decodeInt:io.finch.Decode[Int]"></a>
-      <a id="decodeInt:Decode[Int]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">decodeInt</span><span class="result">: <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Int" class="extype" target="_top">Int</a>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Decode$@decodeInt:io.finch.Decode[Int]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a> instance for <code>Int</code>.</p>
-    </li><li name="io.finch.Decode#decodeLong" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="decodeLong:io.finch.Decode[Long]"></a>
-      <a id="decodeLong:Decode[Long]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">decodeLong</span><span class="result">: <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Long" class="extype" target="_top">Long</a>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Decode$@decodeLong:io.finch.Decode[Long]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a> instance for <code>Long</code>.</p>
-    </li><li name="io.finch.Decode#decodeString" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="decodeString:io.finch.Decode[String]"></a>
-      <a id="decodeString:Decode[String]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">decodeString</span><span class="result">: <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Decode$@decodeString:io.finch.Decode[String]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a> instance for <code>String</code>.</p>
-    </li><li name="io.finch.Decode#decodeUUID" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="decodeUUID:io.finch.Decode[java.util.UUID]"></a>
-      <a id="decodeUUID:Decode[UUID]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">decodeUUID</span><span class="result">: <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a>[<span class="extype" name="java.util.UUID">UUID</span>]</span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Decode$@decodeUUID:io.finch.Decode[java.util.UUID]" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" alt="Permalink" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a> instance for <code>UUID</code>.</p>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -438,24 +353,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.finch.LowPriorityDecodeInstances#instance" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="instance[A](f:String=&gt;com.twitter.util.Try[A]):io.finch.Decode[A]"></a>
-      <a id="instance[A]((String)⇒Try[A]):Decode[A]"></a>
+    </li><li name="io.finch.Decode#instance" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="instance[A,CT&lt;:String](fn:(com.twitter.io.Buf,java.nio.charset.Charset)=&gt;com.twitter.util.Try[A]):io.finch.Decode.Aux[A,CT]"></a>
+      <a id="instance[A,CT&lt;:String]((Buf,Charset)⇒Try[A]):Aux[A,CT]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">instance</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Try" class="extype" target="_top">Try</a>[<span class="extype" name="io.finch.LowPriorityDecodeInstances.instance.A">A</span>]</span>)</span><span class="result">: <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a>[<span class="extype" name="io.finch.LowPriorityDecodeInstances.instance.A">A</span>]</span>
+        <span class="name">instance</span><span class="tparams">[<span name="A">A</span>, <span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="params">(<span name="fn">fn: (<a href="https://twitter.github.io/util/docs/index.html#com.twitter.io.Buf" class="extype" target="_top">Buf</a>, <span class="extype" name="java.nio.charset.Charset">Charset</span>) ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Try" class="extype" target="_top">Try</a>[<span class="extype" name="io.finch.Decode.instance.A">A</span>]</span>)</span><span class="result">: <a href="#Aux[A,CT&lt;:String]=io.finch.Decode[A]{typeContentType=CT}" class="extmbr" name="io.finch.Decode.Aux">Aux</a>[<span class="extype" name="io.finch.Decode.instance.A">A</span>, <span class="extype" name="io.finch.Decode.instance.CT">CT</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Decode$@instance[A](f:String=&gt;com.twitter.util.Try[A]):io.finch.Decode[A]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Decode$@instance[A,CT&lt;:String](fn:(com.twitter.io.Buf,java.nio.charset.Charset)=&gt;com.twitter.util.Try[A]):io.finch.Decode.Aux[A,CT]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">Creates an instance for a given type.</p><div class="fullcomment"><div class="comment cmt"><p>Creates an instance for a given type.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityDecodeInstances.html" class="extype" name="io.finch.LowPriorityDecodeInstances">LowPriorityDecodeInstances</a></dd></dl></div>
+      <p class="shortcomment cmt">Creates an instance for a given type.</p>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -473,6 +387,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.finch.Decode#json" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="json[A](fn:(com.twitter.io.Buf,java.nio.charset.Charset)=&gt;com.twitter.util.Try[A]):io.finch.Decode.Json[A]"></a>
+      <a id="json[A]((Buf,Charset)⇒Try[A]):Json[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">json</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="fn">fn: (<a href="https://twitter.github.io/util/docs/index.html#com.twitter.io.Buf" class="extype" target="_top">Buf</a>, <span class="extype" name="java.nio.charset.Charset">Charset</span>) ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Try" class="extype" target="_top">Try</a>[<span class="extype" name="io.finch.Decode.json.A">A</span>]</span>)</span><span class="result">: <a href="#Json[A]=io.finch.Decode.Aux[A,io.finch.Application.Json]" class="extmbr" name="io.finch.Decode.Json">Json</a>[<span class="extype" name="io.finch.Decode.json.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Decode$@json[A](fn:(com.twitter.io.Buf,java.nio.charset.Charset)=&gt;com.twitter.util.Try[A]):io.finch.Decode.Json[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -541,6 +472,23 @@
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="io.finch.Decode#text" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="text[A](fn:(com.twitter.io.Buf,java.nio.charset.Charset)=&gt;com.twitter.util.Try[A]):io.finch.Decode.Text[A]"></a>
+      <a id="text[A]((Buf,Charset)⇒Try[A]):Text[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">text</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="fn">fn: (<a href="https://twitter.github.io/util/docs/index.html#com.twitter.io.Buf" class="extype" target="_top">Buf</a>, <span class="extype" name="java.nio.charset.Charset">Charset</span>) ⇒ <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Try" class="extype" target="_top">Try</a>[<span class="extype" name="io.finch.Decode.text.A">A</span>]</span>)</span><span class="result">: <a href="#Text[A]=io.finch.Decode.Aux[A,io.finch.Text.Plain]" class="extmbr" name="io.finch.Decode.Text">Text</a>[<span class="extype" name="io.finch.Decode.text.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Decode$@text[A](fn:(com.twitter.io.Buf,java.nio.charset.Charset)=&gt;com.twitter.util.Try[A]):io.finch.Decode.Text[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
@@ -636,9 +584,7 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="io.finch.LowPriorityDecodeInstances">
-              <h3>Inherited from <a href="LowPriorityDecodeInstances.html" class="extype" name="io.finch.LowPriorityDecodeInstances">LowPriorityDecodeInstances</a></h3>
-            </div><div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.AnyRef">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Any" class="extype" target="_top">Any</a></h3>

@@ -347,45 +347,46 @@ into an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt
 into an <code>Option</code>. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> only matches non-chunked (non-streamed) requests.
 </p></div></div>
     </li><li name="io.finch.Endpoints#body" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="body:io.finch.Endpoint[String]"></a>
-      <a id="body:Endpoint[String]"></a>
+      <a id="body[A,CT&lt;:String](implicitd:io.finch.Decode.Aux[A,CT],implicitct:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a>
+      <a id="body[A,CT&lt;:String](Aux[A,CT],ClassTag[A]):Endpoint[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">body</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">body</span><span class="tparams">[<span name="A">A</span>, <span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="Decode$.html#Aux[A,CT&lt;:String]=io.finch.Decode[A]{typeContentType=CT}" class="extmbr" name="io.finch.Decode.Aux">Aux</a>[<span class="extype" name="io.finch.Endpoints.body.A">A</span>, <span class="extype" name="io.finch.Endpoints.body.CT">CT</span>]</span>, <span name="ct">ct: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoints.body.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.body.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoints@body:io.finch.Endpoint[String]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoints@body[A,CT&lt;:String](implicitd:io.finch.Decode.Aux[A,CT],implicitct:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">An evaluating<a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads the required request body, interpreted as a <code>String</code>, or
-throws an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating<a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads the required request body, interpreted as a <code>String</code>, or
-throws an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> only matches non-chunked
-(non-streamed) requests.
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads the required request body represented as <code>CT</code> (<code>ContentType</code>) and
+interpreted as <code>A</code>, or throws an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception.</p><div class="fullcomment"><div class="comment cmt"><p>An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads the required request body represented as <code>CT</code> (<code>ContentType</code>) and
+interpreted as <code>A</code>, or throws an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>
+only matches non-chunked (non-streamed) requests.
 </p></div></div>
     </li><li name="io.finch.Endpoints#bodyOption" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="bodyOption:io.finch.Endpoint[Option[String]]"></a>
-      <a id="bodyOption:Endpoint[Option[String]]"></a>
+      <a id="bodyOption[A,CT&lt;:String](implicitd:io.finch.Decode.Aux[A,CT],implicitct:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]"></a>
+      <a id="bodyOption[A,CT&lt;:String](Aux[A,CT],ClassTag[A]):Endpoint[Option[A]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">bodyOption</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="name">bodyOption</span><span class="tparams">[<span name="A">A</span>, <span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="Decode$.html#Aux[A,CT&lt;:String]=io.finch.Decode[A]{typeContentType=CT}" class="extmbr" name="io.finch.Decode.Aux">Aux</a>[<span class="extype" name="io.finch.Endpoints.bodyOption.A">A</span>, <span class="extype" name="io.finch.Endpoints.bodyOption.CT">CT</span>]</span>, <span name="ct">ct: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoints.bodyOption.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoints.bodyOption.A">A</span>]]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoints@bodyOption:io.finch.Endpoint[Option[String]]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoints@bodyOption[A,CT&lt;:String](implicitd:io.finch.Decode.Aux[A,CT],implicitct:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
-      <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional request body, interpreted as a <code>String</code>, into
-an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional request body, interpreted as a <code>String</code>, into
-an <code>Option</code>. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> only matches non-chunked (non-streamed) requests.
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional request body represented as <code>CT</code> (<code>ContentType</code>) and
+interpreted as <code>A</code>, into an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional request body represented as <code>CT</code> (<code>ContentType</code>) and
+interpreted as <code>A</code>, into an <code>Option</code>. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> only matches non-chunked
+(non-streamed) requests.
 </p></div></div>
     </li><li name="io.finch.Endpoints.boolean" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="boolean"></a>
@@ -825,6 +826,40 @@ an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPrese
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.finch.Endpoints#jsonBody" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="jsonBody[A](implicitevidence$1:io.finch.Decode.Json[A],implicitevidence$2:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a>
+      <a id="jsonBody[A](Json[A],ClassTag[A]):Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">jsonBody</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="Decode$.html#Json[A]=io.finch.Decode.Aux[A,io.finch.Application.Json]" class="extmbr" name="io.finch.Decode.Json">Json</a>[<span class="extype" name="io.finch.Endpoints.jsonBody.A">A</span>]</span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoints.jsonBody.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.jsonBody.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@jsonBody[A](implicitevidence$1:io.finch.Decode.Json[A],implicitevidence$2:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Alias for <code>body[A, Application.Json]</code>.</p>
+    </li><li name="io.finch.Endpoints#jsonBodyOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="jsonBodyOption[A](implicitevidence$3:io.finch.Decode.Json[A],implicitevidence$4:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]"></a>
+      <a id="jsonBodyOption[A](Json[A],ClassTag[A]):Endpoint[Option[A]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">jsonBodyOption</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="Decode$.html#Json[A]=io.finch.Decode.Aux[A,io.finch.Application.Json]" class="extmbr" name="io.finch.Decode.Json">Json</a>[<span class="extype" name="io.finch.Endpoints.jsonBodyOption.A">A</span>]</span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoints.jsonBodyOption.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoints.jsonBodyOption.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@jsonBodyOption[A](implicitevidence$3:io.finch.Decode.Json[A],implicitevidence$4:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Alias for <code>bodyOption[A, Application.Json]</code>.</p>
     </li><li name="io.finch.Endpoints.long" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="long"></a>
       <a id="long:long"></a>
@@ -1043,23 +1078,23 @@ resulting <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoi
 endpoint succeeds on it.
 </p></div></div>
     </li><li name="io.finch.Endpoints#path" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="path[A](implicitc:io.finch.internal.Capture[A]):io.finch.Endpoint[A]"></a>
-      <a id="path[A](Capture[A]):Endpoint[A]"></a>
+      <a id="path[A](implicitc:io.finch.DecodePath[A]):io.finch.Endpoint[A]"></a>
+      <a id="path[A](DecodePath[A]):Endpoint[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">path</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="c">c: <a href="internal/Capture.html" class="extype" name="io.finch.internal.Capture">Capture</a>[<span class="extype" name="io.finch.Endpoints.path.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.path.A">A</span>]</span>
+        <span class="name">path</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="c">c: <a href="DecodePath.html" class="extype" name="io.finch.DecodePath">DecodePath</a>[<span class="extype" name="io.finch.Endpoints.path.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.path.A">A</span>]</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.finch.Endpoints@path[A](implicitc:io.finch.internal.Capture[A]):io.finch.Endpoint[A]" title="Permalink" target="_top">
+      <a href="../../index.html#io.finch.Endpoints@path[A](implicitc:io.finch.DecodePath[A]):io.finch.Endpoint[A]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" alt="Permalink" />
       </a>
     </span>
       <p class="shortcomment cmt">A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a value of type <code>A</code> (using the implicit
-<a href="internal/Capture.html" class="extype" name="io.finch.internal.Capture">internal.Capture</a> instances defined for <code>A</code>) from the current path segment.</p>
+<a href="DecodePath.html" class="extype" name="io.finch.DecodePath">DecodePath</a> instances defined for <code>A</code>) from the current path segment.</p>
     </li><li name="io.finch.Endpoints#path" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="path:io.finch.Endpoint[String]"></a>
       <a id="path:Endpoint[String]"></a>
@@ -1152,6 +1187,47 @@ endpoint succeeds on it.
       </a>
     </span>
       <p class="shortcomment cmt">A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a string value from the current path segment.</p>
+    </li><li name="io.finch.Endpoints#stringBody" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="stringBody:io.finch.Endpoint[String]"></a>
+      <a id="stringBody:Endpoint[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">stringBody</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@stringBody:io.finch.Endpoint[String]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads the required request body, interpreted as a <code>String</code>, or
+throws an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads the required request body, interpreted as a <code>String</code>, or
+throws an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> only matches non-chunked
+(non-streamed) requests.
+</p></div></div>
+    </li><li name="io.finch.Endpoints#stringBodyOption" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="stringBodyOption:io.finch.Endpoint[Option[String]]"></a>
+      <a id="stringBodyOption:Endpoint[Option[String]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">stringBodyOption</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@stringBodyOption:io.finch.Endpoint[Option[String]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional request body, interpreted as a <code>String</code>, into
+an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional request body, interpreted as a <code>String</code>, into
+an <code>Option</code>. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> only matches non-chunked (non-streamed) requests.
+</p></div></div>
     </li><li name="io.finch.Endpoints#stringToMatcher" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="stringToMatcher(s:String):Endpoints.this.Endpoint0"></a>
       <a id="stringToMatcher(String):Endpoint0"></a>
@@ -1203,6 +1279,42 @@ endpoint succeeds on it.
       </a>
     </span>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="io.finch.Endpoints#textBody" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="textBody[A](implicitevidence$5:io.finch.Decode.Text[A],implicitevidence$6:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a>
+      <a id="textBody[A](Text[A],ClassTag[A]):Endpoint[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">textBody</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="Decode$.html#Text[A]=io.finch.Decode.Aux[A,io.finch.Text.Plain]" class="extmbr" name="io.finch.Decode.Text">Text</a>[<span class="extype" name="io.finch.Endpoints.textBody.A">A</span>]</span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoints.textBody.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoints.textBody.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@textBody[A](implicitevidence$5:io.finch.Decode.Text[A],implicitevidence$6:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Alias for <code>body[A, Text.Plain]</code>
+</p>
+    </li><li name="io.finch.Endpoints#textBodyOption" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="textBodyOption[A](implicitevidence$7:io.finch.Decode.Text[A],implicitevidence$8:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]"></a>
+      <a id="textBodyOption[A](Text[A],ClassTag[A]):Endpoint[Option[A]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">textBodyOption</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="Decode$.html#Text[A]=io.finch.Decode.Aux[A,io.finch.Text.Plain]" class="extmbr" name="io.finch.Decode.Text">Text</a>[<span class="extype" name="io.finch.Endpoints.textBodyOption.A">A</span>]</span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoints.textBodyOption.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoints.textBodyOption.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@textBodyOption[A](implicitevidence$7:io.finch.Decode.Text[A],implicitevidence$8:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Alias for <code>bodyOption[A, Text.Plain]</code>
+</p>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
@@ -1350,7 +1462,54 @@ router endpoint on it.
 
         <div id="values" class="values members">
               <h3>Deprecated Value Members</h3>
-              <ol><li name="io.finch.Endpoints#paramsNonEmpty" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+              <ol><li name="io.finch.Endpoints#body" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="body:io.finch.Endpoint[com.twitter.io.Buf]"></a>
+      <a id="body:Endpoint[Buf]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.11) Use body[A, ContentType] instead">body</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.io.Buf" class="extype" target="_top">Buf</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@body:io.finch.Endpoint[com.twitter.io.Buf]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads the required request body, interpreted as <span class="extype" name="Buf">Buf</span>, or
+throws an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception.</p><div class="fullcomment"><div class="comment cmt"><p>An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads the required request body, interpreted as <span class="extype" name="Buf">Buf</span>, or
+throws an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> only matches non-chunked
+(non-streamed) requests.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.11)</i> Use body[A, ContentType] instead</p></dd></dl></div>
+    </li><li name="io.finch.Endpoints#bodyOption" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="bodyOption:io.finch.Endpoint[Option[com.twitter.io.Buf]]"></a>
+      <a id="bodyOption:Endpoint[Option[Buf]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.11) Use bodyOption[A, ContentType] instead">bodyOption</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.11.8/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.io.Buf" class="extype" target="_top">Buf</a>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.finch.Endpoints@bodyOption:io.finch.Endpoint[Option[com.twitter.io.Buf]]" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional request body, interpreted as <span class="extype" name="Buf">Buf</span>, into
+an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional request body, interpreted as <span class="extype" name="Buf">Buf</span>, into
+an <code>Option</code>. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> only matches non-chunked (non-streamed) requests.
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.11)</i> Use bodyOption[A, ContentType] instead</p></dd></dl></div>
+    </li><li name="io.finch.Endpoints#paramsNonEmpty" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="paramsNonEmpty(name:String):io.finch.Endpoint[Seq[String]]"></a>
       <a id="paramsNonEmpty(String):Endpoint[Seq[String]]"></a>
       <h4 class="signature">
