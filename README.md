@@ -26,7 +26,7 @@ Finch uses multi-project structure and contains of the following _modules_:
 * [`finch-sprayjson`](sprayjson) - The JSON API support for the [SprayJson][sprayjson] library
 * [`finch-test`](test) - the test support classes/functions
 * [`finch-oauth2`](oauth2) - the OAuth2 support backed by the [finagle-oauth2][finagle-oauth2] library
-* [`finch-sse`](see) - SSE ([Server Sent Events](server-sent-events)) support in Finch (available in 0.11)
+* [`finch-sse`](see) - SSE ([Server Sent Events](server-sent-events)) support in Finch
 
 Installation
 ------------
@@ -36,7 +36,7 @@ Every Finch module is published at Maven Central. Use the following _sbt_ snippe
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "[finch-module]" % "0.11.0-M4"
+  "com.github.finagle" %% "[finch-module]" % "0.11.0"
 )
 ```
 
@@ -46,7 +46,7 @@ libraryDependencies ++= Seq(
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "[finch-module]" % "0.11.0-SNAPSHOT" changing()
+  "com.github.finagle" %% "[finch-module]" % "0.12.0-SNAPSHOT" changing()
 )
 ```
 
@@ -78,7 +78,7 @@ version): Finch performs on **85% of Finagle's throughput**.
 | Finagle + Jackson | 33867.56 req/s | 43781.26 req/s | 43854.92 req/s |
 | Finch + Circe     | 27126.25 req/s | 36720.75 req/s | 37191.58 req/s |
 
-Finch is also load tested against a number of Scala HTTP frameworks and libraries as par of the
+Finch is also load tested against a number of Scala HTTP frameworks and libraries as part of the
 [TechEmpower benchmark][tempower]. The most recent round showed that Finch performs really well
 there, [scoring a second place][finch-is-fast] across all the Scala libraries.
 

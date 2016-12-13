@@ -16,8 +16,8 @@ build.sbt:
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "finch-core" % "0.11.0-M4",
-  "com.github.finagle" %% "finch-circe" % "0.11.0-M4",
+  "com.github.finagle" %% "finch-core" % "0.12.0",
+  "com.github.finagle" %% "finch-circe" % "0.12.0",
   "io.circe" %% "circe-generic" % "0.5.3"
 )
 ```
@@ -41,7 +41,7 @@ object Main extends App {
     java.util.Calendar.getInstance(l).getTime.toString
 
   val time: Endpoint[Time] =
-    post("time" :: body.as[Locale]) { l: Locale =>
+    post("time" :: jsonBody[Locale]) { l: Locale =>
       Ok(Time(l, currentTime(new java.util.Locale(l.language, l.country))))
     }
 
