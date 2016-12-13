@@ -8,18 +8,16 @@ import com.twitter.finagle.netty3.ChannelBufferBuf
 import com.twitter.io.Buf
 import com.twitter.util.{Base64StringEncoder, Future, Try}
 import io.catbird.util.Rerunnable
+import io.finch.endpoint._
 import io.finch.internal._
 import java.util.UUID
+import scala.reflect.ClassTag
 import shapeless._
 
 /**
  * A collection of [[Endpoint]] combinators.
  */
 trait Endpoints {
-
-  private[this] val hnilFutureOutput: Rerunnable[Output[HNil]] = new Rerunnable[Output[HNil]] {
-    override val run = Future.value(Output.payload(HNil))
-  }
 
   type Endpoint0 = Endpoint[HNil]
   type Endpoint2[A, B] = Endpoint[A :: B :: HNil]
@@ -31,11 +29,11 @@ trait Endpoints {
   private[finch] class Matcher(s: String) extends Endpoint[HNil] {
     def apply(input: Input): Endpoint.Result[HNil] =
       input.headOption.flatMap {
-        case `s` => Some(input.drop(1) -> hnilFutureOutput)
+        case `s` => Some(input.drop(1) -> Rs.OutputHNil)
         case _ => None
       }
 
-    override def toString = s
+    override def toString: String = s
   }
 
   implicit def stringToMatcher(s: String): Endpoint0 = new Matcher(s)
@@ -179,7 +177,7 @@ trait Endpoints {
    */
   object * extends Endpoint[HNil] {
     def apply(input: Input): Endpoint.Result[HNil] =
-      Some(input.copy(path = Nil) -> hnilFutureOutput)
+      Some(input.copy(path = Nil) -> Rs.OutputHNil)
 
     override def toString: String = "*"
   }
@@ -189,7 +187,7 @@ trait Endpoints {
    */
   object / extends Endpoint[HNil] {
     def apply(input: Input): Endpoint.Result[HNil] =
-      Some(input -> hnilFutureOutput)
+      Some(input -> Rs.OutputHNil)
 
     override def toString: String = ""
   }
@@ -294,7 +292,7 @@ trait Endpoints {
     }
 
   private[this] val someEmptyBuf = Some(Buf.Empty)
-  private[this] def requestBody(req: Request): Option[Buf] =
+  private[this] final def requestBody(req: Request): Option[Buf] =
     req.contentLength match {
       case Some(0) => someEmptyBuf
       case Some(_) => Some(req.content)
@@ -417,7 +415,7 @@ trait Endpoints {
    * An evaluating [[Endpoint]] that reads a binary request body, interpreted as a `Array[Byte]`,
    * into an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
    */
-  val bodyByteArrayOption: Endpoint[Option[Array[Byte]]] =
+  val binaryBodyOption: Endpoint[Option[Array[Byte]]] =
     matches(items.BodyItem)(!_.isChunked)(requestBodyByteArray)
 
   /**
@@ -425,28 +423,13 @@ trait Endpoints {
    * `Array[Byte]`, or throws a [[Error.NotPresent]] exception. The returned [[Endpoint]] only
    * matches non-chunked (non-streamed) requests.
    */
-  val bodyByteArray: Endpoint[Array[Byte]] = bodyByteArrayOption.failIfNone
-
-  /**
-   * An evaluating [[Endpoint]] that reads a binary request body, interpreted as a `Array[Byte]`,
-   * into an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
-   */
-  @deprecated("Use bodyByteArrayOption instead.", "0.11")
-  val binaryBodyOption: Endpoint[Option[Array[Byte]]] = bodyByteArrayOption
-
-  /**
-   * An evaluating [[Endpoint]] that reads a required binary request body, interpreted as an
-   * `Array[Byte]`, or throws a [[Error.NotPresent]] exception. The returned [[Endpoint]] only
-   * matches non-chunked (non-streamed) requests.
-   */
-  @deprecated("Use bodyByteArray instead.", "0.11")
-  val binaryBody: Endpoint[Array[Byte]] = bodyByteArray
+  val binaryBody: Endpoint[Array[Byte]] = binaryBodyOption.failIfNone
 
   /**
    * An evaluating [[Endpoint]] that reads an optional request body, interpreted as a `String`, into
    * an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
    */
-  val bodyStringOption: Endpoint[Option[String]] =
+  val stringBodyOption: Endpoint[Option[String]] =
     matches(items.BodyItem)(!_.isChunked)(requestBodyString)
 
   /**
@@ -454,13 +437,13 @@ trait Endpoints {
    * throws an [[Error.NotPresent]] exception. The returned [[Endpoint]] only matches non-chunked
    * (non-streamed) requests.
    */
-  val bodyString: Endpoint[String] = bodyStringOption.failIfNone
-
+  val stringBody: Endpoint[String] = stringBodyOption.failIfNone
 
   /**
    * An [[Endpoint]] that reads an optional request body, interpreted as [[Buf]], into
    * an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
    */
+  @deprecated("Use bodyOption[A, ContentType] instead", "0.11")
   val bodyOption: Endpoint[Option[Buf]] =
     matches(items.BodyItem)(!_.isChunked)(requestBody)
 
@@ -469,7 +452,45 @@ trait Endpoints {
    * throws an [[Error.NotPresent]] exception. The returned [[Endpoint]] only matches non-chunked
    * (non-streamed) requests.
    */
+  @deprecated("Use body[A, ContentType] instead", "0.11")
   val body: Endpoint[Buf] = bodyOption.failIfNone
+
+  /**
+   * An [[Endpoint]] that reads an optional request body represented as `CT` (`ContentType`) and
+   * interpreted as `A`, into an `Option`. The returned [[Endpoint]] only matches non-chunked
+   * (non-streamed) requests.
+   */
+  def bodyOption[A, CT <: String](implicit
+    d: Decode.Aux[A, CT], ct: ClassTag[A]): Endpoint[Option[A]] = new OptionalBody[A, CT](d, ct)
+
+  /**
+   * An [[Endpoint]] that reads the required request body represented as `CT` (`ContentType`) and
+   * interpreted as `A`, or throws an [[Error.NotPresent]] exception. The returned [[Endpoint]]
+   * only matches non-chunked (non-streamed) requests.
+   */
+  def body[A, CT <: String](implicit
+    d: Decode.Aux[A, CT], ct: ClassTag[A]): Endpoint[A] = new RequiredBody[A, CT](d, ct)
+
+  /**
+   * Alias for `body[A, Application.Json]`.
+   */
+  def jsonBody[A: Decode.Json : ClassTag]: Endpoint[A] = body[A, Application.Json]
+
+  /**
+   * Alias for `bodyOption[A, Application.Json]`.
+   */
+  def jsonBodyOption[A: Decode.Json : ClassTag]: Endpoint[Option[A]] =
+    bodyOption[A, Application.Json]
+
+  /**
+   * Alias for `body[A, Text.Plain]`
+   */
+  def textBody[A: Decode.Text : ClassTag]: Endpoint[A] = body[A, Text.Plain]
+
+  /**
+   * Alias for `bodyOption[A, Text.Plain]`
+   */
+  def textBodyOption[A: Decode.Text : ClassTag]: Endpoint[Option[A]] = bodyOption[A, Text.Plain]
 
   /**
    * An evaluating [[Endpoint]] that reads a required chunked streaming binary body, interpreted as

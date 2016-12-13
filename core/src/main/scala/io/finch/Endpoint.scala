@@ -411,7 +411,7 @@ object Endpoint {
    * Creates an [[Endpoint]] that always matches and returns a given value (evaluated eagerly).
    */
   def const[A](a: A): Endpoint[A] = new Endpoint[A] {
-    def apply(input: Input): Result[A] = Some(input -> rerunnable(Output.payload(a)))
+    def apply(input: Input): Result[A] = Some(input -> Rs.const(Output.payload(a)))
   }
 
   /**

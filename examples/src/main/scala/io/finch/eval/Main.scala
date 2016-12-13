@@ -33,7 +33,7 @@ object Main {
 
   val execute: Eval = new Eval()
 
-  def eval: Endpoint[EvalOutput] = post("eval" :: body.as[EvalInput]) { i: EvalInput =>
+  def eval: Endpoint[EvalOutput] = post("eval" :: jsonBody[EvalInput]) { i: EvalInput =>
     Ok(EvalOutput(execute[Any](i.expression).toString))
   } handle {
     case e: Exception => BadRequest(e)

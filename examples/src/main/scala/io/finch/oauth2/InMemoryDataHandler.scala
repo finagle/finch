@@ -41,7 +41,7 @@ object InMemoryDataHandler extends DataHandler[OAuthUser] {
   private[this] val authInfosByAccessToken = new ConcurrentHashMap[String, AuthInfo[OAuthUser]]().asScala
 
   private[this] def makeToken: AccessToken = {
-    new AccessToken(
+    AccessToken(
       token = s"AT-${UUID.randomUUID()}",
       refreshToken = Some(s"RT-${UUID.randomUUID()}"),
       scope = None,
