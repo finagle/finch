@@ -292,6 +292,7 @@ trait Endpoint[A] { self =>
 
     private[this] val basicEndpointHandler: PartialFunction[Throwable, Output[Nothing]] = {
       case e: io.finch.Error => Output.failure(e, Status.BadRequest)
+      case es: io.finch.Errors => Output.failure(es, Status.BadRequest)
     }
 
     private[this] val safeEndpoint = self.handle(basicEndpointHandler)
