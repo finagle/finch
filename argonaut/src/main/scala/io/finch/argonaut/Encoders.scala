@@ -15,6 +15,7 @@ trait Encoders {
     Encode.json((a, cs) => BufText(printer.pretty(e.encode(a)), cs))
 
   implicit def encodeExceptionArgonaut[A <: Exception]: EncodeJson[A] = new EncodeJson[A] {
-    override def encode(a: A): Json = Json.obj(("message", Json.jString(a.getMessage)))
+    override def encode(a: A): Json =
+      Json.obj(("message", Option(a.getMessage).fold(Json.jNull)(Json.jString)))
   }
 }
