@@ -48,52 +48,9 @@ import io.circe.generic.auto._
 import io.finch.circe._
 ```
 
-**Note:** IntelliJ usually marks those imports unused (grey). Don't. Trust. It.
-
-In addition to an `Encode.Json` instance for return (success) types, Finch also requires an
-instance for `Exception` (failure) that might be thrown by the endpoint. That said, both failures
-and successes values should be serialized and propagated to the client over the wire.
-
-It's relatively easy to provide such an instance with JSON libraries featuring compile-time
-reflection and type-classes for decoding/encoding (Circe, Argonaut). For example, with Circe it
-might be defined as follows.
-
-```scala
-import io.circe.{Encoder, Json}
-
-implicit val encodeException: Encoder[Exception] = Encoder.instance(e =>
-  Json.obj(
-    "type" -> Json.string(e.getClass.getSimpleName),
-    "message" -> Json.string(e.getMessage)
-  )
-)
-```
-
-However, this may be tricky to do with libraries using runtime-reflection (Jackson, JSON4S) since
-they are usually able to serialize `Any` values, which means it's possible to compile a `.toService`
-call without an explicitly provided `Encode.Json[Exception]`. This may lead to some unexpected
-results (even `StackOverflowException`s). As a workaround, you might define a raw instance of
-`Encode.Json[Exception]` that wraps a call to the underlying JSON library. The following example,
-demonstrates how to do that with Jackson.
-
-```scala
-import io.finch._
-import io.finch.internal._
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
-
-implicit val objectMapper: ObjectMapper =
-  new ObjectMapper().registerModule(DefaultScalaModule)
-
-implicit val ee: Encode.Json[Exception] =
-  Encode.json((e, cs) =>
-    BufText(objectMapper.writeValueAsString(Map("error" -> e.getMessage)), cs)
-  )
-````
-
 ### Serving multiple content types
 
-In its current form (as per 0.11-M2) Finch natively supports only single content type per Finagle
+In its current form (as per 0.11) Finch natively supports only single content type per Finagle
 service. This restriction is encoded in the API such that `toServiceAs` call only takes single type
 parameter, single content type.
 
@@ -192,16 +149,12 @@ Http.server
   .serve(":8081", file.toServiceAs[Text.Plain])
 ```
 
-### Converting `Error.Multiple` into JSON
+### Converting `Errors` into JSON
 
-For the sake of errors accumulating, Finch exceptions are encoded into a recursive ADT, where
-`Error.Multiple` wraps a `cats.data.NonEmptyList[Error]`. Thus it might be tricky to write an encoder (i.e,
-`EncodeResponse[Exception]`) for this. Yet, this kind of problem shouldn't be a surprise for
-Scala programmers who deal with recursive ADTs and pattern matching on a daily basis.
-
-The general idea is to write a recursive function converting a `Throwable` to `Seq[Json]` (where
-`Json` represents an AST in a particular JSON library) and then convert `Seq[Json]` into a JSON
-array.
+Finch's own errors are often accumulated in the product `Endpoint` and represented as
+`io.finch.Errors` that wraps a `cats.data.NonEmptyList[Error]`. Writing an exception handling
+function for both `Error` (single error) and `Errors` (multiple errors) cases may not seem as a
+trivial thing to do.
 
 With [Circe][circe] the complete implementation might look like the following.
 
@@ -210,19 +163,19 @@ import io.circe.{Encoder, Json}
 import io.finch._
 import io.finch.circe._
 
-def exceptionToJson(t: Throwable): Seq[Json] = t match {
+def errorToJson(e: Error): Json = t match {
   case Error.NotPresent(_) =>
     Seq(Json.obj("error" -> Json.fromString("something_not_present")))
   case Error.NotParsed(_, _, _) =>
     Seq(Json.obj("error" -> Json.fromString("something_not_parsed")))
   case Error.NotValid(_, _) =>
     Seq(Json.obj("error" -> Json.fromString("something_not_valid")))
-  case Error.Multiple(ts) =>
-    ts.toList.flatMap(exceptionToJson)
 }
 
-implicit val ee: Encoder[Exception] =
-  Encoder.instance(e => Json.arr(exceptionToJson(e): _*))
+implicit val ee: Encoder[Exception] = Encoder.instance {
+  case e: Error => errorToJson(e)
+  case Errors(nel) => Json.arr(nel.toList.map(errorToJson): _*)
+}
 ```
 
 ### Defining endpoints returning empty responses
@@ -385,12 +338,11 @@ path segment might be extracted as (converted to) Java 8's `LocalDateTime`.
 
 ```scala
 import io.finch._
-import io.finch.internal
 import com.twitter.util.Try
 import java.time.LocalDateTime
 
-implicit val e: internal.Capture[LocalDateTime] =
-  internal.Capture.instance(s => Try(LocalDateTime.parse(s)).toOption)
+implicit val e: DecodePath[LocalDateTime] =
+  DecodePath.instance(s => Try(LocalDateTime.parse(s)).toOption)
 
 val dateTime: Endpoint[LocalDateTime] = get("time" :: path[LocalDateTime]) { t: LocalDateTime =>
   println(s"Got time: $t")
@@ -398,8 +350,8 @@ val dateTime: Endpoint[LocalDateTime] = get("time" :: path[LocalDateTime]) { t: 
 }
 ```
 
-**Note:** `io.finch.internal.Extractor` is an experimental API that will be (or not) eventually
-promoted to non-experimental.
+**Note:** `io.finch.DecodePath` is an experimental API that will be (or not) eventually promoted
+to non-experimental.
 
 
 ### CORS in Finch

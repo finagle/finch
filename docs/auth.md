@@ -43,7 +43,7 @@ import io.finch._
 val basicAuth: BasicAuth = BasicAuth("realm") { (user, password) =>
   user == "user" && password == "password"
 }
-val e: Endpoint[String] = basicAuth(Endpoint(Ok("secret place")))
+val e: Endpoint[String] = basicAuth(Endpoint.liftOutput(Ok("secret place")))
 ```
 
 --

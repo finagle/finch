@@ -1,25 +1,26 @@
-## Endpoints
+## Finch User Guide
 
-* [Overview](endpoint.md#overview)
-* [Endpoint Internals](endpoint.md#endpoint-internals)
-* [Understanding Endpoints](endpoint.md#understanding-endpoints)
-* [Endpoint Instances](endpoint.md#endpoint-instances)
-* [Composing Endpoints](endpoint.md#composing-endpoints)
-  * [Product Endpoints](endpoint.md#product-endpoints)
-  * [Coproduct Endpoints](endpoint.md#coproduct-endpoints)
-* [Mapping Endpoints](endpoint.md#mapping-endpoints)
-* [Outputs](endpoint.md#outputs)
-* [Decoding](endpoint.md#decoding)
-  * [Type Conversion](endpoint.md#type-conversion)
-  * [Custom Decoders](endpoint.md#custom-decoders)
-  * [Decoding from JSON](endpoint.md#decoding-from-json)
-* [Encoding](endpoint.md#encoding)
-  * [Type-level Content-Type](endpoint.md#type-level-content-type)
-  * [Encoding to JSON](endpoint.md#encoding-to-json)
-* [Validation](endpoint.md#validation)
-* [Errors](endpoint.md#errors)
-* [Error Handling](endpoint.md#error-handling)
-* [Testing Endpoints](endpoint.md#testing-endpoints)
+* [Overview](user-guide.md#overview)
+* [Endpoint Internals](user-guide.md#endpoint-internals)
+* [Understanding Endpoints](user-guide.md#understanding-endpoints)
+* [Endpoint Instances](user-guide.md#endpoint-instances)
+* [Composing Endpoints](user-guide.md#composing-endpoints)
+  * [Product Endpoints](user-guide.md#product-endpoints)
+  * [Coproduct Endpoints](user-guide.md#coproduct-endpoints)
+* [Mapping Endpoints](user-guide.md#mapping-endpoints)
+* [Outputs](user-guide.md#outputs)
+* [Type-level Content-Type](user-guide.md#type-level-content-type)
+* [Decoding](user-guide.md#decoding)
+  * [Type Conversion](user-guide.md#type-conversion)
+  * [Custom Decoders](user-guide.md#custom-decoders)
+  * [Decoding from JSON](user-guide.md#decoding-from-json)
+* [Encoding](user-guide.md#encoding)
+  * [Encoding to JSON](user-guide.md#encoding-to-json)
+* [Validation](user-guide.md#validation)
+* [Errors](user-guide.md#errors)
+  * [Error Accumulation](user-guide.md#error-accumulation)
+  * [Error Handling](user-guide.md#error-handling)
+* [Testing](user-guide.md#testing)
 
 --
 
@@ -87,9 +88,62 @@ routing/matching); when evaluated return a value fetched from the given request.
 Finch comes with a number of built-in, simple endpoints representing well-defined operations that
 you might want to perform on a given HTTP request.
 
+#### Empty
+
+`Endpoint.empty[A]` is the one that never matches.
+
 #### Identity
 
 An _identity_ endpoint `/` always matches but doesn't modify the state of the given input.
+
+#### Constant
+
+It might come in handy to _lift_ an arbitrary function or a value into an `Endpoint` context. Use
+`Endpoint.const` to wrap an arbitrary value (evaluated eagerly) or any of the `Endpoint.liftX`
+variants to lift a given call-by-name value (essentially, a function call) within an `Endpoint`.
+
+In the following example, the random value is only generated once (when endpoint is constructed) in
+the `p` endpoint, and generated on each request in the `q` endpoint.
+
+```scala
+scala> import io.finch._
+import io.finch._
+
+scala> val p = Endpoint.const(scala.math.random)
+p: io.finch.Endpoint[Double] = io.finch.Endpoint$$anon$12@3d326f2c
+
+scala> val q = Endpoint.lift(scala.math.random)
+q: io.finch.Endpoint[Double] = io.finch.Endpoint$$anon$13@4126006a
+
+scala> p(Input.get("/")).value
+res1: Option[Double] = Some(0.46142040016536523)
+
+scala> p(Input.get("/")).value
+res2: Option[Double] = Some(0.46142040016536523)
+
+scala> q(Input.get("/")).value
+res3: Option[Double] = Some(0.2204303223747196)
+
+scala> q(Input.get("/")).value
+res4: Option[Double] = Some(0.38292485936910126)
+```
+
+#### Root (Request)
+
+It's possible that Finch might be missing some of handy endpoints out of the box, especially that
+it's evolved separately from Finagle. To overcome this and provide an extension point, there is a
+special endpoint instance, called `root` that returns a raw Finagle `Request`.
+
+```scala
+scala> import io.finch._
+import io.finch._
+
+scala> val remoteAddr = root.map(_.remoteAddress)
+remoteAddr: io.finch.Endpoint[java.net.InetAddress] = request
+
+scala> remoteAddr(Input.get("/")).value
+res5: Option[java.net.InetAddress] = Some(0.0.0.0/0.0.0.0)
+```
 
 #### Match All
 
@@ -175,8 +229,8 @@ Finch provides the following instances for reading HTTP params (evaluating endpo
 - `param("foo")` - required param "foo"
 - `paramOption("foo")` - optional param "foo"
 - `params("foos")` - multi-value param "foos" that might return an empty sequence
-- `paramsNel("foos")` - multi-value param "foos" that return `cats.data.NonEmptyList` or failed
-  future
+- `paramsNel("foos")` - multi-value param "foos" that return `cats.data.NonEmptyList` or a failed
+  `Future`
 
 In addition to these evaluating endpoints, there is also one matching endpoint `paramExists("foo")`
 that only matches requests with "foo" param.
@@ -196,15 +250,29 @@ some way: before evaluating an HTTP body they also check/match whether the reque
 chunked/non-chunked. This is mostly about what API Finagle provides for streaming: chunked requests
 may read via `request.reader`, non-chunked via `request.content`.
 
-- `body` - required, non-chunked (only matches non-chunked requests) body represented as a string
-- `bodyOption` - optional, non-chunked (only matches non-chunked requests) body represented as a
-  string
-- `binaryBody` - required, non-chunked (only matches non-chunked requests) body represented as a
-  byte array
-- `binaryBodyOption` - optional, non-chunked (only matches non-chunked requests) body represented as a
-  byte array
+Similar to the rest of predefined endpoints, these are come in pairs required/optional.
+
+Non-chunked bodies:
+
+- `bodyString(Option)` - required/optional, non-chunked (only matches non-chunked requests) body
+   represented as a UTF-8 string.
+- `binaryBody(Option)` - required/optional, non-chunked (only matches non-chunked requests) body
+   represented as a byte array.
+
+There is a special (and presumably most used) combinators available for _reading and decoding_ HTTP
+bodies in a single step.
+
+- `body(Option)[A, ContentType <: String]` - required/optional, non-chunked (only matches
+  non-chunked requests) body represented as `A` and decoding according to presented
+  `Decode.Aux[A, ContentType]` instanace. See [decoding from JSON](user-guide.md#decoding-from-json)
+  for more details.
+- `jsonBody(Option)[A]` - an alias for `body[A, Application.Json]`.
+- `textBody(Option)[A]` - an alias for `body[A, Text.Plain]`
+
+Chunked bodies:
+
 - `asyncBody` - chunked/streamed (only matches chunked requests) body represented as an
-  `AsyncStream`
+  `AsyncStream[Buf]`.
 
 #### File Uploads
 
@@ -348,21 +416,41 @@ val divOrFail: Endpoint[Int] = post("div" :: int :: int) { (a: Int, b: Int) =>
 
 Payloads and failures are symmetric in terms of serializing `Output` into an HTTP response. In
 order to convert an `Endpoint` into a Finagle service, there should be an implicit instance of
-`EncodeResponse[Exception]` available in the scope. For example, it might be defined in terms of
-Circe's `Encoder`:
+`Encode[Exception]` for a given content-type available in the scope. For example, it might be defined
+in terms of Circe's `Encoder`:
 
 ```scala
 implicit val encodeException: Encoder[Exception] = Encoder.instance(e =>
   Json.obj("message" -> Json.string(e.getMessage)))
 ```
 
-By default, all the exceptions are converted into `plain/text` HTTP responses containing the
-exception messages in their bodies.
+NOTE: This instance is already available whenever `io.finch.circe._` import is present (simlar for
+any other of JSON library supported).
 
-While this approach works perfectly well with JSON libraries empowering type-classes as
-decoders/encoders, it doesn't really fit well with libraries using runtime-reflection. Thus, when it
-comes to exception encoding, there is some workaround involved in order to enable
-[Jackson](json.md#jackson) support in Finch. See [eval][eval] for an idiomatic example.
+### Type-level Content-Type
+
+Finch brings HTTP `Content-Type` to the type-level as a singleton string (i.e., `CT <: String`) to
+make it affect implicit resolution and make sure that the right encoder/decoder will be picked by a
+compiler. This is done lift the following kind of errors at compile time:
+
+ - a `Text.Plain` service won't compile when only Circe's JSON encoders are available in the scope
+ - a `Application.Json` body endpoint won't compile when no JSON library support is imported
+
+Given that `Content-Type` is a separate concept, which is neither attached to `Endpoint` nor `Output`,
+the way to specify it is to explicitly pass a requested `Content-Type` either to a `toServiceAs`
+method call (to affect encoding) or `body` endpoint creation (to affect decoding).
+
+```scala
+val e: Endpoint[String] = get(/) { Ok("Hello, World!") }
+val s: Service[Request, Response] = e.toServiceAs[Text.Plain]
+```
+
+The program above will do the right thing (will pick the right decoder) even when JSON encoders are
+imported into the scope.
+
+By default, Finch defines type-aliases for `text/plain` and `application/json` encoders as
+`Encode.Text[A]` and `Encode.Json[A]`. For everything else, `Encode.Aux[A, CT <: String]` should be
+used instead.
 
 ### Decoding
 
@@ -370,19 +458,26 @@ While Finch takes care about extracting some particular parts of a request (i.e.
 headers) in their origin form (usually as `String`s), it's user's responsibility to convert/decode
 them into the domain types.
 
-Most of the means for decoding in Finch are built around `io.finch.Decode[A]` type class that takes
-a string and convert that into a required type. The machinery behind this approach is quite popular
-within the Scala community and promotes a compile-time safe deserialization.
+Most of the means for decoding in Finch are built around three simple type-classes used in different
+scenarios:
+
+ - `io.finch.DecodePath[A]` - decodes path segments represented as strings into `Option[A]`
+ - `io.finch.DecodeEntity[A]` - decodes string-based entities (eg: params and headers) into `Try[A]`
+ - `io.finch.Decode.Aux[A, ContentType <: String]` - decodes bodies represented as `Buf`s (in a
+   given content type) into `Try[A]`
+
+Separating those three completely different use cases not only allows to define a clear boundaries
+where abstraction's concerns end, but also helps performance-wise quite a lot.
 
 #### Type Conversion
 
 For all `String`-based endpoints, Finch provides an `as[A]` method to perform type conversions. It
 is available for any `Endpoint[String]`, `Endpoint[Option[String]]` or `Endpoint[Seq[String]]` as
-long as a matching implicit `io.finch.Decode[A]` type-class is in the scope.
+long as a matching implicit `io.finch.DecodeEntity[A]` type-class is in the scope.
 
 This facility is designed to be intuitive, meaning that you do not have to provide a
-`io.finch.Decode[Seq[MyType]]` for converting a sequence. A decoder for a single item will allow you
-to convert `Option[String]` and `Seq[String]`, too:
+`io.finch.DecodeEntity[Seq[MyType]]` for converting a sequence. A decoder for a single item will
+allow you to convert `Option[String]` and `Seq[String]`, too:
 
 ```scala
 scala> import io.finch._
@@ -429,7 +524,7 @@ since the epoch:
 ```scala
 import io.finch._
 
-implicit val dateTimeDecoder: Decode[DateTime] =
+implicit val dateTimeDecoder: DecodeEntity[DateTime] =
   Decode.instance(s => Try(new DateTime(s.toLong)))
 ```
 
@@ -449,25 +544,42 @@ val interval: Endpoint[Interval] = (
 
 #### Decoding from JSON
 
-A third way of using the `as[A]` type conversion facility is to use one of the JSON library
-integrations Finch offers. Finch comes with support for a number of [JSON libraries](json.md).
+There are two API entry point into decoding JSON payloads: `jsonBody[A]` and `jsonBodyOption[A]`.
+These require a `Decode.Json[A]` instance to be available in the scope whenever they called.
 
-All these integration modules do is make the library-specific JSON decoders available for use as a
-`io.finch.Decode[A]`. To take Argonaut as an example, you only have to import `io.finch.argonaut._`
-to have implicit Argonaut `DecodeJSON` instances in scope:
+Finch comes with support for a number of [JSON libraries](json.md). All these integration modules do
+is make the library-specific JSON decoders available for use as a `io.finch.Decode.Json[A]`. To take
+Circe as an example, you only have to import `io.finch.circe._` and have implicit `io.circe.Decoder[A]`
+instances in scope:
 
 ```scala
-case class Person(name: String, age: Int)
+scala> import io.circe.Decoder, io.circe.generic.semiauto
 
-implicit def PersonDecodeJson: DecodeJson[Person] =
-  jdecode2L(Person.apply)("name", "age")
+scala> :paste
+// Entering paste mode (ctrl-D to finish)
+
+case class Person(name: String, age: Int)
+object Person {
+  implicit val decoder: Decoder[Person] = semiauto.deriveDecoder
+}
+
+// Exiting paste mode, now interpreting.
+
+defined class Person
+defined object Person
 ```
 
-Finch will automatically adapt these implicits to its own `io.finch.Decode[Person]` type,  so that
-you can use the `as[A]` method on an endpoint `body` to read the HTTP body sent in a JSON format:
+Finch will automatically adapt these implicits to its own `io.finch.Decode.Json[Person]` type,  so
+that you can use the `jsonBody(Option)` endpoints to read the HTTP bodies sent in a JSON format:
 
 ```scala
-val person: Endpoint[Person] = body.as[Person]
+scala> import io.finch._
+
+scala> val p = jsonBody[Person]
+p: io.finch.Endpoint[Person] = body
+
+scala> p(Input.post("/").withBody[Application.Json](Buf.Utf8("""{"name":"foo","age":42}"""))).value
+res2: Option[Person] = Some(Person(foo,42))
 ```
 
 The integration for the other JSON libraries works in a similar way.
@@ -478,29 +590,6 @@ Behind-the-scene encoding of values returned from endpoint was always the essent
 design. This what makes it all about domain types, not HTTP primitives. By analogy with decoding,
 encoding is built around `io.finch.Encode[A]` type-class that takes a value of an arbitrary type
 and converts that into a binary buffer that can be served in the HTTP payload/body.
-
-#### Type-level Content-Type
-
-Finch brings HTTP `Content-Type` to the type-level as a singleton string (i.e., `CT <: String`) to
-make it affect implicit resolution and make sure that the right encoder will be picked by a compiler.
-Simply speaking, a `Text.Plain` service won't compile when only Circe's JSON encoders are available
-in the scope.
-
-Given that `Content-Type` is a separate concept, which is neither attached to `Endpoint` nor `Output`,
-a way to specify it is to explicitly pass a requested `Content-Type` to a `toService` method call
-(using the `toServiceAs` variant).
-
-```scala
-val e: Endpoint[String] = get(/) { Ok("Hello, World!") }
-val s: Service[Request, Response] = e.toServiceAs[Text.Plain]
-```
-
-The program above will do the right thing (will pick the right decoder) even when JSON encoders are
-imported into the scope.
-
-By default, Finch defines type-aliases for `text/plain` and `application/json` encoders as
-`Encode.Text[A]` and `Encode.Json[A]`. For everything else, `Encode.Aux[A, CT <: String]` should be
-used instead.
 
 #### Encoding to JSON
 
@@ -563,17 +652,28 @@ Having said that, you might want to _handle_ exceptions from the endpoint (even 
 make sure a remote client will receive them in a serialized form. Otherwise they will be dropped -
 converted into very basic 500 responses that don't carry any payload.
 
-Finch itself throws exceptions extending `io.finch.Error` that are already handled as 400s (bad
-requests):
+Finch itself throws three kinds of errors represented as either `io.finch.Error` (a single error) or
+`io.finch.Errors` (multiple errors) that are already handled as 400s (bad requests):
 
-- `io.finch.Error.Multiple` - when multiple errors occurred during the
-  endpoint evaluation they are _accumulated_ into this instance
 - `io.finch.Error.NotFound` - when a required request part/item (header, param, body, cookie) was
   missing
 - `io.finch.Error.NotParsed` - when type conversion failed
 - `io.finch.Error.NotValid` - when a validation rule defined on an endpoint did not pass
 
-### Error Handling
+#### Error Accumulation
+
+[Product endpoints](user-guide.md#product-endpoints) play critical role in error accumulation in
+Finch. Essentially, a product of two endpoints accumulates Finch's own errors (i.e., `io.finch.Error`
+indicating a parse/validation failure or a missing entity) into `io.finch.Error` and will fail-fast
+with the first non-Finch error (just ordinary `Exception`) observed.
+
+The reasoning behind this design decision is following. When an arbitrary failure (just `Exception`)
+occurs in one of the parts of a product endpoint, it's not super clear that it's safe to keep
+evaluating the next part since it's unknown if the failure was local to a given request and didn't
+side-affect an entire process. Finch's own errors are known to be locally scoped hence safe to
+accumulate.
+
+#### Error Handling
 
 By analogy with `com.twitter.util.Future` API it's possible to _handle_ the failed future in the
 endpoint using the similarly named methods:
@@ -594,20 +694,29 @@ val divOrFail: Endpoint[Int] = post("div" :: int :: int) { (a: Int, b: Int) =>
 All the unhandled exceptions are converted into very basic 500 responses that don't carry any
 payload. Only Finch's errors (i.e., `io.finch.Error`) are treated in a special way and converted
 into 400 responses with their messages serialized according to the rules defined in the
-`io.finch.Encode[Exception]` instance.
+`io.finch.Encode.Aux[Exception, ContentType]` instance.
 
-Finch provides both `Encode.Json` and `Encode.Text` instances for `Exception`s that simply dumps
-their message. Define your own instance if you want to override that behaviour.
+Finch provides some very basic instances of Encode[Exception] in the following cases:
+
+ - `Encode.Json[Exception]` is available with any of the supported JSON libraries
+   (i.e., with `import io.finch.$jsonLibrary)
+ - `Encode.Text[Exception]` is available out of the box in finch-core
+ - `Encode.Aux[Exception, ?]` that doesn't encode anything is available for any other
+    content-type
+
+Define your own instance if you want to serialize handled exception into a payload of given
+content-type. For example, here is an instance for HTML.
 
 ```scala
+import io.finch._
 import io.finch.internal.BufText
 
-implicit val e: Encode.Text[Exception] = Encode.text((exception, charset) =>
-  BufText("Bad thing happened.", cs)
+implicit val e: Encode.Aux[Exception, Text.Html] = Encode.instance((e, cs) =>
+  BufText(s"<h1>Bad thing happened: ${e.getMessage}<h1>", cs)
 )
 ```
 
-### Testing Endpoints
+### Testing
 
 One of the advantages of typeful endpoints in Finch is that they can be unit-tested independently in
 a way similar to how functions are tested. The machinery is pretty straightforward: an endpoint
@@ -632,7 +741,7 @@ val bar: Input = Input.post("/bar")
   .withHeaders("X-Header" -> "Y")
 ```
 
-Additionally, there is JSON-specific support in the `Input` API through `withJson`.
+Additionally, there is JSON-specific support in the `Input` API through `withBody`.
 
 ```scala
 import io.circe.generic.auto._
@@ -643,7 +752,7 @@ case class Baz(m: Map[String, String])
 val baz: Input = Input.put("/baz").withBody[Application.Json](Baz(Map("a" -> "b")))
 ```
 
-Note that, assuming UTF-8 as the encoding, which is the default, `application/json;charset=UTF-8`
+Note that, assuming UTF-8 as the encoding, which is the default, `application/json;charset=utf-8`
 will be added as content type.
 
 Similarly when an `Output` is returned form the `Endpoint` it might be queried with a number of
@@ -678,5 +787,4 @@ Read Next: [Authentication](auth.md)
 [shapeless]: https://github.com/milessabin/shapeless
 [hlist]: https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.0.0#heterogenous-lists
 [coproduct]: https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.0.0#coproducts-and-discriminated-unions
-[eval]: https://github.com/finagle/finch/tree/master/examples/src/main/scala/io/finch/eval
 [examples]: https://github.com/finagle/finch/tree/master/examples/src/test/scala/io/finch
