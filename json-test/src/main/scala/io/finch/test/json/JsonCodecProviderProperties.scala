@@ -1,7 +1,7 @@
 package io.finch.test.json
 
 import argonaut.{CodecJson, DecodeJson, EncodeJson, Json, Parse}
-import argonaut.Argonaut.{casecodec3, casecodec5, jString}
+import argonaut.Argonaut.{casecodec3, casecodec5, jNull, jString}
 import com.twitter.io.Buf
 import com.twitter.io.Buf.Utf8
 import com.twitter.util.Return
@@ -124,6 +124,11 @@ trait JsonCodecProviderProperties { self: Matchers with Checkers =>
       val jsonString = BufText.extract(ee(e, StandardCharsets.UTF_8), StandardCharsets.UTF_8)
       Parse.parseOption(jsonString) === Some(Json("message" -> jString(e.getMessage)))
     }
+
+    // Check that this encoder can encode exceptions with null messages
+    val e = new Exception()
+    val jsonString = BufText.extract(ee(e, StandardCharsets.UTF_8), StandardCharsets.UTF_8)
+    Parse.parseOption(jsonString) === Some(Json("message" -> jNull))
   }
 }
 
