@@ -367,18 +367,6 @@ trait Endpoints {
     option(items.ParamItem(name))(i => requestParams(name)(i))
 
   /**
-   * An evaluating [[Endpoint]] that reads a required (in a meaning that a resulting `Seq` will have
-   * at least one element) multi-value query-string param `name` from the request into a `Seq` or
-   * raises a [[Error.NotPresent]] exception when the params are missing or empty.
-   */
-  @deprecated("Use paramsNel and NonEmptyList instead", "0.11")
-  def paramsNonEmpty(name: String): Endpoint[Seq[String]] =
-    option(items.ParamItem(name))(requestParams(name)).mapAsync({
-      case Nil => Future.exception(Error.NotPresent(items.ParamItem(name)))
-      case unfiltered => Future.value(unfiltered.filter(_.nonEmpty))
-    }).shouldNot("be empty")(_.isEmpty)
-
-  /**
    * An evaluating [[Endpoint]] that reads a required multi-value query-string param `name`
    * from the request into a `NonEmptyList` or raises a [[Error.NotPresent]] exception
    * when the params are missing or empty.
@@ -438,22 +426,6 @@ trait Endpoints {
    * (non-streamed) requests.
    */
   val stringBody: Endpoint[String] = stringBodyOption.failIfNone
-
-  /**
-   * An [[Endpoint]] that reads an optional request body, interpreted as [[Buf]], into
-   * an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
-   */
-  @deprecated("Use bodyOption[A, ContentType] instead", "0.11")
-  val bodyOption: Endpoint[Option[Buf]] =
-    matches(items.BodyItem)(!_.isChunked)(requestBody)
-
-  /**
-   * An [[Endpoint]] that reads the required request body, interpreted as [[Buf]], or
-   * throws an [[Error.NotPresent]] exception. The returned [[Endpoint]] only matches non-chunked
-   * (non-streamed) requests.
-   */
-  @deprecated("Use body[A, ContentType] instead", "0.11")
-  val body: Endpoint[Buf] = bodyOption.failIfNone
 
   /**
    * An [[Endpoint]] that reads an optional request body represented as `CT` (`ContentType`) and

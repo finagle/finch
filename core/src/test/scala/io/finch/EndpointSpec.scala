@@ -230,11 +230,11 @@ class EndpointSpec extends FinchSpec {
 
   it should "throw Error.NotParsed if as[A] method fails" in {
     val cause = new Exception("can't parse this")
-    implicit val failingDecode: Decode.Json[Foo] =
-      Decode.json((b, c) => Throw(cause))
+    implicit val failingDecodeEntity: DecodeEntity[Foo] =
+      DecodeEntity.instance(_ => Throw(cause))
 
-    val foo = body.as[Foo]
-    val fooOption = bodyOption.as[Foo]
+    val foo = stringBody.as[Foo]
+    val fooOption = stringBodyOption.as[Foo]
     val i = (s: String) => Input.post("/").withBody[Text.Plain](Buf.Utf8(s))
 
     check { (s: String) =>
@@ -268,9 +268,9 @@ class EndpointSpec extends FinchSpec {
     val i = Input.get("/")
 
     Seq(
-      param("foo"), header("foo"), body, cookie("foo").map(_.value),
+      param("foo"), header("foo"), cookie("foo").map(_.value),
       fileUpload("foo").map(_.fileName), paramsNel("foo").map(_.toList.mkString),
-      paramsNel("foor").map(_.toList.mkString), binaryBody.map(new String(_))
+      paramsNel("foor").map(_.toList.mkString), binaryBody.map(new String(_)), stringBody
     ).foreach { ii => ii(i).tryValue shouldBe Some(Throw(Error.NotPresent(ii.item))) }
   }
 

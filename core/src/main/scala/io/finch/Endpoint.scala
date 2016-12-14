@@ -7,7 +7,6 @@ import cats.{Alternative, Functor}
 import cats.data.NonEmptyList
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Cookie, Request, Response, Status}
-import com.twitter.io.Buf
 import com.twitter.util.{Future, Return, Throw, Try}
 import io.catbird.util.Rerunnable
 import io.finch.internal._
@@ -194,14 +193,6 @@ trait Endpoint[A] { self =>
   }
 
   /**
-   * Maps this endpoint to `Endpoint[A => B]`.
-   */
-  @deprecated("Use product or Applicative[Endpoint].ap", "0.11.0")
-  final def ap[B](fn: Endpoint[A => B]): Endpoint[B] = product(fn).map {
-    case (a, f) => f(a)
-  }
-
-  /**
    * Composes this endpoint with the given `other` endpoint. The resulting endpoint will succeed
    * only if both this and `that` endpoints succeed.
    */
@@ -216,20 +207,6 @@ trait Endpoint[A] { self =>
     override def item = items.MultipleItems
     override def toString = s"${self.toString}/${other.toString}"
   }
-
-  /**
-   * Composes this endpoint with the given [[Endpoint]].
-   */
-  @deprecated("Use :: instead", "0.11")
-  final def ?[B](other: Endpoint[B])(implicit adjoin: PairAdjoin[A, B]): Endpoint[adjoin.Out] =
-    self.adjoin(other)
-
-  /**
-   * Composes this endpoint with the given [[Endpoint]].
-   */
-  @deprecated("Use :: instead", "0.11")
-  final def /[B](other: Endpoint[B])(implicit adjoin: PairAdjoin[A, B]): Endpoint[adjoin.Out] =
-    self.adjoin(other)
 
   /**
    * Composes this endpoint with the given [[Endpoint]].
@@ -271,15 +248,6 @@ trait Endpoint[A] { self =>
 
   final def withCharset(charset: Charset): Endpoint[A] =
     withOutput(o => o.withCharset(charset))
-
-  /**
-   * Converts this endpoint to a Finagle service `Request => Future[Response]` that serves JSON.
-   */
-  @deprecated("Use toServiceAs[Application.Json] instead", "0.11")
-  final def toService(implicit
-    tr: ToResponse.Aux[A, Application.Json],
-    tre: ToResponse.Aux[Exception, Application.Json]
-  ): Service[Request, Response] = toServiceAs[Application.Json]
 
   /**
    * Converts this endpoint to a Finagle service `Request => Future[Response]` that serves custom
@@ -395,12 +363,6 @@ object Endpoint {
   type Result[A] = Option[(Input, Rerunnable[Output[A]])]
 
   /**
-   * Creates an [[Endpoint]] from the given [[Output]].
-   */
-  @deprecated("Use one of the liftX variants", "0.11")
-  def apply(mapper: Mapper[shapeless.HNil]): Endpoint[mapper.Out] = mapper(/)
-
-  /**
    * Creates an empty [[Endpoint]] (an endpoint that never matches) for a given type.
    */
   def empty[A]: Endpoint[A] = new Endpoint[A] {
@@ -503,17 +465,6 @@ object Endpoint {
   implicit class StringEndpointOps(val self: Endpoint[String]) extends AnyVal {
     def as[A](implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[A] =
       self.mapAsync(value => Future.const(d(value).rescue(notParsed[A](self, tag))))
-  }
-
-  implicit class BufEndpointOps(self: Endpoint[Buf]) {
-    def as[A](implicit d: Decode.Json[A], tag: ClassTag[A]): Endpoint[A] = new Endpoint[A] {
-      // TODO: Will be better with StateT
-      // See https://github.com/finagle/finch/pull/559
-      def apply(input: Input): Endpoint.Result[A] =
-        self.mapAsync(value =>
-          Future.const(d(value, input.request.charsetOrUtf8).rescue(notParsed[A](self, tag)))
-        ).apply(input)
-    }
   }
 
   /**
@@ -619,24 +570,6 @@ object Endpoint {
         case None =>
           Future.None
       }
-  }
-
-  implicit class BufOptionEndpointOps(self: Endpoint[Option[Buf]]) {
-    def as[A](implicit d: Decode.Json[A], tag: ClassTag[A]): Endpoint[Option[A]] = new Endpoint[Option[A]] {
-      // TODO: Will be better with StateT
-      // See https://github.com/finagle/finch/pull/559
-      def apply(input: Input): Endpoint.Result[Option[A]] = {
-        val underlying = self.mapAsync {
-          case Some(value) =>
-            Future.const(
-              d(value, input.request.charsetOrUtf8).rescue(notParsed[A](self, tag))
-            ).map(Some.apply)
-          case None => Future.None
-        }
-
-        underlying(input)
-      }
-    }
   }
 
   class GenericDerivation[A] {

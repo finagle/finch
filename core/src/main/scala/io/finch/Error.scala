@@ -34,14 +34,6 @@ case class Errors(errors: NonEmptyList[Error]) extends Exception with NoStackTra
 
 object Error {
 
-  object RequestErrors {
-    @deprecated("Use Errors instead", "0.11")
-    def unapply(e: Throwable): Option[Seq[Throwable]] = e match {
-      case Errors(err) => Some(err.toList)
-      case _ => None
-    }
-  }
-
   /**
    * An exception that indicates a required request item (''header'', ''param'', ''cookie'',
    * ''body'') was missing in the request.
