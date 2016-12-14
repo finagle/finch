@@ -8,15 +8,15 @@
 
 --
 
-Finch uses type classes `io.finch.Encode` and `io.finch.Deocde` to make its JSON support pluggable.
+Finch uses type classes `io.finch.Encode` and `io.finch.Decode` to make its JSON support pluggable.
 Thus in most of the cases it's not necessary to make any code changes (except for import statements)
-while switching the JSON backend.
+while switching the underlying JSON library.
 
 Finch comes with a rich support of many modern JSON libraries. While it's totally possible to use
 Finch with runtime reflection based libraries such as [Jackson][jackson], it's highly recommended to
-use compile-time based solutions such as [Circe][circe] and [Argonaut][argonaut]. When starting
-out, Circe would be the best possible choice as a JSON library due to its great performance and
-lack of boilerplate.
+use compile-time based solutions such as [Circe][circe] and [Argonaut][argonaut] instead. When
+starting out, Circe would be the best possible choice as a JSON library due to its great performance
+and a lack of boilerplate.
 
 Use the following instructions to enable support for a particular JSON library.
 

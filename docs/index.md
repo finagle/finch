@@ -18,7 +18,7 @@ build.sbt:
 libraryDependencies ++= Seq(
   "com.github.finagle" %% "finch-core" % "0.12.0",
   "com.github.finagle" %% "finch-circe" % "0.12.0",
-  "io.circe" %% "circe-generic" % "0.5.3"
+  "io.circe" %% "circe-generic" % "0.7.0-M1"
 )
 ```
 
@@ -79,13 +79,13 @@ object Main extends App {
 * [On the history of Finch][sfscala-vk] by [@vkostyukov][vkostyukov] in Apr 2015
 * [Some possible features for Finch][sfscala-tb] [@travisbrown][travisbrown] in Apr 2015
 
-# User Guide
+# Documentation
 
-* [Endpoints](endpoint.md)
-* [Authentication](auth.md)
-* [JSON](json.md)
+* [User Guide](user-guide.md)
 * [Cookbook](cookbook.md)
 * [Best Practices](best-practices.md)
+* [Authentication](auth.md)
+* [JSON](json.md)
 
 [finagle]: http://twitter.github.io/finagle/
 [circe]: https://github.com/travisbrown/circe
