@@ -18,6 +18,7 @@ package object sprayjson {
     Encode.json((a, cs) => BufText(a.toJson.prettyPrint, cs))
 
   implicit def encodeExceptionSpray[A <: Exception]: JsonWriter[A] = new JsonWriter[A] {
-    override def write(e: A): JsValue = JsObject("message" -> JsString(e.getMessage))
+    override def write(e: A): JsValue =
+      JsObject("message" -> Option(e.getMessage).fold[JsValue](JsNull)(JsString.apply))
   }
 }
