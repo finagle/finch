@@ -309,38 +309,26 @@ class EndpointSpec extends FinchSpec {
     e2(b).remainder shouldBe Some(b.drop(2))
   }
 
-  it should "collect errors on its product" in {
-    check { (a: Error, b: Error) =>
-      val aa = Endpoint.liftFuture[Unit](Future.exception(a))
-      val bb = Endpoint.liftFuture[Unit](Future.exception(b))
+  it should "accumulate errors on its product" in {
+    check { (a: Either[Error, Errors], b: Either[Error, Errors]) =>
+      val aa = a.fold[Exception](identity, identity)
+      val bb = b.fold[Exception](identity, identity)
 
-      val aabb = aa.product(bb)
-      val bbaa = bb.product(aa)
-      aabb(Input.get("/")).tryValue === Some(Throw(Errors(NonEmptyList.of(a, b)))) &&
-      bbaa(Input.get("/")).tryValue === Some(Throw(Errors(NonEmptyList.of(b, a))))
-    }
+      val left = Endpoint.liftFuture[Unit](Future.exception(aa))
+      val right = Endpoint.liftFuture[Unit](Future.exception(bb))
 
-    check { (a: Error, bs: Errors) =>
-      val aa = Endpoint.liftFuture[Unit](Future.exception(a))
-      val bb = Endpoint.liftFuture[Unit](Future.exception(bs))
+      val lr = left.product(right)
+      val rl = right.product(left)
 
-      val aabb = aa.product(bb)
-      val bbaa = bb.product(aa)
-      val expected = Throw(Errors(a :: bs.errors))
+      val all =
+        a.fold[Set[Error]](e => Set(e), es => es.errors.toList.toSet) ++
+        b.fold[Set[Error]](e => Set(e), es => es.errors.toList.toSet)
 
-      aabb(Input.get("/")).tryValue === Some(expected) &&
-      bbaa(Input.get("/")).tryValue === Some(expected)
-    }
+      val Some(Throw(first)) = lr(Input.get("/")).tryValue
+      val Some(Throw(second)) = rl(Input.get("/")).tryValue
 
-    check { (as: Errors, bs: Errors) =>
-      val aa = Endpoint.liftFuture[Unit](Future.exception(as))
-      val bb = Endpoint.liftFuture[Unit](Future.exception(bs))
-
-      val aabb = aa.product(bb)
-      val bbaa = bb.product(aa)
-
-      aabb(Input.get("/")).tryValue === Some(Throw(Errors(as.errors.concat(bs.errors)))) &&
-      bbaa(Input.get("/")).tryValue === Some(Throw(Errors(bs.errors.concat(as.errors))))
+      first.asInstanceOf[Errors].errors.toList.toSet == all &&
+      second.asInstanceOf[Errors].errors.toList.toSet == all
     }
   }
 

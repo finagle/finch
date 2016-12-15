@@ -3,13 +3,14 @@ package io.finch.internal
 import com.twitter.concurrent.AsyncStream
 import com.twitter.io.Buf
 import com.twitter.util.Await
-import io.finch.FinchSpec
+import io.finch._
 import java.nio.charset.StandardCharsets
 
 class ToResponseSpec extends FinchSpec {
-  "ToResponse" should "pick correct instance for AsyncStream[Buf]" in {
-    import io.finch._
 
+  behavior of "ToResponse"
+
+  it should "pick correct instance for AsyncStream[Buf]" in {
     val tr: ToResponse.Aux[AsyncStream[Buf], Text.Plain] = implicitly
 
     check { (chunks: List[Buf]) =>
