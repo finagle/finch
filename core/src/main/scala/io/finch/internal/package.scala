@@ -3,8 +3,6 @@ package io.finch
 import com.twitter.finagle.http.Message
 import com.twitter.finagle.netty3.ChannelBufferBuf
 import com.twitter.io.{Buf, Charsets}
-import com.twitter.util.Future
-import io.catbird.util.Rerunnable
 import java.nio.{ByteBuffer, CharBuffer}
 import java.nio.charset.{Charset, StandardCharsets}
 

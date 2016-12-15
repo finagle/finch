@@ -234,7 +234,7 @@ object Output {
     /**
      * Converts this [[Output]] to the HTTP response of the given `version`.
      */
-    def toResponse[CT <: String](version: Version = Version.Http11)(implicit
+    def toResponse[CT <: String](implicit
       tr: ToResponse.Aux[A, CT],
       tre: ToResponse.Aux[Exception, CT]
     ): Response = {
@@ -245,7 +245,6 @@ object Output {
       }
 
       rep.status = o.status
-      rep.version = version
 
       o.headers.foreach { case (k, v) => rep.headerMap.set(k, v) }
       o.cookies.foreach(rep.cookies.add)
