@@ -11,12 +11,13 @@ lazy val utilVersion = "6.39.0"
 lazy val twitterServerVersion = "1.25.0"
 lazy val finagleOAuth2Version = "0.2.0"
 lazy val circeVersion = "0.6.1"
+lazy val circeJacksonVersion = "0.6.2"
 lazy val catbirdVersion = "0.9.0"
 lazy val shapelessVersion = "2.3.2"
 lazy val catsVersion = "0.8.1"
 lazy val sprayVersion = "1.3.2"
 lazy val playVersion = "2.3.10"
-lazy val jacksonVersion = "2.5.3"
+lazy val jacksonVersion = "2.8.5"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -173,9 +174,10 @@ lazy val argonaut = project
 lazy val jackson = project
   .settings(moduleName := "finch-jackson")
   .settings(allSettings)
-  .settings(
-    libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion
-  )
+  .settings(libraryDependencies ++= Seq(
+    "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
+    "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion
+  ))
   .dependsOn(core, jsonTest % "test")
 
 lazy val json4s = project
@@ -183,8 +185,8 @@ lazy val json4s = project
   .settings(allSettings)
   .settings(libraryDependencies ++= Seq(
     "org.json4s" %% "json4s-jackson" % "3.2.11",
-    "org.json4s" %% "json4s-ext" % "3.2.11")
-  )
+    "org.json4s" %% "json4s-ext" % "3.2.11"
+  ))
   .dependsOn(core, jsonTest % "test")
 
 lazy val circe = project
@@ -195,7 +197,7 @@ lazy val circe = project
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-jawn" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion % "test",
-      "io.circe" %% "circe-jackson" % circeVersion
+      "io.circe" %% "circe-jackson28" % circeJacksonVersion
     )
   )
   .dependsOn(core, jsonTest % "test")
