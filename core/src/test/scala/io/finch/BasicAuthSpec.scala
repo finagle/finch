@@ -27,9 +27,9 @@ class BasicAuthSpec extends FinchSpec {
       val e = BasicAuth(realm)((u, p) => Future(u == c.user && p == c.pass))(Endpoint.const("foo"))
       val i = Input.request(req)
 
-      e(i).output === Some(Ok("foo")) && {
+      e(i).awaitOutputUnsafe() === Some(Ok("foo")) && {
         req.authorization = "secret"
-        e(i).output === Some(unauthorized(realm))
+        e(i).awaitOutputUnsafe() === Some(unauthorized(realm))
       }
     }
   }
@@ -39,11 +39,11 @@ class BasicAuthSpec extends FinchSpec {
 
     val protectedInput = Input.get("/a")
     e(protectedInput).remainder shouldBe Some(protectedInput.drop(1))
-    e(protectedInput).output shouldBe Some(unauthorized("realm"))
+    e(protectedInput).awaitOutputUnsafe() shouldBe Some(unauthorized("realm"))
 
     val unprotectedInput = Input.get("/b")
     e(unprotectedInput).remainder shouldBe Some(unprotectedInput.drop(1))
-    e(unprotectedInput).output.map(_.status) shouldBe Some(Status.Ok)
+    e(unprotectedInput).awaitOutputUnsafe().map(_.status) shouldBe Some(Status.Ok)
 
     val notFound = Input.get("/c")
     e(notFound).remainder shouldBe None // 404

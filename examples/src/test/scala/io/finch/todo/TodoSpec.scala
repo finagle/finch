@@ -32,9 +32,9 @@ class TodoSpec extends FlatSpec with Matchers with Checkers {
         .withBody[Application.Json](todoWithoutId, Some(StandardCharsets.UTF_8))
 
       val res = postTodo(input)
-      res.output.map(_.status) === Some(Status.Created)
-      res.value.isDefined === true
-      val Some(todo) = res.value
+      res.awaitOutputUnsafe().map(_.status) === Some(Status.Created)
+      res.awaitValueUnsafe().isDefined === true
+      val Some(todo) = res.awaitValueUnsafe()
       todo.completed === todoWithoutId.completed
       todo.title === todoWithoutId.title
       todo.order === todoWithoutId.order
@@ -49,7 +49,7 @@ class TodoSpec extends FlatSpec with Matchers with Checkers {
     val input = Input.patch(s"/todos/${todo.id}")
       .withBody[Application.Json](Buf.Utf8("{\"completed\": true}"), Some(StandardCharsets.UTF_8))
 
-    patchTodo(input).value shouldBe Some(todo.copy(completed = true))
+    patchTodo(input).awaitValueUnsafe() shouldBe Some(todo.copy(completed = true))
     Todo.get(todo.id) shouldBe Some(todo.copy(completed = true))
   }
   it should "throw an exception if the uuid hasn't been found" in {
@@ -59,7 +59,7 @@ class TodoSpec extends FlatSpec with Matchers with Checkers {
     val input = Input.patch(s"/todos/$id")
       .withBody[Application.Json](Buf.Utf8("{\"completed\": true}"), Some(StandardCharsets.UTF_8))
 
-    a[TodoNotFound] shouldBe thrownBy(patchTodo(input).value)
+    a[TodoNotFound] shouldBe thrownBy(patchTodo(input).awaitValueUnsafe())
   }
 
   it should "give back the same todo with non-related json" in {
@@ -67,14 +67,14 @@ class TodoSpec extends FlatSpec with Matchers with Checkers {
     val input = Input.patch(s"/todos/${todo.id}")
       .withBody[Application.Json](Buf.Utf8("{\"bla\": true}"), Some(StandardCharsets.UTF_8))
 
-    patchTodo(input).value shouldBe Some(todo)
+    patchTodo(input).awaitValueUnsafe() shouldBe Some(todo)
     Todo.get(todo.id) shouldBe Some(todo)
   }
 
   behavior of "the getTodos endpoint"
 
   it should "retrieve all available todos" in {
-    getTodos(Input.get("/todos")).value shouldBe Some(Todo.list())
+    getTodos(Input.get("/todos")).awaitValueUnsafe() shouldBe Some(Todo.list())
   }
 
   behavior of "the deleteTodo endpoint"
@@ -82,21 +82,21 @@ class TodoSpec extends FlatSpec with Matchers with Checkers {
   it should "delete the specified todo" in {
     val todo = createTodo()
 
-    deleteTodo(Input.delete(s"/todos/${todo.id}")).value shouldBe Some(todo)
+    deleteTodo(Input.delete(s"/todos/${todo.id}")).awaitValueUnsafe() shouldBe Some(todo)
     Todo.get(todo.id) shouldBe None
   }
 
   it should "throw an exception if the uuid hasn't been found" in {
     val id = UUID.randomUUID()
     Todo.get(id) shouldBe None
-    a[TodoNotFound] shouldBe thrownBy(deleteTodo(Input.delete(s"/todos/$id")).value)
+    a[TodoNotFound] shouldBe thrownBy(deleteTodo(Input.delete(s"/todos/$id")).awaitValueUnsafe())
   }
 
   behavior of "the deleteTodos endpoint"
 
   it should "delete all todos" in {
     val todos = Todo.list()
-    deleteTodos(Input.delete("/todos")).value shouldBe Some(todos)
+    deleteTodos(Input.delete("/todos")).awaitValueUnsafe() shouldBe Some(todos)
     todos.foreach(t => Todo.get(t.id) shouldBe None)
   }
 

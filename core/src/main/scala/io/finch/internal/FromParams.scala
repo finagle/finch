@@ -3,7 +3,6 @@ package io.finch.internal
 import scala.reflect.ClassTag
 
 import cats.data.NonEmptyList
-import io.catbird.util.Rerunnable
 import io.finch._
 import shapeless._
 import shapeless.labelled._
@@ -19,9 +18,7 @@ trait FromParams[L <: HList] {
 object FromParams {
 
   implicit val hnilFromParams: FromParams[HNil] = new FromParams[HNil] {
-    def endpoint: Endpoint[HNil] = Endpoint.embed(items.MultipleItems)(input =>
-      Some(input -> Rerunnable(Output.payload(HNil)))
-    )
+    def endpoint: Endpoint[HNil] = Endpoint.const(HNil)
   }
 
   implicit def hconsFromParams[HK <: Symbol, HV, T <: HList](implicit

@@ -3,9 +3,9 @@ package io.finch
 import java.util.UUID
 import scala.reflect.ClassTag
 
-import cats.Applicative
 import cats.data.NonEmptyList
 import cats.laws.discipline.AlternativeTests
+import com.twitter.conversions.time._
 import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.io.Buf
 import com.twitter.util.{Future, Throw, Try}
@@ -24,7 +24,7 @@ class EndpointSpec extends FinchSpec {
       val o = e(i)
       val v = i.headOption.flatMap(s => Try(f(s)).toOption)
 
-      o.value === v && (v.isEmpty || o.remainder === Some(i.drop(1)))
+      o.awaitValueUnsafe() === v && (v.isEmpty || o.remainder === Some(i.drop(1)))
     }
 
     check(extractOne(string, identity))
@@ -49,29 +49,29 @@ class EndpointSpec extends FinchSpec {
 
   it should "support very basic map" in {
     check { i: Input =>
-      string.map(_ * 2)(i).value === i.headOption.map(_ * 2)
+      string.map(_ * 2)(i).awaitValueUnsafe() === i.headOption.map(_ * 2)
     }
   }
 
   it should "support transform" in {
     check { i: Input =>
       val fn = (fs: Future[Output[String]]) => fs.map(_.map(_ * 2))
-      string.transform(fn)(i).value === i.headOption.map(_ * 2)
+      string.transform(fn)(i).awaitValueUnsafe() === i.headOption.map(_ * 2)
     }
   }
 
   it should "propagate the default (Ok) output" in {
     check { i: Input =>
-      string(i).output === i.headOption.map(s => Ok(s))
+      string(i).awaitOutputUnsafe() === i.headOption.map(s => Ok(s))
     }
   }
 
-  it should "propagate the default (Ok) output through its map'd/mapAsync'd/ap'd version" in {
+  it should "propagate the default (Ok) output through its map'd/mapAsync'd version" in {
     check { i: Input =>
       val expected = i.headOption.map(s => Ok(s.length))
-      string.map(s => s.length)(i).output === expected &&
-      string.mapAsync(s => Future.value(s.length))(i).output === expected &&
-      Applicative[Endpoint].ap(/.map(_ => (_: String).length))(string)(i).output == expected
+
+      string.map(s => s.length)(i).awaitOutputUnsafe() === expected &&
+      string.mapAsync(s => Future.value(s.length))(i).awaitOutputUnsafe() === expected
     }
   }
 
@@ -82,7 +82,7 @@ class EndpointSpec extends FinchSpec {
         .withCookie(new Cookie("C", "D"))
 
     check { i: Input =>
-      string.mapOutputAsync(s => Future.value(expected(s.length)))(i).output ===
+      string.mapOutputAsync(s => Future.value(expected(s.length)))(i).awaitOutputUnsafe() ===
         i.headOption.map(s => expected(s.length))
     }
 
@@ -92,14 +92,18 @@ class EndpointSpec extends FinchSpec {
         .foldLeft[Endpoint0](/)((acc, ee) => acc :: ee)
 
       val v = (e :: string).mapOutputAsync(s => Future.value(expected(s.length)))(i)
-      v.output === i.path.lastOption.map(s => expected(s.length))
+      v.awaitOutputUnsafe() === i.path.lastOption.map(s => expected(s.length))
     }
   }
 
   it should "match one patch segment" in {
     def matchOne[A](f: String => A)(implicit ev: A => Endpoint0): Input => Boolean = { i: Input =>
-      val v = i.path.headOption.flatMap(s => Try(f(s)).toOption).map(ev).flatMap(e => e(i))
-      v.isEmpty || v.remainder === Some(i.drop(1))
+      val v = i.path.headOption
+        .flatMap(s => Try(f(s)).toOption)
+        .map(ev)
+        .flatMap(e => e(i).remainder)
+
+      v.isEmpty|| v === Some(i.drop(1))
     }
 
     check(matchOne(identity))
@@ -152,8 +156,8 @@ class EndpointSpec extends FinchSpec {
 
   it should "match the input if one of the endpoints succeed" in {
     def matchOneOfTwo(f: String => Endpoint0): Input => Boolean = { i: Input =>
-      val v = i.path.headOption.map(f).flatMap(e => e(i))
-      v.isEmpty || v.remainder === Some(i.drop(1))
+      val v = i.path.headOption.map(f).flatMap(e => e(i).remainder)
+      v.isEmpty || v === Some(i.drop(1))
     }
 
     check(matchOneOfTwo(s => (s: Endpoint0) | (s.reverse: Endpoint0)))
@@ -185,7 +189,7 @@ class EndpointSpec extends FinchSpec {
 
     check { (s: String, i: Int) => (s: Endpoint0).map(_ => i).toString === s }
     check { (s: String, t: String) => ((s: Endpoint0) | (t: Endpoint0)).toString === s"($s|$t)" }
-    check { (s: String, t: String) => ((s: Endpoint0) :: (t: Endpoint0)).toString === s"$s/$t" }
+    check { (s: String, t: String) => ((s: Endpoint0) :: (t: Endpoint0)).toString === s"$s :: $t" }
     check { s: String => (s: Endpoint0).product[String](*.map(_ => "foo")).toString === s }
     check { (s: String, t: String) => (s: Endpoint0).mapAsync(_ => Future.value(t)).toString === s }
 
@@ -203,28 +207,31 @@ class EndpointSpec extends FinchSpec {
     uuids.toString shouldBe ":uuid*"
     booleans.toString shouldBe ":boolean*"
 
-    (int :: string).toString shouldBe ":int/:string"
+    (int :: string).toString shouldBe ":int :: :string"
     (boolean :+: long).toString shouldBe "(:boolean|:long)"
   }
 
   it should "always respond with the same output if it's a constant Endpoint" in {
     check { s: String =>
-      Endpoint.const(s)(Input.get("/")).value === Some(s) &&
-      Endpoint.lift(s)(Input.get("/")).value === Some(s) &&
-      Endpoint.liftFuture(Future.value(s))(Input.get("/")).value === Some(s)
+      Endpoint.const(s)(Input.get("/")).awaitValueUnsafe() === Some(s) &&
+      Endpoint.lift(s)(Input.get("/")).awaitValueUnsafe() === Some(s) &&
+      Endpoint.liftFuture(Future.value(s))(Input.get("/")).awaitValueUnsafe() === Some(s)
     }
 
     check { o: Output[String] =>
-      Endpoint.liftOutput(o)(Input.get("/")).output === Some(o) &&
-      Endpoint.liftFutureOutput(Future.value(o))(Input.get("/")).output === Some(o)
+      Endpoint.liftOutput(o)(Input.get("/")).awaitOutputUnsafe() === Some(o) &&
+      Endpoint.liftFutureOutput(Future.value(o))(Input.get("/")).awaitOutputUnsafe() === Some(o)
     }
   }
 
   it should "support the as[A] method" in {
     case class Foo(s: String, i: Int, b: Boolean)
+
     val foo = (string :: int :: boolean).as[Foo]
+
     check { (s: String, i: Int, b: Boolean) =>
-      foo(Input(emptyRequest, Seq(s, i.toString, b.toString))).value === Some(Foo(s, i, b))
+      foo(Input(emptyRequest, Seq(s, i.toString, b.toString))).awaitValueUnsafe() ===
+        Some(Foo(s, i, b))
     }
   }
 
@@ -238,13 +245,13 @@ class EndpointSpec extends FinchSpec {
     val i = (s: String) => Input.post("/").withBody[Text.Plain](Buf.Utf8(s))
 
     check { (s: String) =>
-      foo(i(s)).tryValue === Some(Throw(
+      foo(i(s)).awaitValue() === Some(Throw(
         Error.NotParsed(BodyItem, implicitly[ClassTag[Foo]], cause)
       ))
     }
 
     check { (s: String) =>
-      fooOption(i(s)).tryValue === Some(Throw(
+      fooOption(i(s)).awaitValue() === Some(Throw(
         Error.NotParsed(BodyItem, implicitly[ClassTag[Foo]], cause)
       ))
     }
@@ -254,14 +261,14 @@ class EndpointSpec extends FinchSpec {
     check { (i: Input, s: String, e: Exception) =>
       Endpoint.liftFuture[Unit](Future.exception(e))
         .handle({ case _ => Created(s) })(i)
-        .output === Some(Created(s))
+        .awaitOutputUnsafe() === Some(Created(s))
     }
   }
 
   it should "not split comma separated param values" in {
     val i = Input.get("/index", "foo" -> "a,b")
     val e = params("foo")
-    e(i).value shouldBe Some(Seq("a,b"))
+    e(i).awaitValueUnsafe() shouldBe Some(Seq("a,b"))
   }
 
   it should "throw NotPresent if an item is not found" in {
@@ -271,7 +278,7 @@ class EndpointSpec extends FinchSpec {
       param("foo"), header("foo"), cookie("foo").map(_.value),
       fileUpload("foo").map(_.fileName), paramsNel("foo").map(_.toList.mkString),
       paramsNel("foor").map(_.toList.mkString), binaryBody.map(new String(_)), stringBody
-    ).foreach { ii => ii(i).tryValue shouldBe Some(Throw(Error.NotPresent(ii.item))) }
+    ).foreach { ii => ii(i).awaitValue() shouldBe Some(Throw(Error.NotPresent(ii.item))) }
   }
 
   it should "maps lazily to values" in {
@@ -279,8 +286,8 @@ class EndpointSpec extends FinchSpec {
     var c = 0
     val e = * { c = c + 1; Ok(c) }
 
-    e(i).value shouldBe Some(1)
-    e(i).value shouldBe Some(2)
+    e(i).awaitValueUnsafe() shouldBe Some(1)
+    e(i).awaitValueUnsafe() shouldBe Some(2)
   }
 
   it should "not evaluate Futures until matched" in {
@@ -292,7 +299,7 @@ class EndpointSpec extends FinchSpec {
     }
 
     val e = ("a" :: 10) | endpointWithFailedFuture
-    e(i).isDefined shouldBe true
+    e(i).isMatched shouldBe true
     flag shouldBe false
   }
 
@@ -324,11 +331,11 @@ class EndpointSpec extends FinchSpec {
         a.fold[Set[Error]](e => Set(e), es => es.errors.toList.toSet) ++
         b.fold[Set[Error]](e => Set(e), es => es.errors.toList.toSet)
 
-      val Some(Throw(first)) = lr(Input.get("/")).tryValue
-      val Some(Throw(second)) = rl(Input.get("/")).tryValue
+      val Some(Throw(first)) = lr(Input.get("/")).awaitValue()
+      val Some(Throw(second)) = rl(Input.get("/")).awaitValue()
 
-      first.asInstanceOf[Errors].errors.toList.toSet == all &&
-      second.asInstanceOf[Errors].errors.toList.toSet == all
+      first.asInstanceOf[Errors].errors.toList.toSet === all &&
+      second.asInstanceOf[Errors].errors.toList.toSet === all
     }
   }
 
@@ -344,30 +351,35 @@ class EndpointSpec extends FinchSpec {
       val bbee = bb.product(ee)
       val eebb = ee.product(bb)
 
-      aaee(Input.get("/")).tryValue === Some(Throw(e)) &&
-      eeaa(Input.get("/")).tryValue === Some(Throw(e)) &&
-      bbee(Input.get("/")).tryValue === Some(Throw(e)) &&
-      eebb(Input.get("/")).tryValue === Some(Throw(e))
+      aaee(Input.get("/")).awaitValue() === Some(Throw(e)) &&
+      eeaa(Input.get("/")).awaitValue() === Some(Throw(e)) &&
+      bbee(Input.get("/")).awaitValue() === Some(Throw(e)) &&
+      eebb(Input.get("/")).awaitValue() === Some(Throw(e))
     }
   }
 
   it should "support the as[A] method on Endpoint[Seq[String]]" in {
-    val endpoint: Endpoint[Seq[Foo]] = params("testEndpoint").as[Foo]
-    endpoint(Input.get("/index", "testEndpoint" -> "a")).value shouldBe Some(Seq(Foo("a")))
+    val foos = params("testEndpoint").as[Foo]
+    foos(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe() shouldBe Some(Seq(Foo("a")))
   }
 
   it should "collect errors on Endpoint[Seq[String]] failure" in {
     val endpoint: Endpoint[Seq[UUID]] = params("testEndpoint").as[UUID]
-    an[Errors] shouldBe thrownBy (endpoint(Input.get("/index", "testEndpoint" -> "a")).value)
+    an[Errors] shouldBe thrownBy (
+      endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe()
+    )
   }
 
   it should "support the as[A] method on Endpoint[NonEmptyList[A]]" in {
-    val endpoint: Endpoint[NonEmptyList[Foo]] = paramsNel("testEndpoint").as[Foo]
-    endpoint(Input.get("/index", "testEndpoint" -> "a")).value shouldBe Some(NonEmptyList.of(Foo("a")))
+    val foos = paramsNel("testEndpoint").as[Foo]
+    foos(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe() shouldBe
+      Some(NonEmptyList.of(Foo("a")))
   }
 
   it should "collect errors on Endpoint[NonEmptyList[String]] failure" in {
     val endpoint: Endpoint[NonEmptyList[UUID]] = paramsNel("testEndpoint").as[UUID]
-    an[Errors] shouldBe thrownBy (endpoint(Input.get("/index", "testEndpoint" -> "a")).value)
+    an[Errors] shouldBe thrownBy (
+      endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe(10.seconds)
+    )
   }
 }

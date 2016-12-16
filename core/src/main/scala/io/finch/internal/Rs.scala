@@ -10,10 +10,13 @@ import shapeless.HNil
  * Predefined, Finch-specific instances of [[Rerunnable]].
  */
 private[finch] object Rs {
-  // See https://github.com/travisbrown/catbird/pull/32
-  final def const[A](a: A): Rerunnable[A] = new Rerunnable[A] {
-    override def run: Future[A] = Future.value(a)
+
+  final def constFuture[A](fa: Future[A]): Rerunnable[A] = new Rerunnable[A] {
+    override def run: Future[A] = fa
   }
+
+  // See https://github.com/travisbrown/catbird/pull/32
+  final def const[A](a: A): Rerunnable[A] = constFuture(Future.value(a))
 
   final val OutputNone: Rerunnable[Output[Option[Nothing]]] =
     new Rerunnable[Output[Option[Nothing]]] {

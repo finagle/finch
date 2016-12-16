@@ -22,30 +22,31 @@ class BodySpec extends FinchSpec {
   checkAll("Body[UUID]", EntityEndpointLaws[UUID](stringBodyOption)(withBody).evaluating)
 
   it should "respond with NotFound when it's required" in {
-    body[Foo, Text.Plain].apply(Input.get("/")).tryValue ===
+    body[Foo, Text.Plain].apply(Input.get("/")).awaitValue() ===
       Some(Throw(Error.NotPresent(items.BodyItem)))
   }
 
   it should "respond with None when it's optional" in {
-    body[Foo, Text.Plain].apply(Input.get("/")).tryValue === Some(Return(None))
+    body[Foo, Text.Plain].apply(Input.get("/")).awaitValue() === Some(Return(None))
   }
 
   it should "not match on streaming requests" in {
     val req = Request()
     req.setChunked(true)
-    body[Foo, Text.Plain].apply(Input.request(req)).value === None
+    body[Foo, Text.Plain].apply(Input.request(req)).awaitValueUnsafe() === None
   }
 
   it should "respond with a value when present and required" in {
     check { f: Foo =>
-      body[Foo, Text.Plain].apply(Input.post("/").withBody[Text.Plain](f)).value === Some(f)
+      val i = Input.post("/").withBody[Text.Plain](f)
+      body[Foo, Text.Plain].apply(i).awaitValueUnsafe() === Some(f)
     }
   }
 
   it should "respond with Some(value) when it's present and optional" in {
     check { f: Foo =>
-      bodyOption[Foo, Text.Plain].apply(Input.post("/").withBody[Text.Plain](f)).value ===
-        Some(Some(f))
+      val i = Input.post("/").withBody[Text.Plain](f)
+      bodyOption[Foo, Text.Plain].apply(i).awaitValueUnsafe().flatten === Some(f)
     }
   }
 }

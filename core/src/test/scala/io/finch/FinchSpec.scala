@@ -8,9 +8,8 @@ import cats.data.NonEmptyList
 import cats.instances.AllInstances
 import com.twitter.finagle.http._
 import com.twitter.io.Buf
-import com.twitter.util.{Await, Future, Try}
+import com.twitter.util.{Future, Try}
 import io.catbird.util.Rerunnable
-import io.finch.Endpoint.Result
 import org.scalacheck.{Arbitrary, Cogen, Gen}
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers
@@ -177,12 +176,9 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
     Gen.oneOf(
       Gen.const(Endpoint.empty[A]),
       A.arbitrary.map(a => Endpoint.const(a)),
-      Arbitrary.arbitrary[Throwable].map { error =>
-        new Endpoint[A] {
-          override def apply(input: Input): Result[A] =
-            Some(input -> Rerunnable.fromFuture(Future.exception(error)))
-        }
-      },
+      Arbitrary.arbitrary[Throwable].map(e =>
+        Endpoint.liftFutureOutput(Future.exception[Output[A]](e))
+      ),
       /**
        * Note that we don't provide instances of arbitrary endpoints wrapping
        * `Input => Output[A]` since `Endpoint` isn't actually lawful in this
@@ -190,8 +186,8 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
        */
       Arbitrary.arbitrary[Input => A].map { f =>
         new Endpoint[A] {
-          override def apply(input: Input): Result[A] =
-            Some(input -> Rerunnable.fromFuture(Future.value(Ok(f(input)))))
+          final def apply(input: Input): Endpoint.Result[A] =
+            EndpointResult.Matched(input, Rerunnable(Output.payload(f(input))))
         }
       }
     )
@@ -206,10 +202,10 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
   implicit def eqEndpoint[A: Eq]: Eq[Endpoint[A]] = new Eq[Endpoint[A]] {
     private[this] def count: Int = 16
 
-    private[this] def await(result: Endpoint.Result[A]): Option[(Input, Try[Output[A]])] =
-      result.map {
-        case (input, rerun) => (input, Await.result(rerun.liftToTry.run))
-      }
+    private[this] def await(result: Endpoint.Result[A]): Option[(Input, Try[Output[A]])] = for {
+      r <- result.remainder
+      o <- result.awaitOutput()
+    } yield (r, o)
 
     private[this] def inputs: Stream[Input] = Stream.continually(
       Arbitrary.arbitrary[Input].sample

@@ -3,6 +3,7 @@ package io.finch
 import com.twitter.finagle.OAuth2
 import com.twitter.finagle.http.Status
 import com.twitter.finagle.oauth2.{AuthInfo, DataHandler, GrantHandlerResult, OAuthError}
+import com.twitter.util.Future
 import io.catbird.util.Rerunnable
 
 package object oauth2 {
@@ -21,20 +22,30 @@ package object oauth2 {
    * given `dataHandler`.
    */
   def authorize[U](dataHandler: DataHandler[U]): Endpoint[AuthInfo[U]] =
-    Endpoint.embed(items.MultipleItems)(i =>
-      Some(i -> new Rerunnable[Output[AuthInfo[U]]] {
-        override def run = OAuth2.authorize(i.request, dataHandler).map(Output.payload(_))
-      })
-    ).handle(handleOAuthError)
+    new Endpoint[AuthInfo[U]] {
+      private[this] final def aux(i: Input): Future[Output[AuthInfo[U]]] =
+        OAuth2
+          .authorize(i.request, dataHandler)
+          .map(ai => Output.payload(ai))
+          .handle(handleOAuthError)
+
+      final def apply(input: Input): Endpoint.Result[AuthInfo[U]] =
+        EndpointResult.Matched(input, Rerunnable.fromFuture(aux(input)))
+    }
 
   /**
    * An [[Endpoint]] that takes a request (with user credentials) and issues an access token for it
    * with respect to a given `dataHandler`.
    */
   def issueAccessToken[U](dataHandler: DataHandler[U]): Endpoint[GrantHandlerResult] =
-    Endpoint.embed(items.MultipleItems)(i =>
-      Some(i -> new Rerunnable[Output[GrantHandlerResult]] {
-        override def run = OAuth2.issueAccessToken(i.request, dataHandler).map(Output.payload(_))
-      })
-    ).handle(handleOAuthError)
+    new Endpoint[GrantHandlerResult] {
+      private[this] final def aux(i: Input): Future[Output[GrantHandlerResult]] =
+        OAuth2
+          .issueAccessToken(i.request, dataHandler)
+          .map(ghr => Output.payload(ghr))
+          .handle(handleOAuthError)
+
+      final def apply(input: Input): Endpoint.Result[GrantHandlerResult] =
+        EndpointResult.Matched(input, Rerunnable.fromFuture(aux(input)))
+    }
 }

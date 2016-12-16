@@ -27,13 +27,12 @@ trait Endpoints {
    * An universal [[Endpoint]] that matches the given string.
    */
   private[finch] class Matcher(s: String) extends Endpoint[HNil] {
-    def apply(input: Input): Endpoint.Result[HNil] =
-      input.headOption.flatMap {
-        case `s` => Some(input.drop(1) -> Rs.OutputHNil)
-        case _ => None
-      }
+    final def apply(input: Input): Endpoint.Result[HNil] = input.headOption match {
+      case Some(`s`) => EndpointResult.Matched(input.drop(1), Rs.OutputHNil)
+      case _ => EndpointResult.Skipped
+    }
 
-    override def toString: String = s
+    override final def toString: String = s
   }
 
   implicit def stringToMatcher(s: String): Endpoint0 = new Matcher(s)
@@ -45,28 +44,28 @@ trait Endpoints {
    * from the string.
    */
   private[finch] case class Extractor[A](name: String, f: String => Option[A]) extends Endpoint[A] {
-    def apply(input: Input): Endpoint.Result[A] =
-      for {
-        ss <- input.headOption
-        aa <- f(ss)
-      } yield input.drop(1) -> new Rerunnable[Output[A]] {
-        override def run = Future.value(Output.payload(aa))
+    final def apply(input: Input): Endpoint.Result[A] = input.headOption match {
+      case Some(ss) => f(ss) match {
+        case Some(a) => EndpointResult.Matched(input.drop(1), Rs.const(Output.payload(a)))
+        case _ => EndpointResult.Skipped
       }
+      case _ => EndpointResult.Skipped
+    }
 
     def apply(n: String): Endpoint[A] = copy[A](name = n)
 
-    override def toString: String = s":$name"
+    override final def toString: String = s":$name"
   }
 
   private[finch] case class StringExtractor(name: String) extends Endpoint[String] {
-    def apply(input: Input): Endpoint.Result[String] =
-      input.headOption.map(s => input.drop(1) -> new Rerunnable[Output[String]] {
-        override def run = Future.value(Output.payload(s))
-      })
+    final def apply(input: Input): Endpoint.Result[String] = input.headOption match {
+      case Some(s) => EndpointResult.Matched(input.drop(1), Rs.const(Output.payload(s)))
+      case _ => EndpointResult.Skipped
+    }
 
-    def apply(n: String): Endpoint[String] = copy(name = n)
+    final def apply(n: String): Endpoint[String] = copy(name = n)
 
-    override def toString: String = s":$name"
+    final override def toString: String = s":$name"
   }
 
   /**
@@ -75,27 +74,21 @@ trait Endpoints {
   private[finch] case class TailExtractor[A](
       name: String,
       f: String => Option[A]) extends Endpoint[Seq[A]] {
-    def apply(input: Input): Endpoint.Result[Seq[A]] =
-      Some(input.copy(path = Nil) -> new Rerunnable[Output[Seq[A]]] {
-        override def run = Future.value(Output.payload(for {
-          s <- input.path
-          a <- f(s)
-        } yield a))
-      })
 
-    def apply(n: String): Endpoint[Seq[A]] = copy[A](name = n)
+    final def apply(input: Input): Endpoint.Result[Seq[A]] =
+      EndpointResult.Matched(
+        input.copy(path = Nil),
+        Rs.const(Output.payload(input.path.flatMap(f.andThen(_.toSeq))))
+      )
 
-    override def toString: String = s":$name*"
+    final def apply(n: String): Endpoint[Seq[A]] = copy[A](name = n)
+
+    final override def toString: String = s":$name*"
   }
 
   private[this] def extractUUID(s: String): Option[UUID] =
     if (s.length != 36) None
     else try Some(UUID.fromString(s)) catch { case _: Exception => None }
-
-  private[this] def result[A](i: Input, a: A): (Input, Rerunnable[Output[A]]) =
-    i.drop(1) -> new Rerunnable[Output[A]] {
-      override def run = Future.value(Output.payload(a))
-    }
 
   /**
    * A matching [[Endpoint]] that reads a string value from the current path segment.
@@ -103,10 +96,12 @@ trait Endpoints {
    * @note This is an experimental API and might be removed without any notice.
    */
   val path: Endpoint[String] = new Endpoint[String] {
-    def apply(input: Input): Endpoint.Result[String] =
-      input.headOption.map(s => result(input, s))
+    final def apply(input: Input): Endpoint.Result[String] = input.headOption match {
+      case Some(s) => EndpointResult.Matched(input.drop(1), Rs.const(Output.payload(s)))
+      case _ => EndpointResult.Skipped
+    }
 
-    override def toString: String = ":path"
+    final override def toString: String = ":path"
   }
 
   /**
@@ -114,12 +109,17 @@ trait Endpoints {
    * [[DecodePath]] instances defined for `A`) from the current path segment.
    */
   def path[A](implicit c: DecodePath[A]): Endpoint[A] = new Endpoint[A] {
-    def apply(input: Input): Endpoint.Result[A] = for {
-      ss <- input.headOption
-      aa <- c(ss)
-    } yield result(input, aa)
+    final def apply(input: Input): Endpoint.Result[A] = input.headOption match {
+      case Some(s) => c(s) match {
+        case Some(a) =>
+          EndpointResult.Matched(input.drop(1), Rs.const(Output.payload(a)))
+        case _ => EndpointResult.Skipped
 
-    override def toString: String = ":path"
+      }
+      case _ => EndpointResult.Skipped
+    }
+
+    final override def toString: String = ":path"
   }
 
   /**
@@ -176,28 +176,28 @@ trait Endpoints {
    * An [[Endpoint]] that skips all path segments.
    */
   object * extends Endpoint[HNil] {
-    def apply(input: Input): Endpoint.Result[HNil] =
-      Some(input.copy(path = Nil) -> Rs.OutputHNil)
+    final def apply(input: Input): Endpoint.Result[HNil] =
+      EndpointResult.Matched(input.copy(path = Nil), Rs.OutputHNil)
 
-    override def toString: String = "*"
+    final override def toString: String = "*"
   }
 
   /**
    * An identity [[Endpoint]].
    */
   object / extends Endpoint[HNil] {
-    def apply(input: Input): Endpoint.Result[HNil] =
-      Some(input -> Rs.OutputHNil)
+    final def apply(input: Input): Endpoint.Result[HNil] =
+      EndpointResult.Matched(input, Rs.OutputHNil)
 
-    override def toString: String = ""
+    final override def toString: String = ""
   }
 
   private[this] def method[A](m: Method)(r: Endpoint[A]): Endpoint[A] = new Endpoint[A] {
-    def apply(input: Input): Endpoint.Result[A] =
+    final def apply(input: Input): Endpoint.Result[A] =
       if (input.request.method == m) r(input)
-      else None
+      else EndpointResult.Skipped
 
-    override def toString: String = s"${m.toString().toUpperCase} /${r.toString}"
+    final override def toString: String = s"${m.toString().toUpperCase} /${r.toString}"
   }
 
   /**
@@ -312,24 +312,25 @@ trait Endpoints {
 
   private[this] def option[A](item: items.RequestItem)(f: Request => A): Endpoint[A] =
     Endpoint.embed(item)(input =>
-      Some(input -> new Rerunnable[Output[A]] {
-        override def run = Future.value(Output.payload(f(input.request)))
-      }))
+      EndpointResult.Matched(input, Rerunnable(Output.payload(f(input.request))))
+    )
 
   private[this] def exists[A](item: items.RequestItem)(f: Request => Option[A]): Endpoint[A] =
-    Endpoint.embed(item)(input =>
-      f(input.request).map(s => input -> new Rerunnable[Output[A]] {
-        override def run = Future.value(Output.payload(s))
-      })
-    )
+    Endpoint.embed(item) { input =>
+      f(input.request) match {
+        case Some(a) => EndpointResult.Matched(input, Rerunnable(Output.payload(a)))
+        case _ => EndpointResult.Skipped
+      }
+    }
 
   private[this] def matches[A]
     (item: items.RequestItem)
     (p: Request => Boolean)
     (f: Request => A): Endpoint[A] = Endpoint.embed(item)(input =>
-      if (p(input.request)) Some(input -> new Rerunnable[Output[A]] {
-        override def run = Future.value(Output.payload(f(input.request)))
-      }) else None
+      if (p(input.request))
+        EndpointResult.Matched(input, Rerunnable(Output.payload(f(input.request))))
+      else
+        EndpointResult.Skipped
     )
 
   /**
@@ -514,10 +515,11 @@ trait Endpoints {
           .withHeader("WWW-Authenticate" -> s"""Basic realm="$realm""""))
       }
 
-      def apply(input: Input): Endpoint.Result[A] =
-        e(input).map { case (input, output) =>
-          input -> authenticated(input).flatMap(if (_) output else unauthorized)
-        }
+      final def apply(input: Input): Endpoint.Result[A] = e(input) match {
+        case EndpointResult.Matched(rem, out) =>
+          EndpointResult.Matched(rem, authenticated(rem).flatMap(if (_) out else unauthorized))
+        case _ => EndpointResult.Skipped
+      }
 
       private[this] def authenticated(input: Input): Rerunnable[Boolean] =
         Rerunnable.fromFuture(

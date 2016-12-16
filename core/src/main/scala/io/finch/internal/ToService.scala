@@ -3,7 +3,7 @@ package io.finch.internal
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response, Status}
 import com.twitter.util.Future
-import io.finch.{Endpoint, Input, Output}
+import io.finch.{Endpoint, EndpointResult, Input, Output}
 
 /**
  * Wraps a given [[Endpoint]] with a Finagle [[Service]].
@@ -30,8 +30,8 @@ private[finch] final class ToService[A, CT <: String](
   }
 
   def apply(req: Request): Future[Response] = underlying(Input.request(req)) match {
-    case Some(remainderAndOutput) if remainderAndOutput._1.isEmpty =>
-      remainderAndOutput._2.map(oa => copyVersion(req, oa.toResponse(tr, tre))).run
+    case EndpointResult.Matched(rem, out) if rem.isEmpty =>
+      out.map(oa => copyVersion(req, oa.toResponse(tr, tre))).run
     case _ => Future.value(Response(req.version, Status.NotFound))
   }
 }
