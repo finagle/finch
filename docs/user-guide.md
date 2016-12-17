@@ -264,7 +264,7 @@ bodies in a single step.
 
 - `body(Option)[A, ContentType <: String]` - required/optional, non-chunked (only matches
   non-chunked requests) body represented as `A` and decoding according to presented
-  `Decode.Aux[A, ContentType]` instanace. See [decoding from JSON](user-guide.md#decoding-from-json)
+  `Decode.Aux[A, ContentType]` instance. See [decoding from JSON](user-guide.md#decoding-from-json)
   for more details.
 - `jsonBody(Option)[A]` - an alias for `body[A, Application.Json]`.
 - `textBody(Option)[A]` - an alias for `body[A, Text.Plain]`
