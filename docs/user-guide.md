@@ -525,7 +525,7 @@ since the epoch:
 import io.finch._
 
 implicit val dateTimeDecoder: DecodeEntity[DateTime] =
-  Decode.instance(s => Try(new DateTime(s.toLong)))
+  DecodeEntity.instance(s => Try(new DateTime(s.toLong)))
 ```
 
 All you need to implement is a simple function from `String` to `Try[A]`.
