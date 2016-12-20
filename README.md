@@ -104,6 +104,7 @@ Adopters
 * [Lookout] (http://www.lookout.com)
 * [Project September](http://projectseptember.com/)
 * [Sigma](http://thesigma.com)
+* [D.A.Consortium](http://www.dac.co.jp/english/)
 * *Submit a pull-request to include your company/project into the list*
 
 Contributing
