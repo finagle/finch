@@ -12,10 +12,10 @@ object Foo {
   implicit val showFoo: Show[Foo] =
     Show.show(_.s)
 
-  implicit val decodeFoo: DecodeEntity[Foo] =
+  implicit val decodeEntityFoo: DecodeEntity[Foo] =
     DecodeEntity.instance(s => Return(Foo(s)))
 
-  implicit val decodeFooAsPlainText: Decode.Text[Foo] =
+  implicit val decodeTextFoo: Decode.Text[Foo] =
     Decode.text((b, cs) => Return(Foo(BufText.extract(b, cs))))
 
   implicit val arbitraryFoo: Arbitrary[Foo] =
