@@ -259,7 +259,7 @@ lazy val benchmarks = project
   .settings(allSettings)
   .settings(noPublish)
   .settings(libraryDependencies += "io.circe" %% "circe-generic" % circeVersion)
-  .settings(coverageExcludedPackages := "io\\.finch\\.benchmarks\\..*;")
+  .settings(coverageExcludedPackages := "io\\.finch\\..*;")
   .settings(
     javaOptions in run ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
