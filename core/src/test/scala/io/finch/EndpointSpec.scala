@@ -363,6 +363,13 @@ class EndpointSpec extends FinchSpec {
     foos(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe() shouldBe Some(Seq(Foo("a")))
   }
 
+  it should "liftToTry" in {
+    check { e: Endpoint[Unit] =>
+      val i = Input.get("/")
+      e(i).awaitValue() === e.liftToTry(i).awaitValueUnsafe()
+    }
+  }
+
   it should "collect errors on Endpoint[Seq[String]] failure" in {
     val endpoint: Endpoint[Seq[UUID]] = params("testEndpoint").as[UUID]
     an[Errors] shouldBe thrownBy (

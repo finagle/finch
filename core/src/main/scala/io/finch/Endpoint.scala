@@ -342,19 +342,29 @@ trait Endpoint[A] { self =>
   /**
    * Lifts this endpoint into one that always succeeds, with an empty `Option` representing failure.
    */
-  final def lift: Endpoint[Option[A]] = new Endpoint[Option[A]] {
-    final def apply(input: Input): Endpoint.Result[Option[A]] = self(input) match {
+  @deprecated("Use liftToTry.map(_.toOption) instead", "0.12")
+  final def lift: Endpoint[Option[A]] = liftToTry.map(_.toOption)
+
+  /**
+    * Lifts this endpoint into one that always succeeds, with [[Try]] representing both success and failure
+    * cases.
+    */
+  final def liftToTry: Endpoint[Try[A]] = new Endpoint[Try[A]] {
+    @inline private[this] final def traverse: Try[Output[A]] => Output[Try[A]] = {
+      case Return(oo) => oo.map(Return.apply)
+      case t @ Throw(_) => Output.payload(t.asInstanceOf[Try[A]])
+    }
+
+    final def apply(input: Input): Endpoint.Result[Try[A]] = self(input) match {
       case EndpointResult.Matched(rem, out) =>
-        val o = out.liftToTry.map(toa =>
-          toa.toOption.fold(Output.None: Output[Option[A]])(o => o.map(Some.apply))
-        )
-        EndpointResult.Matched(rem, o)
+        EndpointResult.Matched(rem, out.liftToTry.map(traverse))
       case _ => EndpointResult.Skipped
     }
 
     override def item = self.item
     override final def toString: String = self.toString
   }
+
 
   private[this] def withOutput[B](fn: Output[A] => Output[B]): Endpoint[B] =
     transform(foa => foa.map(oa => fn(oa)))
