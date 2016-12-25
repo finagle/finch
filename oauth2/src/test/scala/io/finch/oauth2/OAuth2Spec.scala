@@ -31,8 +31,8 @@ class OAuth2Spec extends FlatSpec with Matchers with Checkers with MockitoSugar 
     val i1 = Input.get("/user", "access_token" -> "bar")
     val i2 = Input.get("/user")
 
-    e(i1).output shouldBe Some(Ok(42))
-    val Some(error) = e(i2).output
+    e(i1).awaitOutputUnsafe() shouldBe Some(Ok(42))
+    val Some(error) = e(i2).awaitOutputUnsafe()
     error.status shouldBe Status.BadRequest
     error.headers should contain key "WWW-Authenticate"
   }
@@ -58,8 +58,8 @@ class OAuth2Spec extends FlatSpec with Matchers with Checkers with MockitoSugar 
 
     val i2 = Input.get("/token")
 
-    e(i1).output shouldBe Some(Ok("foobar"))
-    val Some(error) = e(i2).output
+    e(i1).awaitOutputUnsafe() shouldBe Some(Ok("foobar"))
+    val Some(error) = e(i2).awaitOutputUnsafe()
     error.status shouldBe Status.BadRequest
     error.headers should contain key "WWW-Authenticate"
   }

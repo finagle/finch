@@ -20,14 +20,13 @@ private[finch] abstract class Body[A, B, CT <: String](
     }
 
   final def apply(input: Input): Endpoint.Result[B] =
-    if (input.request.isChunked) None
+    if (input.request.isChunked) EndpointResult.Skipped
     else {
-      val rr = input.request.contentLength match {
-        case None => whenNotPresent
-        case _ => Rerunnable.fromFuture(decode(input))
-      }
+      val out =
+        if (input.request.contentLength.isEmpty) whenNotPresent
+        else Rerunnable.fromFuture(decode(input))
 
-      Some(input -> rr)
+      EndpointResult.Matched(input, out)
     }
 
   override def item: RequestItem = items.BodyItem

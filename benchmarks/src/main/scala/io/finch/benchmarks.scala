@@ -27,22 +27,22 @@ class BodyBenchmark extends FinchBenchmark {
   val fooAsText: Endpoint[Foo] = body[Foo, Text.Plain]
 
   @Benchmark
-  def fooOption: Option[Option[Foo]] = fooOptionAsText(postPayload).value
+  def fooOption: Option[Option[Foo]] = fooOptionAsText(postPayload).awaitValueUnsafe()
 
   @Benchmark
-  def foo: Option[Foo] = fooAsText(postPayload).value
+  def foo: Option[Foo] = fooAsText(postPayload).awaitValueUnsafe()
 
   @Benchmark
-  def stringOption: Option[Option[String]] = stringBodyOption(postPayload).value
+  def stringOption: Option[Option[String]] = stringBodyOption(postPayload).awaitValueUnsafe()
 
   @Benchmark
-  def string: Option[String] = stringBody(postPayload).value
+  def string: Option[String] = stringBody(postPayload).awaitValueUnsafe()
 
   @Benchmark
-  def byteArrayOption: Option[Option[Array[Byte]]] = binaryBodyOption(postPayload).value
+  def byteArrayOption: Option[Option[Array[Byte]]] = binaryBodyOption(postPayload).awaitValueUnsafe()
 
   @Benchmark
-  def byteArray: Option[Array[Byte]] = binaryBody(postPayload).value
+  def byteArray: Option[Array[Byte]] = binaryBody(postPayload).awaitValueUnsafe()
 }
 
 @State(Scope.Benchmark)
@@ -51,31 +51,31 @@ class MatchPathBenchmark extends FinchBenchmark {
   val foo: Endpoint[HNil] = "foo"
 
   @Benchmark
-  def stringSome: Option[HNil] = foo(getFooBarBaz).value
+  def stringSome: Option[HNil] = foo(getFooBarBaz).awaitValueUnsafe()
 
   @Benchmark
-  def stringNone: Option[HNil] = foo(getRoot).value
+  def stringNone: Option[HNil] = foo(getRoot).awaitValueUnsafe()
 }
 
 @State(Scope.Benchmark)
 class ExtractPathBenchmark extends FinchBenchmark {
   @Benchmark
-  def stringSome: Option[String] = string(getFooBarBaz).value
+  def stringSome: Option[String] = string(getFooBarBaz).awaitValueUnsafe()
 
   @Benchmark
-  def stringNone: Option[String] = string(getRoot).value
+  def stringNone: Option[String] = string(getRoot).awaitValueUnsafe()
 
   @Benchmark
-  def intSome: Option[Int] = int(getTenTwenty).value
+  def intSome: Option[Int] = int(getTenTwenty).awaitValueUnsafe()
 
   @Benchmark
-  def intNone: Option[Int] = int(getFooBarBaz).value
+  def intNone: Option[Int] = int(getFooBarBaz).awaitValueUnsafe()
 
   @Benchmark
-  def booleanSome: Option[Boolean] = boolean(getTrueFalse).value
+  def booleanSome: Option[Boolean] = boolean(getTrueFalse).awaitValueUnsafe()
 
   @Benchmark
-  def booleanNone: Option[Boolean] = boolean(getTenTwenty).value
+  def booleanNone: Option[Boolean] = boolean(getTenTwenty).awaitValueUnsafe()
 }
 
 @State(Scope.Benchmark)
@@ -85,13 +85,13 @@ class ProductBenchmark extends FinchBenchmark {
   val right: Endpoint[(Int, String)] = Endpoint.empty[Int].product(Endpoint.const("foo"))
 
   @Benchmark
-  def bothMatched: Option[(Int, String)] = both(getRoot).value
+  def bothMatched: Option[(Int, String)] = both(getRoot).awaitValueUnsafe()
 
   @Benchmark
-  def leftMatched: Option[(Int, String)] = left(getRoot).value
+  def leftMatched: Option[(Int, String)] = left(getRoot).awaitValueUnsafe()
 
   @Benchmark
-  def rightMatched: Option[(Int, String)] = right(getRoot).value
+  def rightMatched: Option[(Int, String)] = right(getRoot).awaitValueUnsafe()
 }
 
 @State(Scope.Benchmark)
@@ -101,13 +101,13 @@ class CoproductBenchmark extends FinchBenchmark {
   val right: Endpoint[String] = Endpoint.empty[String] | Endpoint.const("bar")
 
   @Benchmark
-  def bothMatched: Option[String] = both(getRoot).value
+  def bothMatched: Option[String] = both(getRoot).awaitValueUnsafe()
 
   @Benchmark
-  def leftMatched: Option[String] = left(getRoot).value
+  def leftMatched: Option[String] = left(getRoot).awaitValueUnsafe()
 
   @Benchmark
-  def rightMatched: Option[String] = right(getRoot).value
+  def rightMatched: Option[String] = right(getRoot).awaitValueUnsafe()
 }
 
 @State(Scope.Benchmark)
@@ -119,14 +119,14 @@ class MapBenchmark extends FinchBenchmark {
   val mapTenOutputAsync: Endpoint[Int] = ten.mapOutputAsync(a => Future.value(Ok(a + 10)))
 
   @Benchmark
-  def map: Option[Int] = mapTen(getRoot).value
+  def map: Option[Int] = mapTen(getRoot).awaitValueUnsafe()
 
   @Benchmark
-  def mapAsync: Option[Int] = mapTenAsync(getRoot).value
+  def mapAsync: Option[Int] = mapTenAsync(getRoot).awaitValueUnsafe()
 
   @Benchmark
-  def mapOutput: Option[Int] = mapTenOutput(getRoot).value
+  def mapOutput: Option[Int] = mapTenOutput(getRoot).awaitValueUnsafe()
 
   @Benchmark
-  def mapOutputAsync: Option[Int] = mapTenOutputAsync(getRoot).value
+  def mapOutputAsync: Option[Int] = mapTenOutputAsync(getRoot).awaitValueUnsafe()
 }
