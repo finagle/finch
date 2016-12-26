@@ -162,7 +162,13 @@ trait Endpoint[A] { self =>
    * `product` will accumulate Finch's own errors (i.e., [[Error]]s) into [[Errors]] and
    * will fail-fast with the first non-Finch error (just ordinary `Exception`) observed.
    */
-  final def product[B](other: Endpoint[B]): Endpoint[(A, B)] = new Endpoint[(A, B)] {
+  final def product[B](other: Endpoint[B]): Endpoint[(A, B)] = productWith(other)(Tuple2.apply)
+
+  /**
+    * Returns a product of this and `other` endpoint. The resulting endpoint returns a value of resulting type for
+    * product function
+    */
+  final def productWith[B, O](other: Endpoint[B])(p: (A, B) => O): Endpoint[O] = new Endpoint[O] {
     private[this] final def collect(a: Throwable, b: Throwable): Throwable = (a, b) match {
       case (aa: Error, bb: Error) => Errors(NonEmptyList.of(aa, bb))
       case (aa: Error, Errors(bs)) => Errors(aa :: bs)
@@ -173,15 +179,15 @@ trait Endpoint[A] { self =>
       case _ => a
     }
 
-    private[this] final def join(both: (Try[Output[A]], Try[Output[B]])): Future[Output[(A, B)]] =
+    private[this] final def join(both: (Try[Output[A]], Try[Output[B]])): Future[Output[O]] =
       both match {
-        case (Return(oa), Return(ob)) => Future.value(oa.flatMap(a => ob.map(b => (a, b))))
+        case (Return(oa), Return(ob)) => Future.value(oa.flatMap(a => ob.map(b => p(a, b))))
         case (Throw(a), Throw(b)) => Future.exception(collect(a, b))
         case (Throw(a), _) => Future.exception(a)
         case (_, Throw(b)) => Future.exception(b)
       }
 
-    final def apply(input: Input): Endpoint.Result[(A, B)] = self(input) match {
+    final def apply(input: Input): Endpoint.Result[O] = self(input) match {
       case a @ EndpointResult.Matched(_, _) => other(a.rem) match {
         case b @ EndpointResult.Matched(_, _) =>
           EndpointResult.Matched(b.rem, a.out.liftToTry.product(b.out.liftToTry).flatMapF(join))
@@ -189,6 +195,7 @@ trait Endpoint[A] { self =>
       }
       case _ => EndpointResult.Skipped
     }
+
 
     override def item = self.item
     final override def toString: String = self.toString
@@ -202,9 +209,7 @@ trait Endpoint[A] { self =>
     pairAdjoin: PairAdjoin[A, B]
   ): Endpoint[pairAdjoin.Out] = new Endpoint[pairAdjoin.Out] {
 
-    private[this] final val inner = self.product(other).map {
-      case (a, b) => pairAdjoin(a, b)
-    }
+    private[this] final val inner = self.productWith(other)((a, b) => pairAdjoin(a, b))
 
     final def apply(input: Input): Endpoint.Result[pairAdjoin.Out] = inner(input)
 
@@ -578,7 +583,7 @@ object Endpoint {
 
   implicit val endpointInstance: Alternative[Endpoint] = new Alternative[Endpoint] {
     final override def ap[A, B](ff: Endpoint[A => B])(fa: Endpoint[A]): Endpoint[B] =
-      ff.product(fa).map { case (f, a) => f(a)}
+      ff.productWith(fa)((f, a) => f(a))
 
     final override def map[A, B](fa: Endpoint[A])(f: A => B): Endpoint[B] =
       fa.map(f)
