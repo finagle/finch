@@ -15,7 +15,7 @@ package object sprayjson {
     }
 
   implicit def encodeSpray[A](implicit format: JsonWriter[A]): Encode.Json[A] =
-    Encode.json((a, cs) => BufText(a.toJson.prettyPrint, cs))
+    Encode.json((a, cs) => BufText(a.toJson.compactPrint, cs))
 
   implicit def encodeExceptionSpray[A <: Exception]: JsonWriter[A] = new JsonWriter[A] {
     override def write(e: A): JsValue =

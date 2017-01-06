@@ -157,7 +157,10 @@ lazy val jsonTest = project.in(file("json-test"))
   .settings(noPublish)
   .settings(coverageExcludedPackages := "io\\.finch\\.test\\..*")
   .settings(
-    libraryDependencies ++= "io.argonaut" %% "argonaut" % "6.1" +: testDependencies
+    libraryDependencies ++= Seq(
+      "io.circe" %% "circe-core" % circeVersion,
+      "io.circe" %% "circe-jawn" % circeVersion
+    ) ++ testDependencies
   )
   .dependsOn(core)
 

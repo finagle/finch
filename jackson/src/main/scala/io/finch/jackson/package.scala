@@ -1,21 +1,21 @@
 package io.finch
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import com.twitter.util.Try
 import io.finch.internal.{BufText, HttpContent, Utf32}
 import java.nio.charset.StandardCharsets
-import scala.reflect.ClassTag
 
 package object jackson {
 
   implicit def decodeJackson[A](implicit
-    mapper: ObjectMapper, ct: ClassTag[A]
+    mapper: ObjectMapper with ScalaObjectMapper, m: Manifest[A]
   ): Decode.Json[A] = Decode.json {
     case (buf, StandardCharsets.UTF_8 | StandardCharsets.UTF_16 | Utf32) =>
       val (array, offset, length) = buf.asByteArrayWithOffsetAndLength
-      Try(mapper.readValue(array, offset, length, ct.runtimeClass.asInstanceOf[Class[A]]))
+      Try(mapper.readValue[A](array, offset, length))
     case (buf, cs) =>
-      Try(mapper.readValue(BufText.extract(buf, cs), ct.runtimeClass.asInstanceOf[Class[A]]))
+      Try(mapper.readValue[A](BufText.extract(buf, cs)))
   }
 
   implicit def encodeJackson[A](implicit mapper: ObjectMapper): Encode.Json[A] =

@@ -1,19 +1,19 @@
 package io.finch.jackson
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import io.finch.test.json.JsonCodecProviderProperties
-import org.scalatest.{FlatSpec, Matchers}
-import org.scalatest.prop.Checkers
+import com.fasterxml.jackson.module.scala._
+import com.fasterxml.jackson.module.scala.experimental._
+import io.finch.test.AbstractJsonSpec
 
-class JacksonSpec extends FlatSpec with Matchers with Checkers with JsonCodecProviderProperties {
+class JacksonSpec extends AbstractJsonSpec {
 
-  implicit val objectMapper: ObjectMapper = new ObjectMapper().registerModule(DefaultScalaModule)
+  // See https://github.com/FasterXML/jackson-module-scala/issues/187
+  implicit val objectMapper: ObjectMapper with ScalaObjectMapper = {
+    val mapper = new ObjectMapper with ScalaObjectMapper
+    mapper.registerModule(DefaultScalaModule)
 
-  "The Jackson codec provider" should "encode a case class as JSON" in encodeNestedCaseClass
-  it should "decode a case class from JSON" in decodeNestedCaseClass
-  it should "properly fail to decode invalid JSON into a case class" in failToDecodeInvalidJson
-  it should "encode a list of case class instances as JSON" in encodeCaseClassList
-  it should "provide encoders with the correct content type" in checkContentType
-  it should "encode an exception" in encodeException
+    mapper
+  }
+
+  checkJson("jackson")
 }
