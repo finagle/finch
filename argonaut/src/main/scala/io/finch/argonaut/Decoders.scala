@@ -1,12 +1,12 @@
 package io.finch.argonaut
 
 import argonaut.{CursorHistory, DecodeJson, Json}
+import argonaut.JawnParser._
 import com.twitter.util.{Return, Throw, Try}
 import io.finch._
 import io.finch.internal.{BufText, HttpContent}
 import java.nio.charset.StandardCharsets
 import jawn.Parser
-import jawn.support.argonaut.Parser._
 import scala.util.{Failure, Success}
 
 trait Decoders {

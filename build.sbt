@@ -3,21 +3,24 @@ import sbtunidoc.Plugin.UnidocKeys._
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   version := "0.12.0-SNAPSHOT",
-  scalaVersion := "2.11.8"
+  scalaVersion := "2.12.1",
+  crossScalaVersions := Seq("2.11.8", "2.12.1")
 )
 
-lazy val finagleVersion = "6.40.0"
-lazy val utilVersion = "6.39.0"
-lazy val twitterServerVersion = "1.25.0"
-lazy val finagleOAuth2Version = "0.2.0"
+lazy val finagleVersion = "6.41.0"
+lazy val utilVersion = "6.40.0"
+lazy val twitterServerVersion = "1.26.0"
+lazy val finagleOAuth2Version = "0.3.0"
 lazy val circeVersion = "0.6.1"
 lazy val circeJacksonVersion = "0.6.2"
-lazy val catbirdVersion = "0.9.0"
+lazy val catbirdVersion = "0.10.0"
 lazy val shapelessVersion = "2.3.2"
 lazy val catsVersion = "0.8.1"
 lazy val sprayVersion = "1.3.2"
-lazy val playVersion = "2.3.10"
+lazy val playVersion = "2.6.0-M1"
 lazy val jacksonVersion = "2.8.5"
+lazy val argonautVersion = "6.2-RC2"
+lazy val json4sVersion = "3.5.0"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -35,7 +38,7 @@ lazy val compilerOptions = Seq(
 )
 
 val testDependencies = Seq(
-  "org.scalacheck" %% "scalacheck" % "1.13.3",
+  "org.scalacheck" %% "scalacheck" % "1.13.4",
   "org.scalatest" %% "scalatest" % "3.0.0",
   "org.typelevel" %% "cats-laws" % catsVersion,
   "org.typelevel" %% "discipline" % "0.7.2"
@@ -168,9 +171,8 @@ lazy val argonaut = project
   .settings(moduleName := "finch-argonaut")
   .settings(allSettings)
   .settings(libraryDependencies ++= Seq(
-    "io.argonaut" %% "argonaut" % "6.1",
-    "org.spire-math" %% "jawn-parser" % "0.8.4",
-    "org.spire-math" %% "jawn-argonaut" % "0.8.4"
+    "io.argonaut" %% "argonaut" % argonautVersion,
+    "io.argonaut" %% "argonaut-jawn" % argonautVersion
   ))
   .dependsOn(core, jsonTest % "test")
 
@@ -187,8 +189,8 @@ lazy val json4s = project
   .settings(moduleName := "finch-json4s")
   .settings(allSettings)
   .settings(libraryDependencies ++= Seq(
-    "org.json4s" %% "json4s-jackson" % "3.2.11",
-    "org.json4s" %% "json4s-ext" % "3.2.11"
+    "org.json4s" %% "json4s-jackson" % json4sVersion,
+    "org.json4s" %% "json4s-ext" % json4sVersion
   ))
   .dependsOn(core, jsonTest % "test")
 
@@ -222,6 +224,7 @@ lazy val oauth2 = project
   .settings(allSettings)
   .settings(libraryDependencies ++= Seq(
     "com.github.finagle" %% "finagle-oauth2" % finagleOAuth2Version,
+    "commons-codec" % "commons-codec" % "1.9",
     "org.mockito" % "mockito-all" % "1.10.19" % "test"
   ))
   .dependsOn(core)
