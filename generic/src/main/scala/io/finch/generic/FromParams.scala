@@ -1,4 +1,4 @@
-package io.finch.internal
+package io.finch.generic
 
 import scala.reflect.ClassTag
 
@@ -32,7 +32,7 @@ object FromParams {
   }
 }
 
-private[internal] object Extractor extends Poly1 {
+private[generic] object Extractor extends Poly1 {
 
   implicit def optionalExtractor[V](implicit
     dh: DecodeEntity[V],

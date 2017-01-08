@@ -582,18 +582,6 @@ object Endpoint {
       }
   }
 
-  class GenericDerivation[A] {
-    def fromParams[Repr <: HList](implicit
-      gen: LabelledGeneric.Aux[A, Repr],
-      fp: FromParams[Repr]
-    ): Endpoint[A] = fp.endpoint.map(gen.from)
-  }
-
-  /**
-   * Generically derive a very basic instance of [[Endpoint]] for a given type `A`.
-   */
-  def derive[A]: GenericDerivation[A] = new GenericDerivation[A]
-
   implicit val endpointInstance: Alternative[Endpoint] = new Alternative[Endpoint] {
     final override def ap[A, B](ff: Endpoint[A => B])(fa: Endpoint[A]): Endpoint[B] =
       ff.productWith(fa)((f, a) => f(a))
