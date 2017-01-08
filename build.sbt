@@ -161,6 +161,7 @@ lazy val finch = project.in(file("."))
       """
         |import io.finch._
         |import io.finch.circe._
+        |import io.finch.generic._
         |import io.finch.items._
         |import com.twitter.util.{Future, Await}
         |import com.twitter.concurrent.AsyncStream
@@ -178,14 +179,19 @@ lazy val finch = project.in(file("."))
     "io.spray" %%  "spray-json" % sprayVersion
   ))
   .aggregate(
-    core, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest, oauth2,
-    examples, sse
+    core, generic, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest,
+    oauth2, examples, sse
   )
-  .dependsOn(core, circe)
+  .dependsOn(core, generic, circe)
 
 lazy val core = project
   .settings(moduleName := "finch-core")
   .settings(allSettings)
+
+  lazy val generic = project
+    .settings(moduleName := "finch-generic")
+    .settings(allSettings)
+    .dependsOn(core % "compile->compile;test->test")
 
 lazy val test = project
   .settings(moduleName := "finch-test")
