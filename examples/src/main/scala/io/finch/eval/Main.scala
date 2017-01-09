@@ -1,8 +1,5 @@
 package io.finch.eval
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import com.twitter.finagle.Http
 import com.twitter.util.{Await, Eval}
 import io.finch._
@@ -26,14 +23,6 @@ import io.finch.jackson._
  * }}}
  */
 object Main {
-
-  // See https://github.com/FasterXML/jackson-module-scala/issues/187
-  implicit val objectMapper: ObjectMapper with ScalaObjectMapper = {
-    val mapper = new ObjectMapper with ScalaObjectMapper
-    mapper.registerModule(DefaultScalaModule)
-
-    mapper
-  }
 
   case class EvalInput(expression: String)
   case class EvalOutput(result: String)
