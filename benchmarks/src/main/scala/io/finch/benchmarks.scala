@@ -1,7 +1,9 @@
 package io.finch
 
+import com.twitter.finagle.Service
+import com.twitter.finagle.http.{Request, Response}
 import com.twitter.io.Buf
-import com.twitter.util.Future
+import com.twitter.util.{Await, Future}
 import io.finch.data.Foo
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations._
@@ -9,8 +11,8 @@ import shapeless._
 
 @BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
-@Warmup(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 3, time = 1, timeUnit = TimeUnit.SECONDS)
+@Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(2)
 abstract class FinchBenchmark {
   val postPayload: Input = Input.post("/").withBody[Text.Plain](Buf.Utf8("x" * 1024))
@@ -129,4 +131,26 @@ class MapBenchmark extends FinchBenchmark {
 
   @Benchmark
   def mapOutputAsync: Option[Int] = mapTenOutputAsync(getRoot).awaitValueUnsafe()
+}
+
+@State(Scope.Benchmark)
+@BenchmarkMode(Array(Mode.Throughput))
+@OutputTimeUnit(TimeUnit.SECONDS)
+class ToServiceBenchmark extends FinchBenchmark {
+  import io.circe.generic.auto._
+  import io.finch.circe._
+
+  val fooService: Service[Request, Response] = Endpoint.const(
+    List.fill(2048)(Foo(scala.util.Random.alphanumeric.take(100).mkString))
+  ).toService
+
+  val intService: Service[Request, Response] = Endpoint.const(
+    List.fill(4096)(scala.util.Random.nextInt)
+  ).toService
+
+  @Benchmark
+  def foos: Response = Await.result(fooService(Request()))
+
+  @Benchmark
+  def ints: Response = Await.result(intService(Request()))
 }
