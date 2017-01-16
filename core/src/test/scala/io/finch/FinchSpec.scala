@@ -50,12 +50,21 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
     )
   } yield i
 
+  // Structure for testing bug:
+  // https://issues.scala-lang.org/browse/SI-2034
+  object err1 {
+    object err2 {
+      case class Foo()
+    }
+  }
+
   def genError: Gen[Error] = for {
     i <- genRequestItem
     s <- genNonEmptyString
     e <- Gen.oneOf(
       Error.NotPresent(i),
       Error.NotParsed(i, implicitly[ClassTag[Int]], new Exception(s)),
+      Error.NotParsed(i, implicitly[ClassTag[err1.err2.Foo]], new Exception(s)),
       Error.NotValid(i, s)
     )
   } yield e

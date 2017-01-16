@@ -75,9 +75,14 @@ object Error {
   final case class NotParsed(item: RequestItem, targetType: ClassTag[_], cause: Throwable)
     extends Error {
 
-    override def getMessage: String =
-      s"${item.description} cannot be converted to ${targetType.runtimeClass.getSimpleName}: " +
+    override def getMessage: String = {
+      // Note: https://issues.scala-lang.org/browse/SI-2034
+      val className = targetType.runtimeClass.getName
+      val simpleName = className.substring(className.lastIndexOf(".")+1)
+
+      s"${item.description} cannot be converted to ${simpleName}: " +
       s"${cause.getMessage}."
+    }
 
     override def getCause: Throwable = cause
   }
