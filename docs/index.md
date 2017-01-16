@@ -84,7 +84,6 @@ object Main extends App {
 * [User Guide](user-guide.md)
 * [Cookbook](cookbook.md)
 * [Best Practices](best-practices.md)
-* [Authentication](auth.md)
 * [JSON](json.md)
 
 [finagle]: http://twitter.github.io/finagle/

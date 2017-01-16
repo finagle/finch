@@ -10,7 +10,9 @@
 * [CORS in Finch](cookbook.md#cors-in-finch)
 * [Converting between Scala futures and Twitter futures](cookbook.md#converting-between-scala-futures-and-twitter-futures)
 * [Server Sent Events](cookbook.md#server-sent-events)
-* [JSONP](cookbook#jsonp)
+* [JSONP](cookbook.md#jsonp)
+* [OAuth2](cookbook.md#oauth2)
+* [Basic HTTP Auth](cookbook.md#basic-http-auth)
 
 This is a collection of short recipes of "How to X in Finch".
 
@@ -496,6 +498,41 @@ Content-Type: application/javascript
 
 /**/myfunction({"foo":"bar"});
 ```
+
+### OAuth2
+
+There is [finagle-oauth2](https://github.com/finagle/finagle-oauth2) server-side provider that is
+supported in Finch via the `finch-oauth2` package:
+
+*Authorize*
+```scala
+import com.twitter.finagle.oauth2._
+import io.finch.oauth2._
+
+val dataHandler: DataHandler[Int] = ???
+val auth: Endpoint[AuthInfo[Int]] = authorize(dataHandler)
+val e: Endpoint[Int] = get("user" :: auth) { ai: AuthInfo[Int] => Ok(ai.user) }
+```
+
+*Issue Access Token*
+```scala
+import com.twitter.finagle.oauth2._
+import io.finch.oauth2._
+
+val token: Endpoint[GrantHandlerResult] = issueAccessToken(dataHandler)
+```
+
+Note that both `token` and `authorize` may throw `com.twitter.finagle.oauth2.OAuthError`, which is
+already _handled_ by a returned endpoint but needs to be serialized. This means you might want to
+include its serialization logic into an instance of `Encode[Exception]`.
+
+### Basic HTTP Auth
+
+[Basic HTTP Auth](http-auth) support could be added via the [finagle-http-auth](finagle-http-auth)
+project that provides Finagle filters implementing authentication for clients and servers. In Finch
+this would look like a `BasicAuth.Server` filter applied to `Service` returned from the `.toService`
+call. See finagle-http-auth's README for more usage details.
+
 --
 Read Next: [Best Practices](best-practices.md)
 
@@ -509,3 +546,5 @@ Read Next: [Best Practices](best-practices.md)
 [cors]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
 [server-sent-events]: https://en.wikipedia.org/wiki/Server-sent_events
 [insecure-jsonp]: http://erlend.oftedal.no/blog/?blogid=97
+[http-auth]: http://en.wikipedia.org/wiki/Basic_access_authentication
+[finagle-http-auth]: https://github.com/finagle/finagle-http-auth
