@@ -80,8 +80,7 @@ object Error {
       val className = targetType.runtimeClass.getName
       val simpleName = className.substring(className.lastIndexOf(".")+1)
 
-      s"${item.description} cannot be converted to ${simpleName}: " +
-      s"${cause.getMessage}."
+      s"${item.description} cannot be converted to ${simpleName}: ${cause.getMessage}."
     }
 
     override def getCause: Throwable = cause

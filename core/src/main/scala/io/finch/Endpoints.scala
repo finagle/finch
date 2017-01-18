@@ -6,7 +6,7 @@ import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.finagle.http.exp.Multipart.FileUpload
 import com.twitter.finagle.netty3.ChannelBufferBuf
 import com.twitter.io.Buf
-import com.twitter.util.{Base64StringEncoder, Future, Try}
+import com.twitter.util.{Future, Try}
 import io.catbird.util.Rerunnable
 import io.finch.endpoint._
 import io.finch.internal._

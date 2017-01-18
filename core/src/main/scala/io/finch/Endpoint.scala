@@ -3,7 +3,7 @@ package io.finch
 import java.nio.charset.Charset
 import scala.reflect.ClassTag
 
-import cats.{Alternative, Functor}
+import cats.Alternative
 import cats.data.NonEmptyList
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Cookie, Request, Response}
@@ -534,7 +534,7 @@ object Endpoint {
 
         NonEmptyList.fromList(errors) match {
           case None => Future.const(Try.collect(decoded).map(seq => NonEmptyList(seq.head, seq.tail.toList)))
-          case Some(err) => Future.exception(Errors(Functor[NonEmptyList].widen(err)))
+          case Some(err) => Future.exception(Errors(err))
         }
       }
   }
@@ -557,7 +557,7 @@ object Endpoint {
 
         NonEmptyList.fromList(errors.toList) match {
           case None => Future.const(Try.collect(decoded))
-          case Some(err) => Future.exception(Errors(Functor[NonEmptyList].widen(err)))
+          case Some(err) => Future.exception(Errors(err))
         }
       }
   }
