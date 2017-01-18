@@ -14,8 +14,7 @@ trait Decoders {
    */
   implicit def decodeCirce[A: Decoder]: Decode.Json[A] = Decode.json { (b, cs) =>
     val attemptJson = cs match {
-      case StandardCharsets.UTF_8 =>
-        parseByteBuffer(b.asByteBuffer).right.flatMap(_.as[A])
+      case StandardCharsets.UTF_8 => decodeByteBuffer[A](b.asByteBuffer)
       case _ => decode[A](BufText.extract(b, cs))
     }
 
