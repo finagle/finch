@@ -1,6 +1,6 @@
 package io.finch
 
-import com.twitter.util.{Await, Duration, Try}
+import com.twitter.util.{Await, Duration, Future, Try}
 import io.catbird.util.Rerunnable
 
 /**
@@ -29,6 +29,17 @@ sealed abstract class EndpointResult[+A] {
    */
   final def remainder: Option[Input] = this match {
     case EndpointResult.Matched(rem, _) => Some(rem)
+    case _ => None
+  }
+
+  /**
+   * Runs and returns the [[Output]] (wrapped with future) after an [[Endpoint]] is matched.
+   *
+   * @return `Some(output)` if this endpoint was matched on a given input,
+   *         `None` otherwise.
+   */
+  final def output: Option[Future[Output[A]]] = this match {
+    case EndpointResult.Matched(_, out) => Some(out.run)
     case _ => None
   }
 
@@ -78,58 +89,6 @@ sealed abstract class EndpointResult[+A] {
    */
   final def awaitValueUnsafe(d: Duration = Duration.Top): Option[A] =
     awaitOutputUnsafe(d).map(oa => oa.value)
-
-  /**
-   * Queries an [[Output]] wrapped with [[Try]] (indicating if the [[com.twitter.util.Future]] is
-   * failed).
-   *
-   * @note This method is blocking and awaits on the underlying [[com.twitter.util.Future]] with
-   *       the upper bound of 10 seconds.
-   *
-   * @return `Some(output)` if this endpoint was matched on a given input,
-   *         `None` otherwise.
-   */
-  @deprecated("Use awaitOutput(Duration) instead", "0.12")
-  final def tryOutput: Option[Try[Output[A]]] = awaitOutput(Duration.fromSeconds(10))
-
-  /**
-   * Queries a value from the [[Output]] wrapped with [[Try]] (indicating if either the
-   * [[com.twitter.util.Future]] is failed or [[Output]] wasn't a payload).
-   *
-   * @note This method is blocking and awaits on the underlying [[com.twitter.util.Future]] with
-   *       the upper bound of 10 seconds.
-   *
-   * @return `Some(value)` if this endpoint was matched on a given input,
-   *         `None` otherwise.
-   */
-  @deprecated("Use awaitValue(Duration) instead", "0.12")
-  final def tryValue: Option[Try[A]] = awaitValue(Duration.fromSeconds(10))
-
-  /**
-   * Queries an [[Output]] of the [[Endpoint]] result or throws an exception if an underlying
-   * [[com.twitter.util.Future]] is failed.
-   *
-   * @note This method is blocking and awaits on the underlying [[com.twitter.util.Future]]
-   *       with the upper bound of 10 seconds.
-   *
-   * @return `Some(output)` if this endpoint was matched on a given input,
-   *         `None` otherwise.
-   */
-  @deprecated("Use awaitOutputUnsafe(Duration) instead",  "0.12")
-  final def output: Option[Output[A]] = awaitOutputUnsafe(Duration.fromSeconds(10))
-
-  /**
-   * Queries the value from the [[Output]] or throws an exception if either an underlying
-   * [[com.twitter.util.Future]] is failed or [[Output]] wasn't a payload.
-   *
-   * @note This method is blocking and awaits on the underlying [[com.twitter.util.Future]] with
-   *       the upper bound of 10 seconds.
-   *
-   * @return `Some(value)` if this endpoint was matched on a given input,
-   *         `None` otherwise.
-   */
-  @deprecated("Use awaitValueUnsafe instead", "0.12")
-  final def value: Option[A] = awaitValueUnsafe(Duration.fromSeconds(10))
 }
 
 object EndpointResult {

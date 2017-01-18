@@ -340,12 +340,6 @@ trait Endpoint[A] { self =>
   final def shouldNot(rule: ValidationRule[A]): Endpoint[A] = shouldNot(rule.description)(rule.apply)
 
   /**
-   * Lifts this endpoint into one that always succeeds, with an empty `Option` representing failure.
-   */
-  @deprecated("Use liftToTry.map(_.toOption) instead", "0.12")
-  final def lift: Endpoint[Option[A]] = liftToTry.map(_.toOption)
-
-  /**
     * Lifts this endpoint into one that always succeeds, with [[Try]] representing both success and failure
     * cases.
     */
