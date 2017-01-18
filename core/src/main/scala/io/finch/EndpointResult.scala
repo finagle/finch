@@ -1,6 +1,6 @@
 package io.finch
 
-import com.twitter.util.{Await, Duration, Try}
+import com.twitter.util.{Await, Duration, Future, Try}
 import io.catbird.util.Rerunnable
 
 /**
@@ -29,6 +29,17 @@ sealed abstract class EndpointResult[+A] {
    */
   final def remainder: Option[Input] = this match {
     case EndpointResult.Matched(rem, _) => Some(rem)
+    case _ => None
+  }
+
+  /**
+   * Runs and returns the [[Output]] (wrapped with future) after an [[Endpoint]] is matched.
+   *
+   * @return `Some(output)` if this endpoint was matched on a given input,
+   *         `None` otherwise.
+   */
+  final def output: Option[Future[Output[A]]] = this match {
+    case EndpointResult.Matched(_, out) => Some(out.run)
     case _ => None
   }
 
