@@ -41,7 +41,7 @@ Internally, an `Endpoint[A]` is represented as a function `Input => EndpointResu
 
 - `Input` is a data type wrapping Finagle HTTP request with some Finch-specific context
 - `EndpointResult[A]` is an ADT with two cases indicating if an endpoint was matched on a given
-   input
+   input or not
 
 Technically, `EndpointResult[A]` acts similarly to `Option[(Input, Output[A])]` implying that if
 and endpoint is matched, both (Scala's `Tuple2`) the input remainder and the output are returned.
@@ -49,17 +49,18 @@ and endpoint is matched, both (Scala's `Tuple2`) the input remainder and the out
 At this point, it's important to understand the endpoint lifecycle:
 
 - Each incoming request is wrapped with `Input` and is passed to an endpoint
-  (i.e., `Endpoint.apply(input)`)
+  (i.e., `Endpoint.apply(input)` - endpoint runs on a given input)
 - A returned `EndpointResult` is (pattern-)matched against two cases:
   - When `Skipped` HTTP 404 is served back to the client
-  - When `Matched` its output is _evaluated_ and the produced value/effect is served back to the
+  - When `Matched` its output is _evaluated_ and the produced value or effect is served back to the
     client
 
 Everything from above is happening automatically when endpoint is served as a Finagle service so as
 a user you should neither deal with `Input` nor `EndpointResult` directly. Although, these types come
-in handy when it comes to testing: it's quite easy to run an endpoint with an arbitrary `Input` and
-then query its `EndpointResult`. This testing business is covered in depth in the
-[Testing](user-guide.md#testing) section.
+in handy when it testing endpoints: it's quite easy to run an endpoint with an arbitrary `Input` and
+then query its `EndpointResult` to assert the output. This testing business is covered in depth in
+the [Testing](user-guide.md#testing) section. Although, some of the testing bits will be used later
+in this user guide.
 
 ### Endpoint Instances
 
@@ -700,6 +701,8 @@ One of the advantages of typeful endpoints in Finch is that they can be unit-tes
 a way similar to how functions are tested. The machinery is pretty straightforward: an endpoint
 takes an `Input` and returns `EndpointResult` that could be queried with `await*()` methods.
 
+**Building `Input`s**
+
 There is a lightweight API around `Input`s to make them easy to build. For example, the following
 builds a `GET /foo?a=1&b=2` request:
 
@@ -732,6 +735,8 @@ val baz: Input = Input.put("/baz").withBody[Application.Json](Baz(Map("a" -> "b"
 
 Note that, assuming UTF-8 as the encoding, which is the default, `application/json;charset=utf-8`
 will be added as content type.
+
+**Querying `EndpointResult`s**
 
 Similarly to the `Input` API for testing, `EndpointResult` comes with a number of blocking methods
 (prefixed with `await`) designed to be used in tests.
