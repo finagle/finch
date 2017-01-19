@@ -1,7 +1,6 @@
 ## Finch User Guide
 
 * [Overview](user-guide.md#overview)
-* [Endpoint Internals](user-guide.md#endpoint-internals)
 * [Understanding Endpoints](user-guide.md#understanding-endpoints)
 * [Endpoint Instances](user-guide.md#endpoint-instances)
 * [Composing Endpoints](user-guide.md#composing-endpoints)
@@ -36,52 +35,32 @@ Endpoints are composed in two ways: in terms of _and then_ and in terms of _or e
 At the end of the day, an `Endpoint[A]` might be converted into a Finagle HTTP service so it might
 be served within the Finagle ecosystem.
 
-### Endpoint Internals
-
-Internally, an `Endpoint[A]` is represented as a function `Request => Option[Future[Output[A]]]`.
-This might seem like a complex type, although it's pretty straightforward when viewed separately.
-
-- `scala.Option` represents a success/failure of the _match_. Basically, `None` means "route not
-  found" and will be converted into a very basic 404 response.
-- `com.twitter.util.Future` represents an _async computation_, which might fail. An unhandled
-  exception from `Future` is converted into a very basic 500 response.
-- `io.finch.Output[A]` represents an _output context_ (headers, HTTP status, content type, etc),
-  which is used when serializing the underlying value of the `A` into an HTTP response.
-
-You shouldn't deal directly with that type, everything explained above happens internally.
-The only type that matters in this signature is `A`, a type of the value returned from the endpoint
-which will be serialized into an HTTP response.
-
-Finch encourages you to write low coupled and reusable endpoints that are easy to reason about. One
-may say that a single `Endpoint` represents a particular _microservice_, which is nothing more than
-just a simple function. In this case, an HTTP server (a Finagle HTTP `Service` that might be served
-within the Finagle ecosystem) is represented as a composition of endpoints.
-
 ### Understanding Endpoints
 
-An `Endpoint[A]` represents a function that needs to be run/called to produce some value/effect.
-This work is usually done by a service to which an endpoint is converted (wrapped with). So a
-Finagle service wrapping an endpoint 1) takes an HTTP request 2) converts it into a format Finch can
-understand 3) runs an endpoint 4) returns the value returned from the endpoint run/call.
+Internally, an `Endpoint[A]` is represented as a function `Input => EndpointResult[A]`, where
 
-Everything above seems pretty straightforward, except for what it really means to _run_ an
-endpoint. Running an endpoint consists of two stages: _match_ and _evaluate_. When the request comes
-in, it's matched against all the endpoints (composed in terms of _or else_) and then the one that
-matched is evaluated.
+- `Input` is a data type wrapping Finagle HTTP request with some Finch-specific context
+- `EndpointResult[A]` is an ADT with two cases indicating if an endpoint was matched on a given
+   input or not
 
-An important thing to understand is that the _match_ stage (represented as an `Option`) never fails,
-but the _evaluate_ stage (represented as `Future`) may fail (e.g., param is missing).
+Technically, `EndpointResult[A]` acts similarly to `Option[(Input, Output[A])]` implying that if
+and endpoint is matched, both (Scala's `Tuple2`) the input remainder and the output are returned.
 
-Keeping those two stages in mind, we can distinct two types of endpoint instances depending on when
-request reading (for `Endpoint[A]`, fetching a value of type `A` out of a given request) is actually
-happening: _matching_ and _evaluating_.
+At this point, it's important to understand the endpoint lifecycle:
 
-**Matching Endpoints** are strict (requests are read while matched); affect routing/matching; when
-matched also extract some value out of the given request (i.e., path segment); when evaluated return
-an extracted value.
+- Each incoming request is wrapped with `Input` and is passed to an endpoint
+  (i.e., `Endpoint.apply(input)` - endpoint runs on a given input)
+- A returned `EndpointResult` is (pattern-)matched against two cases:
+  - When `Skipped` HTTP 404 is served back to the client
+  - When `Matched` its output is _evaluated_ and the produced value or effect is served back to the
+    client
 
-**Evaluating Endpoints** are lazy (requests are read while evaluated); always match (don't affect
-routing/matching); when evaluated return a value fetched from the given request.
+Everything from above is happening automatically when endpoint is served as a Finagle service so as
+a user you should neither deal with `Input` nor `EndpointResult` directly. Although, these types come
+in handy when it testing endpoints: it's quite easy to run an endpoint with an arbitrary `Input` and
+then query its `EndpointResult` to assert the output. This testing business is covered in depth in
+the [Testing](user-guide.md#testing) section. Although, some of the testing bits will be used later
+in this user guide.
 
 ### Endpoint Instances
 
@@ -115,16 +94,16 @@ p: io.finch.Endpoint[Double] = io.finch.Endpoint$$anon$12@3d326f2c
 scala> val q = Endpoint.lift(scala.math.random)
 q: io.finch.Endpoint[Double] = io.finch.Endpoint$$anon$13@4126006a
 
-scala> p(Input.get("/")).value
+scala> p(Input.get("/")).awaitValueUnsafe()
 res1: Option[Double] = Some(0.46142040016536523)
 
-scala> p(Input.get("/")).value
+scala> p(Input.get("/")).awaitValueUnsafe()
 res2: Option[Double] = Some(0.46142040016536523)
 
-scala> q(Input.get("/")).value
+scala> q(Input.get("/")).awaitValueUnsafe()
 res3: Option[Double] = Some(0.2204303223747196)
 
-scala> q(Input.get("/")).value
+scala> q(Input.get("/")).awaitValueUnsafe()
 res4: Option[Double] = Some(0.38292485936910126)
 ```
 
@@ -141,7 +120,7 @@ import io.finch._
 scala> val remoteAddr = root.map(_.remoteAddress)
 remoteAddr: io.finch.Endpoint[java.net.InetAddress] = request
 
-scala> remoteAddr(Input.get("/")).value
+scala> remoteAddr(Input.get("/")).awaitValueUnsafe()
 res5: Option[java.net.InetAddress] = Some(0.0.0.0/0.0.0.0)
 ```
 
@@ -161,10 +140,10 @@ import io.finch._
 scala> val e: Endpoint0 = "foo"
 e: io.finch.Endpoint0 = foo
 
-scala> e(Input.get("/foo")).isDefined
+scala> e(Input.get("/foo")).isMatched
 res1: Boolean = true
 
-scala> e(Input.get("/bar")).isDefined
+scala> e(Input.get("/bar")).isMatched
 res2: Boolean = false
 ```
 
@@ -209,10 +188,10 @@ import com.twitter.finagle.http.{Request, Method}
 scala> val e = get(/)
 e: io.finch.Endpoint[shapeless.HNil] = GET /
 
-scala> e(Input.post("/")).isDefined
+scala> e(Input.post("/")).isMatched
 res1: Boolean = false
 
-scala> e(Input.get("/")).isDefined
+scala> e(Input.get("/")).isMatched
 res2: Boolean = true
 ```
 
@@ -578,7 +557,7 @@ scala> import io.finch._
 scala> val p = jsonBody[Person]
 p: io.finch.Endpoint[Person] = body
 
-scala> p(Input.post("/").withBody[Application.Json](Buf.Utf8("""{"name":"foo","age":42}"""))).value
+scala> p(Input.post("/").withBody[Application.Json](Buf.Utf8("""{"name":"foo","age":42}"""))).awaitValueUnsafe()
 res2: Option[Person] = Some(Person(foo,42))
 ```
 
@@ -720,7 +699,9 @@ implicit val e: Encode.Aux[Exception, Text.Html] = Encode.instance((e, cs) =>
 
 One of the advantages of typeful endpoints in Finch is that they can be unit-tested independently in
 a way similar to how functions are tested. The machinery is pretty straightforward: an endpoint
-takes an `Input` and returns `Output` (wrapping a payload).
+takes an `Input` and returns `EndpointResult` that could be queried with `await*()` methods.
+
+**Building `Input`s**
 
 There is a lightweight API around `Input`s to make them easy to build. For example, the following
 builds a `GET /foo?a=1&b=2` request:
@@ -755,12 +736,10 @@ val baz: Input = Input.put("/baz").withBody[Application.Json](Baz(Map("a" -> "b"
 Note that, assuming UTF-8 as the encoding, which is the default, `application/json;charset=utf-8`
 will be added as content type.
 
-Similarly when an `Output` is returned form the `Endpoint` it might be queried with a number of
-methods: `tryValue`, `tryOutput`, `output`, and `value`. Please, note that all of those are blocking
-on the underlying `Future` with the upper bound of 10 seconds.
+**Querying `EndpointResult`s**
 
-In general, it's recommended to use `try*` variants (since they don't throw exceptions), but for the
-sake of simplicity, in this user guide `value` and `output` are used instead.
+Similarly to the `Input` API for testing, `EndpointResult` comes with a number of blocking methods
+(prefixed with `await`) designed to be used in tests.
 
 ```scala
 scala> val divOrFail: Endpoint[Int] = post(int :: int) { (a: Int, b: Int) =>
@@ -769,13 +748,13 @@ scala> val divOrFail: Endpoint[Int] = post(int :: int) { (a: Int, b: Int) =>
      | }
 divOrFail: io.finch.Endpoint[Int] = POST /:int/:int
 
-scala> divOrFail(Input.post("/20/10")).value == Some(2)
+scala> divOrFail(Input.post("/20/10")).awaitValueUnsafe() == Some(2)
 res3: Boolean = true
 
-scala> divOrFail(Input.get("/20/10")).value == None
+scala> divOrFail(Input.get("/20/10")).awaitValueUnsafe() == None
 res4: Boolean = true
 
-scala> divOrFail(Input.post("/20/0")).output.map(_.status) == Some(Status.BadRequest)
+scala> divOrFail(Input.post("/20/0")).awaitOutputUnsafe().map(_.status) == Some(Status.BadRequest)
 res6: Boolean = true
 ```
 
