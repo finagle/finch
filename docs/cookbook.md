@@ -487,6 +487,19 @@ val dateTime: Endpoint[LocalDateTime] = get("time" :: path[LocalDateTime]) { t: 
 **Note:** `io.finch.DecodePath` is an experimental API that will be (or not) eventually promoted
 to non-experimental.
 
+**Example 5: get all parameters or headers**
+
+In case if you want to operate with a whole request, you could use `root` endpoint. But if there is need to get only query parameters or headers, it's easy to reuse this endpoint to get something like following:
+
+```scala
+val paramsAll: Endpoint[Map[String, String]] = root.map(_.params.toMap)
+val headersAll: Endpoint[Map[String, String]] = root.map(_.headerMap.toMap)
+
+get("hello" :: paramsAll :: headersAll) {(params: Map[String, String], headers: Map[String, String]) => {
+    Ok("Parameters: $params. Headers: $headers")
+}}
+```
+
 
 ### CORS in Finch
 
