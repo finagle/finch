@@ -1,8 +1,11 @@
 package io.finch
 
+import java.nio.charset.{Charset, StandardCharsets}
+import scala.util.{Failure, Try}
+
 import com.twitter.finagle.http.Status
 import com.twitter.io.Buf
-import java.nio.charset.{Charset, StandardCharsets}
+import com.twitter.util.{Await, Future}
 
 class OutputSpec extends FinchSpec {
 
@@ -10,6 +13,12 @@ class OutputSpec extends FinchSpec {
 
   it should "propagate status to response" in {
     check { o: Output[String] => o.toResponse[Text.Plain].status == o.status }
+  }
+
+  it should "propagate overridden status to response" in {
+    check { (o: Output[String], s: Status) =>
+      o.withStatus(s).toResponse[Text.Plain].status === s
+    }
   }
 
   it should "propagate charset to response" in {
@@ -81,6 +90,56 @@ class OutputSpec extends FinchSpec {
     check { op: Output.Payload[String] =>
       op.toResponse[Text.Plain].content ===
         Encode[String, Text.Plain].apply(op.value, op.charset.getOrElse(StandardCharsets.UTF_8))
+    }
+  }
+
+  it should "create an empty endpoint with given status when calling unit" in {
+    check { s: Status =>
+      Output.unit(s).toResponse[Text.Plain].status === s
+    }
+  }
+
+  it should "throw an exception on calling value on an Empty output" in {
+    check { e: Output.Empty =>
+      Try(e.value) match {
+        case Failure(f) => f.getMessage === "empty output"
+        case _ => false
+      }
+    }
+  }
+
+  it should "throw an exception on calling value on a Failure output" in {
+    check { f: Output.Failure =>
+      Try(f.value) match {
+        case Failure(ex) => ex.getMessage === f.cause.getMessage
+        case _ => false
+      }
+    }
+  }
+
+  it should "check equivalences of arbitrary string outputs" in {
+    check { (oa: Output[String], ob: Output[String]) =>
+      Output.outputEq[String].eqv(oa, ob) === (oa == ob)
+    }
+  }
+
+  it should "check equivalences of empty outputs" in {
+    check { (ea: Output.Empty, eb: Output.Empty) =>
+      Output.outputEq[String].eqv(ea, eb) === (ea == eb)
+    }
+  }
+
+  it should "check equivalences of failure outputs" in {
+    check { (fa: Output.Failure, fb: Output.Failure) =>
+      Output.outputEq[String].eqv(fa, fb) === (fa == fb)
+    }
+  }
+
+  it should "traverse arbitrary outputs" in {
+    check { oa: Output[String] =>
+        val traversedOutput = oa.traverse[String](_ => Future.value(oa.value))
+
+        Await.result(traversedOutput) === oa
     }
   }
 }
