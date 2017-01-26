@@ -3,8 +3,9 @@ package io.finch
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.io.Buf
-import com.twitter.util.{Await, Future}
+import com.twitter.util.{Await, Future, Try}
 import io.finch.data.Foo
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations._
 import shapeless._
@@ -131,6 +132,25 @@ class MapBenchmark extends FinchBenchmark {
 
   @Benchmark
   def mapOutputAsync: Option[Int] = mapTenOutputAsync(getRoot).awaitValueUnsafe()
+}
+
+@State(Scope.Benchmark)
+class JsonBenchmark extends FinchBenchmark {
+  import io.circe.syntax._
+  import io.circe.generic.auto._
+  import io.finch.circe._
+
+  val decodeFoo: Decode.Json[Foo] = Decode[Foo, Application.Json]
+  val encodeFoo: Encode.Json[Foo] = Encode[Foo, Application.Json]
+
+  val foo: Foo = Foo("x" * 1024)
+  val buf: Buf = Buf.Utf8(foo.asJson.noSpaces)
+
+  @Benchmark
+  def decode: Try[Foo] = decodeFoo(buf, StandardCharsets.UTF_8)
+
+  @Benchmark
+  def encode: Buf = encodeFoo(foo, StandardCharsets.UTF_8)
 }
 
 @State(Scope.Benchmark)
