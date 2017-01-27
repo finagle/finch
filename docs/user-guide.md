@@ -761,7 +761,7 @@ res6: Boolean = true
 You can find unit tests for the examples in the [examples folder][examples].
 
 --
-Read Next: [Authentication](auth.md)
+Read Next: [Cookbook](cookbook.md)
 
 [shapeless]: https://github.com/milessabin/shapeless
 [hlist]: https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.0.0#heterogenous-lists
