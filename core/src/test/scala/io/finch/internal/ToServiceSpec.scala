@@ -3,6 +3,9 @@ package io.finch.internal
 import com.twitter.finagle.http.{Request, Status}
 import com.twitter.util.{Await, Future}
 import io.finch._
+import java.time.format.DateTimeFormatter
+import java.time.ZonedDateTime
+import java.time.ZoneOffset
 
 class ToServiceSpec extends FinchSpec {
 
@@ -33,6 +36,19 @@ class ToServiceSpec extends FinchSpec {
       val rep = Await.result(s(req))
 
       rep.version === req.version
+    }
+  }
+
+  it should "include Date header" in {
+    val formatter = DateTimeFormatter.RFC_1123_DATE_TIME.withZone(ZoneOffset.UTC)
+    def parseDate(s: String): Long = ZonedDateTime.parse(s, formatter).toEpochSecond
+
+    check { req: Request =>
+      val s = Endpoint.const(()).toServiceAs[Text.Plain]
+      val rep = Await.result(s(req))
+      val now = parseDate(currentTime())
+
+      rep.date.nonEmpty && (parseDate(rep.date.get) - now).abs <= 1
     }
   }
 }

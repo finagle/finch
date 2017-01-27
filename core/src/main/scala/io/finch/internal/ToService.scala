@@ -1,7 +1,7 @@
 package io.finch.internal
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Request, Response, Status}
+import com.twitter.finagle.http.{Request, Response, Status, Version}
 import com.twitter.util.Future
 import io.finch.{Endpoint, EndpointResult, Input, Output}
 
@@ -24,14 +24,15 @@ private[finch] final class ToService[A, CT <: String](
     case es: io.finch.Errors => Output.failure(es, Status.BadRequest)
   }
 
-  private[this] def copyVersion(from: Request, to: Response): Response = {
-    to.version = from.version
-    to
+  private[this] def conformHttp(rep: Response, version: Version): Response = {
+    rep.version = version
+    rep.date = currentTime()
+    rep
   }
 
   def apply(req: Request): Future[Response] = underlying(Input.request(req)) match {
     case EndpointResult.Matched(rem, out) if rem.isEmpty =>
-      out.map(oa => copyVersion(req, oa.toResponse(tr, tre))).run
-    case _ => Future.value(Response(req.version, Status.NotFound))
+      out.map(oa => conformHttp(oa.toResponse(tr, tre), req.version)).run
+    case _ => Future.value(conformHttp(Response(Status.NotFound), req.version))
   }
 }
