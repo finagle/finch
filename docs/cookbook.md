@@ -57,9 +57,9 @@ import io.circe.generic.auto._
 ```
 
 Unless it's absolutely necessary to customize Circe's output format (i.e., drop null keys), always
-prefer the [Jackson serializer][circe-jackson] for [better performance][circe-jackson]. The following
-two imports show how to make Circe use Jackson while serializing instead of the built-in pretty
-printer.
+prefer the [Jackson serializer][circe-jackson] for [better performance][circe-jackson-performance].
+The following two imports show how to make Circe use Jackson while serializing instead of the
+built-in pretty printer.
 
 ```scala
 import io.finch.circe.jacksonSerializer._
@@ -209,7 +209,7 @@ reasonable to pass  `Application.Json` to the `toServiceAs` call and downgrade n
 ```scala
 import com.twitter.finagle.Http
 import com.twitter.finagle.http.Response
-import con.twitter.io.Buf
+import com.twitter.io.Buf
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
@@ -275,7 +275,7 @@ import java.io.File
 val reader: Reader = Reader.fromFile(new File("/dev/urandom"))
 
 val file: Endpoint[AsyncStream[Buf]] = get("stream-of-file") {
-  Ok(AsyncStream.fromReader(reader, chunkSize = 512.kilobytes.inBytes))
+  Ok(AsyncStream.fromReader(reader, chunkSize = 512.kilobytes.inBytes.toInt))
 }
 
 Http.server
@@ -297,13 +297,13 @@ import io.circe.{Encoder, Json}
 import io.finch._
 import io.finch.circe._
 
-def errorToJson(e: Error): Json = t match {
+def errorToJson(e: Error): Json = e match {
   case Error.NotPresent(_) =>
-    Seq(Json.obj("error" -> Json.fromString("something_not_present")))
+    Json.obj("error" -> Json.fromString("something_not_present"))
   case Error.NotParsed(_, _, _) =>
-    Seq(Json.obj("error" -> Json.fromString("something_not_parsed")))
+    Json.obj("error" -> Json.fromString("something_not_parsed"))
   case Error.NotValid(_, _) =>
-    Seq(Json.obj("error" -> Json.fromString("something_not_valid")))
+    Json.obj("error" -> Json.fromString("something_not_valid"))
 }
 
 implicit val ee: Encoder[Exception] = Encoder.instance {
@@ -609,7 +609,7 @@ Http.server.serve(":8080", JsonpFilter.andThen(service))
 
 `JsonpFilter` is dead simple. It checks the returned HTTP payload and if it's a JSON string, wraps
 it with a call to a function whose name is passed in the `callback` query-string param (and changes
-the content-type to `application/javascript` correspondingly). Using httpie, this would look as:
+the content-type to `application/javascript` correspondingly). Using [HTTPie][httpie], this would look as:
 
 ```
 $ http :8081/jsonp
@@ -660,7 +660,7 @@ include its serialization logic into an instance of `Encode[Exception]`.
 
 ### Basic HTTP Auth
 
-[Basic HTTP Auth](http-auth) support could be added via the [finagle-http-auth](finagle-http-auth)
+[Basic HTTP Auth][http-auth] support could be added via the [finagle-http-auth][finagle-http-auth]
 project that provides Finagle filters implementing authentication for clients and servers. In Finch
 this would look like a `BasicAuth.Server` filter applied to `Service` returned from the `.toService`
 call. See finagle-http-auth's README for more usage details.
@@ -669,7 +669,7 @@ call. See finagle-http-auth's README for more usage details.
 Read Next: [Best Practices](best-practices.md)
 
 [nginx]: http://nginx.org/en/
-[circe]: https://github.com/travisbrown/circe
+[circe]: https://github.com/circe/circe
 [issue191]: https://github.com/finagle/finch/issues/191
 [futures]: http://twitter.github.io/finagle/guide/Futures.html
 [bijection]: https://github.com/twitter/bijection
@@ -683,7 +683,8 @@ Read Next: [Best Practices](best-practices.md)
 [argonaut]: http://argonaut.io
 [jackson]: http://wiki.fasterxml.com/JacksonHome
 [json4s]: http://json4s.org/
-[circe-jackson]: https://github.com/travisbrown/circe/pull/111
+[circe-jackson]: https://github.com/circe/circe-jackson
 [playjson]: https://www.playframework.com/documentation/2.4.x/ScalaJson
 [spray-json]: https://github.com/spray/spray-json
-[circe-jackson]: https://github.com/vkostyukov/circe-jackson#jackson-vs-jawn
+[circe-jackson-performance]: https://github.com/circe/circe-jackson#jackson-vs-jawn
+[httpie]: https://httpie.org/

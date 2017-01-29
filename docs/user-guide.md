@@ -678,7 +678,7 @@ into 400 responses with their messages serialized according to the rules defined
 Finch provides some very basic instances of Encode[Exception] in the following cases:
 
  - `Encode.Json[Exception]` is available with any of the supported JSON libraries
-   (i.e., with `import io.finch.$jsonLibrary)
+   (i.e., with `import io.finch.$jsonLibrary`)
  - `Encode.Text[Exception]` is available out of the box in finch-core
  - `Encode.Aux[Exception, ?]` that doesn't encode anything is available for any other
     content-type
