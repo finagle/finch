@@ -33,7 +33,7 @@ levels of indirections are layered on top of endpoints.
 ### Picking a JSON library
 
 It's highly recommended to use [Circe][circe], whose purely functional nature aligns very well with
-Finch (see [JSON docs](json.md#circe) on how to enable Circe support in Finch). In addition to
+Finch (see [Cookbook docs](cookbook.md#circe) on how to enable Circe support in Finch). In addition to
 [compile-time derived decoders][generic-decoders] and encoders, Circe has
 [great performance][circe-performance] and very useful features such as case class patchers and
 incomplete decoders.
