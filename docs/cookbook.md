@@ -566,23 +566,29 @@ import cats.Show
 import com.twitter.concurrent.AsyncStream
 import com.twitter.conversions.time._
 import com.twitter.finagle.Http
-import com.twitter.finagle.util.DefaultTimer._
-import com.twitter.util.Future
+import com.twitter.finagle.util.DefaultTimer
+import com.twitter.util.{ Await, Future, Timer}
 import io.finch._
 import io.finch.sse._
 import java.util.Date
 
 implicit val showDate: Show[Date] = Show.fromToString[Date]
 
+implicit val timest: Timer = DefaultTimer.twitter
+
 def streamTime(): AsyncStream[ServerSentEvent[Date]] =
-  AsyncStream.fromFuture(Future.sleep(1.seconds).map(_ => new Date())) ++ streamTime()
+  AsyncStream.fromFuture(
+    Future.sleep(1.seconds)
+          .map(_ => new Date())
+          .map(ServerSentEvent(_))
+  ) ++ streamTime()
 
 val time: Endpoint[AsyncStream[ServerSentEvent[Date]]] = get("time") {
   Ok(streamTime())
     .withHeader("Cache-Control" -> "no-cache")
 }
 
-Http.server.serve(":8081", time.toServiceAs[Text.EventStream])
+Await.ready(Http.server.serve(":8081", time.toServiceAs[Text.EventStream]))
 ```
 
 ### JSONP
