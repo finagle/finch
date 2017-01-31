@@ -86,7 +86,7 @@ object Main {
     Ok(AsyncStream.fromSeq(List.tabulate(num)(i => Example(i))))
   }
 
-  def main(): Unit =
+  def main(args: Array[String]): Unit =
     Await.result(Http.server
       .withStreaming(enabled = true)
       .serve(":8081", (sumSoFar :+: sumTo :+: totalSum :+: examples).toServiceAs[Text.Plain])
