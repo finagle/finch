@@ -35,6 +35,6 @@ object Main {
     case e: Exception => BadRequest(e)
   }
 
-  def main(): Unit =
+  def main(args: Array[String]): Unit =
     Await.ready(Http.server.serve(":8081", eval.toServiceAs[Application.Json]))
 }
