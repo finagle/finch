@@ -1,7 +1,6 @@
 package io.finch
 
 import com.twitter.finagle.http.Message
-import com.twitter.finagle.netty3.ChannelBufferBuf
 import com.twitter.io.{Buf, Charsets}
 import java.nio.{ByteBuffer, CharBuffer}
 import java.nio.charset.{Charset, StandardCharsets}
@@ -119,20 +118,19 @@ package object internal {
   }
 
   implicit class HttpContent(val self: Buf) extends AnyVal {
-    // Returns content as ByteBuffer (tries to avoid copying).
-    def asByteBuffer: ByteBuffer = self match {
-      case ChannelBufferBuf.Owned(cb) => cb.toByteBuffer
-      case buf => Buf.ByteBuffer.Owned.extract(buf)
+    // Returns content as ByteArray (tries to avoid copying).
+    def asByteArrayWithOffsetAndLength: (Array[Byte], Int, Int) = {
+      // Finagle guarantees to have the payload on heap when it enters the
+      // user land. With a cost of a tuple allocation we're making this agnostic
+      // to the underlying Netty version.
+      val Buf.ByteArray.Owned(array, offset, length) = Buf.ByteArray.coerce(self)
+      (array, offset, length)
     }
 
-    // Returns content as ByteArray (tries to avoid copying).
-    def asByteArrayWithOffsetAndLength: (Array[Byte], Int, Int) = self match {
-      case ChannelBufferBuf.Owned(cb) if cb.hasArray =>
-        (cb.array(), cb.readerIndex(), cb.readableBytes())
-      case buf =>
-        val array = Buf.ByteArray.Owned.extract(buf)
-
-        (array, 0, array.length)
+    // Returns content as ByteBuffer (tries to avoid copying).
+    def asByteBuffer: ByteBuffer = {
+      val (array, offset, length) = asByteArrayWithOffsetAndLength
+      ByteBuffer.wrap(array, offset, length)
     }
 
     // Returns content as ByteArray (tries to avoid copying).
