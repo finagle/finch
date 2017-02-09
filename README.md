@@ -106,6 +106,7 @@ Adopters
 * [Sigma](http://thesigma.com)
 * [D.A.Consortium](http://www.dac.co.jp/english/)
 * [Redbubble](https://redbubble.com/)
+* [Zalando](https://zalando.de)
 * *Submit a pull-request to include your company/project into the list*
 
 Contributing
