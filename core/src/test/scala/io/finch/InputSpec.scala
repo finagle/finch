@@ -4,7 +4,8 @@ import java.nio.charset.Charset
 
 import com.twitter.finagle.http.Method
 import com.twitter.io.Buf
-import io.finch.internal.BufText
+import io.finch.data.Foo
+import io.finch.internal.HttpContent
 
 class InputSpec extends FinchSpec {
 
@@ -40,14 +41,14 @@ class InputSpec extends FinchSpec {
   }
 
   it should "add content corresponding to a class through withBody[JSON]" in {
-    implicit val encodeException: Encode.Json[Exception] = Encode.json(
-      (a, cc) => BufText(s"""{"message":"${a.getMessage}"}""", cc)
+    implicit val encodeFoo: Encode.Json[Foo] = Encode.json(
+      (a, cs) => Buf.ByteArray.Owned(a.s.getBytes(cs.name))
     )
 
-    check { (i: Input, s: String, cs: Charset) =>
-      val input = i.withBody[Application.Json](new Exception(s), Some(cs))
+    check { (i: Input, f: Foo, cs: Charset) =>
+      val input = i.withBody[Application.Json](f, Some(cs))
 
-      input.request.content === BufText(s"""{"message":"$s"}""", cs) &&
+      input.request.content.asString(cs) === f.s &&
       input.request.contentType === Some(s"application/json;charset=${cs.displayName.toLowerCase}")
     }
   }

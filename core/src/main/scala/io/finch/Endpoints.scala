@@ -4,7 +4,6 @@ import cats.data.NonEmptyList
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.finagle.http.exp.Multipart.FileUpload
-import com.twitter.finagle.netty3.ChannelBufferBuf
 import com.twitter.io.Buf
 import com.twitter.util.{Future, Try}
 import io.catbird.util.Rerunnable
@@ -281,13 +280,7 @@ trait Endpoints {
   private[this] def requestBodyString(req: Request): Option[String] =
     req.contentLength match {
       case Some(0) => someEmptyString
-      case Some(_) =>
-        val buffer = ChannelBufferBuf.Owned.extract(req.content)
-        val charset = req.charsetOrUtf8
-        // Note: We usually have an array underneath the ChannelBuffer (at least on Netty 3).
-        // This check is mostly about a safeguard.
-        if (buffer.hasArray) Some(new String(buffer.array(), 0, buffer.readableBytes(), charset))
-        else Some(buffer.toString(charset))
+      case Some(_) => Some(req.content.asString(req.charsetOrUtf8))
       case None => None
     }
 

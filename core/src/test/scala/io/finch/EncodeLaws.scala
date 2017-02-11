@@ -7,7 +7,6 @@ import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
 import com.twitter.io.Buf
-import io.finch.internal.BufText
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
@@ -16,7 +15,7 @@ trait EncodeLaws[A, CT <: String] extends Laws with MissingInstances with AllIns
   def encode: Encode.Aux[A, CT]
 
   def roundTrip(a: A, cs: Charset): IsEq[Buf] =
-    encode(a, cs) <-> BufText(a.toString, cs)
+    encode(a, cs) <-> Buf.ByteArray.Owned(a.toString.getBytes(cs))
 
   def all(implicit A: Arbitrary[A], CS: Arbitrary[Charset], eq: Eq[A]): RuleSet =
     new DefaultRuleSet(
