@@ -1,30 +1,23 @@
 package io.finch
 
+import com.twitter.io.Buf
 import com.twitter.util.Try
-import io.finch.internal.BufText
+import io.finch.internal.HttpContent
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization._
 
 package object json4s {
 
-  /**
-   * @param formats json4s `Formats` to use for decoding
-   * @tparam A the type of data to decode into
-   */
   implicit def decodeJson[A : Manifest](implicit formats: Formats): Decode.Json[A] =
-    Decode.json((b, cs) => Try(parse(BufText.extract(b, cs)).extract[A]))
+    Decode.json((b, cs) => Try(parse(b.asString(cs)).extract[A]))
 
-  /**
-   * @param formats json4s `Formats` to use for decoding
-   * @tparam A the type of data to encode
-   * @return
-   */
   implicit def encodeJson[A <: AnyRef](implicit formats: Formats): Encode.Json[A] =
-    Encode.json((a, cs) => BufText(write(a), cs))
+    Encode.json((a, cs) => Buf.ByteArray.Owned(write(a).getBytes(cs)))
 
-  implicit def encodeJsonException[A <: Exception]: Encode.Json[A] =
-    Encode.json((a, cs) =>
-      BufText(compact(render(JObject("message" -> JString(a.getMessage)))), cs)
+  implicit val encodeJsonException: Encode.Json[Exception] = Encode.json((a, cs) =>
+    Buf.ByteArray.Owned(
+      compact(render(JObject("message" -> JString(a.getMessage)))).getBytes(cs.name)
     )
+  )
 }

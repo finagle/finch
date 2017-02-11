@@ -1,7 +1,8 @@
 package io.finch
 
+import com.twitter.io.Buf
 import com.twitter.util.Try
-import io.finch.internal.{BufText, HttpContent, Utf32}
+import io.finch.internal.{HttpContent, Utf32}
 import java.nio.charset.StandardCharsets
 import play.api.libs.json._
 
@@ -16,7 +17,7 @@ package object playjson {
       case (buf, StandardCharsets.UTF_8 | StandardCharsets.UTF_16 | Utf32) =>
         Try(Json.parse(buf.asByteArray).as[A])
       case (buf, cs) =>
-        Try(Json.parse(BufText.extract(buf, cs)).as[A])
+        Try(Json.parse(buf.asString(cs)).as[A])
     }
 
   /**
@@ -24,7 +25,7 @@ package object playjson {
    * @tparam A the type of the data to encode from
    */
   implicit def encodePlayJson[A](implicit writes: Writes[A]): Encode.Json[A] =
-    Encode.json((a, cs) => BufText(Json.stringify(Json.toJson(a)), cs))
+    Encode.json((a, cs) => Buf.ByteArray.Owned(Json.stringify(Json.toJson(a)).getBytes(cs.name)))
 
   implicit val encodeExceptionPlayJson: Writes[Exception] = new Writes[Exception] {
     override def writes(e: Exception): JsValue = Json.obj("message" -> e.getMessage)

@@ -2,8 +2,8 @@ package io.finch.sse
 
 import cats.Show
 import com.twitter.concurrent.AsyncStream
-import com.twitter.io.ConcatBuf
-import io.finch.internal.BufText
+import com.twitter.io.{Buf, ConcatBuf}
+import io.finch.internal.HttpContent
 import java.nio.charset.{Charset, StandardCharsets}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Gen.Choose
@@ -14,6 +14,8 @@ import org.scalatest.prop.Checkers
 class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
 
   behavior of "ServerSentEvent"
+
+  private[this] def text(s: String, cs: Charset): Buf = Buf.ByteArray.Owned(s.getBytes(cs.name))
 
   import ServerSentEvent._
 
@@ -58,7 +60,7 @@ class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
 
     check { (event: ServerSentEvent[String], cs: Charset) =>
       val encoded = encoder(event, cs)
-      val expected = ConcatBuf(Vector(BufText("data:", cs), BufText(event.data, cs), BufText("\n", cs)))
+      val expected = ConcatBuf(Vector(text("data:", cs), text(event.data, cs), text("\n", cs)))
       encoded === expected
     }
   }
@@ -69,11 +71,11 @@ class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
     check { (event: ServerSentEvent[String], cs: Charset) =>
       (event.event.isDefined && event.id.isEmpty && event.retry.isEmpty) ==> {
         val encoded = encoder(event, cs)
-        val actualText = BufText.extract(encoded, cs)
+        val actualText = encoded.asString(cs)
         val expectedParts = ConcatBuf(Vector(
-          BufText("data:", cs), BufText(event.data, cs), BufText("\n", cs), BufText(s"event:${event.event.get}\n", cs)
+          text("data:", cs), text(event.data, cs), text("\n", cs), text(s"event:${event.event.get}\n", cs)
         ))
-        actualText === BufText.extract(expectedParts, cs)
+        actualText === expectedParts.asString(cs)
       }
     }
   }
@@ -85,11 +87,11 @@ class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
       val encoded = encodeEventStream[String](Show.fromToString).apply(event, cs)
       (event.event.isEmpty && event.id.isDefined && event.retry.isEmpty) ==> {
         val encoded = encoder(event, cs)
-        val actualText = BufText.extract(encoded, cs)
+        val actualText = encoded.asString(cs)
         val expectedParts = ConcatBuf(Vector(
-          BufText("data:", cs), BufText(event.data, cs), BufText("\n", cs), BufText(s"id:${event.id.get}\n", cs)
+          text("data:", cs), text(event.data, cs), text("\n", cs), text(s"id:${event.id.get}\n", cs)
         ))
-        actualText === BufText.extract(expectedParts, cs)
+        actualText === expectedParts.asString(cs)
       }
     }
   }
@@ -101,11 +103,11 @@ class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
       val encoded = encodeEventStream[String](Show.fromToString).apply(event, cs)
       (event.event.isEmpty && event.id.isEmpty && event.retry.isDefined) ==> {
         val encoded = encoder(event, cs)
-        val actualText = BufText.extract(encoded, cs)
+        val actualText = encoded.asString(cs)
         val expectedParts = ConcatBuf(Vector(
-          BufText("data:", cs), BufText(event.data, cs), BufText("\n", cs), BufText(s"retry:${event.retry.get}\n", cs)
+          text("data:", cs), text(event.data, cs), text("\n", cs), text(s"retry:${event.retry.get}\n", cs)
         ))
-        actualText === BufText.extract(expectedParts, cs)
+        actualText === expectedParts.asString(cs)
       }
     }
   }

@@ -4,7 +4,7 @@ import argonaut.{CursorHistory, DecodeJson, Json}
 import argonaut.JawnParser._
 import com.twitter.util.{Return, Throw, Try}
 import io.finch._
-import io.finch.internal.{BufText, HttpContent}
+import io.finch.internal.HttpContent
 import java.nio.charset.StandardCharsets
 import jawn.Parser
 import scala.util.{Failure, Success}
@@ -21,7 +21,8 @@ trait Decoders {
       val attemptJson = cs match {
         case StandardCharsets.UTF_8 =>
           Parser.parseFromByteBuffer[Json](b.asByteBuffer)(facade)
-        case _ => Parser.parseFromString[Json](BufText.extract(b, cs))(facade)
+        case _ =>
+          Parser.parseFromString[Json](b.asString(cs))(facade)
       }
 
       attemptJson match {

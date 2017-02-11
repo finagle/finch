@@ -4,7 +4,6 @@ import java.nio.charset.Charset
 import java.util.UUID
 
 import com.twitter.io.Buf
-import io.finch.internal.BufText
 
 class EncodeSpec extends FinchSpec {
 
@@ -29,10 +28,9 @@ class EncodeSpec extends FinchSpec {
   it should "encode exceptions" in {
     check { (s: String, cs: Charset) =>
       val e = new Exception(s)
-
       val text = Encode[Exception, Text.Plain].apply(e, cs)
 
-      text === BufText(s, cs)
+      text === Buf.ByteArray.Owned(s.getBytes(cs.name))
     }
   }
 }

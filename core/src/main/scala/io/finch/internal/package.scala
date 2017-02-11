@@ -71,7 +71,7 @@ package object internal {
     /**
      * Converts this string to the optional boolean value.
      */
-    def tooBoolean: Option[Boolean] = s match {
+    final def tooBoolean: Option[Boolean] = s match {
       case "true" => someTrue
       case "false" => someFalse
       case _ => None
@@ -81,7 +81,7 @@ package object internal {
      * Converts this string to the optional integer value. The maximum allowed length for a number
      * string is 32.
      */
-    def tooInt: Option[Int] =
+    final def tooInt: Option[Int] =
       if (s.length == 0 || s.length > 32) None
       else parseLong(s, Int.MinValue, Int.MaxValue).map(_.toInt)
 
@@ -89,19 +89,20 @@ package object internal {
      * Converts this string to the optional integer value. The maximum allowed length for a number
      * string is 32.
      */
-    def tooLong: Option[Long] =
+    final def tooLong: Option[Long] =
       if (s.length == 0 || s.length > 32) None
       else parseLong(s, Long.MinValue, Long.MaxValue)
   }
 
-  // TODO: Move to twitter/util
   object BufText {
+    @deprecated("Buf.ByteArray.Owned(string.getBytes(charset))", "0.13")
     def apply(s: String, cs: Charset): Buf =  {
       val enc = Charsets.encoder(cs)
       val cb = CharBuffer.wrap(s.toCharArray)
       Buf.ByteBuffer.Owned(enc.encode(cb))
     }
 
+    @deprecated("HttpContent.asString(charset)", "0.13")
     def extract(buf: Buf, cs: Charset): String = {
       val dec = Charsets.decoder(cs)
       val bb = Buf.ByteBuffer.Owned.extract(buf).asReadOnlyBuffer
@@ -141,6 +142,12 @@ package object internal {
         System.arraycopy(array, offset, result, 0, length)
 
         result
+    }
+
+    // Returns content as String (tries to avoid copying).
+    def asString(cs: Charset): String = {
+      val (array, offset, length) = asByteArrayWithOffsetAndLength
+      new String(array, offset, length, cs.name)
     }
   }
 }

@@ -1,7 +1,8 @@
 package io.finch
 
+import com.twitter.io.Buf
 import com.twitter.util.Try
-import io.finch.internal.{BufText, HttpContent}
+import io.finch.internal.HttpContent
 import java.nio.charset.StandardCharsets
 import spray.json._
 
@@ -11,14 +12,14 @@ package object sprayjson {
     Decode.json {
       case (buf, StandardCharsets.UTF_8) =>
         Try(JsonParser(buf.asByteArray).convertTo[A])
-      case (buf, cs) => Try(BufText.extract(buf, cs).parseJson.convertTo[A])
+      case (buf, cs) => Try(buf.asString(cs).parseJson.convertTo[A])
     }
 
   implicit def encodeSpray[A](implicit format: JsonWriter[A]): Encode.Json[A] =
-    Encode.json((a, cs) => BufText(a.toJson.compactPrint, cs))
+    Encode.json((a, cs) => Buf.ByteArray.Owned(a.toJson.compactPrint.getBytes(cs.name)))
 
-  implicit def encodeExceptionSpray[A <: Exception]: JsonWriter[A] = new JsonWriter[A] {
-    override def write(e: A): JsValue =
+  implicit val encodeExceptionSpray: JsonWriter[Exception] = new JsonWriter[Exception] {
+    override def write(e: Exception): JsValue =
       JsObject("message" -> Option(e.getMessage).fold[JsValue](JsNull)(JsString.apply))
   }
 }

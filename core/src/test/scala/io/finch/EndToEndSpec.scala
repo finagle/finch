@@ -2,9 +2,9 @@ package io.finch
 
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response, Status}
+import com.twitter.io.Buf
 import com.twitter.util.Await
 import io.finch.data.Foo
-import io.finch.internal.BufText
 
 class EndToEndSpec extends FinchSpec {
 
@@ -12,7 +12,7 @@ class EndToEndSpec extends FinchSpec {
 
   it should "convert coproduct Endpoints into Services" in {
     implicit val encodeException: Encode.Text[Exception] =
-      Encode.text((_, cs) => BufText("ERR!", cs))
+      Encode.text((_, cs) => Buf.ByteArray.Owned("ERR!".getBytes(cs.name)))
 
     val service: Service[Request, Response] = (
       get("foo" :: string) { s: String => Ok(Foo(s)) } :+:

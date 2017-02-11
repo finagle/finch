@@ -6,7 +6,7 @@ import cats.Show
 import com.twitter.concurrent.AsyncStream
 import com.twitter.io.Buf
 import io.finch.{Encode, Text}
-import io.finch.internal.{BufText, ToResponse}
+import io.finch.internal.ToResponse
 
 case class ServerSentEvent[A](
   data: A,
@@ -17,6 +17,8 @@ case class ServerSentEvent[A](
 
 object ServerSentEvent {
 
+  private[this] def text(s: String, cs: Charset): Buf = Buf.ByteArray.Owned(s.getBytes(cs.name))
+
   implicit def sseAsyncToResponse[A](implicit
      e: Encode.Aux[A, Text.EventStream]
   ): ToResponse.Aux[AsyncStream[A], Text.EventStream] =
@@ -24,16 +26,16 @@ object ServerSentEvent {
 
   implicit def encodeEventStream[A](implicit s: Show[A]): Encode.Aux[ServerSentEvent[A], Text.EventStream] = {
     Encode.instance[ServerSentEvent[A], Text.EventStream]({ (event: ServerSentEvent[A], c: Charset) =>
-      encodeEvent[A](event, c, { (a: A, cs: Charset) => BufText(s.show(a), cs) })
+      encodeEvent[A](event, c, { (a: A, cs: Charset) => text(s.show(a), cs) })
     })
   }
 
   private[sse] def encodeEvent[A](sse: ServerSentEvent[A], cs: Charset, e: (A, Charset) => Buf): Buf = {
-    val dataBuf = BufText("data:", cs).concat(e(sse.data, cs)).concat(BufText("\n", cs))
+    val dataBuf = text("data:", cs).concat(e(sse.data, cs)).concat(text("\n", cs))
     val eventType = sse.event.map(e => s"event:$e\n").getOrElse("")
     val id = sse.id.map(id => s"id:$id\n").getOrElse("")
     val retry = sse.retry.map(retry => s"retry:$retry\n").getOrElse("")
-    val restBuf = BufText(eventType + id + retry, cs)
+    val restBuf = text(eventType + id + retry, cs)
     dataBuf.concat(restBuf)
   }
 }

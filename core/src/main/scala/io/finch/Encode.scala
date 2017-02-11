@@ -2,7 +2,6 @@ package io.finch
 
 import cats.Show
 import com.twitter.io.Buf
-import io.finch.internal.BufText
 import java.nio.charset.Charset
 
 /**
@@ -34,7 +33,7 @@ trait LowPriorityEncodeInstances {
     instance[A, Text.Plain](fn)
 
   implicit def encodeShowAsTextPlain[A](implicit s: Show[A]): Text[A] =
-    text((a, cs) => BufText(s.show(a), cs))
+    text((a, cs) => Buf.ByteArray.Owned(s.show(a).getBytes(cs.name)))
 }
 
 trait HighPriorityEncodeInstances extends LowPriorityEncodeInstances {
@@ -63,8 +62,8 @@ object Encode extends HighPriorityEncodeInstances {
   @inline final def apply[A, CT <: String](implicit e: Aux[A, CT]): Aux[A, CT] = e
 
   implicit val encodeExceptionAsTextPlain: Text[Exception] =
-    text((e, cs) => BufText(Option(e.getMessage).getOrElse(""), cs))
+    text((e, cs) => Buf.ByteArray.Owned(Option(e.getMessage).getOrElse("").getBytes(cs.name)))
 
   implicit val encodeStringAsTextPlain: Text[String] =
-    text((s, cs) => BufText(s, cs))
+    text((s, cs) => Buf.ByteArray.Owned(s.getBytes(cs.name)))
 }
