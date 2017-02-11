@@ -2,7 +2,7 @@ package io.finch.sse
 
 import cats.Show
 import com.twitter.concurrent.AsyncStream
-import com.twitter.io.{Buf, ConcatBuf}
+import com.twitter.io.Buf
 import io.finch.internal.HttpContent
 import java.nio.charset.{Charset, StandardCharsets}
 import org.scalacheck.{Arbitrary, Gen}
@@ -60,7 +60,7 @@ class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
 
     check { (event: ServerSentEvent[String], cs: Charset) =>
       val encoded = encoder(event, cs)
-      val expected = ConcatBuf(Vector(text("data:", cs), text(event.data, cs), text("\n", cs)))
+      val expected = Buf(Vector(text("data:", cs), text(event.data, cs), text("\n", cs)))
       encoded === expected
     }
   }
@@ -72,7 +72,7 @@ class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
       (event.event.isDefined && event.id.isEmpty && event.retry.isEmpty) ==> {
         val encoded = encoder(event, cs)
         val actualText = encoded.asString(cs)
-        val expectedParts = ConcatBuf(Vector(
+        val expectedParts = Buf(Vector(
           text("data:", cs), text(event.data, cs), text("\n", cs), text(s"event:${event.event.get}\n", cs)
         ))
         actualText === expectedParts.asString(cs)
@@ -88,7 +88,7 @@ class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
       (event.event.isEmpty && event.id.isDefined && event.retry.isEmpty) ==> {
         val encoded = encoder(event, cs)
         val actualText = encoded.asString(cs)
-        val expectedParts = ConcatBuf(Vector(
+        val expectedParts = Buf(Vector(
           text("data:", cs), text(event.data, cs), text("\n", cs), text(s"id:${event.id.get}\n", cs)
         ))
         actualText === expectedParts.asString(cs)
@@ -104,7 +104,7 @@ class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
       (event.event.isEmpty && event.id.isEmpty && event.retry.isDefined) ==> {
         val encoded = encoder(event, cs)
         val actualText = encoded.asString(cs)
-        val expectedParts = ConcatBuf(Vector(
+        val expectedParts = Buf(Vector(
           text("data:", cs), text(event.data, cs), text("\n", cs), text(s"retry:${event.retry.get}\n", cs)
         ))
         actualText === expectedParts.asString(cs)

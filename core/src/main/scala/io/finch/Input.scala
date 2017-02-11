@@ -3,7 +3,7 @@ package io.finch
 import cats.Eq
 import com.twitter.finagle.http.{Method, Request}
 import com.twitter.finagle.netty3.ChannelBufferBuf
-import com.twitter.io.ConcatBuf
+import com.twitter.io.Buf
 import java.nio.charset.{Charset, StandardCharsets}
 import org.jboss.netty.handler.codec.http.{DefaultHttpRequest, HttpMethod, HttpVersion}
 import org.jboss.netty.handler.codec.http.multipart.{DefaultHttpDataFactory, HttpPostRequestEncoder}
@@ -59,7 +59,7 @@ final case class Input(request: Request, path: Seq[String]) {
     val req = encoder.finalizeRequest()
 
     val content = if (req.isChunked) {
-      ConcatBuf(
+      Buf(
         Iterator.continually(encoder.nextChunk())
         .takeWhile(c => !c.isLast)
         .map(c => ChannelBufferBuf.Owned(c.getContent))
