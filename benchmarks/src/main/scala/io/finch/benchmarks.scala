@@ -99,9 +99,9 @@ class ProductBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class CoproductBenchmark extends FinchBenchmark {
-  val both: Endpoint[String] = Endpoint.const("foo") | Endpoint.const("bar")
-  val left: Endpoint[String] = Endpoint.const("foo") | Endpoint.empty[String]
-  val right: Endpoint[String] = Endpoint.empty[String] | Endpoint.const("bar")
+  val both: Endpoint[String] = Endpoint.const("foo").coproduct(Endpoint.const("bar"))
+  val left: Endpoint[String] = Endpoint.const("foo").coproduct(Endpoint.empty[String])
+  val right: Endpoint[String] = Endpoint.empty[String].coproduct(Endpoint.const("bar"))
 
   @Benchmark
   def bothMatched: Option[String] = both(getRoot).awaitValueUnsafe()
