@@ -134,12 +134,12 @@ limitations under the License.
 
 [gitter]: https://gitter.im/finagle/finch
 [finagle]: https://github.com/twitter/finagle
-[circe]: https://github.com/travisbrown/circe
+[circe]: https://github.com/circe/circe
 [jackson]: http://wiki.fasterxml.com/JacksonHome
 [argonaut]: http://argonaut.io
 [finagle-oauth2]: https://github.com/finagle/finagle-oauth2
 [json4s]: http://json4s.org
-[playjson]: https://www.playframework.com/documentation/2.4.x/ScalaJson
+[playjson]: https://www.playframework.com/documentation/2.6.x/ScalaJson
 [sprayjson]: https://github.com/spray/spray-json
 [scaladoc]: http://finagle.github.io/finch/docs/#io.finch.package
 [typelevel]: http://typelevel.org/
