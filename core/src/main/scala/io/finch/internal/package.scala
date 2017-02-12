@@ -1,8 +1,8 @@
 package io.finch
 
 import com.twitter.finagle.http.Message
-import com.twitter.io.{Buf, Charsets}
-import java.nio.{ByteBuffer, CharBuffer}
+import com.twitter.io.Buf
+import java.nio.ByteBuffer
 import java.nio.charset.{Charset, StandardCharsets}
 
 /**
@@ -92,22 +92,6 @@ package object internal {
     final def tooLong: Option[Long] =
       if (s.length == 0 || s.length > 32) None
       else parseLong(s, Long.MinValue, Long.MaxValue)
-  }
-
-  object BufText {
-    @deprecated("Buf.ByteArray.Owned(string.getBytes(charset))", "0.13")
-    def apply(s: String, cs: Charset): Buf =  {
-      val enc = Charsets.encoder(cs)
-      val cb = CharBuffer.wrap(s.toCharArray)
-      Buf.ByteBuffer.Owned(enc.encode(cb))
-    }
-
-    @deprecated("HttpContent.asString(charset)", "0.13")
-    def extract(buf: Buf, cs: Charset): String = {
-      val dec = Charsets.decoder(cs)
-      val bb = Buf.ByteBuffer.Owned.extract(buf).asReadOnlyBuffer
-      dec.decode(bb).toString
-    }
   }
 
   implicit class HttpMessage(val self: Message) extends AnyVal {
