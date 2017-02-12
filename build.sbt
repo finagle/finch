@@ -1,5 +1,3 @@
-import sbtunidoc.Plugin.UnidocKeys._
-
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   version := "0.13.0",
@@ -105,7 +103,7 @@ lazy val noPublish = Seq(
 
 lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
 
-lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Seq(
+lazy val docSettings = site.settings ++ ghpages.settings ++ Seq(
   site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "docs"),
   git.remoteRepo := s"git@github.com:finagle/finch.git",
   unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(benchmarks, jsonTest)
@@ -113,6 +111,7 @@ lazy val docSettings = site.settings ++ ghpages.settings ++ unidocSettings ++ Se
 
 lazy val finch = project.in(file("."))
   .settings(moduleName := "finch")
+  .enablePlugins(ScalaUnidocPlugin)
   .settings(allSettings)
   .settings(docSettings)
   .settings(noPublish)
