@@ -159,7 +159,7 @@ trait Endpoint[A] { self =>
    * of both values.
    *
    * This combinator is an important piece for Finch's error accumulation. In its current form,
-   * `product` will accumulate Finch's own errors (i.e., [[Error]]s) into [[Errors]] and
+   * `product` will accumulate Finch's own errors (i.e., [[Error]]s) into [[Errors]]) and
    * will fail-fast with the first non-Finch error (just ordinary `Exception`) observed.
    */
   final def product[B](other: Endpoint[B]): Endpoint[(A, B)] = productWith(other)(Tuple2.apply)
@@ -205,29 +205,35 @@ trait Endpoint[A] { self =>
    * Composes this endpoint with the given `other` endpoint. The resulting endpoint will succeed
    * only if both this and `that` endpoints succeed.
    */
-  final def adjoin[B](other: Endpoint[B])(implicit
-    pairAdjoin: PairAdjoin[A, B]
-  ): Endpoint[pairAdjoin.Out] = new Endpoint[pairAdjoin.Out] {
-
-    private[this] final val inner = self.productWith(other)((a, b) => pairAdjoin(a, b))
-
-    final def apply(input: Input): Endpoint.Result[pairAdjoin.Out] = inner(input)
-
-    override def item = items.MultipleItems
-    final override def toString: String = s"${self.toString} :: ${other.toString}"
-  }
+  @deprecated("Use :: instead.", "0.14")
+  final def adjoin[B](other: Endpoint[B])(implicit pa: PairAdjoin[A, B]): Endpoint[pa.Out] =
+    self :: other
 
   /**
    * Composes this endpoint with the given [[Endpoint]].
    */
-  final def ::[B](other: Endpoint[B])(implicit adjoin: PairAdjoin[B, A]): Endpoint[adjoin.Out] =
-    other.adjoin(self)
+  final def ::[B](other: Endpoint[B])(implicit pa: PairAdjoin[B, A]): Endpoint[pa.Out] =
+    new Endpoint[pa.Out] {
+      private[this] final val inner = other.productWith(self)((b, a) => pa(b, a))
+
+      final def apply(input: Input): Endpoint.Result[pa.Out] = inner(input)
+
+      override def item = items.MultipleItems
+      final override def toString: String = s"${other.toString} :: ${self.toString}"
+    }
 
   /**
    * Sequentially composes this endpoint with the given `other` endpoint. The resulting endpoint
    * will succeed if either this or `that` endpoints are succeed.
    */
-  final def |[B >: A](other: Endpoint[B]): Endpoint[B] = new Endpoint[B] {
+  @deprecated("Use coproduct instead.", "0.14")
+  final def |[B >: A](other: Endpoint[B]): Endpoint[B] = coproduct(other)
+
+  /**
+   * Sequentially composes this endpoint with the given `other` endpoint. The resulting endpoint
+   * will succeed if either this or `that` endpoints are succeed.
+   */
+  final def coproduct[B >: A](other: Endpoint[B]): Endpoint[B] = new Endpoint[B] {
     final def apply(input: Input): Endpoint.Result[B] = self(input) match {
       case a @ EndpointResult.Matched(_, _) => other(input) match {
         case b @ EndpointResult.Matched(_, _) =>
@@ -238,15 +244,18 @@ trait Endpoint[A] { self =>
     }
 
     override def item = items.MultipleItems
-    final override def toString: String = s"(${self.toString}|${other.toString})"
+    final override def toString: String = s"(${self.toString} :+: ${other.toString})"
   }
 
   /**
    * Composes this endpoint with another in such a way that coproducts are flattened.
    */
-  final def :+:[B](that: Endpoint[B])(implicit a: Adjoin[B :+: A :+: CNil]): Endpoint[a.Out] =
-    that.map(x => a(Inl[B, A :+: CNil](x))) |
-    self.map(x => a(Inr[B, A :+: CNil](Inl[A, CNil](x))))
+  final def :+:[B](that: Endpoint[B])(implicit a: Adjoin[B :+: A :+: CNil]): Endpoint[a.Out] = {
+    val left = that.map(x => a(Inl[B, A :+: CNil](x)))
+    val right = self.map(x => a(Inr[B, A :+: CNil](Inl[A, CNil](x))))
+
+    left.coproduct(right)
+  }
 
   final def withHeader(header: (String, String)): Endpoint[A] =
     withOutput(o => o.withHeader(header))
@@ -595,8 +604,13 @@ object Endpoint {
     final override def product[A, B](fa: Endpoint[A], fb: Endpoint[B]): Endpoint[(A, B)] =
       fa.product(fb)
 
-    final override def pure[A](x: A): Endpoint[A] = Endpoint.const(x)
-    final override def empty[A]: Endpoint[A] = Endpoint.empty[A]
-    final override def combineK[A](x: Endpoint[A], y: Endpoint[A]): Endpoint[A] = x | y
+    final override def pure[A](x: A): Endpoint[A] =
+      Endpoint.const(x)
+
+    final override def empty[A]: Endpoint[A] =
+      Endpoint.empty[A]
+
+    final override def combineK[A](x: Endpoint[A], y: Endpoint[A]): Endpoint[A] =
+      x.coproduct(y)
   }
 }

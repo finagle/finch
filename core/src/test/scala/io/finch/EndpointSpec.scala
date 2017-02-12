@@ -160,8 +160,8 @@ class EndpointSpec extends FinchSpec {
       v.isEmpty || v === Some(i.drop(1))
     }
 
-    check(matchOneOfTwo(s => (s: Endpoint0) | (s.reverse: Endpoint0)))
-    check(matchOneOfTwo(s => (s.reverse: Endpoint0) | (s: Endpoint0)))
+    check(matchOneOfTwo(s => (s: Endpoint0).coproduct(s.reverse: Endpoint0)))
+    check(matchOneOfTwo(s => (s.reverse: Endpoint0).coproduct(s: Endpoint0)))
   }
 
   it should "have the correct string representation" in {
@@ -188,7 +188,9 @@ class EndpointSpec extends FinchSpec {
     check(methodMatcher(Method.Delete, delete))
 
     check { (s: String, i: Int) => (s: Endpoint0).map(_ => i).toString === s }
-    check { (s: String, t: String) => ((s: Endpoint0) | (t: Endpoint0)).toString === s"($s|$t)" }
+    check { (s: String, t: String) =>
+      ((s: Endpoint0) :+: (t: Endpoint0)).toString === s"($s :+: $t)"
+    }
     check { (s: String, t: String) => ((s: Endpoint0) :: (t: Endpoint0)).toString === s"$s :: $t" }
     check { s: String => (s: Endpoint0).product[String](*.map(_ => "foo")).toString === s }
     check { (s: String, t: String) => (s: Endpoint0).mapAsync(_ => Future.value(t)).toString === s }
@@ -208,7 +210,7 @@ class EndpointSpec extends FinchSpec {
     booleans.toString shouldBe ":boolean*"
 
     (int :: string).toString shouldBe ":int :: :string"
-    (boolean :+: long).toString shouldBe "(:boolean|:long)"
+    (boolean :+: long).toString shouldBe "(:boolean :+: :long)"
   }
 
   it should "always respond with the same output if it's a constant Endpoint" in {
@@ -298,7 +300,7 @@ class EndpointSpec extends FinchSpec {
       Future { flag = true; nil }
     }
 
-    val e = ("a" :: 10) | endpointWithFailedFuture
+    val e = ("a" :: 10) :+: endpointWithFailedFuture
     e(i).isMatched shouldBe true
     flag shouldBe false
   }
@@ -307,8 +309,8 @@ class EndpointSpec extends FinchSpec {
     val a = Input(emptyRequest, Seq("a", "10"))
     val b = Input(emptyRequest, Seq("a"))
 
-    val e1: Endpoint0 = "a" | "b" | ("a" :: 10)
-    val e2: Endpoint0 = ("a" :: 10) | "b" |  "a"
+    val e1: Endpoint0 = "a".coproduct("b").coproduct("a" :: 10)
+    val e2: Endpoint0 = ("a" :: 10).coproduct("b").coproduct("a")
 
     e1(a).remainder shouldBe Some(a.drop(2))
     e1(b).remainder shouldBe Some(b.drop(2))
