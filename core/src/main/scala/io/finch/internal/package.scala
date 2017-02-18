@@ -104,34 +104,34 @@ package object internal {
 
   implicit class HttpContent(val self: Buf) extends AnyVal {
     // Returns content as ByteArray (tries to avoid copying).
-    def asByteArrayWithOffsetAndLength: (Array[Byte], Int, Int) = {
+    def asByteArrayWithBeginAndEnd: (Array[Byte], Int, Int) = {
       // Finagle guarantees to have the payload on heap when it enters the
       // user land. With a cost of a tuple allocation we're making this agnostic
       // to the underlying Netty version.
-      val Buf.ByteArray.Owned(array, offset, length) = Buf.ByteArray.coerce(self)
-      (array, offset, length)
+      val Buf.ByteArray.Owned(array, begin, end) = Buf.ByteArray.coerce(self)
+      (array, begin, end)
     }
 
     // Returns content as ByteBuffer (tries to avoid copying).
     def asByteBuffer: ByteBuffer = {
-      val (array, offset, length) = asByteArrayWithOffsetAndLength
-      ByteBuffer.wrap(array, offset, length)
+      val (array, begin, end) = asByteArrayWithBeginAndEnd
+      ByteBuffer.wrap(array, begin, end - begin)
     }
 
     // Returns content as ByteArray (tries to avoid copying).
-    def asByteArray: Array[Byte] = asByteArrayWithOffsetAndLength match {
-      case (array, offset, length) if offset == 0 && length == array.length => array
-      case (array, offset, length) =>
-        val result = new Array[Byte](length)
-        System.arraycopy(array, offset, result, 0, length)
+    def asByteArray: Array[Byte] = asByteArrayWithBeginAndEnd match {
+      case (array, begin, end) if begin == 0 && end == array.length => array
+      case (array, begin, end) =>
+        val result = new Array[Byte](end - begin)
+        System.arraycopy(array, begin, result, 0, end - begin)
 
         result
     }
 
     // Returns content as String (tries to avoid copying).
     def asString(cs: Charset): String = {
-      val (array, offset, length) = asByteArrayWithOffsetAndLength
-      new String(array, offset, length, cs.name)
+      val (array, begin, end) = asByteArrayWithBeginAndEnd
+      new String(array, begin, end - begin, cs.name)
     }
   }
 }
