@@ -154,12 +154,11 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
   } yield Path("/" + ss.mkString("/"))
 
   def genBuf: Gen[Buf] = for {
-    s <- Arbitrary.arbitrary[String]
-    b <- Gen.oneOf(
-      Buf.Utf8(s),
-      Buf.ByteArray.Owned(s.getBytes("UTF-8"))
-    )
-  } yield b
+    size <- Gen.choose(1, 100)
+    bytes <- Gen.listOfN(size, Arbitrary.arbByte.arbitrary)
+    begin <- Gen.choose(0, size)
+    end <- Gen.choose(begin, size)
+  } yield Buf.ByteArray.Owned(bytes.toArray, begin, end)
 
   implicit def arbitraryRequest: Arbitrary[Request] = Arbitrary(
     for {

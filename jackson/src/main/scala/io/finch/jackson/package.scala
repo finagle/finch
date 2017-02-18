@@ -25,8 +25,8 @@ package object jackson {
 
   implicit def decodeJackson[A](implicit m: Manifest[A]): Decode.Json[A] = Decode.json {
     case (buf, StandardCharsets.UTF_8 | StandardCharsets.UTF_16 | Utf32) =>
-      val (array, offset, length) = buf.asByteArrayWithOffsetAndLength
-      Try(objectMapper.readValue[A](array, offset, length))
+      val (array, begin, end) = buf.asByteArrayWithBeginAndEnd
+      Try(objectMapper.readValue[A](array, begin, end - begin))
     case (buf, cs) =>
       Try(objectMapper.readValue[A](buf.asString(cs)))
   }
