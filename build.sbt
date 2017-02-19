@@ -103,14 +103,17 @@ lazy val noPublish = Seq(
 
 lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
 
-lazy val docSettings = site.settings ++ ghpages.settings ++ Seq(
-  site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "docs"),
+siteSubdirName in ScalaUnidoc := "docs"
+
+lazy val docSettings =  Seq(
+  addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), siteSubdirName in ScalaUnidoc),
   git.remoteRepo := s"git@github.com:finagle/finch.git",
   unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(benchmarks, jsonTest)
 )
 
 lazy val finch = project.in(file("."))
   .settings(moduleName := "finch")
+  .enablePlugins(GhpagesPlugin)
   .enablePlugins(ScalaUnidocPlugin)
   .settings(allSettings)
   .settings(docSettings)
