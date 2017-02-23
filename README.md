@@ -107,6 +107,7 @@ Adopters
 * [D.A.Consortium](http://www.dac.co.jp/english/)
 * [Redbubble](https://redbubble.com/)
 * [Zalando](https://zalando.de)
+* [Rakuten](http://rakuten.co.jp)
 * *Submit a pull-request to include your company/project into the list*
 
 Contributing
