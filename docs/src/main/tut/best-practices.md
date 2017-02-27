@@ -1,16 +1,21 @@
+---
+layout: docs
+title: Best-Practices
+position: 3
+---
+
 ## Best Practices
 
-* [The big picture](best-practices.md#the-big-picture)
-* [Picking a JSON library](best-practices.md#picking-a-json-library)
-* [Do not block an endpoint](best-practices.md#do-not-block-an-endpoint)
-* [Use TwitterServer](best-practices.md#use-twitterserver)
-* [Monitor your application](best-practices.md#monitor-your-application)
-* [Picking HTTP statuses for responses](best-practices.md#picking-http-statuses-for-responses)
-* [Configuring Finagle](best-practices.md#configuring-finagle)
-* [Finagle Filters vs. Finch Endpoints](best-practices.md#finagle-filters-vs-finch-endpoints)
-* [Pulling it all Together](best-practices.md#pulling-it-all-together)
+* [The big picture](#the-big-picture)
+* [Picking a JSON library](#picking-a-json-library)
+* [Do not block an endpoint](#do-not-block-an-endpoint)
+* [Use TwitterServer](#use-twitterserver)
+* [Monitor your application](#monitor-your-application)
+* [Picking HTTP statuses for responses](#picking-http-statuses-for-responses)
+* [Configuring Finagle](#configuring-finagle)
+* [Finagle Filters vs. Finch Endpoints](#finagle-filters-vs-finch-endpoints)
+* [Pulling it all Together](#pulling-it-all-together)
 
---
 
 ### The big picture
 
@@ -33,7 +38,7 @@ levels of indirections are layered on top of endpoints.
 ### Picking a JSON library
 
 It's highly recommended to use [Circe][circe], whose purely functional nature aligns very well with
-Finch (see [Cookbook docs](cookbook.md#circe) on how to enable Circe support in Finch). In addition to
+Finch (see [Cookbook docs](cookbook#circe) on how to enable Circe support in Finch). In addition to
 [compile-time derived decoders][generic-decoders] and encoders, Circe has
 [great performance][circe-performance] and very useful features such as case class patchers and
 incomplete decoders.
@@ -47,12 +52,17 @@ class patchers are usually represented as `Endpoint[A => A]`, which
 2. represents that partial JSON object as a function `A => A` that takes a case class and updates
    it with all the values from a JSON object
 
-```scala
+```tut:silent
+import java.util.UUID
 import io.finch._
 import io.finch.circe._
 import io.circe.generic.auto._
 
+
 case class Todo(id: UUID, title: String, completed: Boolean, order: Int)
+object Todo {
+  def list():List[Todo] = ???
+}
 val patchedTodo: Endpoint[Todo => Todo] = jsonBody[Todo => Todo]
 val patchTodo: Endpoint[Todo] = patch("todos" :: uuid :: patchedTodo) { (id: UUID, pt: Todo => Todo) =>
   val oldTodo = ??? // get by id
@@ -71,7 +81,7 @@ final type (a complete JSON object), gives us a function, to which we'd need to 
 bits to get the final instance.
 
 
-```scala
+```tut:silent
 import io.finch._
 import io.finch.circe._
 import io.circe.generic.auto._
@@ -97,14 +107,16 @@ Finagle is very sensitive to whether or not its worker threads are blocked. In o
 your HTTP server always makes progress (accepts new connections/requests), do not block Finch
 endpoints. Use `FuturePool`s to wrap expensive computations.
 
-```scala
+```tut:silent
 import io.finch._
 import com.twitter.util.FuturePool
 
 val expensive: Endpoint[BigInt] = get(int) { i: Int =>
   FuturePool.unboundedPool {
-    BigInt(i).pow(i)
+    Ok(BigInt(i).pow(i))
   }
+}.handle {
+  case e: Error.NotPresent => BadRequest(e)
 }
 ```
 
@@ -121,7 +133,7 @@ memory, CPU usage, request success rate, request latency and many more) exported
 
 Use the following template to empower your Finch application with TwitterServer.
 
-```scala
+```tut:silent
 import io.finch._
 
 import com.twitter.finagle.param.Stats
@@ -155,7 +167,7 @@ better understand your application under different circumstances.
 One of the easiest things to export is a _counter_ that captures the number of times some event
 occurred.
 
-```scala
+```tut:silent
 import io.finch._
 import io.finch.circe._
 import io.circe.generic.auto._
@@ -176,7 +188,7 @@ object Main extends TwitterServer {
 It's also possible to export histograms over random values (latencies, number of active users,
 etc).
 
-```scala
+```tut:silent
 import io.finch._
 import io.finch.circe._
 import io.circe.generic.auto._
@@ -229,16 +241,30 @@ useful server-side features that might be useful for most of the use cases.
  might think of overriding a [concurrency limit][finagle-concurrency] (a maximum number of
  concurrent requests allowed) on it (disabled by default).
 
- ```scala
- import com.twitter.finagle.Http
 
- val server = Http.server
-   .withAdmissionControl.concurrencyLimit(
-     maxConcurrentRequests = 10,
-     maxWaiters = 10,
-   )
-   .serve(":8080", service)
- ```
+```tut:silent
+ import com.twitter.finagle.Http
+ import com.twitter.finagle.http.{Request, Response}
+ 
+ object Main extends TwitterServer {
+   
+   val ping: Endpoint[String] = get("ping") { Ok("Pong") }
+   val service: Service[Request, Response] = ping.toServiceAs[Text.Plain]
+
+   def main(): Unit = {
+    val server = Http.server
+      .withAdmissionControl
+      .concurrencyLimit(
+        maxConcurrentRequests = 10, 
+        maxWaiters = 10)
+      .serve(":8080", service)
+ 
+     onExit { server.close() }
+ 
+     Await.ready(adminHttpServer)
+   }
+ }
+```
 
 ### Finagle Filters vs. Finch Endpoints
 

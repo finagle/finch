@@ -1,152 +1,26 @@
-## Cookbook
+---
+layout: docs
+title: Cookbook
+position: 2
+---
 
-* [JSON](cookbook.md#json)
- * [Circe](cookbook.md#circe)
- * [Argonaut](cookbook.md#argonaut)
- * [Jackson](cookbook.md#jackson)
- * [Json4s](cookbook.md#json4s)
- * [PlayJson](cookbook.md#playjson)
-* [Fixing the `.toService` compile error](cookbook.md#fixing-the-toservice-compile-error)
-* [Serving multiple content types](cookbook.md#serving-multiple-content-types)
-* [Serving static content](cookbook.md#serving-static-content)
-* [Converting `Error.Multiple` into JSON](cookbook.md#converting-errormultiple-into-json)
-* [Defining endpoints returning empty responses](cookbook.md#defining-endpoints-returning-empty-responses)
-* [Defining redirecting endpoints](cookbook.md#defining-redirecting-endpoints)
-* [Defining custom endpoints](cookbook.md#defining-custom-endpoints)
-* [CORS in Finch](cookbook.md#cors-in-finch)
-* [Converting between Scala futures and Twitter futures](cookbook.md#converting-between-scala-futures-and-twitter-futures)
-* [Server Sent Events](cookbook.md#server-sent-events)
-* [JSONP](cookbook.md#jsonp)
-* [OAuth2](cookbook.md#oauth2)
-* [Basic HTTP Auth](cookbook.md#basic-http-auth)
+## Cookbook
 
 This is a collection of short recipes of "How to X in Finch".
 
-### JSON
-
-Finch uses type classes `io.finch.Encode` and `io.finch.Decode` to make its JSON support pluggable.
-Thus in most of the cases it's not necessary to make any code changes (except for import statements)
-while switching the underlying JSON library.
-
-Finch comes with a rich support of many modern JSON libraries. While it's totally possible to use
-Finch with runtime reflection based libraries such as [Jackson][jackson], it's highly recommended to
-use compile-time based solutions such as [Circe][circe] and [Argonaut][argonaut] instead. When
-starting out, Circe would be the best possible choice as a JSON library due to its great performance
-and a lack of boilerplate.
-
-Use the following instructions to enable support for a particular JSON library.
-
-#### Circe
-
-* Add the dependency to the `finch-circe` module.
-* Make sure for each domain type that there are implicit instances of `io.circe.Encoder[A]` and
-  `io.circe.Decoder[A]` in the scope or that Circe's generic auto derivation is used via
-  `import io.circe.generic.auto_`.
-
-```scala
-import io.finch.circe._
-import io.circe.generic.auto._
-```
-
-It's also possible to import the Circe configuration which uses a pretty printer configured with
-`dropNullKeys = true`. Use the following imports instead:
-
-```scala
-import io.finch.circe.dropNullKeys._
-import io.circe.generic.auto._
-```
-
-Unless it's absolutely necessary to customize Circe's output format (i.e., drop null keys), always
-prefer the [Jackson serializer][circe-jackson] for [better performance][circe-jackson-performance].
-The following two imports show how to make Circe use Jackson while serializing instead of the
-built-in pretty printer.
-
-```scala
-import io.finch.circe.jacksonSerializer._
-import io.circe.generic.auto._
-```
-
-#### Argonaut
-
-* Add the dependency to the `finch-argonaut` module.
-* Make sure for each domain type there are instances of `argonaut.EncodeJson[A]` and
-  `argonaut.DecodeJson[A]` in the scope.
-
-```scala
-import argonaut._
-import argonaut.Argonaut._
-import io.finch.argonaut._
-
-implicit val e: EncodeJson[_] = ???
-implicit val d: DecodeJson[_] = ???
-```
-
-In addition to the very basic Argonaut pretty printer (available via `import io.finch.argonaut._`),
-there are three additional configurations available out of the box:
-
-* `import io.finch.argonaut.dropNullKeys._` - brings both decoder and encoder (uses the pretty
-  printer that drops null keys) in the scope
-* `import io.finch.argonaut.preserveOrder._` - brings both decoder and encoder (uses the pretty
-  printer that preserves fields order) in the scope
-* `import io.finch.argonaut.preserveOrderAndDropNullKeys._` - brings both decoder and encoder (uses
-  the pretty printer that preserves fields order as well as drops null keys) in the scope
-
-#### Jackson
-
-* Add the dependency to the `finch-jackson` module.
-* Import `import io.finch.jackson._`
-
-While finch-jackson seems like the easiest way to enable JSON support in Finch, it's probably the
-most dangerous one due to the level of involvement of the runtime based reflection.
-
-#### Json4s
-
-* Add the dependency to the `finch-json4s` module.
-* Make sure there is an implicit instance of `Formats` in the scope.
-
-```scala
-import io.finch.json4s._
-import org.json4s.DefaultFormats
-
-implicit val formats: Formats = DefaultFormats ++ JodaTimeSerializers.all
-```
-
-#### PlayJson
-
-* Add the dependency to the `finch-playjson` module.
-* For any type you want to serialize or deserialize you are required to create the appropriate
-  Play JSON `Reads` and `Writes`.
-
-```scala
-import io.finch.playjson._
-import play.api.libs.json._
-
-case class Foo(name: String,age: Int)
-
-object Foo {
-  implicit val fooReads: Reads[Foo] = Json.reads[Foo]
-  implicit val fooWrites: Writes[Foo] = Json.writes[Foo]
-}
-```
-
-#### Spray-Json
-
-* Add the dependency to the `finch-sprayjson` module.
-* Create an implicit format convertor value for any type you defined.
-
-```scala
-import io.finch.sprayjson._
-import spray.json._
-import Defaultjsonprotocol._
-
-case class Foo(name: String, age: Int)
-
-object Foo {
-  //Note: `2` means Foo has two members;
-  //       No need for apply if there is no companion object
-  implicit val fooformat = jsonFormat2(Foo.apply)
-}
-```
+* [Fixing the `.toService` compile error](#fixing-the-toservice-compile-error)
+* [Serving multiple content types](#serving-multiple-content-types)
+* [Serving static content](#serving-static-content)
+* [Converting `Error.Multiple` into JSON](#converting-errormultiple-into-json)
+* [Defining endpoints returning empty responses](#defining-endpoints-returning-empty-responses)
+* [Defining redirecting endpoints](#defining-redirecting-endpoints)
+* [Defining custom endpoints](#defining-custom-endpoints)
+* [CORS in Finch](#cors-in-finch)
+* [Converting between Scala futures and Twitter futures](#converting-between-scala-futures-and-twitter-futures)
+* [Server Sent Events](#server-sent-events)
+* [JSONP](#jsonp)
+* [OAuth2](#oauth2)
+* [Basic HTTP Auth](#basic-http-auth)
 
 ### Fixing the `.toService` compile error
 
@@ -177,7 +51,7 @@ free (preferred).
 For example, to bring the [Circe][circe] support and benefit from its auto-derivation of codecs
 you'd only need to add two extra imports to the scope (file) where you call the `.toService` method.
 
-```scala
+```tut:silent
 import io.circe.generic.auto._
 import io.finch.circe._
 ```
@@ -206,15 +80,20 @@ Putting it all together and assuming that most of the Finch applications serve J
 reasonable to pass  `Application.Json` to the `toServiceAs` call and downgrade non-JSON endpoints to
 `Endpoint[Response]`.
 
-```scala
+```tut:silent
 import com.twitter.finagle.Http
 import com.twitter.finagle.http.Response
 import com.twitter.io.Buf
+import io.circe._
+//import io.circe.generic.semiauto._
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
 
 case class Message(message: String)
+
+//implicit val fooDecoder: Decoder[Message] = deriveDecoder[Message]
+//implicit val fooEncoder: Encoder[Message] = deriveEncoder[Message]
 
 val json: Endpoint[Message] = get("json") {
   Ok(Message("Hello, World!"))
@@ -228,7 +107,10 @@ val text: Endpoint[Response] = get("text") {
   rep
 }
 
-Http.server.serve(":8081", (json :+: text).toServiceAs[Application.Json])
+
+val service = (json :+: text).toServiceAs[Application.Json]
+
+// Http.server.serve(":8081", service )
 ```
 
 ### Serving static content
@@ -242,7 +124,7 @@ cornerstone idea is to return a `Buf` instance from the endpoint so we could use
 `Encode[Buf]`, thereby lifting the encoding part onto the endpoint itself
 (where it's quite legal to return a `Future[Buf]`).
 
-```scala
+```tut:silent
 import io.finch._
 import com.twitter.io.{Reader, Buf}
 import com.twitter.finagle.Http
@@ -254,8 +136,9 @@ val reader: Reader = Reader.fromFile(new File("/dev/urandom"))
 val file: Endpoint[Buf] = get("file") {
   Reader.readAll(reader).map(Ok)
 }
+val service = file.toServiceAs[Text.Plain]
 
-Await.ready(Http.server.serve(":8081", file.toServiceAs[Text.Plain]))
+// Await.ready(Http.server.serve(":8081", service))
 ```
 **Note:** It's usually not a great idea to use tools like Finch (or similar) to serve static
 content given their _dynamic_ nature. Instead, a static HTTP server (i.e., [Nginx][nginx]) would be
@@ -263,7 +146,7 @@ the perfect fit.
 
 It's also possible to _stream_ the file content to the client using [`AsyncStream`][as].
 
-```scala
+```tut:silent
 import io.finch._
 import com.twitter.conversions.storage._
 import com.twitter.concurrent.AsyncStream
@@ -278,9 +161,10 @@ val file: Endpoint[AsyncStream[Buf]] = get("stream-of-file") {
   Ok(AsyncStream.fromReader(reader, chunkSize = 512.kilobytes.inBytes.toInt))
 }
 
-Http.server
-  .withStreaming(enabled = true)
-  .serve(":8081", file.toServiceAs[Text.Plain])
+// Http.server
+//   .withStreaming(enabled = true)
+//   .serve(":8081", file.toServiceAs[Text.Plain])
+ 
 ```
 
 ### Converting `Errors` into JSON
@@ -292,7 +176,7 @@ trivial thing to do.
 
 With [Circe][circe] the complete implementation might look like the following.
 
-```scala
+```tut:silent
 import io.circe.{Encoder, Json}
 import io.finch._
 import io.finch.circe._
@@ -318,7 +202,7 @@ Just like in any Scala program you can define a function returning an empty resu
 value), in Finch, you can define an endpoint returning an empty response (an empty/unit output).
 An `Endpoint[Unit]` represents an endpoint that doesn't return any payload in the response.
 
-```scala
+```tut:silent
 import io.finch._
 
 val empty: Endpoint[Unit] = get("empty" :: string) { s: String =>
@@ -330,7 +214,7 @@ There are also cases when an endpoint returns either a payload or an empty respo
 probably a better idea to use failures in order to explain to the remote client why there is no
 payload in the response, it's totally possible to send empty ones instead.
 
-```scala
+```tut:silent
 import io.finch._
 import com.twitter.finagle.http.Status
 
@@ -355,7 +239,7 @@ Redirects are still weird in Finch. Until [reversed routes/endpoints][issue191] 
 reasonable way of defining redirecting endpoints is to represent them as `Endpoint[Unit]` (empty
 output) indicating that there is no payload returned.
 
-```scala
+```tut:silent
 import io.finch._
 import com.twitter.finagle.http.Status
 
@@ -384,7 +268,9 @@ behavior) wasn't touched at all.
 In the following example, we define a new endpoint `foo` that reads an instance of the case class
 `Foo` from the request during the _evaluation_ stage. So it won't affect matching.
 
-```scala
+```tut:silent
+import io.finch._
+
 case class Foo(i: Int, s: String)
 
 val foo: Endpoint[Foo] = (param("i").as[Int] :: param("s")).as[Foo]
@@ -410,7 +296,7 @@ In this example, we define an evaluating endpoint `auth` that takes a request an
 authenticate it by the user name passed in the `User` header. If the header is missing, the request
 is considered unauthorized.
 
-```scala
+```tut:silent
 import io.finch._
 
 case class User(id: Int)
@@ -447,7 +333,9 @@ that takes a function of type `(A) => Future[Output[B]]`.
 
 The previous example's `auth` endpoint can be updated as follows:
 
-```scala
+```tut:silent
+import com.twitter.util.Future
+
 def fetchUserForToken(token: String): Future[Option[User]] = ???
 
 val auth: Endpoint[User] = header("User").mapOutputAsync(u =>
@@ -470,7 +358,7 @@ The `getCurrentUser` endpoint doesn't need to change at all, since `auth` is sti
 Let's say you want to write a custom _matching_ endpoint that only matches requests whose current
 path segment might be extracted as (converted to) Java 8's `LocalDateTime`.
 
-```scala
+```tut:silent
 import io.finch._
 import com.twitter.util.Try
 import java.time.LocalDateTime
@@ -494,13 +382,13 @@ There is a [Finagle filter][cors-filter] which, when applied, enriches a given H
 [CORS][cors] behavior. The following example builds a CORS filter that allows `GET` and `POST`
 requests with an `Accept` header from any origin.
 
-```scala
+```tut:silent
 import com.twitter.finagle.http.filter.Cors
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.Service
 import io.finch._
 
-val service: Service[Request, Response] = Endpoint(Ok("Hello, world!")).toService
+val service: Service[Request, Response] = Endpoint.liftOutput(Ok("Hello, world!")).toServiceAs[Text.Plain]
 
 val policy: Cors.Policy = Cors.Policy(
   allowsOrigin = _ => Some("*"),
@@ -518,7 +406,7 @@ there is already an official tool for performing conversions between Scala futur
 futures (i.e., [Twitter Bijection][bijection]), it usually makes sense to avoid an extra dependency
 because of a couple of functions which are fairly easy to implement.
 
-```scala
+```tut:silent
 import com.twitter.util.{Future => TFuture, Promise => TPromise, Return, Throw}
 import scala.concurrent.{Future => SFuture, Promise => SPromise, ExecutionContext}
 import scala.util.{Success, Failure}
@@ -561,7 +449,7 @@ the `time` endpoint.
 
 NOTE: SSE requires `Cache-Control` to be disabled.
 
-```scala
+```tut:silent
 import cats.Show
 import com.twitter.concurrent.AsyncStream
 import com.twitter.conversions.time._
@@ -588,7 +476,7 @@ val time: Endpoint[AsyncStream[ServerSentEvent[Date]]] = get("time") {
     .withHeader("Cache-Control" -> "no-cache")
 }
 
-Await.ready(Http.server.serve(":8081", time.toServiceAs[Text.EventStream]))
+//Await.ready(Http.server.serve(":8081", time.toServiceAs[Text.EventStream]))
 ```
 
 ### JSONP
@@ -598,11 +486,12 @@ filter `JsonpFilter` that can be applied to an HTTP service returning JSON to "u
 
 Here is a small example on how to wire this filter with Finch's endpoint.
 
-```scala
+```tut:silent
 import com.twitter.finagle.Http
 import com.twitter.finagle.http.filter.JsonpFilter
 import io.finch._
 import io.finch.circe._
+import io.circe.generic.auto._
 
 val endpoint: Endpoint[Map[String, String]] = get("jsonp") {
   Ok(Map("foo" -> "bar"))
@@ -610,7 +499,7 @@ val endpoint: Endpoint[Map[String, String]] = get("jsonp") {
 
 val service = endpoint.toServiceAs[Application.Json]
 
-Http.server.serve(":8080", JsonpFilter.andThen(service))
+// Http.server.serve(":8080", JsonpFilter.andThen(service))
 ```
 
 `JsonpFilter` is dead simple. It checks the returned HTTP payload and if it's a JSON string, wraps
@@ -642,22 +531,54 @@ Content-Type: application/javascript
 There is [finagle-oauth2](https://github.com/finagle/finagle-oauth2) server-side provider that is
 supported in Finch via the `finch-oauth2` package:
 
-*Authorize*
-```scala
-import com.twitter.finagle.oauth2._
+*Authorize* 
+```tut:silent
+import io.finch._
 import io.finch.oauth2._
+import com.twitter.finagle.oauth2._
+import com.twitter.util.Future
+import java.util.Date
 
-val dataHandler: DataHandler[Int] = ???
+class MockDataHandler extends DataHandler[Int] {
+
+  def validateClient(clientId: String, clientSecret: String, grantType: String) =
+    Future.value(false)
+
+  def findUser(username: String, password: String): Future[Option[Int]] =
+    Future.value(None)
+
+  def createAccessToken(authInfo: AuthInfo[Int]) =
+    Future.value(AccessToken("", Some(""), Some(""), Some(0L), new Date()))
+
+  def findAuthInfoByCode(code: String): Future[Option[AuthInfo[Int]]] =
+    Future.value(None)
+
+  def findAuthInfoByRefreshToken(refreshToken: String): Future[Option[AuthInfo[Int]]] =
+    Future.value(None)
+
+  def findClientUser(clientId: String, clientSecret: String, scope: Option[String]): Future[Option[Int]] =
+    Future.value(None)
+
+  def findAccessToken(token: String): Future[Option[AccessToken]] =
+    Future.value(None)
+
+  def findAuthInfoByAccessToken(accessToken: AccessToken): Future[Option[AuthInfo[Int]]] =
+    Future.value(None)
+  
+  def getStoredAccessToken(authInfo: AuthInfo[Int]): Future[Option[AccessToken]] =
+    Future.value(None)
+
+  def refreshAccessToken(authInfo: AuthInfo[Int], refreshToken: String): Future[AccessToken] =
+    Future.value(AccessToken("", Some(""), Some(""), Some(0L), new Date()))
+}
+
+val dataHandler: DataHandler[Int] = new MockDataHandler()
 val auth: Endpoint[AuthInfo[Int]] = authorize(dataHandler)
 val e: Endpoint[Int] = get("user" :: auth) { ai: AuthInfo[Int] => Ok(ai.user) }
-```
 
-*Issue Access Token*
-```scala
-import com.twitter.finagle.oauth2._
-import io.finch.oauth2._
-
+//Issue Access Token
 val token: Endpoint[GrantHandlerResult] = issueAccessToken(dataHandler)
+
 ```
 
 Note that both `token` and `authorize` may throw `com.twitter.finagle.oauth2.OAuthError`, which is
@@ -671,8 +592,41 @@ project that provides Finagle filters implementing authentication for clients an
 this would look like a `BasicAuth.Server` filter applied to `Service` returned from the `.toService`
 call. See finagle-http-auth's README for more usage details.
 
---
-Read Next: [Best Practices](best-practices.md)
+```tut:silent
+import io.finch._
+import io.circe.generic.auto._
+import com.twitter.finagle.Http
+import com.twitter.finagle.http.{BasicAuth, Request, Response}
+import com.twitter.finagle.Service
+import com.twitter.util.{Await, Future}
+
+case class User(id: Int)
+
+val ba = BasicAuth.serverFromCredentials("admin", "12345")
+
+val port = 8081
+
+val getCurrentUser: Endpoint[User] = get("users" :: int) { id: Int =>
+  println(s"Getting user with id: $id")
+  Ok(User(id)) // echo it back
+}
+
+val userService:Service[Request,Response] = getCurrentUser.toService
+val secureService:Service[Request,Response] = ba.andThen(userService)
+val good = BasicAuth.client("admin", "12345")
+val bad = BasicAuth.client("root", "deadbeef")
+val client = Http.client.newService(s"localhost:$port")
+val input = Input.get("/users/10")
+```
+
+```tut
+val server = Http.server.serve(s":$port", secureService )
+Await.result(good.andThen(client)(input.request))
+Await.result(bad.andThen(client)(input.request))
+server.close()
+
+```
+
 
 [nginx]: http://nginx.org/en/
 [circe]: https://github.com/circe/circe
