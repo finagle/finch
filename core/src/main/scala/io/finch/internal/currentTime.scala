@@ -1,12 +1,15 @@
 package io.finch.internal
 
+import java.time.{Instant, ZoneId}
 import java.time.format.DateTimeFormatter
-import java.time.Instant
-import java.time.ZoneOffset
+import java.util.Locale
+
 
 object currentTime {
   private[this] val formatter: DateTimeFormatter =
-    DateTimeFormatter.RFC_1123_DATE_TIME.withZone(ZoneOffset.UTC)
+    DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz")
+      .withLocale(Locale.ENGLISH)
+      .withZone(ZoneId.of("GMT"))
 
   @volatile private[this] var last: (Long, String) = (0, "")
 
