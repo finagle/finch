@@ -1,0 +1,631 @@
+<html><head><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>Finch</title><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Scala combinator library for building Finagle HTTP services" /><meta name="author" content="Vladimir Kostyukov" /><meta name="og:image" content="/img/poster.png" /><meta name="og:title" content="Finch" /><meta name="og:site_name" content="Finch" /><meta name="og:url" content="https://finch.github.io/finagle/finch/" /><meta name="og:type" content="website" /><meta name="og:description" content="Scala combinator library for building Finagle HTTP services" /><meta name="twitter:image" content="/img/poster.png" /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:site" content="" /><link rel="icon" type="image/png" href="/img/favicon.png" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" /><link rel="stylesheet" href="/highlight/styles/atom-one-light.css" /><link rel="stylesheet" href="/css/style.css" /><link rel="stylesheet" href="/css/palette.css" /><link rel="stylesheet" href="/css/override.css" /></head><body class="docs"><div id="wrapper"><div id="sidebar-wrapper"><ul id="sidebar" class="sidebar-nav"><li class="sidebar-brand"><a href="/" class="brand"><div class="brand-wrapper" style="background:url('/img/sidebar_brand.png') no-repeat"><span>Finch</span></div></a></li> <li><a href="/user-guide.html" class="">User Guide</a></li> <li><a href="/cookbook.html" class=" active ">Cookbook</a></li> <li><a href="/best-practices.html" class="">Best Practices</a></li> <li><a href="/contributing.html" class="">Contributing</a></li></ul></div><div id="page-content-wrapper"><div class="nav"><div class="container-fluid"><div class="row"><div class="col-lg-12"><div class="action-menu pull-left clearfix"><a href="#menu-toggle" id="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></a></div><ul class="pull-right"><li class="hidden-xs"><a href="https://github.com/finagle/finch"><i class="fa fa-eye"></i><span>WATCH<span id="eyes" class="label label-default">--</span></span></a></li><li class="hidden-xs"><a href="https://github.com/finagle/finch"><i class="fa fa-star-o"></i><span>STARS<span id="stars" class="label label-default">--</span></span></a></li><li><a href="#" onclick="shareSiteTwitter('Finch Scala combinator library for building Finagle HTTP services');"><i class="fa fa-twitter"></i></a></li><li><a href="#" onclick="shareSiteFacebook('Finch Scala combinator library for building Finagle HTTP services');"><i class="fa fa-facebook"></i></a></li><li><a href="#" onclick="shareSiteGoogle();"><i class="fa fa-google-plus"></i></a></li></ul></div></div></div></div><div id="content" data-github-owner="finagle" data-github-repo="finch"><div class="content-wrapper"><section><h2 id="cookbook">Cookbook</h2>
+
+<p>This is a collection of short recipes of “How to X in Finch”.</p>
+
+<ul>
+  <li><a href="#fixing-the-toservice-compile-error">Fixing the <code class="highlighter-rouge">.toService</code> compile error</a></li>
+  <li><a href="#serving-multiple-content-types">Serving multiple content types</a></li>
+  <li><a href="#serving-static-content">Serving static content</a></li>
+  <li><a href="#converting-errormultiple-into-json">Converting <code class="highlighter-rouge">Error.Multiple</code> into JSON</a></li>
+  <li><a href="#defining-endpoints-returning-empty-responses">Defining endpoints returning empty responses</a></li>
+  <li><a href="#defining-redirecting-endpoints">Defining redirecting endpoints</a></li>
+  <li><a href="#defining-custom-endpoints">Defining custom endpoints</a></li>
+  <li><a href="#cors-in-finch">CORS in Finch</a></li>
+  <li><a href="#converting-between-scala-futures-and-twitter-futures">Converting between Scala futures and Twitter futures</a></li>
+  <li><a href="#server-sent-events">Server Sent Events</a></li>
+  <li><a href="#jsonp">JSONP</a></li>
+  <li><a href="#oauth2">OAuth2</a></li>
+  <li><a href="#basic-http-auth">Basic HTTP Auth</a></li>
+</ul>
+
+<h3 id="fixing-the-toservice-compile-error">Fixing the <code class="highlighter-rouge">.toService</code> compile error</h3>
+
+<p>Finch promotes a type-full functional programming style, where an API server is represented as a
+coproduct of all the possible types it might return. That said, a Finch server is type-checked
+by the compiler to ensure that it’s known how to convert every part of coproduct into an HTTP
+response. Simply speaking, as a Finch user, you get a compile-time guarantee that for every
+endpoint in your application it’s possible to find an appropriate encoder. Otherwise you will
+get a compile error that looks like this.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;console&gt;:34: error: An Endpoint you're trying to convert into a Finagle service is missing one or more encoders.
+
+  Make sure shapeless.:+:[Foo,shapeless.:+:[Bar,shapeless.CNil]] is one of the following:
+
+  * A com.twitter.finagle.http.Response
+  * A value of a type with an io.finch.Encode instance (with the corresponding content-type)
+  * A coproduct made up of some combination of the above
+
+       (e :+: q).toServiceAs[Application.Json]
+</code></pre>
+</div>
+
+<p>Which means: the compiler wasn’t able to find an instance of <code class="highlighter-rouge">Encode.Json</code> type-class for types
+<code class="highlighter-rouge">Foo</code> and <code class="highlighter-rouge">Bar</code>. To fix that you could either provide that instance (seriously, don’t do that unless
+you have an absolutely specific use case) or use one of the supported JSON libraries and get it for
+free (preferred).</p>
+
+<p>For example, to bring the <a href="https://github.com/circe/circe">Circe</a> support and benefit from its auto-derivation of codecs
+you’d only need to add two extra imports to the scope (file) where you call the <code class="highlighter-rouge">.toService</code> method.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+</code></pre>
+</div>
+
+<h3 id="serving-multiple-content-types">Serving multiple content types</h3>
+
+<p>In its current form (as per 0.11) Finch natively supports only single content type per Finagle
+service. This restriction is encoded in the API such that <code class="highlighter-rouge">toServiceAs</code> call only takes single type
+parameter, single content type.</p>
+
+<p>Even though this restriction is temporary and should be removed in 0.11 (or 1.0), there is an
+essential workaround in Finch that will always be supported (even after 1.0). The general idea is
+to downgrade an endpoint that returns a payload of a content type that’s different from one passed
+to the <code class="highlighter-rouge">toServiceAs</code> call to <code class="highlighter-rouge">Endpoint[Response]</code>.</p>
+
+<p>An <code class="highlighter-rouge">Endpoint[Response]</code> has a special meaning:</p>
+
+<ul>
+  <li>It’s not necessary to wrap a <code class="highlighter-rouge">Response</code> with <code class="highlighter-rouge">Output</code> when mapping endpoint</li>
+  <li>There is an identity (pass through) encoder for <code class="highlighter-rouge">Response</code> defined in Finch</li>
+</ul>
+
+<p>That said, Finagle’s <code class="highlighter-rouge">Response</code>s have (and will always be having) a first-class support in Finch to
+accommodate use cases when decoupling from HTTP types and primitives implies unnecessary complexity
+or simply not possible in the current implementation.</p>
+
+<p>Putting it all together and assuming that most of the Finch applications serve JSON payloads, it’s
+reasonable to pass  <code class="highlighter-rouge">Application.Json</code> to the <code class="highlighter-rouge">toServiceAs</code> call and downgrade non-JSON endpoints to
+<code class="highlighter-rouge">Endpoint[Response]</code>.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Response</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.Buf</span>
+<span class="k">import</span> <span class="nn">io.circe._</span>
+<span class="c1">//import io.circe.generic.semiauto._
+</span><span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+
+<span class="k">case</span> <span class="k">class</span> <span class="nc">Message</span><span class="o">(</span><span class="n">message</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+
+<span class="c1">//implicit val fooDecoder: Decoder[Message] = deriveDecoder[Message]
+//implicit val fooEncoder: Encoder[Message] = deriveEncoder[Message]
+</span>
+<span class="k">val</span> <span class="n">json</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Message</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"json"</span><span class="o">)</span> <span class="o">{</span>
+  <span class="nc">Ok</span><span class="o">(</span><span class="nc">Message</span><span class="o">(</span><span class="s">"Hello, World!"</span><span class="o">))</span>
+<span class="o">}</span>
+
+<span class="k">val</span> <span class="n">text</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Response</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"text"</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">val</span> <span class="n">rep</span> <span class="k">=</span> <span class="nc">Response</span><span class="o">()</span>
+  <span class="n">rep</span><span class="o">.</span><span class="n">content</span> <span class="k">=</span> <span class="nc">Buf</span><span class="o">.</span><span class="nc">Utf8</span><span class="o">(</span><span class="s">"Hello, World!"</span><span class="o">)</span>
+  <span class="n">rep</span><span class="o">.</span><span class="n">contentType</span> <span class="k">=</span> <span class="s">"text/plain"</span>
+
+  <span class="n">rep</span>
+<span class="o">}</span>
+
+
+<span class="k">val</span> <span class="n">service</span> <span class="k">=</span> <span class="o">(</span><span class="n">json</span> <span class="o">:+:</span> <span class="n">text</span><span class="o">).</span><span class="n">toServiceAs</span><span class="o">[</span><span class="kt">Application.Json</span><span class="o">]</span>
+
+<span class="c1">// Http.server.serve(":8081", service )
+</span></code></pre>
+</div>
+
+<h3 id="serving-static-content">Serving static content</h3>
+
+<p>Finch was designed with type-classes powered <em>extensibility</em> in mind, which means it’s possible to
+define an <code class="highlighter-rouge">Endpoint</code> of any type <code class="highlighter-rouge">A</code> as long as there is a type-class instance of <code class="highlighter-rouge">Encode[A]</code>
+available for that type. Needless to say, it’s pretty much straightforward to define a <em>blocking</em>
+instance of <code class="highlighter-rouge">Encode[File]</code> that turns a given <code class="highlighter-rouge">File</code> into a <code class="highlighter-rouge">Buf</code>. Although, it might be tricky to
+come up with a <em>non-blocking</em> way of serving static content with Finch, there is a way. The
+cornerstone idea is to return a <code class="highlighter-rouge">Buf</code> instance from the endpoint so we could use an identity
+<code class="highlighter-rouge">Encode[Buf]</code>, thereby lifting the encoding part onto the endpoint itself
+(where it’s quite legal to return a <code class="highlighter-rouge">Future[Buf]</code>).</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Await</span>
+<span class="k">import</span> <span class="nn">java.io.File</span>
+
+<span class="k">val</span> <span class="n">reader</span><span class="k">:</span> <span class="kt">Reader</span> <span class="o">=</span> <span class="nc">Reader</span><span class="o">.</span><span class="n">fromFile</span><span class="o">(</span><span class="k">new</span> <span class="nc">File</span><span class="o">(</span><span class="s">"/dev/urandom"</span><span class="o">))</span>
+
+<span class="k">val</span> <span class="n">file</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Buf</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"file"</span><span class="o">)</span> <span class="o">{</span>
+  <span class="nc">Reader</span><span class="o">.</span><span class="n">readAll</span><span class="o">(</span><span class="n">reader</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="nc">Ok</span><span class="o">)</span>
+<span class="o">}</span>
+<span class="k">val</span> <span class="n">service</span> <span class="k">=</span> <span class="n">file</span><span class="o">.</span><span class="n">toServiceAs</span><span class="o">[</span><span class="kt">Text.Plain</span><span class="o">]</span>
+
+<span class="c1">// Await.ready(Http.server.serve(":8081", service))
+</span></code></pre>
+</div>
+<p><strong>Note:</strong> It’s usually not a great idea to use tools like Finch (or similar) to serve static
+content given their <em>dynamic</em> nature. Instead, a static HTTP server (i.e., <a href="http://nginx.org/en/">Nginx</a>) would be
+the perfect fit.</p>
+
+<p>It’s also possible to <em>stream</em> the file content to the client using <a href="https://github.com/twitter/util/blob/develop/util-core/src/main/scala/com/twitter/concurrent/AsyncStream.scala"><code class="highlighter-rouge">AsyncStream</code></a>.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">com.twitter.conversions.storage._</span>
+<span class="k">import</span> <span class="nn">com.twitter.concurrent.AsyncStream</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
+
+<span class="k">import</span> <span class="nn">java.io.File</span>
+
+<span class="k">val</span> <span class="n">reader</span><span class="k">:</span> <span class="kt">Reader</span> <span class="o">=</span> <span class="nc">Reader</span><span class="o">.</span><span class="n">fromFile</span><span class="o">(</span><span class="k">new</span> <span class="nc">File</span><span class="o">(</span><span class="s">"/dev/urandom"</span><span class="o">))</span>
+
+<span class="k">val</span> <span class="n">file</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">AsyncStream</span><span class="o">[</span><span class="kt">Buf</span><span class="o">]]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"stream-of-file"</span><span class="o">)</span> <span class="o">{</span>
+  <span class="nc">Ok</span><span class="o">(</span><span class="nc">AsyncStream</span><span class="o">.</span><span class="n">fromReader</span><span class="o">(</span><span class="n">reader</span><span class="o">,</span> <span class="n">chunkSize</span> <span class="k">=</span> <span class="mf">512.</span><span class="n">kilobytes</span><span class="o">.</span><span class="n">inBytes</span><span class="o">.</span><span class="n">toInt</span><span class="o">))</span>
+<span class="o">}</span>
+
+<span class="c1">// Http.server
+//   .withStreaming(enabled = true)
+//   .serve(":8081", file.toServiceAs[Text.Plain])
+</span> 
+</code></pre>
+</div>
+
+<h3 id="converting-errors-into-json">Converting <code class="highlighter-rouge">Errors</code> into JSON</h3>
+
+<p>Finch’s own errors are often accumulated in the product <code class="highlighter-rouge">Endpoint</code> and represented as
+<code class="highlighter-rouge">io.finch.Errors</code> that wraps a <code class="highlighter-rouge">cats.data.NonEmptyList[Error]</code>. Writing an exception handling
+function for both <code class="highlighter-rouge">Error</code> (single error) and <code class="highlighter-rouge">Errors</code> (multiple errors) cases may not seem as a
+trivial thing to do.</p>
+
+<p>With <a href="https://github.com/circe/circe">Circe</a> the complete implementation might look like the following.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+
+<span class="k">def</span> <span class="n">errorToJson</span><span class="o">(</span><span class="n">e</span><span class="k">:</span> <span class="kt">Error</span><span class="o">)</span><span class="k">:</span> <span class="kt">Json</span> <span class="o">=</span> <span class="n">e</span> <span class="k">match</span> <span class="o">{</span>
+  <span class="k">case</span> <span class="nc">Error</span><span class="o">.</span><span class="nc">NotPresent</span><span class="o">(</span><span class="k">_</span><span class="o">)</span> <span class="k">=&gt;</span>
+    <span class="nc">Json</span><span class="o">.</span><span class="n">obj</span><span class="o">(</span><span class="s">"error"</span> <span class="o">-&gt;</span> <span class="nc">Json</span><span class="o">.</span><span class="n">fromString</span><span class="o">(</span><span class="s">"something_not_present"</span><span class="o">))</span>
+  <span class="k">case</span> <span class="nc">Error</span><span class="o">.</span><span class="nc">NotParsed</span><span class="o">(</span><span class="k">_</span><span class="o">,</span> <span class="k">_</span><span class="o">,</span> <span class="k">_</span><span class="o">)</span> <span class="k">=&gt;</span>
+    <span class="nc">Json</span><span class="o">.</span><span class="n">obj</span><span class="o">(</span><span class="s">"error"</span> <span class="o">-&gt;</span> <span class="nc">Json</span><span class="o">.</span><span class="n">fromString</span><span class="o">(</span><span class="s">"something_not_parsed"</span><span class="o">))</span>
+  <span class="k">case</span> <span class="nc">Error</span><span class="o">.</span><span class="nc">NotValid</span><span class="o">(</span><span class="k">_</span><span class="o">,</span> <span class="k">_</span><span class="o">)</span> <span class="k">=&gt;</span>
+    <span class="nc">Json</span><span class="o">.</span><span class="n">obj</span><span class="o">(</span><span class="s">"error"</span> <span class="o">-&gt;</span> <span class="nc">Json</span><span class="o">.</span><span class="n">fromString</span><span class="o">(</span><span class="s">"something_not_valid"</span><span class="o">))</span>
+<span class="o">}</span>
+
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">ee</span><span class="k">:</span> <span class="kt">Encoder</span><span class="o">[</span><span class="kt">Exception</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Encoder</span><span class="o">.</span><span class="n">instance</span> <span class="o">{</span>
+  <span class="k">case</span> <span class="n">e</span><span class="k">:</span> <span class="kt">Error</span> <span class="o">=&gt;</span> <span class="n">errorToJson</span><span class="o">(</span><span class="n">e</span><span class="o">)</span>
+  <span class="k">case</span> <span class="nc">Errors</span><span class="o">(</span><span class="n">nel</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Json</span><span class="o">.</span><span class="n">arr</span><span class="o">(</span><span class="n">nel</span><span class="o">.</span><span class="n">toList</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">errorToJson</span><span class="o">)</span><span class="k">:</span> <span class="k">_</span><span class="kt">*</span><span class="o">)</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<h3 id="defining-endpoints-returning-empty-responses">Defining endpoints returning empty responses</h3>
+
+<p>Just like in any Scala program you can define a function returning an empty result (a unit
+value), in Finch, you can define an endpoint returning an empty response (an empty/unit output).
+An <code class="highlighter-rouge">Endpoint[Unit]</code> represents an endpoint that doesn’t return any payload in the response.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="k">val</span> <span class="n">empty</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"empty"</span> <span class="o">::</span> <span class="n">string</span><span class="o">)</span> <span class="o">{</span> <span class="n">s</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=&gt;</span>
+  <span class="nc">NoContent</span><span class="o">[</span><span class="kt">Unit</span><span class="o">].</span><span class="n">withHeader</span><span class="o">(</span><span class="s">"X-String"</span> <span class="o">-&gt;</span> <span class="n">s</span><span class="o">)</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>There are also cases when an endpoint returns either a payload or an empty response. While it’s
+probably a better idea to use failures in order to explain to the remote client why there is no
+payload in the response, it’s totally possible to send empty ones instead.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
+
+<span class="k">case</span> <span class="k">class</span> <span class="nc">Foo</span><span class="o">(</span><span class="n">s</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+
+<span class="c1">// This is possible
+</span><span class="k">val</span> <span class="n">fooOrEmpty</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"foo"</span> <span class="o">::</span> <span class="n">string</span><span class="o">)</span> <span class="o">{</span> <span class="n">s</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=&gt;</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">!=</span> <span class="s">""</span><span class="o">)</span> <span class="nc">Ok</span><span class="o">(</span><span class="nc">Foo</span><span class="o">(</span><span class="n">s</span><span class="o">))</span>
+  <span class="k">else</span> <span class="nc">NoContent</span>
+<span class="o">}</span>
+
+<span class="c1">// This is recommended
+</span><span class="k">val</span> <span class="n">fooOrFailure</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"foo"</span> <span class="o">::</span> <span class="n">string</span><span class="o">)</span> <span class="o">{</span> <span class="n">s</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=&gt;</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">!=</span> <span class="s">""</span><span class="o">)</span> <span class="nc">Ok</span><span class="o">(</span><span class="nc">Foo</span><span class="o">(</span><span class="n">s</span><span class="o">))</span>
+  <span class="k">else</span> <span class="nc">BadRequest</span><span class="o">(</span><span class="k">new</span> <span class="nc">IllegalArgumentException</span><span class="o">(</span><span class="s">"empty string"</span><span class="o">))</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<h3 id="defining-redirecting-endpoints">Defining redirecting endpoints</h3>
+
+<p>Redirects are still weird in Finch. Until <a href="https://github.com/finagle/finch/issues/191">reversed routes/endpoints</a> are shipped, the
+reasonable way of defining redirecting endpoints is to represent them as <code class="highlighter-rouge">Endpoint[Unit]</code> (empty
+output) indicating that there is no payload returned.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
+
+<span class="k">val</span> <span class="n">redirect</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"redirect"</span> <span class="o">::</span> <span class="s">"from"</span><span class="o">)</span> <span class="o">{</span>
+  <span class="nc">Output</span><span class="o">.</span><span class="n">unit</span><span class="o">(</span><span class="nc">Status</span><span class="o">.</span><span class="nc">SeeOther</span><span class="o">).</span><span class="n">withHeader</span><span class="o">(</span><span class="s">"Location"</span> <span class="o">-&gt;</span> <span class="s">"/redirect/to"</span><span class="o">)</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<h3 id="defining-custom-endpoints">Defining custom endpoints</h3>
+
+<p>“Custom endpoints” isn’t probably a good definition for these since once you called <code class="highlighter-rouge">map*</code> or <code class="highlighter-rouge">as*</code>
+on a predefined endpoint it becomes “custom”. Anyways, there are endpoints (at least some part of
+more complex endpoints) that might be decoupled and shared across other endpoints in your
+application.</p>
+
+<p>Finch is a library promoting functional programming, which means it prefers composition over
+inheritance. Thus, building new instances in Finch is never about extending some base class, but
+about composing existing instances together.</p>
+
+<p><strong>Example 1: aka request reader</strong></p>
+
+<p>Before 0.10, there was a <code class="highlighter-rouge">RequestReader</code> abstraction in Finch that has been replaced with
+<em>evaluating endpoints</em>. Even though the name was changed, the request-reader-flavored API (and
+behavior) wasn’t touched at all.</p>
+
+<p>In the following example, we define a new endpoint <code class="highlighter-rouge">foo</code> that reads an instance of the case class
+<code class="highlighter-rouge">Foo</code> from the request during the <em>evaluation</em> stage. So it won’t affect matching.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="k">case</span> <span class="k">class</span> <span class="nc">Foo</span><span class="o">(</span><span class="n">i</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">s</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">foo</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="k">=</span> <span class="o">(</span><span class="n">param</span><span class="o">(</span><span class="s">"i"</span><span class="o">).</span><span class="n">as</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="o">::</span> <span class="n">param</span><span class="o">(</span><span class="s">"s"</span><span class="o">)).</span><span class="n">as</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span>
+
+<span class="k">val</span> <span class="n">getFoo</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"foo"</span> <span class="o">::</span> <span class="n">foo</span><span class="o">)</span> <span class="o">{</span> <span class="n">f</span><span class="k">:</span> <span class="kt">Foo</span> <span class="o">=&gt;</span>
+  <span class="n">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Got foo: $f"</span><span class="o">)</span>
+  <span class="nc">Ok</span><span class="o">(</span><span class="n">f</span><span class="o">)</span> <span class="c1">// echo it back
+</span><span class="o">}</span>
+</code></pre>
+</div>
+
+<p><strong>Note:</strong> The endpoint body from the example above will never be evaluated if the <code class="highlighter-rouge">foo</code> endpoint
+fails (e.g., one of the params is missing). This shouldn’t be a big surprise given that such
+behavior is quite natural for a functor (i.e., <code class="highlighter-rouge">map</code> function) - an endpoint on which <code class="highlighter-rouge">mapOutput</code> is
+called (via the syntactic sugar around <code class="highlighter-rouge">apply</code>) might have already failed.</p>
+
+<p><strong>Example 2: authentication</strong></p>
+
+<p>Since endpoints provide more control over the output (i.e., via <code class="highlighter-rouge">io.finch.Output</code>), it’s now
+possible to define self-contained instances that also handle exceptions (convert them to appropriate
+outputs).</p>
+
+<p>In this example, we define an evaluating endpoint <code class="highlighter-rouge">auth</code> that takes a request and tries to
+authenticate it by the user name passed in the <code class="highlighter-rouge">User</code> header. If the header is missing, the request
+is considered unauthorized.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="k">case</span> <span class="k">class</span> <span class="nc">User</span><span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">auth</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">User</span><span class="o">]</span> <span class="k">=</span> <span class="n">header</span><span class="o">(</span><span class="s">"User"</span><span class="o">).</span><span class="n">mapOutput</span><span class="o">(</span><span class="n">u</span> <span class="k">=&gt;</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">u</span> <span class="o">==</span> <span class="s">"secret user"</span><span class="o">)</span> <span class="nc">Ok</span><span class="o">(</span><span class="nc">User</span><span class="o">(</span><span class="mi">10</span><span class="o">))</span>
+  <span class="k">else</span> <span class="nc">Unauthorized</span><span class="o">(</span><span class="k">new</span> <span class="nc">Exception</span><span class="o">(</span><span class="n">s</span><span class="s">"User $u is unknown."</span><span class="o">))</span>
+<span class="o">).</span><span class="n">handle</span> <span class="o">{</span>
+  <span class="c1">// if header "User" is missing we respond 401
+</span>  <span class="k">case</span> <span class="n">e</span><span class="k">:</span> <span class="kt">Error.NotPresent</span> <span class="o">=&gt;</span> <span class="nc">Unauthorized</span><span class="o">(</span><span class="n">e</span><span class="o">)</span>
+<span class="o">}</span>
+
+<span class="k">val</span> <span class="n">getCurrentUser</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">User</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"user"</span> <span class="o">::</span> <span class="n">auth</span><span class="o">)</span> <span class="o">{</span> <span class="n">u</span><span class="k">:</span> <span class="kt">User</span> <span class="o">=&gt;</span>
+  <span class="n">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Got user: $u"</span><span class="o">)</span>
+  <span class="nc">Ok</span><span class="o">(</span><span class="n">u</span><span class="o">)</span> <span class="c1">// echo it back
+</span><span class="o">}</span>
+</code></pre>
+</div>
+
+<p><strong>Note:</strong> Even though an endpoint <code class="highlighter-rouge">auth</code> can’t fail, since we explicitly handled its only possible
+exception, the body of the <code class="highlighter-rouge">getCurrentUser</code> endpoint will only be evaluated if the incoming request
+contains a header <code class="highlighter-rouge">User: secret user</code> and a path <code class="highlighter-rouge">/user</code>. This comes from <code class="highlighter-rouge">io.finch.Output</code>, which
+provides a monadic API over the three cases (payload (i.e., <code class="highlighter-rouge">Ok</code>), failure (i.e., <code class="highlighter-rouge">BadRequest</code>) and
+empty) and only <code class="highlighter-rouge">Output.Payload</code> is considered a success. Simply speaking, calling <code class="highlighter-rouge">map*</code> on either
+<code class="highlighter-rouge">Output.Failure</code> or <code class="highlighter-rouge">Output.Empty</code> is the same as calling <code class="highlighter-rouge">map*</code> on <code class="highlighter-rouge">None: Option[Nothing]</code>. Thus,
+an endpoint returning non-<code class="highlighter-rouge">Output.Payload</code> output is considered failed and its <code class="highlighter-rouge">map*</code> call won’t be
+evaluated.</p>
+
+<p><strong>Example 3: asynchronous authentication</strong></p>
+
+<p>Sometimes authenticating a request requires an asynchronous call (e.g., to a database or another
+HTTP service). Luckily, in addition to the <code class="highlighter-rouge">mapOutput</code> method used in the previous example, which
+takes a function of type <code class="highlighter-rouge">(A) =&gt; Output[B]</code>, <code class="highlighter-rouge">Endpoint</code>s also have a method called <code class="highlighter-rouge">mapOutputAsync</code>
+that takes a function of type <code class="highlighter-rouge">(A) =&gt; Future[Output[B]]</code>.</p>
+
+<p>The previous example’s <code class="highlighter-rouge">auth</code> endpoint can be updated as follows:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
+
+<span class="k">def</span> <span class="n">fetchUserForToken</span><span class="o">(</span><span class="n">token</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">User</span><span class="o">]]</span> <span class="k">=</span> <span class="o">???</span>
+
+<span class="k">val</span> <span class="n">auth</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">User</span><span class="o">]</span> <span class="k">=</span> <span class="n">header</span><span class="o">(</span><span class="s">"User"</span><span class="o">).</span><span class="n">mapOutputAsync</span><span class="o">(</span><span class="n">u</span> <span class="k">=&gt;</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">u</span> <span class="o">==</span> <span class="s">"secret user"</span><span class="o">)</span> <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">Ok</span><span class="o">(</span><span class="nc">User</span><span class="o">(</span><span class="mi">10</span><span class="o">)))</span>
+  <span class="k">else</span> <span class="n">fetchUserForToken</span><span class="o">(</span><span class="n">u</span><span class="o">).</span><span class="n">map</span> <span class="o">{</span>
+    <span class="k">case</span> <span class="nc">Some</span><span class="o">(</span><span class="n">user</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Ok</span><span class="o">(</span><span class="n">user</span><span class="o">)</span>
+    <span class="k">case</span> <span class="nc">None</span> <span class="k">=&gt;</span> <span class="nc">Unauthorized</span><span class="o">(</span><span class="k">new</span> <span class="nc">Exception</span><span class="o">(</span><span class="n">s</span><span class="s">"Invalid token: $u"</span><span class="o">))</span>
+  <span class="o">}</span>
+<span class="o">).</span><span class="n">handle</span> <span class="o">{</span>
+  <span class="c1">// if header "User" is missing we respond 401
+</span>  <span class="k">case</span> <span class="n">e</span><span class="k">:</span> <span class="kt">Error.NotPresent</span> <span class="o">=&gt;</span> <span class="nc">Unauthorized</span><span class="o">(</span><span class="n">e</span><span class="o">)</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">getCurrentUser</code> endpoint doesn’t need to change at all, since <code class="highlighter-rouge">auth</code> is still an
+<code class="highlighter-rouge">Endpoint[User]</code>.</p>
+
+<p><strong>Example 4: custom path matcher</strong></p>
+
+<p>Let’s say you want to write a custom <em>matching</em> endpoint that only matches requests whose current
+path segment might be extracted as (converted to) Java 8’s <code class="highlighter-rouge">LocalDateTime</code>.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Try</span>
+<span class="k">import</span> <span class="nn">java.time.LocalDateTime</span>
+
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">e</span><span class="k">:</span> <span class="kt">DecodePath</span><span class="o">[</span><span class="kt">LocalDateTime</span><span class="o">]</span> <span class="k">=</span>
+  <span class="nc">DecodePath</span><span class="o">.</span><span class="n">instance</span><span class="o">(</span><span class="n">s</span> <span class="k">=&gt;</span> <span class="nc">Try</span><span class="o">(</span><span class="nc">LocalDateTime</span><span class="o">.</span><span class="n">parse</span><span class="o">(</span><span class="n">s</span><span class="o">)).</span><span class="n">toOption</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">dateTime</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">LocalDateTime</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"time"</span> <span class="o">::</span> <span class="n">path</span><span class="o">[</span><span class="kt">LocalDateTime</span><span class="o">])</span> <span class="o">{</span> <span class="n">t</span><span class="k">:</span> <span class="kt">LocalDateTime</span> <span class="o">=&gt;</span>
+  <span class="n">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Got time: $t"</span><span class="o">)</span>
+  <span class="nc">Ok</span><span class="o">(</span><span class="n">t</span><span class="o">)</span> <span class="c1">// echo it back
+</span><span class="o">}</span>
+</code></pre>
+</div>
+
+<p><strong>Note:</strong> <code class="highlighter-rouge">io.finch.DecodePath</code> is an experimental API that will be (or not) eventually promoted
+to non-experimental.</p>
+
+<h3 id="cors-in-finch">CORS in Finch</h3>
+
+<p>There is a <a href="https://github.com/twitter/finagle/blob/develop/finagle-http/src/main/scala/com/twitter/finagle/http/filter/Cors.scala">Finagle filter</a> which, when applied, enriches a given HTTP service with
+<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS">CORS</a> behavior. The following example builds a CORS filter that allows <code class="highlighter-rouge">GET</code> and <code class="highlighter-rouge">POST</code>
+requests with an <code class="highlighter-rouge">Accept</code> header from any origin.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.finagle.http.filter.Cors</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Response</span><span class="o">}</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Service</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="k">val</span> <span class="n">service</span><span class="k">:</span> <span class="kt">Service</span><span class="o">[</span><span class="kt">Request</span>, <span class="kt">Response</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Endpoint</span><span class="o">.</span><span class="n">liftOutput</span><span class="o">(</span><span class="nc">Ok</span><span class="o">(</span><span class="s">"Hello, world!"</span><span class="o">)).</span><span class="n">toServiceAs</span><span class="o">[</span><span class="kt">Text.Plain</span><span class="o">]</span>
+
+<span class="k">val</span> <span class="n">policy</span><span class="k">:</span> <span class="kt">Cors.Policy</span> <span class="o">=</span> <span class="nc">Cors</span><span class="o">.</span><span class="nc">Policy</span><span class="o">(</span>
+  <span class="n">allowsOrigin</span> <span class="k">=</span> <span class="k">_</span> <span class="k">=&gt;</span> <span class="nc">Some</span><span class="o">(</span><span class="s">"*"</span><span class="o">),</span>
+  <span class="n">allowsMethods</span> <span class="k">=</span> <span class="k">_</span> <span class="k">=&gt;</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">Seq</span><span class="o">(</span><span class="s">"GET"</span><span class="o">,</span> <span class="s">"POST"</span><span class="o">)),</span>
+  <span class="n">allowsHeaders</span> <span class="k">=</span> <span class="k">_</span> <span class="k">=&gt;</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">Seq</span><span class="o">(</span><span class="s">"Accept"</span><span class="o">))</span>
+<span class="o">)</span>
+
+<span class="k">val</span> <span class="n">corsService</span><span class="k">:</span> <span class="kt">Service</span><span class="o">[</span><span class="kt">Request</span>, <span class="kt">Response</span><span class="o">]</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Cors</span><span class="o">.</span><span class="nc">HttpFilter</span><span class="o">(</span><span class="n">policy</span><span class="o">).</span><span class="n">andThen</span><span class="o">(</span><span class="n">service</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<h3 id="converting-between-scala-futures-and-twitter-futures">Converting between Scala futures and Twitter futures</h3>
+
+<p>Since Finch is built on top of Finagle, it shares its utilities, including <a href="http://twitter.github.io/finagle/guide/Futures.html">futures</a>. While
+there is already an official tool for performing conversions between Scala futures and Twitter
+futures (i.e., <a href="https://github.com/twitter/bijection">Twitter Bijection</a>), it usually makes sense to avoid an extra dependency
+because of a couple of functions which are fairly easy to implement.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.util.</span><span class="o">{</span><span class="nc">Future</span> <span class="k">=&gt;</span> <span class="nc">TFuture</span><span class="o">,</span> <span class="nc">Promise</span> <span class="k">=&gt;</span> <span class="nc">TPromise</span><span class="o">,</span> <span class="nc">Return</span><span class="o">,</span> <span class="nc">Throw</span><span class="o">}</span>
+<span class="k">import</span> <span class="nn">scala.concurrent.</span><span class="o">{</span><span class="nc">Future</span> <span class="k">=&gt;</span> <span class="nc">SFuture</span><span class="o">,</span> <span class="nc">Promise</span> <span class="k">=&gt;</span> <span class="nc">SPromise</span><span class="o">,</span> <span class="nc">ExecutionContext</span><span class="o">}</span>
+<span class="k">import</span> <span class="nn">scala.util.</span><span class="o">{</span><span class="nc">Success</span><span class="o">,</span> <span class="nc">Failure</span><span class="o">}</span>
+
+<span class="k">implicit</span> <span class="k">class</span> <span class="nc">RichTFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="k">val</span> <span class="n">f</span><span class="k">:</span> <span class="kt">TFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">])</span> <span class="k">extends</span> <span class="nc">AnyVal</span> <span class="o">{</span>
+  <span class="k">def</span> <span class="n">asScala</span><span class="o">(</span><span class="k">implicit</span> <span class="n">e</span><span class="k">:</span> <span class="kt">ExecutionContext</span><span class="o">)</span><span class="k">:</span> <span class="kt">SFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+    <span class="k">val</span> <span class="n">p</span><span class="k">:</span> <span class="kt">SPromise</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">SPromise</span><span class="o">()</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">respond</span> <span class="o">{</span>
+      <span class="k">case</span> <span class="nc">Return</span><span class="o">(</span><span class="n">value</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">p</span><span class="o">.</span><span class="n">success</span><span class="o">(</span><span class="n">value</span><span class="o">)</span>
+      <span class="k">case</span> <span class="nc">Throw</span><span class="o">(</span><span class="n">exception</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">p</span><span class="o">.</span><span class="n">failure</span><span class="o">(</span><span class="n">exception</span><span class="o">)</span>
+    <span class="o">}</span>
+
+    <span class="n">p</span><span class="o">.</span><span class="n">future</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="k">implicit</span> <span class="k">class</span> <span class="nc">RichSFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="k">val</span> <span class="n">f</span><span class="k">:</span> <span class="kt">SFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">])</span> <span class="k">extends</span> <span class="nc">AnyVal</span> <span class="o">{</span>
+  <span class="k">def</span> <span class="n">asTwitter</span><span class="o">(</span><span class="k">implicit</span> <span class="n">e</span><span class="k">:</span> <span class="kt">ExecutionContext</span><span class="o">)</span><span class="k">:</span> <span class="kt">TFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+    <span class="k">val</span> <span class="n">p</span><span class="k">:</span> <span class="kt">TPromise</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">TPromise</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">onComplete</span> <span class="o">{</span>
+      <span class="k">case</span> <span class="nc">Success</span><span class="o">(</span><span class="n">value</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">p</span><span class="o">.</span><span class="n">setValue</span><span class="o">(</span><span class="n">value</span><span class="o">)</span>
+      <span class="k">case</span> <span class="nc">Failure</span><span class="o">(</span><span class="n">exception</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">p</span><span class="o">.</span><span class="n">setException</span><span class="o">(</span><span class="n">exception</span><span class="o">)</span>
+    <span class="o">}</span>
+
+    <span class="n">p</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<h3 id="server-sent-events">Server Sent Events</h3>
+
+<p>Finch offers support for <a href="server-sent-events">Server Sent Events</a> through the <code class="highlighter-rouge">finch-sse</code> sub-project.
+Server Sent Events are represented as <code class="highlighter-rouge">AsyncStream</code>s and streamed over the chunked HTTP transport.</p>
+
+<p>The <code class="highlighter-rouge">ServerSentEvent</code> case class caries an arbitrary <code class="highlighter-rouge">data</code> field and it’s possible to encode any
+<code class="highlighter-rouge">ServerSentEvent[A]</code> for which <code class="highlighter-rouge">cats.Show[A]</code> is defined.</p>
+
+<p>In this example, every next second we stream instances of <code class="highlighter-rouge">java.util.Date</code> as server sent events on
+the <code class="highlighter-rouge">time</code> endpoint.</p>
+
+<p>NOTE: SSE requires <code class="highlighter-rouge">Cache-Control</code> to be disabled.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">cats.Show</span>
+<span class="k">import</span> <span class="nn">com.twitter.concurrent.AsyncStream</span>
+<span class="k">import</span> <span class="nn">com.twitter.conversions.time._</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.util.DefaultTimer</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.</span><span class="o">{</span> <span class="nc">Await</span><span class="o">,</span> <span class="nc">Future</span><span class="o">,</span> <span class="nc">Timer</span><span class="o">}</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch.sse._</span>
+<span class="k">import</span> <span class="nn">java.util.Date</span>
+
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">showDate</span><span class="k">:</span> <span class="kt">Show</span><span class="o">[</span><span class="kt">Date</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Show</span><span class="o">.</span><span class="n">fromToString</span><span class="o">[</span><span class="kt">Date</span><span class="o">]</span>
+
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">timest</span><span class="k">:</span> <span class="kt">Timer</span> <span class="o">=</span> <span class="nc">DefaultTimer</span><span class="o">.</span><span class="n">twitter</span>
+
+<span class="k">def</span> <span class="n">streamTime</span><span class="o">()</span><span class="k">:</span> <span class="kt">AsyncStream</span><span class="o">[</span><span class="kt">ServerSentEvent</span><span class="o">[</span><span class="kt">Date</span><span class="o">]]</span> <span class="k">=</span>
+  <span class="nc">AsyncStream</span><span class="o">.</span><span class="n">fromFuture</span><span class="o">(</span>
+    <span class="nc">Future</span><span class="o">.</span><span class="n">sleep</span><span class="o">(</span><span class="mf">1.</span><span class="n">seconds</span><span class="o">)</span>
+          <span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span> <span class="k">=&gt;</span> <span class="k">new</span> <span class="nc">Date</span><span class="o">())</span>
+          <span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="nc">ServerSentEvent</span><span class="o">(</span><span class="k">_</span><span class="o">))</span>
+  <span class="o">)</span> <span class="o">++</span> <span class="n">streamTime</span><span class="o">()</span>
+
+<span class="k">val</span> <span class="n">time</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">AsyncStream</span><span class="o">[</span><span class="kt">ServerSentEvent</span><span class="o">[</span><span class="kt">Date</span><span class="o">]]]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"time"</span><span class="o">)</span> <span class="o">{</span>
+  <span class="nc">Ok</span><span class="o">(</span><span class="n">streamTime</span><span class="o">())</span>
+    <span class="o">.</span><span class="n">withHeader</span><span class="o">(</span><span class="s">"Cache-Control"</span> <span class="o">-&gt;</span> <span class="s">"no-cache"</span><span class="o">)</span>
+<span class="o">}</span>
+
+<span class="c1">//Await.ready(Http.server.serve(":8081", time.toServiceAs[Text.EventStream]))
+</span></code></pre>
+</div>
+
+<h3 id="jsonp">JSONP</h3>
+
+<p>Not going into the details on why <a href="http://erlend.oftedal.no/blog/?blogid=97">JSONP considered insecure</a>, there is a Finagle
+filter <code class="highlighter-rouge">JsonpFilter</code> that can be applied to an HTTP service returning JSON to “upgrade” it to JSONP.</p>
+
+<p>Here is a small example on how to wire this filter with Finch’s endpoint.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.filter.JsonpFilter</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+
+<span class="k">val</span> <span class="n">endpoint</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Map</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">String</span><span class="o">]]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"jsonp"</span><span class="o">)</span> <span class="o">{</span>
+  <span class="nc">Ok</span><span class="o">(</span><span class="nc">Map</span><span class="o">(</span><span class="s">"foo"</span> <span class="o">-&gt;</span> <span class="s">"bar"</span><span class="o">))</span>
+<span class="o">}</span>
+
+<span class="k">val</span> <span class="n">service</span> <span class="k">=</span> <span class="n">endpoint</span><span class="o">.</span><span class="n">toServiceAs</span><span class="o">[</span><span class="kt">Application.Json</span><span class="o">]</span>
+
+<span class="c1">// Http.server.serve(":8080", JsonpFilter.andThen(service))
+</span></code></pre>
+</div>
+
+<p><code class="highlighter-rouge">JsonpFilter</code> is dead simple. It checks the returned HTTP payload and if it’s a JSON string, wraps
+it with a call to a function whose name is passed in the <code class="highlighter-rouge">callback</code> query-string param (and changes
+the content-type to <code class="highlighter-rouge">application/javascript</code> correspondingly). Using <a href="https://httpie.org/">HTTPie</a>, this would look as:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ http :8081/jsonp
+HTTP/1.1 200 OK
+Content-Encoding: gzip
+Content-Length: 39
+Content-Type: application/json
+
+{
+    "foo": "bar"
+}
+
+$ http :8080/jsonp?callback=myfunction
+HTTP/1.1 200 OK
+Content-Encoding: gzip
+Content-Length: 56
+Content-Type: application/javascript
+
+/**/myfunction({"foo":"bar"});
+</code></pre>
+</div>
+
+<h3 id="oauth2">OAuth2</h3>
+
+<p>There is <a href="https://github.com/finagle/finagle-oauth2">finagle-oauth2</a> server-side provider that is
+supported in Finch via the <code class="highlighter-rouge">finch-oauth2</code> package:</p>
+
+<p><em>Authorize</em></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch.oauth2._</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.oauth2._</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
+<span class="k">import</span> <span class="nn">java.util.Date</span>
+
+<span class="k">class</span> <span class="nc">MockDataHandler</span> <span class="k">extends</span> <span class="nc">DataHandler</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="o">{</span>
+
+  <span class="k">def</span> <span class="n">validateClient</span><span class="o">(</span><span class="n">clientId</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">clientSecret</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">grantType</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span> <span class="k">=</span>
+    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="kc">false</span><span class="o">)</span>
+
+  <span class="k">def</span> <span class="n">findUser</span><span class="o">(</span><span class="n">username</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">password</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">Int</span><span class="o">]]</span> <span class="k">=</span>
+    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">None</span><span class="o">)</span>
+
+  <span class="k">def</span> <span class="n">createAccessToken</span><span class="o">(</span><span class="n">authInfo</span><span class="k">:</span> <span class="kt">AuthInfo</span><span class="o">[</span><span class="kt">Int</span><span class="o">])</span> <span class="k">=</span>
+    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">AccessToken</span><span class="o">(</span><span class="s">""</span><span class="o">,</span> <span class="nc">Some</span><span class="o">(</span><span class="s">""</span><span class="o">),</span> <span class="nc">Some</span><span class="o">(</span><span class="s">""</span><span class="o">),</span> <span class="nc">Some</span><span class="o">(</span><span class="mi">0L</span><span class="o">),</span> <span class="k">new</span> <span class="nc">Date</span><span class="o">()))</span>
+
+  <span class="k">def</span> <span class="n">findAuthInfoByCode</span><span class="o">(</span><span class="n">code</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">AuthInfo</span><span class="o">[</span><span class="kt">Int</span><span class="o">]]]</span> <span class="k">=</span>
+    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">None</span><span class="o">)</span>
+
+  <span class="k">def</span> <span class="n">findAuthInfoByRefreshToken</span><span class="o">(</span><span class="n">refreshToken</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">AuthInfo</span><span class="o">[</span><span class="kt">Int</span><span class="o">]]]</span> <span class="k">=</span>
+    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">None</span><span class="o">)</span>
+
+  <span class="k">def</span> <span class="n">findClientUser</span><span class="o">(</span><span class="n">clientId</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">clientSecret</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">scope</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">Int</span><span class="o">]]</span> <span class="k">=</span>
+    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">None</span><span class="o">)</span>
+
+  <span class="k">def</span> <span class="n">findAccessToken</span><span class="o">(</span><span class="n">token</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">AccessToken</span><span class="o">]]</span> <span class="k">=</span>
+    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">None</span><span class="o">)</span>
+
+  <span class="k">def</span> <span class="n">findAuthInfoByAccessToken</span><span class="o">(</span><span class="n">accessToken</span><span class="k">:</span> <span class="kt">AccessToken</span><span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">AuthInfo</span><span class="o">[</span><span class="kt">Int</span><span class="o">]]]</span> <span class="k">=</span>
+    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">None</span><span class="o">)</span>
+  
+  <span class="k">def</span> <span class="n">getStoredAccessToken</span><span class="o">(</span><span class="n">authInfo</span><span class="k">:</span> <span class="kt">AuthInfo</span><span class="o">[</span><span class="kt">Int</span><span class="o">])</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">AccessToken</span><span class="o">]]</span> <span class="k">=</span>
+    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">None</span><span class="o">)</span>
+
+  <span class="k">def</span> <span class="n">refreshAccessToken</span><span class="o">(</span><span class="n">authInfo</span><span class="k">:</span> <span class="kt">AuthInfo</span><span class="o">[</span><span class="kt">Int</span><span class="o">],</span> <span class="n">refreshToken</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">AccessToken</span><span class="o">]</span> <span class="k">=</span>
+    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">AccessToken</span><span class="o">(</span><span class="s">""</span><span class="o">,</span> <span class="nc">Some</span><span class="o">(</span><span class="s">""</span><span class="o">),</span> <span class="nc">Some</span><span class="o">(</span><span class="s">""</span><span class="o">),</span> <span class="nc">Some</span><span class="o">(</span><span class="mi">0L</span><span class="o">),</span> <span class="k">new</span> <span class="nc">Date</span><span class="o">()))</span>
+<span class="o">}</span>
+
+<span class="k">val</span> <span class="n">dataHandler</span><span class="k">:</span> <span class="kt">DataHandler</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">MockDataHandler</span><span class="o">()</span>
+<span class="k">val</span> <span class="n">auth</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">AuthInfo</span><span class="o">[</span><span class="kt">Int</span><span class="o">]]</span> <span class="k">=</span> <span class="n">authorize</span><span class="o">(</span><span class="n">dataHandler</span><span class="o">)</span>
+
+<span class="c1">// Authorize
+</span><span class="k">val</span> <span class="n">e</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"user"</span> <span class="o">::</span> <span class="n">auth</span><span class="o">)</span> <span class="o">{</span> <span class="n">ai</span><span class="k">:</span> <span class="kt">AuthInfo</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">Ok</span><span class="o">(</span><span class="n">ai</span><span class="o">.</span><span class="n">user</span><span class="o">)</span> <span class="o">}</span>
+
+<span class="c1">// Issue Access Token
+</span><span class="k">val</span> <span class="n">token</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">GrantHandlerResult</span><span class="o">]</span> <span class="k">=</span> <span class="n">issueAccessToken</span><span class="o">(</span><span class="n">dataHandler</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>Note that both <code class="highlighter-rouge">token</code> and <code class="highlighter-rouge">authorize</code> may throw <code class="highlighter-rouge">com.twitter.finagle.oauth2.OAuthError</code>, which is
+already <em>handled</em> by a returned endpoint but needs to be serialized. This means you might want to
+include its serialization logic into an instance of <code class="highlighter-rouge">Encode[Exception]</code>.</p>
+
+<h3 id="basic-http-auth">Basic HTTP Auth</h3>
+
+<p><a href="http://en.wikipedia.org/wiki/Basic_access_authentication">Basic HTTP Auth</a> support could be added via the <a href="https://github.com/finagle/finagle-http-auth">finagle-http-auth</a>
+project that provides Finagle filters implementing authentication for clients and servers. In Finch
+this would look like a <code class="highlighter-rouge">BasicAuth.Server</code> filter applied to <code class="highlighter-rouge">Service</code> returned from the <code class="highlighter-rouge">.toService</code>
+call. See finagle-http-auth’s README for more usage details.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="n">circe</span><span class="o">.</span><span class="k">_</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">circe</span><span class="o">.</span><span class="n">generic</span><span class="o">.</span><span class="n">auto</span><span class="o">.</span><span class="k">_</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">BasicAuth</span><span class="o">,</span> <span class="nc">Request</span><span class="o">,</span> <span class="nc">Response</span><span class="o">}</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">BasicAuth</span><span class="o">,</span> <span class="nc">Request</span><span class="o">,</span> <span class="nc">Response</span><span class="o">}</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">com.twitter.finagle.Service</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Service</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">com.twitter.util.</span><span class="o">{</span><span class="nc">Await</span><span class="o">,</span> <span class="nc">Future</span><span class="o">}</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.</span><span class="o">{</span><span class="nc">Await</span><span class="o">,</span> <span class="nc">Future</span><span class="o">}</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">case</span> <span class="k">class</span> <span class="nc">User</span><span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
+<span class="n">defined</span> <span class="k">class</span> <span class="nc">User</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">ba</span> <span class="k">=</span> <span class="nc">BasicAuth</span><span class="o">.</span><span class="n">serverFromCredentials</span><span class="o">(</span><span class="s">"admin"</span><span class="o">,</span> <span class="s">"12345"</span><span class="o">)</span>
+<span class="n">ba</span><span class="k">:</span> <span class="kt">com.twitter.finagle.http.BasicAuth.Server</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">function2</span><span class="o">&gt;</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">getCurrentUser</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"users"</span> <span class="o">::</span> <span class="n">int</span><span class="o">)</span> <span class="o">{</span> <span class="n">id</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=&gt;</span>
+     <span class="o">|</span>   <span class="nc">Ok</span><span class="o">(</span><span class="nc">User</span><span class="o">(</span><span class="n">id</span><span class="o">))</span> <span class="c1">// echo it back
+</span>     <span class="o">|</span> <span class="o">}</span>
+<span class="n">getCurrentUser</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">User</span><span class="o">]</span> <span class="k">=</span> <span class="nc">GET</span> <span class="o">/</span><span class="n">users</span> <span class="o">::</span> <span class="k">:</span><span class="kt">int</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">s</span> <span class="k">=</span> <span class="n">ba</span><span class="o">.</span><span class="n">andThen</span><span class="o">(</span><span class="n">getCurrentUser</span><span class="o">.</span><span class="n">toServiceAs</span><span class="o">[</span><span class="kt">Application.Json</span><span class="o">])</span>
+<span class="n">s</span><span class="k">:</span> <span class="kt">com.twitter.finagle.Service</span><span class="o">[</span><span class="kt">com.twitter.finagle.http.Request</span>,<span class="kt">com.twitter.finagle.http.Response</span><span class="o">]</span> <span class="k">=</span> <span class="o">&lt;</span><span class="n">function1</span><span class="o">&gt;</span>
+</code></pre>
+</div>
+
+</section></div></div></div></div><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script><script src="/highlight/highlight.pack.js"></script><script>hljs.configure({
+languages:['scala','java','bash']
+});
+hljs.initHighlighting();
+             </script><script src="/js/main.js"></script></body></html>

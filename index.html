@@ -1,0 +1,97 @@
+<html><head><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>Finch</title><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Scala combinator library for building Finagle HTTP services" /><meta name="author" content="Vladimir Kostyukov" /><meta name="og:image" content="/img/poster.png" /><meta name="og:title" content="Finch" /><meta name="og:site_name" content="Finch" /><meta name="og:url" content="https://finch.github.io/finagle/finch/" /><meta name="og:type" content="website" /><meta name="og:description" content="Scala combinator library for building Finagle HTTP services" /><meta name="twitter:image" content="/img/poster.png" /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:site" content="" /><link rel="icon" type="image/png" href="/img/favicon.png" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" /><link rel="stylesheet" href="/highlight/styles/atom-one-light.css" /><link rel="stylesheet" href="/css/style.css" /><link rel="stylesheet" href="/css/palette.css" /><link rel="stylesheet" href="/css/override.css" /></head><body><header id="site-header"><div class="navbar-wrapper"><div class="container"><div class="row"><div class="col-xs-6"><a href="/" class="brand"><div class="icon-wrapper"><span>Finch</span></div></a></div><div class="col-xs-6"><nav class="text-right"><ul class=""><li><a href="https://github.com/finagle/finch"><i class="fa fa-github"></i><span class="hidden-xs">GitHub</span></a></li><li><a href="api"><i class="fa fa-file-text"></i><span class="hidden-xs">Documentation</span></a></li></ul></nav></div></div></div></div><div class="jumbotron"><div class="container"><h1 class="text-center">Scala combinator library for building Finagle HTTP services</h1><h2></h2><p class="text-center"><a href="https://github.com/finagle/finch" class="btn btn-outline-inverse">View on GitHub</a></p></div></div><div><ul class="horizontalNav">         <li><a class="" href="/user-guide.html">User Guide</a></li>  <li><a class="" href="/cookbook.html">Cookbook</a></li>  <li><a class="" href="/best-practices.html">Best-Practices</a></li> </ul></div></header><main id="site-main"><section class="use"><div class="container"><div id="content"><p>Finch provides a combinator API over the <a href="http://twitter.github.io/finagle/">Finagle</a> HTTP services. An <code class="highlighter-rouge">Endpoint[A]</code>, main
+abstraction for which combinators are defined, represents an HTTP endpoint that takes a request and
+returns a value of type <code class="highlighter-rouge">A</code>.</p>
+
+<h3 id="look-and-feel">Look and Feel</h3>
+
+<p>The following example creates an HTTP server (powered by Finagle) that serves the only endpoint
+<code class="highlighter-rouge">POST /time</code>. This endpoint takes a <code class="highlighter-rouge">Locale</code> instance represented as JSON in request <em>body</em> and
+returns a current <code class="highlighter-rouge">Time</code> for this locale.</p>
+
+<p>build.sbt:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">libraryDependencies</span> <span class="o">++=</span> <span class="nc">Seq</span><span class="o">(</span>
+  <span class="s">"com.github.finagle"</span> <span class="o">%%</span> <span class="s">"finch-core"</span> <span class="o">%</span> <span class="s">"0.13.1"</span><span class="o">,</span>
+  <span class="s">"com.github.finagle"</span> <span class="o">%%</span> <span class="s">"finch-circe"</span> <span class="o">%</span> <span class="s">"0.13.1"</span><span class="o">,</span>
+  <span class="s">"io.circe"</span> <span class="o">%%</span> <span class="s">"circe-generic"</span> <span class="o">%</span> <span class="s">"0.7.0"</span>
+<span class="o">)</span>
+</code></pre>
+</div>
+
+<p>Main.scala:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Await</span>
+
+<span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+
+<span class="k">object</span> <span class="nc">Main</span> <span class="k">extends</span> <span class="nc">App</span> <span class="o">{</span>
+
+  <span class="k">case</span> <span class="k">class</span> <span class="nc">Locale</span><span class="o">(</span><span class="n">language</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">country</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+  <span class="k">case</span> <span class="k">class</span> <span class="nc">Time</span><span class="o">(</span><span class="n">locale</span><span class="k">:</span> <span class="kt">Locale</span><span class="o">,</span> <span class="n">time</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+
+  <span class="k">def</span> <span class="n">currentTime</span><span class="o">(</span><span class="n">l</span><span class="k">:</span> <span class="kt">java.util.Locale</span><span class="o">)</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span>
+    <span class="n">java</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Calendar</span><span class="o">.</span><span class="n">getInstance</span><span class="o">(</span><span class="n">l</span><span class="o">).</span><span class="n">getTime</span><span class="o">.</span><span class="n">toString</span>
+
+  <span class="k">val</span> <span class="n">time</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Time</span><span class="o">]</span> <span class="k">=</span>
+    <span class="n">post</span><span class="o">(</span><span class="s">"time"</span> <span class="o">::</span> <span class="n">jsonBody</span><span class="o">[</span><span class="kt">Locale</span><span class="o">])</span> <span class="o">{</span> <span class="n">l</span><span class="k">:</span> <span class="kt">Locale</span> <span class="o">=&gt;</span>
+      <span class="nc">Ok</span><span class="o">(</span><span class="nc">Time</span><span class="o">(</span><span class="n">l</span><span class="o">,</span> <span class="n">currentTime</span><span class="o">(</span><span class="k">new</span> <span class="n">java</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Locale</span><span class="o">(</span><span class="n">l</span><span class="o">.</span><span class="n">language</span><span class="o">,</span> <span class="n">l</span><span class="o">.</span><span class="n">country</span><span class="o">))))</span>
+    <span class="o">}</span>
+
+  <span class="nc">Await</span><span class="o">.</span><span class="n">ready</span><span class="o">(</span><span class="nc">Http</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">serve</span><span class="o">(</span><span class="s">":8081"</span><span class="o">,</span> <span class="n">time</span><span class="o">.</span><span class="n">toService</span><span class="o">))</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<h3 id="what-people-say">What People Say?</h3>
+
+<p><a href="https://twitter.com/mandubian">@mandubian</a> on
+<a href="https://twitter.com/mandubian/status/652136674353283072">Twitter</a>:</p>
+
+<blockquote>
+  <p>I think there is clearly room for great improvements using pure FP in Scala for HTTP API &amp; #Finch
+is clearly a good candidate.</p>
+</blockquote>
+
+<p><a href="https://www.reddit.com/user/tperrigo">@tperrigo</a> on
+<a href="https://www.reddit.com/r/scala/comments/3kaael/which_framework_to_use_for_development_of_a_rest/cv13vvg">Reddit</a>:</p>
+
+<blockquote>
+  <p>I’m currently working on a project using Finch (with <a href="https://github.com/travisbrown/circe">Circe</a> to serialize my case classes
+to JSON without any  boilerplate code – in fact, besides the import statements, I don’t have to
+do anything to transform my results to JSON) and am extremely impressed. There are still a few
+things in flux with Finch, but I’d recommend giving it a look.</p>
+</blockquote>
+
+<p><a href="https://github.com/arnarthor">@arnarthor</a> on
+<a href="https://gitter.im/finagle/finch?at=56159d7476d984a35875c13a">Gitter</a>:</p>
+
+<blockquote>
+  <p>I am currently re-writing a NodeJS service in Finch and the code is so much cleaner and readable
+and about two thirds the amount of lines. Really love this.</p>
+</blockquote>
+
+<h3 id="finch-talks">Finch Talks</h3>
+
+<ul>
+  <li><a href="http://kostyukov.net/slides/finch-tokyo">Put Some[Types] on your <strong>HTTP</strong> endpoints</a> by <a href="https://twitter.com/vkostyukov">@vkostyukov</a> in Feb 17</li>
+  <li><a href="https://skillsmatter.com/skillscasts/9335-high-flying-free-and-easy-functional-microservices-with-finch">Functional Microservices with Finch and Circe</a> by <a href="https://twitter.com/davegurnell">@davegurnell</a> in Nov 16</li>
+  <li><a href="https://www.youtube.com/watch?v=xkZOyY9PG88">Typed Services Using Finch</a> by <a href="https://twitter.com/tomjadams">@tomjadams</a> in Apr 2016</li>
+  <li><a href="https://skillsmatter.com/skillscasts/6876-finch-your-rest-api-as-a-monad">Finch: Your REST API as a Monad</a> by <a href="https://twitter.com/vkostyukov">@vkostyukov</a> in Dec 2015</li>
+  <li><a href="https://www.youtube.com/watch?v=bbzRTxGDFhs">On the history of Finch</a> by <a href="https://twitter.com/vkostyukov">@vkostyukov</a> in Apr 2015</li>
+  <li><a href="https://www.youtube.com/watch?v=noCyZ6B__iE">Some possible features for Finch</a> <a href="https://twitter.com/travisbrown">@travisbrown</a> in Apr 2015</li>
+</ul>
+
+</div></div></section><section class="technologies"><div class="container"><div class="row">
+            <div class="col-md-4"><div class="first-icon-wrapper"></div><h3>Scala</h3><p>sbt-microsites plugin is completely written in Scala</p></div>
+          
+            <div class="col-md-4"><div class="second-icon-wrapper"></div><h3>SBT</h3><p>sbt-microsites plugin uses SBT and other sbt plugins to generate microsites easily</p></div>
+          
+            <div class="col-md-4"><div class="third-icon-wrapper"></div><h3>Jekyll</h3><p>Jekyll allows for the transformation of plain text into static websites and blogs.</p></div>
+          </div></div></section></main><footer id="site-footer"><div class="container"><div class="row"><div class="col-xs-6"><p>Finch is designed and developed by <a href="https://finch.github.io/finagle/finch/" target="_blank">Vladimir Kostyukov</a></p></div><div class="col-xs-6"><p class="text-right"><a href="https://github.com/finagle/finch"><span class="fa fa-github"></span>View on Github</a></p></div></div></div></footer><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script><script src="/highlight/highlight.pack.js"></script><script>hljs.configure({
+languages:['scala','java','bash']
+});
+hljs.initHighlighting();
+             </script></body></html>

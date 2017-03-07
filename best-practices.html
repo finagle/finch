@@ -1,0 +1,324 @@
+<html><head><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>Finch</title><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Scala combinator library for building Finagle HTTP services" /><meta name="author" content="Vladimir Kostyukov" /><meta name="og:image" content="/img/poster.png" /><meta name="og:title" content="Finch" /><meta name="og:site_name" content="Finch" /><meta name="og:url" content="https://finch.github.io/finagle/finch/" /><meta name="og:type" content="website" /><meta name="og:description" content="Scala combinator library for building Finagle HTTP services" /><meta name="twitter:image" content="/img/poster.png" /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:site" content="" /><link rel="icon" type="image/png" href="/img/favicon.png" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" /><link rel="stylesheet" href="/highlight/styles/atom-one-light.css" /><link rel="stylesheet" href="/css/style.css" /><link rel="stylesheet" href="/css/palette.css" /><link rel="stylesheet" href="/css/override.css" /></head><body class="docs"><div id="wrapper"><div id="sidebar-wrapper"><ul id="sidebar" class="sidebar-nav"><li class="sidebar-brand"><a href="/" class="brand"><div class="brand-wrapper" style="background:url('/img/sidebar_brand.png') no-repeat"><span>Finch</span></div></a></li> <li><a href="/user-guide.html" class="">User Guide</a></li> <li><a href="/cookbook.html" class="">Cookbook</a></li> <li><a href="/best-practices.html" class="">Best Practices</a></li> <li><a href="/contributing.html" class="">Contributing</a></li></ul></div><div id="page-content-wrapper"><div class="nav"><div class="container-fluid"><div class="row"><div class="col-lg-12"><div class="action-menu pull-left clearfix"><a href="#menu-toggle" id="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></a></div><ul class="pull-right"><li class="hidden-xs"><a href="https://github.com/finagle/finch"><i class="fa fa-eye"></i><span>WATCH<span id="eyes" class="label label-default">--</span></span></a></li><li class="hidden-xs"><a href="https://github.com/finagle/finch"><i class="fa fa-star-o"></i><span>STARS<span id="stars" class="label label-default">--</span></span></a></li><li><a href="#" onclick="shareSiteTwitter('Finch Scala combinator library for building Finagle HTTP services');"><i class="fa fa-twitter"></i></a></li><li><a href="#" onclick="shareSiteFacebook('Finch Scala combinator library for building Finagle HTTP services');"><i class="fa fa-facebook"></i></a></li><li><a href="#" onclick="shareSiteGoogle();"><i class="fa fa-google-plus"></i></a></li></ul></div></div></div></div><div id="content" data-github-owner="finagle" data-github-repo="finch"><div class="content-wrapper"><section><h2 id="best-practices">Best Practices</h2>
+
+<ul>
+  <li><a href="#the-big-picture">The big picture</a></li>
+  <li><a href="#picking-a-json-library">Picking a JSON library</a></li>
+  <li><a href="#do-not-block-an-endpoint">Do not block an endpoint</a></li>
+  <li><a href="#use-twitterserver">Use TwitterServer</a></li>
+  <li><a href="#monitor-your-application">Monitor your application</a></li>
+  <li><a href="#picking-http-statuses-for-responses">Picking HTTP statuses for responses</a></li>
+  <li><a href="#configuring-finagle">Configuring Finagle</a></li>
+  <li><a href="#finagle-filters-vs-finch-endpoints">Finagle Filters vs. Finch Endpoints</a></li>
+  <li><a href="#pulling-it-all-together">Pulling it all Together</a></li>
+</ul>
+
+<h3 id="the-big-picture">The big picture</h3>
+
+<p>There were a lot of discussions and thoughts on “What does an idiomatic Finch program look like?”
+(see the <a href="https://github.com/finagle/finch/issues/263">Best Practices and Abstractions</a> issue and the <a href="https://gist.github.com/vkostyukov/411a9184f44a136e2ad9">Future Finch</a>
+writeup), but we’re not sure we should end up sticking with a “one-size-fits-all” style in Finch.
+In fact, zero lines of Finch’s code were written with some particular style in mind, rather
+reasonable composition and reuse of its building blocks. That said, Finch will always be a
+<em>library</em> that doesn’t promote any concrete style for organizing a code base (frameworks usually
+do that), but does promote composability and compile-time guarantees for its abstractions.</p>
+
+<p>Given that major Finch’s abstractions are pretty generic, you can make them
+<a href="http://gameofthrones.wikia.com/wiki/Faceless_Men">have any faces you like</a> as long as it makes programming fun again: some of the Finch
+users write <a href="https://github.com/jeremyrsmith/dair">Jersey-style</a> programs; some of them stick with <a href="https://github.com/finagle/finch/issues/263">CRUD-style</a> ones;
+others use macros to group endpoints in <a href="https://github.com/akozhemiakin/finchrich">controllers-like</a> structures.</p>
+
+<p>Note that all of the Finch examples are written in the “Vanilla Finch” style, where no additional
+levels of indirections are layered on top of endpoints.</p>
+
+<h3 id="picking-a-json-library">Picking a JSON library</h3>
+
+<p>It’s highly recommended to use <a href="https://github.com/circe/circe">Circe</a>, whose purely functional nature aligns very well with
+Finch (see <a href="cookbook#circe">Cookbook docs</a> on how to enable Circe support in Finch). In addition to
+<a href="https://meta.plasm.us/posts/2015/11/08/type-classes-and-generic-derivation/">compile-time derived decoders</a> and encoders, Circe has
+<a href="https://circe.github.io/circe/performance.html">great performance</a> and very useful features such as case class patchers and
+incomplete decoders.</p>
+
+<p>Case class patchers are extremely useful for <code class="highlighter-rouge">PATCH</code> and <code class="highlighter-rouge">PUT</code> HTTP endpoints, when it’s required to
+<em>update</em> the case class instance with new data parsed from a JSON object. In Finch, Circe’s case
+class patchers are usually represented as <code class="highlighter-rouge">Endpoint[A =&gt; A]</code>, which</p>
+
+<ol>
+  <li>parses an HTTP request for a partial JSON object that contains the fields which need to be
+updated and</li>
+  <li>represents that partial JSON object as a function <code class="highlighter-rouge">A =&gt; A</code> that takes a case class and updates
+it with all the values from a JSON object</li>
+</ol>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">java.util.UUID</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+
+
+<span class="k">case</span> <span class="k">class</span> <span class="nc">Todo</span><span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">UUID</span><span class="o">,</span> <span class="n">title</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">completed</span><span class="k">:</span> <span class="kt">Boolean</span><span class="o">,</span> <span class="n">order</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
+<span class="k">object</span> <span class="nc">Todo</span> <span class="o">{</span>
+  <span class="k">def</span> <span class="n">list</span><span class="o">()</span><span class="k">:</span><span class="kt">List</span><span class="o">[</span><span class="kt">Todo</span><span class="o">]</span> <span class="k">=</span> <span class="o">???</span>
+<span class="o">}</span>
+<span class="k">val</span> <span class="n">patchedTodo</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Todo</span> <span class="k">=&gt;</span> <span class="kt">Todo</span><span class="o">]</span> <span class="k">=</span> <span class="n">jsonBody</span><span class="o">[</span><span class="kt">Todo</span> <span class="k">=&gt;</span> <span class="kt">Todo</span><span class="o">]</span>
+<span class="k">val</span> <span class="n">patchTodo</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Todo</span><span class="o">]</span> <span class="k">=</span> <span class="n">patch</span><span class="o">(</span><span class="s">"todos"</span> <span class="o">::</span> <span class="n">uuid</span> <span class="o">::</span> <span class="n">patchedTodo</span><span class="o">)</span> <span class="o">{</span> <span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">UUID</span><span class="o">,</span> <span class="n">pt</span><span class="k">:</span> <span class="kt">Todo</span> <span class="o">=&gt;</span> <span class="nc">Todo</span><span class="o">)</span> <span class="k">=&gt;</span>
+  <span class="k">val</span> <span class="n">oldTodo</span> <span class="k">=</span> <span class="o">???</span> <span class="c1">// get by id
+</span>  <span class="k">val</span> <span class="n">newTodo</span> <span class="k">=</span> <span class="n">pt</span><span class="o">(</span><span class="n">oldTodo</span><span class="o">)</span>
+  <span class="c1">// store newTodo in the DB
+</span>  <span class="nc">Ok</span><span class="o">(</span><span class="n">newTodo</span><span class="o">)</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p><a href="https://meta.plasm.us/posts/2015/06/21/deriving-incomplete-type-class-instances/">Incomplete decoders</a> are generated by Circe and Finch to decode JSON objects
+with some fields missing. This is very useful for <code class="highlighter-rouge">POST</code> HTTP endpoints that create new entries from
+JSON supplied by user and some internally generated ID. A Circe’s incomplete decoder is represented
+in Finch as a <code class="highlighter-rouge">Endpoint[(A, B, ..., Z) =&gt; Out]</code>, where <code class="highlighter-rouge">A, B, ..., Z</code> is a set of missing
+fields from the <code class="highlighter-rouge">Out</code> type. This type signature basically means that an endpoint, instead of a
+final type (a complete JSON object), gives us a function, to which we’d need to supply some missing
+bits to get the final instance.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+
+<span class="k">val</span> <span class="n">postedTodo</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Todo</span><span class="o">]</span> <span class="k">=</span> <span class="n">jsonBody</span><span class="o">[</span><span class="kt">UUID</span> <span class="k">=&gt;</span> <span class="kt">Todo</span><span class="o">].</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">(</span><span class="nc">UUID</span><span class="o">.</span><span class="n">randomUUID</span><span class="o">()))</span>
+<span class="k">val</span> <span class="n">postTodo</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Todo</span><span class="o">]</span> <span class="k">=</span> <span class="n">post</span><span class="o">(</span><span class="s">"todos"</span> <span class="o">::</span> <span class="n">postedTodo</span><span class="o">)</span> <span class="o">{</span> <span class="n">t</span><span class="k">:</span> <span class="kt">Todo</span> <span class="o">=&gt;</span>
+  <span class="c1">// store t in the DB
+</span>  <span class="nc">Ok</span><span class="o">(</span><span class="n">t</span><span class="o">)</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>By default, Finch uses Circe’s <code class="highlighter-rouge">Printer</code> to serialize JSON values into strings, which is quite
+convenient given that it’s possible to <em>configure</em> and enable some extra options (eg., to drop null
+keys in the output string, replace the <code class="highlighter-rouge">io.finch.circe._</code> import with <code class="highlighter-rouge">io.finch.circe.dropNullKeys._</code>
+), but it’s not the most efficient printer in Circe. Always use
+<a href="https://github.com/circe/circe-jackson">the Jackson-powered printer with Circe</a> (i.e., replace the <code class="highlighter-rouge">io.finch.circe._</code> import
+with <code class="highlighter-rouge">io.finch.circe.jacksonSerializer</code>) unless you are really unhappy with its output format
+(i.e., want to drop null keys).</p>
+
+<h3 id="do-not-block-an-endpoint">Do not block an endpoint</h3>
+
+<p>Finagle is very sensitive to whether or not its worker threads are blocked. In order to make sure
+your HTTP server always makes progress (accepts new connections/requests), do not block Finch
+endpoints. Use <code class="highlighter-rouge">FuturePool</code>s to wrap expensive computations.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.FuturePool</span>
+
+<span class="k">val</span> <span class="n">expensive</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">BigInt</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="n">int</span><span class="o">)</span> <span class="o">{</span> <span class="n">i</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=&gt;</span>
+  <span class="nc">FuturePool</span><span class="o">.</span><span class="n">unboundedPool</span> <span class="o">{</span>
+    <span class="nc">Ok</span><span class="o">(</span><span class="nc">BigInt</span><span class="o">(</span><span class="n">i</span><span class="o">).</span><span class="n">pow</span><span class="o">(</span><span class="n">i</span><span class="o">))</span>
+  <span class="o">}</span>
+<span class="o">}.</span><span class="n">handle</span> <span class="o">{</span>
+  <span class="k">case</span> <span class="n">e</span><span class="k">:</span> <span class="kt">Error.NotPresent</span> <span class="o">=&gt;</span> <span class="nc">BadRequest</span><span class="o">(</span><span class="n">e</span><span class="o">)</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>Refer to this <a href="http://finagle.github.io/blog/2016/09/01/block-party/">blog post</a> to find out how much time a Finagle service spend blocking.</p>
+
+<h3 id="use-twitterserver">Use TwitterServer</h3>
+
+<p>Always serve Finch endpoints within <a href="https://twitter.github.io/twitter-server/">TwitterServer</a>, a lightweight server template
+used in production at Twitter. TwitterServer wraps a Finagle application with a bunch of useful
+features such as command line flags, logging and more importantly an HTTP admin interface that can
+tell a lot on what’s happening with your server. One of the most powerful features of the admin
+interface is <a href="https://twitter.github.io/twitter-server/Features.html#metrics">Metrics</a>, which captures a snapshot of all the system-wide stats (free
+memory, CPU usage, request success rate, request latency and many more) exported in a JSON format.</p>
+
+<p>Use the following template to empower your Finch application with TwitterServer.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="k">import</span> <span class="nn">com.twitter.finagle.param.Stats</span>
+<span class="k">import</span> <span class="nn">com.twitter.server.TwitterServer</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.</span><span class="o">{</span><span class="nc">Http</span><span class="o">,</span> <span class="nc">Service</span><span class="o">}</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Response</span><span class="o">}</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Await</span>
+
+<span class="k">object</span> <span class="nc">Main</span> <span class="k">extends</span> <span class="nc">TwitterServer</span> <span class="o">{</span>
+
+  <span class="k">val</span> <span class="n">api</span><span class="k">:</span> <span class="kt">Service</span><span class="o">[</span><span class="kt">Request</span>, <span class="kt">Response</span><span class="o">]</span> <span class="k">=</span> <span class="o">???</span>
+
+  <span class="k">def</span> <span class="n">main</span><span class="o">()</span><span class="k">:</span> <span class="kt">Unit</span> <span class="o">=</span> <span class="o">{</span>
+    <span class="k">val</span> <span class="n">server</span> <span class="k">=</span> <span class="nc">Http</span><span class="o">.</span><span class="n">server</span>
+      <span class="o">.</span><span class="n">configured</span><span class="o">(</span><span class="nc">Stats</span><span class="o">(</span><span class="n">statsReceiver</span><span class="o">))</span>
+      <span class="o">.</span><span class="n">serve</span><span class="o">(</span><span class="s">":8081"</span><span class="o">,</span> <span class="n">api</span><span class="o">)</span>
+
+    <span class="n">onExit</span> <span class="o">{</span> <span class="n">server</span><span class="o">.</span><span class="n">close</span><span class="o">()</span> <span class="o">}</span>
+
+    <span class="nc">Await</span><span class="o">.</span><span class="n">ready</span><span class="o">(</span><span class="n">adminHttpServer</span><span class="o">)</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<h3 id="monitor-your-application">Monitor your application</h3>
+
+<p>Use <a href="https://twitter.github.io/twitter-server/Features.html#metrics">Metrics</a> to export domain-specific metrics from your application and export them
+automatically with <a href="https://twitter.github.io/twitter-server/">TwitterServer</a>. Metrics are extremely valuable and helps you
+better understand your application under different circumstances.</p>
+
+<p>One of the easiest things to export is a <em>counter</em> that captures the number of times some event
+occurred.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+
+<span class="k">import</span> <span class="nn">com.twitter.server.TwitterServer</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.stats.Counter</span>
+
+<span class="k">object</span> <span class="nc">Main</span> <span class="k">extends</span> <span class="nc">TwitterServer</span> <span class="o">{</span>
+  <span class="k">val</span> <span class="n">todos</span><span class="k">:</span> <span class="kt">Counter</span> <span class="o">=</span> <span class="n">statsReceiver</span><span class="o">.</span><span class="n">counter</span><span class="o">(</span><span class="s">"todos"</span><span class="o">)</span>
+  <span class="k">val</span> <span class="n">postTodo</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Todo</span><span class="o">]</span> <span class="k">=</span> <span class="n">post</span><span class="o">(</span><span class="s">"todos"</span> <span class="o">::</span> <span class="n">postedTodo</span><span class="o">)</span> <span class="o">{</span> <span class="n">t</span><span class="k">:</span> <span class="kt">Todo</span> <span class="o">=&gt;</span>
+    <span class="n">todos</span><span class="o">.</span><span class="n">incr</span><span class="o">()</span>
+    <span class="c1">// add todo into the DB
+</span>    <span class="nc">Ok</span><span class="o">(</span><span class="n">t</span><span class="o">)</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>It’s also possible to export histograms over random values (latencies, number of active users,
+etc).</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+
+<span class="k">import</span> <span class="nn">com.twitter.server.TwitterServer</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.stats.Stat</span>
+
+<span class="k">object</span> <span class="nc">Main</span> <span class="k">extends</span> <span class="nc">TwitterServer</span> <span class="o">{</span>
+  <span class="k">val</span> <span class="n">getTodosLatency</span><span class="k">:</span> <span class="kt">Stat</span> <span class="o">=</span> <span class="n">statsReceiver</span><span class="o">.</span><span class="n">stat</span><span class="o">(</span><span class="s">"get_todos_latency"</span><span class="o">)</span>
+  <span class="k">val</span> <span class="n">getTodos</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">List</span><span class="o">[</span><span class="kt">Todo</span><span class="o">]]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"todos"</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">Stat</span><span class="o">.</span><span class="n">time</span><span class="o">(</span><span class="n">getTodosLatency</span><span class="o">)</span> <span class="o">{</span> <span class="nc">Ok</span><span class="o">(</span><span class="nc">Todo</span><span class="o">.</span><span class="n">list</span><span class="o">())</span> <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>Both Finagle and user-defined stats are available via the TwitterServer’s HTTP admin interface or
+through the <code class="highlighter-rouge">/admin/metrics.json</code> HTTP endpoint.</p>
+
+<h3 id="picking-http-statuses-for-responses">Picking HTTP statuses for responses</h3>
+
+<p>There is no one-size-fits-all answer on what HTTP status code to use for a particular response, but
+there are <a href="http://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-api">best practices</a> established by the community as well as
+<a href="https://gist.github.com/vkostyukov/32c84c0c01789425c29a">world-famous APIs</a>. Finch is trying to take a neutral stand on this question by providing
+an <code class="highlighter-rouge">Output</code> API abstracted over the HTTP statuses so any of them might be used to construct a
+payload, a failure or an empty output. On the other hand, there is an <em>optional</em> and lightweight API
+(i.e., methods <code class="highlighter-rouge">Ok</code>, <code class="highlighter-rouge">BadRequest</code>, <code class="highlighter-rouge">NoContent</code>, etc) providing a reasonable mapping between response
+type (payload, failure, empty) and their status code. This API (mapping) shouldn’t be blindly
+followed since there are always exceptions (specific applications, opinionated design principles)
+from the general rule. Simply speaking, you’re more than welcome to use the mapping we believe
+makes sense, but you don’t have to stick with that and can always drop down to the <code class="highlighter-rouge">Output.*</code> API.</p>
+
+<p>The current Finch’s mapping is following.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Output type</th>
+      <th>Status codes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Payload</td>
+      <td>200, 201</td>
+    </tr>
+    <tr>
+      <td>Empty</td>
+      <td>202, 204</td>
+    </tr>
+    <tr>
+      <td>Failure</td>
+      <td>4xx, 5xx</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="configuring-finagle">Configuring Finagle</h3>
+
+<p>Finch uses Finagle to serve its endpoints (converted into Finagle <code class="highlighter-rouge">Service</code>s) so it’s important to
+know what Finagle can do for you in order to improve the resiliency of your application. While
+<a href="http://twitter.github.io/finagle/guide/Servers.html">Finagle servers</a> are quite simple compared to Finagle clients, there are still
+useful server-side features that might be useful for most of the use cases.</p>
+
+<p>All Finagle servers are configured via a collection of <a href="http://twitter.github.io/finagle/guide/Configuration.html"><code class="highlighter-rouge">with</code>-prefixed methods</a>
+ available on their instances (i.e., <code class="highlighter-rouge">Http.server.with*</code>). For example, it’s always a good idea to
+ put bounds on the most critical parts of your application. In case of Finagle HTTP server, you
+ might think of overriding a <a href="http://twitter.github.io/finagle/guide/Servers.html#concurrency-limit">concurrency limit</a> (a maximum number of
+ concurrent requests allowed) on it (disabled by default).</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code> <span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+ <span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Response</span><span class="o">}</span>
+ 
+ <span class="k">object</span> <span class="nc">Main</span> <span class="k">extends</span> <span class="nc">TwitterServer</span> <span class="o">{</span>
+   
+   <span class="k">val</span> <span class="n">ping</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"ping"</span><span class="o">)</span> <span class="o">{</span> <span class="nc">Ok</span><span class="o">(</span><span class="s">"Pong"</span><span class="o">)</span> <span class="o">}</span>
+   <span class="k">val</span> <span class="n">service</span><span class="k">:</span> <span class="kt">Service</span><span class="o">[</span><span class="kt">Request</span>, <span class="kt">Response</span><span class="o">]</span> <span class="k">=</span> <span class="n">ping</span><span class="o">.</span><span class="n">toServiceAs</span><span class="o">[</span><span class="kt">Text.Plain</span><span class="o">]</span>
+
+   <span class="k">def</span> <span class="n">main</span><span class="o">()</span><span class="k">:</span> <span class="kt">Unit</span> <span class="o">=</span> <span class="o">{</span>
+    <span class="k">val</span> <span class="n">server</span> <span class="k">=</span> <span class="nc">Http</span><span class="o">.</span><span class="n">server</span>
+      <span class="o">.</span><span class="n">withAdmissionControl</span>
+      <span class="o">.</span><span class="n">concurrencyLimit</span><span class="o">(</span>
+        <span class="n">maxConcurrentRequests</span> <span class="k">=</span> <span class="mi">10</span><span class="o">,</span> 
+        <span class="n">maxWaiters</span> <span class="k">=</span> <span class="mi">10</span><span class="o">)</span>
+      <span class="o">.</span><span class="n">serve</span><span class="o">(</span><span class="s">":8080"</span><span class="o">,</span> <span class="n">service</span><span class="o">)</span>
+ 
+     <span class="n">onExit</span> <span class="o">{</span> <span class="n">server</span><span class="o">.</span><span class="n">close</span><span class="o">()</span> <span class="o">}</span>
+ 
+     <span class="nc">Await</span><span class="o">.</span><span class="n">ready</span><span class="o">(</span><span class="n">adminHttpServer</span><span class="o">)</span>
+   <span class="o">}</span>
+ <span class="o">}</span>
+</code></pre>
+</div>
+
+<h3 id="finagle-filters-vs-finch-endpoints">Finagle Filters vs. Finch Endpoints</h3>
+
+<p>Finch endpoints are designed to be able to substitute (when it’s reasonable) for both Finagle
+services and filters. While it’s clear that an <code class="highlighter-rouge">Endpoint</code> in Finch is a core abstraction and can
+be thought of as analogous to a Finagle <code class="highlighter-rouge">Service</code>, it’s not always clear when you should use an
+endpoint over a Finagle <code class="highlighter-rouge">Filter</code> for things such as authentication.</p>
+
+<p>Due to the <code class="highlighter-rouge">Output</code> ADT, a Finch endpoint can easily simulate a Finagle filter and <em>reject</em> an
+authentication request with an <code class="highlighter-rouge">Output.failure</code>. Although, this doesn’t completely mean endpoints
+should be preferred to filters in all cases.</p>
+
+<p>The following rule of thumb might be used to determine what building block (filter or endpoint) to
+pick for a given use case.</p>
+
+<p>Use <code class="highlighter-rouge">Filter</code> instead of <code class="highlighter-rouge">Endpoint[HNil]</code> (only <code class="highlighter-rouge">Endpoint[HNil]</code> might be replaced with a filter)
+when:</p>
+
+<ul>
+  <li>You want to implement logic that might be shared across all the endpoints in the program
+(e.g., authorization, CORS).</li>
+  <li>It’s only used for side-effects (e.g., logging, metrics).</li>
+</ul>
+
+<p>Please note that “error handling” is a special case in Finch. While it seems like a shared logic
+that might be placed into a filter, it’s preferred to use <code class="highlighter-rouge">Endpoint.handle</code> that allows to convert
+exceptions into <code class="highlighter-rouge">Output.failure</code>s in the fine grained way.</p>
+
+<h3 id="pulling-it-all-together">Pulling it all Together</h3>
+
+<p>The best practices described here provide a good starting point for building a Finch-based app,
+but there are other, more fully-featured requirements when building out services using Finch.
+There are several community efforts to build a simple service template for getting a
+fully-fledged service up &amp; running quickly.</p>
+
+<ul>
+  <li><a href="https://github.com/tomjadams/finch-template">Finch HTTP Service Template</a></li>
+  <li><a href="https://github.com/BenWhitehead/finch-server">finch-server</a></li>
+</ul>
+
+</section></div></div></div></div><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script><script src="/highlight/highlight.pack.js"></script><script>hljs.configure({
+languages:['scala','java','bash']
+});
+hljs.initHighlighting();
+             </script><script src="/js/main.js"></script></body></html>

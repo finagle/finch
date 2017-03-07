@@ -1,0 +1,1007 @@
+<html><head><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>Finch</title><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Scala combinator library for building Finagle HTTP services" /><meta name="author" content="Vladimir Kostyukov" /><meta name="og:image" content="/img/poster.png" /><meta name="og:title" content="Finch" /><meta name="og:site_name" content="Finch" /><meta name="og:url" content="https://finch.github.io/finagle/finch/" /><meta name="og:type" content="website" /><meta name="og:description" content="Scala combinator library for building Finagle HTTP services" /><meta name="twitter:image" content="/img/poster.png" /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:site" content="" /><link rel="icon" type="image/png" href="/img/favicon.png" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" /><link rel="stylesheet" href="/highlight/styles/atom-one-light.css" /><link rel="stylesheet" href="/css/style.css" /><link rel="stylesheet" href="/css/palette.css" /><link rel="stylesheet" href="/css/override.css" /></head><body class="docs"><div id="wrapper"><div id="sidebar-wrapper"><ul id="sidebar" class="sidebar-nav"><li class="sidebar-brand"><a href="/" class="brand"><div class="brand-wrapper" style="background:url('/img/sidebar_brand.png') no-repeat"><span>Finch</span></div></a></li> <li><a href="/user-guide.html" class=" active ">User Guide</a></li> <li><a href="/cookbook.html" class="">Cookbook</a></li> <li><a href="/best-practices.html" class="">Best Practices</a></li> <li><a href="/contributing.html" class="">Contributing</a></li></ul></div><div id="page-content-wrapper"><div class="nav"><div class="container-fluid"><div class="row"><div class="col-lg-12"><div class="action-menu pull-left clearfix"><a href="#menu-toggle" id="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></a></div><ul class="pull-right"><li class="hidden-xs"><a href="https://github.com/finagle/finch"><i class="fa fa-eye"></i><span>WATCH<span id="eyes" class="label label-default">--</span></span></a></li><li class="hidden-xs"><a href="https://github.com/finagle/finch"><i class="fa fa-star-o"></i><span>STARS<span id="stars" class="label label-default">--</span></span></a></li><li><a href="#" onclick="shareSiteTwitter('Finch Scala combinator library for building Finagle HTTP services');"><i class="fa fa-twitter"></i></a></li><li><a href="#" onclick="shareSiteFacebook('Finch Scala combinator library for building Finagle HTTP services');"><i class="fa fa-facebook"></i></a></li><li><a href="#" onclick="shareSiteGoogle();"><i class="fa fa-google-plus"></i></a></li></ul></div></div></div></div><div id="content" data-github-owner="finagle" data-github-repo="finch"><div class="content-wrapper"><section><h2 id="user-guide">User Guide</h2>
+<ul>
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#understanding-endpoints">Understanding Endpoints</a></li>
+  <li><a href="#endpoint-instances">Endpoint Instances</a></li>
+  <li><a href="#composing-endpoints">Composing Endpoints</a>
+    <ul>
+      <li><a href="#product-endpoints">Product Endpoints</a></li>
+      <li><a href="#coproduct-endpoints">Coproduct Endpoints</a></li>
+    </ul>
+  </li>
+  <li><a href="#mapping-endpoints">Mapping Endpoints</a></li>
+  <li><a href="#outputs">Outputs</a></li>
+  <li><a href="#type-level-content-type">Type-level Content-Type</a></li>
+  <li><a href="#decoding">Decoding</a>
+    <ul>
+      <li><a href="#type-conversion">Type Conversion</a></li>
+      <li><a href="#custom-decoders">Custom Decoders</a></li>
+      <li><a href="#decoding-from-json">Decoding from JSON</a></li>
+    </ul>
+  </li>
+  <li><a href="#encoding">Encoding</a>
+    <ul>
+      <li><a href="#encoding-to-json">Encoding to JSON</a></li>
+    </ul>
+  </li>
+  <li><a href="#json">JSON</a>
+    <ul>
+      <li><a href="#circe">Circe</a></li>
+      <li><a href="#argonaut">Argonaut</a></li>
+      <li><a href="#jackson">Jackson</a></li>
+      <li><a href="#json4s">Json4s</a></li>
+      <li><a href="#playjson">PlayJson</a></li>
+    </ul>
+  </li>
+  <li><a href="#validation">Validation</a></li>
+  <li><a href="#errors">Errors</a>
+    <ul>
+      <li><a href="#error-accumulation">Error Accumulation</a></li>
+      <li><a href="#error-handling">Error Handling</a></li>
+    </ul>
+  </li>
+  <li><a href="#testing">Testing</a></li>
+</ul>
+
+<h3 id="overview">Overview</h3>
+
+<p>An <code class="highlighter-rouge">Endpoint[A]</code> represents an HTTP endpoint that takes an HTTP request and returns a value of
+type <code class="highlighter-rouge">A</code>. From the perspective of the category theory, this is an <em>applicative</em> that embeds <em>state</em>,
+which means two endpoints <code class="highlighter-rouge">Endpoint[A]</code> and <code class="highlighter-rouge">Endpoint[B]</code> might be composed/merged into an
+<code class="highlighter-rouge">Endpoint[C]</code> when it’s known how to compose/merge <code class="highlighter-rouge">(A, B)</code> into <code class="highlighter-rouge">C</code>.</p>
+
+<p>Endpoints are composed in two ways: in terms of <em>and then</em> and in terms of <em>or else</em> combinators.</p>
+
+<p>At the end of the day, an <code class="highlighter-rouge">Endpoint[A]</code> might be converted into a Finagle HTTP service so it might
+be served within the Finagle ecosystem.</p>
+
+<h3 id="understanding-endpoints">Understanding Endpoints</h3>
+
+<p>Internally, an <code class="highlighter-rouge">Endpoint[A]</code> is represented as a function <code class="highlighter-rouge">Input =&gt; EndpointResult[A]</code>, where</p>
+
+<ul>
+  <li><code class="highlighter-rouge">Input</code> is a data type wrapping Finagle HTTP request with some Finch-specific context</li>
+  <li><code class="highlighter-rouge">EndpointResult[A]</code> is an ADT with two cases indicating if an endpoint was matched on a given
+ input or not</li>
+</ul>
+
+<p>Technically, <code class="highlighter-rouge">EndpointResult[A]</code> acts similarly to <code class="highlighter-rouge">Option[(Input, Output[A])]</code> implying that if
+and endpoint is matched, both (Scala’s <code class="highlighter-rouge">Tuple2</code>) the input remainder and the output are returned.</p>
+
+<p>At this point, it’s important to understand the endpoint lifecycle:</p>
+
+<ul>
+  <li>Each incoming request is wrapped with <code class="highlighter-rouge">Input</code> and is passed to an endpoint
+(i.e., <code class="highlighter-rouge">Endpoint.apply(input)</code> - endpoint runs on a given input)</li>
+  <li>A returned <code class="highlighter-rouge">EndpointResult</code> is (pattern-)matched against two cases:
+    <ul>
+      <li>When <code class="highlighter-rouge">Skipped</code> HTTP 404 is served back to the client</li>
+      <li>When <code class="highlighter-rouge">Matched</code> its output is <em>evaluated</em> and the produced value or effect is served back to the
+client</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Everything from above is happening automatically when endpoint is served as a Finagle service so as
+a user you should neither deal with <code class="highlighter-rouge">Input</code> nor <code class="highlighter-rouge">EndpointResult</code> directly. Although, these types come
+in handy when it testing endpoints: it’s quite easy to run an endpoint with an arbitrary <code class="highlighter-rouge">Input</code> and
+then query its <code class="highlighter-rouge">EndpointResult</code> to assert the output. This testing business is covered in depth in
+the <a href="#testing">Testing</a> section. Although, some of the testing bits will be used later
+in this user guide.</p>
+
+<h3 id="endpoint-instances">Endpoint Instances</h3>
+
+<p>Finch comes with a number of built-in, simple endpoints representing well-defined operations that
+you might want to perform on a given HTTP request.</p>
+
+<h4 id="empty">Empty</h4>
+
+<p><code class="highlighter-rouge">Endpoint.empty[A]</code> is the one that never matches.</p>
+
+<h4 id="identity">Identity</h4>
+
+<p>An <em>identity</em> endpoint <code class="highlighter-rouge">/</code> always matches but doesn’t modify the state of the given input.</p>
+
+<h4 id="constant">Constant</h4>
+
+<p>It might come in handy to <em>lift</em> an arbitrary function or a value into an <code class="highlighter-rouge">Endpoint</code> context. Use
+<code class="highlighter-rouge">Endpoint.const</code> to wrap an arbitrary value (evaluated eagerly) or any of the <code class="highlighter-rouge">Endpoint.liftX</code>
+variants to lift a given call-by-name value (essentially, a function call) within an <code class="highlighter-rouge">Endpoint</code>.</p>
+
+<p>In the following example, the random value is only generated once (when endpoint is constructed) in
+the <code class="highlighter-rouge">p</code> endpoint, and generated on each request in the <code class="highlighter-rouge">q</code> endpoint.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">p</span> <span class="k">=</span> <span class="nc">Endpoint</span><span class="o">.</span><span class="n">const</span><span class="o">(</span><span class="n">scala</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">random</span><span class="o">)</span>
+<span class="n">p</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">Endpoint$$anon$10</span><span class="k">@</span><span class="mf">639f</span><span class="n">c686</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">q</span> <span class="k">=</span> <span class="nc">Endpoint</span><span class="o">.</span><span class="n">lift</span><span class="o">(</span><span class="n">scala</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">random</span><span class="o">)</span>
+<span class="n">q</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">Endpoint$$anon$11</span><span class="k">@</span><span class="mi">79</span><span class="n">b8da4b</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">p</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">))</span>
+<span class="n">res0</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"GET /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="n">internal</span><span class="o">.</span><span class="nc">Rs$$anon$1</span><span class="k">@</span><span class="mi">25712</span><span class="n">a5b</span><span class="o">)</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">p</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">))</span>
+<span class="n">res1</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"GET /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="n">internal</span><span class="o">.</span><span class="nc">Rs$$anon$1</span><span class="k">@</span><span class="mi">4</span><span class="n">e291c03</span><span class="o">)</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">q</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">))</span>
+<span class="n">res2</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"GET /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$9</span><span class="k">@</span><span class="mi">428</span><span class="n">b4943</span><span class="o">)</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">q</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">))</span>
+<span class="n">res3</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"GET /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$9</span><span class="k">@</span><span class="mf">295d</span><span class="mi">927</span><span class="n">b</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<h4 id="root-request">Root (Request)</h4>
+
+<p>It’s possible that Finch might be missing some of handy endpoints out of the box, especially that
+it’s evolved separately from Finagle. To overcome this and provide an extension point, there is a
+special endpoint instance, called <code class="highlighter-rouge">root</code> that returns a raw Finagle <code class="highlighter-rouge">Request</code>.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch.Endpoint._</span>
+<span class="k">import</span> <span class="nn">io.finch.Endpoint._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">java.net.InetAddress</span>
+<span class="k">import</span> <span class="nn">java.net.InetAddress</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">remoteAddr</span><span class="k">:</span><span class="kt">Endpoint</span><span class="o">[</span><span class="kt">InetAddress</span><span class="o">]</span> <span class="k">=</span> <span class="n">root</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">remoteAddress</span><span class="o">)</span>
+<span class="n">remoteAddr</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">java.net.InetAddress</span><span class="o">]</span> <span class="k">=</span> <span class="n">request</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">result</span><span class="k">:</span> <span class="kt">Result</span><span class="o">[</span><span class="kt">InetAddress</span><span class="o">]</span> <span class="k">=</span> <span class="n">remoteAddr</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">))</span>
+<span class="n">result</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">java.net.InetAddress</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"GET /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$5</span><span class="k">@</span><span class="mi">87528</span><span class="n">b1</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<h4 id="match-all">Match All</h4>
+
+<p>A <code class="highlighter-rouge">*</code> endpoint always matches the entire path (all the segments).</p>
+
+<h4 id="match-path">Match Path</h4>
+
+<p>There is an implicit conversion from <code class="highlighter-rouge">String</code>, <code class="highlighter-rouge">Boolean</code> and <code class="highlighter-rouge">Int</code> to a matching endpoint that
+matches the current path segment of a given request against a converted value.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">e</span><span class="k">:</span> <span class="kt">Endpoint0</span> <span class="o">=</span> <span class="s">"foo"</span>
+<span class="n">e</span><span class="k">:</span> <span class="kt">io.finch.Endpoint0</span> <span class="o">=</span> <span class="n">foo</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">e</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/foo"</span><span class="o">)).</span><span class="n">isMatched</span>
+<span class="n">res4</span><span class="k">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="kc">true</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">e</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/bar"</span><span class="o">)).</span><span class="n">isMatched</span>
+<span class="n">res5</span><span class="k">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="kc">false</span>
+</code></pre>
+</div>
+
+<h4 id="extract-path">Extract Path</h4>
+
+<p>There are built-in matching endpoints that also extract a matched path segment as a value of a
+requested type:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">string: Endpoint[String]</code></li>
+  <li><code class="highlighter-rouge">long: Endpoint[Long]</code></li>
+  <li><code class="highlighter-rouge">int: Endpoint[Int]</code></li>
+  <li><code class="highlighter-rouge">boolean: Endpoint[Boolean]</code></li>
+  <li><code class="highlighter-rouge">uuid: Endpoint[java.lang.UUID]</code></li>
+</ul>
+
+<p>Each extracting endpoint has a corresponding <em>tail extracting</em> endpoints.</p>
+
+<p>There are also tail extracting endpoints available out of the box. For example, the <code class="highlighter-rouge">strings</code>
+endpoint has type <code class="highlighter-rouge">Endpoint[Seq[String]]</code> and extracts the rest of the path in the input.</p>
+
+<p>By default, extractors are named after their types, i.e., <code class="highlighter-rouge">"string"</code>, <code class="highlighter-rouge">"boolean"</code>, etc. But you can
+specify the custom name for the extractor by calling the <code class="highlighter-rouge">apply</code> method on it. In the example
+below, the string representation of the endpoint <code class="highlighter-rouge">b</code> is <code class="highlighter-rouge">":flag"</code>.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">boolean</span><span class="o">(</span><span class="s">"flag"</span><span class="o">)</span>
+<span class="n">res6</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Boolean</span><span class="o">]</span> <span class="k">=</span> <span class="k">:</span><span class="kt">flag</span>
+</code></pre>
+</div>
+
+<h4 id="match-verb">Match Verb</h4>
+
+<p>For every HTTP verb, there is a function <code class="highlighter-rouge">Endpoint[A] =&gt; Endpoint[A]</code> that takes a given endpoint of
+an arbitrary type and enriches it with an additional check/match of the HTTP method/verb.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">finagle</span><span class="o">.</span><span class="n">http</span><span class="o">.{</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Method</span><span class="o">}</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Method</span><span class="o">}</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">e</span><span class="k">:</span> <span class="kt">Endpoint0</span> <span class="o">=</span> <span class="s">"foo"</span>
+<span class="n">e</span><span class="k">:</span> <span class="kt">io.finch.Endpoint0</span> <span class="o">=</span> <span class="n">foo</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">e</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/foo"</span><span class="o">)).</span><span class="n">isMatched</span>
+<span class="n">res7</span><span class="k">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="kc">true</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">e</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/bar"</span><span class="o">)).</span><span class="n">isMatched</span>
+<span class="n">res8</span><span class="k">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="kc">false</span>
+</code></pre>
+</div>
+
+<h4 id="params">Params</h4>
+
+<p>Finch aggregates for you all the possible param sources (query-string params, urlencoded params and
+multipart params) behind a single namespace <code class="highlighter-rouge">param*</code>. That being said, an endpoint <code class="highlighter-rouge">param("foo")</code>
+works as follows: 1) tries to fetch param <code class="highlighter-rouge">foo</code> from the query string 2) if the previous step
+failed, tries to fetch param <code class="highlighter-rouge">foo</code> from the urlencoded body 3) if the previous step failed, tries
+to fetch param <code class="highlighter-rouge">foo</code> from the multipart body.</p>
+
+<p>Finch provides the following instances for reading HTTP params (evaluating endpoints):</p>
+
+<ul>
+  <li><code class="highlighter-rouge">param("foo")</code> - required param “foo”</li>
+  <li><code class="highlighter-rouge">paramOption("foo")</code> - optional param “foo”</li>
+  <li><code class="highlighter-rouge">params("foos")</code> - multi-value param “foos” that might return an empty sequence</li>
+  <li><code class="highlighter-rouge">paramsNel("foos")</code> - multi-value param “foos” that return <code class="highlighter-rouge">cats.data.NonEmptyList</code> or a failed
+<code class="highlighter-rouge">Future</code></li>
+</ul>
+
+<p>In addition to these evaluating endpoints, there is also one matching endpoint <code class="highlighter-rouge">paramExists("foo")</code>
+that only matches requests with “foo” param.</p>
+
+<h4 id="headers">Headers</h4>
+
+<p>Instances for reading HTTP headers include both evaluating and matching instances.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">header("foo")</code> - required header “foo”</li>
+  <li><code class="highlighter-rouge">headerOption("foo")</code> - optional header “foo”</li>
+  <li><code class="highlighter-rouge">headerExists("foo")</code> - only matches requests that contain header “foo”</li>
+</ul>
+
+<h4 id="bodies">Bodies</h4>
+
+<p>All the instances for reading HTTP bodies are evaluating endpoints that also involve matching in
+some way: before evaluating an HTTP body they also check/match whether the request is
+chunked/non-chunked. This is mostly about what API Finagle provides for streaming: chunked requests
+may read via <code class="highlighter-rouge">request.reader</code>, non-chunked via <code class="highlighter-rouge">request.content</code>.</p>
+
+<p>Similar to the rest of predefined endpoints, these come in pairs required/optional.</p>
+
+<p>Non-chunked bodies:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">bodyString(Option)</code> - required/optional, non-chunked (only matches non-chunked requests) body
+ represented as a UTF-8 string.</li>
+  <li><code class="highlighter-rouge">binaryBody(Option)</code> - required/optional, non-chunked (only matches non-chunked requests) body
+ represented as a byte array.</li>
+</ul>
+
+<p>There is a special (and presumably most used) combinators available for <em>reading and decoding</em> HTTP
+bodies in a single step.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">body(Option)[A, ContentType &lt;: String]</code> - required/optional, non-chunked (only matches
+non-chunked requests) body represented as <code class="highlighter-rouge">A</code> and decoding according to presented
+<code class="highlighter-rouge">Decode.Aux[A, ContentType]</code> instance. See <a href="#decoding-from-json">decoding from JSON</a>
+for more details.</li>
+  <li><code class="highlighter-rouge">jsonBody(Option)[A]</code> - an alias for <code class="highlighter-rouge">body[A, Application.Json]</code>.</li>
+  <li><code class="highlighter-rouge">textBody(Option)[A]</code> - an alias for <code class="highlighter-rouge">body[A, Text.Plain]</code></li>
+</ul>
+
+<p>Chunked bodies:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">asyncBody</code> - chunked/streamed (only matches chunked requests) body represented as an
+<code class="highlighter-rouge">AsyncStream[Buf]</code>.</li>
+</ul>
+
+<h4 id="file-uploads">File Uploads</h4>
+
+<p>Finch supports reading file uploads from the <code class="highlighter-rouge">multipart/form-data</code> HTTP bodies with the help of two
+instances (evaluating endpoints that also only match non-chunked requests).</p>
+
+<ul>
+  <li><code class="highlighter-rouge">fileUpload("foo")</code> - required, non-chunked (only matches non-chunked requests) file upload with
+name “foo”</li>
+  <li><code class="highlighter-rouge">fileUploadOption("foo")</code> - optional, non-chunked (only matches non-chunked requests) file upload
+with name “foo”</li>
+</ul>
+
+<h4 id="cookies">Cookies</h4>
+
+<p>There are also two instances (evaluating endpoints) for reading cookies from HTTP requests/headers.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">cookie("foo")</code> - required cookie with name “foo”</li>
+  <li><code class="highlighter-rouge">cookieOption("foo")</code> - optional cookie with name “foo”</li>
+</ul>
+
+<h3 id="composing-endpoints">Composing Endpoints</h3>
+
+<p>It’s time to see the beauty of the endpoint combinators API in action by composing the complex
+endpoints out of the simple endpoints we’ve seen before. There are just two operators you will
+need to deal with:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">::</code> that composes two endpoints in terms of the <em>and then</em> combinator into a product endpoint
+<code class="highlighter-rouge">Endpoint[L &lt;: HList]</code> (see <a href="https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.0.0#heterogenous-lists">Shapeless’ HList</a>)</li>
+  <li><code class="highlighter-rouge">:+:</code> that composes two endpoints of different types in terms of the <em>or else</em> combinator into a
+coproduct endpoint <code class="highlighter-rouge">Endpoint[C &lt;: Coproduct]</code> (see <a href="https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.0.0#coproducts-and-discriminated-unions">Shapeless’ Coproduct</a>)</li>
+</ul>
+
+<p>As you may have noticed, Finch heavily uses <a href="https://github.com/milessabin/shapeless">Shapeless</a> to empower its composability in a
+type-safe, boilerplate-less way.</p>
+
+<h4 id="product-endpoints">Product Endpoints</h4>
+
+<p>A product endpoint returns a product type represented as an <code class="highlighter-rouge">HList</code>. For example, a product endpoint
+<code class="highlighter-rouge">Endpoint[Foo :: Bar :: HNil]</code> returns two values of types <code class="highlighter-rouge">Foo</code> and <code class="highlighter-rouge">Bar</code> wrapped with <code class="highlighter-rouge">HList</code>. To
+build a product endpoint, use the <code class="highlighter-rouge">::</code> combinator.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">shapeless</span><span class="o">.</span><span class="k">_</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">shapeless._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">both</span> <span class="k">=</span> <span class="n">int</span> <span class="o">::</span> <span class="n">string</span>
+<span class="n">both</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">shapeless.::</span><span class="o">[</span><span class="kt">Int</span>,<span class="kt">shapeless.::</span><span class="o">[</span><span class="kt">String</span>,<span class="kt">shapeless.HNil</span><span class="o">]]]</span> <span class="k">=</span> <span class="k">:</span><span class="kt">int</span> <span class="kt">::</span> <span class="kt">:string</span>
+</code></pre>
+</div>
+
+<p>No matter what the types of left-hand/right-hand endpoints are (<code class="highlighter-rouge">HList</code>-based endpoint or value
+endpoint), when applied to the <code class="highlighter-rouge">::</code> compositor, the correctly constructed <code class="highlighter-rouge">HList</code> will be yielded.</p>
+
+<h4 id="coproduct-endpoints">Coproduct Endpoints</h4>
+
+<p>A coproduct <code class="highlighter-rouge">Endpoint[A :+: B :+: CNil]</code> represents an endpoint that returns a value of either type
+<code class="highlighter-rouge">A</code> or type <code class="highlighter-rouge">B</code>. The <code class="highlighter-rouge">:+:</code> (i.e., space invader) combinator  mechanic is close to the <code class="highlighter-rouge">orElse</code>
+function defined in <code class="highlighter-rouge">Option</code> and <code class="highlighter-rouge">Try</code>: if the first endpoint fails to match the input, it fails
+through to the second one.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">shapeless</span><span class="o">.</span><span class="k">_</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">shapeless._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">either</span> <span class="k">=</span> <span class="n">int</span> <span class="o">:+:</span> <span class="n">string</span>
+<span class="n">either</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">shapeless.:+:</span><span class="o">[</span><span class="kt">Int</span>,<span class="kt">shapeless.:+:</span><span class="o">[</span><span class="kt">String</span>,<span class="kt">shapeless.CNil</span><span class="o">]]]</span> <span class="k">=</span> <span class="o">(</span><span class="k">:</span><span class="kt">int</span> <span class="kt">:+:</span> <span class="kt">:string</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>Any coproduct endpoint may be converted into a Finagle HTTP service (i.e.,
+<code class="highlighter-rouge">Service[Request, Response]</code>) under certain circumstances: every type in a coproduct should have
+a corresponding implicit instance of <code class="highlighter-rouge">EncodeResponse</code> in the scope.</p>
+
+<h3 id="mapping-endpoints">Mapping Endpoints</h3>
+
+<p>A business logic in Finch is represented as an endpoint <em>transformation</em> in a form of either
+<code class="highlighter-rouge">A =&gt; Future[Output[B]]</code> or <code class="highlighter-rouge">A =&gt; Output[B]</code>. An endpoint is enriched with lightweight syntax
+allowing us to use the same method for both transformations: the <code class="highlighter-rouge">Endpoint.apply</code> method takes
+care of applying the given function to the underlying <code class="highlighter-rouge">HList</code> with appropriate arity as well as
+wrapping the right hand side <code class="highlighter-rouge">Output[B]</code> into a <code class="highlighter-rouge">Future</code>.</p>
+
+<p>In the following example, an <code class="highlighter-rouge">Endpoint[Int :: Int :: HNil]</code> is mapped to a function
+<code class="highlighter-rouge">(Int, Int) =&gt; Output[Int]</code>.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">shapeless</span><span class="o">.</span><span class="k">_</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">shapeless._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">both</span> <span class="k">=</span> <span class="n">int</span> <span class="o">::</span> <span class="n">int</span>
+<span class="n">both</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">shapeless.::</span><span class="o">[</span><span class="kt">Int</span>,<span class="kt">shapeless.::</span><span class="o">[</span><span class="kt">Int</span>,<span class="kt">shapeless.HNil</span><span class="o">]]]</span> <span class="k">=</span> <span class="k">:</span><span class="kt">int</span> <span class="kt">::</span> <span class="kt">:int</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">sum</span> <span class="k">=</span> <span class="n">both</span> <span class="o">{</span> <span class="o">(</span><span class="n">a</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">b</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Ok</span><span class="o">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="o">)</span> <span class="o">}</span>
+<span class="n">sum</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="k">:</span><span class="kt">int</span> <span class="kt">::</span> <span class="kt">:int</span>
+</code></pre>
+</div>
+
+<p>There is a special case when <code class="highlighter-rouge">Endpoint[L &lt;: HList]</code> is converted into an endpoint of case class. For
+this purpose, the <code class="highlighter-rouge">Endpoint.as[A]</code> method might be used.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">shapeless</span><span class="o">.</span><span class="k">_</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">shapeless._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">case</span> <span class="k">class</span> <span class="nc">Foo</span><span class="o">(</span><span class="n">i</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">s</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+<span class="n">defined</span> <span class="k">class</span> <span class="nc">Foo</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">foo</span> <span class="k">=</span> <span class="o">(</span><span class="n">int</span> <span class="o">::</span> <span class="n">string</span><span class="o">).</span><span class="n">as</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span>
+<span class="n">foo</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="k">=</span> <span class="k">:</span><span class="kt">int</span> <span class="kt">::</span> <span class="kt">:string</span>
+</code></pre>
+</div>
+
+<p>It’s also possible to be explicit and use one of the <code class="highlighter-rouge">map*</code> methods defined on <code class="highlighter-rouge">Endpoint[A]</code>:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">map[B](fn: A =&gt; B): Endpoint[B]</code></li>
+  <li><code class="highlighter-rouge">mapAsync[B](fn: A =&gt; Future[B]): Endpoint[B]</code></li>
+  <li><code class="highlighter-rouge">mapOutput[B](fn: A =&gt; Output[B]): Endpoint[B]</code></li>
+  <li><code class="highlighter-rouge">mapOutputAsync[B](fn: A =&gt; Future[Output[B]]): Endpoint[B]</code></li>
+</ul>
+
+<h3 id="outputs">Outputs</h3>
+
+<p>Every returned value from <code class="highlighter-rouge">Endpoint</code> is wrapped with <code class="highlighter-rouge">Output</code> that defines a context used while a
+value is serialized into an HTTP response. There are three cases of <code class="highlighter-rouge">Output</code>:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">Output.Payload</code> representing an actual value returned as a payload</li>
+  <li><code class="highlighter-rouge">Output.Failure</code> representing a user-defined failure occurred in the endpoint</li>
+  <li><code class="highlighter-rouge">Output.Empty</code> representing an empty (without any payload) response</li>
+</ul>
+
+<p>A simplified version of this ADT is shown below.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">Output</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span>
+<span class="nc">object</span> <span class="nc">Output</span> <span class="o">{</span>
+  <span class="k">case</span> <span class="k">class</span> <span class="nc">Payload</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">value</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Output</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span>
+  <span class="k">case</span> <span class="k">class</span> <span class="nc">Failure</span><span class="o">(</span><span class="n">cause</span><span class="k">:</span> <span class="kt">Exception</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Output</span><span class="o">[</span><span class="kt">Nothing</span><span class="o">]</span>
+  <span class="k">case</span> <span class="k">object</span> <span class="nc">Empty</span> <span class="k">extends</span> <span class="nc">Output</span><span class="o">[</span><span class="kt">Nothing</span><span class="o">]</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>Having an <code class="highlighter-rouge">Output</code> defined as an ADT allows us to return both payloads and failures from the same
+endpoint depending on the conditional result.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">divOrFail</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="n">post</span><span class="o">(</span><span class="s">"div"</span> <span class="o">::</span> <span class="n">int</span> <span class="o">::</span> <span class="n">int</span><span class="o">)</span> <span class="o">{</span> <span class="o">(</span><span class="n">a</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">b</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span>
+     <span class="o">|</span>   <span class="k">if</span> <span class="o">(</span><span class="n">b</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="nc">BadRequest</span><span class="o">(</span><span class="k">new</span> <span class="nc">ArithmeticException</span><span class="o">(</span><span class="s">"Can not divide by 0"</span><span class="o">))</span>
+     <span class="o">|</span>   <span class="k">else</span> <span class="nc">Ok</span><span class="o">(</span><span class="n">a</span> <span class="o">/</span> <span class="n">b</span><span class="o">)</span>
+     <span class="o">|</span> <span class="o">}</span>
+<span class="n">divOrFail</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="nc">POST</span> <span class="o">/</span><span class="n">div</span> <span class="o">::</span> <span class="k">:</span><span class="kt">int</span> <span class="kt">::</span> <span class="kt">:int</span>
+</code></pre>
+</div>
+
+<p>Payloads and failures are symmetric in terms of serializing <code class="highlighter-rouge">Output</code> into an HTTP response. In
+order to convert an <code class="highlighter-rouge">Endpoint</code> into a Finagle service, there should be an implicit instance of
+<code class="highlighter-rouge">Encode[Exception]</code> for a given content-type available in the scope. For example, it might be defined
+in terms of Circe’s <code class="highlighter-rouge">Encoder</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">circe</span><span class="o">.</span><span class="k">_</span>
+
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">encodeException</span><span class="k">:</span> <span class="kt">Encoder</span><span class="o">[</span><span class="kt">Exception</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Encoder</span><span class="o">.</span><span class="n">instance</span><span class="o">(</span><span class="n">e</span> <span class="k">=&gt;</span>
+  <span class="nc">Json</span><span class="o">.</span><span class="n">obj</span><span class="o">(</span><span class="s">"message"</span> <span class="o">-&gt;</span> <span class="nc">Json</span><span class="o">.</span><span class="n">fromString</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="n">getMessage</span><span class="o">)))</span>
+</code></pre>
+</div>
+
+<p>NOTE: This instance is already available whenever <code class="highlighter-rouge">io.finch.circe._</code> import is present (simlar for
+any other of JSON library supported).</p>
+
+<h3 id="type-level-content-type">Type-level Content-Type</h3>
+
+<p>Finch brings HTTP <code class="highlighter-rouge">Content-Type</code> to the type-level as a singleton string (i.e., <code class="highlighter-rouge">CT &lt;: String</code>) to
+make it affect implicit resolution and make sure that the right encoder/decoder will be picked by a
+compiler. This is done lift the following kind of errors at compile time:</p>
+
+<ul>
+  <li>a <code class="highlighter-rouge">Text.Plain</code> service won’t compile when only Circe’s JSON encoders are available in the scope</li>
+  <li>a <code class="highlighter-rouge">Application.Json</code> body endpoint won’t compile when no JSON library support is imported</li>
+</ul>
+
+<p>Given that <code class="highlighter-rouge">Content-Type</code> is a separate concept, which is neither attached to <code class="highlighter-rouge">Endpoint</code> nor <code class="highlighter-rouge">Output</code>,
+the way to specify it is to explicitly pass a requested <code class="highlighter-rouge">Content-Type</code> either to a <code class="highlighter-rouge">toServiceAs</code>
+method call (to affect encoding) or <code class="highlighter-rouge">body</code> endpoint creation (to affect decoding).</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Response</span><span class="o">},</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">finagle</span><span class="o">.</span><span class="nc">Service</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="k">_</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Response</span><span class="o">}</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Service</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">e</span> <span class="k">=</span> <span class="n">get</span><span class="o">(/)</span> <span class="o">{</span> <span class="nc">Ok</span><span class="o">(</span><span class="s">"Hello, World!"</span><span class="o">)</span> <span class="o">}</span>
+<span class="n">e</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">GET</span> <span class="o">/</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">s</span> <span class="k">=</span> <span class="n">e</span><span class="o">.</span><span class="n">toServiceAs</span><span class="o">[</span><span class="kt">Text.Plain</span><span class="o">]</span>
+<span class="n">s</span><span class="k">:</span> <span class="kt">com.twitter.finagle.Service</span><span class="o">[</span><span class="kt">com.twitter.finagle.http.Request</span>,<span class="kt">com.twitter.finagle.http.Response</span><span class="o">]</span> <span class="k">=</span> <span class="o">&lt;</span><span class="n">function1</span><span class="o">&gt;</span>
+</code></pre>
+</div>
+
+<p>The program above will do the right thing (will pick the right decoder) even when JSON encoders are
+imported into the scope.</p>
+
+<p>By default, Finch defines type-aliases for <code class="highlighter-rouge">text/plain</code> and <code class="highlighter-rouge">application/json</code> encoders as
+<code class="highlighter-rouge">Encode.Text[A]</code> and <code class="highlighter-rouge">Encode.Json[A]</code>. For everything else, <code class="highlighter-rouge">Encode.Aux[A, CT &lt;: String]</code> should be
+used instead.</p>
+
+<h3 id="decoding">Decoding</h3>
+
+<p>While Finch takes care about extracting some particular parts of a request (i.e., body, params,
+headers) in their origin form (usually as <code class="highlighter-rouge">String</code>s), it’s user’s responsibility to convert/decode
+them into the domain types.</p>
+
+<p>Most of the means for decoding in Finch are built around three simple type-classes used in different
+scenarios:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">io.finch.DecodePath[A]</code> - decodes path segments represented as strings into <code class="highlighter-rouge">Option[A]</code></li>
+  <li><code class="highlighter-rouge">io.finch.DecodeEntity[A]</code> - decodes string-based entities (eg: params and headers) into <code class="highlighter-rouge">Try[A]</code></li>
+  <li><code class="highlighter-rouge">io.finch.Decode.Aux[A, ContentType &lt;: String]</code> - decodes bodies represented as <code class="highlighter-rouge">Buf</code>s (in a
+given content type) into <code class="highlighter-rouge">Try[A]</code></li>
+</ul>
+
+<p>Separating those three completely different use cases not only allows to define a clear boundaries
+where abstraction’s concerns end, but also helps performance-wise quite a lot.</p>
+
+<h4 id="type-conversion">Type Conversion</h4>
+
+<p>For all <code class="highlighter-rouge">String</code>-based endpoints, Finch provides an <code class="highlighter-rouge">as[A]</code> method to perform type conversions. It
+is available for any <code class="highlighter-rouge">Endpoint[String]</code>, <code class="highlighter-rouge">Endpoint[Option[String]]</code> or <code class="highlighter-rouge">Endpoint[Seq[String]]</code> as
+long as a matching implicit <code class="highlighter-rouge">io.finch.DecodeEntity[A]</code> type-class is in the scope.</p>
+
+<p>This facility is designed to be intuitive, meaning that you do not have to provide a
+<code class="highlighter-rouge">io.finch.DecodeEntity[Seq[MyType]]</code> for converting a sequence. A decoder for a single item will
+allow you to convert <code class="highlighter-rouge">Option[String]</code> and <code class="highlighter-rouge">Seq[String]</code>, too:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">param</span><span class="o">(</span><span class="s">"foo"</span><span class="o">).</span><span class="n">as</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span>
+<span class="n">res10</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="n">param</span><span class="o">(</span><span class="n">foo</span><span class="o">)</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">paramOption</span><span class="o">(</span><span class="s">"bar"</span><span class="o">).</span><span class="n">as</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span>
+<span class="n">res11</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">Int</span><span class="o">]]</span> <span class="k">=</span> <span class="n">param</span><span class="o">(</span><span class="n">bar</span><span class="o">)</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">params</span><span class="o">(</span><span class="s">"bazs"</span><span class="o">).</span><span class="n">as</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span>
+<span class="n">res12</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Seq</span><span class="o">[</span><span class="kt">Int</span><span class="o">]]</span> <span class="k">=</span> <span class="n">param</span><span class="o">(</span><span class="n">bazs</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>The same method <code class="highlighter-rouge">as[A]</code> is also available on any <code class="highlighter-rouge">Endpoint[L &lt;: HList]</code> to perform
+<a href="https://github.com/milessabin/shapeless">Shapeless</a>-powered generic conversions from <code class="highlighter-rouge">HList</code>s to case classes with appropriately
+typed members.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">case</span> <span class="k">class</span> <span class="nc">Foo</span><span class="o">(</span><span class="n">i</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">s</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+<span class="n">defined</span> <span class="k">class</span> <span class="nc">Foo</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">foo</span> <span class="k">=</span> <span class="o">(</span><span class="n">param</span><span class="o">(</span><span class="s">"i"</span><span class="o">).</span><span class="n">as</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="o">::</span> <span class="n">param</span><span class="o">(</span><span class="s">"s"</span><span class="o">)).</span><span class="n">as</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span>
+<span class="n">foo</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="k">=</span> <span class="n">param</span><span class="o">(</span><span class="n">i</span><span class="o">)</span> <span class="o">::</span> <span class="n">param</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>Note that while both methods take different implicit params and use different techniques to perform
+type-conversion, they’re basically doing the same thing: transforming the underlying type <code class="highlighter-rouge">A</code> into
+some type <code class="highlighter-rouge">B</code> (that’s why they have similar names).</p>
+
+<h4 id="custom-decoders">Custom Decoders</h4>
+
+<p>Writing a new decoder for a type not supported out of the box is very easy, too. The following
+example shows a decoder for a Joda <code class="highlighter-rouge">DateTime</code> from a <code class="highlighter-rouge">Long</code> representing the number of milliseconds
+since the epoch:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Try</span>
+<span class="k">import</span> <span class="nn">org.joda.time.DateTime</span>
+
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">dateTimeDecoder</span><span class="k">:</span> <span class="kt">DecodeEntity</span><span class="o">[</span><span class="kt">DateTime</span><span class="o">]</span> <span class="k">=</span>
+  <span class="nc">DecodeEntity</span><span class="o">.</span><span class="n">instance</span><span class="o">(</span><span class="n">s</span> <span class="k">=&gt;</span> <span class="nc">Try</span><span class="o">(</span><span class="k">new</span> <span class="nc">DateTime</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="n">toLong</span><span class="o">)))</span>
+</code></pre>
+</div>
+
+<p>All you need to implement is a simple function from <code class="highlighter-rouge">String</code> to <code class="highlighter-rouge">Try[A]</code>.</p>
+
+<p>As long as the implicit declared above is in scope, you can then use your custom decoder in the same
+way as any of the built-in decoders (in this case for creating a JodaTime <code class="highlighter-rouge">Interval</code>):</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">case</span> <span class="k">class</span> <span class="nc">Interval</span><span class="o">(</span><span class="n">start</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span> <span class="n">end</span><span class="k">:</span> <span class="kt">Long</span><span class="o">)</span>
+<span class="n">defined</span> <span class="k">class</span> <span class="nc">Interval</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">interval</span> <span class="k">=</span> <span class="o">(</span>
+     <span class="o">|</span>   <span class="n">param</span><span class="o">(</span><span class="s">"start"</span><span class="o">).</span><span class="n">as</span><span class="o">[</span><span class="kt">Long</span><span class="o">]</span> <span class="o">::</span>
+     <span class="o">|</span>   <span class="n">param</span><span class="o">(</span><span class="s">"end"</span><span class="o">).</span><span class="n">as</span><span class="o">[</span><span class="kt">Long</span><span class="o">]</span>
+     <span class="o">|</span> <span class="o">).</span><span class="n">as</span><span class="o">[</span><span class="kt">Interval</span><span class="o">]</span>
+<span class="n">interval</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Interval</span><span class="o">]</span> <span class="k">=</span> <span class="n">param</span><span class="o">(</span><span class="n">start</span><span class="o">)</span> <span class="o">::</span> <span class="n">param</span><span class="o">(</span><span class="n">end</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<h4 id="decoding-from-json">Decoding from JSON</h4>
+
+<p>There are two API entry point into decoding JSON payloads: <code class="highlighter-rouge">jsonBody[A]</code> and <code class="highlighter-rouge">jsonBodyOption[A]</code>.
+These require a <code class="highlighter-rouge">Decode.Json[A]</code> instance to be available in the scope whenever they called.</p>
+
+<p>Finch comes with support for a number of <a href="#json">JSON libraries</a>. All these integration modules do
+is make the library-specific JSON decoders available for use as a <code class="highlighter-rouge">io.finch.Decode.Json[A]</code>. To take
+Circe as an example, you only have to import <code class="highlighter-rouge">io.finch.circe._</code> and have implicit <code class="highlighter-rouge">io.circe.Decoder[A]</code>
+instances in scope:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+<span class="k">import</span> <span class="nn">io.circe.Decoder</span><span class="o">,</span><span class="n">io</span><span class="o">.</span><span class="n">circe</span><span class="o">.</span><span class="nc">Encoder</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">circe</span><span class="o">.</span><span class="n">generic</span><span class="o">.</span><span class="n">semiauto</span><span class="o">.</span><span class="k">_</span>
+
+<span class="k">case</span> <span class="k">class</span> <span class="nc">Person</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">age</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
+<span class="k">object</span> <span class="nc">Person</span> <span class="o">{</span>
+  <span class="k">implicit</span> <span class="k">val</span> <span class="n">decoder</span><span class="k">:</span> <span class="kt">Decoder</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="k">=</span> <span class="n">deriveDecoder</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span>
+  <span class="k">implicit</span> <span class="k">val</span> <span class="n">encoder</span><span class="k">:</span> <span class="kt">Encoder</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="k">=</span> <span class="n">deriveEncoder</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span>
+<span class="o">}</span>
+
+</code></pre>
+</div>
+
+<p>Finch will automatically adapt these implicits to its own <code class="highlighter-rouge">io.finch.Decode.Json[Person]</code> type,  so
+that you can use the <code class="highlighter-rouge">jsonBody(Option)</code> endpoints to read the HTTP bodies sent in a JSON format:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>     <span class="o">|</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="nc">Buf</span><span class="o">,</span> <span class="nc">Person</span><span class="o">.</span><span class="k">_</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.Buf</span>
+<span class="k">import</span> <span class="nn">Person._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">p</span> <span class="k">=</span> <span class="n">jsonBody</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span>
+<span class="n">p</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="k">=</span> <span class="n">body</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">p</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">post</span><span class="o">(</span><span class="s">"/"</span><span class="o">).</span><span class="n">withBody</span><span class="o">[</span><span class="kt">Application.Json</span><span class="o">](</span><span class="nc">Buf</span><span class="o">.</span><span class="nc">Utf8</span><span class="o">(</span><span class="s">"""{"name":"foo","age":42}"""</span><span class="o">)))</span>
+<span class="n">res16</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"POST /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$10</span><span class="k">@</span><span class="mi">2032478</span><span class="n">b</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>The integration for the other JSON libraries works in a similar way.</p>
+
+<h3 id="encoding">Encoding</h3>
+
+<p>Behind-the-scene encoding of values returned from endpoint was always the essential part of Finch’s
+design. This what makes it all about domain types, not HTTP primitives. By analogy with decoding,
+encoding is built around <code class="highlighter-rouge">io.finch.Encode[A]</code> type-class that takes a value of an arbitrary type
+and converts that into a binary buffer that can be served in the HTTP payload/body.</p>
+
+<h4 id="encoding-to-json">Encoding to JSON</h4>
+
+<p>Encoding to JSON is not different from encoding to <code class="highlighter-rouge">application/xml</code> or anything else besides having
+<code class="highlighter-rouge">Encode.Json[A]</code> instances in the scope for each type returned from the endpoints.</p>
+
+<p>Even though Finch is abstracted over the concrete <code class="highlighter-rouge">Content-Type</code> it’s still biased towards JSON.
+This is why the <code class="highlighter-rouge">toService</code> call defaults to JSON and UTF-8 considered the default charset.</p>
+
+<h3 id="json">JSON</h3>
+
+<p>Finch uses type classes <code class="highlighter-rouge">io.finch.Encode</code> and <code class="highlighter-rouge">io.finch.Decode</code> to make its JSON support pluggable.
+Thus in most of the cases it’s not necessary to make any code changes (except for import statements)
+while switching the underlying JSON library.</p>
+
+<p>Finch comes with a rich support of many modern JSON libraries. While it’s totally possible to use
+Finch with runtime reflection based libraries such as [Jackson][jackson], it’s highly recommended to
+use compile-time based solutions such as [Circe][circe] and [Argonaut][argonaut] instead. When
+starting out, Circe would be the best possible choice as a JSON library due to its great performance
+and a lack of boilerplate.</p>
+
+<p>Use the following instructions to enable support for a particular JSON library.</p>
+
+<h4 id="circe">Circe</h4>
+
+<ul>
+  <li>Add the dependency to the <code class="highlighter-rouge">finch-circe</code> module.</li>
+  <li>Make sure for each domain type that there are implicit instances of <code class="highlighter-rouge">io.circe.Encoder[A]</code> and
+<code class="highlighter-rouge">io.circe.Decoder[A]</code> in the scope or that Circe’s generic auto derivation is used via
+<code class="highlighter-rouge">import io.circe.generic.auto_</code>.</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch.circe._</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+</code></pre>
+</div>
+
+<p>It’s also possible to import the Circe configuration which uses a pretty printer configured with
+<code class="highlighter-rouge">dropNullKeys = true</code>. Use the following imports instead:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch.circe.dropNullKeys._</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+</code></pre>
+</div>
+
+<p>Unless it’s absolutely necessary to customize Circe’s output format (i.e., drop null keys), always
+prefer the [Jackson serializer][circe-jackson] for [better performance][circe-jackson-performance].
+The following two imports show how to make Circe use Jackson while serializing instead of the
+built-in pretty printer.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch.circe.jacksonSerializer._</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+</code></pre>
+</div>
+
+<h4 id="argonaut">Argonaut</h4>
+
+<ul>
+  <li>Add the dependency to the <code class="highlighter-rouge">finch-argonaut</code> module.</li>
+  <li>Make sure for each domain type there are instances of <code class="highlighter-rouge">argonaut.EncodeJson[A]</code> and
+<code class="highlighter-rouge">argonaut.DecodeJson[A]</code> in the scope.</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">argonaut._</span>
+<span class="k">import</span> <span class="nn">argonaut.Argonaut._</span>
+<span class="k">import</span> <span class="nn">io.finch.argonaut._</span>
+
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">e</span><span class="k">:</span> <span class="kt">EncodeJson</span><span class="o">[</span><span class="k">_</span><span class="o">]</span> <span class="k">=</span> <span class="o">???</span>
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">d</span><span class="k">:</span> <span class="kt">DecodeJson</span><span class="o">[</span><span class="k">_</span><span class="o">]</span> <span class="k">=</span> <span class="o">???</span>
+</code></pre>
+</div>
+
+<p>In addition to the very basic Argonaut pretty printer (available via <code class="highlighter-rouge">import io.finch.argonaut._</code>),
+there are three additional configurations available out of the box:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">import io.finch.argonaut.dropNullKeys._</code> - brings both decoder and encoder (uses the pretty
+printer that drops null keys) in the scope</li>
+  <li><code class="highlighter-rouge">import io.finch.argonaut.preserveOrder._</code> - brings both decoder and encoder (uses the pretty
+printer that preserves fields order) in the scope</li>
+  <li><code class="highlighter-rouge">import io.finch.argonaut.preserveOrderAndDropNullKeys._</code> - brings both decoder and encoder (uses
+the pretty printer that preserves fields order as well as drops null keys) in the scope</li>
+</ul>
+
+<h4 id="jackson">Jackson</h4>
+
+<ul>
+  <li>Add the dependency to the <code class="highlighter-rouge">finch-jackson</code> module.</li>
+  <li>Import <code class="highlighter-rouge">import io.finch.jackson._</code></li>
+</ul>
+
+<p>While finch-jackson seems like the easiest way to enable JSON support in Finch, it’s probably the
+most dangerous one due to the level of involvement of the runtime based reflection.</p>
+
+<h4 id="json4s">Json4s</h4>
+
+<ul>
+  <li>Add the dependency to the <code class="highlighter-rouge">finch-json4s</code> module.</li>
+  <li>Make sure there is an implicit instance of <code class="highlighter-rouge">Formats</code> in the scope.</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch.json4s._</span>
+<span class="k">import</span> <span class="nn">org.json4s.DefaultFormats</span>
+
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">formats</span><span class="k">:</span> <span class="kt">Formats</span> <span class="o">=</span> <span class="nc">DefaultFormats</span> <span class="o">++</span> <span class="nc">JodaTimeSerializers</span><span class="o">.</span><span class="n">all</span>
+</code></pre>
+</div>
+
+<h4 id="playjson">PlayJson</h4>
+
+<ul>
+  <li>Add the dependency to the <code class="highlighter-rouge">finch-playjson</code> module.</li>
+  <li>For any type you want to serialize or deserialize you are required to create the appropriate
+Play JSON <code class="highlighter-rouge">Reads</code> and <code class="highlighter-rouge">Writes</code>.</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch.playjson._</span>
+<span class="k">import</span> <span class="nn">play.api.libs.json._</span>
+
+<span class="k">case</span> <span class="k">class</span> <span class="nc">Foo</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span><span class="n">age</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
+
+<span class="k">object</span> <span class="nc">Foo</span> <span class="o">{</span>
+  <span class="k">implicit</span> <span class="k">val</span> <span class="n">fooReads</span><span class="k">:</span> <span class="kt">Reads</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Json</span><span class="o">.</span><span class="n">reads</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span>
+  <span class="k">implicit</span> <span class="k">val</span> <span class="n">fooWrites</span><span class="k">:</span> <span class="kt">Writes</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Json</span><span class="o">.</span><span class="n">writes</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<h4 id="spray-json">Spray-Json</h4>
+
+<ul>
+  <li>Add the dependency to the <code class="highlighter-rouge">finch-sprayjson</code> module.</li>
+  <li>Create an implicit format convertor value for any type you defined.</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch.sprayjson._</span>
+<span class="k">import</span> <span class="nn">spray.json._</span>
+<span class="k">import</span> <span class="nn">Defaultjsonprotocol._</span>
+
+<span class="k">case</span> <span class="k">class</span> <span class="nc">Foo</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">age</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
+
+<span class="k">object</span> <span class="nc">Foo</span> <span class="o">{</span>
+  <span class="c1">//Note: `2` means Foo has two members;
+</span>  <span class="c1">//       No need for apply if there is no companion object
+</span>  <span class="k">implicit</span> <span class="k">val</span> <span class="n">fooformat</span> <span class="k">=</span> <span class="n">jsonFormat2</span><span class="o">(</span><span class="nc">Foo</span><span class="o">.</span><span class="n">apply</span><span class="o">)</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<h3 id="validation">Validation</h3>
+
+<p>The <code class="highlighter-rouge">should</code> and <code class="highlighter-rouge">shouldNot</code> methods on <code class="highlighter-rouge">Endpoint</code> allow you to perform validation logic. If the
+specified predicate does not hold, the reader will fail with a <code class="highlighter-rouge">io.finch.Error.NotValid</code> exception.</p>
+
+<p>Note that for an optional reader, the validation will be skipped for <code class="highlighter-rouge">None</code> results, but if the
+value is non-empty then all validations must succeed for the reader to succeed.</p>
+
+<p>For validation logic only needed in one place, the most convenient way is to declare it inline:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="k">case</span> <span class="k">class</span> <span class="nc">User</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">age</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">user</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">User</span><span class="o">]</span> <span class="k">=</span> <span class="o">(</span>
+  <span class="n">param</span><span class="o">(</span><span class="s">"name"</span><span class="o">)</span> <span class="o">::</span>
+  <span class="n">param</span><span class="o">(</span><span class="s">"age"</span><span class="o">).</span><span class="n">as</span><span class="o">[</span><span class="kt">Int</span><span class="o">].</span><span class="n">shouldNot</span><span class="o">(</span><span class="s">"be less than 18"</span><span class="o">)</span> <span class="o">{</span> <span class="k">_</span> <span class="o">&lt;</span> <span class="mi">18</span> <span class="o">}</span>
+<span class="o">).</span><span class="n">as</span><span class="o">[</span><span class="kt">User</span><span class="o">]</span>
+</code></pre>
+</div>
+
+<p>If you perform the same validation logic in multiple endpoints, it is more convenient to declare
+them separately and reuse them wherever needed:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="k">val</span> <span class="n">bePositive</span> <span class="k">=</span> <span class="nc">ValidationRule</span><span class="o">[</span><span class="kt">Int</span><span class="o">](</span><span class="s">"be positive"</span><span class="o">)</span> <span class="o">{</span> <span class="k">_</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">}</span>
+<span class="k">def</span> <span class="n">beLessThan</span><span class="o">(</span><span class="n">value</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=</span> <span class="nc">ValidationRule</span><span class="o">[</span><span class="kt">Int</span><span class="o">](</span><span class="n">s</span><span class="s">"be less than $value"</span><span class="o">)</span> <span class="o">{</span> <span class="k">_</span> <span class="o">&lt;</span> <span class="n">value</span> <span class="o">}</span>
+
+<span class="k">val</span> <span class="n">child</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">User</span><span class="o">]</span> <span class="k">=</span> <span class="o">(</span>
+  <span class="n">param</span><span class="o">(</span><span class="s">"name"</span><span class="o">)</span> <span class="o">::</span>
+  <span class="n">param</span><span class="o">(</span><span class="s">"age"</span><span class="o">).</span><span class="n">as</span><span class="o">[</span><span class="kt">Int</span><span class="o">].</span><span class="n">should</span><span class="o">(</span><span class="n">bePositive</span> <span class="n">and</span> <span class="n">beLessThan</span><span class="o">(</span><span class="mi">18</span><span class="o">))</span>
+<span class="o">).</span><span class="n">as</span><span class="o">[</span><span class="kt">User</span><span class="o">]</span>
+</code></pre>
+</div>
+
+<p>As you can see in the example above, predefined rules can also be logically combined with <code class="highlighter-rouge">and</code> or
+<code class="highlighter-rouge">or</code>.</p>
+
+<p>Finch comes with a small set of predefined rules. For readers producing numeric results, you can use
+<code class="highlighter-rouge">beLessThan(n: Int)</code> or <code class="highlighter-rouge">beGreaterThan(n: Int)</code>, and for strings you can use <code class="highlighter-rouge">beLongerThan(n: Int)</code>
+or <code class="highlighter-rouge">beShorterThan(n: Int)</code>.</p>
+
+<h3 id="errors">Errors</h3>
+
+<p>An endpoint may fail (it may evaluate into a <code class="highlighter-rouge">Future.exception</code>) by a number of reasons: it was
+transformed/mapped to one that fails; it’s an evaluating endpoint that fails if the incoming request
+doesn’t satisfy some condition (e.g., should have a query string param <code class="highlighter-rouge">foo</code>).</p>
+
+<p>Having said that, you might want to <em>handle</em> exceptions from the endpoint (even a coproduct one) to
+make sure a remote client will receive them in a serialized form. Otherwise they will be dropped -
+converted into very basic 500 responses that don’t carry any payload.</p>
+
+<p>Finch itself throws three kinds of errors represented as either <code class="highlighter-rouge">io.finch.Error</code> (a single error) or
+<code class="highlighter-rouge">io.finch.Errors</code> (multiple errors) that are already handled as 400s (bad requests):</p>
+
+<ul>
+  <li><code class="highlighter-rouge">io.finch.Error.NotFound</code> - when a required request part/item (header, param, body, cookie) was
+missing</li>
+  <li><code class="highlighter-rouge">io.finch.Error.NotParsed</code> - when type conversion failed</li>
+  <li><code class="highlighter-rouge">io.finch.Error.NotValid</code> - when a validation rule defined on an endpoint did not pass</li>
+</ul>
+
+<h4 id="error-accumulation">Error Accumulation</h4>
+
+<p><a href="#product-endpoints">Product endpoints</a> play critical role in error accumulation in
+Finch. Essentially, a product of two endpoints accumulates Finch’s own errors (i.e., <code class="highlighter-rouge">io.finch.Error</code>
+indicating a parse/validation failure or a missing entity) into <code class="highlighter-rouge">io.finch.Error</code> and will fail-fast
+with the first non-Finch error (just ordinary <code class="highlighter-rouge">Exception</code>) observed.</p>
+
+<p>The reasoning behind this design decision is following. When an arbitrary failure (just <code class="highlighter-rouge">Exception</code>)
+occurs in one of the parts of a product endpoint, it’s not super clear that it’s safe to keep
+evaluating the next part since it’s unknown if the failure was local to a given request and didn’t
+side-affect an entire process. Finch’s own errors are known to be locally scoped hence safe to
+accumulate.</p>
+
+<h4 id="error-handling">Error Handling</h4>
+
+<p>By analogy with <code class="highlighter-rouge">com.twitter.util.Future</code> API it’s possible to <em>handle</em> the failed future in the
+endpoint using the similarly named methods:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">Endpoint[A].handle[B &gt;: A](Throwable =&gt; Output[B]): Endpoint[B]</code></li>
+  <li><code class="highlighter-rouge">Endpoint[A].rescue[B &gt;: A](Throwable =&gt; Future[Output[B]]): Endpoint[B]</code></li>
+</ul>
+
+<p>The following example handles the <code class="highlighter-rouge">ArithmeticException</code> propagated from <code class="highlighter-rouge">a / b</code>.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">divOrFail</span> <span class="k">=</span> <span class="n">post</span><span class="o">(</span><span class="s">"div"</span> <span class="o">::</span> <span class="n">int</span> <span class="o">::</span> <span class="n">int</span><span class="o">)</span> <span class="o">{</span> <span class="o">(</span><span class="n">a</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">b</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span>
+     <span class="o">|</span>   <span class="nc">Ok</span><span class="o">(</span><span class="n">a</span> <span class="o">/</span> <span class="n">b</span><span class="o">)</span>
+     <span class="o">|</span> <span class="o">}</span> <span class="n">handle</span> <span class="o">{</span>
+     <span class="o">|</span>   <span class="k">case</span> <span class="n">e</span><span class="k">:</span> <span class="kt">Exception</span> <span class="o">=&gt;</span> <span class="nc">BadRequest</span><span class="o">(</span><span class="n">e</span><span class="o">)</span>
+     <span class="o">|</span> <span class="o">}</span>
+<span class="n">divOrFail</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="nc">POST</span> <span class="o">/</span><span class="n">div</span> <span class="o">::</span> <span class="k">:</span><span class="kt">int</span> <span class="kt">::</span> <span class="kt">:int</span>
+</code></pre>
+</div>
+
+<p>All the unhandled exceptions are converted into very basic 500 responses that don’t carry any
+payload. Only Finch’s errors (i.e., <code class="highlighter-rouge">io.finch.Error</code>) are treated in a special way and converted
+into 400 responses with their messages serialized according to the rules defined in the
+<code class="highlighter-rouge">io.finch.Encode.Aux[Exception, ContentType]</code> instance.</p>
+
+<p>Finch provides some very basic instances of Encode[Exception] in the following cases:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">Encode.Json[Exception]</code> is available with any of the supported JSON libraries
+(i.e., with <code class="highlighter-rouge">import io.finch.$jsonLibrary</code>)</li>
+  <li><code class="highlighter-rouge">Encode.Text[Exception]</code> is available out of the box in finch-core</li>
+  <li><code class="highlighter-rouge">Encode.Aux[Exception, ?]</code> that doesn’t encode anything is available for any other
+ content-type</li>
+</ul>
+
+<p>Define your own instance if you want to serialize handled exception into a payload of given
+content-type. For example, here is an instance for HTML.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="nc">Buf</span>
+
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">e</span><span class="k">:</span> <span class="kt">Encode.Aux</span><span class="o">[</span><span class="kt">Exception</span>, <span class="kt">Text.Html</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Encode</span><span class="o">.</span><span class="n">instance</span><span class="o">((</span><span class="n">e</span><span class="o">,</span> <span class="n">cs</span><span class="o">)</span> <span class="k">=&gt;</span>
+  <span class="nc">Buf</span><span class="o">.</span><span class="nc">Utf8</span><span class="o">(</span><span class="n">s</span><span class="s">"&lt;h1&gt;Bad thing happened: ${e.getMessage}&lt;h1&gt;"</span><span class="o">)</span>
+<span class="o">)</span>
+</code></pre>
+</div>
+
+<h3 id="testing">Testing</h3>
+
+<p>One of the advantages of typeful endpoints in Finch is that they can be unit-tested independently in
+a way similar to how functions are tested. The machinery is pretty straightforward: an endpoint
+takes an <code class="highlighter-rouge">Input</code> and returns <code class="highlighter-rouge">EndpointResult</code> that could be queried with <code class="highlighter-rouge">await*()</code> methods.</p>
+
+<p><strong>Building <code class="highlighter-rouge">Input</code>s</strong></p>
+
+<p>There is a lightweight API around <code class="highlighter-rouge">Input</code>s to make them easy to build. For example, the following
+builds a <code class="highlighter-rouge">GET /foo?a=1&amp;b=2</code> request:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">foo</span> <span class="k">=</span> <span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/foo"</span><span class="o">,</span> <span class="s">"a"</span> <span class="o">-&gt;</span> <span class="s">"2"</span><span class="o">,</span> <span class="s">"b"</span> <span class="o">-&gt;</span> <span class="s">"3"</span><span class="o">)</span>
+<span class="n">foo</span><span class="k">:</span> <span class="kt">io.finch.Input</span> <span class="o">=</span> <span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"GET /foo?a=2&amp;b=3"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">(</span><span class="n">foo</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>Similarly a payload (<code class="highlighter-rouge">application/x-www-form-urlencoded</code> in this case) with headers may be added
+to an input:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">bar</span> <span class="k">=</span> <span class="nc">Input</span><span class="o">.</span><span class="n">post</span><span class="o">(</span><span class="s">"/bar"</span><span class="o">).</span><span class="n">withForm</span><span class="o">(</span><span class="s">"a"</span> <span class="o">-&gt;</span> <span class="s">"1"</span><span class="o">,</span> <span class="s">"b"</span> <span class="o">-&gt;</span> <span class="s">"2"</span><span class="o">).</span><span class="n">withHeaders</span><span class="o">(</span><span class="s">"X-Header"</span> <span class="o">-&gt;</span> <span class="s">"Y"</span><span class="o">)</span>
+<span class="n">bar</span><span class="k">:</span> <span class="kt">io.finch.Input</span> <span class="o">=</span> <span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"POST /bar"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">(</span><span class="n">bar</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>Additionally, there is JSON-specific support in the <code class="highlighter-rouge">Input</code> API through <code class="highlighter-rouge">withBody</code>.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.circe.generic.auto._</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="k">_</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="n">circe</span><span class="o">.</span><span class="k">_</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">case</span> <span class="k">class</span> <span class="nc">Baz</span><span class="o">(</span><span class="n">m</span><span class="k">:</span> <span class="kt">Map</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">String</span><span class="o">])</span>
+<span class="n">defined</span> <span class="k">class</span> <span class="nc">Baz</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">baz</span> <span class="k">=</span> <span class="nc">Input</span><span class="o">.</span><span class="n">put</span><span class="o">(</span><span class="s">"/baz"</span><span class="o">).</span><span class="n">withBody</span><span class="o">[</span><span class="kt">Application.Json</span><span class="o">](</span><span class="nc">Baz</span><span class="o">(</span><span class="nc">Map</span><span class="o">(</span><span class="s">"a"</span> <span class="o">-&gt;</span> <span class="s">"b"</span><span class="o">)))</span>
+<span class="n">baz</span><span class="k">:</span> <span class="kt">io.finch.Input</span> <span class="o">=</span> <span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"PUT /baz"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">(</span><span class="n">baz</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>Note that, assuming UTF-8 as the encoding, which is the default, <code class="highlighter-rouge">application/json;charset=utf-8</code>
+will be added as content type.</p>
+
+<p><strong>Querying <code class="highlighter-rouge">EndpointResult</code>s</strong></p>
+
+<p>Similarly to the <code class="highlighter-rouge">Input</code> API for testing, <code class="highlighter-rouge">EndpointResult</code> comes with a number of blocking methods
+(prefixed with <code class="highlighter-rouge">await</code>) designed to be used in tests.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">finagle</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="nc">Status</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">divOrFail</span> <span class="k">=</span> <span class="n">post</span><span class="o">(</span><span class="n">int</span> <span class="o">::</span> <span class="n">int</span><span class="o">)</span> <span class="o">{</span> <span class="o">(</span><span class="n">a</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">b</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span>
+     <span class="o">|</span>   <span class="k">if</span> <span class="o">(</span><span class="n">b</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="nc">BadRequest</span><span class="o">(</span><span class="k">new</span> <span class="nc">Exception</span><span class="o">(</span><span class="s">"div by 0"</span><span class="o">))</span>
+     <span class="o">|</span>   <span class="k">else</span> <span class="nc">Ok</span><span class="o">(</span><span class="n">a</span> <span class="o">/</span> <span class="n">b</span><span class="o">)</span>
+     <span class="o">|</span> <span class="o">}</span>
+<span class="n">divOrFail</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="nc">POST</span> <span class="o">/:</span><span class="n">int</span> <span class="o">::</span> <span class="k">:</span><span class="kt">int</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">divOrFail</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">post</span><span class="o">(</span><span class="s">"/20/10"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span> <span class="o">==</span> <span class="nc">Some</span><span class="o">(</span><span class="mi">2</span><span class="o">)</span>
+<span class="n">res24</span><span class="k">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="kc">true</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">divOrFail</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/20/10"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span> <span class="o">==</span> <span class="nc">None</span>
+<span class="n">res25</span><span class="k">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="kc">true</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">divOrFail</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">post</span><span class="o">(</span><span class="s">"/20/0"</span><span class="o">)).</span><span class="n">awaitOutputUnsafe</span><span class="o">().</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">status</span><span class="o">)</span> <span class="o">==</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">Status</span><span class="o">.</span><span class="nc">BadRequest</span><span class="o">)</span>
+<span class="n">res26</span><span class="k">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="kc">true</span>
+</code></pre>
+</div>
+
+<p>You can find unit tests for the examples in the <a href="https://github.com/finagle/finch/tree/master/examples/src/test/scala/io/finch">examples folder</a>.</p>
+
+</section></div></div></div></div><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script><script src="/highlight/highlight.pack.js"></script><script>hljs.configure({
+languages:['scala','java','bash']
+});
+hljs.initHighlighting();
+             </script><script src="/js/main.js"></script></body></html>

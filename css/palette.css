@@ -1,0 +1,61 @@
+@import url(https://fonts.googleapis.com/css?family=Lato:400,300,700);
+.technologies {
+  background: #4c4d4c; }
+
+#site-header .navbar-wrapper a {
+  color: #fff; }
+
+#site-footer {
+  background: #5d5e5d; }
+
+::-moz-selection {
+  background: #3b3c3b;
+  color: #FFFFFF; }
+
+::selection {
+  background: #3b3c3b;
+  color: #FFFFFF; }
+
+.jumbotron {
+  background-color: #4c4d4c; }
+  .jumbotron .btn-outline-inverse {
+    border: 2px solid #FFFFFF;
+    color: #FFFFFF; }
+    .jumbotron .btn-outline-inverse:hover, .jumbotron .btn-outline-inverse:focus {
+      background: #FFFFFF;
+      color: #4c4d4c; }
+
+pre {
+  background: rgba(244, 243, 244, 0.6); }
+  pre code {
+    color: inherit;
+    background-color: transparent; }
+  pre .hljs {
+    background: none; }
+
+body.docs {
+  background: #F4F3F4; }
+
+#content code {
+  color: #7D7E7D;
+  background-color: #F4F3F4; }
+
+#sidebar-wrapper {
+  background: #4c4d4c; }
+
+#page-content-wrapper .nav a {
+  color: #7D7E7D; }
+  #page-content-wrapper .nav a:hover {
+    color: #48494B; }
+  #page-content-wrapper .nav a i {
+    font-size: 18px; }
+
+.sidebar-nav > li a:hover {
+  background: #5d5e5d; }
+.sidebar-nav > li a.active {
+  border-left: 3px solid #3b3c3b;
+  color: #fff; }
+.sidebar-nav > .sidebar-brand a {
+  background: #5d5e5d; }
+  .sidebar-nav > .sidebar-brand a:hover {
+    background: #5d5e5d; }
