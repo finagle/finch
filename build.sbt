@@ -113,10 +113,11 @@ lazy val docSettings = allSettings ++ unidocSettings ++ Seq(
   micrositeDescription := "Scala combinator library for building Finagle HTTP services",
   micrositeAuthor := "Vladimir Kostyukov",
   micrositeHighlightTheme := "atom-one-light",
-  micrositeHomepage := "https://finch.github.io/finagle/finch/",
+  micrositeHomepage := "https://finagle.github.io/finch/",
   micrositeDocumentationUrl := "api",
   micrositeGithubOwner := "finagle",
   micrositeGithubRepo := "finch",
+  micrositeBaseUrl := "finch",
   micrositeExtraMdFiles := Map(file("CONTRIBUTING.md") -> ExtraMdFileConfig("contributing.md", "docs")),
   micrositePalette := Map(
     "brand-primary" -> "#3b3c3b",
