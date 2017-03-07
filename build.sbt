@@ -109,17 +109,15 @@ lazy val noPublish = Seq(
 lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
 
 lazy val docSettings = allSettings ++ unidocSettings ++ Seq(
-  micrositeName := "finch",
+  micrositeName := "Finch",
   micrositeDescription := "Scala combinator library for building Finagle HTTP services",
   micrositeAuthor := "Vladimir Kostyukov",
   micrositeHighlightTheme := "atom-one-light",
   micrositeHomepage := "https://finch.github.io/finagle/finch/",
-  micrositeBaseUrl := "finch",
   micrositeDocumentationUrl := "api",
   micrositeGithubOwner := "finagle",
   micrositeGithubRepo := "finch",
   micrositeExtraMdFiles := Map(file("CONTRIBUTING.md") -> ExtraMdFileConfig("contributing.md", "docs")),
-  micrositeName := "Finch",
   micrositePalette := Map(
     "brand-primary" -> "#3b3c3b",
     "brand-secondary" -> "#4c4d4c",
@@ -144,9 +142,8 @@ lazy val docSettings = allSettings ++ unidocSettings ++ Seq(
   },
   git.remoteRepo := "git@github.com:finagle/finch.git",
   unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(benchmarks, jsonTest),
-  includeFilter in makeSite := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.svg" | "*.js" | "*.swf" | "*.yml" | "*.md"
-  ,siteSubdirName in ScalaUnidoc := "docs"
-
+  includeFilter in makeSite := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.svg" | "*.js" | "*.swf" | "*.yml" | "*.md",
+  siteSubdirName in ScalaUnidoc := "docs"
 )
 
 lazy val finch = project.in(file("."))

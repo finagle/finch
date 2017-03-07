@@ -8,7 +8,6 @@ technologies:
  - third: ["Jekyll", "Jekyll allows for the transformation of plain text into static websites and blogs."]
 ---
 
-
 Finch provides a combinator API over the [Finagle][finagle] HTTP services. An `Endpoint[A]`, main
 abstraction for which combinators are defined, represents an HTTP endpoint that takes a request and
 returns a value of type `A`.

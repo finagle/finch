@@ -3,6 +3,7 @@ layout: docs
 title: User Guide
 position: 1
 ---
+
 ## User Guide
 * [Overview](#overview)
 * [Understanding Endpoints](#understanding-endpoints)
@@ -93,7 +94,7 @@ variants to lift a given call-by-name value (essentially, a function call) withi
 In the following example, the random value is only generated once (when endpoint is constructed) in
 the `p` endpoint, and generated on each request in the `q` endpoint.
 
-```tut:silent
+```tut
 import io.finch._
 
 val p = Endpoint.const(scala.math.random)
@@ -115,7 +116,7 @@ It's possible that Finch might be missing some of handy endpoints out of the box
 it's evolved separately from Finagle. To overcome this and provide an extension point, there is a
 special endpoint instance, called `root` that returns a raw Finagle `Request`.
 
-```tut:silent
+```tut
 import io.finch._
 import io.finch.Endpoint._
 import java.net.InetAddress
@@ -134,7 +135,7 @@ A `*` endpoint always matches the entire path (all the segments).
 There is an implicit conversion from `String`, `Boolean` and `Int` to a matching endpoint that
 matches the current path segment of a given request against a converted value.
 
-```tut:silent
+```tut
 import io.finch._
 
 val e: Endpoint0 = "foo"
@@ -164,7 +165,7 @@ By default, extractors are named after their types, i.e., `"string"`, `"boolean"
 specify the custom name for the extractor by calling the `apply` method on it. In the example
 below, the string representation of the endpoint `b` is `":flag"`.
 
-```tut:silent
+```tut
 import io.finch._
 
 boolean("flag")
@@ -280,13 +281,10 @@ A product endpoint returns a product type represented as an `HList`. For example
 `Endpoint[Foo :: Bar :: HNil]` returns two values of types `Foo` and `Bar` wrapped with `HList`. To
 build a product endpoint, use the `::` combinator.
 
-```tut:silent
-import io.finch._
-import shapeless._
+```tut:
+import io.finch._, shapeless._
 
-val i: Endpoint[Int] = int
-val s: Endpoint[String] = string
-val both: Endpoint[Int :: String :: HNil] = i :: s
+val both = int :: string
 ```
 
 No matter what the types of left-hand/right-hand endpoints are (`HList`-based endpoint or value
@@ -299,13 +297,10 @@ A coproduct `Endpoint[A :+: B :+: CNil]` represents an endpoint that returns a v
 function defined in `Option` and `Try`: if the first endpoint fails to match the input, it fails
 through to the second one.
 
-```tut:silent
-import io.finch._
-import shapeless._
+```tut
+import io.finch._, shapeless._
 
-val i: Endpoint[Int] = int
-val s: Endpoint[String] = string
-val either: Endpoint[Int :+: String :+: CNil] = i :+: s
+val either = int :+: string
 ```
 
 Any coproduct endpoint may be converted into a Finagle HTTP service (i.e.,
@@ -323,29 +318,23 @@ wrapping the right hand side `Output[B]` into a `Future`.
 In the following example, an `Endpoint[Int :: Int :: HNil]` is mapped to a function
 `(Int, Int) => Output[Int]`.
 
-```tut:silent
-import io.finch._
-import shapeless._
+```tut
+import io.finch._, shapeless._
 
-val i: Endpoint[Int] = int
-val both: Endpoint[Int :: Int :: HNil] = i :: i
+val both = int :: int
 
-val sum: Endpoint[Int] = both { (a: Int, b: Int) => Ok(a + b) }
+val sum = both { (a: Int, b: Int) => Ok(a + b) }
 ```
 
 There is a special case when `Endpoint[L <: HList]` is converted into an endpoint of case class. For
 this purpose, the `Endpoint.as[A]` method might be used.
 
-```tut:silent
-import io.finch._
-import shapeless._
+```tut
+import io.finch._, shapeless._
 
 case class Foo(i: Int, s: String)
-val i: Endpoint[Int] = int
-val s: Endpoint[String] = string
-val is: Endpoint[Int :: String :: HNil] = i :: s
 
-val foo: Endpoint[Foo] = is.as[Foo]
+val foo = (int :: string).as[Foo]
 ```
 
 It's also possible to be explicit and use one of the `map*` methods defined on `Endpoint[A]`:
@@ -378,7 +367,7 @@ object Output {
 Having an `Output` defined as an ADT allows us to return both payloads and failures from the same
 endpoint depending on the conditional result.
 
-```tut:silent
+```tut
 import io.finch._
 
 val divOrFail: Endpoint[Int] = post("div" :: int :: int) { (a: Int, b: Int) =>
@@ -393,8 +382,7 @@ order to convert an `Endpoint` into a Finagle service, there should be an implic
 in terms of Circe's `Encoder`:
 
 ```tut:silent
-import io.finch._
-import io.circe._
+import io.finch._, io.circe._
 
 implicit val encodeException: Encoder[Exception] = Encoder.instance(e =>
   Json.obj("message" -> Json.fromString(e.getMessage)))
@@ -416,13 +404,11 @@ Given that `Content-Type` is a separate concept, which is neither attached to `E
 the way to specify it is to explicitly pass a requested `Content-Type` either to a `toServiceAs`
 method call (to affect encoding) or `body` endpoint creation (to affect decoding).
 
-```tut:silent
-import com.twitter.finagle.http.{Request, Response}
-import com.twitter.finagle.Service
-import io.finch._
+```tut
+import com.twitter.finagle.http.{Request, Response}, com.twitter.finagle.Service, io.finch._
 
-val e: Endpoint[String] = get(/) { Ok("Hello, World!") }
-val s: Service[Request, Response] = e.toServiceAs[Text.Plain]
+val e = get(/) { Ok("Hello, World!") }
+val s = e.toServiceAs[Text.Plain]
 ```
 
 The program above will do the right thing (will pick the right decoder) even when JSON encoders are
@@ -459,7 +445,7 @@ This facility is designed to be intuitive, meaning that you do not have to provi
 `io.finch.DecodeEntity[Seq[MyType]]` for converting a sequence. A decoder for a single item will
 allow you to convert `Option[String]` and `Seq[String]`, too:
 
-```tut:silent
+```tut
 import io.finch._
 
 param("foo").as[Int]
@@ -473,14 +459,12 @@ The same method `as[A]` is also available on any `Endpoint[L <: HList]` to perfo
 [Shapeless][shapeless]-powered generic conversions from `HList`s to case classes with appropriately
 typed members.
 
-```tut:silent
+```tut
 import io.finch._
 
 case class Foo(i: Int, s: String)
 
-val e = param("i").as[Int] :: param("s")
-
-val foo = e.as[Foo]
+val foo = (param("i").as[Int] :: param("s")).as[Foo]
 ```
 
 Note that while both methods take different implicit params and use different techniques to perform
@@ -507,12 +491,12 @@ All you need to implement is a simple function from `String` to `Try[A]`.
 As long as the implicit declared above is in scope, you can then use your custom decoder in the same
 way as any of the built-in decoders (in this case for creating a JodaTime `Interval`):
 
-```tut:silent
-import io.circe.generic.auto._
+```tut
+import io.finch._
 
-case class Interval(start:Long, end: Long)
+case class Interval(start: Long, end: Long)
 
-val interval: Endpoint[Interval] = (
+val interval = (
   param("start").as[Long] ::
   param("end").as[Long]
 ).as[Interval]
@@ -544,15 +528,12 @@ object Person {
 Finch will automatically adapt these implicits to its own `io.finch.Decode.Json[Person]` type,  so
 that you can use the `jsonBody(Option)` endpoints to read the HTTP bodies sent in a JSON format:
 
-```tut:silent
-import io.finch._
-import Person._
-import com.twitter.io.Buf
+```tut
+import io.finch._, com.twitter.io.Buf, Person._
 
 val p = jsonBody[Person]
 
 p(Input.post("/").withBody[Application.Json](Buf.Utf8("""{"name":"foo","age":42}""")))
-
 ```
 
 The integration for the other JSON libraries works in a similar way.
@@ -782,8 +763,10 @@ endpoint using the similarly named methods:
 
 The following example handles the `ArithmeticException` propagated from `a / b`.
 
-```tut:silent
-val divOrFail: Endpoint[Int] = post("div" :: int :: int) { (a: Int, b: Int) =>
+```tut
+import io.finch._
+
+val divOrFail = post("div" :: int :: int) { (a: Int, b: Int) =>
   Ok(a / b)
 } handle {
   case e: Exception => BadRequest(e)
@@ -807,8 +790,7 @@ Define your own instance if you want to serialize handled exception into a paylo
 content-type. For example, here is an instance for HTML.
 
 ```tut:silent
-import io.finch._
-import com.twitter.io.Buf
+import io.finch._, com.twitter.io.Buf
 
 implicit val e: Encode.Aux[Exception, Text.Html] = Encode.instance((e, cs) =>
   Buf.Utf8(s"<h1>Bad thing happened: ${e.getMessage}<h1>")
@@ -826,29 +808,29 @@ takes an `Input` and returns `EndpointResult` that could be queried with `await*
 There is a lightweight API around `Input`s to make them easy to build. For example, the following
 builds a `GET /foo?a=1&b=2` request:
 
-```tut:silent
+```tut
 import io.finch._
 
-val foo: Input = Input.get("/foo", "a" -> "2", "b" -> "3")
+val foo = Input.get("/foo", "a" -> "2", "b" -> "3")
 ```
 
 Similarly a payload (`application/x-www-form-urlencoded` in this case) with headers may be added
 to an input:
 
-```tut:silent
+```tut
 import io.finch._
-val bar: Input = Input.post("/bar").withForm("a" -> "1", "b" -> "2").withHeaders("X-Header" -> "Y")
+
+val bar = Input.post("/bar").withForm("a" -> "1", "b" -> "2").withHeaders("X-Header" -> "Y")
 ```
 
 Additionally, there is JSON-specific support in the `Input` API through `withBody`.
 
-```tut:silent
-import io.circe.generic.auto._
-import io.finch._
-import io.finch.circe._
+```tut
+import io.circe.generic.auto._, io.finch._, io.finch.circe._
 
 case class Baz(m: Map[String, String])
-val baz: Input = Input.put("/baz").withBody[Application.Json](Baz(Map("a" -> "b")))
+
+val baz = Input.put("/baz").withBody[Application.Json](Baz(Map("a" -> "b")))
 ```
 
 Note that, assuming UTF-8 as the encoding, which is the default, `application/json;charset=utf-8`
@@ -859,14 +841,13 @@ will be added as content type.
 Similarly to the `Input` API for testing, `EndpointResult` comes with a number of blocking methods
 (prefixed with `await`) designed to be used in tests.
 
-```tut:silent
-import io.finch._
-import com.twitter.finagle.http.Status
+```tut
+import io.finch._, com.twitter.finagle.http.Status
 
-val divOrFail: Endpoint[Int] = post(int :: int) { (a: Int, b: Int) =>
-        if (b == 0) BadRequest(new Exception("div by 0"))
-        else Ok(a / b)
-     }
+val divOrFail = post(int :: int) { (a: Int, b: Int) =>
+  if (b == 0) BadRequest(new Exception("div by 0"))
+  else Ok(a / b)
+}
 
 divOrFail(Input.post("/20/10")).awaitValueUnsafe() == Some(2)
 
