@@ -1,6 +1,13 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/finagle/finch/master/finch-logo.png" width="360px" />
-</p>
+---
+layout: home
+title:  "Home"
+section: "home"
+technologies:
+ - first: ["Scala", "sbt-microsites plugin is completely written in Scala"]
+ - second: ["SBT", "sbt-microsites plugin uses SBT and other sbt plugins to generate microsites easily"]
+ - third: ["Jekyll", "Jekyll allows for the transformation of plain text into static websites and blogs."]
+---
+
 
 Finch provides a combinator API over the [Finagle][finagle] HTTP services. An `Endpoint[A]`, main
 abstraction for which combinators are defined, represents an HTTP endpoint that takes a request and
@@ -16,15 +23,15 @@ build.sbt:
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "finch-core" % "0.13.0",
-  "com.github.finagle" %% "finch-circe" % "0.13.0",
+  "com.github.finagle" %% "finch-core" % "0.13.1",
+  "com.github.finagle" %% "finch-circe" % "0.13.1",
   "io.circe" %% "circe-generic" % "0.7.0"
 )
 ```
 
 Main.scala:
 
-```scala
+```tut:silent
 import com.twitter.finagle.Http
 import com.twitter.util.Await
 
@@ -73,20 +80,17 @@ object Main extends App {
 
 ### Finch Talks
 
+* [Put Some[Types] on your **HTTP** endpoints][matsuri17] by [@vkostyukov][vkostyukov] in Feb 17
 * [Functional Microservices with Finch and Circe][ucon16] by [@davegurnell][davegurnell] in Nov 16
 * [Typed Services Using Finch][ylj16] by [@tomjadams][tomjadams] in Apr 2016
 * [Finch: Your REST API as a Monad][scalax] by [@vkostyukov][vkostyukov] in Dec 2015
 * [On the history of Finch][sfscala-vk] by [@vkostyukov][vkostyukov] in Apr 2015
 * [Some possible features for Finch][sfscala-tb] [@travisbrown][travisbrown] in Apr 2015
 
-# Documentation
-
-* [User Guide](user-guide.md)
-* [Cookbook](cookbook.md)
-* [Best Practices](best-practices.md)
 
 [finagle]: http://twitter.github.io/finagle/
 [circe]: https://github.com/travisbrown/circe
+[matsuri17]: http://kostyukov.net/slides/finch-tokyo
 [ylj16]: https://www.youtube.com/watch?v=xkZOyY9PG88
 [ucon16]: https://skillsmatter.com/skillscasts/9335-high-flying-free-and-easy-functional-microservices-with-finch
 [scalax]: https://skillsmatter.com/skillscasts/6876-finch-your-rest-api-as-a-monad
