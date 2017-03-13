@@ -54,7 +54,7 @@ Internally, an `Endpoint[A]` is represented as a function `Input => EndpointResu
    input or not
 
 Technically, `EndpointResult[A]` acts similarly to `Option[(Input, Output[A])]` implying that if
-and endpoint is matched, both (Scala's `Tuple2`) the input remainder and the output are returned.
+an endpoint is matched, both (Scala's `Tuple2`) the input remainder and the output are returned.
 
 At this point, it's important to understand the endpoint lifecycle:
 
@@ -67,7 +67,7 @@ At this point, it's important to understand the endpoint lifecycle:
 
 Everything from above is happening automatically when endpoint is served as a Finagle service so as
 a user you should neither deal with `Input` nor `EndpointResult` directly. Although, these types come
-in handy when it testing endpoints: it's quite easy to run an endpoint with an arbitrary `Input` and
+in handy when testing endpoints: it's quite easy to run an endpoint with an arbitrary `Input` and
 then query its `EndpointResult` to assert the output. This testing business is covered in depth in
 the [Testing](#testing) section. Although, some of the testing bits will be used later
 in this user guide.
@@ -288,7 +288,7 @@ val both = int :: string
 ```
 
 No matter what the types of left-hand/right-hand endpoints are (`HList`-based endpoint or value
-endpoint), when applied to the `::` compositor, the correctly constructed `HList` will be yielded.
+endpoint), when applied to the `::` combinator, the correctly constructed `HList` will be yielded.
 
 #### Coproduct Endpoints
 
@@ -388,7 +388,7 @@ implicit val encodeException: Encoder[Exception] = Encoder.instance(e =>
   Json.obj("message" -> Json.fromString(e.getMessage)))
 ```
 
-NOTE: This instance is already available whenever `io.finch.circe._` import is present (simlar for
+NOTE: This instance is already available whenever `io.finch.circe._` import is present (similar for
 any other of JSON library supported).
 
 ### Type-level Content-Type
@@ -863,3 +863,11 @@ You can find unit tests for the examples in the [examples folder][examples].
 [hlist]: https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.0.0#heterogenous-lists
 [coproduct]: https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.0.0#coproducts-and-discriminated-unions
 [examples]: https://github.com/finagle/finch/tree/master/examples/src/test/scala/io/finch
+[argonaut]: http://argonaut.io
+[jackson]: http://wiki.fasterxml.com/JacksonHome
+[json4s]: http://json4s.org/
+[circe]: https://github.com/circe/circe
+[circe-jackson]: https://github.com/circe/circe-jackson
+[circe-jackson-performance]: https://github.com/circe/circe-jackson#jackson-vs-jawn
+[playjson]: https://www.playframework.com/documentation/2.6.x/ScalaJson
+[spray-json]: https://github.com/spray/spray-json
