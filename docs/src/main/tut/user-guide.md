@@ -398,7 +398,7 @@ make it affect implicit resolution and make sure that the right encoder/decoder 
 compiler. This is done lift the following kind of errors at compile time:
 
  - a `Text.Plain` service won't compile when only Circe's JSON encoders are available in the scope
- - a `Application.Json` body endpoint won't compile when no JSON library support is imported
+ - an `Application.Json` body endpoint won't compile when no JSON library support is imported
 
 Given that `Content-Type` is a separate concept, which is neither attached to `Endpoint` nor `Output`,
 the way to specify it is to explicitly pass a requested `Content-Type` either to a `toServiceAs`
