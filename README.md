@@ -84,8 +84,9 @@ there, [scoring a second place][finch-is-fast] across all the Scala libraries.
 
 Documentation
 -------------
-* A comprehensive documentation may be found in the [`docs/`](docs/index.md) folder
-* The latest Scaladoc is available at [http://finagle.github.io/finch/docs][scaladoc]
+* The main documentation is hosted at http://finagle.github.io/finch/
+* The documentation source may be found in the [`docs/`](docs/) folder
+* The latest Scaladoc is available at http://finagle.github.io/finch/api/
 
 Adopters
 --------
