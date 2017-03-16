@@ -52,7 +52,7 @@ val baseSettings = Seq(
     "com.chuusai" %% "shapeless" % shapelessVersion,
     "org.typelevel" %% "cats-core" % catsVersion,
     "com.twitter" %% "finagle-http" % finagleVersion,
-    "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+    scalaOrganization.value % "scala-reflect" % scalaVersion.value,
     "io.catbird" %% "catbird-util" % catbirdVersion
   ) ++ testDependencies.map(_ % "test"),
   resolvers ++= Seq(
