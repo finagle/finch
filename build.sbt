@@ -97,6 +97,12 @@ lazy val publishSettings = Seq(
         <name>Travis Brown</name>
         <url>https://meta.plasm.us/</url>
       </developer>
+      <developer>
+        <id>rpless</id>
+        <name>Ryan Plessner</name>
+        <url>https://twitter.com/ryan_plessner</url>
+      </developer>
+
     </developers>
 )
 
