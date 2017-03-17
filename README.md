@@ -90,19 +90,19 @@ Documentation
 
 Adopters
 --------
-* [Despegar] (http://www.despegar.com)
-* [Earnest] (http://meetearnest.com)
-* [Globo.com] (http://globo.com)
-* [Glopart] (https://glopart.ru)
-* [Hotel Urbano] (http://www.hotelurbano.com)
+* [Despegar](http://www.despegar.com)
+* [Earnest](http://meetearnest.com)
+* [Globo.com](http://globo.com)
+* [Glopart](https://glopart.ru)
+* [Hotel Urbano](http://www.hotelurbano.com)
 * [Konfettin](http://konfettin.ru)
 * [JusBrasil](http://www.jusbrasil.com.br)
 * [Sabre Labs](http://sabrelabs.com)
 * [Spright](http://spright.com)
-* [SoFi] (https://www.sofi.com/)
-* [Qubit] (http://www.qubit.com)
-* [QuizUp] (http://www.quizup.com)
-* [Lookout] (http://www.lookout.com)
+* [SoFi](https://www.sofi.com/)
+* [Qubit](http://www.qubit.com)
+* [QuizUp](http://www.quizup.com)
+* [Lookout](http://www.lookout.com)
 * [Project September](http://projectseptember.com/)
 * [Sigma](http://thesigma.com)
 * [D.A.Consortium](http://www.dac.co.jp/english/)
@@ -122,6 +122,10 @@ There are plenty of ways to contribute into Finch:
 
 The Finch project supports the [Typelevel][typelevel] [code of conduct][conduct] and wants all of its channels
 (Gitter, GitHub, etc.) to be welcoming environments for everyone.
+
+Finch is currently maintained by [Vladimir Kostyukov][vkostyukov], [Travis Brown][travisbrown], and
+[Ryan Plessner][ryan_plessner]. After the 1.0 release, all pull requests will require two sign-offs
+by a maintainer to be merged.
 
 License
 -------
@@ -152,3 +156,6 @@ limitations under the License.
 [tempower]: https://www.techempower.com/benchmarks/#section=data-r12&hw=peak&test=json&l=6bk
 [finch-is-fast]: http://vkostyukov.net/posts/how-fast-is-finch/
 [server-sent-events]: https://en.wikipedia.org/wiki/Server-sent_events
+[vkostyukov]: https://twitter.com/vkostyukov
+[travisbrown]: https://twitter.com/travisbrown
+[ryan_plessner]: https://twitter.com/ryan_plessner
