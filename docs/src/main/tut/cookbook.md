@@ -438,10 +438,10 @@ implicit class RichSFuture[A](val f: SFuture[A]) extends AnyVal {
 
 ### Server Sent Events
 
-Finch offers support for [Server Sent Events](server-sent-events) through the `finch-sse` sub-project.
+Finch offers support for [Server Sent Events][server-sent-events] through the `finch-sse` sub-project.
 Server Sent Events are represented as `AsyncStream`s and streamed over the chunked HTTP transport.
 
-The `ServerSentEvent` case class caries an arbitrary `data` field and it's possible to encode any
+The `ServerSentEvent` case class carries an arbitrary `data` field and it's possible to encode any
 `ServerSentEvent[A]` for which `cats.Show[A]` is defined.
 
 In this example, every next second we stream instances of `java.util.Date` as server sent events on
