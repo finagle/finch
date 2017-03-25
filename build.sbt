@@ -312,6 +312,7 @@ lazy val examples = project
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-generic" % circeVersion,
+      "com.twitter" %% "finagle-stats" % finagleVersion,
       "com.twitter" %% "twitter-server" % twitterServerVersion,
       "com.twitter" %% "util-eval" % utilVersion,
       "com.github.finagle" %% "finagle-oauth2" % finagleOAuth2Version
