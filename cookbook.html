@@ -373,6 +373,28 @@ path segment might be extracted as (converted to) Java 8’s <code class="highli
 <p><strong>Note:</strong> <code class="highlighter-rouge">io.finch.DecodePath</code> is an experimental API that will be (or not) eventually promoted
 to non-experimental.</p>
 
+<p><strong>Example 5: get all parameters or headers</strong></p>
+
+<p>In case if you want to operate with a whole request, you could use <code class="highlighter-rouge">root</code> endpoint. But if there is
+need to get only query parameters or headers, it’s easy to reuse this endpoint to get something like
+following:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">headersAll</span> <span class="k">=</span> <span class="n">root</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">headerMap</span><span class="o">.</span><span class="n">toMap</span><span class="o">)</span>
+<span class="n">headersAll</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">scala.collection.immutable.Map</span><span class="o">[</span><span class="kt">String</span>,<span class="kt">String</span><span class="o">]]</span> <span class="k">=</span> <span class="n">request</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">headers</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"hello"</span> <span class="o">::</span> <span class="n">headersAll</span><span class="o">)</span> <span class="o">{</span><span class="n">headers</span><span class="k">:</span> <span class="kt">Map</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">String</span><span class="o">]</span> <span class="k">=&gt;</span>
+     <span class="o">|</span>   <span class="nc">Ok</span><span class="o">(</span><span class="n">s</span><span class="s">"Headers: $headers"</span><span class="o">)</span>
+     <span class="o">|</span> <span class="o">}</span>
+<span class="n">headers</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">GET</span> <span class="o">/</span><span class="n">hello</span> <span class="o">::</span> <span class="n">request</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">headers</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">).</span><span class="n">withHeaders</span><span class="o">(</span><span class="s">"foo"</span> <span class="o">-&gt;</span> <span class="s">"bar"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span>
+<span class="n">res42</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">None</span>
+</code></pre>
+</div>
+
 <h3 id="cors-in-finch">CORS in Finch</h3>
 
 <p>There is a <a href="https://github.com/twitter/finagle/blob/develop/finagle-http/src/main/scala/com/twitter/finagle/http/filter/Cors.scala">Finagle filter</a> which, when applied, enriches a given HTTP service with
@@ -435,10 +457,10 @@ because of a couple of functions which are fairly easy to implement.</p>
 
 <h3 id="server-sent-events">Server Sent Events</h3>
 
-<p>Finch offers support for <a href="server-sent-events">Server Sent Events</a> through the <code class="highlighter-rouge">finch-sse</code> sub-project.
+<p>Finch offers support for <a href="https://en.wikipedia.org/wiki/Server-sent_events">Server Sent Events</a> through the <code class="highlighter-rouge">finch-sse</code> sub-project.
 Server Sent Events are represented as <code class="highlighter-rouge">AsyncStream</code>s and streamed over the chunked HTTP transport.</p>
 
-<p>The <code class="highlighter-rouge">ServerSentEvent</code> case class caries an arbitrary <code class="highlighter-rouge">data</code> field and it’s possible to encode any
+<p>The <code class="highlighter-rouge">ServerSentEvent</code> case class carries an arbitrary <code class="highlighter-rouge">data</code> field and it’s possible to encode any
 <code class="highlighter-rouge">ServerSentEvent[A]</code> for which <code class="highlighter-rouge">cats.Show[A]</code> is defined.</p>
 
 <p>In this example, every next second we stream instances of <code class="highlighter-rouge">java.util.Date</code> as server sent events on
