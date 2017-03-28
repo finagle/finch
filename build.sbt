@@ -1,4 +1,3 @@
-import UnidocKeys._
 import microsites.ExtraMdFileConfig
 import com.typesafe.sbt.SbtGhPages.GhPagesKeys._
 
@@ -9,14 +8,14 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.11.8", "2.12.1")
 )
 
-lazy val finagleVersion = "6.42.0"
-lazy val utilVersion = "6.41.0"
-lazy val twitterServerVersion = "1.27.0"
-lazy val finagleOAuth2Version = "0.4.0"
+lazy val finagleVersion = "6.43.0"
+lazy val utilVersion = "6.42.0"
+lazy val twitterServerVersion = "1.28.0"
+lazy val finagleOAuth2Version = "0.6.43"
 lazy val finagleHttpAuthVersion = "0.1.0"
 lazy val circeVersion = "0.7.0"
 lazy val circeJacksonVersion = "0.7.0"
-lazy val catbirdVersion = "0.12.0"
+lazy val catbirdVersion = "0.13.0"
 lazy val shapelessVersion = "2.3.2"
 lazy val catsVersion = "0.9.0"
 lazy val sprayVersion = "1.3.3"
@@ -41,7 +40,7 @@ lazy val compilerOptions = Seq(
 )
 
 val testDependencies = Seq(
-  "org.scalacheck" %% "scalacheck" % "1.13.4",
+  "org.scalacheck" %% "scalacheck" % "1.13.5",
   "org.scalatest" %% "scalatest" % "3.0.1",
   "org.typelevel" %% "cats-laws" % catsVersion,
   "org.typelevel" %% "discipline" % "0.7.3"
@@ -114,7 +113,7 @@ lazy val noPublish = Seq(
 
 lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
 
-lazy val docSettings = allSettings ++ unidocSettings ++ Seq(
+lazy val docSettings = allSettings ++ Seq(
   micrositeName := "Finch",
   micrositeDescription := "Scala combinator library for building Finagle HTTP services",
   micrositeAuthor := "Vladimir Kostyukov",
@@ -290,7 +289,7 @@ lazy val docs = project
       "org.mockito" % "mockito-all" % "1.10.19"
     )
   )
-  .enablePlugins(MicrositesPlugin)
+  .enablePlugins(MicrositesPlugin, ScalaUnidocPlugin)
   .dependsOn(core, circe, jackson, oauth2, sse, argonaut,json4s, playjson)
 
 
