@@ -298,8 +298,10 @@ but there are other, more fully-featured requirements when building out services
 There are several community efforts to build a simple service template for getting a
 fully-fledged service up & running quickly.
 
-* [Finch HTTP Service Template](https://github.com/tomjadams/finch-template)
+* [Finch HTTP Service Template](https://github.com/redbubble/finch-template)
 * [finch-server](https://github.com/BenWhitehead/finch-server)
+* [finch-quickstart](https://github.com/zdavep/finch-quickstart)
+* [Redbubble GraphQL template](https://github.com/redbubble/rb-graphql-template) - Adds Sangria support to [finch-template](https://github.com/redbubble/finch-template)
 
 [issue263]: https://github.com/finagle/finch/issues/263
 [future-finch]: https://gist.github.com/vkostyukov/411a9184f44a136e2ad9
