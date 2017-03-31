@@ -186,6 +186,24 @@ types atop of Finagle for writing lightweight HTTP services.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="io.finch">finch</a></dd></dl></div>
+    </li><li name="io.finch.generic" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="generic"></a><a id="generic:generic"></a>
+      <span class="permalink">
+      <a href="../../io/finch/index.html#generic" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="generic/index.html">
+              <span class="name">generic</span>
+            </a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="io.finch">finch</a></dd></dl></div>
     </li><li name="io.finch.internal" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="internal"></a><a id="internal:internal"></a>
       <span class="permalink">
@@ -598,7 +616,7 @@ Http.server.serve(foobar.toService)</pre></div><dl class="attributes block"> <dt
                 </div><div class="ancestors">
                   <span class="filtertype">Implicitly<br />
                   </span>
-                  <ol id="implicits"> <li class="in" name="io.finch.Endpoint.StringOptionEndpointOps" data-hidden="false"><span>by StringOptionEndpointOps</span></li><li class="in" name="io.finch.Endpoint.StringSeqEndpointOps" data-hidden="false"><span>by StringSeqEndpointOps</span></li><li class="in" name="io.finch.Endpoint.StringNelEndpointOps" data-hidden="false"><span>by StringNelEndpointOps</span></li><li class="in" name="io.finch.Endpoint.OptionEndpointOps" data-hidden="false"><span>by OptionEndpointOps</span></li><li class="in" name="io.finch.Endpoint.StringEndpointOps" data-hidden="false"><span>by StringEndpointOps</span></li><li class="in" name="io.finch.Endpoint.HListEndpointOps" data-hidden="false"><span>by HListEndpointOps</span></li><li class="in" name="io.finch.Endpoint.ValueEndpointOps" data-hidden="false"><span>by ValueEndpointOps</span></li><li class="in" name="scala.Predef.any2stringadd" data-hidden="true"><span>by any2stringadd</span></li><li class="in" name="scala.Predef.StringFormat" data-hidden="true"><span>by StringFormat</span></li><li class="in" name="scala.Predef.Ensuring" data-hidden="true"><span>by Ensuring</span></li><li class="in" name="scala.Predef.ArrowAssoc" data-hidden="true"><span>by ArrowAssoc</span></li>
+                  <ol id="implicits"> <li class="in" name="io.finch.Endpoint.StringOptionEndpointOps" data-hidden="false"><span>by StringOptionEndpointOps</span></li><li class="in" name="io.finch.Endpoint.StringSeqEndpointOps" data-hidden="false"><span>by StringSeqEndpointOps</span></li><li class="in" name="io.finch.Endpoint.StringNelEndpointOps" data-hidden="false"><span>by StringNelEndpointOps</span></li><li class="in" name="io.finch.Endpoint.StringEndpointOps" data-hidden="false"><span>by StringEndpointOps</span></li><li class="in" name="io.finch.Endpoint.OptionEndpointOps" data-hidden="false"><span>by OptionEndpointOps</span></li><li class="in" name="io.finch.Endpoint.HListEndpointOps" data-hidden="false"><span>by HListEndpointOps</span></li><li class="in" name="io.finch.Endpoint.ValueEndpointOps" data-hidden="false"><span>by ValueEndpointOps</span></li><li class="in" name="scala.Predef.any2stringadd" data-hidden="true"><span>by any2stringadd</span></li><li class="in" name="scala.Predef.StringFormat" data-hidden="true"><span>by StringFormat</span></li><li class="in" name="scala.Predef.Ensuring" data-hidden="true"><span>by Ensuring</span></li><li class="in" name="scala.Predef.ArrowAssoc" data-hidden="true"><span>by ArrowAssoc</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -1814,26 +1832,6 @@ the latency of the given endpoint.</p><pre><span class="kw">import</span> io.fin
             <a href="Endpoint$$StringNelEndpointOps.html" class="extype" name="io.finch.Endpoint.StringNelEndpointOps">StringNelEndpointOps</a> performed by method StringNelEndpointOps in <a href="Endpoint$.html" class="extype" name="io.finch.Endpoint">io.finch.Endpoint</a>.
             This conversion will take place only if A is NonEmptyList[String] (A =:= <a href="http://typelevel.org/cats/api/index.html#cats.data.NonEmptyList" class="extype" target="_top">NonEmptyList</a>[<span class="extype" name="scala.Predef.String">String</span>]).
           </dd><dt class="implicit">Shadowing</dt><dd>This implicitly inherited member is ambiguous. One or more implicitly inherited members have similar signatures, so calling this member may produce an ambiguous implicit conversion compiler error.<br />To access this member you can use a <a href="http://stackoverflow.com/questions/2087250/what-is-the-purpose-of-type-ascription-in-scala" target="_blank">type ascription</a>:<br /><div class="cmt"><pre>(endpoint: StringNelEndpointOps).self</pre></div></dd><dt>Definition Classes</dt><dd><a href="Endpoint$$StringNelEndpointOps.html" class="extype" name="io.finch.Endpoint.StringNelEndpointOps">StringNelEndpointOps</a></dd></dl></div>
-    </li><li name="io.finch.Endpoint.OptionEndpointOps#self" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="self:io.finch.Endpoint[Option[A]]"></a><a id="self:Endpoint[Option[A]]"></a>
-      <span class="permalink">
-      <a href="../../io/finch/Endpoint.html#self:io.finch.Endpoint[Option[A]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="implicit shadowed">self</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>]]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>] to
-            <a href="Endpoint$$OptionEndpointOps.html" class="extype" name="io.finch.Endpoint.OptionEndpointOps">OptionEndpointOps</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>] performed by method OptionEndpointOps in <a href="Endpoint$.html" class="extype" name="io.finch.Endpoint">io.finch.Endpoint</a>.
-            This conversion will take place only if A is Option[A] (A =:= <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>]).
-          </dd><dt class="implicit">Shadowing</dt><dd>This implicitly inherited member is ambiguous. One or more implicitly inherited members have similar signatures, so calling this member may produce an ambiguous implicit conversion compiler error.<br />To access this member you can use a <a href="http://stackoverflow.com/questions/2087250/what-is-the-purpose-of-type-ascription-in-scala" target="_blank">type ascription</a>:<br /><div class="cmt"><pre>(endpoint: OptionEndpointOps[A]).self</pre></div></dd><dt>Definition Classes</dt><dd><a href="Endpoint$$OptionEndpointOps.html" class="extype" name="io.finch.Endpoint.OptionEndpointOps">OptionEndpointOps</a></dd></dl></div>
     </li><li name="io.finch.Endpoint.StringEndpointOps#self" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="self:io.finch.Endpoint[String]"></a><a id="self:Endpoint[String]"></a>
       <span class="permalink">
@@ -1854,6 +1852,26 @@ the latency of the given endpoint.</p><pre><span class="kw">import</span> io.fin
             <a href="Endpoint$$StringEndpointOps.html" class="extype" name="io.finch.Endpoint.StringEndpointOps">StringEndpointOps</a> performed by method StringEndpointOps in <a href="Endpoint$.html" class="extype" name="io.finch.Endpoint">io.finch.Endpoint</a>.
             This conversion will take place only if A is String (A =:= <span class="extype" name="scala.Predef.String">String</span>).
           </dd><dt class="implicit">Shadowing</dt><dd>This implicitly inherited member is ambiguous. One or more implicitly inherited members have similar signatures, so calling this member may produce an ambiguous implicit conversion compiler error.<br />To access this member you can use a <a href="http://stackoverflow.com/questions/2087250/what-is-the-purpose-of-type-ascription-in-scala" target="_blank">type ascription</a>:<br /><div class="cmt"><pre>(endpoint: StringEndpointOps).self</pre></div></dd><dt>Definition Classes</dt><dd><a href="Endpoint$$StringEndpointOps.html" class="extype" name="io.finch.Endpoint.StringEndpointOps">StringEndpointOps</a></dd></dl></div>
+    </li><li name="io.finch.Endpoint.OptionEndpointOps#self" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="self:io.finch.Endpoint[Option[A]]"></a><a id="self:Endpoint[Option[A]]"></a>
+      <span class="permalink">
+      <a href="../../io/finch/Endpoint.html#self:io.finch.Endpoint[Option[A]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit shadowed">self</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>]]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>] to
+            <a href="Endpoint$$OptionEndpointOps.html" class="extype" name="io.finch.Endpoint.OptionEndpointOps">OptionEndpointOps</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>] performed by method OptionEndpointOps in <a href="Endpoint$.html" class="extype" name="io.finch.Endpoint">io.finch.Endpoint</a>.
+            This conversion will take place only if A is Option[A] (A =:= <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>]).
+          </dd><dt class="implicit">Shadowing</dt><dd>This implicitly inherited member is ambiguous. One or more implicitly inherited members have similar signatures, so calling this member may produce an ambiguous implicit conversion compiler error.<br />To access this member you can use a <a href="http://stackoverflow.com/questions/2087250/what-is-the-purpose-of-type-ascription-in-scala" target="_blank">type ascription</a>:<br /><div class="cmt"><pre>(endpoint: OptionEndpointOps[A]).self</pre></div></dd><dt>Definition Classes</dt><dd><a href="Endpoint$$OptionEndpointOps.html" class="extype" name="io.finch.Endpoint.OptionEndpointOps">OptionEndpointOps</a></dd></dl></div>
     </li><li name="io.finch.Endpoint.HListEndpointOps#self" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="self:io.finch.Endpoint[L]"></a><a id="self:Endpoint[A]"></a>
       <span class="permalink">
@@ -1963,13 +1981,13 @@ will succeed if either this or <code>that</code> endpoints are succeed.
               <h3>Inherited by implicit conversion StringNelEndpointOps from
                 <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>] to <a href="Endpoint$$StringNelEndpointOps.html" class="extype" name="io.finch.Endpoint.StringNelEndpointOps">StringNelEndpointOps</a>
               </h3>
-            </div><div class="conversion" name="io.finch.Endpoint.OptionEndpointOps">
-              <h3>Inherited by implicit conversion OptionEndpointOps from
-                <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>] to <a href="Endpoint$$OptionEndpointOps.html" class="extype" name="io.finch.Endpoint.OptionEndpointOps">OptionEndpointOps</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>]
-              </h3>
             </div><div class="conversion" name="io.finch.Endpoint.StringEndpointOps">
               <h3>Inherited by implicit conversion StringEndpointOps from
                 <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>] to <a href="Endpoint$$StringEndpointOps.html" class="extype" name="io.finch.Endpoint.StringEndpointOps">StringEndpointOps</a>
+              </h3>
+            </div><div class="conversion" name="io.finch.Endpoint.OptionEndpointOps">
+              <h3>Inherited by implicit conversion OptionEndpointOps from
+                <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>] to <a href="Endpoint$$OptionEndpointOps.html" class="extype" name="io.finch.Endpoint.OptionEndpointOps">OptionEndpointOps</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>]
               </h3>
             </div><div class="conversion" name="io.finch.Endpoint.HListEndpointOps">
               <h3>Inherited by implicit conversion HListEndpointOps from

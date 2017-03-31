@@ -114,10 +114,10 @@ types atop of Finagle for writing lightweight HTTP services." href="../index.htm
 types atop of Finagle for writing lightweight HTTP services.</p><div class="fullcomment"><div class="comment cmt"><p>This is a root package of the Finch library, which provides an immutable layer of functions and
 types atop of Finagle for writing lightweight HTTP services.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="io">io</a></dd></dl></div>
-    </li><li name="io.finch.internal" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="internal"></a><a id="internal:internal"></a>
+    </li><li name="io.finch.generic" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="generic"></a><a id="generic:generic"></a>
       <span class="permalink">
-      <a href="../../io/finch/index.html#internal" title="Permalink">
+      <a href="../../io/finch/index.html#generic" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -126,14 +126,12 @@ types atop of Finagle for writing lightweight HTTP services.
         <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="This package contains an internal-use only type-classes and utilities that power Finch's API." href="index.html">
-              <span class="name">internal</span>
+        <a title="" href="index.html">
+              <span class="name">generic</span>
             </a>
       </span>
       
-      <p class="shortcomment cmt">This package contains an internal-use only type-classes and utilities that power Finch's API.</p><div class="fullcomment"><div class="comment cmt"><p>This package contains an internal-use only type-classes and utilities that power Finch's API.</p><p>It's not recommended to use any of the internal API directly, since it might change without any
-deprecation cycles.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="io.finch">finch</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="io.finch">finch</a></dd></dl></div>
     </li><li class="current-entities indented3">
                         <a class="object" href="" title=""></a>
                         <a class="trait" href="FromParams.html" title="A type class empowering a generic derivation of Endpoints from query string params."></a>
@@ -142,59 +140,9 @@ deprecation cycles.
                         </a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="HighPriorityToResponseInstances.html" title=""></a>
-                        <a href="HighPriorityToResponseInstances.html" title="">
-                          HighPriorityToResponseInstances
-                        </a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="package$$HttpContent.html" title=""></a>
-                        <a href="package$$HttpContent.html" title="">
-                          HttpContent
-                        </a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="package$$HttpMessage.html" title=""></a>
-                        <a href="package$$HttpMessage.html" title="">
-                          HttpMessage
-                        </a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="trait" href="LowPriorityToResponseInstances.html" title=""></a>
-                        <a href="LowPriorityToResponseInstances.html" title="">
-                          LowPriorityToResponseInstances
-                        </a>
-                      </li><li class="current-entities indented3">
-                        <a class="object" href="Mapper$.html" title=""></a>
-                        <a class="trait" href="Mapper.html" title="A type class that allows the Endpoint to be mapped to either A =&gt; B or A =&gt; Future[B]."></a>
-                        <a href="Mapper.html" title="A type class that allows the Endpoint to be mapped to either A =&gt; B or A =&gt; Future[B].">
-                          Mapper
-                        </a>
-                      </li><li class="current-entities indented3">
-                        <a class="object" href="PairAdjoin$.html" title=""></a>
-                        <a class="trait" href="PairAdjoin.html" title="We need a version of shapeless.ops.adjoin.Adjoin that provides slightly different behavior in
-the case of singleton results (we simply return the value, not a singleton HList)."></a>
-                        <a href="PairAdjoin.html" title="We need a version of shapeless.ops.adjoin.Adjoin that provides slightly different behavior in
-the case of singleton results (we simply return the value, not a singleton HList).">
-                          PairAdjoin
-                        </a>
-                      </li><li class="current-entities indented3">
-                        <a class="object" href="ToResponse$.html" title=""></a>
-                        <a class="trait" href="ToResponse.html" title="Represents a conversion from A to Response."></a>
-                        <a href="ToResponse.html" title="Represents a conversion from A to Response.">
-                          ToResponse
-                        </a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="class" href="package$$TooFastString.html" title="Enriches any string with fast tooX conversions."></a>
-                        <a href="package$$TooFastString.html" title="Enriches any string with fast tooX conversions.">
-                          TooFastString
-                        </a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="object" href="currentTime$.html" title=""></a>
-                        <a href="currentTime$.html" title="">
-                          currentTime
+                        <a class="class" href="GenericDerivation.html" title=""></a>
+                        <a href="GenericDerivation.html" title="">
+                          GenericDerivation
                         </a>
                       </li>
               </ul>
@@ -204,9 +152,9 @@ the case of singleton results (we simply return the value, not a singleton HList
             <body class="object value">
       <div id="definition">
         <a href="FromParams.html" title="See companion trait"><div class="big-circle object-companion-trait">o</div></a>
-        <p id="owner"><a href="../../index.html" class="extype" name="io">io</a>.<a href="../index.html" class="extype" name="io.finch">finch</a>.<a href="index.html" class="extype" name="io.finch.internal">internal</a></p>
+        <p id="owner"><a href="../../index.html" class="extype" name="io">io</a>.<a href="../index.html" class="extype" name="io.finch">finch</a>.<a href="index.html" class="extype" name="io.finch.generic">generic</a></p>
         <h1><a href="FromParams.html" title="See companion trait">FromParams</a><span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
@@ -226,7 +174,7 @@ the case of singleton results (we simply return the value, not a singleton HList
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/finagle/finch/tree/master/core/src/main/scala/io/finch/internal/FromParams.scala" target="_blank">FromParams.scala</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/finagle/finch/tree/master/generic/src/main/scala/io/finch/generic/FromParams.scala" target="_blank">FromParams.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -256,7 +204,7 @@ the case of singleton results (we simply return the value, not a singleton HList
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="io.finch.internal.FromParams"><span>FromParams</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="io.finch.generic.FromParams"><span>FromParams</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -286,7 +234,7 @@ the case of singleton results (we simply return the value, not a singleton HList
                 <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#!=(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#!=(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -302,7 +250,7 @@ the case of singleton results (we simply return the value, not a singleton HList
     </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html###():Int" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html###():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -318,7 +266,7 @@ the case of singleton results (we simply return the value, not a singleton HList
     </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#==(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#==(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -334,7 +282,7 @@ the case of singleton results (we simply return the value, not a singleton HList
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#asInstanceOf[T0]:T0" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#asInstanceOf[T0]:T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -350,7 +298,7 @@ the case of singleton results (we simply return the value, not a singleton HList
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#clone():Object" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#clone():Object" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -372,7 +320,7 @@ the case of singleton results (we simply return the value, not a singleton HList
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#eq(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -388,7 +336,7 @@ the case of singleton results (we simply return the value, not a singleton HList
     </li><li name="scala.AnyRef#equals" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="equals(x$1:Any):Boolean"></a><a id="equals(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#equals(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#equals(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -404,7 +352,7 @@ the case of singleton results (we simply return the value, not a singleton HList
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#finalize():Unit" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#finalize():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -426,7 +374,7 @@ the case of singleton results (we simply return the value, not a singleton HList
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#getClass():Class[_]" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#getClass():Class[_]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -442,7 +390,7 @@ the case of singleton results (we simply return the value, not a singleton HList
     </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#hashCode():Int" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#hashCode():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -455,10 +403,10 @@ the case of singleton results (we simply return the value, not a singleton HList
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.finch.internal.FromParams#hconsFromParams" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="hconsFromParams[HK&lt;:Symbol,HV,T&lt;:shapeless.HList](implicitkey:shapeless.Witness.Aux[HK],implicitfpt:io.finch.internal.FromParams[T],implicithс:shapeless.poly.Case1.Aux[io.finch.internal.Extractor.type,String,io.finch.Endpoint[HV]]):io.finch.internal.FromParams[shapeless.::[shapeless.labelled.FieldType[HK,HV],T]]"></a><a id="hconsFromParams[HK&lt;:Symbol,HV,T&lt;:HList](Aux[HK],FromParams[T],Aux[Extractor.type,String,Endpoint[HV]]):FromParams[::[FieldType[HK,HV],T]]"></a>
+    </li><li name="io.finch.generic.FromParams#hconsFromParams" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="hconsFromParams[HK&lt;:Symbol,HV,T&lt;:shapeless.HList](implicitkey:shapeless.Witness.Aux[HK],implicitfpt:io.finch.generic.FromParams[T],implicithс:shapeless.poly.Case1.Aux[io.finch.generic.Extractor.type,String,io.finch.Endpoint[HV]]):io.finch.generic.FromParams[shapeless.::[shapeless.labelled.FieldType[HK,HV],T]]"></a><a id="hconsFromParams[HK&lt;:Symbol,HV,T&lt;:HList](Aux[HK],FromParams[T],Aux[Extractor.type,String,Endpoint[HV]]):FromParams[::[FieldType[HK,HV],T]]"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#hconsFromParams[HK&lt;:Symbol,HV,T&lt;:shapeless.HList](implicitkey:shapeless.Witness.Aux[HK],implicitfpt:io.finch.internal.FromParams[T],implicithс:shapeless.poly.Case1.Aux[io.finch.internal.Extractor.type,String,io.finch.Endpoint[HV]]):io.finch.internal.FromParams[shapeless.::[shapeless.labelled.FieldType[HK,HV],T]]" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#hconsFromParams[HK&lt;:Symbol,HV,T&lt;:shapeless.HList](implicitkey:shapeless.Witness.Aux[HK],implicitfpt:io.finch.generic.FromParams[T],implicithс:shapeless.poly.Case1.Aux[io.finch.generic.Extractor.type,String,io.finch.Endpoint[HV]]):io.finch.generic.FromParams[shapeless.::[shapeless.labelled.FieldType[HK,HV],T]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -467,14 +415,14 @@ the case of singleton results (we simply return the value, not a singleton HList
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">hconsFromParams</span><span class="tparams">[<span name="HK">HK &lt;: <span class="extype" name="scala.Symbol">Symbol</span></span>, <span name="HV">HV</span>, <span name="T">T &lt;: <span class="extype" name="shapeless.HList">HList</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="key">key: <span class="extype" name="shapeless.Witness.Aux">Aux</span>[<span class="extype" name="io.finch.internal.FromParams.hconsFromParams.HK">HK</span>]</span>, <span name="fpt">fpt: <a href="FromParams.html" class="extype" name="io.finch.internal.FromParams">FromParams</a>[<span class="extype" name="io.finch.internal.FromParams.hconsFromParams.T">T</span>]</span>, <span name="hс">hс: <span class="extype" name="shapeless.Cases.Case1.Aux">Aux</span>[<span class="extype" name="io.finch.internal.Extractor">Extractor</span>.type, <span class="extype" name="scala.Predef.String">String</span>, <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.internal.FromParams.hconsFromParams.HV">HV</span>]]</span>)</span><span class="result">: <a href="FromParams.html" class="extype" name="io.finch.internal.FromParams">FromParams</a>[<span class="extype" name="shapeless.::">::</span>[<span class="extype" name="shapeless.labelled.FieldType">FieldType</span>[<span class="extype" name="io.finch.internal.FromParams.hconsFromParams.HK">HK</span>, <span class="extype" name="io.finch.internal.FromParams.hconsFromParams.HV">HV</span>], <span class="extype" name="io.finch.internal.FromParams.hconsFromParams.T">T</span>]]</span>
+        <span class="name">hconsFromParams</span><span class="tparams">[<span name="HK">HK &lt;: <span class="extype" name="scala.Symbol">Symbol</span></span>, <span name="HV">HV</span>, <span name="T">T &lt;: <span class="extype" name="shapeless.HList">HList</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="key">key: <span class="extype" name="shapeless.Witness.Aux">Aux</span>[<span class="extype" name="io.finch.generic.FromParams.hconsFromParams.HK">HK</span>]</span>, <span name="fpt">fpt: <a href="FromParams.html" class="extype" name="io.finch.generic.FromParams">FromParams</a>[<span class="extype" name="io.finch.generic.FromParams.hconsFromParams.T">T</span>]</span>, <span name="hс">hс: <span class="extype" name="shapeless.Cases.Case1.Aux">Aux</span>[<span class="extype" name="io.finch.generic.Extractor">Extractor</span>.type, <span class="extype" name="scala.Predef.String">String</span>, <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.generic.FromParams.hconsFromParams.HV">HV</span>]]</span>)</span><span class="result">: <a href="FromParams.html" class="extype" name="io.finch.generic.FromParams">FromParams</a>[<span class="extype" name="shapeless.::">::</span>[<span class="extype" name="shapeless.labelled.FieldType">FieldType</span>[<span class="extype" name="io.finch.generic.FromParams.hconsFromParams.HK">HK</span>, <span class="extype" name="io.finch.generic.FromParams.hconsFromParams.HV">HV</span>], <span class="extype" name="io.finch.generic.FromParams.hconsFromParams.T">T</span>]]</span>
       </span>
       
       
-    </li><li name="io.finch.internal.FromParams#hnilFromParams" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="hnilFromParams:io.finch.internal.FromParams[shapeless.HNil]"></a><a id="hnilFromParams:FromParams[HNil]"></a>
+    </li><li name="io.finch.generic.FromParams#hnilFromParams" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="hnilFromParams:io.finch.generic.FromParams[shapeless.HNil]"></a><a id="hnilFromParams:FromParams[HNil]"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#hnilFromParams:io.finch.internal.FromParams[shapeless.HNil]" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#hnilFromParams:io.finch.generic.FromParams[shapeless.HNil]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -483,14 +431,14 @@ the case of singleton results (we simply return the value, not a singleton HList
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">hnilFromParams</span><span class="result">: <a href="FromParams.html" class="extype" name="io.finch.internal.FromParams">FromParams</a>[<span class="extype" name="shapeless.HNil">HNil</span>]</span>
+        <span class="name">hnilFromParams</span><span class="result">: <a href="FromParams.html" class="extype" name="io.finch.generic.FromParams">FromParams</a>[<span class="extype" name="shapeless.HNil">HNil</span>]</span>
       </span>
       
       
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#isInstanceOf[T0]:Boolean" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#isInstanceOf[T0]:Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -506,7 +454,7 @@ the case of singleton results (we simply return the value, not a singleton HList
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#ne(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -522,7 +470,7 @@ the case of singleton results (we simply return the value, not a singleton HList
     </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#notify():Unit" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#notify():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -538,7 +486,7 @@ the case of singleton results (we simply return the value, not a singleton HList
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#notifyAll():Unit" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#notifyAll():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -554,7 +502,7 @@ the case of singleton results (we simply return the value, not a singleton HList
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -570,7 +518,7 @@ the case of singleton results (we simply return the value, not a singleton HList
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#toString():String" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#toString():String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -586,7 +534,7 @@ the case of singleton results (we simply return the value, not a singleton HList
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#wait():Unit" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#wait():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -608,7 +556,7 @@ the case of singleton results (we simply return the value, not a singleton HList
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -630,7 +578,7 @@ the case of singleton results (we simply return the value, not a singleton HList
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
       <span class="permalink">
-      <a href="../../../io/finch/internal/FromParams$.html#wait(x$1:Long):Unit" title="Permalink">
+      <a href="../../../io/finch/generic/FromParams$.html#wait(x$1:Long):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
