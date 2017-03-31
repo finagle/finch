@@ -18,6 +18,7 @@ Modules
 Finch uses multi-project structure and contains of the following _modules_:
 
 * [`finch-core`](core) - the core classes/functions
+* [`finch-generic`](generic) - generic derivation for endpoints
 * [`finch-argonaut`](argonaut) - the JSON API support for the [Argonaut][argonaut] library
 * [`finch-jackson`](jackson) - the JSON API support for the [Jackson][jackson] library
 * [`finch-json4s`](json4s) - the JSON API support for the [JSON4S][json4s] library
@@ -36,7 +37,7 @@ Every Finch module is published at Maven Central. Use the following _sbt_ snippe
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "[finch-module]" % "0.13.0"
+  "com.github.finagle" %% "[finch-module]" % "0.14.0"
 )
 ```
 
@@ -46,13 +47,13 @@ libraryDependencies ++= Seq(
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "[finch-module]" % "0.14.0-SNAPSHOT" changing()
+  "com.github.finagle" %% "[finch-module]" % "0.15.0-SNAPSHOT" changing()
 )
 ```
 
 Hello World!
 ------------
-This "Hello World!" example is built with the `0.13.0` version of just `finch-core`.
+This "Hello World!" example is built with the `0.14.0` version of just `finch-core`.
 
 ```scala
 import io.finch._

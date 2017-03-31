@@ -3,7 +3,7 @@ import com.typesafe.sbt.SbtGhPages.GhPagesKeys._
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  version := "0.14.0-SNAPSHOT",
+  version := "0.14.0",
   scalaVersion := "2.12.1",
   crossScalaVersions := Seq("2.11.8", "2.12.1")
 )
@@ -188,10 +188,10 @@ lazy val core = project
   .settings(moduleName := "finch-core")
   .settings(allSettings)
 
-  lazy val generic = project
-    .settings(moduleName := "finch-generic")
-    .settings(allSettings)
-    .dependsOn(core % "compile->compile;test->test")
+lazy val generic = project
+  .settings(moduleName := "finch-generic")
+  .settings(allSettings)
+  .dependsOn(core % "compile->compile;test->test")
 
 lazy val test = project
   .settings(moduleName := "finch-test")
