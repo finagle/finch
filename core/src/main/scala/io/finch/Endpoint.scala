@@ -202,14 +202,6 @@ trait Endpoint[A] { self =>
   }
 
   /**
-   * Composes this endpoint with the given `other` endpoint. The resulting endpoint will succeed
-   * only if both this and `that` endpoints succeed.
-   */
-  @deprecated("Use :: instead.", "0.14")
-  final def adjoin[B](other: Endpoint[B])(implicit pa: PairAdjoin[A, B]): Endpoint[pa.Out] =
-    self :: other
-
-  /**
    * Composes this endpoint with the given [[Endpoint]].
    */
   final def ::[B](other: Endpoint[B])(implicit pa: PairAdjoin[B, A]): Endpoint[pa.Out] =
@@ -221,13 +213,6 @@ trait Endpoint[A] { self =>
       override def item = items.MultipleItems
       final override def toString: String = s"${other.toString} :: ${self.toString}"
     }
-
-  /**
-   * Sequentially composes this endpoint with the given `other` endpoint. The resulting endpoint
-   * will succeed if either this or `that` endpoints are succeed.
-   */
-  @deprecated("Use coproduct instead.", "0.14")
-  final def |[B >: A](other: Endpoint[B]): Endpoint[B] = coproduct(other)
 
   /**
    * Sequentially composes this endpoint with the given `other` endpoint. The resulting endpoint
