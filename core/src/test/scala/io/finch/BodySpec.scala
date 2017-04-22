@@ -33,7 +33,7 @@ class BodySpec extends FinchSpec {
   it should "not match on streaming requests" in {
     val req = Request()
     req.setChunked(true)
-    body[Foo, Text.Plain].apply(Input.request(req)).awaitValueUnsafe() === None
+    body[Foo, Text.Plain].apply(Input.fromRequest(req)).awaitValueUnsafe() === None
   }
 
   it should "respond with a value when present and required" in {

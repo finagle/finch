@@ -22,7 +22,7 @@ class InputSpec extends FinchSpec {
       input.request.method === method &&
       input.request.path === "/" + segments.mkString("/") &&
       input.request.params === params &&
-      input.path === segments
+      input.route === segments
 
     check { (ps: Params, p: Path) =>
       val segments = p.p.split("/").toList.drop(1)
