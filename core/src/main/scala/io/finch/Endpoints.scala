@@ -26,8 +26,8 @@ trait Endpoints {
    * An universal [[Endpoint]] that matches the given string.
    */
   private[finch] class Matcher(s: String) extends Endpoint[HNil] {
-    final def apply(input: Input): Endpoint.Result[HNil] = input.headOption match {
-      case Some(`s`) => EndpointResult.Matched(input.drop(1), Rs.OutputHNil)
+    final def apply(input: Input): Endpoint.Result[HNil] = input.route match {
+      case `s` +: rest => EndpointResult.Matched(input.withRoute(rest), Rs.OutputHNil)
       case _ => EndpointResult.Skipped
     }
 
@@ -43,9 +43,9 @@ trait Endpoints {
    * from the string.
    */
   private[finch] case class Extractor[A](name: String, f: String => Option[A]) extends Endpoint[A] {
-    final def apply(input: Input): Endpoint.Result[A] = input.headOption match {
-      case Some(ss) => f(ss) match {
-        case Some(a) => EndpointResult.Matched(input.drop(1), Rs.const(Output.payload(a)))
+    final def apply(input: Input): Endpoint.Result[A] = input.route match {
+      case ss +: rest => f(ss) match {
+        case Some(a) => EndpointResult.Matched(input.withRoute(rest), Rs.const(Output.payload(a)))
         case _ => EndpointResult.Skipped
       }
       case _ => EndpointResult.Skipped
@@ -57,8 +57,8 @@ trait Endpoints {
   }
 
   private[finch] case class StringExtractor(name: String) extends Endpoint[String] {
-    final def apply(input: Input): Endpoint.Result[String] = input.headOption match {
-      case Some(s) => EndpointResult.Matched(input.drop(1), Rs.const(Output.payload(s)))
+    final def apply(input: Input): Endpoint.Result[String] = input.route match {
+      case s +: rest => EndpointResult.Matched(input.withRoute(rest), Rs.const(Output.payload(s)))
       case _ => EndpointResult.Skipped
     }
 
@@ -76,8 +76,8 @@ trait Endpoints {
 
     final def apply(input: Input): Endpoint.Result[Seq[A]] =
       EndpointResult.Matched(
-        input.copy(path = Nil),
-        Rs.const(Output.payload(input.path.flatMap(f.andThen(_.toSeq))))
+        input.copy(route = Nil),
+        Rs.const(Output.payload(input.route.flatMap(f.andThen(_.toSeq))))
       )
 
     final def apply(n: String): Endpoint[Seq[A]] = copy[A](name = n)
@@ -95,8 +95,8 @@ trait Endpoints {
    * @note This is an experimental API and might be removed without any notice.
    */
   val path: Endpoint[String] = new Endpoint[String] {
-    final def apply(input: Input): Endpoint.Result[String] = input.headOption match {
-      case Some(s) => EndpointResult.Matched(input.drop(1), Rs.const(Output.payload(s)))
+    final def apply(input: Input): Endpoint.Result[String] = input.route match {
+      case s +: rest => EndpointResult.Matched(input.withRoute(rest), Rs.const(Output.payload(s)))
       case _ => EndpointResult.Skipped
     }
 
@@ -108,10 +108,10 @@ trait Endpoints {
    * [[DecodePath]] instances defined for `A`) from the current path segment.
    */
   def path[A](implicit c: DecodePath[A]): Endpoint[A] = new Endpoint[A] {
-    final def apply(input: Input): Endpoint.Result[A] = input.headOption match {
-      case Some(s) => c(s) match {
+    final def apply(input: Input): Endpoint.Result[A] = input.route match {
+      case s +: rest => c(s) match {
         case Some(a) =>
-          EndpointResult.Matched(input.drop(1), Rs.const(Output.payload(a)))
+          EndpointResult.Matched(input.withRoute(rest), Rs.const(Output.payload(a)))
         case _ => EndpointResult.Skipped
 
       }
@@ -176,7 +176,7 @@ trait Endpoints {
    */
   object * extends Endpoint[HNil] {
     final def apply(input: Input): Endpoint.Result[HNil] =
-      EndpointResult.Matched(input.copy(path = Nil), Rs.OutputHNil)
+      EndpointResult.Matched(input.copy(route = Nil), Rs.OutputHNil)
 
     final override def toString: String = "*"
   }

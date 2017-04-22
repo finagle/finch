@@ -30,8 +30,8 @@ private[finch] final class ToService[A, CT <: String](
     rep
   }
 
-  def apply(req: Request): Future[Response] = underlying(Input.request(req)) match {
-    case EndpointResult.Matched(rem, out) if rem.isEmpty =>
+  def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
+    case EndpointResult.Matched(rem, out) if rem.route.isEmpty =>
       out.map(oa => conformHttp(oa.toResponse(tr, tre), req.version)).run
     case _ => Future.value(conformHttp(Response(Status.NotFound), req.version))
   }

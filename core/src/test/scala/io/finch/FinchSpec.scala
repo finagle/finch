@@ -228,10 +228,10 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
   }
 
   implicit def arbitraryInput: Arbitrary[Input] =
-    Arbitrary(arbitraryRequest.arbitrary.map(Input.request))
+    Arbitrary(arbitraryRequest.arbitrary.map(Input.fromRequest))
 
   implicit def cogenInput: Cogen[Input] =
-    Cogen[(Request, Seq[String])].contramap(input => (input.request, input.path))
+    Cogen[(Request, Seq[String])].contramap(input => (input.request, input.route))
 
   implicit def arbitraryUUID: Arbitrary[UUID] = Arbitrary(Gen.uuid)
 

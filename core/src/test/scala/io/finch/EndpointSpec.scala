@@ -22,9 +22,10 @@ class EndpointSpec extends FinchSpec {
   it should "extract one path segment" in {
     def extractOne[A](e: Endpoint[A], f: String => A): Input => Boolean = { i: Input =>
       val o = e(i)
-      val v = i.headOption.flatMap(s => Try(f(s)).toOption)
+      val v = i.route.headOption.flatMap(s => Try(f(s)).toOption)
 
-      o.awaitValueUnsafe() === v && (v.isEmpty || o.remainder === Some(i.drop(1)))
+      o.awaitValueUnsafe() === v &&
+        (v.isEmpty || o.remainder === Some(i.withRoute(i.route.tail)))
     }
 
     check(extractOne(string, identity))
@@ -37,7 +38,7 @@ class EndpointSpec extends FinchSpec {
   it should "extract tail of the path" in {
     def extractTail[A](e: Endpoint[Seq[A]]): Seq[A] => Boolean = { s: Seq[A] =>
       val i = Input(emptyRequest, s.map(_.toString))
-      e(i).remainder === Some(i.copy(path = Nil))
+      e(i).remainder === Some(i.copy(route = Nil))
     }
 
     check(extractTail(strings))
@@ -49,26 +50,26 @@ class EndpointSpec extends FinchSpec {
 
   it should "support very basic map" in {
     check { i: Input =>
-      string.map(_ * 2)(i).awaitValueUnsafe() === i.headOption.map(_ * 2)
+      string.map(_ * 2)(i).awaitValueUnsafe() === i.route.headOption.map(_ * 2)
     }
   }
 
   it should "support transform" in {
     check { i: Input =>
       val fn = (fs: Future[Output[String]]) => fs.map(_.map(_ * 2))
-      string.transform(fn)(i).awaitValueUnsafe() === i.headOption.map(_ * 2)
+      string.transform(fn)(i).awaitValueUnsafe() === i.route.headOption.map(_ * 2)
     }
   }
 
   it should "propagate the default (Ok) output" in {
     check { i: Input =>
-      string(i).awaitOutputUnsafe() === i.headOption.map(s => Ok(s))
+      string(i).awaitOutputUnsafe() === i.route.headOption.map(s => Ok(s))
     }
   }
 
   it should "propagate the default (Ok) output through its map'd/mapAsync'd version" in {
     check { i: Input =>
-      val expected = i.headOption.map(s => Ok(s.length))
+      val expected = i.route.headOption.map(s => Ok(s.length))
 
       string.map(s => s.length)(i).awaitOutputUnsafe() === expected &&
       string.mapAsync(s => Future.value(s.length))(i).awaitOutputUnsafe() === expected
@@ -83,27 +84,27 @@ class EndpointSpec extends FinchSpec {
 
     check { i: Input =>
       string.mapOutputAsync(s => Future.value(expected(s.length)))(i).awaitOutputUnsafe() ===
-        i.headOption.map(s => expected(s.length))
+        i.route.headOption.map(s => expected(s.length))
     }
 
     check { i: Input =>
-      val e = i.path.dropRight(1)
+      val e = i.route.dropRight(1)
         .map(s => s: Endpoint0)
         .foldLeft[Endpoint0](/)((acc, ee) => acc :: ee)
 
       val v = (e :: string).mapOutputAsync(s => Future.value(expected(s.length)))(i)
-      v.awaitOutputUnsafe() === i.path.lastOption.map(s => expected(s.length))
+      v.awaitOutputUnsafe() === i.route.lastOption.map(s => expected(s.length))
     }
   }
 
   it should "match one patch segment" in {
     def matchOne[A](f: String => A)(implicit ev: A => Endpoint0): Input => Boolean = { i: Input =>
-      val v = i.path.headOption
+      val v = i.route.headOption
         .flatMap(s => Try(f(s)).toOption)
         .map(ev)
         .flatMap(e => e(i).remainder)
 
-      v.isEmpty|| v === Some(i.drop(1))
+      v.isEmpty|| v === Some(i.withRoute(i.route.tail))
     }
 
     check(matchOne(identity))
@@ -113,7 +114,7 @@ class EndpointSpec extends FinchSpec {
 
   it should "always match the entire input with *" in {
     check { i: Input =>
-      *(i).remainder === Some(i.copy(path = Nil))
+      *(i).remainder === Some(i.copy(route = Nil))
     }
   }
 
@@ -143,8 +144,8 @@ class EndpointSpec extends FinchSpec {
 
   it should "match the entire input" in {
     check { i: Input =>
-      val e = i.path.map(s => s: Endpoint0).foldLeft[Endpoint0](/)((acc, e) => acc :: e)
-      e(i).remainder === Some(i.copy(path = Nil))
+      val e = i.route.map(s => s: Endpoint0).foldLeft[Endpoint0](/)((acc, e) => acc :: e)
+      e(i).remainder === Some(i.copy(route = Nil))
     }
   }
 
@@ -156,8 +157,8 @@ class EndpointSpec extends FinchSpec {
 
   it should "match the input if one of the endpoints succeed" in {
     def matchOneOfTwo(f: String => Endpoint0): Input => Boolean = { i: Input =>
-      val v = i.path.headOption.map(f).flatMap(e => e(i).remainder)
-      v.isEmpty || v === Some(i.drop(1))
+      val v = i.route.headOption.map(f).flatMap(e => e(i).remainder)
+      v.isEmpty || v === Some(i.withRoute(i.route.tail))
     }
 
     check(matchOneOfTwo(s => (s: Endpoint0).coproduct(s.reverse: Endpoint0)))
@@ -312,10 +313,10 @@ class EndpointSpec extends FinchSpec {
     val e1: Endpoint0 = "a".coproduct("b").coproduct("a" :: 10)
     val e2: Endpoint0 = ("a" :: 10).coproduct("b").coproduct("a")
 
-    e1(a).remainder shouldBe Some(a.drop(2))
-    e1(b).remainder shouldBe Some(b.drop(2))
-    e2(a).remainder shouldBe Some(a.drop(2))
-    e2(b).remainder shouldBe Some(b.drop(2))
+    e1(a).remainder shouldBe Some(a.withRoute(a.route.drop(2)))
+    e1(b).remainder shouldBe Some(b.withRoute(b.route.drop(2)))
+    e2(a).remainder shouldBe Some(a.withRoute(a.route.drop(2)))
+    e2(b).remainder shouldBe Some(b.withRoute(b.route.drop(2)))
   }
 
   it should "accumulate errors on its product" in {

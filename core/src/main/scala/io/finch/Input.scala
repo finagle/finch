@@ -10,16 +10,21 @@ import org.jboss.netty.handler.codec.http.multipart.{DefaultHttpDataFactory, Htt
 import shapeless.Witness
 
 /**
- * An input for [[Endpoint]].
+ * An input for [[Endpoint]] that glues two individual pieces together:
+ *
+ * - Finagle's [[Request]] needed for evaluating (e.g., `body`, `param`)
+ * - Finch's route (represented as `Seq[String]`) needed for matching (e.g., `path`)
  */
-final case class Input(request: Request, path: Seq[String]) {
-  def headOption: Option[String] = path.headOption
-  def drop(n: Int): Input = copy(path = path.drop(n))
-  def isEmpty: Boolean = path.isEmpty
+final case class Input(request: Request, route: Seq[String]) {
 
   /**
-   * Overrides (mutates) the payload of this input and returns `this`. This requires the
-   * content-type as a first type parameter (won't be infered).
+   * Returns the new `Input` wrapping a given `route`.
+   */
+  def withRoute(route: Seq[String]): Input = Input(request, route)
+
+  /**
+   * Returns the new `Input` wrapping a given payload. This requires the content-type as a first
+   * type parameter (won't be inferred).
    *
    * ```
    *  import io.finch._, io.circe._
@@ -31,15 +36,17 @@ final case class Input(request: Request, path: Seq[String]) {
   def withBody[CT <: String]: Input.Body[CT] = new Input.Body[CT](this)
 
   /**
-   * Adds (mutates) new `headers` to this input and returns `this`.
+   * Returns the new `Input` with `headers` amended.
    */
   def withHeaders(headers: (String, String)*): Input = {
-    headers.foreach { case (k, v) => request.headerMap.set(k, v) }
-    this
+    val copied = Input.copyRequest(request)
+    headers.foreach { case (k, v) => copied.headerMap.set(k, v) }
+
+    Input(copied, route)
   }
 
   /**
-   * Overrides (mutates) the payload of this input to be `application/x-www-form-urlencoded`.
+   * Returns the new `Input` wrapping a given `application/x-www-form-urlencoded` payload.
    *
    * @note In addition to media type, this will also set charset to UTF-8.
    */
@@ -76,6 +83,17 @@ final case class Input(request: Request, path: Seq[String]) {
  */
 object Input {
 
+  private final def copyRequest(from: Request): Request = {
+    val to = Request()
+    to.version = from.version
+    to.method = from.method
+    to.content = from.content
+    to.uri = from.uri
+    from.headerMap.foreach { case (k, v) => to.headerMap.put(k, v) }
+
+    to
+  }
+
   /**
    * A helper class that captures the `Content-Type` of the payload.
    */
@@ -85,12 +103,14 @@ object Input {
     ): Input = {
       val content = e(body, charset.getOrElse(StandardCharsets.UTF_8))
 
-      i.request.content = content
-      i.request.contentType = w.value
-      i.request.contentLength = content.length.toLong
-      charset.foreach(cs => i.request.charset = cs.displayName().toLowerCase)
+      val copied = copyRequest(i.request)
 
-      i
+      copied.content = content
+      copied.contentType = w.value
+      copied.contentLength = content.length.toLong
+      charset.foreach(cs => copied.charset = cs.displayName().toLowerCase)
+
+      Input(copied, i.route)
     }
   }
 
@@ -99,34 +119,34 @@ object Input {
   /**
    * Creates an [[Input]] from a given [[Request]].
    */
-  def request(req: Request): Input = Input(req, req.path.split("/").toList.drop(1))
+  def fromRequest(req: Request): Input = Input(req, req.path.split("/").toList.drop(1))
 
   /**
    * Creates a `GET` input with a given query string (represented as `params`).
    */
   def get(path: String, params: (String, String)*): Input =
-    request(Request(Method.Get, Request.queryString(path, params: _*)))
+    fromRequest(Request(Method.Get, Request.queryString(path, params: _*)))
 
   /**
    * Creates a `PUT` input with a given query string (represented as `params`).
    */
   def put(path: String, params: (String, String)*): Input =
-    request(Request(Method.Put, Request.queryString(path, params: _*)))
+    fromRequest(Request(Method.Put, Request.queryString(path, params: _*)))
 
   /**
    * Creates a `PATCH` input with a given query string (represented as `params`).
    */
   def patch(path: String, params: (String, String)*): Input =
-    request(Request(Method.Patch, Request.queryString(path, params: _*)))
+    fromRequest(Request(Method.Patch, Request.queryString(path, params: _*)))
 
   /**
    * Creates a `DELETE` input with a given query string (represented as `params`).
    */
   def delete(path: String, params: (String, String)*): Input =
-    request(Request(Method.Delete, Request.queryString(path, params: _*)))
+    fromRequest(Request(Method.Delete, Request.queryString(path, params: _*)))
 
   /**
    * Creates a `POST` input with empty payload.
    */
-  def post(path: String): Input = request(Request(Method.Post, path))
+  def post(path: String): Input = fromRequest(Request(Method.Post, path))
 }
