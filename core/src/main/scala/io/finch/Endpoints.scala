@@ -1,22 +1,19 @@
 package io.finch
 
 import cats.data.NonEmptyList
-import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.finagle.http.exp.Multipart.FileUpload
-import com.twitter.io.Buf
 import com.twitter.util.{Future, Try}
 import io.catbird.util.Rerunnable
 import io.finch.endpoint._
 import io.finch.internal._
 import java.util.UUID
-import scala.reflect.ClassTag
 import shapeless._
 
 /**
  * A collection of [[Endpoint]] combinators.
  */
-trait Endpoints {
+trait Endpoints extends Bodies {
 
   type Endpoint0 = Endpoint[HNil]
   type Endpoint2[A, B] = Endpoint[A :: B :: HNil]
@@ -45,8 +42,10 @@ trait Endpoints {
   private[finch] case class Extractor[A](name: String, f: String => Option[A]) extends Endpoint[A] {
     final def apply(input: Input): Endpoint.Result[A] = input.route match {
       case ss +: rest => f(ss) match {
-        case Some(a) => EndpointResult.Matched(input.withRoute(rest), Rs.const(Output.payload(a)))
-        case _ => EndpointResult.Skipped
+        case Some(a) =>
+          EndpointResult.Matched(input.withRoute(rest), Rerunnable.const(Output.payload(a)))
+        case _ =>
+          EndpointResult.Skipped
       }
       case _ => EndpointResult.Skipped
     }
@@ -58,7 +57,7 @@ trait Endpoints {
 
   private[finch] case class StringExtractor(name: String) extends Endpoint[String] {
     final def apply(input: Input): Endpoint.Result[String] = input.route match {
-      case s +: rest => EndpointResult.Matched(input.withRoute(rest), Rs.const(Output.payload(s)))
+      case s +: rest => EndpointResult.Matched(input.withRoute(rest), Rerunnable.const(Output.payload(s)))
       case _ => EndpointResult.Skipped
     }
 
@@ -77,7 +76,7 @@ trait Endpoints {
     final def apply(input: Input): Endpoint.Result[Seq[A]] =
       EndpointResult.Matched(
         input.copy(route = Nil),
-        Rs.const(Output.payload(input.route.flatMap(f.andThen(_.toSeq))))
+        Rerunnable.const(Output.payload(input.route.flatMap(f.andThen(_.toSeq))))
       )
 
     final def apply(n: String): Endpoint[Seq[A]] = copy[A](name = n)
@@ -96,8 +95,10 @@ trait Endpoints {
    */
   val path: Endpoint[String] = new Endpoint[String] {
     final def apply(input: Input): Endpoint.Result[String] = input.route match {
-      case s +: rest => EndpointResult.Matched(input.withRoute(rest), Rs.const(Output.payload(s)))
-      case _ => EndpointResult.Skipped
+      case s +: rest =>
+        EndpointResult.Matched(input.withRoute(rest), Rerunnable.const(Output.payload(s)))
+      case _ =>
+        EndpointResult.Skipped
     }
 
     final override def toString: String = ":path"
@@ -111,7 +112,7 @@ trait Endpoints {
     final def apply(input: Input): Endpoint.Result[A] = input.route match {
       case s +: rest => c(s) match {
         case Some(a) =>
-          EndpointResult.Matched(input.withRoute(rest), Rs.const(Output.payload(a)))
+          EndpointResult.Matched(input.withRoute(rest), Rerunnable.const(Output.payload(a)))
         case _ => EndpointResult.Skipped
 
       }
@@ -276,30 +277,6 @@ trait Endpoints {
   private[this] def requestCookie(cookie: String)(req: Request): Option[Cookie] =
     req.cookies.get(cookie)
 
-  private[this] val someEmptyString = Some("")
-  private[this] def requestBodyString(req: Request): Option[String] =
-    req.contentLength match {
-      case Some(0) => someEmptyString
-      case Some(_) => Some(req.content.asString(req.charsetOrUtf8))
-      case None => None
-    }
-
-  private[this] val someEmptyBuf = Some(Buf.Empty)
-  private[this] final def requestBody(req: Request): Option[Buf] =
-    req.contentLength match {
-      case Some(0) => someEmptyBuf
-      case Some(_) => Some(req.content)
-      case None => None
-    }
-
-  private[this] val someEmptyByteArray = Some(Array.empty[Byte])
-  private[this] def requestBodyByteArray(req: Request): Option[Array[Byte]] =
-    req.contentLength match {
-      case Some(0) => someEmptyByteArray
-      case Some(_) => Some(Buf.ByteArray.Shared.extract(req.content))
-      case None => None
-    }
-
   private[this] def requestUpload(upload: String)(req: Request): Option[FileUpload] =
     Try(req.multipart).getOrElse(None).flatMap(m => m.files.get(upload).flatMap(fs => fs.headOption))
 
@@ -392,78 +369,6 @@ trait Endpoints {
    */
   def headerExists(name: String): Endpoint[String] =
     exists(items.HeaderItem(name))(requestHeader(name))
-
-  /**
-   * An evaluating [[Endpoint]] that reads a binary request body, interpreted as a `Array[Byte]`,
-   * into an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
-   */
-  val binaryBodyOption: Endpoint[Option[Array[Byte]]] =
-    matches(items.BodyItem)(!_.isChunked)(requestBodyByteArray)
-
-  /**
-   * An evaluating [[Endpoint]] that reads a required binary request body, interpreted as an
-   * `Array[Byte]`, or throws a [[Error.NotPresent]] exception. The returned [[Endpoint]] only
-   * matches non-chunked (non-streamed) requests.
-   */
-  val binaryBody: Endpoint[Array[Byte]] = binaryBodyOption.failIfNone
-
-  /**
-   * An evaluating [[Endpoint]] that reads an optional request body, interpreted as a `String`, into
-   * an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
-   */
-  val stringBodyOption: Endpoint[Option[String]] =
-    matches(items.BodyItem)(!_.isChunked)(requestBodyString)
-
-  /**
-   * An evaluating [[Endpoint]] that reads the required request body, interpreted as a `String`, or
-   * throws an [[Error.NotPresent]] exception. The returned [[Endpoint]] only matches non-chunked
-   * (non-streamed) requests.
-   */
-  val stringBody: Endpoint[String] = stringBodyOption.failIfNone
-
-  /**
-   * An [[Endpoint]] that reads an optional request body represented as `CT` (`ContentType`) and
-   * interpreted as `A`, into an `Option`. The returned [[Endpoint]] only matches non-chunked
-   * (non-streamed) requests.
-   */
-  def bodyOption[A, CT <: String](implicit
-    d: Decode.Aux[A, CT], ct: ClassTag[A]): Endpoint[Option[A]] = new OptionalBody[A, CT](d, ct)
-
-  /**
-   * An [[Endpoint]] that reads the required request body represented as `CT` (`ContentType`) and
-   * interpreted as `A`, or throws an [[Error.NotPresent]] exception. The returned [[Endpoint]]
-   * only matches non-chunked (non-streamed) requests.
-   */
-  def body[A, CT <: String](implicit
-    d: Decode.Aux[A, CT], ct: ClassTag[A]): Endpoint[A] = new RequiredBody[A, CT](d, ct)
-
-  /**
-   * Alias for `body[A, Application.Json]`.
-   */
-  def jsonBody[A: Decode.Json : ClassTag]: Endpoint[A] = body[A, Application.Json]
-
-  /**
-   * Alias for `bodyOption[A, Application.Json]`.
-   */
-  def jsonBodyOption[A: Decode.Json : ClassTag]: Endpoint[Option[A]] =
-    bodyOption[A, Application.Json]
-
-  /**
-   * Alias for `body[A, Text.Plain]`
-   */
-  def textBody[A: Decode.Text : ClassTag]: Endpoint[A] = body[A, Text.Plain]
-
-  /**
-   * Alias for `bodyOption[A, Text.Plain]`
-   */
-  def textBodyOption[A: Decode.Text : ClassTag]: Endpoint[Option[A]] = bodyOption[A, Text.Plain]
-
-  /**
-   * An evaluating [[Endpoint]] that reads a required chunked streaming binary body, interpreted as
-   * an `AsyncStream[Buf]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
-   */
-  val asyncBody: Endpoint[AsyncStream[Buf]] =
-    matches(items.BodyItem)(_.isChunked)(req => AsyncStream.fromReader(req.reader))
 
   /**
    * An evaluating [[Endpoint]] that reads an optional HTTP cookie from the request into an
