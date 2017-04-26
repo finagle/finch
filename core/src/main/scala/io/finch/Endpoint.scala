@@ -377,7 +377,7 @@ object Endpoint {
    */
   def const[A](a: A): Endpoint[A] = new Endpoint[A] {
     final def apply(input: Input): Result[A] =
-      EndpointResult.Matched(input, Rs.const(Output.payload(a)))
+      EndpointResult.Matched(input, Rerunnable.const(Output.payload(a)))
   }
 
   /**
