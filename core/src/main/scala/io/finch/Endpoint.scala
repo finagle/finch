@@ -334,8 +334,8 @@ trait Endpoint[A] { self =>
   final def shouldNot(rule: ValidationRule[A]): Endpoint[A] = shouldNot(rule.description)(rule.apply)
 
   /**
-    * Lifts this endpoint into one that always succeeds, with [[Try]] representing both success and failure
-    * cases.
+    * Lifts this endpoint into one that always succeeds, with [[Try]] representing both success and
+    * failure cases.
     */
   final def liftToTry: Endpoint[Try[A]] = new Endpoint[Try[A]] {
     @inline private[this] final def traverse: Try[Output[A]] => Output[Try[A]] = {
@@ -353,6 +353,13 @@ trait Endpoint[A] { self =>
     override final def toString: String = self.toString
   }
 
+  /**
+   * Overrides the `toString` method on this endpoint.
+   */
+  final def withToString(toString: => String): Endpoint[A] = new Endpoint[A] {
+    final def apply(input: Input): Endpoint.Result[A] = self(input)
+    final override def toString: String = toString
+  }
 
   private[this] def withOutput[B](fn: Output[A] => Output[B]): Endpoint[B] =
     transform(foa => foa.map(oa => fn(oa)))

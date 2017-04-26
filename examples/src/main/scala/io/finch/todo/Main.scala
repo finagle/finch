@@ -49,7 +49,7 @@ object Main extends TwitterServer {
   def patchedTodo: Endpoint[Todo => Todo] = jsonBody[Todo => Todo]
 
   def patchTodo: Endpoint[Todo] =
-    patch("todos" :: uuid :: patchedTodo) { (id: UUID, pt: Todo => Todo) =>
+    patch("todos" :: path[UUID] :: patchedTodo) { (id: UUID, pt: Todo => Todo) =>
       Todo.get(id) match {
         case Some(currentTodo) =>
           val newTodo: Todo = pt(currentTodo)
@@ -65,7 +65,7 @@ object Main extends TwitterServer {
     Ok(Todo.list())
   }
 
-  def deleteTodo: Endpoint[Todo] = delete("todos" :: uuid) { id: UUID =>
+  def deleteTodo: Endpoint[Todo] = delete("todos" :: path[UUID]) { id: UUID =>
     Todo.get(id) match {
       case Some(t) => Todo.delete(id); Ok(t)
       case None => throw TodoNotFound(id)

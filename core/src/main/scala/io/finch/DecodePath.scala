@@ -19,6 +19,7 @@ object DecodePath {
     def apply(s: String): Option[A] = fn( s)
   }
 
+  implicit val decodePath: DecodePath[String] = instance(Some.apply)
   implicit val decodeInt: DecodePath[Int] = instance(_.tooInt)
   implicit val decodeLong: DecodePath[Long] = instance(_.tooLong)
   implicit val decodeBoolean: DecodePath[Boolean] = instance(_.tooBoolean)

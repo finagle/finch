@@ -15,38 +15,15 @@ import io.finch.items.BodyItem
 class EndpointSpec extends FinchSpec {
   checkAll("Endpoint[String]", AlternativeTests[Endpoint].applicative[String, String, String])
 
+  checkAll("ExtractPath[String]", ExtractPathLaws[String].all)
+  checkAll("ExtractPath[Int]", ExtractPathLaws[Int].all)
+  checkAll("ExtractPath[Long]", ExtractPathLaws[Long].all)
+  checkAll("ExtractPath[UUID]", ExtractPathLaws[UUID].all)
+  checkAll("ExtractPath[Boolean]", ExtractPathLaws[Boolean].all)
+
   behavior of "Endpoint"
 
   private[this] val emptyRequest = Request()
-
-  it should "extract one path segment" in {
-    def extractOne[A](e: Endpoint[A], f: String => A): Input => Boolean = { i: Input =>
-      val o = e(i)
-      val v = i.route.headOption.flatMap(s => Try(f(s)).toOption)
-
-      o.awaitValueUnsafe() === v &&
-        (v.isEmpty || o.remainder === Some(i.withRoute(i.route.tail)))
-    }
-
-    check(extractOne(string, identity))
-    check(extractOne(int, _.toInt))
-    check(extractOne(boolean, _.toBoolean))
-    check(extractOne(long, _.toLong))
-    check(extractOne(uuid, UUID.fromString))
-  }
-
-  it should "extract tail of the path" in {
-    def extractTail[A](e: Endpoint[Seq[A]]): Seq[A] => Boolean = { s: Seq[A] =>
-      val i = Input(emptyRequest, s.map(_.toString))
-      e(i).remainder === Some(i.copy(route = Nil))
-    }
-
-    check(extractTail(strings))
-    check(extractTail(ints))
-    check(extractTail(booleans))
-    check(extractTail(longs))
-    check(extractTail(uuids))
-  }
 
   it should "support very basic map" in {
     check { i: Input =>

@@ -58,7 +58,7 @@ object Main {
   //
   // For example, if an input value is `3` then output stream would be
   // `1 (1), 3 (1 + 2), 5 (1 + 2 + 3)`.
-  def sumTo: Endpoint[AsyncStream[Long]] = post("sumTo" :: long) { to: Long =>
+  def sumTo: Endpoint[AsyncStream[Long]] = post("sumTo" :: path[Long]) { to: Long =>
     def loop(n: Long, s: Long): AsyncStream[Long] =
       if (n > to) AsyncStream.empty[Long]
       else (n + s) +:: loop(n + 1, n + s)
@@ -82,7 +82,7 @@ object Main {
     implicit val show: Show[Example] = Show.fromToString
   }
   // This endpoint will stream back a given number of `Example` objects in plain/text.
-  def examples: Endpoint[AsyncStream[Example]] = get("examples" :: int) { num: Int =>
+  def examples: Endpoint[AsyncStream[Example]] = get("examples" :: path[Int]) { num: Int =>
     Ok(AsyncStream.fromSeq(List.tabulate(num)(i => Example(i))))
   }
 
