@@ -40,7 +40,7 @@ private class ExtractPaths[A](implicit d: DecodePath[A], ct: ClassTag[A]) extend
   final override def toString: String = s":${ct.runtimeClass.getSimpleName.toLowerCase}*"
 }
 
-trait Paths {
+private[finch] trait Paths {
 
   implicit def stringToPath(s: String): Endpoint[HNil] = path(s)
   implicit def intToPath(i: Int): Endpoint[HNil] = path(i.toString)
