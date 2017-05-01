@@ -3,17 +3,17 @@ package io.finch.circe
 import com.twitter.io.Buf
 import io.circe.{Encoder, Json}
 import io.finch.Encode
+import java.nio.charset.Charset
 
 trait Encoders {
 
-  protected def printString(json: Json): String
+  protected def print(json: Json, cs: Charset): Buf
 
   /**
    * Maps Circe's [[Encoder]] to Finch's [[Encode]].
    */
-  implicit def encodeCirce[A](implicit e: Encoder[A]): Encode.Json[A] = Encode.json {
-    case (a, cs) => Buf.ByteArray.Owned(printString(e(a)).getBytes(cs.name))
-  }
+  implicit def encodeCirce[A](implicit e: Encoder[A]): Encode.Json[A] =
+    Encode.json((a, cs) => print(e(a), cs))
 
   implicit val encodeExceptionCirce: Encoder[Exception] = Encoder.instance(e =>
     Json.obj("message" -> Option(e.getMessage).fold(Json.Null)(Json.fromString))

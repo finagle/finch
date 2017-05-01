@@ -161,11 +161,11 @@ class ToServiceBenchmark extends FinchBenchmark {
   import io.finch.circe._
 
   val fooService: Service[Request, Response] = Endpoint.const(
-    List.fill(2048)(Foo(scala.util.Random.alphanumeric.take(100).mkString))
+    List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString))
   ).toService
 
   val intService: Service[Request, Response] = Endpoint.const(
-    List.fill(4096)(scala.util.Random.nextInt)
+    List.fill(128)(scala.util.Random.nextInt)
   ).toService
 
   @Benchmark
