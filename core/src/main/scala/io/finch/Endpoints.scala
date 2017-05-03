@@ -2,7 +2,6 @@ package io.finch
 
 import cats.data.NonEmptyList
 import com.twitter.finagle.http.{Cookie, Method, Request}
-import com.twitter.finagle.http.exp.Multipart.FileUpload
 import com.twitter.util.{Future, Try}
 import io.catbird.util.Rerunnable
 import io.finch.endpoint._
@@ -12,7 +11,7 @@ import shapeless._
 /**
  * A collection of [[Endpoint]] combinators.
  */
-trait Endpoints extends Bodies with Paths {
+trait Endpoints extends Bodies with Paths with FileUploads {
 
   type Endpoint0 = Endpoint[HNil]
   type Endpoint2[A, B] = Endpoint[A :: B :: HNil]
@@ -43,7 +42,7 @@ trait Endpoints extends Bodies with Paths {
       if (input.request.method == m) r(input)
       else EndpointResult.Skipped
 
-    final override def toString: String = s"${m.toString().toUpperCase} /${r.toString}"
+    final override def toString: String = s"${ m.toString().toUpperCase } /${ r.toString }"
   }
 
   /**
@@ -123,9 +122,6 @@ trait Endpoints extends Bodies with Paths {
   private[this] def requestCookie(cookie: String)(req: Request): Option[Cookie] =
     req.cookies.get(cookie)
 
-  private[this] def requestUpload(upload: String)(req: Request): Option[FileUpload] =
-    Try(req.multipart).getOrElse(None).flatMap(m => m.files.get(upload).flatMap(fs => fs.headOption))
-
   private[this] def option[A](item: items.RequestItem)(f: Request => A): Endpoint[A] =
     Endpoint.embed(item)(input =>
       EndpointResult.Matched(input, Rerunnable(Output.payload(f(input.request))))
@@ -138,16 +134,6 @@ trait Endpoints extends Bodies with Paths {
         case _ => EndpointResult.Skipped
       }
     }
-
-  private[this] def matches[A]
-    (item: items.RequestItem)
-    (p: Request => Boolean)
-    (f: Request => A): Endpoint[A] = Endpoint.embed(item)(input =>
-      if (p(input.request))
-        EndpointResult.Matched(input, Rerunnable(Output.payload(f(input.request))))
-      else
-        EndpointResult.Skipped
-    )
 
   /**
    * A root [[Endpoint]] that always matches and extracts the current request.
@@ -228,17 +214,4 @@ trait Endpoints extends Bodies with Paths {
    * [[Error.NotPresent]] exception when the cookie is missing.
    */
   def cookie(name: String): Endpoint[Cookie] = cookieOption(name).failIfNone
-
-  /**
-   * An evaluating[[Endpoint]] that reads an optional file upload from a multipart/form-data request
-   * into an `Option`.
-   */
-  def fileUploadOption(name: String): Endpoint[Option[FileUpload]] =
-    matches(items.ParamItem(name))(!_.isChunked)(requestUpload(name))
-
-  /**
-   * An evaluating [[Endpoint]] that reads a required file upload from a multipart/form-data
-   * request.
-   */
-  def fileUpload(name: String): Endpoint[FileUpload] = fileUploadOption(name).failIfNone
 }
