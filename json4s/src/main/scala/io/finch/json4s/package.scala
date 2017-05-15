@@ -14,10 +14,4 @@ package object json4s {
 
   implicit def encodeJson[A <: AnyRef](implicit formats: Formats): Encode.Json[A] =
     Encode.json((a, cs) => Buf.ByteArray.Owned(write(a).getBytes(cs)))
-
-  implicit val encodeJsonException: Encode.Json[Exception] = Encode.json((a, cs) =>
-    Buf.ByteArray.Owned(
-      compact(render(JObject("message" -> JString(a.getMessage)))).getBytes(cs.name)
-    )
-  )
 }

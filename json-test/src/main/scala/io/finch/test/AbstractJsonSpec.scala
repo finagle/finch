@@ -29,14 +29,12 @@ abstract class AbstractJsonSpec extends FlatSpec with Matchers with Checkers wit
   )
 
   def checkJson(library: String)(implicit
-    ee: Encode.Json[Exception],
     e: Encode.Json[List[ExampleNestedCaseClass]],
     d: Decode.Json[List[ExampleNestedCaseClass]]
   ): Unit = {
     def loop(name: String, ruleSet: Laws#RuleSet): Unit =
       for ((id, prop) <- ruleSet.all.properties) it should (s"$library.$id.$name") in { check(prop) }
 
-    loop("Exception", JsonLaws.encoding[Exception].all)
     loop("List[ExampleNestedCaseClass]", JsonLaws.encoding[List[ExampleNestedCaseClass]].all)
     loop("List[ExampleNestedCaseClass]", JsonLaws.decoding[List[ExampleNestedCaseClass]].all)
   }

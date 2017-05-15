@@ -10,7 +10,7 @@ class ArgonautSpec extends AbstractJsonSpec {
   implicit val exampleCaseClassCodecJson: CodecJson[ExampleCaseClass] =
     casecodec3(ExampleCaseClass.apply, ExampleCaseClass.unapply)("a", "b", "c")
 
- implicit val exampleNestedCaseClassCodecJson: CodecJson[ExampleNestedCaseClass] =
+  implicit val exampleNestedCaseClassCodecJson: CodecJson[ExampleNestedCaseClass] =
     casecodec5(ExampleNestedCaseClass.apply, ExampleNestedCaseClass.unapply)(
       "string",
       "double",

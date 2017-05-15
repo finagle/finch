@@ -13,9 +13,4 @@ trait Encoders {
    */
   implicit def encodeArgonaut[A](implicit e: EncodeJson[A]): Encode.Json[A] =
     Encode.json((a, cs) => Buf.ByteArray.Owned(printer.pretty(e.encode(a)).getBytes(cs.name)))
-
-  implicit val encodeExceptionArgonaut: EncodeJson[Exception] = new EncodeJson[Exception] {
-    override def encode(e: Exception): Json =
-      Json.obj("message" -> Option(e.getMessage).fold(Json.jNull)(Json.jString))
-  }
 }

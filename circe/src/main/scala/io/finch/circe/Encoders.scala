@@ -14,8 +14,4 @@ trait Encoders {
    */
   implicit def encodeCirce[A](implicit e: Encoder[A]): Encode.Json[A] =
     Encode.json((a, cs) => print(e(a), cs))
-
-  implicit val encodeExceptionCirce: Encoder[Exception] = Encoder.instance(e =>
-    Json.obj("message" -> Option(e.getMessage).fold(Json.Null)(Json.fromString))
-  )
 }
