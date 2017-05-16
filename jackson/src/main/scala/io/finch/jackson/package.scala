@@ -32,11 +32,4 @@ package object jackson {
   }
 
   implicit def encodeJackson[A]: Encode.Json[A] = encodeJacksonInstance.asInstanceOf[Encode.Json[A]]
-
-  implicit val encodeExceptionJackson: Encode.Json[Exception] =
-    Encode.json { (a, cs) =>
-      val rootNode = objectMapper.createObjectNode()
-      rootNode.put("message", a.getMessage)
-      Buf.ByteArray.Owned(objectMapper.writeValueAsString(rootNode).getBytes(cs.name))
-    }
 }
