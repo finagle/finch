@@ -8,13 +8,13 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.11.8", "2.12.1")
 )
 
-lazy val finagleVersion = "6.43.0"
-lazy val utilVersion = "6.42.0"
-lazy val twitterServerVersion = "1.28.0"
-lazy val finagleOAuth2Version = "0.6.43"
+lazy val finagleVersion = "6.44.0"
+lazy val utilVersion = "6.43.0"
+lazy val twitterServerVersion = "1.29.0"
+lazy val finagleOAuth2Version = "0.6.44"
 lazy val finagleHttpAuthVersion = "0.1.0"
-lazy val circeVersion = "0.8.0-RC1"
-lazy val circeJacksonVersion = "0.7.0"
+lazy val circeVersion = "0.8.0"
+lazy val circeJacksonVersion = "0.8.0"
 lazy val catbirdVersion = "0.13.0"
 lazy val shapelessVersion = "2.3.2"
 lazy val catsVersion = "0.9.0"
