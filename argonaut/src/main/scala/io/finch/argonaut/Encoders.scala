@@ -1,6 +1,6 @@
 package io.finch.argonaut
 
-import argonaut.{EncodeJson, Json, PrettyParams}
+import argonaut.{EncodeJson, PrettyParams}
 import com.twitter.io.Buf
 import io.finch.Encode
 

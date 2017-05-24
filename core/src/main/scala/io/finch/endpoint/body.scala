@@ -2,7 +2,7 @@ package io.finch.endpoint
 
 import com.twitter.concurrent.AsyncStream
 import com.twitter.io.Buf
-import com.twitter.util.{Future, Return, Throw}
+import com.twitter.util.{Return, Throw}
 import io.catbird.util.Rerunnable
 import io.finch._
 import io.finch.internal._
@@ -24,39 +24,41 @@ private abstract class FullBody[A] extends Endpoint[A] {
   final override def item: RequestItem = items.BodyItem
 }
 
-private trait PreparedBody[A, B] { _: FullBody[B] =>
-  protected def prepare(a: A): B
-}
+private object FullBody {
+  trait PreparedBody[A, B] { _: FullBody[B] =>
+    protected def prepare(a: A): B
+  }
 
-private trait Required[A] extends PreparedBody[A, A] { _: FullBody[A] =>
-  protected def prepare(a: A): A = a
-  protected def missing: Rerunnable[Output[A]] = Rs.bodyNotPresent[A]
-}
+  trait Required[A] extends PreparedBody[A, A] { _: FullBody[A] =>
+    protected def prepare(a: A): A = a
+    protected def missing: Rerunnable[Output[A]] = Rs.bodyNotPresent[A]
+  }
 
-private trait Optional[A] extends PreparedBody[A, Option[A]] { _: FullBody[Option[A]] =>
-  protected def prepare(a: A): Option[A] = Some(a)
-  protected def missing: Rerunnable[Output[Option[A]]] = Rs.none[A]
+  trait Optional[A] extends PreparedBody[A, Option[A]] { _: FullBody[Option[A]] =>
+    protected def prepare(a: A): Option[A] = Some(a)
+    protected def missing: Rerunnable[Output[Option[A]]] = Rs.none[A]
+  }
 }
 
 private abstract class Body[A, B, CT <: String](
-    d: Decode.Aux[A, CT], ct: ClassTag[A]) extends FullBody[B] with PreparedBody[A, B] {
+    d: Decode.Aux[A, CT], ct: ClassTag[A]) extends FullBody[B] with FullBody.PreparedBody[A, B] {
 
   protected def present(content: Buf, cs: Charset): Rerunnable[Output[B]] = d(content, cs) match {
     case Return(r) => Rs.payload(prepare(r))
-    case Throw(t) => Rerunnable.fromFuture(Future.exception(Error.NotParsed(items.BodyItem, ct, t)))
+    case Throw(t) => Rs.exception(Error.NotParsed(items.BodyItem, ct, t))
   }
 
   final override def toString: String = "body"
 }
 
-private abstract class BinaryBody[A] extends FullBody[A] with PreparedBody[Array[Byte], A] {
+private abstract class BinaryBody[A] extends FullBody[A] with FullBody.PreparedBody[Array[Byte], A] {
   protected def present(content: Buf, cs: Charset): Rerunnable[Output[A]] =
     Rs.payload(prepare(content.asByteArray))
 
   final override def toString: String = "binaryBody"
 }
 
-private abstract class StringBody[A] extends FullBody[A] with PreparedBody[String, A] {
+private abstract class StringBody[A] extends FullBody[A] with FullBody.PreparedBody[String, A] {
   protected def present(content: Buf, cs: Charset): Rerunnable[Output[A]] =
     Rs.payload(prepare(content.asString(cs)))
 
@@ -70,7 +72,7 @@ private[finch] trait Bodies {
    * into an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
    */
   val binaryBodyOption: Endpoint[Option[Array[Byte]]] =
-    new BinaryBody[Option[Array[Byte]]] with Optional[Array[Byte]]
+    new BinaryBody[Option[Array[Byte]]] with FullBody.Optional[Array[Byte]]
 
   /**
    * An evaluating [[Endpoint]] that reads a required binary request body, interpreted as an
@@ -78,21 +80,22 @@ private[finch] trait Bodies {
    * matches non-chunked (non-streamed) requests.
    */
   val binaryBody: Endpoint[Array[Byte]] =
-    new BinaryBody[Array[Byte]] with Required[Array[Byte]]
+    new BinaryBody[Array[Byte]] with FullBody.Required[Array[Byte]]
 
   /**
    * An evaluating [[Endpoint]] that reads an optional request body, interpreted as a `String`, into
    * an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
    */
   val stringBodyOption: Endpoint[Option[String]] =
-    new StringBody[Option[String]] with Optional[String]
+    new StringBody[Option[String]] with FullBody.Optional[String]
 
   /**
    * An evaluating [[Endpoint]] that reads the required request body, interpreted as a `String`, or
    * throws an [[Error.NotPresent]] exception. The returned [[Endpoint]] only matches non-chunked
    * (non-streamed) requests.
    */
-  val stringBody: Endpoint[String] = new StringBody[String] with Required[String]
+  val stringBody: Endpoint[String] =
+    new StringBody[String] with FullBody.Required[String]
 
   /**
    * An [[Endpoint]] that reads an optional request body represented as `CT` (`ContentType`) and
@@ -101,7 +104,7 @@ private[finch] trait Bodies {
    */
   def bodyOption[A, CT <: String](implicit
     d: Decode.Aux[A, CT], ct: ClassTag[A]
-  ): Endpoint[Option[A]] = new Body[A, Option[A], CT](d, ct) with Optional[A]
+  ): Endpoint[Option[A]] = new Body[A, Option[A], CT](d, ct) with FullBody.Optional[A]
 
   /**
    * An [[Endpoint]] that reads the required request body represented as `CT` (`ContentType`) and
@@ -109,7 +112,7 @@ private[finch] trait Bodies {
    * only matches non-chunked (non-streamed) requests.
    */
   def body[A, CT <: String](implicit d: Decode.Aux[A, CT], ct: ClassTag[A]): Endpoint[A] =
-    new Body[A, A, CT](d, ct) with Required[A]
+    new Body[A, A, CT](d, ct) with FullBody.Required[A]
 
   /**
    * Alias for `body[A, Application.Json]`.
