@@ -1,8 +1,8 @@
 package io.finch
 
 import cats.data.NonEmptyList
-import com.twitter.finagle.http.{Cookie, Method, Request}
-import com.twitter.util.{Future, Try}
+import com.twitter.finagle.http.{Cookie, Request}
+import com.twitter.util.Future
 import io.catbird.util.Rerunnable
 import io.finch.endpoint._
 import io.finch.internal._
@@ -36,77 +36,6 @@ trait Endpoints extends Bodies with Paths with FileUploads {
 
     final override def toString: String = ""
   }
-
-  private[this] def method[A](m: Method)(r: Endpoint[A]): Endpoint[A] = new Endpoint[A] {
-    final def apply(input: Input): Endpoint.Result[A] =
-      if (input.request.method == m) r(input)
-      else EndpointResult.Skipped
-
-    final override def toString: String = s"${ m.toString().toUpperCase } /${ r.toString }"
-  }
-
-  /**
-   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
-   * resulting [[Endpoint]] succeeds on the request only if its method is `GET` and the underlying
-   * endpoint succeeds on it.
-   */
-  def get[A]: Endpoint[A] => Endpoint[A] = method(Method.Get)
-
-  /**
-   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
-   * resulting [[Endpoint]] succeeds on the request only if its method is `POST` and the underlying
-   * endpoint succeeds on it.
-   */
-  def post[A]: Endpoint[A] => Endpoint[A] = method(Method.Post)
-
-  /**
-   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
-   * resulting [[Endpoint]] succeeds on the request only if its method is `PATCH` and the underlying
-   * endpoint succeeds on it.
-   */
-  def patch[A]: Endpoint[A] => Endpoint[A] = method(Method.Patch)
-
-  /**
-   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
-   * resulting [[Endpoint]] succeeds on the request only if its method is `DELETE` and the
-   * underlying endpoint succeeds on it.
-   */
-  def delete[A]: Endpoint[A] => Endpoint[A] = method(Method.Delete)
-
-  /**
-   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
-   * resulting [[Endpoint]] succeeds on the request only if its method is `HEAD` and the underlying
-   * endpoint succeeds on it.
-   */
-  def head[A]: Endpoint[A] => Endpoint[A] = method(Method.Head)
-
-  /**
-   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
-   * resulting [[Endpoint]] succeeds on the request only if its method is `OPTIONS` and the
-   * underlying endpoint succeeds on it.
-   */
-  def options[A]: Endpoint[A] => Endpoint[A] = method(Method.Options)
-
-  /**
-   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
-   * resulting [[Endpoint]] succeeds on the request only if its method is `PUT` and the underlying
-   * endpoint succeeds on it.
-   */
-  def put[A]: Endpoint[A] => Endpoint[A] = method(Method.Put)
-
-  /**
-   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
-   * resulting [[Endpoint]] succeeds on the request only if its method is `CONNECT` and the
-   * underlying endpoint succeeds on it.
-   */
-  def connect[A]: Endpoint[A] => Endpoint[A] = method(Method.Connect)
-
-  /**
-   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
-   * resulting [[Endpoint]] succeeds on the request only if its method is `TRACE` and the underlying
-   * router endpoint on it.
-   */
-  def trace[A]: Endpoint[A] => Endpoint[A] = method(Method.Trace)
 
   // Helper functions.
   private[this] def requestParam(param: String)(req: Request): Option[String] =

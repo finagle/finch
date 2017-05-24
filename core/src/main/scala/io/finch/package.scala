@@ -6,7 +6,10 @@ import shapeless.Witness
  * This is a root package of the Finch library, which provides an immutable layer of functions and
  * types atop of Finagle for writing lightweight HTTP services.
  */
-package object finch extends Endpoints with Outputs with ValidationRules {
+package object finch extends Endpoints
+    with Outputs
+    with ValidationRules
+    with io.finch.syntax.EndpointMappers {
 
   object items {
     sealed abstract class RequestItem(val kind: String, val nameOption:Option[String] = None) {

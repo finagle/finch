@@ -67,11 +67,6 @@ trait Endpoint[A] { self =>
   def item: items.RequestItem = items.MultipleItems
 
   /**
-   * Maps this endpoint to either `A => Output[B]` or `A => Output[Future[B]]`.
-   */
-  final def apply(mapper: Mapper[A]): Endpoint[mapper.Out] = mapper(self)
-
-  /**
    * Runs this endpoint.
    */
   def apply(input: Input): Endpoint.Result[A]

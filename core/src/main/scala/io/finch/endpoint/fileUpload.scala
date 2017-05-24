@@ -51,7 +51,7 @@ private[finch] trait FileUploads {
     }
 
   /**
-   * An evaluating [[Endpoint]] that reads a required file upload from a multipart/form-data
+   * An evaluating [[Endpoint]] that reads a required file upload from a `multipart/form-data`
    * request.
    */
   def fileUpload(name: String): Endpoint[Multipart.FileUpload] =
