@@ -23,6 +23,7 @@ object DecodePath {
   implicit val decodeInt: DecodePath[Int] = instance(_.tooInt)
   implicit val decodeLong: DecodePath[Long] = instance(_.tooLong)
   implicit val decodeBoolean: DecodePath[Boolean] = instance(_.tooBoolean)
+  implicit val decodeString: DecodePath[String] = instance(Some(_))
   implicit val decodeUUID: DecodePath[UUID] = instance { s =>
     if (s.length != 36) None
     else try Some(UUID.fromString(s)) catch { case _: Exception => None }
