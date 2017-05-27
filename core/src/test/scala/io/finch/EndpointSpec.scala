@@ -264,7 +264,7 @@ class EndpointSpec extends FinchSpec {
   it should "maps lazily to values" in {
     val i = Input(emptyRequest, Seq.empty)
     var c = 0
-    val e = * { c = c + 1; Ok(c) }
+    val e = get(*) { c = c + 1; Ok(c) }
 
     e(i).awaitValueUnsafe() shouldBe Some(1)
     e(i).awaitValueUnsafe() shouldBe Some(2)

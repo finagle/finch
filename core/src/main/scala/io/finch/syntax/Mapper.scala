@@ -1,4 +1,4 @@
-package io.finch.internal
+package io.finch.syntax
 
 import com.twitter.finagle.http.Response
 import com.twitter.util.Future
