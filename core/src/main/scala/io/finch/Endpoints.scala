@@ -11,7 +11,7 @@ import shapeless._
 /**
  * A collection of [[Endpoint]] combinators.
  */
-trait Endpoints extends Bodies with Paths with FileUploads {
+trait Endpoints extends Bodies with Paths with FileUploads with Headers {
 
   type Endpoint0 = Endpoint[HNil]
   type Endpoint2[A, B] = Endpoint[A :: B :: HNil]
@@ -110,26 +110,6 @@ trait Endpoints extends Bodies with Paths with FileUploads {
         case seq => Future.value(NonEmptyList(seq.head, seq.tail))
       }
     }
-
-  /**
-   * An evaluating [[Endpoint]] that reads a required HTTP header `name` from the request or raises
-   * an [[Error.NotPresent]] exception when the header is missing.
-   */
-  def header(name: String): Endpoint[String] =
-    option(items.HeaderItem(name))(requestHeader(name)).failIfNone
-
-  /**
-   * An evaluating [[Endpoint]] that reads an optional HTTP header `name` from the request into an
-   * `Option`.
-   */
-  def headerOption(name: String): Endpoint[Option[String]] =
-    option(items.HeaderItem(name))(requestHeader(name))
-
-  /**
-   * A matching [[Endpoint]] that only matches the requests that contain a given header `name`.
-   */
-  def headerExists(name: String): Endpoint[String] =
-    exists(items.HeaderItem(name))(requestHeader(name))
 
   /**
    * An evaluating [[Endpoint]] that reads an optional HTTP cookie from the request into an

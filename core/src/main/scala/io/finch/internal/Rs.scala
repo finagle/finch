@@ -31,12 +31,15 @@ private[finch] object Rs {
   final def bodyNotPresent[A]: Rerunnable[Output[A]] =
     bodyNotPresentInstance.asInstanceOf[Rerunnable[Output[A]]]
 
+  final def payload[A](a: => A): Rerunnable[Output[A]] =
+    Rerunnable(Output.payload(a))
+
+  final def exception[A](e: => Exception): Rerunnable[Output[A]] =
+    Rerunnable.fromFuture(Future.exception(e))
+
   final def paramNotPresent[A](name: String): Rerunnable[Output[A]] =
-    constFuture(Future.exception(Error.NotPresent(items.ParamItem(name))))
+    exception(Error.NotPresent(items.ParamItem(name)))
 
-  final def payload[A](a: => A): Rerunnable[Output[A]] = Rerunnable(Output.payload(a))
-
-  final def constFuture[A](fa: Future[A]): Rerunnable[A] = new Rerunnable[A] {
-    override def run: Future[A] = fa
-  }
+  final def headerNotPresent[A](name: String): Rerunnable[Output[A]] =
+    exception(Error.NotPresent(items.HeaderItem(name)))
 }
