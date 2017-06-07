@@ -10,6 +10,11 @@ import shapeless.HNil
  */
 private[finch] object Rs {
 
+  private[this] val nilInstance: Rerunnable[Output[Seq[Nothing]]] =
+    new Rerunnable[Output[Seq[Nothing]]] {
+      override val run: Future[Output[Seq[Nothing]]] = Future.value(Output.payload(Nil))
+    }
+
   private[this] val noneInstance: Rerunnable[Output[Option[Nothing]]] =
     new Rerunnable[Output[Option[Nothing]]] {
       override val run: Future[Output[Option[Nothing]]] = Future.value(Output.None)
@@ -27,6 +32,9 @@ private[finch] object Rs {
 
   final def none[A]: Rerunnable[Output[Option[A]]] =
     noneInstance.asInstanceOf[Rerunnable[Output[Option[A]]]]
+
+  final def nil[A]: Rerunnable[Output[Seq[A]]] =
+    nilInstance.asInstanceOf[Rerunnable[Output[Seq[A]]]]
 
   final def bodyNotPresent[A]: Rerunnable[Output[A]] =
     bodyNotPresentInstance.asInstanceOf[Rerunnable[Output[A]]]
