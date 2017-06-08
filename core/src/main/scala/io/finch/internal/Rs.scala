@@ -50,4 +50,7 @@ private[finch] object Rs {
 
   final def headerNotPresent[A](name: String): Rerunnable[Output[A]] =
     exception(Error.NotPresent(items.HeaderItem(name)))
+
+  final def cookieNotPresent[A](name: String): Rerunnable[Output[A]] =
+    exception(Error.NotPresent(items.CookieItem(name)))
 }

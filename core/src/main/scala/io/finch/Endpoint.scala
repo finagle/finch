@@ -27,9 +27,7 @@ import shapeless.ops.hlist.Tupler
  * An `Endpoint` transformation (`map`, `mapAsync`, etc.) encodes the business logic, while the
  * rest of Finch ecosystem takes care about both serialization and deserialization.
  *
- * A typical way to transform (or map) the `Endpoint` is to use [[Mapper]] and `Endpoint.apply`
- * method, which, depending on the argument type, delegates the map operation to the underlying
- * function.
+ * A typical way to transform (or map) the `Endpoint` is to use [[io.finch.syntax.Mapper]]:
  *
  * {{{
  *   import io.finch._
@@ -423,15 +421,6 @@ object Endpoint {
     final def apply(input: Input): Result[A] =
       EndpointResult.Matched(input, Rerunnable.fromFuture(foa))
   }
-
-  private[finch] def embed[A](i: items.RequestItem)(f: Input => Result[A]): Endpoint[A] =
-    new Endpoint[A] {
-      final def apply(input: Input): Result[A] = f(input)
-
-      override def item: items.RequestItem = i
-      override final def toString: String =
-        s"${item.kind}${item.nameOption.map(n => "(" + n + ")").getOrElse("")}"
-    }
 
   final implicit class ValueEndpointOps[B](val self: Endpoint[B]) extends AnyVal {
     /**
