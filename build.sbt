@@ -8,10 +8,9 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.11.8", "2.12.1")
 )
 
-lazy val finagleVersion = "6.44.0"
-lazy val utilVersion = "6.43.0"
-lazy val twitterServerVersion = "1.29.0"
-lazy val finagleOAuth2Version = "0.6.44"
+lazy val finagleVersion = "6.45.0"
+lazy val twitterServerVersion = "1.30.0"
+lazy val finagleOAuth2Version = "0.6.45"
 lazy val finagleHttpAuthVersion = "0.1.0"
 lazy val circeVersion = "0.8.0"
 lazy val circeJacksonVersion = "0.8.0"
@@ -290,7 +289,6 @@ lazy val docs = project
       "com.github.finagle" %% "finagle-oauth2" % finagleOAuth2Version,
       "com.github.finagle" %% "finagle-http-auth" % finagleHttpAuthVersion,
       "com.twitter" %% "twitter-server" % twitterServerVersion,
-      "com.twitter" %% "util-eval" % utilVersion,
       "joda-time" % "joda-time" % "2.9.6",
       "org.mockito" % "mockito-all" % "1.10.19"
     )
@@ -308,7 +306,6 @@ lazy val examples = project
     """
       |io\.finch\.div\..*;
       |io\.finch\.todo\..*;
-      |io\.finch\.eval\..*;
       |io\.finch\.streaming\..*;
       |io\.finch\.oauth2\..*;
       |io\.finch\.wrk\..*;
@@ -319,7 +316,6 @@ lazy val examples = project
       "io.circe" %% "circe-generic" % circeVersion,
       "com.twitter" %% "finagle-stats" % finagleVersion,
       "com.twitter" %% "twitter-server" % twitterServerVersion,
-      "com.twitter" %% "util-eval" % utilVersion,
       "com.github.finagle" %% "finagle-oauth2" % finagleOAuth2Version
     )
   )
