@@ -3,7 +3,7 @@ import com.typesafe.sbt.SbtGhPages.GhPagesKeys._
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  version := "0.15.0-SNAPSHOT",
+  version := "0.15.0",
   scalaVersion := "2.12.1",
   crossScalaVersions := Seq("2.11.8", "2.12.1")
 )
