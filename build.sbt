@@ -1,11 +1,10 @@
 import microsites.ExtraMdFileConfig
-import com.typesafe.sbt.SbtGhPages.GhPagesKeys._
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   version := "0.15.0",
-  scalaVersion := "2.12.1",
-  crossScalaVersions := Seq("2.11.8", "2.12.1")
+  scalaVersion := "2.12.2",
+  crossScalaVersions := Seq("2.11.11", "2.12.2")
 )
 
 lazy val finagleVersion = "6.45.0"
@@ -14,14 +13,14 @@ lazy val finagleOAuth2Version = "0.6.45"
 lazy val finagleHttpAuthVersion = "0.1.0"
 lazy val circeVersion = "0.8.0"
 lazy val circeJacksonVersion = "0.8.0"
-lazy val catbirdVersion = "0.13.0"
+lazy val catbirdVersion = "0.15.0"
 lazy val shapelessVersion = "2.3.2"
 lazy val catsVersion = "0.9.0"
 lazy val sprayVersion = "1.3.3"
-lazy val playVersion = "2.6.0-M1"
-lazy val jacksonVersion = "2.8.6"
-lazy val argonautVersion = "6.2-RC2"
-lazy val json4sVersion = "3.5.0"
+lazy val playVersion = "2.6.0-RC2"
+lazy val jacksonVersion = "2.8.8"
+lazy val argonautVersion = "6.2"
+lazy val json4sVersion = "3.5.2"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -40,7 +39,7 @@ lazy val compilerOptions = Seq(
 
 val testDependencies = Seq(
   "org.scalacheck" %% "scalacheck" % "1.13.5",
-  "org.scalatest" %% "scalatest" % "3.0.1",
+  "org.scalatest" %% "scalatest" % "3.0.3",
   "org.typelevel" %% "cats-laws" % catsVersion,
   "org.typelevel" %% "discipline" % "0.7.3"
 )
@@ -269,7 +268,7 @@ lazy val oauth2 = project
   .settings(allSettings)
   .settings(libraryDependencies ++= Seq(
     "com.github.finagle" %% "finagle-oauth2" % finagleOAuth2Version,
-    "commons-codec" % "commons-codec" % "1.9",
+    "commons-codec" % "commons-codec" % "1.10",
     "org.mockito" % "mockito-all" % "1.10.19" % "test"
   ))
   .dependsOn(core)
@@ -289,7 +288,7 @@ lazy val docs = project
       "com.github.finagle" %% "finagle-oauth2" % finagleOAuth2Version,
       "com.github.finagle" %% "finagle-http-auth" % finagleHttpAuthVersion,
       "com.twitter" %% "twitter-server" % twitterServerVersion,
-      "joda-time" % "joda-time" % "2.9.6",
+      "joda-time" % "joda-time" % "2.9.9",
       "org.mockito" % "mockito-all" % "1.10.19"
     )
   )
