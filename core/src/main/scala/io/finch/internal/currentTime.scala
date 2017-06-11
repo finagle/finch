@@ -6,19 +6,26 @@ import java.util.Locale
 
 
 object currentTime {
-  private[this] val formatter: DateTimeFormatter =
+  private val formatter: DateTimeFormatter =
     DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz")
       .withLocale(Locale.ENGLISH)
       .withZone(ZoneId.of("GMT"))
 
-  @volatile private[this] var last: (Long, String) = (0, "")
+  private class Last(var millis: Long, var header: String)
+
+  private val last = new ThreadLocal[Last] {
+    override def initialValue: Last = new Last(0, "")
+  }
 
   def apply(): String = {
+    val local = last.get()
     val time = System.currentTimeMillis()
-    if (time - last._1 > 1000) {
-      last = time -> formatter.format(Instant.ofEpochMilli(time))
+
+    if (time - local.millis > 1000) {
+      local.millis = time
+      local.header = formatter.format(Instant.ofEpochMilli(time))
     }
 
-    last._2
+    local.header
   }
 }
