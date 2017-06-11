@@ -6,6 +6,7 @@ import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Method, Request, Response, Status}
 import com.twitter.io.Buf
 import com.twitter.util.Future
+import io.finch.internal._
 
 /**
  * How to benchmark this:
@@ -33,6 +34,7 @@ object Finagle extends App {
         val rep = Response(req.version, Status.Ok)
         rep.content =  Buf.ByteArray.Owned(payloadOut)
         rep.contentType = "application/json"
+        rep.date = currentTime()
 
         Future.value(rep)
       }
