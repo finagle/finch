@@ -492,18 +492,7 @@ object Endpoint {
    * The resulting endpoint will fail when type conversion fails on one
    * or more of the elements in the `NonEmptyList`. It will succeed if type conversion succeeds for all elements.
    */
-  implicit class StringNelEndpointOps(val self: Endpoint[NonEmptyList[String]]) {
-
-    /* IMPLEMENTATION NOTE: This implicit class should extend AnyVal like all the other ones, to
-     * avoid instance creation for each invocation of the extension method. However, this let's us
-     * run into a compiler bug when we compile for Scala 2.10:
-     * https://issues.scala-lang.org/browse/SI-8018. The bug is caused by the combination of four
-     * things: 1) an implicit class, 2) extending AnyVal, 3) wrapping a class with type parameters,
-     * 4) a partial function in the body. 2) is the only thing we can easily remove here, otherwise
-     * we'd need to move the body of the method somewhere else. Once we drop support for Scala 2.10,
-     * this class can safely extends AnyVal.
-     */
-
+  implicit class StringNelEndpointOps(val self: Endpoint[NonEmptyList[String]]) extends AnyVal {
     def as[A](implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[NonEmptyList[A]] =
       self.mapAsync { items =>
         val decoded = items.toList.map(d.apply)
@@ -512,8 +501,10 @@ object Endpoint {
         }
 
         NonEmptyList.fromList(errors) match {
-          case None => Future.const(Try.collect(decoded).map(seq => NonEmptyList(seq.head, seq.tail.toList)))
-          case Some(err) => Future.exception(Errors(err))
+          case None =>
+            Future.const(Try.collect(decoded).map(seq => NonEmptyList(seq.head, seq.tail.toList)))
+          case Some(err) =>
+            Future.exception(Errors(err))
         }
       }
   }

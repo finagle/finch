@@ -84,7 +84,6 @@ class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
     implicit def arbitraryEvents: Arbitrary[ServerSentEvent[String]] = Arbitrary(sseWithId)
 
     check { (event: ServerSentEvent[String], cs: Charset) =>
-      val encoded = encodeEventStream[String](Show.fromToString).apply(event, cs)
       (event.event.isEmpty && event.id.isDefined && event.retry.isEmpty) ==> {
         val encoded = encoder(event, cs)
         val actualText = encoded.asString(cs)
@@ -100,7 +99,6 @@ class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
     implicit def arbitraryEvents: Arbitrary[ServerSentEvent[String]] = Arbitrary(sseWithRetry)
 
     check { (event: ServerSentEvent[String], cs: Charset) =>
-      val encoded = encodeEventStream[String](Show.fromToString).apply(event, cs)
       (event.event.isEmpty && event.id.isEmpty && event.retry.isDefined) ==> {
         val encoded = encoder(event, cs)
         val actualText = encoded.asString(cs)
