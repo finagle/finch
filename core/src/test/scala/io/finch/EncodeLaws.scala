@@ -17,7 +17,7 @@ trait EncodeLaws[A, CT <: String] extends Laws with MissingInstances with AllIns
   def roundTrip(a: A, cs: Charset): IsEq[Buf] =
     encode(a, cs) <-> Buf.ByteArray.Owned(a.toString.getBytes(cs))
 
-  def all(implicit A: Arbitrary[A], CS: Arbitrary[Charset], eq: Eq[A]): RuleSet =
+  def all(implicit A: Arbitrary[A], CS: Arbitrary[Charset]): RuleSet =
     new DefaultRuleSet(
       name = "all",
       parent = None,

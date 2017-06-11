@@ -15,13 +15,6 @@ trait Endpoints extends Bodies
   with ParamAndParams
   with Cookies {
 
-  @deprecated("Use Endpoint[HNil] instead", "0.15")
-  type Endpoint0 = Endpoint[HNil]
-  @deprecated("Use Endpoint[A :: B :: HNil] instead", "0.15")
-  type Endpoint2[A, B] = Endpoint[A :: B :: HNil]
-  @deprecated("Use Endpoint[A :: B :: C :: HNil] instead", "0.15")
-  type Endpoint3[A, B, C] = Endpoint[A :: B :: C :: HNil]
-
   /**
    * An [[Endpoint]] that skips all path segments.
    */

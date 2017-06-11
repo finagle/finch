@@ -11,6 +11,7 @@ import com.twitter.io.Buf
 import com.twitter.util.{Future, Throw, Try}
 import io.finch.data.Foo
 import io.finch.items.BodyItem
+import shapeless._
 
 class EndpointSpec extends FinchSpec {
   checkAll("Endpoint[String]", AlternativeTests[Endpoint].applicative[String, String, String])
@@ -66,8 +67,8 @@ class EndpointSpec extends FinchSpec {
 
     check { i: Input =>
       val e = i.route.dropRight(1)
-        .map(s => s: Endpoint0)
-        .foldLeft[Endpoint0](/)((acc, ee) => acc :: ee)
+        .map(s => path(s))
+        .foldLeft[Endpoint[HNil]](/)((acc, ee) => acc :: ee)
 
       val v = (e :: string).mapOutputAsync(s => Future.value(expected(s.length)))(i)
       v.awaitOutputUnsafe() === i.route.lastOption.map(s => expected(s.length))
@@ -75,18 +76,12 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "match one patch segment" in {
-    def matchOne[A](f: String => A)(implicit ev: A => Endpoint0): Input => Boolean = { i: Input =>
+    check { i: Input =>
       val v = i.route.headOption
-        .flatMap(s => Try(f(s)).toOption)
-        .map(ev)
-        .flatMap(e => e(i).remainder)
+        .flatMap(s => path(s)(i).remainder)
 
       v.isEmpty|| v === Some(i.withRoute(i.route.tail))
     }
-
-    check(matchOne(identity))
-    check(matchOne(_.toInt))
-    check(matchOne(_.toBoolean))
   }
 
   it should "always match the entire input with *" in {
@@ -96,7 +91,10 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "match the HTTP method" in {
-    def matchMethod(m: Method, f: Endpoint0 => Endpoint0): Input => Boolean = { i: Input =>
+    def matchMethod(
+        m: Method,
+        f: Endpoint[HNil] => Endpoint[HNil]): Input => Boolean = { i: Input =>
+
       val v = f(/)(i)
       (i.request.method === m && v.remainder === Some(i)) ||
       (i.request.method != m && v.remainder === None)
@@ -121,7 +119,7 @@ class EndpointSpec extends FinchSpec {
 
   it should "match the entire input" in {
     check { i: Input =>
-      val e = i.route.map(s => s: Endpoint0).foldLeft[Endpoint0](/)((acc, e) => acc :: e)
+      val e = i.route.map(s => path(s)).foldLeft[Endpoint[HNil]](/)((acc, e) => acc :: e)
       e(i).remainder === Some(i.copy(route = Nil))
     }
   }
@@ -133,27 +131,28 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "match the input if one of the endpoints succeed" in {
-    def matchOneOfTwo(f: String => Endpoint0): Input => Boolean = { i: Input =>
+    def matchOneOfTwo(f: String => Endpoint[HNil]): Input => Boolean = { i: Input =>
       val v = i.route.headOption.map(f).flatMap(e => e(i).remainder)
       v.isEmpty || v === Some(i.withRoute(i.route.tail))
     }
 
-    check(matchOneOfTwo(s => (s: Endpoint0).coproduct(s.reverse: Endpoint0)))
-    check(matchOneOfTwo(s => (s.reverse: Endpoint0).coproduct(s: Endpoint0)))
+    check(matchOneOfTwo(s => path(s).coproduct(path(s.reverse))))
+    check(matchOneOfTwo(s => path(s.reverse).coproduct(path(s))))
   }
 
   it should "have the correct string representation" in {
-    def standaloneMatcher[A](implicit f: A => Endpoint0): A => Boolean = { a: A =>
-      f(a).toString == a.toString
+    def standaloneMatcher[A]: A => Boolean = { a: A =>
+      path(a.toString).toString == a.toString
     }
 
     check(standaloneMatcher[String])
     check(standaloneMatcher[Int])
     check(standaloneMatcher[Boolean])
 
-    def methodMatcher(m: Method, f: Endpoint0 => Endpoint0): String => Boolean = { s: String =>
-      f(s).toString === m.toString().toUpperCase + " /" + s
-    }
+    def methodMatcher(
+        m: Method,
+        f: Endpoint[HNil] => Endpoint[HNil]
+      ): String => Boolean = { s: String => f(s).toString === m.toString.toUpperCase + " /" + s }
 
     check(methodMatcher(Method.Get, get))
     check(methodMatcher(Method.Post, post))
@@ -165,13 +164,11 @@ class EndpointSpec extends FinchSpec {
     check(methodMatcher(Method.Connect, connect))
     check(methodMatcher(Method.Delete, delete))
 
-    check { (s: String, i: Int) => (s: Endpoint0).map(_ => i).toString === s }
-    check { (s: String, t: String) =>
-      ((s: Endpoint0) :+: (t: Endpoint0)).toString === s"($s :+: $t)"
-    }
-    check { (s: String, t: String) => ((s: Endpoint0) :: (t: Endpoint0)).toString === s"$s :: $t" }
-    check { s: String => (s: Endpoint0).product[String](*.map(_ => "foo")).toString === s }
-    check { (s: String, t: String) => (s: Endpoint0).mapAsync(_ => Future.value(t)).toString === s }
+    check { (s: String, i: Int) => path(s).map(_ => i).toString === s }
+    check { (s: String, t: String) => (path(s) :+: path(t)).toString === s"($s :+: $t)" }
+    check { (s: String, t: String) => (path(s) :: path(t)).toString === s"$s :: $t" }
+    check { s: String => path(s).product[String](*.map(_ => "foo")).toString === s }
+    check { (s: String, t: String) => path(s).mapAsync(_ => Future.value(t)).toString === s }
 
     *.toString shouldBe "*"
     /.toString shouldBe ""
@@ -287,8 +284,8 @@ class EndpointSpec extends FinchSpec {
     val a = Input(emptyRequest, Seq("a", "10"))
     val b = Input(emptyRequest, Seq("a"))
 
-    val e1: Endpoint0 = "a".coproduct("b").coproduct("a" :: 10)
-    val e2: Endpoint0 = ("a" :: 10).coproduct("b").coproduct("a")
+    val e1 = "a".coproduct("b").coproduct("a" :: 10)
+    val e2 = ("a" :: 10).coproduct("b").coproduct("a")
 
     e1(a).remainder shouldBe Some(a.withRoute(a.route.drop(2)))
     e1(b).remainder shouldBe Some(b.withRoute(b.route.drop(2)))
