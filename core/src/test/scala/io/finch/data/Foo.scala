@@ -19,6 +19,6 @@ object Foo {
     Decode.text((b, cs) => Return(Foo(b.asString(cs))))
 
   implicit val arbitraryFoo: Arbitrary[Foo] =
-    Arbitrary(Gen.alphaStr.map(Foo.apply))
+    Arbitrary(Gen.alphaStr.suchThat(_.nonEmpty).map(Foo.apply))
 }
 
