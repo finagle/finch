@@ -215,28 +215,6 @@ class EndpointSpec extends FinchSpec {
     }
   }
 
-  it should "throw Error.NotParsed if as[A] method fails" in {
-    val cause = new Exception("can't parse this")
-    implicit val failingDecodeEntity: DecodeEntity[Foo] =
-      DecodeEntity.instance(_ => Throw(cause))
-
-    val foo = stringBody.as[Foo]
-    val fooOption = stringBodyOption.as[Foo]
-    val i = (s: String) => Input.post("/").withBody[Text.Plain](Buf.Utf8(s))
-
-    check { (s: String) =>
-      foo(i(s)).awaitValue() === Some(Throw(
-        Error.NotParsed(BodyItem, implicitly[ClassTag[Foo]], cause)
-      ))
-    }
-
-    check { (s: String) =>
-      fooOption(i(s)).awaitValue() === Some(Throw(
-        Error.NotParsed(BodyItem, implicitly[ClassTag[Foo]], cause)
-      ))
-    }
-  }
-
   it should "rescue the exception occurred in it" in {
     check { (i: Input, s: String, e: Exception) =>
       Endpoint.liftFuture[Unit](Future.exception(e))
