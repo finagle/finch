@@ -26,7 +26,6 @@ Finch uses multi-project structure and contains of the following _modules_:
 * [`finch-playjson`](playjson) - The JSON API support for the [PlayJson][playjson] library
 * [`finch-sprayjson`](sprayjson) - The JSON API support for the [SprayJson][sprayjson] library
 * [`finch-test`](test) - the test support classes/functions
-* [`finch-oauth2`](oauth2) - the OAuth2 support backed by the [finagle-oauth2][finagle-oauth2] library
 * [`finch-sse`](see) - SSE ([Server Sent Events][server-sent-events]) support in Finch
 
 Installation
@@ -145,7 +144,6 @@ limitations under the License.
 [circe]: https://github.com/circe/circe
 [jackson]: http://wiki.fasterxml.com/JacksonHome
 [argonaut]: http://argonaut.io
-[finagle-oauth2]: https://github.com/finagle/finagle-oauth2
 [json4s]: http://json4s.org
 [playjson]: https://www.playframework.com/documentation/2.6.x/ScalaJson
 [sprayjson]: https://github.com/spray/spray-json

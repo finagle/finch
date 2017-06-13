@@ -9,7 +9,6 @@ lazy val buildSettings = Seq(
 
 lazy val finagleVersion = "6.45.0"
 lazy val twitterServerVersion = "1.30.0"
-lazy val finagleOAuth2Version = "0.6.45"
 lazy val finagleHttpAuthVersion = "0.1.0"
 lazy val circeVersion = "0.8.0"
 lazy val circeJacksonVersion = "0.8.0"
@@ -277,7 +276,6 @@ lazy val docs = project
     libraryDependencies ++= Seq(
       "com.github.finagle" %% "finch-oauth2" % finchOAuth2Version,
       "io.circe" %% "circe-generic" % circeVersion,
-      "com.github.finagle" %% "finagle-oauth2" % finagleOAuth2Version,
       "com.github.finagle" %% "finagle-http-auth" % finagleHttpAuthVersion,
       "com.twitter" %% "twitter-server" % twitterServerVersion,
       "joda-time" % "joda-time" % "2.9.9",
