@@ -21,6 +21,7 @@ lazy val playVersion = "2.6.0-RC2"
 lazy val jacksonVersion = "2.8.8"
 lazy val argonautVersion = "6.2"
 lazy val json4sVersion = "3.5.2"
+lazy val finchOAuth2Version = "0.14.0"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -178,7 +179,7 @@ lazy val finch = project.in(file("."))
   ))
   .aggregate(
     core, generic, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest,
-    oauth2, sse
+    sse
   )
   .dependsOn(core, generic, circe)
 
@@ -263,16 +264,6 @@ lazy val sprayjson = project
   .settings(libraryDependencies += "io.spray" %%  "spray-json" % sprayVersion)
   .dependsOn(core, jsonTest % "test")
 
-lazy val oauth2 = project
-  .settings(moduleName := "finch-oauth2")
-  .settings(allSettings)
-  .settings(libraryDependencies ++= Seq(
-    "com.github.finagle" %% "finagle-oauth2" % finagleOAuth2Version,
-    "commons-codec" % "commons-codec" % "1.10",
-    "org.mockito" % "mockito-all" % "1.10.19" % "test"
-  ))
-  .dependsOn(core)
-
 lazy val sse = project
   .settings(moduleName := "finch-sse")
   .settings(allSettings)
@@ -284,6 +275,7 @@ lazy val docs = project
   .settings(noPublish)
   .settings(
     libraryDependencies ++= Seq(
+      "com.github.finagle" %% "finch-oauth2" % finchOAuth2Version,
       "io.circe" %% "circe-generic" % circeVersion,
       "com.github.finagle" %% "finagle-oauth2" % finagleOAuth2Version,
       "com.github.finagle" %% "finagle-http-auth" % finagleHttpAuthVersion,
@@ -293,7 +285,7 @@ lazy val docs = project
     )
   )
   .enablePlugins(MicrositesPlugin, ScalaUnidocPlugin)
-  .dependsOn(core, circe, jackson, oauth2, sse, argonaut,json4s, playjson)
+  .dependsOn(core, circe, jackson, sse, argonaut,json4s, playjson)
 
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")
