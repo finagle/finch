@@ -178,7 +178,7 @@ lazy val finch = project.in(file("."))
   ))
   .aggregate(
     core, generic, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest,
-    oauth2, examples, sse
+    oauth2, sse
   )
   .dependsOn(core, generic, circe)
 
@@ -294,31 +294,6 @@ lazy val docs = project
   )
   .enablePlugins(MicrositesPlugin, ScalaUnidocPlugin)
   .dependsOn(core, circe, jackson, oauth2, sse, argonaut,json4s, playjson)
-
-
-lazy val examples = project
-  .settings(moduleName := "finch-examples")
-  .settings(allSettings)
-  .settings(noPublish)
-  .settings(resolvers += "TM" at "http://maven.twttr.com")
-  .settings(coverageExcludedPackages :=
-    """
-      |io\.finch\.div\..*;
-      |io\.finch\.todo\..*;
-      |io\.finch\.streaming\..*;
-      |io\.finch\.oauth2\..*;
-      |io\.finch\.wrk\..*;
-      |io\.finch\.sse\..*;
-    """.stripMargin)
-  .settings(
-    libraryDependencies ++= Seq(
-      "io.circe" %% "circe-generic" % circeVersion,
-      "com.twitter" %% "finagle-stats" % finagleVersion,
-      "com.twitter" %% "twitter-server" % twitterServerVersion,
-      "com.github.finagle" %% "finagle-oauth2" % finagleOAuth2Version
-    )
-  )
-  .dependsOn(core, circe, jackson, oauth2)
 
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")
