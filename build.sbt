@@ -13,7 +13,6 @@ lazy val finagleOAuth2Version = "0.6.45"
 lazy val finagleHttpAuthVersion = "0.1.0"
 lazy val circeVersion = "0.8.0"
 lazy val circeJacksonVersion = "0.8.0"
-lazy val catbirdVersion = "0.15.0"
 lazy val shapelessVersion = "2.3.2"
 lazy val catsVersion = "0.9.0"
 lazy val sprayVersion = "1.3.3"
@@ -49,8 +48,7 @@ val baseSettings = Seq(
     "com.chuusai" %% "shapeless" % shapelessVersion,
     "org.typelevel" %% "cats-core" % catsVersion,
     "com.twitter" %% "finagle-http" % finagleVersion,
-    scalaOrganization.value % "scala-reflect" % scalaVersion.value,
-    "io.catbird" %% "catbird-util" % catbirdVersion
+    scalaOrganization.value % "scala-reflect" % scalaVersion.value
   ) ++ testDependencies.map(_ % "test"),
   resolvers ++= Seq(
     Resolver.sonatypeRepo("releases"),

@@ -23,7 +23,7 @@ case class Bootstrap[ES <: HList, CTS <: HList](
 
   class Serve[CT <: String] {
     def apply[E](e: Endpoint[E]): Bootstrap[Endpoint[E] :: ES, CT :: CTS] =
-      self.copy(e :: self.endpoints)
+      self.copy(endpoints = e :: self.endpoints)
     }
 
   def serve[CT <: String]: Serve[CT] = new Serve[CT]

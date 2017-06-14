@@ -9,7 +9,7 @@ import cats.instances.AllInstances
 import com.twitter.finagle.http._
 import com.twitter.io.Buf
 import com.twitter.util.{Future, Try}
-import io.catbird.util.Rerunnable
+import io.finch.internal._
 import org.scalacheck.{Arbitrary, Cogen, Gen}
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers

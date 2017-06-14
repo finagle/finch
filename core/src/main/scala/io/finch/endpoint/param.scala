@@ -2,7 +2,7 @@ package io.finch.endpoint
 
 import cats.data.NonEmptyList
 import io.finch._
-import io.finch.internal.Rs
+import io.finch.internal._
 
 private abstract class Param[A](name: String) extends Endpoint[A] {
 
