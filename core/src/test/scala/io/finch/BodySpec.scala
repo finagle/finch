@@ -13,7 +13,6 @@ class BodySpec extends FinchSpec {
 
   def withBody(b: String): Input = Input.post("/").withBody[Text.Plain](Buf.Utf8(b))
 
-  checkAll("Body[String]", EntityEndpointLaws[String](stringBodyOption)(withBody).evaluating)
   checkAll("Body[Int]", EntityEndpointLaws[Int](stringBodyOption)(withBody).evaluating)
   checkAll("Body[Long]", EntityEndpointLaws[Long](stringBodyOption)(withBody).evaluating)
   checkAll("Body[Boolean]", EntityEndpointLaws[Boolean](stringBodyOption)(withBody).evaluating)
@@ -22,18 +21,18 @@ class BodySpec extends FinchSpec {
   checkAll("Body[UUID]", EntityEndpointLaws[UUID](stringBodyOption)(withBody).evaluating)
 
   it should "respond with NotFound when it's required" in {
-    body[Foo, Text.Plain].apply(Input.get("/")).awaitValue() ===
+    body[Foo, Text.Plain].apply(Input.get("/")).awaitValue() shouldBe
       Some(Throw(Error.NotPresent(items.BodyItem)))
   }
 
   it should "respond with None when it's optional" in {
-    body[Foo, Text.Plain].apply(Input.get("/")).awaitValue() === Some(Return(None))
+    bodyOption[Foo, Text.Plain].apply(Input.get("/")).awaitValue() shouldBe Some(Return(None))
   }
 
   it should "not match on streaming requests" in {
     val req = Request()
     req.setChunked(true)
-    body[Foo, Text.Plain].apply(Input.fromRequest(req)).awaitValueUnsafe() === None
+    body[Foo, Text.Plain].apply(Input.fromRequest(req)).awaitValueUnsafe() shouldBe None
   }
 
   it should "respond with a value when present and required" in {
@@ -48,5 +47,13 @@ class BodySpec extends FinchSpec {
       val i = Input.post("/").withBody[Text.Plain](f)
       bodyOption[Foo, Text.Plain].apply(i).awaitValueUnsafe().flatten === Some(f)
     }
+  }
+
+  it should "treat 0-length bodies as empty" in {
+    val i = Input.post("/").withHeaders("Content-Length" -> "0")
+
+    bodyOption[Foo, Text.Plain].apply(i).awaitValueUnsafe().flatten shouldBe None
+    stringBodyOption(i).awaitValueUnsafe().flatten shouldBe None
+    binaryBodyOption(i).awaitValueUnsafe().flatten shouldBe None
   }
 }
