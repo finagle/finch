@@ -246,6 +246,8 @@ trait Endpoint[A] { self =>
 
   /**
    * Converts this endpoint to a Finagle service `Request => Future[Response]` that serves JSON.
+   *
+   * Consider using [[Bootstrap]] instead.
    */
   final def toService(implicit
     tr: ToResponse.Aux[A, Application.Json],
@@ -255,11 +257,13 @@ trait Endpoint[A] { self =>
   /**
    * Converts this endpoint to a Finagle service `Request => Future[Response]` that serves custom
    * content-type `CT`.
+   *
+   * Consider using [[Bootstrap]] instead.
    */
   final def toServiceAs[CT <: String](implicit
     tr: ToResponse.Aux[A, CT],
     tre: ToResponse.Aux[Exception, CT]
-  ): Service[Request, Response] = new ToService(self, tr, tre)
+  ): Service[Request, Response] = Bootstrap.serve[CT](this).toService
 
   /**
    * Recovers from any exception occurred in this endpoint by creating a new endpoint that will

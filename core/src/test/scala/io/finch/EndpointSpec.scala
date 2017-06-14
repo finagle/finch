@@ -1,16 +1,13 @@
 package io.finch
 
 import java.util.UUID
-import scala.reflect.ClassTag
 
 import cats.data.NonEmptyList
 import cats.laws.discipline.AlternativeTests
 import com.twitter.conversions.time._
 import com.twitter.finagle.http.{Cookie, Method, Request}
-import com.twitter.io.Buf
-import com.twitter.util.{Future, Throw, Try}
+import com.twitter.util.{Future, Throw}
 import io.finch.data.Foo
-import io.finch.items.BodyItem
 import shapeless._
 
 class EndpointSpec extends FinchSpec {
