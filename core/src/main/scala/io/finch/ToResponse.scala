@@ -1,12 +1,10 @@
-package io.finch.internal
-
-import java.nio.charset.Charset
-import scala.annotation.implicitNotFound
+package io.finch
 
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.{Response, Status, Version}
 import com.twitter.io.Buf
-import io.finch._
+import java.nio.charset.Charset
+import scala.annotation.implicitNotFound
 import shapeless._
 
 /**

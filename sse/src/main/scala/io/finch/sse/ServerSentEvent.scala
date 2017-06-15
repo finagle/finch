@@ -1,12 +1,10 @@
 package io.finch.sse
 
-import java.nio.charset.Charset
-
 import cats.Show
 import com.twitter.concurrent.AsyncStream
 import com.twitter.io.Buf
-import io.finch.{Encode, Text}
-import io.finch.internal.ToResponse
+import io.finch._
+import java.nio.charset.Charset
 
 case class ServerSentEvent[A](
   data: A,

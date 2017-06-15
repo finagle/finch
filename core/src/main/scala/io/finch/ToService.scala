@@ -1,9 +1,9 @@
-package io.finch.internal
+package io.finch
 
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response, Status, Version}
 import com.twitter.util.Future
-import io.finch.{Endpoint, EndpointResult, Input, Output}
+import io.finch.internal.currentTime
 import scala.annotation.implicitNotFound
 import shapeless._
 

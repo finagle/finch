@@ -2,7 +2,6 @@ package io.finch
 
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
-import io.finch.internal.ToService
 import shapeless._
 
 /**
