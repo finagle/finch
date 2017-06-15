@@ -16,8 +16,8 @@ import shapeless._
  * - copy requests's HTTP version onto a response
  * - respond with 404 when en endpoint is not matched
 
- * - include the date header on each response (if enabled)
- * - include the server header on each reponse (if enabled)
+ * - include the date header on each response (unless disabled)
+ * - include the server header on each response (unless disabled)
  */
 @implicitNotFound(
 """An Endpoint you're trying to convert into a Finagle service is missing one or more encoders.

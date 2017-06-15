@@ -16,20 +16,29 @@ import shapeless._
  *
  * @note This API is experimental/unstable. Use with caution.
  */
-case class Bootstrap[ES <: HList, CTS <: HList](
-    endpoints: ES,
-    includeDateHeader: Boolean = true,
-    includeServerHeader: Boolean = true) { self =>
+class Bootstrap[ES <: HList, CTS <: HList](
+    val endpoints: ES,
+    val includeDateHeader: Boolean = true,
+    val includeServerHeader: Boolean = true) { self =>
 
   class Serve[CT <: String] {
     def apply[E](e: Endpoint[E]): Bootstrap[Endpoint[E] :: ES, CT :: CTS] =
-      self.copy(e :: self.endpoints)
+      new Bootstrap[Endpoint[E] :: ES, CT :: CTS](
+        e :: self.endpoints, includeDateHeader, includeServerHeader
+      )
     }
+
+  def configure(
+    includeDateHeader: Boolean = self.includeDateHeader,
+    includeServerHeader: Boolean = self.includeServerHeader
+  ): Bootstrap[ES, CTS] = new Bootstrap[ES, CTS](endpoints, includeDateHeader, includeServerHeader)
 
   def serve[CT <: String]: Serve[CT] = new Serve[CT]
 
   def toService(implicit ts: ToService[ES, CTS]): Service[Request, Response] =
     ts(endpoints, includeDateHeader, includeServerHeader)
+
+  final override def toString: String = s"Bootstrap($endpoints)"
 }
 
 object Bootstrap extends Bootstrap[HNil, HNil](

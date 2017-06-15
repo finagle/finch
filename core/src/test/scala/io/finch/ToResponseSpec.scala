@@ -1,9 +1,8 @@
-package io.finch.internal
+package io.finch
 
 import com.twitter.concurrent.AsyncStream
 import com.twitter.io.Buf
 import com.twitter.util.Await
-import io.finch._
 import java.nio.charset.StandardCharsets
 
 class ToResponseSpec extends FinchSpec {
