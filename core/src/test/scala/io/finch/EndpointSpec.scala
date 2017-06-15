@@ -2,7 +2,7 @@ package io.finch
 
 import java.util.UUID
 
-import cats.data.NonEmptyList
+import cats.data.{NonEmptyList, Validated}
 import cats.laws.discipline.AlternativeTests
 import com.twitter.conversions.time._
 import com.twitter.finagle.http.{Cookie, Method, Request}
@@ -339,6 +339,26 @@ class EndpointSpec extends FinchSpec {
     val endpoint: Endpoint[NonEmptyList[UUID]] = paramsNel("testEndpoint").as[UUID]
     an[Errors] shouldBe thrownBy (
       endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe(10.seconds)
+    )
+  }
+
+  it should "match if the validation passes" in {
+    val validateFunc: (Int, items.RequestItem) => Validated[Errors, Int] = (i, item) => {
+      if (0 < i) Validated.valid(i)
+      else Validated.invalid(Errors(NonEmptyList.of(Error.NotValid(item, "Not Valid"))))
+    }
+    val endpoint: Endpoint[Int] = param("testValid").as[Int].validate(validateFunc)
+    endpoint(Input.get("/", "testValid" -> "1")).awaitValueUnsafe() shouldBe Some(1)
+  }
+
+  it should "should fail if validation fails" in {
+    val validateFunc: (Int, items.RequestItem) => Validated[Errors, Int] = (i, item) => {
+      if (i <= 0) Validated.valid(i)
+      else Validated.invalid(Errors(NonEmptyList.of(Error.NotValid(item, "Not Valid"))))
+    }
+    val endpoint: Endpoint[Int] = param("testValid").as[Int].validate(validateFunc)
+    an[Errors] shouldBe thrownBy (
+      endpoint(Input.get("/", "testValid" -> "1")).awaitValueUnsafe()
     )
   }
 }

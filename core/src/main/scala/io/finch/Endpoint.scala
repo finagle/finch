@@ -4,7 +4,7 @@ import java.nio.charset.Charset
 import scala.reflect.ClassTag
 
 import cats.Alternative
-import cats.data.NonEmptyList
+import cats.data.{NonEmptyList, Validated}
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Cookie, Request, Response}
 import com.twitter.util.{Future, Return, Throw, Try}
@@ -289,10 +289,12 @@ trait Endpoint[A] { self =>
    * @return an endpoint that will return the value of this reader if it is valid.
    *         Otherwise the future fails with an [[Error.NotValid]] error.
    */
-  final def should(rule: String)(predicate: A => Boolean): Endpoint[A] = mapAsync(a =>
-    if (predicate(a)) Future.value(a)
-    else Future.exception(Error.NotValid(self.item, "should " + rule))
-  )
+  final def should(rule: String)(predicate: A => Boolean): Endpoint[A] = {
+    validate { (a: A, item) =>
+      if (predicate(a)) Validated.Valid(a)
+      else Validated.Invalid(Errors.of(Error.NotValid(item, "should " + rule)))
+    }
+  }
 
   /**
    * Validates the result of this endpoint using a `predicate`. The rule is used for error reporting.
@@ -329,6 +331,17 @@ trait Endpoint[A] { self =>
    *         Otherwise the future fails with a [[Error.NotValid]] error.
    */
   final def shouldNot(rule: ValidationRule[A]): Endpoint[A] = shouldNot(rule.description)(rule.apply)
+
+  /** Validates the result of this enpoint using a function that returns a [[cats.data.Validated]].
+    * This should be considered an experimental API and could change without warning.
+    *
+    * @param validator A Function from the type of the endpoint to a [[cats.data.Validated]]
+    * @return An Endpoint that returns the value of the [[cats.data.Validated]] if it's [[cats.data.Validated.Valid]]
+    *         Otherwise the future fails with a [[Errors]] containing the accumulated [[Errors]]
+    */
+  final def validate(validator: (A, items.RequestItem) => Validated[Errors, A]): Endpoint[A] = mapAsync(a =>
+    validator(a, self.item).fold(Future.exception, Future.value)
+  )
 
   /**
     * Lifts this endpoint into one that always succeeds, with [[Try]] representing both success and

@@ -35,6 +35,10 @@ case class Errors(errors: NonEmptyList[Error]) extends Exception with NoStackTra
       errors.map(_.getMessage).toList.mkString(EOL + "  ", EOL + "  ","")
 }
 
+object Errors {
+  def of(head: Error, tail: Error*): Errors = Errors(NonEmptyList.of(head, tail: _*))
+}
+
 object Error {
 
   implicit val eq: Eq[Error] = Eq.instance[Error] { (error1, error2) =>
