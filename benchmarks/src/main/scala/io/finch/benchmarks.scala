@@ -69,6 +69,12 @@ class ExtractPathBenchmark extends FinchBenchmark {
   def stringNone: Option[String] = string(getRoot).awaitValueUnsafe()
 
   @Benchmark
+  def longSome: Option[Long] = long(getTenTwenty).awaitValueUnsafe()
+
+  @Benchmark
+  def longNone: Option[Long] = long(getFooBarBaz).awaitValueUnsafe()
+
+  @Benchmark
   def intSome: Option[Int] = int(getTenTwenty).awaitValueUnsafe()
 
   @Benchmark
@@ -173,4 +179,19 @@ class ToServiceBenchmark extends FinchBenchmark {
 
   @Benchmark
   def ints: Response = Await.result(intService(Request()))
+}
+
+@State(Scope.Benchmark)
+class TooFastStringBenchmark extends FinchBenchmark {
+
+  import io.finch.internal.TooFastString
+
+  @Benchmark
+  def someBoolean: Option[Boolean] = "true".tooBoolean
+
+  @Benchmark
+  def someInt: Option[Int] = "12345".tooInt
+
+  @Benchmark
+  def someLong: Option[Long] = "12345678".tooLong
 }
