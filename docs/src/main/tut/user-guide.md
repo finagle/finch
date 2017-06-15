@@ -862,7 +862,7 @@ You can find unit tests for the examples in the [examples folder][examples].
 [shapeless]: https://github.com/milessabin/shapeless
 [hlist]: https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.0.0#heterogenous-lists
 [coproduct]: https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.0.0#coproducts-and-discriminated-unions
-[examples]: https://github.com/finagle/finch/tree/master/examples/src/test/scala/io/finch
+[examples]: https://github.com/finch/finch-samples/tree/master/examples/src/test/scala/io/finch
 [argonaut]: http://argonaut.io
 [jackson]: http://wiki.fasterxml.com/JacksonHome
 [json4s]: http://json4s.org/

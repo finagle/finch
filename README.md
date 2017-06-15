@@ -64,7 +64,7 @@ val api: Endpoint[String] = get("hello") { Ok("Hello, World!") }
 Http.server.serve(":8080", api.toServiceAs[Text.Plain])
 ```
 
-See [examples](examples/src/main/scala/io/finch) sub-project for more complete examples.
+See [examples](https://github.com/finch/finch-samples) project for more complete examples.
 
 Performance
 -----------
