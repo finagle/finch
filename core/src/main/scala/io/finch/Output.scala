@@ -3,7 +3,6 @@ package io.finch
 import cats.Eq
 import com.twitter.finagle.http.{Cookie, Response, Status}
 import com.twitter.util.Future
-import io.finch.internal.ToResponse
 import java.nio.charset.{Charset, StandardCharsets}
 
 /**
