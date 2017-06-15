@@ -13,9 +13,11 @@ import shapeless._
  * Guarantees to:
  *
  * - handle Finch's own errors (i.e., [[Error]] and [[Error]]) as 400s
- * - supply the date header to each response
  * - copy requests's HTTP version onto a response
  * - respond with 404 when en endpoint is not matched
+
+ * - include the date header on each response (if enabled)
+ * - include the server header on each reponse (if enabled)
  */
 @implicitNotFound(
 """An Endpoint you're trying to convert into a Finagle service is missing one or more encoders.
@@ -30,7 +32,11 @@ import shapeless._
 """
 )
 trait ToService[ES <: HList, CTS <: HList] {
-  def apply(endpoints: ES): Service[Request, Response]
+  def apply(
+    endpoints: ES,
+    includeDateHeader: Boolean,
+    includeServerHeader: Boolean
+  ): Service[Request, Response]
 }
 
 /**
@@ -49,16 +55,34 @@ object ToService {
     case es: io.finch.Errors => Output.failure(es, Status.BadRequest)
   }
 
-  private def conformHttp(rep: Response, version: Version): Response = {
+  private def conformHttp(
+      rep: Response,
+      version: Version,
+      includeDateHeader: Boolean,
+      includeServerHeader: Boolean): Response = {
+
     rep.version = version
-    rep.date = currentTime()
+
+    if (includeDateHeader) {
+      rep.date = currentTime()
+    }
+
+    if (includeServerHeader) {
+      rep.server = "Finch"
+    }
+
     rep
   }
 
   implicit val hnilTS: ToService[HNil, HNil] = new ToService[HNil, HNil] {
-    def apply(endpoints: HNil): Service[Request, Response] = new Service[Request, Response] {
-      def apply(req: Request): Future[Response] =
-        Future.value(conformHttp(Response(Status.NotFound), req.version))
+    def apply(
+        endpoints: HNil,
+        includeDateHeader: Boolean,
+        includeServerHeader: Boolean): Service[Request, Response] = new Service[Request, Response] {
+
+      def apply(req: Request): Future[Response] = Future.value(
+        conformHttp(Response(Status.NotFound), req.version, includeDateHeader, includeServerHeader)
+      )
     }
   }
 
@@ -67,15 +91,23 @@ object ToService {
     trE: ToResponse.Aux[Exception, CTH],
     tsT: ToService[ET, CTT]
   ): ToService[Endpoint[A] :: ET, CTH :: CTT] = new ToService[Endpoint[A] :: ET, CTH :: CTT] {
-    def apply(endpoints: Endpoint[A] :: ET): Service[Request, Response] =
-      new Service[Request, Response] {
-        private[this] val underlying = endpoints.head.handle(respond400OnErrors)
+    def apply(
+        endpoints: Endpoint[A] :: ET,
+        includeDateHeader: Boolean,
+        includeServerHeader: Boolean): Service[Request, Response] = new Service[Request, Response] {
 
-        def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
-          case EndpointResult.Matched(rem, out) if rem.route.isEmpty =>
-            out.map(oa => conformHttp(oa.toResponse(trA, trE), req.version)).run
-          case _ => tsT(endpoints.tail)(req)
-        }
+      private[this] val underlying = endpoints.head.handle(respond400OnErrors)
+
+      def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
+        case EndpointResult.Matched(rem, out) if rem.route.isEmpty => out.map(oa => conformHttp(
+          oa.toResponse(trA, trE),
+          req.version,
+          includeDateHeader,
+          includeServerHeader
+        )).run
+
+        case _ => tsT(endpoints.tail, includeDateHeader, includeServerHeader)(req)
       }
+    }
   }
 }

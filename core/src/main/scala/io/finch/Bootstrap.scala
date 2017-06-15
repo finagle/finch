@@ -16,7 +16,10 @@ import shapeless._
  *
  * @note This API is experimental/unstable. Use with caution.
  */
-case class Bootstrap[ES <: HList, CTS <: HList](endpoints: ES) { self =>
+case class Bootstrap[ES <: HList, CTS <: HList](
+    endpoints: ES,
+    includeDateHeader: Boolean = true,
+    includeServerHeader: Boolean = true) { self =>
 
   class Serve[CT <: String] {
     def apply[E](e: Endpoint[E]): Bootstrap[Endpoint[E] :: ES, CT :: CTS] =
@@ -25,7 +28,11 @@ case class Bootstrap[ES <: HList, CTS <: HList](endpoints: ES) { self =>
 
   def serve[CT <: String]: Serve[CT] = new Serve[CT]
 
-  def toService(implicit ts: ToService[ES, CTS]): Service[Request, Response] = ts(endpoints)
+  def toService(implicit ts: ToService[ES, CTS]): Service[Request, Response] =
+    ts(endpoints, includeDateHeader, includeServerHeader)
 }
 
-object Bootstrap extends Bootstrap[HNil, HNil](HNil)
+object Bootstrap extends Bootstrap[HNil, HNil](
+    endpoints = HNil,
+    includeDateHeader = true,
+    includeServerHeader = true)
