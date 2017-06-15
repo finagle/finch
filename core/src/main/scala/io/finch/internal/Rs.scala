@@ -1,7 +1,6 @@
 package io.finch.internal
 
 import com.twitter.util.Future
-import io.catbird.util.Rerunnable
 import io.finch._
 import shapeless.HNil
 

@@ -4,7 +4,6 @@ import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.Fields
 import com.twitter.io.Buf
 import com.twitter.util.{Return, Throw}
-import io.catbird.util.Rerunnable
 import io.finch._
 import io.finch.internal._
 import io.finch.items._

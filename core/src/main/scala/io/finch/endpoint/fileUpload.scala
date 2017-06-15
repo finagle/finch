@@ -1,9 +1,8 @@
 package io.finch.endpoint
 
 import com.twitter.finagle.http.exp.Multipart
-import io.catbird.util.Rerunnable
 import io.finch._
-import io.finch.internal.Rs
+import io.finch.internal._
 import io.finch.items._
 import scala.util.control.NonFatal
 

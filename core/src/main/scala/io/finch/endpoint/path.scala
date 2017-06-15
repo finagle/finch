@@ -1,8 +1,7 @@
 package io.finch.endpoint
 
-import io.catbird.util.Rerunnable
 import io.finch._
-import io.finch.internal.Rs
+import io.finch.internal._
 import java.util.UUID
 import scala.reflect.ClassTag
 import shapeless.HNil

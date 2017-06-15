@@ -1,7 +1,6 @@
 package io.finch.endpoint
 
 import com.twitter.finagle.http.{Cookie => FinagleCookie}
-import io.catbird.util.Rerunnable
 import io.finch._
 import io.finch.internal._
 

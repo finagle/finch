@@ -4,7 +4,7 @@ import com.twitter.finagle.OAuth2
 import com.twitter.finagle.http.Status
 import com.twitter.finagle.oauth2.{AuthInfo, DataHandler, GrantHandlerResult, OAuthError}
 import com.twitter.util.Future
-import io.catbird.util.Rerunnable
+import io.finch.internal._
 
 package object oauth2 {
 

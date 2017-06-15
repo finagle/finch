@@ -8,7 +8,6 @@ import cats.data.NonEmptyList
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Cookie, Request, Response}
 import com.twitter.util.{Future, Return, Throw, Try}
-import io.catbird.util.Rerunnable
 import io.finch.internal._
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
