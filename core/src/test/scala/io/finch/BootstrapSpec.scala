@@ -1,15 +1,14 @@
-package io.finch.internal
+package io.finch
 
 import com.twitter.finagle.http.{Request, Status}
 import com.twitter.util.{Await, Future}
-import io.finch._
+import io.finch.internal.currentTime
+import java.time.{ZonedDateTime, ZoneOffset}
 import java.time.format.DateTimeFormatter
-import java.time.ZonedDateTime
-import java.time.ZoneOffset
 
-class ToServiceSpec extends FinchSpec {
+class BootstrapSpec extends FinchSpec {
 
-  behavior of "ToService"
+  behavior of "Bootstrap"
 
   it should "handle both Error and Errors" in {
     check { e: Either[Error, Errors] =>
@@ -43,12 +42,29 @@ class ToServiceSpec extends FinchSpec {
     val formatter = DateTimeFormatter.RFC_1123_DATE_TIME.withZone(ZoneOffset.UTC)
     def parseDate(s: String): Long = ZonedDateTime.parse(s, formatter).toEpochSecond
 
-    check { req: Request =>
-      val s = Endpoint.const(()).toServiceAs[Text.Plain]
+    check { (req: Request, include: Boolean) =>
+      val s = Bootstrap.configure(includeDateHeader = include)
+        .serve[Text.Plain](Endpoint.const(()))
+        .toService
+
       val rep = Await.result(s(req))
       val now = parseDate(currentTime())
 
-      rep.date.nonEmpty && (parseDate(rep.date.get) - now).abs <= 1
+      (include && (parseDate(rep.date.get) - now).abs <= 1) ||
+      (!include && rep.date.isEmpty)
+    }
+  }
+
+  it should "include Server header" in {
+    check { (req: Request, include: Boolean) =>
+      val s = Bootstrap.configure(includeServerHeader = include)
+        .serve[Text.Plain](Endpoint.const(()))
+        .toService
+
+      val rep = Await.result(s(req))
+
+      (include && rep.server === Some("Finch")) ||
+      (!include && rep.server.isEmpty)
     }
   }
 }
