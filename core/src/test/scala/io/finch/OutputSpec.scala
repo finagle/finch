@@ -137,9 +137,7 @@ class OutputSpec extends FinchSpec {
 
   it should "traverse arbitrary outputs" in {
     check { oa: Output[String] =>
-        val traversedOutput = oa.traverse[String](_ => Future.value(oa.value))
-
-        Await.result(traversedOutput) === oa
+      Await.result(oa.traverse[String](_ => Future.value(oa.value))) === oa
     }
   }
 }
