@@ -546,7 +546,7 @@ Content-Type: application/javascript
 ### OAuth2
 
 There is [finagle-oauth2](https://github.com/finagle/finagle-oauth2) server-side provider that is
-supported in Finch via the `finch-oauth2` package:
+supported in Finch via the [finch-oauth2](https://github.com/finch/finch-oauth2) project:
 
 *Authorize*
 
