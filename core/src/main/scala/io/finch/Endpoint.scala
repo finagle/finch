@@ -78,15 +78,19 @@ trait Endpoint[A] { self =>
   /**
    * Maps this endpoint to the given function `A => Future[B]`.
    */
-  final def mapAsync[B](fn: A => Future[B]): Endpoint[B] = new Endpoint[B] {
-    final def apply(input: Input): Endpoint.Result[B] = self(input) match {
-      case EndpointResult.Matched(rem, out) =>
-        EndpointResult.Matched(rem, out.flatMapF(oa => oa.traverse(a => fn(a))))
-      case _ => EndpointResult.Skipped
-    }
+  final def mapAsync[B](fn: A => Future[B]): Endpoint[B] =
+    new Endpoint[B] with (Output[A] => Future[Output[B]]) {
 
-    override def item = self.item
-    final override def toString: String = self.toString
+      final def apply(oa: Output[A]): Future[Output[B]] = oa.traverse(fn)
+
+      final def apply(input: Input): Endpoint.Result[B] = self(input) match {
+        case EndpointResult.Matched(rem, out) =>
+          EndpointResult.Matched(rem, out.flatMapF(this))
+        case _ => EndpointResult.Skipped
+      }
+
+      final override def item = self.item
+      final override def toString: String = self.toString
   }
 
   /**
@@ -98,27 +102,19 @@ trait Endpoint[A] { self =>
   /**
    * Maps this endpoint to the given function `A => Future[Output[B]]`.
    */
-  final def mapOutputAsync[B](fn: A => Future[Output[B]]): Endpoint[B] = new Endpoint[B] {
-    final def apply(input: Input): Endpoint.Result[B] = self(input) match {
-      case EndpointResult.Matched(rem, out) =>
-        val o = out.flatMapF { oa =>
-          val fob = oa.traverse(fn).map(oob => oob.flatten)
+  final def mapOutputAsync[B](fn: A => Future[Output[B]]): Endpoint[B] =
+    new Endpoint[B] with (Output[A] => Future[Output[B]]) {
+      final def apply(oa: Output[A]): Future[Output[B]] = oa.traverseFlatten(fn)
 
-          fob.map { ob =>
-            val ob1 = oa.headers.foldLeft(ob)((acc, x) => acc.withHeader(x))
-            val ob2 = oa.cookies.foldLeft(ob1)((acc, x) => acc.withCookie(x))
+      final def apply(input: Input): Endpoint.Result[B] = self(input) match {
+        case EndpointResult.Matched(rem, out) =>
+          EndpointResult.Matched(rem, out.flatMapF(this))
+        case _ => EndpointResult.Skipped
+      }
 
-            ob2
-          }
-        }
-
-        EndpointResult.Matched(rem, o)
-      case _ => EndpointResult.Skipped
+      override def item = self.item
+      final override def toString: String = self.toString
     }
-
-    override def item = self.item
-    final override def toString: String = self.toString
-  }
 
   /**
    * Transforms this endpoint to the given function `Future[Output[A]] => Future[Output[B]]`.
@@ -158,48 +154,49 @@ trait Endpoint[A] { self =>
   final def product[B](other: Endpoint[B]): Endpoint[(A, B)] = productWith(other)(Tuple2.apply)
 
   /**
-    * Returns a product of this and `other` endpoint. The resulting endpoint returns a value of resulting type for
-    * product function
-    */
-  final def productWith[B, O](other: Endpoint[B])(p: (A, B) => O): Endpoint[O] = new Endpoint[O] {
-    private[this] final def collect(a: Throwable, b: Throwable): Throwable = (a, b) match {
-      case (aa: Error, bb: Error) => Errors(NonEmptyList.of(aa, bb))
-      case (aa: Error, Errors(bs)) => Errors(aa :: bs)
-      case (Errors(as), bb: Error) => Errors(bb :: as)
-      case (Errors(as), Errors(bs)) => Errors(as.concat(bs))
-      case (_: Error, _) => b // we fail-fast with first non-Error observed
-      case (_: Errors, _) => b // we fail-fast with first non-Error observed
-      case _ => a
-    }
+   * Returns a product of this and `other` endpoint. The resulting endpoint returns a value of
+   * resulting type for product function.
+   */
+  final def productWith[B, O](other: Endpoint[B])(p: (A, B) => O): Endpoint[O] =
+    new Endpoint[O] with (((Try[Output[A]], Try[Output[B]])) => Future[Output[O]]) {
+      private[this] final def collect(a: Throwable, b: Throwable): Throwable = (a, b) match {
+        case (aa: Error, bb: Error) => Errors(NonEmptyList.of(aa, bb))
+        case (aa: Error, Errors(bs)) => Errors(aa :: bs)
+        case (Errors(as), bb: Error) => Errors(bb :: as)
+        case (Errors(as), Errors(bs)) => Errors(as.concat(bs))
+        case (_: Error, _) => b // we fail-fast with first non-Error observed
+        case (_: Errors, _) => b // we fail-fast with first non-Error observed
+        case _ => a
+      }
 
-    private[this] final def join(both: (Try[Output[A]], Try[Output[B]])): Future[Output[O]] =
-      both match {
+      final def apply(both: (Try[Output[A]], Try[Output[B]])): Future[Output[O]] = both match {
         case (Return(oa), Return(ob)) => Future.value(oa.flatMap(a => ob.map(b => p(a, b))))
         case (Throw(a), Throw(b)) => Future.exception(collect(a, b))
         case (Throw(a), _) => Future.exception(a)
         case (_, Throw(b)) => Future.exception(b)
       }
 
-    final def apply(input: Input): Endpoint.Result[O] = self(input) match {
-      case a @ EndpointResult.Matched(_, _) => other(a.rem) match {
-        case b @ EndpointResult.Matched(_, _) =>
-          EndpointResult.Matched(b.rem, a.out.liftToTry.product(b.out.liftToTry).flatMapF(join))
+      final def apply(input: Input): Endpoint.Result[O] = self(input) match {
+        case a @ EndpointResult.Matched(_, _) => other(a.rem) match {
+          case b @ EndpointResult.Matched(_, _) =>
+            EndpointResult.Matched(b.rem, a.out.liftToTry.product(b.out.liftToTry).flatMapF(this))
+          case _ => EndpointResult.Skipped
+        }
         case _ => EndpointResult.Skipped
       }
-      case _ => EndpointResult.Skipped
+
+      override def item = self.item
+      final override def toString: String = self.toString
     }
-
-
-    override def item = self.item
-    final override def toString: String = self.toString
-  }
 
   /**
    * Composes this endpoint with the given [[Endpoint]].
    */
   final def ::[B](other: Endpoint[B])(implicit pa: PairAdjoin[B, A]): Endpoint[pa.Out] =
-    new Endpoint[pa.Out] {
-      private[this] final val inner = other.productWith(self)((b, a) => pa(b, a))
+    new Endpoint[pa.Out] with ((B, A) => pa.Out) {
+      private[this] val inner = other.productWith(self)(this)
+
+      final def apply(b: B, a: A): pa.Out = pa(b, a)
 
       final def apply(input: Input): Endpoint.Result[pa.Out] = inner(input)
 
@@ -334,21 +331,22 @@ trait Endpoint[A] { self =>
     * Lifts this endpoint into one that always succeeds, with [[Try]] representing both success and
     * failure cases.
     */
-  final def liftToTry: Endpoint[Try[A]] = new Endpoint[Try[A]] {
-    @inline private[this] final def traverse: Try[Output[A]] => Output[Try[A]] = {
-      case Return(oo) => oo.map(Return.apply)
-      case t @ Throw(_) => Output.payload(t.asInstanceOf[Try[A]])
-    }
+  final def liftToTry: Endpoint[Try[A]] =
+    new Endpoint[Try[A]] with (Try[Output[A]] => Output[Try[A]]) {
+      final def apply(toa: Try[Output[A]]): Output[Try[A]] = toa match {
+        case Return(oo) => oo.map(Return.apply)
+        case t @ Throw(_) => Output.payload(t.cast[A])
+      }
 
-    final def apply(input: Input): Endpoint.Result[Try[A]] = self(input) match {
-      case EndpointResult.Matched(rem, out) =>
-        EndpointResult.Matched(rem, out.liftToTry.map(traverse))
-      case _ => EndpointResult.Skipped
-    }
+      final def apply(input: Input): Endpoint.Result[Try[A]] = self(input) match {
+        case EndpointResult.Matched(rem, out) =>
+          EndpointResult.Matched(rem, out.liftToTry.map(this))
+        case _ => EndpointResult.Skipped
+      }
 
-    override def item = self.item
-    override final def toString: String = self.toString
-  }
+      override def item = self.item
+      override final def toString: String = self.toString
+    }
 
   /**
    * Overrides the `toString` method on this endpoint.

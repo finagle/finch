@@ -115,22 +115,22 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
     StandardCharsets.UTF_16, StandardCharsets.UTF_16BE, StandardCharsets.UTF_16LE
   )
 
-  def genOutputMeta: Gen[Output.Meta] =
-    genStatus.map(s => Output.Meta(s, Option.empty, Map.empty[String, String], Seq.empty[Cookie]))
+  def genOutputMeta: Gen[(Status, Option[Charset], Map[String, String], Seq[Cookie])] =
+    genStatus.map(s => (s, Option.empty, Map.empty[String, String], Seq.empty[Cookie]))
 
   def genEmptyOutput: Gen[Output.Empty] = for {
-    m <- genOutputMeta
-  } yield Output.Empty(m)
+    (st, cs, hs, c) <- genOutputMeta
+  } yield Output.Empty(st, cs, hs, c)
 
   def genFailureOutput: Gen[Output.Failure] = for {
-    m <- genOutputMeta
+    (st, cs, hs, c) <- genOutputMeta
     s <- Gen.alphaStr
-  } yield Output.Failure(new Exception(s), m)
+  } yield Output.Failure(new Exception(s), st, cs, hs, c)
 
   def genPayloadOutput[A: Arbitrary]: Gen[Output.Payload[A]] = for {
-    m <- genOutputMeta
+    (st, cs, hs, c) <- genOutputMeta
     a <- Arbitrary.arbitrary[A]
-  } yield Output.Payload(a, m)
+  } yield Output.Payload(a, st, cs, hs, c)
 
   def genOutput[A: Arbitrary]: Gen[Output[A]] = Gen.oneOf(
     genPayloadOutput[A], genFailureOutput, genEmptyOutput
