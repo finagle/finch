@@ -21,6 +21,7 @@ lazy val playVersion = "2.6.0-RC2"
 lazy val jacksonVersion = "2.8.8"
 lazy val argonautVersion = "6.2"
 lazy val json4sVersion = "3.5.2"
+lazy val iterateeVersion = "0.12.0"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -177,14 +178,24 @@ lazy val finch = project.in(file("."))
     "io.spray" %%  "spray-json" % sprayVersion
   ))
   .aggregate(
-    core, generic, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest,
+    core, streaming, generic, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest,
     oauth2, examples, sse
   )
-  .dependsOn(core, generic, circe)
+  .dependsOn(core, streaming, generic, circe)
 
 lazy val core = project
   .settings(moduleName := "finch-core")
   .settings(allSettings)
+
+lazy val streaming = project
+  .settings(moduleName := "finch-streaming")
+  .settings(allSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.iteratee" %% "iteratee-core" % iterateeVersion
+    )
+  )
+  .dependsOn(core)
 
 lazy val generic = project
   .settings(moduleName := "finch-generic")
@@ -244,6 +255,7 @@ lazy val circe = project
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % circeVersion,
+      "io.circe" %% "circe-streaming" % circeVersion,
       "io.circe" %% "circe-jawn" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion % "test",
       "io.circe" %% "circe-jackson28" % circeJacksonVersion
