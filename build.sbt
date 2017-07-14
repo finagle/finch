@@ -178,21 +178,22 @@ lazy val finch = project.in(file("."))
     "io.spray" %%  "spray-json" % sprayVersion
   ))
   .aggregate(
-    core, streaming, generic, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest,
+    core, iteratee, generic, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest,
     oauth2, examples, sse
   )
-  .dependsOn(core, streaming, generic, circe)
+  .dependsOn(core, iteratee, generic, circe)
 
 lazy val core = project
   .settings(moduleName := "finch-core")
   .settings(allSettings)
 
-lazy val streaming = project
-  .settings(moduleName := "finch-streaming")
+lazy val iteratee = project
+  .settings(moduleName := "finch-iteratee")
   .settings(allSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "io.iteratee" %% "iteratee-core" % iterateeVersion
+      "io.iteratee" %% "iteratee-core" % iterateeVersion,
+      "io.iteratee" %% "iteratee-twitter" % iterateeVersion
     )
   )
   .dependsOn(core)
@@ -261,7 +262,7 @@ lazy val circe = project
       "io.circe" %% "circe-jackson28" % circeJacksonVersion
     )
   )
-  .dependsOn(core, streaming, jsonTest % "test")
+  .dependsOn(core, iteratee, jsonTest % "test")
 
 lazy val playjson = project
   .settings(moduleName :="finch-playjson")

@@ -5,7 +5,7 @@ import io.catbird.util._
 import io.circe.Decoder
 import io.circe.jawn._
 import io.circe.streaming._
-import io.finch.Decode
+import io.finch.{Application, Decode}
 import io.finch.internal.HttpContent
 import io.finch.iteratee.AsyncDecode
 import java.nio.charset.StandardCharsets
@@ -25,14 +25,16 @@ trait Decoders {
     attemptJson.fold[Try[A]](Throw.apply, Return.apply)
   }
 
-  implicit def asyncDecodeCirce[A : Decoder]: AsyncDecode.Json[A] = AsyncDecode.instance((enum, cs) => {
-    val parsed = cs match {
-      case StandardCharsets.UTF_8 =>
-        enum.map(_.asByteArray).through(byteParser[Future])
-      case _ =>
-        enum.map(_.asString(cs)).through(stringParser[Future])
-    }
-    parsed.through(decoder[Future, A])
-  })
+  implicit def asyncDecodeCirce[A : Decoder]: AsyncDecode.Json[A] = {
+    AsyncDecode.instance[A, Application.Json]((enum, cs) => {
+      val parsed = cs match {
+        case StandardCharsets.UTF_8 =>
+          enum.map(_.asByteArray).through(byteParser[Future])
+        case _ =>
+          enum.map(_.asString(cs)).through(stringParser[Future])
+      }
+      parsed.through(decoder[Future, A])
+    })
+  }
 
 }
