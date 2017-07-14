@@ -5,6 +5,7 @@ import io.circe.{Encoder, Json}
 import io.finch.Encode
 import java.nio.charset.Charset
 
+
 trait Encoders {
 
   protected def print(json: Json, cs: Charset): Buf

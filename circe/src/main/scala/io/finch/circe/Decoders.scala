@@ -1,11 +1,15 @@
 package io.finch.circe
 
-import com.twitter.util.{Return, Throw, Try}
+import com.twitter.util.{Future, Return, Throw, Try}
+import io.catbird.util._
 import io.circe.Decoder
 import io.circe.jawn._
+import io.circe.streaming._
 import io.finch.Decode
 import io.finch.internal.HttpContent
+import io.finch.iteratee.AsyncDecode
 import java.nio.charset.StandardCharsets
+
 
 trait Decoders {
 
@@ -20,4 +24,15 @@ trait Decoders {
 
     attemptJson.fold[Try[A]](Throw.apply, Return.apply)
   }
+
+  implicit def asyncDecodeCirce[A : Decoder]: AsyncDecode.Json[A] = AsyncDecode.instance((enum, cs) => {
+    val parsed = cs match {
+      case StandardCharsets.UTF_8 =>
+        enum.map(_.asByteArray).through(byteParser[Future])
+      case _ =>
+        enum.map(_.asString(cs)).through(stringParser[Future])
+    }
+    parsed.through(decoder[Future, A])
+  })
+
 }

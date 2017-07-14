@@ -261,7 +261,7 @@ lazy val circe = project
       "io.circe" %% "circe-jackson28" % circeJacksonVersion
     )
   )
-  .dependsOn(core, jsonTest % "test")
+  .dependsOn(core, streaming, jsonTest % "test")
 
 lazy val playjson = project
   .settings(moduleName :="finch-playjson")

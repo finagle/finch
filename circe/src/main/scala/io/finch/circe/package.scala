@@ -29,10 +29,5 @@ package object circe extends Encoders with Decoders {
         Buf.ByteArray.Owned(io.circe.jackson.jacksonPrint(json).getBytes(cs.name))
   }
 
-  /**
-    * Provides Enumeratee[Future, Json, A] for stream decoding
-    */
-  object streaming extends Streaming
-
 }
 

@@ -1,4 +1,4 @@
-package io.finch.streaming
+package io.finch.iteratee
 
 import com.twitter.util.Await
 import io.finch.Input

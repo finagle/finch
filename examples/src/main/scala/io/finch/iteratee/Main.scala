@@ -1,4 +1,4 @@
-package io.finch.streaming
+package io.finch.iteratee
 
 import java.util.concurrent.atomic.AtomicLong
 
