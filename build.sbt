@@ -196,7 +196,7 @@ lazy val iteratee = project
       "io.iteratee" %% "iteratee-twitter" % iterateeVersion
     )
   )
-  .dependsOn(core)
+  .dependsOn(core % "compile->compile;test->test")
 
 lazy val generic = project
   .settings(moduleName := "finch-generic")
