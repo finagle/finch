@@ -6,7 +6,6 @@ import com.twitter.util.Future
 import io.catbird.util._
 import io.finch.internal._
 import io.finch.items.RequestItem
-import io.finch.iteratee.AsyncEncode
 import io.iteratee.Enumerator
 import io.iteratee.twitter.FutureModule
 import shapeless.Witness
@@ -29,7 +28,7 @@ package object iteratee extends IterateeInstances {
     * An evaluating [[Endpoint]] that reads a required chunked streaming binary body, interpreted as
     * an `Enumerator[Future, A]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
     */
-  def enumeratorBody[A, CT <: String](implicit decode: AsyncDecode.Aux[A, CT]): Endpoint[Enumerator[Future, A]] = {
+  def enumeratorBody[A, CT <: String](implicit decode: Enumerate.Aux[A, CT]): Endpoint[Enumerator[Future, A]] = {
     new Endpoint[Enumerator[Future, A]] {
       final def apply(input: Input): Endpoint.Result[Enumerator[Future, A]] = {
         if (!input.request.isChunked) {
@@ -52,7 +51,7 @@ package object iteratee extends IterateeInstances {
     * An evaluating [[Endpoint]] that reads a required chunked streaming JSON body, interpreted as
     * an `Enumerator[Future, A]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
     */
-  def enumeratorJsonBody[A](implicit ad: AsyncDecode.Aux[A, Application.Json]): Endpoint[Enumerator[Future, A]] =
+  def enumeratorJsonBody[A](implicit ad: Enumerate.Aux[A, Application.Json]): Endpoint[Enumerator[Future, A]] =
     enumeratorBody[A, Application.Json]
 
 }
@@ -60,7 +59,7 @@ package object iteratee extends IterateeInstances {
 trait IterateeInstances extends FutureModule  {
 
   implicit def enumeratorToResponse[A, CT <: String](implicit
-                                           ae: AsyncEncode.Aux[A, CT],
+                                           e: Encode.Aux[A, CT],
                                            w: Witness.Aux[CT]
                                           ): ToResponse.Aux[Enumerator[Future, A], CT] = {
     ToResponse.instance[Enumerator[Future, A], CT]((enum, cs) => {
@@ -69,7 +68,7 @@ trait IterateeInstances extends FutureModule  {
       response.contentType = w.value
       val writer = response.writer
       val iteratee = foreachM((buf: Buf) => writer.write(buf))
-      ae(enum, cs).into(iteratee).ensure(writer.close())
+      enum.map(e.apply(_, cs)).into(iteratee).ensure(writer.close())
       response
     })
   }
