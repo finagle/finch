@@ -28,9 +28,9 @@ object Enumerate extends EnumerateInstances {
 trait EnumerateInstances {
   def instance[A, CT <: String]
   (f: (Enumerator[Future, Buf], Charset) => Enumerator[Future, A]): Enumerate.Aux[A, CT] = new Enumerate[A] {
-    override type ContentType = CT
+    type ContentType = CT
 
-    override def apply(enumerator: Enumerator[Future, Buf], cs: Charset): Enumerator[Future, A] = f(enumerator, cs)
+    def apply(enumerator: Enumerator[Future, Buf], cs: Charset): Enumerator[Future, A] = f(enumerator, cs)
   }
 
   implicit def buf2bufDecode[CT <: String]: Enumerate.Aux[Buf, CT] =

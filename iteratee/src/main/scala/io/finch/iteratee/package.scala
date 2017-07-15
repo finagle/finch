@@ -17,18 +17,18 @@ package object iteratee extends IterateeInstances {
 
   import syntax._
 
-  private[finch] def enumeratorFromReader(reader: Reader): Enumerator[Future, Buf] = {
-    reader.read(Int.MaxValue).intoEnumerator.flatMap({
-      case None => empty[Buf]
-      case Some(buf) => enumOne(buf).append(enumeratorFromReader(reader))
-    })
-  }
-
   /**
     * An evaluating [[Endpoint]] that reads a required chunked streaming binary body, interpreted as
     * an `Enumerator[Future, A]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
     */
   def enumeratorBody[A, CT <: String](implicit decode: Enumerate.Aux[A, CT]): Endpoint[Enumerator[Future, A]] = {
+    def enumeratorFromReader(reader: Reader): Enumerator[Future, Buf] = {
+      reader.read(Int.MaxValue).intoEnumerator.flatMap {
+        case None => empty[Buf]
+        case Some(buf) => enumOne(buf).append(enumeratorFromReader(reader))
+      }
+    }
+
     new Endpoint[Enumerator[Future, A]] {
       final def apply(input: Input): Endpoint.Result[Enumerator[Future, A]] = {
         if (!input.request.isChunked) {
