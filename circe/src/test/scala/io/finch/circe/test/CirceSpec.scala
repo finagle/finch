@@ -6,6 +6,7 @@ import io.finch.test.AbstractJsonSpec
 class CirceSpec extends AbstractJsonSpec {
   import io.finch.circe._
   checkJson("circe")
+  checkEnumerateJson("circe")
 }
 
 class CirceJacksonSpec extends AbstractJsonSpec {

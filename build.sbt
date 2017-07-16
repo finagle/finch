@@ -218,10 +218,11 @@ lazy val jsonTest = project.in(file("json-test"))
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % circeVersion,
-      "io.circe" %% "circe-jawn" % circeVersion
+      "io.circe" %% "circe-jawn" % circeVersion,
+      "io.circe" %% "circe-streaming" % circeVersion
     ) ++ testDependencies
   )
-  .dependsOn(core)
+  .dependsOn(core, iteratee)
 
 lazy val argonaut = project
   .settings(moduleName := "finch-argonaut")

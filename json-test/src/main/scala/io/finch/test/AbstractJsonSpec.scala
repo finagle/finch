@@ -6,6 +6,7 @@ import cats.Eq
 import cats.instances.AllInstances
 import io.circe.Decoder
 import io.finch.{Decode, Encode}
+import io.finch.iteratee.Enumerate
 import io.finch.test.data._
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.{FlatSpec, Matchers}
@@ -28,14 +29,18 @@ abstract class AbstractJsonSpec extends FlatSpec with Matchers with Checkers wit
     new Exception(s)
   )
 
+  private def loop(name: String, ruleSet: Laws#RuleSet, library: String): Unit =
+    for ((id, prop) <- ruleSet.all.properties) it should (s"$library.$id.$name") in { check(prop) }
+
   def checkJson(library: String)(implicit
     e: Encode.Json[List[ExampleNestedCaseClass]],
     d: Decode.Json[List[ExampleNestedCaseClass]]
   ): Unit = {
-    def loop(name: String, ruleSet: Laws#RuleSet): Unit =
-      for ((id, prop) <- ruleSet.all.properties) it should (s"$library.$id.$name") in { check(prop) }
+    loop("List[ExampleNestedCaseClass]", JsonLaws.encoding[List[ExampleNestedCaseClass]].all, library)
+    loop("List[ExampleNestedCaseClass]", JsonLaws.decoding[List[ExampleNestedCaseClass]].all, library)
+  }
 
-    loop("List[ExampleNestedCaseClass]", JsonLaws.encoding[List[ExampleNestedCaseClass]].all)
-    loop("List[ExampleNestedCaseClass]", JsonLaws.decoding[List[ExampleNestedCaseClass]].all)
+  def checkEnumerateJson(library: String)(implicit en: Enumerate.Json[ExampleNestedCaseClass]): Unit = {
+    loop("ExampleNestedCaseClass", JsonLaws.enumeratorDecoding[ExampleNestedCaseClass].all, library)
   }
 }

@@ -28,6 +28,4 @@ package object circe extends Encoders with Decoders {
       else
         Buf.ByteArray.Owned(io.circe.jackson.jacksonPrint(json).getBytes(cs.name))
   }
-
 }
-
