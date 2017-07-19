@@ -1,12 +1,12 @@
 package io.finch
 
 import com.twitter.finagle.http.Response
-import com.twitter.io.{Buf, Reader}
+import com.twitter.io._
 import com.twitter.util.Future
 import io.catbird.util._
 import io.finch.internal._
 import io.finch.items.RequestItem
-import io.iteratee.Enumerator
+import io.iteratee.{Enumerator, Iteratee}
 import io.iteratee.twitter.FutureModule
 import shapeless.Witness
 
@@ -56,21 +56,38 @@ package object iteratee extends IterateeInstances {
 
 }
 
-trait IterateeInstances extends FutureModule  {
+trait IterateeInstances extends LowPriorityInstances {
 
+  implicit def enumeratorToJsonResponse[A](implicit
+                                           e: Encode.Aux[A, Application.Json],
+                                           w: Witness.Aux[Application.Json]
+                                          ): ToResponse.Aux[Enumerator[Future, A], Application.Json] = {
+    withCustomIteratee[A, Application.Json](writer =>
+      foreachM((buf: Buf) => writer.write(buf.concat(ToResponse.NewLine)))
+    )
+  }
+}
+
+trait LowPriorityInstances extends FutureModule {
   implicit def enumeratorToResponse[A, CT <: String](implicit
-                                           e: Encode.Aux[A, CT],
-                                           w: Witness.Aux[CT]
-                                          ): ToResponse.Aux[Enumerator[Future, A], CT] = {
+                                                     e: Encode.Aux[A, CT],
+                                                     w: Witness.Aux[CT]
+                                                    ): ToResponse.Aux[Enumerator[Future, A], CT] = {
+    withCustomIteratee(writer => foreachM((buf: Buf) => writer.write(buf)))
+  }
+
+  protected def withCustomIteratee[A, CT <: String](iteratee: Writer => Iteratee[Future, Buf, Unit])
+                                                   (implicit
+                                                    e: Encode.Aux[A, CT],
+                                                    w: Witness.Aux[CT]
+                                                   ): ToResponse.Aux[Enumerator[Future, A], CT] = {
     ToResponse.instance[Enumerator[Future, A], CT]((enum, cs) => {
       val response = Response()
       response.setChunked(true)
       response.contentType = w.value
       val writer = response.writer
-      val iteratee = foreachM((buf: Buf) => writer.write(buf))
-      enum.map(e.apply(_, cs)).into(iteratee).ensure(writer.close())
+      enum.map(e.apply(_, cs)).into(iteratee(writer)).ensure(writer.close())
       response
     })
   }
-
 }
