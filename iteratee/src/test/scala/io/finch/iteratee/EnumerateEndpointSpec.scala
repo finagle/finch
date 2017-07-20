@@ -48,9 +48,9 @@ class EnumerateEndpointSpec extends FinchSpec with GeneratorDrivenPropertyChecks
     }
   }
 
-  "enumeratorJsonBody.toString" should "be correct" in {
-    enumeratorJsonBody[Buf].toString shouldBe "enumeratorJsonBody"
-  }
+  //"enumeratorJsonBody.toString" should "be correct" in {
+  //  enumeratorJsonBody[Buf].toString shouldBe "enumeratorJsonBody"
+  //}
 
   private def write(data: List[Buf], writer: Writer with Closable): Future[Unit] = {
     data match {
