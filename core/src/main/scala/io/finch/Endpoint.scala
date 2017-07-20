@@ -351,9 +351,9 @@ trait Endpoint[A] { self =>
   /**
    * Overrides the `toString` method on this endpoint.
    */
-  final def withToString(toString: => String): Endpoint[A] = new Endpoint[A] {
+  final def withToString(ts: => String): Endpoint[A] = new Endpoint[A] {
     final def apply(input: Input): Endpoint.Result[A] = self(input)
-    final override def toString: String = toString
+    final override def toString: String = ts
   }
 
   private[this] def withOutput[B](fn: Output[A] => Output[B]): Endpoint[B] =
