@@ -1,6 +1,7 @@
 package io.finch.iteratee
 
 import java.nio.charset.Charset
+import scala.annotation.implicitNotFound
 
 import com.twitter.io.Buf
 import com.twitter.util.Future
@@ -20,6 +21,15 @@ trait Enumerate[A] {
 
 object Enumerate extends EnumerateInstances {
 
+  @implicitNotFound(
+"""An Enumerator endpoint requires implicit Enumerate instance in scope, probably decoder for ${A} is missing.
+
+  Make sure ${A} is one of the following:
+
+  * A com.twitter.io.Buf
+  * A value of a type with an io.finch.iteratee.Enumerate instance (with the corresponding content-type)
+"""
+  )
   type Aux[A, CT <: String] = Enumerate[A] {type ContentType = CT}
 
   type Json[A] = Aux[A, Application.Json]

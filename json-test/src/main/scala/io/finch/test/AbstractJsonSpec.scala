@@ -41,6 +41,6 @@ abstract class AbstractJsonSpec extends FlatSpec with Matchers with Checkers wit
   }
 
   def checkEnumerateJson(library: String)(implicit en: Enumerate.Json[ExampleNestedCaseClass]): Unit = {
-    loop("ExampleNestedCaseClass", JsonLaws.enumeratorDecoding[ExampleNestedCaseClass].all, library)
+    loop("ExampleNestedCaseClass", JsonLaws.enumerating[ExampleNestedCaseClass].all, library)
   }
 }

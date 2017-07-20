@@ -102,7 +102,7 @@ object JsonLaws {
       val decode: Decode.Json[A] = implicitly[Decode.Json[A]]
     }
 
-  def enumeratorDecoding[A : Enumerate.Json]: EnumerateJsonLaws[A] =
+  def enumerating[A : Enumerate.Json]: EnumerateJsonLaws[A] =
     new EnumerateJsonLaws[A] {
       val enumerate: Enumerate.Json[A] = implicitly[Enumerate.Json[A]]
     }

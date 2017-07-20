@@ -10,6 +10,10 @@ import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
 class EnumerateEndpointSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
 
+  private implicit val enumerateString = Enumerate.instance[String, Application.Json]((enum, cs) => {
+    enum.map(_.asString(cs))
+  })
+
   "enumeratorBody" should "enumerate input stream" in {
     forAll { (data: List[Buf]) =>
       val req = Request()
@@ -24,15 +28,15 @@ class EnumerateEndpointSpec extends FinchSpec with GeneratorDrivenPropertyChecks
 
   }
 
+  "enumeratorBody.toString" should "be correct" in {
+    enumeratorBody[Buf, Application.OctetStream].toString shouldBe "enumeratorBody"
+  }
+
   "enumeratorBody" should "skip matching if request is not chunked" in {
     enumeratorBody[Buf, Application.OctetStream].apply(Input.fromRequest(Request())) shouldBe EndpointResult.Skipped
   }
 
   "enumeratorJsonBody" should "enumerate input stream if required Enumerate instance is presented" in {
-    implicit val enumerate = Enumerate.instance[String, Application.Json]((enum, cs) => {
-      enum.map(_.asString(cs))
-    })
-
     forAll { (data: List[String]) =>
       val req = Request()
       req.setChunked(chunked = true)
@@ -42,6 +46,10 @@ class EnumerateEndpointSpec extends FinchSpec with GeneratorDrivenPropertyChecks
 
       Await.result(enumerator.toVector) should contain theSameElementsAs data
     }
+  }
+
+  "enumeratorJsonBody.toString" should "be correct" in {
+    enumeratorJsonBody[Buf].toString shouldBe "enumeratorJsonBody"
   }
 
   private def write(data: List[Buf], writer: Writer with Closable): Future[Unit] = {

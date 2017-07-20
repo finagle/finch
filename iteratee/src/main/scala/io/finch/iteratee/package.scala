@@ -43,7 +43,7 @@ package object iteratee extends IterateeInstances {
       }
 
       final override def item: RequestItem = items.BodyItem
-      final override def toString: String = "asyncJsonBody"
+      final override def toString: String = "enumeratorBody"
     }
   }
 
@@ -52,16 +52,16 @@ package object iteratee extends IterateeInstances {
     * an `Enumerator[Future, A]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
     */
   def enumeratorJsonBody[A](implicit ad: Enumerate.Aux[A, Application.Json]): Endpoint[Enumerator[Future, A]] =
-    enumeratorBody[A, Application.Json]
+    enumeratorBody[A, Application.Json].withToString("enumeratorJsonBody")
 
 }
 
 trait IterateeInstances extends LowPriorityInstances {
 
   implicit def enumeratorToJsonResponse[A](implicit
-                                           e: Encode.Aux[A, Application.Json],
-                                           w: Witness.Aux[Application.Json]
-                                          ): ToResponse.Aux[Enumerator[Future, A], Application.Json] = {
+    e: Encode.Aux[A, Application.Json],
+    w: Witness.Aux[Application.Json]
+  ): ToResponse.Aux[Enumerator[Future, A], Application.Json] = {
     withCustomIteratee[A, Application.Json](writer =>
       foreachM((buf: Buf) => writer.write(buf.concat(ToResponse.NewLine)))
     )
@@ -70,17 +70,16 @@ trait IterateeInstances extends LowPriorityInstances {
 
 trait LowPriorityInstances extends FutureModule {
   implicit def enumeratorToResponse[A, CT <: String](implicit
-                                                     e: Encode.Aux[A, CT],
-                                                     w: Witness.Aux[CT]
-                                                    ): ToResponse.Aux[Enumerator[Future, A], CT] = {
+    e: Encode.Aux[A, CT],
+    w: Witness.Aux[CT]
+  ): ToResponse.Aux[Enumerator[Future, A], CT] = {
     withCustomIteratee(writer => foreachM((buf: Buf) => writer.write(buf)))
   }
 
-  protected def withCustomIteratee[A, CT <: String](iteratee: Writer => Iteratee[Future, Buf, Unit])
-                                                   (implicit
-                                                    e: Encode.Aux[A, CT],
-                                                    w: Witness.Aux[CT]
-                                                   ): ToResponse.Aux[Enumerator[Future, A], CT] = {
+  protected def withCustomIteratee[A, CT <: String](iteratee: Writer => Iteratee[Future, Buf, Unit])(implicit
+    e: Encode.Aux[A, CT],
+    w: Witness.Aux[CT]
+  ): ToResponse.Aux[Enumerator[Future, A], CT] = {
     ToResponse.instance[Enumerator[Future, A], CT]((enum, cs) => {
       val response = Response()
       response.setChunked(true)
