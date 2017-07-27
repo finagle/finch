@@ -7,7 +7,7 @@ private[finch] object ScalaToTwitterConversions {
 
   implicit def asTwitterFuture[F, T](f: F => scala.concurrent.Future[T])
                                     (implicit ec: ExecutionContext): F => Future[T] = {
-    { first: F => f.apply(first).asTwitterFuture }
+    first: F => f.apply(first).asTwitterFuture
   }
 
   implicit def scalaToTwitterTry[T](t: scala.util.Try[T]): Try[T] = t match {
@@ -15,9 +15,8 @@ private[finch] object ScalaToTwitterConversions {
     case scala.util.Failure(ex) => Throw(ex)
   }
 
-  implicit def asTwitterFuture[T]
-  (f: scala.concurrent.Future[T])
-  (implicit ec: ExecutionContext): Future[T] = f.asTwitterFuture
+  implicit def asTwitterFuture[T](f: scala.concurrent.Future[T])(implicit ec: ExecutionContext)
+    : Future[T] = f.asTwitterFuture
 
   implicit class ScalaTwitterConvertionsImplicits[T](f: scala.concurrent.Future[T]) {
     def asTwitterFuture(implicit ec: ExecutionContext): Future[T] = {
