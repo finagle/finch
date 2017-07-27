@@ -2,6 +2,10 @@ package io.finch.syntax
 
 import com.twitter.finagle.http.Response
 import com.twitter.util.Future
+import com.twitter.util.Promise
+import com.twitter.util.Return
+import com.twitter.util.Throw
+import com.twitter.util.Try
 import io.finch.{Endpoint, Output}
 import shapeless.HNil
 import shapeless.ops.function.FnToProduct
@@ -50,6 +54,22 @@ private[finch] trait LowPriorityMapperConversions {
    */
   implicit def mapperFromFutureResponseFunction[A](f: A => Future[Response]): Mapper.Aux[A, Response] =
     instance(_.mapOutputAsync(f.andThen(fr => fr.map(r => Output.payload(r, r.status)))))
+
+  import TwitterConvertions._
+
+  /**
+    * @group LowPriorityMapper
+    */
+  implicit def mapperFromFutureOutputFunction[A, B](f: A => scala.concurrent.Future[Output[B]])
+    (implicit ec: scala.concurrent.ExecutionContext): Mapper.Aux[A, B] =
+    instance(_.mapOutputAsync {x => f(x).asTwitterFuture} )
+
+  /**
+    * @group LowPriorityMapper
+    */
+  implicit def mapperFromFutureResponseFunction[A](f: A => scala.concurrent.Future[Response])
+    (implicit ec: scala.concurrent.ExecutionContext) : Mapper.Aux[A, Response] =
+    instance(_.mapOutputAsync(f.andThen(fr => fr.map(r => Output.payload(r, r.status)).asTwitterFuture)))
 }
 
 private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConversions {
@@ -97,6 +117,43 @@ private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConv
    */
   implicit def mapperFromFutureResponseValue(fr: => Future[Response]): Mapper.Aux[HNil, Response] =
     instance(_.mapOutputAsync(_ => fr.map(r => Output.payload(r, r.status))))
+
+  import TwitterConvertions._
+
+  /**
+    * @group HighPriorityMapper
+    */
+  implicit def mapperFromScalaFutureOutputValue[A]
+    (o: => scala.concurrent.Future[Output[A]])
+    (implicit ec: scala.concurrent.ExecutionContext)
+    : Mapper.Aux[HNil, A] =
+    instance(_.mapOutputAsync(_ => o.asTwitterFuture))
+
+  /**
+    * @group HighPriorityMapper
+    */
+  implicit def mapperFromScalaFutureResponseValue
+    (fr: => scala.concurrent.Future[Response])
+    (implicit ec: scala.concurrent.ExecutionContext)
+    : Mapper.Aux[HNil, Response] =
+    instance(_.mapOutputAsync(_ => fr.map(r => Output.payload(r, r.status)).asTwitterFuture))
+}
+
+private[finch] object TwitterConvertions {
+  import scala.concurrent.ExecutionContext
+
+  implicit def scalaToTwitterTry[T](t: scala.util.Try[T]): Try[T] = t match {
+    case scala.util.Success(r) => Return(r)
+    case scala.util.Failure(ex) => Throw(ex)
+  }
+
+  implicit class ScalaTwitterConvertionsImplicits[T](f: scala.concurrent.Future[T]) {
+    def asTwitterFuture(implicit ec: ExecutionContext): Future[T] = {
+      val promise = Promise[T]()
+      f.onComplete(promise update _)
+      promise
+    }
+  }
 }
 
 object Mapper extends HighPriorityMapperConversions {
