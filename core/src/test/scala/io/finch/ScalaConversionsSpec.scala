@@ -19,4 +19,16 @@ class ScalaConversionsSpec extends FinchSpec {
 
     result shouldBe "value"
   }
+
+  it should "convert Scala Try into Twitter Try" in {
+    import scala.util.{Try => ScalaTry}
+    import com.twitter.util.{Try=>TwitterTry}
+    import io.finch.internal.ScalaToTwitterConversions._
+
+    val sucessfulTry: TwitterTry[String] =  ScalaTry { "value" }
+    val failureTry: TwitterTry[String] =  ScalaTry { throw new RuntimeException }
+
+    sucessfulTry.isReturn shouldBe true
+    failureTry.isThrow shouldBe true
+  }
 }
