@@ -19,10 +19,13 @@ package object iteratee extends IterateeInstances {
   import syntax._
 
   private[finch] def enumeratorFromReader(reader: Reader): Enumerator[Future, Buf] = {
-    reader.read(Int.MaxValue).intoEnumerator.flatMap {
-      case None => empty[Buf]
-      case Some(buf) => enumOne(buf).append(enumeratorFromReader(reader))
+    def rec(reader: Reader): Enumerator[Future, Buf] = {
+      reader.read(Int.MaxValue).intoEnumerator.flatMap {
+        case None => empty[Buf]
+        case Some(buf) => enumOne(buf).append(rec(reader))
+      }
     }
+    rec(reader).ensureEval(Eval.later(Future.value(reader.discard())))
   }
 
   /**
@@ -36,8 +39,10 @@ package object iteratee extends IterateeInstances {
           EndpointResult.Skipped
         } else {
           val req = input.request
-          def enum = enumeratorFromReader(req.reader).ensureEval(Eval.later(Future.value(req.reader.discard())))
-          EndpointResult.Matched(input, Rerunnable(Output.payload(decode(enum, req.charsetOrUtf8))))
+          EndpointResult.Matched(
+            input,
+            Rerunnable(Output.payload(decode(enumeratorFromReader(req.reader), req.charsetOrUtf8)))
+          )
         }
       }
 
