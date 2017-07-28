@@ -89,7 +89,7 @@ trait LowPriorityInstances extends FutureModule {
       response.setChunked(true)
       response.contentType = w.value
       val writer = response.writer
-      enum.map(e.apply(_, cs)).into(iteratee(writer)).ensure(writer.close())
+      enum.ensureEval(Eval.later(writer.close())).map(e.apply(_, cs)).into(iteratee(writer))
       response
     })
   }
