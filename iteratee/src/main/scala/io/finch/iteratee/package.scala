@@ -1,5 +1,6 @@
 package io.finch
 
+import cats.Eval
 import com.twitter.finagle.http.Response
 import com.twitter.io._
 import com.twitter.util.Future
@@ -35,10 +36,8 @@ package object iteratee extends IterateeInstances {
           EndpointResult.Skipped
         } else {
           val req = input.request
-          EndpointResult.Matched(
-            input,
-            Rerunnable(Output.payload(decode(enumeratorFromReader(req.reader), req.charsetOrUtf8)))
-          )
+          def enum = enumeratorFromReader(req.reader).ensureEval(Eval.later(Future.value(req.reader.discard())))
+          EndpointResult.Matched(input, Rerunnable(Output.payload(decode(enum, req.charsetOrUtf8))))
         }
       }
 
