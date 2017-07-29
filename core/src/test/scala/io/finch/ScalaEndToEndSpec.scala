@@ -10,6 +10,7 @@ class ScalaEndToEndSpec extends FinchSpec {
   it should "convert value Endpoints into Services, using Scala Futures" in {
     import scala.concurrent.{Future => ScalaFuture}
     import scala.concurrent.ExecutionContext.Implicits._
+    import io.finch.syntax.scala._
 
     val e: Endpoint[String] = get("foo") {
       ScalaFuture {
@@ -27,6 +28,7 @@ class ScalaEndToEndSpec extends FinchSpec {
   it should "convert value parameterized Endpoints into Services, using Scala Futures" in {
     import scala.concurrent.{Future => ScalaFuture}
     import scala.concurrent.ExecutionContext.Implicits._
+    import io.finch.syntax.scala._
 
     val e: Endpoint[String] = get("foo" :: string) { param: String =>
       ScalaFuture {
