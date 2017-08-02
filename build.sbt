@@ -332,7 +332,7 @@ lazy val examples = project
       "com.github.finagle" %% "finagle-oauth2" % finagleOAuth2Version
     )
   )
-  .dependsOn(core, circe, jackson, oauth2)
+  .dependsOn(core, circe, jackson, oauth2, iteratee)
 
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")
