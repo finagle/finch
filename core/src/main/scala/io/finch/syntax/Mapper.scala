@@ -16,16 +16,16 @@ import shapeless.ops.function.FnToProduct
 trait Mapper[F, A] {
   type Out
 
-  def apply(f: F, e: Endpoint[A]): Endpoint[Out]
+  def apply(f: => F, e: Endpoint[A]): Endpoint[Out]
 }
 
 private[finch] trait LowPriorityMapperConversions {
   type Aux[F, A, B] = Mapper[F, A] { type Out = B }
 
-  def instance[F, A, B](fn: (Endpoint[A], F) => Endpoint[B]): Mapper.Aux[F, A, B] = new Mapper[F, A] {
+  def instance[F, A, B](fn: (Endpoint[A], => F) => Endpoint[B]): Mapper.Aux[F, A, B] = new Mapper[F, A] {
     type Out = B
 
-    override def apply(f: F, e: Endpoint[A]): Endpoint[B] = fn(e, f)
+    override def apply(f: => F, e: Endpoint[A]): Endpoint[B] = fn(e, f)
   }
 
   /**
