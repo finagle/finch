@@ -224,7 +224,7 @@ Similar to the rest of predefined endpoints, these come in pairs required/option
 
 Non-chunked bodies:
 
-- `bodyString(Option)` - required/optional, non-chunked (only matches non-chunked requests) body
+- `stringBody(Option)` - required/optional, non-chunked (only matches non-chunked requests) body
    represented as a UTF-8 string.
 - `binaryBody(Option)` - required/optional, non-chunked (only matches non-chunked requests) body
    represented as a byte array.
