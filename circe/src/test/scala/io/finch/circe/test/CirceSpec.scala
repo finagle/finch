@@ -15,6 +15,6 @@ class CirceJacksonSpec extends AbstractJsonSpec {
 }
 
 class CirceDropNullKeysSpec extends AbstractJsonSpec {
-  import io.finch.circe.dropNullKeys._
+  import io.finch.circe.dropNullValues._
   checkJson("circe-dropNullKeys")
 }

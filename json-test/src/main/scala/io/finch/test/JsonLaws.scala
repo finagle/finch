@@ -50,9 +50,9 @@ trait EnumerateJsonLaws[A] extends Laws with AllInstances with FutureModule {
   def enumerate: Enumerate.Json[A]
 
   def success(a: List[A], cs: Charset)(implicit e: Encoder[A], d: Decoder[A]): IsEq[Vector[A]] = {
-    val json = enumOne(Encoder.encodeList[A].apply(a).noSpaces)
+    val json = enumList(a).map(a => e(a).noSpaces).intersperse("\n")
     val enum = json.map(str => Buf.ByteArray.Owned(str.getBytes(cs.name)))
-    val toCompare = json.through(stringParser[Future]).through(decoder[Future, A])
+    val toCompare = json.through(stringStreamParser[Future]).through(decoder[Future, A])
     Await.result(enumerate(enum, cs).toVector) <-> Await.result(toCompare.toVector)
   }
 

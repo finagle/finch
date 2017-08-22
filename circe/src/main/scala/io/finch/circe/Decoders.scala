@@ -29,9 +29,9 @@ trait Decoders {
     Enumerate.instance[A, Application.Json]((enum, cs) => {
       val parsed = cs match {
         case StandardCharsets.UTF_8 =>
-          enum.map(_.asByteArray).through(byteParser[Future])
+          enum.map(_.asByteArray).through(byteStreamParser[Future])
         case _ =>
-          enum.map(_.asString(cs)).through(stringParser[Future])
+          enum.map(_.asString(cs)).through(stringStreamParser[Future])
       }
       parsed.through(decoder[Future, A])
     })

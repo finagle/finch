@@ -12,8 +12,8 @@ package object circe extends Encoders with Decoders {
   /**
    * Provides a [[Printer]] that drops null keys.
    */
-  object dropNullKeys extends Encoders with Decoders {
-    private[this] val printer: Printer = Printer.noSpaces.copy(dropNullKeys = true)
+  object dropNullValues extends Encoders with Decoders {
+    private[this] val printer: Printer = Printer.noSpaces.copy(dropNullValues = true)
     protected def print(json: Json, cs: Charset): Buf =
       Buf.ByteBuffer.Owned(printer.prettyByteBuffer(json, cs))
   }
