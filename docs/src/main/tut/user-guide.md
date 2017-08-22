@@ -778,14 +778,6 @@ payload. Only Finch's errors (i.e., `io.finch.Error`) are treated in a special w
 into 400 responses with their messages serialized according to the rules defined in the
 `io.finch.Encode.Aux[Exception, ContentType]` instance.
 
-Finch provides some very basic instances of Encode[Exception] in the following cases:
-
- - `Encode.Json[Exception]` is available with any of the supported JSON libraries
-   (i.e., with `import io.finch.$jsonLibrary`)
- - `Encode.Text[Exception]` is available out of the box in finch-core
- - `Encode.Aux[Exception, ?]` that doesn't encode anything is available for any other
-    content-type
-
 Define your own instance if you want to serialize handled exception into a payload of given
 content-type. For example, here is an instance for HTML.
 
@@ -796,6 +788,20 @@ implicit val e: Encode.Aux[Exception, Text.Html] = Encode.instance((e, cs) =>
   Buf.Utf8(s"<h1>Bad thing happened: ${e.getMessage}<h1>")
 )
 ```
+
+Finch used to provide exception encoders from all of its json libraries, but do to some issues 
+with implicit scope that made defining custom encoders difficult, you must now define your own.
+Here is an example Json encoder, that was formerly used in `finch-circe`:
+```tut:silent
+import io.circe._, import io.finch._
+
+implicit val encodeExceptionCirce: Encoder[Exception] = Encoder.instance(e =>		
+  Json.obj("message" -> Option(e.getMessage).fold(Json.Null)(Json.fromString))		
+)
+```
+
+If no other `Encode[Exception]` is available, Finch provides a fallthrough of `Encode.Aux[Exception, ?]`
+that will return an empty content body.
 
 ### Testing
 
