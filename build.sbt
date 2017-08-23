@@ -11,16 +11,17 @@ lazy val finagleVersion = "6.45.0"
 lazy val twitterServerVersion = "1.30.0"
 lazy val finagleOAuth2Version = "0.6.45"
 lazy val finagleHttpAuthVersion = "0.1.0"
-lazy val circeVersion = "0.8.0"
-lazy val circeJacksonVersion = "0.8.0"
+lazy val circeVersion = "0.9.0-M1"
+lazy val circeJacksonVersion = "0.9.0-M1"
 lazy val catbirdVersion = "0.15.0"
 lazy val shapelessVersion = "2.3.2"
-lazy val catsVersion = "0.9.0"
+lazy val catsVersion = "1.0.0-MF"
 lazy val sprayVersion = "1.3.3"
 lazy val playVersion = "2.6.0-RC2"
 lazy val jacksonVersion = "2.8.8"
 lazy val argonautVersion = "6.2"
 lazy val json4sVersion = "3.5.2"
+lazy val iterateeVersion = "0.13.0"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -177,14 +178,25 @@ lazy val finch = project.in(file("."))
     "io.spray" %%  "spray-json" % sprayVersion
   ))
   .aggregate(
-    core, generic, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest,
+    core, iteratee, generic, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest,
     oauth2, examples, sse
   )
-  .dependsOn(core, generic, circe)
+  .dependsOn(core, iteratee, generic, circe)
 
 lazy val core = project
   .settings(moduleName := "finch-core")
   .settings(allSettings)
+
+lazy val iteratee = project
+  .settings(moduleName := "finch-iteratee")
+  .settings(allSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.iteratee" %% "iteratee-core" % iterateeVersion,
+      "io.iteratee" %% "iteratee-twitter" % iterateeVersion
+    )
+  )
+  .dependsOn(core % "compile->compile;test->test")
 
 lazy val generic = project
   .settings(moduleName := "finch-generic")
@@ -206,17 +218,17 @@ lazy val jsonTest = project.in(file("json-test"))
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % circeVersion,
-      "io.circe" %% "circe-jawn" % circeVersion
+      "io.circe" %% "circe-jawn" % circeVersion,
+      "io.circe" %% "circe-streaming" % circeVersion
     ) ++ testDependencies
   )
-  .dependsOn(core)
+  .dependsOn(core, iteratee)
 
 lazy val argonaut = project
   .settings(moduleName := "finch-argonaut")
   .settings(allSettings)
   .settings(libraryDependencies ++= Seq(
-    "io.argonaut" %% "argonaut" % argonautVersion,
-    "io.argonaut" %% "argonaut-jawn" % argonautVersion
+    "io.argonaut" %% "argonaut" % argonautVersion
   ))
   .dependsOn(core, jsonTest % "test")
 
@@ -244,12 +256,13 @@ lazy val circe = project
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % circeVersion,
+      "io.circe" %% "circe-streaming" % circeVersion,
       "io.circe" %% "circe-jawn" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion % "test",
       "io.circe" %% "circe-jackson28" % circeJacksonVersion
     )
   )
-  .dependsOn(core, jsonTest % "test")
+  .dependsOn(core, iteratee, jsonTest % "test")
 
 lazy val playjson = project
   .settings(moduleName :="finch-playjson")
@@ -318,7 +331,7 @@ lazy val examples = project
       "com.github.finagle" %% "finagle-oauth2" % finagleOAuth2Version
     )
   )
-  .dependsOn(core, circe, jackson, oauth2)
+  .dependsOn(core, circe, jackson, oauth2, iteratee)
 
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")
