@@ -228,8 +228,7 @@ lazy val argonaut = project
   .settings(moduleName := "finch-argonaut")
   .settings(allSettings)
   .settings(libraryDependencies ++= Seq(
-    "io.argonaut" %% "argonaut" % argonautVersion,
-    "io.argonaut" %% "argonaut-jawn" % argonautVersion
+    "io.argonaut" %% "argonaut" % argonautVersion
   ))
   .dependsOn(core, jsonTest % "test")
 
