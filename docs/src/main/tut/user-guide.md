@@ -803,6 +803,115 @@ implicit val encodeExceptionCirce: Encoder[Exception] = Encoder.instance(e =>
 If no other `Encode[Exception]` is available, Finch provides a fallthrough of `Encode.Aux[Exception, ?]`
 that will return an empty content body.
 
+### Streaming
+
+`finch-iteratee` module enables high-level support of chunked request and response streaming using
+[iteratee.io](https://github.com/travisbrown/iteratee) and `circe-streaming` libraries. It allows to encode and decode
+newline delimeted JSON streams, but also supports binary and text streaming.  
+Concept of [iteratee](https://en.wikipedia.org/wiki/Iteratee) could be complicated for understanding, but
+proves itself very powerful and useful abstraction over processing sequential data. API of `iteratee.io` library is transparent and covers most of 
+the potential use cases.
+
+Main points:
+
+- `Enumerator` is a "lazy storage" with all the chunks that already were received or about to be received in a future
+- `Enumeratee` is a `map` part and could be used to transform chunks in `Enumerator`
+- `Iteratee` is a `reduce` part that runs computation and processes over chunks in `Enumerator`
+
+**Decoding**
+
+Currently JSON decoding is supported only in `finch-circe` module and implemented
+using `circe-streaming` library.
+
+To make it happen finch out of the box provides few instances for `io.finch.iteratee.Enumerate` abstraction:
+
+```tut:silent
+/**
+  * Enumerate HTTP streamed payload represented as [[Enumerator]] (encoded with [[Charset]]) into
+  * an [[Enumerator]] of arbitrary type `A`.
+  */
+trait Enumerate[A] {
+
+  type ContentType <: String
+
+  def apply(enumerator: Enumerator[Future, Buf], cs: Charset): Enumerator[Future, A]
+}
+
+```
+
+Here you could see an example how to work with decoding enumerators:
+```tut
+import io.catbird.util._
+import io.circe.generic.auto._
+import io.finch._
+import io.finch.circe._
+import io.finch.iteratee._
+import io.iteratee._
+
+case class Foo(bar: Int)
+
+/**
+  * Sum stream values together
+  */
+val decodingJSON = post("foo" :: enumeratorJsonBody[Foo]) { (enumerator: Enumerator[Future, Foo]) =>
+  val enumeratorOfInts: Enumerator[Future, Int] = enumerator.through(Enumeratee.map[Future, Foo, Int](_.bar))
+  val futureSum: Future[Int] = enumeratorOfInts.into(Iteratee.fold[Future, Int, Int](0)(_ + _))
+  futureSum.map(Ok) //future will be completed when whole stream is folded
+}
+
+/**
+  * Backpressure with HTTP 1.1 could be implemented only in a way of closing a connection.
+  * If you don't want to consume more data, you could throw any exception while processing `Enumerator`,
+  * it'll close a connection.
+  *
+  * In this example connection going to be closed as soon as 10 elements has been stored.
+  */
+val backpressureJSON = post("bar" :: enumeratorJsonBody[Foo]) { (enumerator: Enumerator[Future, Foo]) =>
+   val iteratee = Iteratee.take[Future, Foo](10).flatMapM(fs: Vector[Foo] => {
+      storeFoos(fs).map(_ => throw new InterruptedException)
+   })
+   enumerator.into(iteratee).map(Ok)
+}
+
+/**
+  * You could use `enumeratorBody` if there is no need to decode input stream.
+  * Have in mind that for something except `Buf` one should provide implicit instance 
+  * of `io.finch.iteratee.Enumerate` in scope
+  */
+val bufEnumerator = post("text" :: enumeratorBody[Buf, Application.OctetStream]) { (enumerator: Enumerator[Future, Buf]) =>
+   Ok()
+)
+
+Http.server
+    .withStreaming(enabled = true) //don't forget to enable streaming support
+    .serve(":8080", (decodingJSON :+: backpressureJSON :+: bufEnumerator).toService)
+```
+
+**Encoding**
+
+Beside decoding of input stream, it's possible to make output stream with enumerator using
+`Endpoint[Enumerator[Future, A]]`:
+
+```tut
+import io.catbird.util._
+import io.circe.generic.auto._
+import io.finch._
+import io.finch.circe._
+import io.finch.iteratee._
+import io.iteratee._
+
+case class Foo(x: Int)
+
+val streamingEndpoint: Endpoint[Enumerator[Future, Foo]] = get("stream") {
+   Enumerator[Future, Foo].enumList(List(Foo(1), Foo(2))
+}
+
+Http.server
+    .withStreaming(enabled = true)
+    .serve(":8080", streamingEdnpoint.toService) //with Application.JSON Content-Type it's a JSON nd stream of Foos
+```
+
+
 ### Testing
 
 One of the advantages of typeful endpoints in Finch is that they can be unit-tested independently in
