@@ -7,13 +7,12 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.11.11", "2.12.2")
 )
 
-lazy val finagleVersion = "6.45.0"
-lazy val twitterServerVersion = "1.30.0"
-lazy val finagleOAuth2Version = "0.6.45"
+lazy val finagleVersion = "7.0.0"
+lazy val twitterServerVersion = "1.31.0"
 lazy val finagleHttpAuthVersion = "0.1.0"
 lazy val circeVersion = "0.9.0-M1"
 lazy val circeJacksonVersion = "0.9.0-M1"
-lazy val catbirdVersion = "0.15.0"
+lazy val catbirdVersion = "0.17.0"
 lazy val shapelessVersion = "2.3.2"
 lazy val catsVersion = "1.0.0-MF"
 lazy val sprayVersion = "1.3.3"
@@ -314,8 +313,7 @@ lazy val examples = project
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-generic" % circeVersion,
       "com.twitter" %% "finagle-stats" % finagleVersion,
-      "com.twitter" %% "twitter-server" % twitterServerVersion,
-      "com.github.finagle" %% "finagle-oauth2" % finagleOAuth2Version
+      "com.twitter" %% "twitter-server" % twitterServerVersion
     )
   )
   .dependsOn(core, circe, jackson, iteratee)
