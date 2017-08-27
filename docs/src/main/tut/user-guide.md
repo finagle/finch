@@ -136,9 +136,9 @@ There is an implicit conversion from `String`, `Boolean` and `Int` to a matching
 matches the current path segment of a given request against a converted value.
 
 ```tut
-import io.finch._
+import io.finch._, shapeless.HNil
 
-val e: Endpoint0 = "foo"
+val e: Endpoint[HNil] = path("foo")
 
 e(Input.get("/foo")).isMatched
 
@@ -179,7 +179,7 @@ an arbitrary type and enriches it with an additional check/match of the HTTP met
 ```tut
 import io.finch._, com.twitter.finagle.http.{Request, Method}
 
-val e: Endpoint0 = "foo"
+val e = path("foo")
 
 e(Input.get("/foo")).isMatched
 
@@ -323,7 +323,7 @@ import io.finch._, shapeless._
 
 val both = int :: int
 
-val sum = both { (a: Int, b: Int) => Ok(a + b) }
+val sum = both.mapOutput { case a :: b :: HNil => Ok(a + b) }
 ```
 
 There is a special case when `Endpoint[L <: HList]` is converted into an endpoint of case class. For
@@ -332,9 +332,9 @@ this purpose, the `Endpoint.as[A]` method might be used.
 ```tut
 import io.finch._, shapeless._
 
-case class Foo(i: Int, s: String)
+case class Bar(i: Int, s: String)
 
-val foo = (int :: string).as[Foo]
+val bar = (int :: string).as[Bar]
 ```
 
 It's also possible to be explicit and use one of the `map*` methods defined on `Endpoint[A]`:
@@ -580,10 +580,10 @@ import io.circe.generic.auto._
 ```
 
 It's also possible to import the Circe configuration which uses a pretty printer configured with
-`dropNullKeys = true`. Use the following imports instead:
+`dropNullValues = true`. Use the following imports instead:
 
 ```tut:silent
-import io.finch.circe.dropNullKeys._
+import io.finch.circe.dropNullValues._
 import io.circe.generic.auto._
 ```
 
@@ -648,11 +648,11 @@ implicit val formats: Formats = DefaultFormats ++ JodaTimeSerializers.all
 * For any type you want to serialize or deserialize you are required to create the appropriate
   Play JSON `Reads` and `Writes`.
 
-```tut:silent
+```scala
 import io.finch.playjson._
 import play.api.libs.json._
 
-case class Foo(name: String,age: Int)
+case class Foo(name: String, age: Int)
 
 object Foo {
   implicit val fooReads: Reads[Foo] = Json.reads[Foo]
@@ -793,7 +793,7 @@ Finch used to provide exception encoders from all of its json libraries, but do 
 with implicit scope that made defining custom encoders difficult, you must now define your own.
 Here is an example Json encoder, that was formerly used in `finch-circe`:
 ```tut:silent
-import io.circe._, import io.finch._
+import io.circe._, io.finch._
 
 implicit val encodeExceptionCirce: Encoder[Exception] = Encoder.instance(e =>		
   Json.obj("message" -> Option(e.getMessage).fold(Json.Null)(Json.fromString))		
