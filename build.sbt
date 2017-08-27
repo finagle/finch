@@ -178,8 +178,7 @@ lazy val finch = project.in(file("."))
     "io.spray" %%  "spray-json" % sprayVersion
   ))
   .aggregate(
-    core, iteratee, generic, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest,
-    oauth2, examples, sse
+    core, iteratee, generic, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest, examples, sse
   )
   .dependsOn(core, iteratee, generic, circe)
 
@@ -276,16 +275,6 @@ lazy val sprayjson = project
   .settings(libraryDependencies += "io.spray" %%  "spray-json" % sprayVersion)
   .dependsOn(core, jsonTest % "test")
 
-lazy val oauth2 = project
-  .settings(moduleName := "finch-oauth2")
-  .settings(allSettings)
-  .settings(libraryDependencies ++= Seq(
-    "com.github.finagle" %% "finagle-oauth2" % finagleOAuth2Version,
-    "commons-codec" % "commons-codec" % "1.10",
-    "org.mockito" % "mockito-all" % "1.10.19" % "test"
-  ))
-  .dependsOn(core)
-
 lazy val sse = project
   .settings(moduleName := "finch-sse")
   .settings(allSettings)
@@ -298,7 +287,6 @@ lazy val docs = project
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-generic" % circeVersion,
-      "com.github.finagle" %% "finagle-oauth2" % finagleOAuth2Version,
       "com.github.finagle" %% "finagle-http-auth" % finagleHttpAuthVersion,
       "com.twitter" %% "twitter-server" % twitterServerVersion,
       "joda-time" % "joda-time" % "2.9.9",
@@ -306,7 +294,7 @@ lazy val docs = project
     )
   )
   .enablePlugins(MicrositesPlugin, ScalaUnidocPlugin)
-  .dependsOn(core, circe, jackson, oauth2, sse, argonaut,json4s, playjson)
+  .dependsOn(core, circe, jackson, sse, argonaut, json4s, playjson)
 
 
 lazy val examples = project
@@ -319,7 +307,6 @@ lazy val examples = project
       |io\.finch\.div\..*;
       |io\.finch\.todo\..*;
       |io\.finch\.streaming\..*;
-      |io\.finch\.oauth2\..*;
       |io\.finch\.wrk\..*;
       |io\.finch\.sse\..*;
     """.stripMargin)
@@ -331,7 +318,7 @@ lazy val examples = project
       "com.github.finagle" %% "finagle-oauth2" % finagleOAuth2Version
     )
   )
-  .dependsOn(core, circe, jackson, oauth2, iteratee)
+  .dependsOn(core, circe, jackson, iteratee)
 
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")
