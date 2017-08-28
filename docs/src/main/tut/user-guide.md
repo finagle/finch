@@ -823,7 +823,7 @@ Main points:
 Currently JSON decoding is supported only in `finch-circe` module and implemented
 using `circe-streaming` library.
 
-To make it happen finch out of the box provides few instances for `io.finch.iteratee.Enumerate` abstraction:
+Finch plugs in iteratee-powered decoding support via the `io.finch.iteratee.Enumerate` type-class:
 
 ```tut:silent
 /**
@@ -868,6 +868,7 @@ val decodingJSON = post("foo" :: enumeratorJsonBody[Foo]) { (enumerator: Enumera
   */
 val backpressureJSON = post("bar" :: enumeratorJsonBody[Foo]) { (enumerator: Enumerator[Future, Foo]) =>
    val iteratee = Iteratee.take[Future, Foo](10).flatMapM(fs: Vector[Foo] => {
+      //Some async task to store foos. Processing pipeline would be interrupted in case of exception
       storeFoos(fs).map(_ => throw new InterruptedException)
    })
    enumerator.into(iteratee).map(Ok)
@@ -889,7 +890,7 @@ Http.server
 
 **Encoding**
 
-Beside decoding of input stream, it's possible to make output stream with enumerator using
+Beside decoding of input stream, it's possible to make output stream with enumerator serving
 `Endpoint[Enumerator[Future, A]]`:
 
 ```tut
