@@ -9,14 +9,13 @@ lazy val buildSettings = Seq(
 
 lazy val finagleVersion = "7.0.0"
 lazy val twitterServerVersion = "1.31.0"
-lazy val finagleHttpAuthVersion = "0.1.0"
 lazy val circeVersion = "0.9.0-M1"
 lazy val circeJacksonVersion = "0.9.0-M1"
 lazy val catbirdVersion = "0.17.0"
 lazy val shapelessVersion = "2.3.2"
 lazy val catsVersion = "1.0.0-MF"
 lazy val sprayVersion = "1.3.3"
-lazy val playVersion = "2.6.0-RC2"
+lazy val playVersion = "2.6.3"
 lazy val jacksonVersion = "2.8.8"
 lazy val argonautVersion = "6.2"
 lazy val json4sVersion = "3.5.2"
@@ -286,7 +285,6 @@ lazy val docs = project
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-generic" % circeVersion,
-      "com.github.finagle" %% "finagle-http-auth" % finagleHttpAuthVersion,
       "com.twitter" %% "twitter-server" % twitterServerVersion,
       "joda-time" % "joda-time" % "2.9.9",
       "org.mockito" % "mockito-all" % "1.10.19"

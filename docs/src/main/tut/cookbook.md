@@ -428,7 +428,7 @@ import com.twitter.util.{Future => TFuture, Promise => TPromise, Return, Throw}
 import scala.concurrent.{Future => SFuture, Promise => SPromise, ExecutionContext}
 import scala.util.{Success, Failure}
 
-implicit class RichTFuture[A](val f: TFuture[A]) extends AnyVal {
+implicit class RichTFuture[A](f: TFuture[A]){
   def asScala(implicit e: ExecutionContext): SFuture[A] = {
     val p: SPromise[A] = SPromise()
     f.respond {
@@ -440,7 +440,7 @@ implicit class RichTFuture[A](val f: TFuture[A]) extends AnyVal {
   }
 }
 
-implicit class RichSFuture[A](val f: SFuture[A]) extends AnyVal {
+implicit class RichSFuture[A](f: SFuture[A]) {
   def asTwitter(implicit e: ExecutionContext): TFuture[A] = {
     val p: TPromise[A] = new TPromise[A]
     f.onComplete {
@@ -546,63 +546,7 @@ Content-Type: application/javascript
 ### OAuth2
 
 There is [finagle-oauth2](https://github.com/finagle/finagle-oauth2) server-side provider that is
-supported in Finch via the `finch-oauth2` package:
-
-*Authorize*
-
-```tut:silent
-import io.finch._
-import io.finch.oauth2._
-import com.twitter.finagle.oauth2._
-import com.twitter.util.Future
-import java.util.Date
-
-class MockDataHandler extends DataHandler[Int] {
-
-  def validateClient(clientId: String, clientSecret: String, grantType: String) =
-    Future.value(false)
-
-  def findUser(username: String, password: String): Future[Option[Int]] =
-    Future.value(None)
-
-  def createAccessToken(authInfo: AuthInfo[Int]) =
-    Future.value(AccessToken("", Some(""), Some(""), Some(0L), new Date()))
-
-  def findAuthInfoByCode(code: String): Future[Option[AuthInfo[Int]]] =
-    Future.value(None)
-
-  def findAuthInfoByRefreshToken(refreshToken: String): Future[Option[AuthInfo[Int]]] =
-    Future.value(None)
-
-  def findClientUser(clientId: String, clientSecret: String, scope: Option[String]): Future[Option[Int]] =
-    Future.value(None)
-
-  def findAccessToken(token: String): Future[Option[AccessToken]] =
-    Future.value(None)
-
-  def findAuthInfoByAccessToken(accessToken: AccessToken): Future[Option[AuthInfo[Int]]] =
-    Future.value(None)
-  
-  def getStoredAccessToken(authInfo: AuthInfo[Int]): Future[Option[AccessToken]] =
-    Future.value(None)
-
-  def refreshAccessToken(authInfo: AuthInfo[Int], refreshToken: String): Future[AccessToken] =
-    Future.value(AccessToken("", Some(""), Some(""), Some(0L), new Date()))
-}
-
-val dataHandler: DataHandler[Int] = new MockDataHandler()
-val auth: Endpoint[AuthInfo[Int]] = authorize(dataHandler)
-
-// Authorize
-val e: Endpoint[Int] = get("user" :: auth) { ai: AuthInfo[Int] => Ok(ai.user) }
-
-// Issue Access Token
-val token: Endpoint[GrantHandlerResult] = issueAccessToken(dataHandler)
-```
-
-Note that both `token` and `authorize` may throw `com.twitter.finagle.oauth2.OAuthError`, which is
-already _handled_ by a returned endpoint but needs to be serialized. This means you might want to
-include its serialization logic into an instance of `Encode[Exception]`.
+supported in Finch via the [finch-oauth2](https://github.com/finch/finch-oauth2) package.
 
 ### Basic HTTP Auth
 
@@ -610,24 +554,6 @@ include its serialization logic into an instance of `Encode[Exception]`.
 project that provides Finagle filters implementing authentication for clients and servers. In Finch
 this would look like a `BasicAuth.Server` filter applied to `Service` returned from the `.toService`
 call. See finagle-http-auth's README for more usage details.
-
-```tut
-import io.finch._, io.finch.circe._, io.circe.generic.auto._
-import com.twitter.finagle.Http
-import com.twitter.finagle.http.{BasicAuth, Request, Response}
-import com.twitter.finagle.Service
-import com.twitter.util.{Await, Future}
-
-case class User(id: Int)
-
-val ba = BasicAuth.serverFromCredentials("admin", "12345")
-
-val getCurrentUser = get("users" :: int) { id: Int =>
-  Ok(User(id)) // echo it back
-}
-
-val s = ba.andThen(getCurrentUser.toServiceAs[Application.Json])
-```
 
 [nginx]: http://nginx.org/en/
 [circe]: https://github.com/circe/circe
