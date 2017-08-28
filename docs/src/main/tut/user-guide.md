@@ -805,12 +805,12 @@ that will return an empty content body.
 
 ### Streaming
 
-`finch-iteratee` module enables high-level support of chunked request and response streaming using
-[iteratee.io](https://github.com/travisbrown/iteratee) and `circe-streaming` libraries. It allows to encode and decode
-newline delimeted JSON streams, but also supports binary and text streaming.  
+The `finch-iteratee` module enables high-level support of chunked request and response streaming using
+[iteratee.io](https://github.com/travisbrown/iteratee) and `circe-streaming` libraries. It allows encoding and decoding
+newline delimited JSON streams, but also supports binary and text streaming.  
 Concept of [iteratee](https://en.wikipedia.org/wiki/Iteratee) could be complicated for understanding, but
-proves itself very powerful and useful abstraction over processing sequential data. API of `iteratee.io` library is transparent and covers most of 
-the potential use cases.
+proves itself very powerful and useful abstraction over processing sequential data. The API of `iteratee.io` library 
+is transparent and covers most of the potential use cases.
 
 Main points:
 
@@ -839,7 +839,7 @@ trait Enumerate[A] {
 
 ```
 
-Here you could see an example how to work with decoding enumerators:
+Here you can see an example how to work with decoding enumerators:
 ```tut
 import io.catbird.util._
 import io.circe.generic.auto._
