@@ -1,4 +1,4 @@
-<html><head><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>Finch</title><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Scala combinator library for building Finagle HTTP services" /><meta name="author" content="Vladimir Kostyukov" /><meta name="og:image" content="/finch/img/poster.png" /><meta name="og:title" content="Finch" /><meta name="og:site_name" content="Finch" /><meta name="og:url" content="https://finagle.github.io/finch/" /><meta name="og:type" content="website" /><meta name="og:description" content="Scala combinator library for building Finagle HTTP services" /><meta name="twitter:image" content="/finch/img/poster.png" /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:site" content="" /><link rel="icon" type="image/png" href="/finch/img/favicon.png" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" /><link rel="stylesheet" href="/finch/highlight/styles/atom-one-light.css" /><link rel="stylesheet" href="/finch/css/style.css" /><link rel="stylesheet" href="/finch/css/palette.css" /><link rel="stylesheet" href="/finch/css/override.css" /></head><body class="docs"><div id="wrapper"><div id="sidebar-wrapper"><ul id="sidebar" class="sidebar-nav"><li class="sidebar-brand"><a href="/finch/" class="brand"><div class="brand-wrapper" style="background:url('/finch/img/sidebar_brand.png') no-repeat"><span>Finch</span></div></a></li> <li><a href="/finch/user-guide.html" class="">User Guide</a></li> <li><a href="/finch/cookbook.html" class=" active ">Cookbook</a></li> <li><a href="/finch/best-practices.html" class="">Best Practices</a></li> <li><a href="/finch/contributing.html" class="">Contributing</a></li></ul></div><div id="page-content-wrapper"><div class="nav"><div class="container-fluid"><div class="row"><div class="col-lg-12"><div class="action-menu pull-left clearfix"><a href="#menu-toggle" id="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></a></div><ul class="pull-right"><li class="hidden-xs"><a href="https://github.com/finagle/finch"><i class="fa fa-eye"></i><span>WATCH<span id="eyes" class="label label-default">--</span></span></a></li><li class="hidden-xs"><a href="https://github.com/finagle/finch"><i class="fa fa-star-o"></i><span>STARS<span id="stars" class="label label-default">--</span></span></a></li><li><a href="#" onclick="shareSiteTwitter('Finch Scala combinator library for building Finagle HTTP services');"><i class="fa fa-twitter"></i></a></li><li><a href="#" onclick="shareSiteFacebook('Finch Scala combinator library for building Finagle HTTP services');"><i class="fa fa-facebook"></i></a></li><li><a href="#" onclick="shareSiteGoogle();"><i class="fa fa-google-plus"></i></a></li></ul></div></div></div></div><div id="content" data-github-owner="finagle" data-github-repo="finch"><div class="content-wrapper"><section><h2 id="cookbook">Cookbook</h2>
+<html><head><title>Finch</title><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Vladimir Kostyukov" /><meta name="description" content="Scala combinator library for building Finagle HTTP services" /><meta name="og:image" content="/finch/img/poster.png" /><meta name="og:title" content="Finch" /><meta name="og:site_name" content="Finch" /><meta name="og:url" content="https://finagle.github.io/finch/" /><meta name="og:type" content="website" /><meta name="og:description" content="Scala combinator library for building Finagle HTTP services" /><link rel="icon" type="image/png" href="/finch/img/favicon.png" /><meta name="twitter:title" content="Finch" /><meta name="twitter:image" content="https://finagle.github.io/finch/img/poster.png" /><meta name="twitter:description" content="Scala combinator library for building Finagle HTTP services" /><meta name="twitter:card" content="summary_large_image" /><link rel="icon" type="image/png" sizes="16x16" href="/finch/img/favicon16x16.png" /><link rel="icon" type="image/png" sizes="24x24" href="/finch/img/favicon24x24.png" /><link rel="icon" type="image/png" sizes="32x32" href="/finch/img/favicon32x32.png" /><link rel="icon" type="image/png" sizes="48x48" href="/finch/img/favicon48x48.png" /><link rel="icon" type="image/png" sizes="57x57" href="/finch/img/favicon57x57.png" /><link rel="icon" type="image/png" sizes="60x60" href="/finch/img/favicon60x60.png" /><link rel="icon" type="image/png" sizes="64x64" href="/finch/img/favicon64x64.png" /><link rel="icon" type="image/png" sizes="70x70" href="/finch/img/favicon70x70.png" /><link rel="icon" type="image/png" sizes="72x72" href="/finch/img/favicon72x72.png" /><link rel="icon" type="image/png" sizes="76x76" href="/finch/img/favicon76x76.png" /><link rel="icon" type="image/png" sizes="96x96" href="/finch/img/favicon96x96.png" /><link rel="icon" type="image/png" sizes="114x114" href="/finch/img/favicon114x114.png" /><link rel="icon" type="image/png" sizes="120x120" href="/finch/img/favicon120x120.png" /><link rel="icon" type="image/png" sizes="128x128" href="/finch/img/favicon128x128.png" /><link rel="icon" type="image/png" sizes="144x144" href="/finch/img/favicon144x144.png" /><link rel="icon" type="image/png" sizes="150x150" href="/finch/img/favicon150x150.png" /><link rel="icon" type="image/png" sizes="152x152" href="/finch/img/favicon152x152.png" /><link rel="icon" type="image/png" sizes="196x196" href="/finch/img/favicon196x196.png" /><link rel="icon" type="image/png" sizes="310x310" href="/finch/img/favicon310x310.png" /><link rel="icon" type="image/png" sizes="310x150" href="/finch/img/favicon310x150.png" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" /><link rel="stylesheet" href="/finch/highlight/styles/atom-one-light.css" /><link rel="stylesheet" href="/finch/css/style.css" /><link rel="stylesheet" href="/finch/css/palette.css" /><link rel="stylesheet" href="/finch/css/codemirror.css" /><link rel="stylesheet" href="/finch/css/kazari-style.css" /><link rel="stylesheet" href="/finch/css/monokai.css" /><link rel="stylesheet" href="/finch/css/override.css" /></head><body class="docs"><div id="wrapper"><div id="sidebar-wrapper"><ul id="sidebar" class="sidebar-nav"><li class="sidebar-brand"><a href="/finch/" class="brand"><div class="brand-wrapper"><span>Finch</span></div></a></li> <li><a href="/finch/user-guide.html" class="">User Guide</a></li> <li><a href="/finch/cookbook.html" class=" active ">Cookbook</a></li> <li><a href="/finch/best-practices.html" class="">Best Practices</a></li> <li><a href="/finch/contributing.html" class="">Contributing</a></li></ul></div><div id="page-content-wrapper"><div class="nav"><div class="container-fluid"><div class="row"><div class="col-lg-12"><div class="action-menu pull-left clearfix"><a href="#menu-toggle" id="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></a></div><ul class="pull-right"><li id="gh-eyes-item" class="hidden-xs"><a href="https://github.com/finagle/finch"><i class="fa fa-eye"></i><span>WATCH<span id="eyes" class="label label-default">--</span></span></a></li><li id="gh-stars-item" class="hidden-xs"><a href="https://github.com/finagle/finch"><i class="fa fa-star-o"></i><span>STARS<span id="stars" class="label label-default">--</span></span></a></li><li><a href="#" onclick="shareSiteTwitter('Finch Scala combinator library for building Finagle HTTP services');"><i class="fa fa-twitter"></i></a></li><li><a href="#" onclick="shareSiteFacebook('Finch Scala combinator library for building Finagle HTTP services');"><i class="fa fa-facebook"></i></a></li><li><a href="#" onclick="shareSiteGoogle();"><i class="fa fa-google-plus"></i></a></li></ul></div></div></div></div><div id="content" data-github-owner="finagle" data-github-repo="finch"><div class="content-wrapper"><section><h2 id="cookbook">Cookbook</h2>
 
 <p>This is a collection of short recipes of “How to X in Finch”.</p>
 
@@ -380,17 +380,488 @@ need to get only query parameters or headers, it’s easy to reuse this endpoint
 following:</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">10</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+                             <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">13</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+                      <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">15</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+                           <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">16</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Response</span>
+                                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">17</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.Buf</span>
+                      <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">19</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">22</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+                             <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">25</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">28</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+                      <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">31</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">33</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
+                       <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">33</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
+                               <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">34</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+                           <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">35</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Await</span>
+                        <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">36</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">java.io.File</span>
+               <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">38</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">41</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.conversions.storage._</span>
+                                       <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">43</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.concurrent.AsyncStream</span>
+                              <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">44</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+                           <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">45</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
+                       <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">45</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
+                               <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">46</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">java.io.File</span>
+               <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">47</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
+                 <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">47</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
+                          <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">49</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">52</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+                      <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">55</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">$line34$read.</span><span class="n">`ee`</span>
+                                                                                                                    <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">57</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">60</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">62</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
+                                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">64</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">66</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
+                                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">68</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">71</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">73</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
+                        <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">75</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">77</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Try</span>
+                        <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">78</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">java.time.LocalDateTime</span>
+                 <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">80</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">$line59$read.</span><span class="n">`e`</span>
+                                                                                                                                                                    <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">84</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+       <span class="k">import</span> <span class="nn">io.finch._</span>
+                       <span class="o">^</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">headersAll</span> <span class="k">=</span> <span class="n">root</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">headerMap</span><span class="o">.</span><span class="n">toMap</span><span class="o">)</span>
-<span class="n">headersAll</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">scala.collection.immutable.Map</span><span class="o">[</span><span class="kt">String</span>,<span class="kt">String</span><span class="o">]]</span> <span class="k">=</span> <span class="n">request</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">10</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+                             <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">13</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+                      <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">15</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+                           <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">16</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Response</span>
+                                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">17</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.Buf</span>
+                      <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">19</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">22</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+                             <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">25</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">28</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+                      <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">31</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">33</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
+                       <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">33</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
+                               <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">34</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+                           <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">35</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Await</span>
+                        <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">36</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">java.io.File</span>
+               <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">38</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">41</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.conversions.storage._</span>
+                                       <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">43</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.concurrent.AsyncStream</span>
+                              <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">44</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+                           <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">45</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
+                       <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">45</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
+                               <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">46</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">java.io.File</span>
+               <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">47</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
+                 <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">47</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
+                          <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">49</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">52</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+                      <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">55</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">$line34$read.</span><span class="n">`ee`</span>
+                                                                                                                    <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">57</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">60</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">62</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
+                                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">64</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">66</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
+                                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">68</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">71</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">73</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
+                        <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">75</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">77</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Try</span>
+                        <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">78</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">java.time.LocalDateTime</span>
+                 <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">80</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">$line59$read.</span><span class="n">`e`</span>
+                                                                                                                                                                    <span class="o">^</span>
+<span class="n">headersAll</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">scala.collection.immutable.Map</span><span class="o">[</span><span class="kt">String</span>,<span class="kt">String</span><span class="o">]]</span> <span class="k">=</span> <span class="n">root</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">headers</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"hello"</span> <span class="o">::</span> <span class="n">headersAll</span><span class="o">)</span> <span class="o">{</span><span class="n">headers</span><span class="k">:</span> <span class="kt">Map</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">String</span><span class="o">]</span> <span class="k">=&gt;</span>
      <span class="o">|</span>   <span class="nc">Ok</span><span class="o">(</span><span class="n">s</span><span class="s">"Headers: $headers"</span><span class="o">)</span>
      <span class="o">|</span> <span class="o">}</span>
-<span class="n">headers</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">GET</span> <span class="o">/</span><span class="n">hello</span> <span class="o">::</span> <span class="n">request</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">10</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+                             <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">13</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+                      <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">15</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+                           <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">16</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Response</span>
+                                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">17</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.Buf</span>
+                      <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">19</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">22</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+                             <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">25</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">28</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+                      <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">31</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">33</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
+                       <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">33</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
+                               <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">34</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+                           <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">35</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Await</span>
+                        <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">36</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">java.io.File</span>
+               <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">38</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">41</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.conversions.storage._</span>
+                                       <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">43</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.concurrent.AsyncStream</span>
+                              <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">44</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+                           <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">45</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
+                       <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">45</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
+                               <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">46</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">java.io.File</span>
+               <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">47</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
+                 <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">47</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
+                          <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">49</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">52</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+                      <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">55</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">$line34$read.</span><span class="n">`ee`</span>
+                                                                                                                    <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">57</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">60</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">62</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
+                                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">64</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">66</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
+                                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">68</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">71</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">73</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
+                        <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">75</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">77</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Try</span>
+                        <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">78</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">java.time.LocalDateTime</span>
+                 <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">80</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">$line59$read.</span><span class="n">`e`</span>
+                                                                                                                                                                    <span class="o">^</span>
+<span class="n">headers</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">GET</span> <span class="o">/</span><span class="n">hello</span> <span class="o">::</span> <span class="n">root</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">headers</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">).</span><span class="n">withHeaders</span><span class="o">(</span><span class="s">"foo"</span> <span class="o">-&gt;</span> <span class="s">"bar"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">10</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+                             <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">13</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+                      <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">15</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+                           <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">16</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Response</span>
+                                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">17</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.Buf</span>
+                      <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">19</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">22</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+                             <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">25</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">28</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+                      <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">31</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">33</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
+                       <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">33</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
+                               <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">34</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+                           <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">35</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Await</span>
+                        <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">36</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">java.io.File</span>
+               <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">38</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">41</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.conversions.storage._</span>
+                                       <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">43</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.concurrent.AsyncStream</span>
+                              <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">44</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+                           <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">45</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
+                       <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">45</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
+                               <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">46</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">java.io.File</span>
+               <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">47</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
+                 <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">47</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
+                          <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">49</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">52</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+                      <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">55</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">$line34$read.</span><span class="n">`ee`</span>
+                                                                                                                    <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">57</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">60</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">62</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
+                                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">64</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">66</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
+                                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">68</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">71</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">73</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
+                        <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">75</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+                <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">77</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.Try</span>
+                        <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">78</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">java.time.LocalDateTime</span>
+                 <span class="o">^</span>
+<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">80</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
+<span class="k">import</span> <span class="nn">$line59$read.</span><span class="n">`e`</span>
+                                                                                                                                                                    <span class="o">^</span>
 <span class="n">res42</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">None</span>
 </code></pre>
 </div>
@@ -429,7 +900,7 @@ because of a couple of functions which are fairly easy to implement.</p>
 <span class="k">import</span> <span class="nn">scala.concurrent.</span><span class="o">{</span><span class="nc">Future</span> <span class="k">=&gt;</span> <span class="nc">SFuture</span><span class="o">,</span> <span class="nc">Promise</span> <span class="k">=&gt;</span> <span class="nc">SPromise</span><span class="o">,</span> <span class="nc">ExecutionContext</span><span class="o">}</span>
 <span class="k">import</span> <span class="nn">scala.util.</span><span class="o">{</span><span class="nc">Success</span><span class="o">,</span> <span class="nc">Failure</span><span class="o">}</span>
 
-<span class="k">implicit</span> <span class="k">class</span> <span class="nc">RichTFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="k">val</span> <span class="n">f</span><span class="k">:</span> <span class="kt">TFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">])</span> <span class="k">extends</span> <span class="nc">AnyVal</span> <span class="o">{</span>
+<span class="k">implicit</span> <span class="k">class</span> <span class="nc">RichTFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">TFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">]){</span>
   <span class="k">def</span> <span class="n">asScala</span><span class="o">(</span><span class="k">implicit</span> <span class="n">e</span><span class="k">:</span> <span class="kt">ExecutionContext</span><span class="o">)</span><span class="k">:</span> <span class="kt">SFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
     <span class="k">val</span> <span class="n">p</span><span class="k">:</span> <span class="kt">SPromise</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">SPromise</span><span class="o">()</span>
     <span class="n">f</span><span class="o">.</span><span class="n">respond</span> <span class="o">{</span>
@@ -441,7 +912,7 @@ because of a couple of functions which are fairly easy to implement.</p>
   <span class="o">}</span>
 <span class="o">}</span>
 
-<span class="k">implicit</span> <span class="k">class</span> <span class="nc">RichSFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="k">val</span> <span class="n">f</span><span class="k">:</span> <span class="kt">SFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">])</span> <span class="k">extends</span> <span class="nc">AnyVal</span> <span class="o">{</span>
+<span class="k">implicit</span> <span class="k">class</span> <span class="nc">RichSFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">SFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">])</span> <span class="o">{</span>
   <span class="k">def</span> <span class="n">asTwitter</span><span class="o">(</span><span class="k">implicit</span> <span class="n">e</span><span class="k">:</span> <span class="kt">ExecutionContext</span><span class="o">)</span><span class="k">:</span> <span class="kt">TFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
     <span class="k">val</span> <span class="n">p</span><span class="k">:</span> <span class="kt">TPromise</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">TPromise</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span>
     <span class="n">f</span><span class="o">.</span><span class="n">onComplete</span> <span class="o">{</span>
@@ -548,63 +1019,7 @@ Content-Type: application/javascript
 <h3 id="oauth2">OAuth2</h3>
 
 <p>There is <a href="https://github.com/finagle/finagle-oauth2">finagle-oauth2</a> server-side provider that is
-supported in Finch via the <code class="highlighter-rouge">finch-oauth2</code> package:</p>
-
-<p><em>Authorize</em></p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
-<span class="k">import</span> <span class="nn">io.finch.oauth2._</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.oauth2._</span>
-<span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
-<span class="k">import</span> <span class="nn">java.util.Date</span>
-
-<span class="k">class</span> <span class="nc">MockDataHandler</span> <span class="k">extends</span> <span class="nc">DataHandler</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="o">{</span>
-
-  <span class="k">def</span> <span class="n">validateClient</span><span class="o">(</span><span class="n">clientId</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">clientSecret</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">grantType</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span> <span class="k">=</span>
-    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="kc">false</span><span class="o">)</span>
-
-  <span class="k">def</span> <span class="n">findUser</span><span class="o">(</span><span class="n">username</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">password</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">Int</span><span class="o">]]</span> <span class="k">=</span>
-    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">None</span><span class="o">)</span>
-
-  <span class="k">def</span> <span class="n">createAccessToken</span><span class="o">(</span><span class="n">authInfo</span><span class="k">:</span> <span class="kt">AuthInfo</span><span class="o">[</span><span class="kt">Int</span><span class="o">])</span> <span class="k">=</span>
-    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">AccessToken</span><span class="o">(</span><span class="s">""</span><span class="o">,</span> <span class="nc">Some</span><span class="o">(</span><span class="s">""</span><span class="o">),</span> <span class="nc">Some</span><span class="o">(</span><span class="s">""</span><span class="o">),</span> <span class="nc">Some</span><span class="o">(</span><span class="mi">0L</span><span class="o">),</span> <span class="k">new</span> <span class="nc">Date</span><span class="o">()))</span>
-
-  <span class="k">def</span> <span class="n">findAuthInfoByCode</span><span class="o">(</span><span class="n">code</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">AuthInfo</span><span class="o">[</span><span class="kt">Int</span><span class="o">]]]</span> <span class="k">=</span>
-    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">None</span><span class="o">)</span>
-
-  <span class="k">def</span> <span class="n">findAuthInfoByRefreshToken</span><span class="o">(</span><span class="n">refreshToken</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">AuthInfo</span><span class="o">[</span><span class="kt">Int</span><span class="o">]]]</span> <span class="k">=</span>
-    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">None</span><span class="o">)</span>
-
-  <span class="k">def</span> <span class="n">findClientUser</span><span class="o">(</span><span class="n">clientId</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">clientSecret</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">scope</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">Int</span><span class="o">]]</span> <span class="k">=</span>
-    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">None</span><span class="o">)</span>
-
-  <span class="k">def</span> <span class="n">findAccessToken</span><span class="o">(</span><span class="n">token</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">AccessToken</span><span class="o">]]</span> <span class="k">=</span>
-    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">None</span><span class="o">)</span>
-
-  <span class="k">def</span> <span class="n">findAuthInfoByAccessToken</span><span class="o">(</span><span class="n">accessToken</span><span class="k">:</span> <span class="kt">AccessToken</span><span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">AuthInfo</span><span class="o">[</span><span class="kt">Int</span><span class="o">]]]</span> <span class="k">=</span>
-    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">None</span><span class="o">)</span>
-  
-  <span class="k">def</span> <span class="n">getStoredAccessToken</span><span class="o">(</span><span class="n">authInfo</span><span class="k">:</span> <span class="kt">AuthInfo</span><span class="o">[</span><span class="kt">Int</span><span class="o">])</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">AccessToken</span><span class="o">]]</span> <span class="k">=</span>
-    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">None</span><span class="o">)</span>
-
-  <span class="k">def</span> <span class="n">refreshAccessToken</span><span class="o">(</span><span class="n">authInfo</span><span class="k">:</span> <span class="kt">AuthInfo</span><span class="o">[</span><span class="kt">Int</span><span class="o">],</span> <span class="n">refreshToken</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">AccessToken</span><span class="o">]</span> <span class="k">=</span>
-    <span class="nc">Future</span><span class="o">.</span><span class="n">value</span><span class="o">(</span><span class="nc">AccessToken</span><span class="o">(</span><span class="s">""</span><span class="o">,</span> <span class="nc">Some</span><span class="o">(</span><span class="s">""</span><span class="o">),</span> <span class="nc">Some</span><span class="o">(</span><span class="s">""</span><span class="o">),</span> <span class="nc">Some</span><span class="o">(</span><span class="mi">0L</span><span class="o">),</span> <span class="k">new</span> <span class="nc">Date</span><span class="o">()))</span>
-<span class="o">}</span>
-
-<span class="k">val</span> <span class="n">dataHandler</span><span class="k">:</span> <span class="kt">DataHandler</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">MockDataHandler</span><span class="o">()</span>
-<span class="k">val</span> <span class="n">auth</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">AuthInfo</span><span class="o">[</span><span class="kt">Int</span><span class="o">]]</span> <span class="k">=</span> <span class="n">authorize</span><span class="o">(</span><span class="n">dataHandler</span><span class="o">)</span>
-
-<span class="c1">// Authorize
-</span><span class="k">val</span> <span class="n">e</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"user"</span> <span class="o">::</span> <span class="n">auth</span><span class="o">)</span> <span class="o">{</span> <span class="n">ai</span><span class="k">:</span> <span class="kt">AuthInfo</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">Ok</span><span class="o">(</span><span class="n">ai</span><span class="o">.</span><span class="n">user</span><span class="o">)</span> <span class="o">}</span>
-
-<span class="c1">// Issue Access Token
-</span><span class="k">val</span> <span class="n">token</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">GrantHandlerResult</span><span class="o">]</span> <span class="k">=</span> <span class="n">issueAccessToken</span><span class="o">(</span><span class="n">dataHandler</span><span class="o">)</span>
-</code></pre>
-</div>
-
-<p>Note that both <code class="highlighter-rouge">token</code> and <code class="highlighter-rouge">authorize</code> may throw <code class="highlighter-rouge">com.twitter.finagle.oauth2.OAuthError</code>, which is
-already <em>handled</em> by a returned endpoint but needs to be serialized. This means you might want to
-include its serialization logic into an instance of <code class="highlighter-rouge">Encode[Exception]</code>.</p>
+supported in Finch via the <a href="https://github.com/finch/finch-oauth2">finch-oauth2</a> package.</p>
 
 <h3 id="basic-http-auth">Basic HTTP Auth</h3>
 
@@ -613,41 +1028,13 @@ project that provides Finagle filters implementing authentication for clients an
 this would look like a <code class="highlighter-rouge">BasicAuth.Server</code> filter applied to <code class="highlighter-rouge">Service</code> returned from the <code class="highlighter-rouge">.toService</code>
 call. See finagle-http-auth’s README for more usage details.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="n">circe</span><span class="o">.</span><span class="k">_</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">circe</span><span class="o">.</span><span class="n">generic</span><span class="o">.</span><span class="n">auto</span><span class="o">.</span><span class="k">_</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-<span class="k">import</span> <span class="nn">io.finch.circe._</span>
-<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
-
-<span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
-
-<span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">BasicAuth</span><span class="o">,</span> <span class="nc">Request</span><span class="o">,</span> <span class="nc">Response</span><span class="o">}</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">BasicAuth</span><span class="o">,</span> <span class="nc">Request</span><span class="o">,</span> <span class="nc">Response</span><span class="o">}</span>
-
-<span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">com.twitter.finagle.Service</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.Service</span>
-
-<span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">com.twitter.util.</span><span class="o">{</span><span class="nc">Await</span><span class="o">,</span> <span class="nc">Future</span><span class="o">}</span>
-<span class="k">import</span> <span class="nn">com.twitter.util.</span><span class="o">{</span><span class="nc">Await</span><span class="o">,</span> <span class="nc">Future</span><span class="o">}</span>
-
-<span class="n">scala</span><span class="o">&gt;</span> <span class="k">case</span> <span class="k">class</span> <span class="nc">User</span><span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
-<span class="n">defined</span> <span class="k">class</span> <span class="nc">User</span>
-
-<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">ba</span> <span class="k">=</span> <span class="nc">BasicAuth</span><span class="o">.</span><span class="n">serverFromCredentials</span><span class="o">(</span><span class="s">"admin"</span><span class="o">,</span> <span class="s">"12345"</span><span class="o">)</span>
-<span class="n">ba</span><span class="k">:</span> <span class="kt">com.twitter.finagle.http.BasicAuth.Server</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">function2</span><span class="o">&gt;</span>
-
-<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">getCurrentUser</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"users"</span> <span class="o">::</span> <span class="n">int</span><span class="o">)</span> <span class="o">{</span> <span class="n">id</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=&gt;</span>
-     <span class="o">|</span>   <span class="nc">Ok</span><span class="o">(</span><span class="nc">User</span><span class="o">(</span><span class="n">id</span><span class="o">))</span> <span class="c1">// echo it back
-</span>     <span class="o">|</span> <span class="o">}</span>
-<span class="n">getCurrentUser</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">User</span><span class="o">]</span> <span class="k">=</span> <span class="nc">GET</span> <span class="o">/</span><span class="n">users</span> <span class="o">::</span> <span class="k">:</span><span class="kt">int</span>
-
-<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">s</span> <span class="k">=</span> <span class="n">ba</span><span class="o">.</span><span class="n">andThen</span><span class="o">(</span><span class="n">getCurrentUser</span><span class="o">.</span><span class="n">toServiceAs</span><span class="o">[</span><span class="kt">Application.Json</span><span class="o">])</span>
-<span class="n">s</span><span class="k">:</span> <span class="kt">com.twitter.finagle.Service</span><span class="o">[</span><span class="kt">com.twitter.finagle.http.Request</span>,<span class="kt">com.twitter.finagle.http.Response</span><span class="o">]</span> <span class="k">=</span> <span class="o">&lt;</span><span class="n">function1</span><span class="o">&gt;</span>
-</code></pre>
-</div>
-
 </section></div></div></div></div><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script><script src="/finch/highlight/highlight.pack.js"></script><script>hljs.configure({
 languages:['scala','java','bash']
 });
 hljs.initHighlighting();
-             </script><script src="/finch/js/main.js"></script></body></html>
+             </script><script>((window.gitter = {}).chat = {}).options = {
+room: 'finagle/finch'};</script><script src="https://sidecar.gitter.im/dist/sidecar.v1.js"></script><script src="/finch/js/main.js"></script><script src="/finch/js/kazari.js"></script><script>
+$(document).ready(function() {
+	kazari.KazariPlugin().decorateCode('https://scala-evaluator-212.herokuapp.com/eval', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.S2F6YXJp.Jl2eqMfw8IakJF93PjxTbrf-8YUJgX5OoOfy5JHE8Yw', '', 'monokai')
+})
+    </script></body></html>

@@ -65,7 +65,7 @@
         <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="This is the API documentation for Link(https://github.com/finagle/finch,Text(finch))" href="../../index.html">
+        <a title="This is the API documentation for finch" href="../../index.html">
               <span class="name">root</span>
             </a>
       </span>
@@ -168,24 +168,6 @@ types atop of Finagle for writing lightweight HTTP services.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="io.finch">finch</a></dd></dl></div>
-    </li><li name="io.finch.eval" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="eval"></a><a id="eval:eval"></a>
-      <span class="permalink">
-      <a href="../../io/finch/index.html#eval" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="eval/index.html">
-              <span class="name">eval</span>
-            </a>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="io.finch">finch</a></dd></dl></div>
     </li><li name="io.finch.generic" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="generic"></a><a id="generic:generic"></a>
       <span class="permalink">
@@ -224,10 +206,10 @@ types atop of Finagle for writing lightweight HTTP services.
       <p class="shortcomment cmt">This package contains an internal-use only type-classes and utilities that power Finch's API.</p><div class="fullcomment"><div class="comment cmt"><p>This package contains an internal-use only type-classes and utilities that power Finch's API.</p><p>It's not recommended to use any of the internal API directly, since it might change without any
 deprecation cycles.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="io.finch">finch</a></dd></dl></div>
-    </li><li name="io.finch.oauth2" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="oauth2"></a><a id="oauth2:oauth2"></a>
+    </li><li name="io.finch.iteratee" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="iteratee"></a><a id="iteratee:iteratee"></a>
       <span class="permalink">
-      <a href="../../io/finch/index.html#oauth2" title="Permalink">
+      <a href="../../io/finch/index.html#iteratee" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -236,12 +218,15 @@ deprecation cycles.
         <span class="kind">package</span>
       </span>
       <span class="symbol">
-        <a title="" href="oauth2/index.html">
-              <span class="name">oauth2</span>
+        <a title="Iteratee module
+" href="iteratee/index.html">
+              <span class="name">iteratee</span>
             </a>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="io.finch">finch</a></dd></dl></div>
+      <p class="shortcomment cmt">Iteratee module
+</p><div class="fullcomment"><div class="comment cmt"><p>Iteratee module
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="io.finch">finch</a></dd></dl></div>
     </li><li name="io.finch.sse" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="sse"></a><a id="sse:sse"></a>
       <span class="permalink">
@@ -278,6 +263,25 @@ deprecation cycles.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="io.finch">finch</a></dd></dl></div>
+    </li><li name="io.finch.syntax" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="syntax"></a><a id="syntax:syntax"></a>
+      <span class="permalink">
+      <a href="../../io/finch/index.html#syntax" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="Enables Sinatra-like syntax extensions for endpoints." href="syntax/index.html">
+              <span class="name">syntax</span>
+            </a>
+      </span>
+      
+      <p class="shortcomment cmt">Enables Sinatra-like syntax extensions for endpoints.</p><div class="fullcomment"><div class="comment cmt"><p>Enables Sinatra-like syntax extensions for endpoints.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="io.finch">finch</a></dd></dl></div>
     </li><li name="io.finch.test" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="test"></a><a id="test:test"></a>
       <span class="permalink">
@@ -351,6 +355,12 @@ deprecation cycles.
                           Application
                         </a>
                       </li><li class="current-entities indented2">
+                        <a class="object" href="Bootstrap$.html" title=""></a>
+                        <a class="class" href="Bootstrap.html" title="Bootstraps a Finagle HTTP service out of the collection of Finch endpoints."></a>
+                        <a href="Bootstrap.html" title="Bootstraps a Finagle HTTP service out of the collection of Finch endpoints.">
+                          Bootstrap
+                        </a>
+                      </li><li class="current-entities indented2">
                         <a class="object" href="Decode$.html" title=""></a>
                         <a class="trait" href="Decode.html" title="Decodes an HTTP payload represented as Buf (encoded with Charset) into
 an arbitrary type A."></a>
@@ -417,16 +427,40 @@ an arbitrary type A.">
                           HighPriorityEncodeInstances
                         </a>
                       </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="HighPriorityToResponseInstances.html" title=""></a>
+                        <a href="HighPriorityToResponseInstances.html" title="">
+                          HighPriorityToResponseInstances
+                        </a>
+                      </li><li class="current-entities indented2">
                         <a class="object" href="Input$.html" title="Creates an input for Endpoint from Request."></a>
-                        <a class="class" href="Input.html" title="An input for Endpoint."></a>
-                        <a href="Input.html" title="An input for Endpoint.">
+                        <a class="class" href="Input.html" title="An input for Endpoint that glues two individual pieces together:"></a>
+                        <a href="Input.html" title="An input for Endpoint that glues two individual pieces together:">
                           Input
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="IterateeInstances.html" title=""></a>
+                        <a href="IterateeInstances.html" title="">
+                          IterateeInstances
                         </a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="LowPriorityEncodeInstances.html" title=""></a>
                         <a href="LowPriorityEncodeInstances.html" title="">
                           LowPriorityEncodeInstances
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="LowPriorityInstances.html" title=""></a>
+                        <a href="LowPriorityInstances.html" title="">
+                          LowPriorityInstances
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="LowPriorityToResponseInstances.html" title=""></a>
+                        <a href="LowPriorityToResponseInstances.html" title="">
+                          LowPriorityToResponseInstances
                         </a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="Output$.html" title=""></a>
@@ -447,6 +481,18 @@ an arbitrary type A.">
                           Text
                         </a>
                       </li><li class="current-entities indented2">
+                        <a class="object" href="ToResponse$.html" title=""></a>
+                        <a class="trait" href="ToResponse.html" title="Represents a conversion from A to Response."></a>
+                        <a href="ToResponse.html" title="Represents a conversion from A to Response.">
+                          ToResponse
+                        </a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="ToService$.html" title="Wraps a given Endpoint with a Finagle Service."></a>
+                        <a class="trait" href="ToService.html" title="Wraps a given list of Endpoints and their content-types with a Finagle Service."></a>
+                        <a href="ToService.html" title="Wraps a given list of Endpoints and their content-types with a Finagle Service.">
+                          ToService
+                        </a>
+                      </li><li class="current-entities indented2">
                         <a class="object" href="ValidationRule$.html" title="Allows the creation of reusable validation rules for Endpoints."></a>
                         <a class="trait" href="ValidationRule.html" title="A ValidationRule enables a reusable way of defining a validation rules in the application
 domain."></a>
@@ -462,69 +508,15 @@ domain.">
                         </a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="object" href="Endpoints$boolean$.html" title="A matching Endpoint that reads a boolean value from the current path segment."></a>
-                        <a href="Endpoints$boolean$.html" title="A matching Endpoint that reads a boolean value from the current path segment.">
-                          boolean
-                        </a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="Endpoints$booleans$.html" title="A matching Endpoint that reads a boolean tail from the current path segment."></a>
-                        <a href="Endpoints$booleans$.html" title="A matching Endpoint that reads a boolean tail from the current path segment.">
-                          booleans
-                        </a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="Endpoints$int$.html" title="A matching Endpoint that reads an integer value from the current path segment."></a>
-                        <a href="Endpoints$int$.html" title="A matching Endpoint that reads an integer value from the current path segment.">
-                          int
-                        </a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="Endpoints$ints$.html" title="A matching Endpoint that reads an integer tail from the current path segment."></a>
-                        <a href="Endpoints$ints$.html" title="A matching Endpoint that reads an integer tail from the current path segment.">
-                          ints
-                        </a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
                         <a class="object" href="package$$items$.html" title=""></a>
                         <a href="package$$items$.html" title="">
                           items
                         </a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="object" href="Endpoints$long$.html" title="A matching Endpoint that reads a long value from the current path segment."></a>
-                        <a href="Endpoints$long$.html" title="A matching Endpoint that reads a long value from the current path segment.">
-                          long
-                        </a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="Endpoints$longs$.html" title="A matching Endpoint that reads a long tail from the current path segment."></a>
-                        <a href="Endpoints$longs$.html" title="A matching Endpoint that reads a long tail from the current path segment.">
-                          longs
-                        </a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="Endpoints$string$.html" title="A matching Endpoint that reads a string value from the current path segment."></a>
-                        <a href="Endpoints$string$.html" title="A matching Endpoint that reads a string value from the current path segment.">
-                          string
-                        </a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="Endpoints$strings$.html" title="A matching Endpoint that reads a string tail from the current path segment."></a>
-                        <a href="Endpoints$strings$.html" title="A matching Endpoint that reads a string tail from the current path segment.">
-                          strings
-                        </a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="Endpoints$uuid$.html" title="A matching Endpoint that reads an UUID value from the current path segment."></a>
-                        <a href="Endpoints$uuid$.html" title="A matching Endpoint that reads an UUID value from the current path segment.">
-                          uuid
-                        </a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="object" href="Endpoints$uuids$.html" title="A matching Endpoint that reads an UUID tail from the current path segment."></a>
-                        <a href="Endpoints$uuids$.html" title="A matching Endpoint that reads an UUID tail from the current path segment.">
-                          uuids
+                        <a class="object" href="Endpoints$root$.html" title="A root Endpoint that always matches and extracts the current request."></a>
+                        <a href="Endpoints$root$.html" title="A root Endpoint that always matches and extracts the current request.">
+                          root
                         </a>
                       </li>
               </ul>
@@ -551,7 +543,7 @@ domain.">
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <span class="name">Endpoint</span><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+        <span class="name">Endpoint</span><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
       </span>
       </h4>
 
@@ -562,9 +554,7 @@ domain.">
 decoding (deserialization), transformation <code>2</code> - is a business logic and transformation <code>3</code> is -
 a response encoding (serialization). The only interesting part here is transformation <code>2</code> (i.e.,
 <code>A =&gt; Future[B]</code>), which represents an application business.</p><p>An <code>Endpoint</code> transformation (<code>map</code>, <code>mapAsync</code>, etc.) encodes the business logic, while the
-rest of Finch ecosystem takes care about both serialization and deserialization.</p><p>A typical way to transform (or map) the <code>Endpoint</code> is to use <span class="extype" name="Mapper">Mapper</span> and <code>Endpoint.apply</code>
-method, which, depending on the argument type, delegates the map operation to the underlying
-function.</p><pre><span class="kw">import</span> io.finch._
+rest of Finch ecosystem takes care about both serialization and deserialization.</p><p>A typical way to transform (or map) the <code>Endpoint</code> is to use <a href="syntax/Mapper.html" class="extype" name="io.finch.syntax.Mapper">io.finch.syntax.Mapper</a>:</p><pre><span class="kw">import</span> io.finch._
 
 <span class="kw">case</span> <span class="kw">class</span> Foo(i: <span class="std">Int</span>)
 <span class="kw">case</span> <span class="kw">class</span> Bar(s: <span class="std">String</span>)
@@ -580,12 +570,12 @@ Http.server.serve(foobar.toService)</pre></div><dl class="attributes block"> <dt
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div><div class="toggleContainer block">
             <span class="toggle">
               Known Subclasses
             </span>
-            <div class="subClasses hiddenContent"><a href="Endpoints$$times$.html" class="extype" name="io.finch.Endpoints.*">*</a>, <a href="Endpoints$$div$.html" class="extype" name="io.finch.Endpoints./">/</a></div>
+            <div class="subClasses hiddenContent"><a href="Endpoints$$times$.html" class="extype" name="io.finch.Endpoints.*">*</a>, <a href="Endpoints$$div$.html" class="extype" name="io.finch.Endpoints./">/</a>, <a href="Endpoints$root$.html" class="extype" name="io.finch.Endpoints.root">root</a>, <a href="syntax/EndpointMapper.html" class="extype" name="io.finch.syntax.EndpointMapper">EndpointMapper</a></div>
           </div></div>
         
 
@@ -674,7 +664,7 @@ Http.server.serve(foobar.toService)</pre></div><dl class="attributes block"> <dt
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -690,7 +680,7 @@ Http.server.serve(foobar.toService)</pre></div><dl class="attributes block"> <dt
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Int" class="extype" target="_top">Int</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -732,15 +722,15 @@ Http.server.serve(foobar.toService)</pre></div><dl class="attributes block"> <dt
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
             This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>] to
             <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]] performed by method ArrowAssoc in scala.Predef.
-            This conversion will take place only if A is a superclass of AnyRef and a subclass of String with Option[Nothing] with NonEmptyList[String] with Seq[String] (A &gt;: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a> &lt;: <span class="extype" name="scala.Predef.String">String</span> with <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Nothing" class="extype" target="_top">Nothing</a>] with <a href="http://typelevel.org/cats/api/index.html#cats.data.NonEmptyList" class="extype" target="_top">NonEmptyList</a>[<span class="extype" name="scala.Predef.String">String</span>] with <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]).
+            This conversion will take place only if A is a superclass of AnyRef and a subclass of String with Option[Nothing] with NonEmptyList[String] with Seq[String] (A &gt;: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a> &lt;: <span class="extype" name="scala.Predef.String">String</span> with <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Nothing" class="extype" target="_top">Nothing</a>] with <a href="http://typelevel.org/cats/api/index.html#cats.data.NonEmptyList" class="extype" target="_top">NonEmptyList</a>[<span class="extype" name="scala.Predef.String">String</span>] with <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]).
           </dd><dt>Definition Classes</dt><dd>ArrowAssoc</dd><dt>Annotations</dt><dd>
                 <span class="name">@inline</span><span class="args">()</span>
               
         </dd></dl></div>
     </li><li name="io.finch.Endpoint#:+:" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id=":+:[B](that:io.finch.Endpoint[B])(implicita:shapeless.ops.adjoin.Adjoin[shapeless.:+:[B,shapeless.:+:[A,shapeless.CNil]]]):io.finch.Endpoint[a.Out]"></a><a id=":+:[B](Endpoint[B])(Adjoin[:+:[B,:+:[A,CNil]]]):Endpoint[shapeless.ops.adjoin.Adjoin.Out]"></a>
+      <a id=":+:[B](that:io.finch.Endpoint[B])(implicita:shapeless.ops.adjoin.Adjoin[B:+:A:+:shapeless.CNil]):io.finch.Endpoint[a.Out]"></a><a id=":+:[B](Endpoint[B])(Adjoin[:+:[B,:+:[A,CNil]]]):Endpoint[shapeless.ops.adjoin.Adjoin.Out]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Endpoint.html#:+:[B](that:io.finch.Endpoint[B])(implicita:shapeless.ops.adjoin.Adjoin[shapeless.:+:[B,shapeless.:+:[A,shapeless.CNil]]]):io.finch.Endpoint[a.Out]" title="Permalink">
+      <a href="../../io/finch/Endpoint.html#:+:[B](that:io.finch.Endpoint[B])(implicita:shapeless.ops.adjoin.Adjoin[B:+:A:+:shapeless.CNil]):io.finch.Endpoint[a.Out]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -781,26 +771,10 @@ Http.server.serve(foobar.toService)</pre></div><dl class="attributes block"> <dt
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.finch.Endpoint#apply" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply(mapper:io.finch.internal.Mapper[A]):io.finch.Endpoint[mapper.Out]"></a><a id="apply(Mapper[A]):Endpoint[Out]"></a>
-      <span class="permalink">
-      <a href="../../io/finch/Endpoint.html#apply(mapper:io.finch.internal.Mapper[A]):io.finch.Endpoint[mapper.Out]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="mapper">mapper: <a href="internal/Mapper.html" class="extype" name="io.finch.internal.Mapper">Mapper</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="internal/Mapper.html#Out" class="extmbr" name="io.finch.internal.Mapper.Out">Out</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Maps this endpoint to either <code>A =&gt; Output[B]</code> or <code>A =&gt; Output[Future[B]]</code>.</p>
     </li><li name="io.finch.Endpoint.StringOptionEndpointOps#as" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="as[A](implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]"></a><a id="as[A](DecodeEntity[A],ClassTag[A]):Endpoint[Option[A]]"></a>
       <span class="permalink">
@@ -813,13 +787,13 @@ Http.server.serve(foobar.toService)</pre></div><dl class="attributes block"> <dt
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="implicit">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.Endpoint.StringOptionEndpointOps.as.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoint.StringOptionEndpointOps.as.A">A</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.StringOptionEndpointOps.as.A">A</span>]]</span>
+        <span class="implicit">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.Endpoint.StringOptionEndpointOps.as.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoint.StringOptionEndpointOps.as.A">A</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.StringOptionEndpointOps.as.A">A</span>]]</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
             This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>] to
             <a href="Endpoint$$StringOptionEndpointOps.html" class="extype" name="io.finch.Endpoint.StringOptionEndpointOps">StringOptionEndpointOps</a> performed by method StringOptionEndpointOps in <a href="Endpoint$.html" class="extype" name="io.finch.Endpoint">io.finch.Endpoint</a>.
-            This conversion will take place only if A is Option[String] (A =:= <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]).
+            This conversion will take place only if A is Option[String] (A =:= <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]).
           </dd><dt>Definition Classes</dt><dd><a href="Endpoint$$StringOptionEndpointOps.html" class="extype" name="io.finch.Endpoint.StringOptionEndpointOps">StringOptionEndpointOps</a></dd></dl></div>
     </li><li name="io.finch.Endpoint.StringSeqEndpointOps#as" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="as[A](implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[Seq[A]]"></a><a id="as[A](DecodeEntity[A],ClassTag[A]):Endpoint[Seq[A]]"></a>
@@ -833,7 +807,7 @@ Http.server.serve(foobar.toService)</pre></div><dl class="attributes block"> <dt
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="implicit">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.Endpoint.StringSeqEndpointOps.as.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoint.StringSeqEndpointOps.as.A">A</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="io.finch.Endpoint.StringSeqEndpointOps.as.A">A</span>]]</span>
+        <span class="implicit">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.Endpoint.StringSeqEndpointOps.as.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoint.StringSeqEndpointOps.as.A">A</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="io.finch.Endpoint.StringSeqEndpointOps.as.A">A</span>]]</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
@@ -853,7 +827,7 @@ Http.server.serve(foobar.toService)</pre></div><dl class="attributes block"> <dt
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="implicit">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.Endpoint.StringNelEndpointOps.as.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoint.StringNelEndpointOps.as.A">A</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://typelevel.org/cats/api/index.html#cats.data.NonEmptyList" class="extype" target="_top">NonEmptyList</a>[<span class="extype" name="io.finch.Endpoint.StringNelEndpointOps.as.A">A</span>]]</span>
+        <span class="implicit">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.Endpoint.StringNelEndpointOps.as.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoint.StringNelEndpointOps.as.A">A</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://typelevel.org/cats/api/index.html#cats.data.NonEmptyList" class="extype" target="_top">NonEmptyList</a>[<span class="extype" name="io.finch.Endpoint.StringNelEndpointOps.as.A">A</span>]]</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
@@ -873,7 +847,7 @@ Http.server.serve(foobar.toService)</pre></div><dl class="attributes block"> <dt
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="implicit">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.Endpoint.StringEndpointOps.as.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoint.StringEndpointOps.as.A">A</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.StringEndpointOps.as.A">A</span>]</span>
+        <span class="implicit">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.Endpoint.StringEndpointOps.as.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.reflect.ClassTag" class="extype" target="_top">ClassTag</a>[<span class="extype" name="io.finch.Endpoint.StringEndpointOps.as.A">A</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.StringEndpointOps.as.A">A</span>]</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
@@ -905,9 +879,9 @@ representation.
             This conversion will take place only if A is a subclass of HList (A &lt;: <span class="extype" name="shapeless.HList">HList</span>).
           </dd><dt>Definition Classes</dt><dd><a href="Endpoint$$HListEndpointOps.html" class="extype" name="io.finch.Endpoint.HListEndpointOps">HListEndpointOps</a></dd></dl></div>
     </li><li name="io.finch.Endpoint.ValueEndpointOps#as" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="as[A](implicitgen:shapeless.Generic.Aux[A,shapeless.::[B,shapeless.HNil]]):io.finch.Endpoint[A]"></a><a id="as[A](Aux[A,::[A,HNil]]):Endpoint[A]"></a>
+      <a id="as[A](implicitgen:shapeless.Generic.Aux[A,B::shapeless.HNil]):io.finch.Endpoint[A]"></a><a id="as[A](Aux[A,::[A,HNil]]):Endpoint[A]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Endpoint.html#as[A](implicitgen:shapeless.Generic.Aux[A,shapeless.::[B,shapeless.HNil]]):io.finch.Endpoint[A]" title="Permalink">
+      <a href="../../io/finch/Endpoint.html#as[A](implicitgen:shapeless.Generic.Aux[A,B::shapeless.HNil]):io.finch.Endpoint[A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -977,7 +951,7 @@ representation.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
@@ -1017,7 +991,7 @@ will succeed if either this or <code>that</code> endpoints are succeed.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: (<a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]) ⇒ <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>, <span name="msg">msg: ⇒ <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: (<a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]) ⇒ <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>, <span name="msg">msg: ⇒ <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
@@ -1037,7 +1011,7 @@ will succeed if either this or <code>that</code> endpoints are succeed.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: (<a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]) ⇒ <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: (<a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]) ⇒ <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
@@ -1057,7 +1031,7 @@ will succeed if either this or <code>that</code> endpoints are succeed.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>, <span name="msg">msg: ⇒ <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>, <span name="msg">msg: ⇒ <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
@@ -1077,7 +1051,7 @@ will succeed if either this or <code>that</code> endpoints are succeed.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
@@ -1097,7 +1071,7 @@ will succeed if either this or <code>that</code> endpoints are succeed.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -1113,7 +1087,7 @@ will succeed if either this or <code>that</code> endpoints are succeed.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -1129,7 +1103,7 @@ will succeed if either this or <code>that</code> endpoints are succeed.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">finalize</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
@@ -1190,7 +1164,7 @@ will succeed if either this or <code>that</code> endpoints are succeed.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">handle</span><span class="tparams">[<span name="B">B &gt;: <span class="extype" name="io.finch.Endpoint.A">A</span></span>]</span><span class="params">(<span name="pf">pf: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.PartialFunction" class="extype" target="_top">PartialFunction</a>[<span class="extype" name="scala.Throwable">Throwable</span>, <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Endpoint.handle.B">B</span>]]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.handle.B">B</span>]</span>
+        <span class="name">handle</span><span class="tparams">[<span name="B">B &gt;: <span class="extype" name="io.finch.Endpoint.A">A</span></span>]</span><span class="params">(<span name="pf">pf: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.PartialFunction" class="extype" target="_top">PartialFunction</a>[<span class="extype" name="scala.Throwable">Throwable</span>, <a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Endpoint.handle.B">B</span>]]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.handle.B">B</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Recovers from any exception occurred in this endpoint by creating a new endpoint that will
@@ -1207,7 +1181,7 @@ handle any matching throwable from the underlying future.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Int" class="extype" target="_top">Int</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -1223,7 +1197,7 @@ handle any matching throwable from the underlying future.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
@@ -1258,8 +1232,8 @@ handle any matching throwable from the underlying future.</p>
         <span class="name">liftToTry</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Try" class="extype" target="_top">Try</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]]</span>
       </span>
       
-      <p class="shortcomment cmt">Lifts this endpoint into one that always succeeds, with <span class="extype" name="Try">Try</span> representing both success and failure
-cases.</p>
+      <p class="shortcomment cmt">Lifts this endpoint into one that always succeeds, with <span class="extype" name="Try">Try</span> representing both success and
+failure cases.</p>
     </li><li name="io.finch.Endpoint#map" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="map[B](fn:A=&gt;B):io.finch.Endpoint[B]"></a><a id="map[B]((A)⇒B):Endpoint[B]"></a>
       <span class="permalink">
@@ -1336,7 +1310,7 @@ cases.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -1352,7 +1326,7 @@ cases.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">notify</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -1368,7 +1342,7 @@ cases.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
@@ -1384,14 +1358,14 @@ cases.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="implicit">orElse</span><span class="tparams">[<span name="B">B &gt;: <span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span></span>]</span><span class="params">(<span name="alternative">alternative: ⇒ <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.orElse.B">B</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.orElse.B">B</span>]]</span>
+        <span class="implicit">orElse</span><span class="tparams">[<span name="B">B &gt;: <span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span></span>]</span><span class="params">(<span name="alternative">alternative: ⇒ <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.orElse.B">B</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.orElse.B">B</span>]]</span>
       </span>
       
       <p class="shortcomment cmt">If endpoint is empty it will return provided alternative.</p><div class="fullcomment"><div class="comment cmt"><p>If endpoint is empty it will return provided alternative.
 </p></div><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
             This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>] to
             <a href="Endpoint$$OptionEndpointOps.html" class="extype" name="io.finch.Endpoint.OptionEndpointOps">OptionEndpointOps</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>] performed by method OptionEndpointOps in <a href="Endpoint$.html" class="extype" name="io.finch.Endpoint">io.finch.Endpoint</a>.
-            This conversion will take place only if A is Option[A] (A =:= <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>]).
+            This conversion will take place only if A is Option[A] (A =:= <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>]).
           </dd><dt>Definition Classes</dt><dd><a href="Endpoint$$OptionEndpointOps.html" class="extype" name="io.finch.Endpoint.OptionEndpointOps">OptionEndpointOps</a></dd></dl></div>
     </li><li name="io.finch.Endpoint#product" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="product[B](other:io.finch.Endpoint[B]):io.finch.Endpoint[(A,B)]"></a><a id="product[B](Endpoint[B]):Endpoint[(A,B)]"></a>
@@ -1428,8 +1402,8 @@ will fail-fast with the first non-Finch error (just ordinary <code>Exception</co
         <span class="name">productWith</span><span class="tparams">[<span name="B">B</span>, <span name="O">O</span>]</span><span class="params">(<span name="other">other: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.productWith.B">B</span>]</span>)</span><span class="params">(<span name="p">p: (<span class="extype" name="io.finch.Endpoint.A">A</span>, <span class="extype" name="io.finch.Endpoint.productWith.B">B</span>) ⇒ <span class="extype" name="io.finch.Endpoint.productWith.O">O</span></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.productWith.O">O</span>]</span>
       </span>
       
-      <p class="shortcomment cmt">Returns a product of this and <code>other</code> endpoint.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a product of this and <code>other</code> endpoint. The resulting endpoint returns a value of resulting type for
-product function
+      <p class="shortcomment cmt">Returns a product of this and <code>other</code> endpoint.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a product of this and <code>other</code> endpoint. The resulting endpoint returns a value of
+resulting type for product function.
 </p></div></div>
     </li><li name="io.finch.Endpoint#rescue" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="rescue[B&gt;:A](pf:PartialFunction[Throwable,com.twitter.util.Future[io.finch.Output[B]]]):io.finch.Endpoint[B]"></a><a id="rescue[B&gt;:A](PartialFunction[Throwable,Future[Output[B]]]):Endpoint[B]"></a>
@@ -1443,7 +1417,7 @@ product function
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rescue</span><span class="tparams">[<span name="B">B &gt;: <span class="extype" name="io.finch.Endpoint.A">A</span></span>]</span><span class="params">(<span name="pf">pf: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.PartialFunction" class="extype" target="_top">PartialFunction</a>[<span class="extype" name="scala.Throwable">Throwable</span>, <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Endpoint.rescue.B">B</span>]]]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.rescue.B">B</span>]</span>
+        <span class="name">rescue</span><span class="tparams">[<span name="B">B &gt;: <span class="extype" name="io.finch.Endpoint.A">A</span></span>]</span><span class="params">(<span name="pf">pf: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.PartialFunction" class="extype" target="_top">PartialFunction</a>[<span class="extype" name="scala.Throwable">Throwable</span>, <a href="https://twitter.github.io/util/docs/index.html#com.twitter.util.Future" class="extype" target="_top">Future</a>[<a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Endpoint.rescue.B">B</span>]]]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.rescue.B">B</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Recovers from any exception occurred in this endpoint by creating a new endpoint that will
@@ -1480,7 +1454,7 @@ to be reused across multiple endpoints.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">should</span><span class="params">(<span name="rule">rule: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="predicate">predicate: (<span class="extype" name="io.finch.Endpoint.A">A</span>) ⇒ <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>
+        <span class="name">should</span><span class="params">(<span name="rule">rule: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="predicate">predicate: (<span class="extype" name="io.finch.Endpoint.A">A</span>) ⇒ <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Validates the result of this endpoint using a <code>predicate</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Validates the result of this endpoint using a <code>predicate</code>. The rule is used for error
@@ -1519,7 +1493,7 @@ to be reused across multiple endpoints.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">shouldNot</span><span class="params">(<span name="rule">rule: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="predicate">predicate: (<span class="extype" name="io.finch.Endpoint.A">A</span>) ⇒ <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>
+        <span class="name">shouldNot</span><span class="params">(<span name="rule">rule: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span name="predicate">predicate: (<span class="extype" name="io.finch.Endpoint.A">A</span>) ⇒ <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Validates the result of this endpoint using a <code>predicate</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Validates the result of this endpoint using a <code>predicate</code>. The rule is used for error reporting.
@@ -1541,10 +1515,10 @@ to be reused across multiple endpoints.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="io.finch.Endpoint#toService" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toService(implicittr:io.finch.internal.ToResponse.Aux[A,io.finch.Application.Json],implicittre:io.finch.internal.ToResponse.Aux[Exception,io.finch.Application.Json]):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]"></a><a id="toService(internal.ToResponse.Aux[A,Json],internal.ToResponse.Aux[Exception,Json]):Service[Request,Response]"></a>
+    </li><li name="io.finch.Endpoint#toService" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toService(implicittr:io.finch.ToResponse.Aux[A,io.finch.Application.Json],implicittre:io.finch.ToResponse.Aux[Exception,io.finch.Application.Json]):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]"></a><a id="toService(ToResponse.Aux[A,Json],ToResponse.Aux[Exception,Json]):Service[Request,Response]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Endpoint.html#toService(implicittr:io.finch.internal.ToResponse.Aux[A,io.finch.Application.Json],implicittre:io.finch.internal.ToResponse.Aux[Exception,io.finch.Application.Json]):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]" title="Permalink">
+      <a href="../../io/finch/Endpoint.html#toService(implicittr:io.finch.ToResponse.Aux[A,io.finch.Application.Json],implicittre:io.finch.ToResponse.Aux[Exception,io.finch.Application.Json]):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1553,14 +1527,15 @@ to be reused across multiple endpoints.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toService</span><span class="params">(<span class="implicit">implicit </span><span name="tr">tr: <a href="internal/ToResponse$.html#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">internal.ToResponse.Aux</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>, <a href="package$$Application$.html#Json=String(&quot;application/json&quot;)" class="extmbr" name="io.finch.Application.Json">Json</a>]</span>, <span name="tre">tre: <a href="internal/ToResponse$.html#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">internal.ToResponse.Aux</a>[<span class="extype" name="scala.Exception">Exception</span>, <a href="package$$Application$.html#Json=String(&quot;application/json&quot;)" class="extmbr" name="io.finch.Application.Json">Json</a>]</span>)</span><span class="result">: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.Service" class="extype" target="_top">Service</a>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Request" class="extype" target="_top">Request</a>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a>]</span>
+        <span class="name">toService</span><span class="params">(<span class="implicit">implicit </span><span name="tr">tr: <a href="ToResponse$.html#Aux[A,CT]=io.finch.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.ToResponse.Aux">ToResponse.Aux</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>, <a href="package$$Application$.html#Json=String(&quot;application/json&quot;)" class="extmbr" name="io.finch.Application.Json">Json</a>]</span>, <span name="tre">tre: <a href="ToResponse$.html#Aux[A,CT]=io.finch.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.ToResponse.Aux">ToResponse.Aux</a>[<span class="extype" name="scala.Exception">Exception</span>, <a href="package$$Application$.html#Json=String(&quot;application/json&quot;)" class="extmbr" name="io.finch.Application.Json">Json</a>]</span>)</span><span class="result">: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.Service" class="extype" target="_top">Service</a>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Request" class="extype" target="_top">Request</a>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a>]</span>
       </span>
       
-      <p class="shortcomment cmt">Converts this endpoint to a Finagle service <code>Request =&gt; Future[Response]</code> that serves JSON.</p>
-    </li><li name="io.finch.Endpoint#toServiceAs" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toServiceAs[CT&lt;:String](implicittr:io.finch.internal.ToResponse.Aux[A,CT],implicittre:io.finch.internal.ToResponse.Aux[Exception,CT]):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]"></a><a id="toServiceAs[CT&lt;:String](internal.ToResponse.Aux[A,CT],internal.ToResponse.Aux[Exception,CT]):Service[Request,Response]"></a>
+      <p class="shortcomment cmt">Converts this endpoint to a Finagle service <code>Request =&gt; Future[Response]</code> that serves JSON.</p><div class="fullcomment"><div class="comment cmt"><p>Converts this endpoint to a Finagle service <code>Request =&gt; Future[Response]</code> that serves JSON.</p><p>Consider using <a href="Bootstrap.html" class="extype" name="io.finch.Bootstrap">Bootstrap</a> instead.
+</p></div></div>
+    </li><li name="io.finch.Endpoint#toServiceAs" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toServiceAs[CT&lt;:String](implicittr:io.finch.ToResponse.Aux[A,CT],implicittre:io.finch.ToResponse.Aux[Exception,CT]):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]"></a><a id="toServiceAs[CT&lt;:String](ToResponse.Aux[A,CT],ToResponse.Aux[Exception,CT]):Service[Request,Response]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Endpoint.html#toServiceAs[CT&lt;:String](implicittr:io.finch.internal.ToResponse.Aux[A,CT],implicittre:io.finch.internal.ToResponse.Aux[Exception,CT]):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]" title="Permalink">
+      <a href="../../io/finch/Endpoint.html#toServiceAs[CT&lt;:String](implicittr:io.finch.ToResponse.Aux[A,CT],implicittre:io.finch.ToResponse.Aux[Exception,CT]):com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1569,11 +1544,13 @@ to be reused across multiple endpoints.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toServiceAs</span><span class="tparams">[<span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="tr">tr: <a href="internal/ToResponse$.html#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">internal.ToResponse.Aux</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>, <span class="extype" name="io.finch.Endpoint.toServiceAs.CT">CT</span>]</span>, <span name="tre">tre: <a href="internal/ToResponse$.html#Aux[A,CT]=io.finch.internal.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.internal.ToResponse.Aux">internal.ToResponse.Aux</a>[<span class="extype" name="scala.Exception">Exception</span>, <span class="extype" name="io.finch.Endpoint.toServiceAs.CT">CT</span>]</span>)</span><span class="result">: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.Service" class="extype" target="_top">Service</a>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Request" class="extype" target="_top">Request</a>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a>]</span>
+        <span class="name">toServiceAs</span><span class="tparams">[<span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="tr">tr: <a href="ToResponse$.html#Aux[A,CT]=io.finch.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.ToResponse.Aux">ToResponse.Aux</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>, <span class="extype" name="io.finch.Endpoint.toServiceAs.CT">CT</span>]</span>, <span name="tre">tre: <a href="ToResponse$.html#Aux[A,CT]=io.finch.ToResponse[A]{typeContentType=CT}" class="extmbr" name="io.finch.ToResponse.Aux">ToResponse.Aux</a>[<span class="extype" name="scala.Exception">Exception</span>, <span class="extype" name="io.finch.Endpoint.toServiceAs.CT">CT</span>]</span>)</span><span class="result">: <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.Service" class="extype" target="_top">Service</a>[<a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Request" class="extype" target="_top">Request</a>, <a href="https://twitter.github.io/finagle/docs/index.html#com.twitter.finagle.http.Response" class="extype" target="_top">Response</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Converts this endpoint to a Finagle service <code>Request =&gt; Future[Response]</code> that serves custom
-content-type <code>CT</code>.</p>
+content-type <code>CT</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Converts this endpoint to a Finagle service <code>Request =&gt; Future[Response]</code> that serves custom
+content-type <code>CT</code>.</p><p>Consider using <a href="Bootstrap.html" class="extype" name="io.finch.Bootstrap">Bootstrap</a> instead.
+</p></div></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">
@@ -1623,7 +1600,7 @@ the latency of the given endpoint.</p><pre><span class="kw">import</span> io.fin
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">wait</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
@@ -1645,7 +1622,7 @@ the latency of the given endpoint.</p><pre><span class="kw">import</span> io.fin
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
@@ -1667,7 +1644,7 @@ the latency of the given endpoint.</p><pre><span class="kw">import</span> io.fin
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
@@ -1728,7 +1705,7 @@ the latency of the given endpoint.</p><pre><span class="kw">import</span> io.fin
 </p></div><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
             This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>] to
             <a href="Endpoint$$OptionEndpointOps.html" class="extype" name="io.finch.Endpoint.OptionEndpointOps">OptionEndpointOps</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>] performed by method OptionEndpointOps in <a href="Endpoint$.html" class="extype" name="io.finch.Endpoint">io.finch.Endpoint</a>.
-            This conversion will take place only if A is Option[A] (A =:= <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>]).
+            This conversion will take place only if A is Option[A] (A =:= <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>]).
           </dd><dt>Definition Classes</dt><dd><a href="Endpoint$$OptionEndpointOps.html" class="extype" name="io.finch.Endpoint.OptionEndpointOps">OptionEndpointOps</a></dd></dl></div>
     </li><li name="io.finch.Endpoint#withHeader" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="withHeader(header:(String,String)):io.finch.Endpoint[A]"></a><a id="withHeader((String,String)):Endpoint[A]"></a>
@@ -1746,6 +1723,22 @@ the latency of the given endpoint.</p><pre><span class="kw">import</span> io.fin
       </span>
       
       
+    </li><li name="io.finch.Endpoint#withToString" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withToString(ts:=&gt;String):io.finch.Endpoint[A]"></a><a id="withToString(⇒String):Endpoint[A]"></a>
+      <span class="permalink">
+      <a href="../../io/finch/Endpoint.html#withToString(ts:=&gt;String):io.finch.Endpoint[A]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withToString</span><span class="params">(<span name="ts">ts: ⇒ <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Overrides the <code>toString</code> method on this endpoint.</p>
     </li><li name="scala.Predef.ArrowAssoc#→" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="→[B](y:B):(A,B)"></a><a id="→[B](B):(Endpoint[A],B)"></a>
       <span class="permalink">
@@ -1764,7 +1757,7 @@ the latency of the given endpoint.</p><pre><span class="kw">import</span> io.fin
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
             This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>] to
             <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>]] performed by method ArrowAssoc in scala.Predef.
-            This conversion will take place only if A is a superclass of AnyRef and a subclass of String with Option[Nothing] with NonEmptyList[String] with Seq[String] (A &gt;: <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a> &lt;: <span class="extype" name="scala.Predef.String">String</span> with <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Nothing" class="extype" target="_top">Nothing</a>] with <a href="http://typelevel.org/cats/api/index.html#cats.data.NonEmptyList" class="extype" target="_top">NonEmptyList</a>[<span class="extype" name="scala.Predef.String">String</span>] with <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]).
+            This conversion will take place only if A is a superclass of AnyRef and a subclass of String with Option[Nothing] with NonEmptyList[String] with Seq[String] (A &gt;: <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a> &lt;: <span class="extype" name="scala.Predef.String">String</span> with <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Nothing" class="extype" target="_top">Nothing</a>] with <a href="http://typelevel.org/cats/api/index.html#cats.data.NonEmptyList" class="extype" target="_top">NonEmptyList</a>[<span class="extype" name="scala.Predef.String">String</span>] with <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]).
           </dd><dt>Definition Classes</dt><dd>ArrowAssoc</dd></dl></div>
     </li>
               </ol>
@@ -1784,13 +1777,13 @@ the latency of the given endpoint.</p><pre><span class="kw">import</span> io.fin
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="implicit shadowed">self</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="implicit shadowed">self</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
             This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>] to
             <a href="Endpoint$$StringOptionEndpointOps.html" class="extype" name="io.finch.Endpoint.StringOptionEndpointOps">StringOptionEndpointOps</a> performed by method StringOptionEndpointOps in <a href="Endpoint$.html" class="extype" name="io.finch.Endpoint">io.finch.Endpoint</a>.
-            This conversion will take place only if A is Option[String] (A =:= <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]).
+            This conversion will take place only if A is Option[String] (A =:= <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]).
           </dd><dt class="implicit">Shadowing</dt><dd>This implicitly inherited member is ambiguous. One or more implicitly inherited members have similar signatures, so calling this member may produce an ambiguous implicit conversion compiler error.<br />To access this member you can use a <a href="http://stackoverflow.com/questions/2087250/what-is-the-purpose-of-type-ascription-in-scala" target="_blank">type ascription</a>:<br /><div class="cmt"><pre>(endpoint: StringOptionEndpointOps).self</pre></div></dd><dt>Definition Classes</dt><dd><a href="Endpoint$$StringOptionEndpointOps.html" class="extype" name="io.finch.Endpoint.StringOptionEndpointOps">StringOptionEndpointOps</a></dd></dl></div>
     </li><li name="io.finch.Endpoint.StringSeqEndpointOps#self" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="self:io.finch.Endpoint[Seq[String]]"></a><a id="self:Endpoint[Seq[String]]"></a>
@@ -1864,13 +1857,13 @@ the latency of the given endpoint.</p><pre><span class="kw">import</span> io.fin
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="implicit shadowed">self</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>]]</span>
+        <span class="implicit shadowed">self</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>]]</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
             This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>] to
             <a href="Endpoint$$OptionEndpointOps.html" class="extype" name="io.finch.Endpoint.OptionEndpointOps">OptionEndpointOps</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>] performed by method OptionEndpointOps in <a href="Endpoint$.html" class="extype" name="io.finch.Endpoint">io.finch.Endpoint</a>.
-            This conversion will take place only if A is Option[A] (A =:= <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>]).
+            This conversion will take place only if A is Option[A] (A =:= <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>]).
           </dd><dt class="implicit">Shadowing</dt><dd>This implicitly inherited member is ambiguous. One or more implicitly inherited members have similar signatures, so calling this member may produce an ambiguous implicit conversion compiler error.<br />To access this member you can use a <a href="http://stackoverflow.com/questions/2087250/what-is-the-purpose-of-type-ascription-in-scala" target="_blank">type ascription</a>:<br /><div class="cmt"><pre>(endpoint: OptionEndpointOps[A]).self</pre></div></dd><dt>Definition Classes</dt><dd><a href="Endpoint$$OptionEndpointOps.html" class="extype" name="io.finch.Endpoint.OptionEndpointOps">OptionEndpointOps</a></dd></dl></div>
     </li><li name="io.finch.Endpoint.HListEndpointOps#self" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="self:io.finch.Endpoint[L]"></a><a id="self:Endpoint[A]"></a>
@@ -1915,59 +1908,14 @@ the latency of the given endpoint.</p><pre><span class="kw">import</span> io.fin
     </li></ol>
             </div>
 
-        <div class="values members">
-              <h3>Deprecated Value Members</h3>
-              <ol><li name="io.finch.Endpoint#adjoin" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="adjoin[B](other:io.finch.Endpoint[B])(implicitpa:io.finch.internal.PairAdjoin[A,B]):io.finch.Endpoint[pa.Out]"></a><a id="adjoin[B](Endpoint[B])(PairAdjoin[A,B]):Endpoint[internal.PairAdjoin.Out]"></a>
-      <span class="permalink">
-      <a href="../../io/finch/Endpoint.html#adjoin[B](other:io.finch.Endpoint[B])(implicitpa:io.finch.internal.PairAdjoin[A,B]):io.finch.Endpoint[pa.Out]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version 0.14) Use :: instead.">adjoin</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="other">other: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.adjoin.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="pa">pa: <a href="internal/PairAdjoin.html" class="extype" name="io.finch.internal.PairAdjoin">PairAdjoin</a>[<span class="extype" name="io.finch.Endpoint.A">A</span>, <span class="extype" name="io.finch.Endpoint.adjoin.B">B</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="internal/PairAdjoin.html#Out" class="extmbr" name="io.finch.internal.PairAdjoin.Out">internal.PairAdjoin.Out</a>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Composes this endpoint with the given <code>other</code> endpoint.</p><div class="fullcomment"><div class="comment cmt"><p>Composes this endpoint with the given <code>other</code> endpoint. The resulting endpoint will succeed
-only if both this and <code>that</code> endpoints succeed.
-</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.14)</i> Use :: instead.</p></dd></dl></div>
-    </li><li name="io.finch.Endpoint#|" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="|[B&gt;:A](other:io.finch.Endpoint[B]):io.finch.Endpoint[B]"></a><a id="|[B&gt;:A](Endpoint[B]):Endpoint[B]"></a>
-      <span class="permalink">
-      <a href="../../io/finch/Endpoint.html#|[B&gt;:A](other:io.finch.Endpoint[B]):io.finch.Endpoint[B]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $bar. Deprecated: (Since version 0.14) Use coproduct instead." class="name deprecated">|</span><span class="tparams">[<span name="B">B &gt;: <span class="extype" name="io.finch.Endpoint.A">A</span></span>]</span><span class="params">(<span name="other">other: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.|.B">B</span>]</span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.|.B">B</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Sequentially composes this endpoint with the given <code>other</code> endpoint.</p><div class="fullcomment"><div class="comment cmt"><p>Sequentially composes this endpoint with the given <code>other</code> endpoint. The resulting endpoint
-will succeed if either this or <code>that</code> endpoints are succeed.
-</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.14)</i> Use coproduct instead.</p></dd></dl></div>
-    </li></ol>
-            </div>
+        
         </div>
 
         <div id="inheritedMembers">
         <div class="parent" name="scala.AnyRef">
-              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
-              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.12.1/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.12.2/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
             </div>
         <div class="conversion" name="io.finch.Endpoint.StringOptionEndpointOps">
               <h3>Inherited by implicit conversion StringOptionEndpointOps from
