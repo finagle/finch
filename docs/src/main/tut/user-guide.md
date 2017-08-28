@@ -904,7 +904,7 @@ import io.iteratee._
 case class Foo(x: Int)
 
 val streamingEndpoint: Endpoint[Enumerator[Future, Foo]] = get("stream") {
-   Enumerator[Future, Foo].enumList(List(Foo(1), Foo(2))
+   Ok(Enumerator[Future, Foo].enumList(List(Foo(1), Foo(2)))
 }
 
 Http.server
