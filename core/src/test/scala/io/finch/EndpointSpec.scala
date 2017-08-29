@@ -351,12 +351,26 @@ class EndpointSpec extends FinchSpec {
     endpoint(Input.get("/", "testValid" -> "1")).awaitValueUnsafe() shouldBe Some(1)
   }
 
-  it should "should fail if validation fails" in {
+  it should "fail if validation fails" in {
     val validateFunc: (Int, items.RequestItem) => Validated[Errors, Int] = (i, item) => {
       if (i <= 0) Validated.valid(i)
       else Validated.invalid(Errors(NonEmptyList.of(Error.NotValid(item, "Not Valid"))))
     }
     val endpoint: Endpoint[Int] = param("testValid").as[Int].validate(validateFunc)
+    an[Errors] shouldBe thrownBy (
+      endpoint(Input.get("/", "testValid" -> "1")).awaitValueUnsafe()
+    )
+  }
+
+  it should "match if the 'should' condition passes" in {
+    val validateFunc: Int => Boolean = 0 < _
+    val endpoint: Endpoint[Int] = param("testValid").as[Int].should("be greater than 0")(validateFunc)
+    endpoint(Input.get("/", "testValid" -> "1")).awaitValueUnsafe() shouldBe Some(1)
+  }
+
+  it should "fail if the 'should' condition fails" in {
+    val validateFunc: Int => Boolean = _ <= 0
+    val endpoint: Endpoint[Int] = param("testValid").as[Int].should("be less than or equal to 0")(validateFunc)
     an[Errors] shouldBe thrownBy (
       endpoint(Input.get("/", "testValid" -> "1")).awaitValueUnsafe()
     )
