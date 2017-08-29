@@ -141,7 +141,7 @@ lazy val docSettings = allSettings ++ Seq(
     "-doc-root-content", (resourceDirectory.in(Compile).value / "rootdoc.txt").getAbsolutePath
   ),
   scalacOptions ~= {
-    _.filterNot(Set("-Yno-predef"))
+    _.filterNot(Set("-Yno-predef", "-Xlint"))
   },
   git.remoteRepo := "git@github.com:finagle/finch.git",
   unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(benchmarks, jsonTest),
@@ -291,7 +291,7 @@ lazy val docs = project
     )
   )
   .enablePlugins(MicrositesPlugin, ScalaUnidocPlugin)
-  .dependsOn(core, circe, jackson, sse, argonaut, json4s, playjson)
+  .dependsOn(core, circe, jackson, sse, argonaut, json4s, playjson, iteratee)
 
 
 lazy val examples = project
