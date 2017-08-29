@@ -826,6 +826,10 @@ using `circe-streaming` library.
 Finch plugs in iteratee-powered decoding support via the `io.finch.iteratee.Enumerate` type-class:
 
 ```tut:silent
+import java.nio.charset.Charset
+import com.twitter.util.Future
+import io.iteratee._
+
 /**
   * Enumerate HTTP streamed payload represented as [[Enumerator]] (encoded with [[Charset]]) into
   * an [[Enumerator]] of arbitrary type `A`.
@@ -840,13 +844,13 @@ trait Enumerate[A] {
 ```
 
 Here you can see an example how to work with decoding enumerators:
-```tut
+```tut:silent
 import io.catbird.util._
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
 import io.finch.iteratee._
-import io.iteratee._
+import io.iteratee.{Enumerator, Iteratee}
 
 case class Foo(bar: Int)
 
@@ -859,6 +863,9 @@ val decodingJSON = post("foo" :: enumeratorJsonBody[Foo]) { (enumerator: Enumera
   futureSum.map(Ok) //future will be completed when whole stream is folded
 }
 
+// Some async task to store foos.
+val storeFoos: Vector[Foo] => Future[Unit] = _ => Future.Unit
+
 /**
   * Backpressure with HTTP 1.1 could be implemented only in a way of closing a connection.
   * If you don't want to consume more data, you could throw any exception while processing `Enumerator`,
@@ -867,11 +874,11 @@ val decodingJSON = post("foo" :: enumeratorJsonBody[Foo]) { (enumerator: Enumera
   * In this example connection going to be closed as soon as 10 elements has been stored.
   */
 val backpressureJSON = post("bar" :: enumeratorJsonBody[Foo]) { (enumerator: Enumerator[Future, Foo]) =>
-   val iteratee = Iteratee.take[Future, Foo](10).flatMapM(fs: Vector[Foo] => {
-      //Some async task to store foos. Processing pipeline would be interrupted in case of exception
-      storeFoos(fs).map(_ => throw new InterruptedException)
-   })
-   enumerator.into(iteratee).map(Ok)
+  val iteratee = Iteratee.take[Future, Foo](10).flatMapM { (fs: Vector[Foo]) => 
+    // Processing pipeline will be interrupted in the case of an exception
+    storeFoos(fs).map(_ => throw new InterruptedException)
+  }
+  enumerator.into(iteratee).map(Ok)
 }
 
 /**
@@ -880,12 +887,12 @@ val backpressureJSON = post("bar" :: enumeratorJsonBody[Foo]) { (enumerator: Enu
   * of `io.finch.iteratee.Enumerate` in scope
   */
 val bufEnumerator = post("text" :: enumeratorBody[Buf, Application.OctetStream]) { (enumerator: Enumerator[Future, Buf]) =>
-   Ok()
-)
+  Ok(Buf.Empty)
+}
 
-Http.server
-    .withStreaming(enabled = true) //don't forget to enable streaming support
-    .serve(":8080", (decodingJSON :+: backpressureJSON :+: bufEnumerator).toService)
+// Http.server
+//     .withStreaming(enabled = true) //don't forget to enable streaming support
+//     .serve(":8080", (decodingJSON :+: backpressureJSON :+: bufEnumerator).toService)
 ```
 
 **Encoding**
@@ -893,7 +900,7 @@ Http.server
 Beside decoding of input stream, it's possible to make output stream with enumerator serving
 `Endpoint[Enumerator[Future, A]]`:
 
-```tut
+```tut:silent
 import io.catbird.util._
 import io.circe.generic.auto._
 import io.finch._
@@ -904,12 +911,12 @@ import io.iteratee._
 case class Foo(x: Int)
 
 val streamingEndpoint: Endpoint[Enumerator[Future, Foo]] = get("stream") {
-   Ok(Enumerator[Future, Foo].enumList(List(Foo(1), Foo(2)))
+  Ok(Enumerator.enumList[Future, Foo](List(Foo(1), Foo(2))))
 }
 
-Http.server
-    .withStreaming(enabled = true)
-    .serve(":8080", streamingEdnpoint.toService) //with Application.JSON Content-Type it's a JSON nd stream of Foos
+// Http.server
+//     .withStreaming(enabled = true)
+//     .serve(":8080", streamingEndpoint.toService) //with Application.JSON Content-Type it's a JSON nd stream of Foos
 ```
 
 
