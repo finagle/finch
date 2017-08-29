@@ -842,10 +842,10 @@ trait Enumerate[A] {
 
   def apply(enumerator: Enumerator[Future, Buf], cs: Charset): Enumerator[Future, A]
 }
-
 ```
 
 Here you can see an example how to work with decoding enumerators:
+
 ```tut
 import io.catbird.util._, io.iteratee.{Enumerator, Iteratee}
 import io.circe.generic.auto._
@@ -876,7 +876,7 @@ val storeFoos: Vector[Foo] => Future[Unit] = _ => Future.Unit
 val backpressureJSON = post("bar" :: enumeratorJsonBody[Foo]) { (enumerator: Enumerator[Future, Foo]) =>
   val iteratee = Iteratee.take[Future, Foo](10).flatMapM { (fs: Vector[Foo]) => 
     // Processing pipeline will be interrupted in the case of an exception
-    storeFoos(fs).map(_ => throw new InterruptedException)
+    storeFoos(fs).flatMap(_ => Future.exception[Foo](new InterruptedException))
   }
   enumerator.into(iteratee).map(Ok)
 }
@@ -900,7 +900,7 @@ val bufEnumerator =
 Beside decoding of input stream, it's possible to make output stream with enumerator serving
 `Endpoint[Enumerator[Future, A]]`:
 
-```tut:silent
+```tut
 import io.catbird.util._, io.iteratee.Enumerator
 import io.circe.generic.auto._
 import io.finch._, io.finch.circe._, io.finch.iteratee._
@@ -992,7 +992,6 @@ options:
 
 - `includeServerHeader` (enabled by default) and
 - `includeDateHeader` (enabled by default)
-
 
 The quick start example looks fairly straightforward:
 
