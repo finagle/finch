@@ -30,7 +30,9 @@ position: 1
 * [Errors](#errors)
   * [Error Accumulation](#error-accumulation)
   * [Error Handling](#error-handling)
+* [Streaming](#streaming)
 * [Testing](#testing)
+* [Deriving Finagle Services](#deriving-finagle-services)
 
 
 ### Overview
@@ -844,13 +846,11 @@ trait Enumerate[A] {
 ```
 
 Here you can see an example how to work with decoding enumerators:
-```tut:silent
-import io.catbird.util._
+```tut
+import io.catbird.util._, io.iteratee.{Enumerator, Iteratee}
 import io.circe.generic.auto._
-import io.finch._
-import io.finch.circe._
-import io.finch.iteratee._
-import io.iteratee.{Enumerator, Iteratee}
+import io.finch._, io.finch.circe._, io.finch.iteratee._
+import com.twitter.util.Future
 
 case class Foo(bar: Int)
 
@@ -880,15 +880,15 @@ val backpressureJSON = post("bar" :: enumeratorJsonBody[Foo]) { (enumerator: Enu
   }
   enumerator.into(iteratee).map(Ok)
 }
-
 /**
   * You could use `enumeratorBody` if there is no need to decode input stream.
   * Have in mind that for something except `Buf` one should provide implicit instance 
   * of `io.finch.iteratee.Enumerate` in scope
   */
-val bufEnumerator = post("text" :: enumeratorBody[Buf, Application.OctetStream]) { (enumerator: Enumerator[Future, Buf]) =>
-  Ok(Buf.Empty)
-}
+val bufEnumerator =
+  post("text" :: enumeratorBody[Buf, Application.OctetStream]) { buf: Enumerator[Future, Buf] =>
+    Ok(Buf.Empty)
+  }
 
 // Http.server
 //     .withStreaming(enabled = true) //don't forget to enable streaming support
@@ -901,24 +901,20 @@ Beside decoding of input stream, it's possible to make output stream with enumer
 `Endpoint[Enumerator[Future, A]]`:
 
 ```tut:silent
-import io.catbird.util._
+import io.catbird.util._, io.iteratee.Enumerator
 import io.circe.generic.auto._
-import io.finch._
-import io.finch.circe._
-import io.finch.iteratee._
-import io.iteratee._
+import io.finch._, io.finch.circe._, io.finch.iteratee._
 
 case class Foo(x: Int)
 
-val streamingEndpoint: Endpoint[Enumerator[Future, Foo]] = get("stream") {
-  Ok(Enumerator.enumList[Future, Foo](List(Foo(1), Foo(2))))
+val streamingEndpoint = get("stream") {
+  Ok(enumList[Foo](List(Foo(1), Foo(2))))
 }
 
 // Http.server
 //     .withStreaming(enabled = true)
 //     .serve(":8080", streamingEndpoint.toService) //with Application.JSON Content-Type it's a JSON nd stream of Foos
 ```
-
 
 ### Testing
 
@@ -981,6 +977,39 @@ divOrFail(Input.post("/20/0")).awaitOutputUnsafe().map(_.status) == Some(Status.
 
 You can find unit tests for the examples in the [examples folder][examples].
 
+### Deriving Finagle Services
+
+Ultimately, any Finch program (i.e., endpoint(s)) should be translated into an HTTP service,
+exposable to the outside world.
+
+Finch uses compile-time machinery to derive Finagle HTTP services out of endpoints. `Bootstrap`
+represents an entry point API into this derivation. In a nutshell, `Bootstrap` provides only single
+method: `serve[A, CT <: String]` that takes an endpoint of given type `A` and serves it with a
+content type `CT`.
+
+Bootstrap can also be configured with a `configure` method. At this point, we only support two
+options:
+
+- `includeServerHeader` (enabled by default) and
+- `includeDateHeader` (enabled by default)
+
+
+The quick start example looks fairly straightforward:
+
+```tut
+import io.finch._, io.finch.circe._
+import io.circe.generic.auto._
+import com.twitter.finagle.Http
+
+val json = get("json") { Ok(Map("foo" -> "bar")) }
+
+val text = get("text") { Ok("Hello, World!") }
+
+val s = Bootstrap.configure(includeServerHeader = false).
+  serve[Application.Json](json).
+  serve[Text.Plain](text).
+  toService
+```
 
 [shapeless]: https://github.com/milessabin/shapeless
 [hlist]: https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.0.0#heterogenous-lists
