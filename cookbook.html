@@ -47,7 +47,7 @@ free (preferred).</p>
 <p>For example, to bring the <a href="https://github.com/circe/circe">Circe</a> support and benefit from its auto-derivation of codecs
 you’d only need to add two extra imports to the scope (file) where you call the <code class="highlighter-rouge">.toService</code> method.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
 <span class="k">import</span> <span class="nn">io.finch.circe._</span>
 </code></pre>
 </div>
@@ -78,7 +78,7 @@ or simply not possible in the current implementation.</p>
 reasonable to pass  <code class="highlighter-rouge">Application.Json</code> to the <code class="highlighter-rouge">toServiceAs</code> call and downgrade non-JSON endpoints to
 <code class="highlighter-rouge">Endpoint[Response]</code>.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.http.Response</span>
 <span class="k">import</span> <span class="nn">com.twitter.io.Buf</span>
 <span class="k">import</span> <span class="nn">io.circe._</span>
@@ -122,7 +122,7 @@ cornerstone idea is to return a <code class="highlighter-rouge">Buf</code> insta
 <code class="highlighter-rouge">Encode[Buf]</code>, thereby lifting the encoding part onto the endpoint itself
 (where it’s quite legal to return a <code class="highlighter-rouge">Future[Buf]</code>).</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
 <span class="k">import</span> <span class="nn">com.twitter.util.Await</span>
@@ -144,7 +144,7 @@ the perfect fit.</p>
 
 <p>It’s also possible to <em>stream</em> the file content to the client using <a href="https://github.com/twitter/util/blob/develop/util-core/src/main/scala/com/twitter/concurrent/AsyncStream.scala"><code class="highlighter-rouge">AsyncStream</code></a>.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">com.twitter.conversions.storage._</span>
 <span class="k">import</span> <span class="nn">com.twitter.concurrent.AsyncStream</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
@@ -174,7 +174,7 @@ trivial thing to do.</p>
 
 <p>With <a href="https://github.com/circe/circe">Circe</a> the complete implementation might look like the following.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">io.finch.circe._</span>
 
@@ -200,7 +200,7 @@ trivial thing to do.</p>
 value), in Finch, you can define an endpoint returning an empty response (an empty/unit output).
 An <code class="highlighter-rouge">Endpoint[Unit]</code> represents an endpoint that doesn’t return any payload in the response.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="k">val</span> <span class="n">empty</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"empty"</span> <span class="o">::</span> <span class="n">string</span><span class="o">)</span> <span class="o">{</span> <span class="n">s</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=&gt;</span>
   <span class="nc">NoContent</span><span class="o">[</span><span class="kt">Unit</span><span class="o">].</span><span class="n">withHeader</span><span class="o">(</span><span class="s">"X-String"</span> <span class="o">-&gt;</span> <span class="n">s</span><span class="o">)</span>
@@ -212,7 +212,7 @@ An <code class="highlighter-rouge">Endpoint[Unit]</code> represents an endpoint 
 probably a better idea to use failures in order to explain to the remote client why there is no
 payload in the response, it’s totally possible to send empty ones instead.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
 
 <span class="k">case</span> <span class="k">class</span> <span class="nc">Foo</span><span class="o">(</span><span class="n">s</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
@@ -237,7 +237,7 @@ payload in the response, it’s totally possible to send empty ones instead.</p>
 reasonable way of defining redirecting endpoints is to represent them as <code class="highlighter-rouge">Endpoint[Unit]</code> (empty
 output) indicating that there is no payload returned.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
 
 <span class="k">val</span> <span class="n">redirect</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"redirect"</span> <span class="o">::</span> <span class="s">"from"</span><span class="o">)</span> <span class="o">{</span>
@@ -266,7 +266,7 @@ behavior) wasn’t touched at all.</p>
 <p>In the following example, we define a new endpoint <code class="highlighter-rouge">foo</code> that reads an instance of the case class
 <code class="highlighter-rouge">Foo</code> from the request during the <em>evaluation</em> stage. So it won’t affect matching.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="k">case</span> <span class="k">class</span> <span class="nc">Foo</span><span class="o">(</span><span class="n">i</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">s</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
 
@@ -294,7 +294,7 @@ outputs).</p>
 authenticate it by the user name passed in the <code class="highlighter-rouge">User</code> header. If the header is missing, the request
 is considered unauthorized.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="k">case</span> <span class="k">class</span> <span class="nc">User</span><span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
 
@@ -331,7 +331,7 @@ that takes a function of type <code class="highlighter-rouge">(A) =&gt; Future[O
 
 <p>The previous example’s <code class="highlighter-rouge">auth</code> endpoint can be updated as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
 
 <span class="k">def</span> <span class="n">fetchUserForToken</span><span class="o">(</span><span class="n">token</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">User</span><span class="o">]]</span> <span class="k">=</span> <span class="o">???</span>
 
@@ -356,7 +356,7 @@ that takes a function of type <code class="highlighter-rouge">(A) =&gt; Future[O
 <p>Let’s say you want to write a custom <em>matching</em> endpoint that only matches requests whose current
 path segment might be extracted as (converted to) Java 8’s <code class="highlighter-rouge">LocalDateTime</code>.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">com.twitter.util.Try</span>
 <span class="k">import</span> <span class="nn">java.time.LocalDateTime</span>
 
@@ -379,489 +379,18 @@ to non-experimental.</p>
 need to get only query parameters or headers, it’s easy to reuse this endpoint to get something like
 following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">10</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
-                             <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">13</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch.circe._</span>
-                      <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">15</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
-                           <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">16</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Response</span>
-                                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">17</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.Buf</span>
-                      <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">19</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">22</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
-                             <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">25</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">28</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch.circe._</span>
-                      <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">31</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">33</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
-                       <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">33</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
-                               <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">34</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
-                           <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">35</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.util.Await</span>
-                        <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">36</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">java.io.File</span>
-               <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">38</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">41</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.conversions.storage._</span>
-                                       <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">43</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.concurrent.AsyncStream</span>
-                              <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">44</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
-                           <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">45</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
-                       <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">45</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
-                               <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">46</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">java.io.File</span>
-               <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">47</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
-                 <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">47</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
-                          <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">49</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">52</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch.circe._</span>
-                      <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">55</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">$line34$read.</span><span class="n">`ee`</span>
-                                                                                                                    <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">57</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">60</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">62</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
-                                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">64</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">66</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
-                                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">68</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">71</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">73</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
-                        <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">75</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">77</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.util.Try</span>
-                        <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">78</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">java.time.LocalDateTime</span>
-                 <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">80</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">$line59$read.</span><span class="n">`e`</span>
-                                                                                                                                                                    <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">84</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-       <span class="k">import</span> <span class="nn">io.finch._</span>
-                       <span class="o">^</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">headersAll</span> <span class="k">=</span> <span class="n">root</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">headerMap</span><span class="o">.</span><span class="n">toMap</span><span class="o">)</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">10</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
-                             <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">13</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch.circe._</span>
-                      <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">15</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
-                           <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">16</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Response</span>
-                                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">17</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.Buf</span>
-                      <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">19</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">22</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
-                             <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">25</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">28</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch.circe._</span>
-                      <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">31</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">33</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
-                       <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">33</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
-                               <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">34</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
-                           <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">35</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.util.Await</span>
-                        <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">36</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">java.io.File</span>
-               <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">38</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">41</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.conversions.storage._</span>
-                                       <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">43</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.concurrent.AsyncStream</span>
-                              <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">44</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
-                           <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">45</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
-                       <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">45</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
-                               <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">46</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">java.io.File</span>
-               <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">47</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
-                 <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">47</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
-                          <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">49</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">52</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch.circe._</span>
-                      <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">55</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">$line34$read.</span><span class="n">`ee`</span>
-                                                                                                                    <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">57</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">60</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">62</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
-                                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">64</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">66</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
-                                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">68</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">71</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">73</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
-                        <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">75</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">77</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.util.Try</span>
-                        <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">78</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">java.time.LocalDateTime</span>
-                 <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">80</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">$line59$read.</span><span class="n">`e`</span>
-                                                                                                                                                                    <span class="o">^</span>
 <span class="n">headersAll</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">scala.collection.immutable.Map</span><span class="o">[</span><span class="kt">String</span>,<span class="kt">String</span><span class="o">]]</span> <span class="k">=</span> <span class="n">root</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">headers</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"hello"</span> <span class="o">::</span> <span class="n">headersAll</span><span class="o">)</span> <span class="o">{</span><span class="n">headers</span><span class="k">:</span> <span class="kt">Map</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">String</span><span class="o">]</span> <span class="k">=&gt;</span>
      <span class="o">|</span>   <span class="nc">Ok</span><span class="o">(</span><span class="n">s</span><span class="s">"Headers: $headers"</span><span class="o">)</span>
      <span class="o">|</span> <span class="o">}</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">10</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
-                             <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">13</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch.circe._</span>
-                      <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">15</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
-                           <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">16</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Response</span>
-                                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">17</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.Buf</span>
-                      <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">19</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">22</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
-                             <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">25</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">28</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch.circe._</span>
-                      <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">31</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">33</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
-                       <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">33</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
-                               <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">34</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
-                           <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">35</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.util.Await</span>
-                        <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">36</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">java.io.File</span>
-               <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">38</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">41</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.conversions.storage._</span>
-                                       <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">43</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.concurrent.AsyncStream</span>
-                              <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">44</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
-                           <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">45</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
-                       <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">45</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
-                               <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">46</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">java.io.File</span>
-               <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">47</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
-                 <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">47</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
-                          <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">49</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">52</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch.circe._</span>
-                      <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">55</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">$line34$read.</span><span class="n">`ee`</span>
-                                                                                                                    <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">57</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">60</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">62</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
-                                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">64</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">66</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
-                                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">68</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">71</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">73</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
-                        <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">75</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">77</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.util.Try</span>
-                        <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">78</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">java.time.LocalDateTime</span>
-                 <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">80</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">$line59$read.</span><span class="n">`e`</span>
-                                                                                                                                                                    <span class="o">^</span>
 <span class="n">headers</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">GET</span> <span class="o">/</span><span class="n">hello</span> <span class="o">::</span> <span class="n">root</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">headers</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">).</span><span class="n">withHeaders</span><span class="o">(</span><span class="s">"foo"</span> <span class="o">-&gt;</span> <span class="s">"bar"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">10</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
-                             <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">13</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch.circe._</span>
-                      <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">15</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
-                           <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">16</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Response</span>
-                                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">17</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.Buf</span>
-                      <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">19</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">22</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
-                             <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">25</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">28</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch.circe._</span>
-                      <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">31</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">33</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
-                       <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">33</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
-                               <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">34</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
-                           <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">35</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.util.Await</span>
-                        <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">36</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">java.io.File</span>
-               <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">38</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">41</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.conversions.storage._</span>
-                                       <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">43</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.concurrent.AsyncStream</span>
-                              <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">44</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
-                           <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">45</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
-                       <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">45</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
-                               <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">46</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">java.io.File</span>
-               <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">47</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
-                 <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">47</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
-                          <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">49</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">52</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch.circe._</span>
-                      <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">55</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">$line34$read.</span><span class="n">`ee`</span>
-                                                                                                                    <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">57</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">60</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">62</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
-                                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">64</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">66</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
-                                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">68</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">71</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">73</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
-                        <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">75</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-                <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">77</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">com.twitter.util.Try</span>
-                        <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">78</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">java.time.LocalDateTime</span>
-                 <span class="o">^</span>
-<span class="o">&lt;</span><span class="n">console</span><span class="k">&gt;:</span><span class="mi">80</span><span class="k">:</span> <span class="kt">warning:</span> <span class="kt">Unused</span> <span class="kt">import</span>
-<span class="k">import</span> <span class="nn">$line59$read.</span><span class="n">`e`</span>
-                                                                                                                                                                    <span class="o">^</span>
 <span class="n">res42</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">None</span>
 </code></pre>
 </div>
@@ -872,7 +401,7 @@ following:</p>
 <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS">CORS</a> behavior. The following example builds a CORS filter that allows <code class="highlighter-rouge">GET</code> and <code class="highlighter-rouge">POST</code>
 requests with an <code class="highlighter-rouge">Accept</code> header from any origin.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.finagle.http.filter.Cors</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.finagle.http.filter.Cors</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Response</span><span class="o">}</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.Service</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
@@ -896,7 +425,7 @@ there is already an official tool for performing conversions between Scala futur
 futures (i.e., <a href="https://github.com/twitter/bijection">Twitter Bijection</a>), it usually makes sense to avoid an extra dependency
 because of a couple of functions which are fairly easy to implement.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.util.</span><span class="o">{</span><span class="nc">Future</span> <span class="k">=&gt;</span> <span class="nc">TFuture</span><span class="o">,</span> <span class="nc">Promise</span> <span class="k">=&gt;</span> <span class="nc">TPromise</span><span class="o">,</span> <span class="nc">Return</span><span class="o">,</span> <span class="nc">Throw</span><span class="o">}</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.util.</span><span class="o">{</span><span class="nc">Future</span> <span class="k">=&gt;</span> <span class="nc">TFuture</span><span class="o">,</span> <span class="nc">Promise</span> <span class="k">=&gt;</span> <span class="nc">TPromise</span><span class="o">,</span> <span class="nc">Return</span><span class="o">,</span> <span class="nc">Throw</span><span class="o">}</span>
 <span class="k">import</span> <span class="nn">scala.concurrent.</span><span class="o">{</span><span class="nc">Future</span> <span class="k">=&gt;</span> <span class="nc">SFuture</span><span class="o">,</span> <span class="nc">Promise</span> <span class="k">=&gt;</span> <span class="nc">SPromise</span><span class="o">,</span> <span class="nc">ExecutionContext</span><span class="o">}</span>
 <span class="k">import</span> <span class="nn">scala.util.</span><span class="o">{</span><span class="nc">Success</span><span class="o">,</span> <span class="nc">Failure</span><span class="o">}</span>
 
@@ -939,7 +468,7 @@ the <code class="highlighter-rouge">time</code> endpoint.</p>
 
 <p>NOTE: SSE requires <code class="highlighter-rouge">Cache-Control</code> to be disabled.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">cats.Show</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">cats.Show</span>
 <span class="k">import</span> <span class="nn">com.twitter.concurrent.AsyncStream</span>
 <span class="k">import</span> <span class="nn">com.twitter.conversions.time._</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
@@ -976,7 +505,7 @@ filter <code class="highlighter-rouge">JsonpFilter</code> that can be applied to
 
 <p>Here is a small example on how to wire this filter with Finch’s endpoint.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.http.filter.JsonpFilter</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">io.finch.circe._</span>
