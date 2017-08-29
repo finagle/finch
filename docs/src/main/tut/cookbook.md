@@ -9,7 +9,6 @@ position: 2
 This is a collection of short recipes of "How to X in Finch".
 
 * [Fixing the `.toService` compile error](#fixing-the-toservice-compile-error)
-* [Serving multiple content types](#serving-multiple-content-types)
 * [Serving static content](#serving-static-content)
 * [Converting `Error.Multiple` into JSON](#converting-errormultiple-into-json)
 * [Defining endpoints returning empty responses](#defining-endpoints-returning-empty-responses)
@@ -54,63 +53,6 @@ you'd only need to add two extra imports to the scope (file) where you call the 
 ```tut:silent
 import io.circe.generic.auto._
 import io.finch.circe._
-```
-
-### Serving multiple content types
-
-In its current form (as per 0.11) Finch natively supports only single content type per Finagle
-service. This restriction is encoded in the API such that `toServiceAs` call only takes single type
-parameter, single content type.
-
-Even though this restriction is temporary and should be removed in 0.11 (or 1.0), there is an
-essential workaround in Finch that will always be supported (even after 1.0). The general idea is
-to downgrade an endpoint that returns a payload of a content type that's different from one passed
-to the `toServiceAs` call to `Endpoint[Response]`.
-
-An `Endpoint[Response]` has a special meaning:
-
-- It's not necessary to wrap a `Response` with `Output` when mapping endpoint
-- There is an identity (pass through) encoder for `Response` defined in Finch
-
-That said, Finagle's `Response`s have (and will always be having) a first-class support in Finch to
-accommodate use cases when decoupling from HTTP types and primitives implies unnecessary complexity
-or simply not possible in the current implementation.
-
-Putting it all together and assuming that most of the Finch applications serve JSON payloads, it's
-reasonable to pass  `Application.Json` to the `toServiceAs` call and downgrade non-JSON endpoints to
-`Endpoint[Response]`.
-
-```tut:silent
-import com.twitter.finagle.Http
-import com.twitter.finagle.http.Response
-import com.twitter.io.Buf
-import io.circe._
-//import io.circe.generic.semiauto._
-import io.circe.generic.auto._
-import io.finch._
-import io.finch.circe._
-
-case class Message(message: String)
-
-//implicit val fooDecoder: Decoder[Message] = deriveDecoder[Message]
-//implicit val fooEncoder: Encoder[Message] = deriveEncoder[Message]
-
-val json: Endpoint[Message] = get("json") {
-  Ok(Message("Hello, World!"))
-}
-
-val text: Endpoint[Response] = get("text") {
-  val rep = Response()
-  rep.content = Buf.Utf8("Hello, World!")
-  rep.contentType = "text/plain"
-
-  rep
-}
-
-
-val service = (json :+: text).toServiceAs[Application.Json]
-
-// Http.server.serve(":8081", service )
 ```
 
 ### Serving static content
