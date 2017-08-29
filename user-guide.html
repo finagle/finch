@@ -40,7 +40,9 @@
       <li><a href="#error-handling">Error Handling</a></li>
     </ul>
   </li>
+  <li><a href="#streaming">Streaming</a></li>
   <li><a href="#testing">Testing</a></li>
+  <li><a href="#deriving-finagle-services">Deriving Finagle Services</a></li>
 </ul>
 
 <h3 id="overview">Overview</h3>
@@ -111,26 +113,26 @@ variants to lift a given call-by-name value (essentially, a function call) withi
 <p>In the following example, the random value is only generated once (when endpoint is constructed) in
 the <code class="highlighter-rouge">p</code> endpoint, and generated on each request in the <code class="highlighter-rouge">q</code> endpoint.</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">p</span> <span class="k">=</span> <span class="nc">Endpoint</span><span class="o">.</span><span class="n">const</span><span class="o">(</span><span class="n">scala</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">random</span><span class="o">)</span>
-<span class="n">p</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">Endpoint$$anon$11</span><span class="k">@</span><span class="mi">368</span><span class="n">c9746</span>
+<span class="n">p</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">Endpoint$$anon$11</span><span class="k">@</span><span class="mi">5</span><span class="n">b15663</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">q</span> <span class="k">=</span> <span class="nc">Endpoint</span><span class="o">.</span><span class="n">lift</span><span class="o">(</span><span class="n">scala</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">random</span><span class="o">)</span>
-<span class="n">q</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">Endpoint$$anon$12</span><span class="k">@</span><span class="mi">7</span><span class="n">cb6bdb3</span>
+<span class="n">q</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">Endpoint$$anon$12</span><span class="k">@</span><span class="mf">761f</span><span class="n">e5d6</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">p</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">))</span>
-<span class="n">res0</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"GET /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$12</span><span class="k">@</span><span class="mf">5d</span><span class="n">cfb169</span><span class="o">)</span>
+<span class="n">res0</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"GET /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$12</span><span class="k">@</span><span class="mf">2f</span><span class="mi">279390</span><span class="o">)</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">p</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">))</span>
-<span class="n">res1</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"GET /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$12</span><span class="k">@</span><span class="mf">7d</span><span class="mi">301</span><span class="n">a29</span><span class="o">)</span>
+<span class="n">res1</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"GET /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$12</span><span class="k">@</span><span class="mi">76</span><span class="n">e71f5b</span><span class="o">)</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">q</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">))</span>
-<span class="n">res2</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"GET /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$14</span><span class="k">@</span><span class="mi">746</span><span class="n">e4819</span><span class="o">)</span>
+<span class="n">res2</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"GET /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$14</span><span class="nd">@a3fb590</span><span class="o">)</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">q</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">))</span>
-<span class="n">res3</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"GET /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$14</span><span class="k">@</span><span class="mf">187f</span><span class="mi">4119</span><span class="o">)</span>
+<span class="n">res3</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"GET /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$14</span><span class="k">@</span><span class="mi">304</span><span class="n">a1f77</span><span class="o">)</span>
 </code></pre>
 </div>
 
@@ -140,7 +142,7 @@ the <code class="highlighter-rouge">p</code> endpoint, and generated on each req
 it’s evolved separately from Finagle. To overcome this and provide an extension point, there is a
 special endpoint instance, called <code class="highlighter-rouge">root</code> that returns a raw Finagle <code class="highlighter-rouge">Request</code>.</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch.Endpoint._</span>
@@ -153,7 +155,7 @@ special endpoint instance, called <code class="highlighter-rouge">root</code> th
 <span class="n">remoteAddr</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">java.net.InetAddress</span><span class="o">]</span> <span class="k">=</span> <span class="n">root</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">result</span><span class="k">:</span> <span class="kt">Result</span><span class="o">[</span><span class="kt">InetAddress</span><span class="o">]</span> <span class="k">=</span> <span class="n">remoteAddr</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">))</span>
-<span class="n">result</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">java.net.InetAddress</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"GET /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$11</span><span class="k">@</span><span class="mi">1</span><span class="n">b54d5c5</span><span class="o">)</span>
+<span class="n">result</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">java.net.InetAddress</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"GET /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$11</span><span class="k">@</span><span class="mf">4f</span><span class="n">e91d6</span><span class="o">)</span>
 </code></pre>
 </div>
 
@@ -166,7 +168,7 @@ special endpoint instance, called <code class="highlighter-rouge">root</code> th
 <p>There is an implicit conversion from <code class="highlighter-rouge">String</code>, <code class="highlighter-rouge">Boolean</code> and <code class="highlighter-rouge">Int</code> to a matching endpoint that
 matches the current path segment of a given request against a converted value.</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">shapeless</span><span class="o">.</span><span class="nc">HNil</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">shapeless</span><span class="o">.</span><span class="nc">HNil</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">shapeless.HNil</span>
 
@@ -203,7 +205,7 @@ endpoint has type <code class="highlighter-rouge">Endpoint[Seq[String]]</code> a
 specify the custom name for the extractor by calling the <code class="highlighter-rouge">apply</code> method on it. In the example
 below, the string representation of the endpoint <code class="highlighter-rouge">b</code> is <code class="highlighter-rouge">":flag"</code>.</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">boolean</span><span class="o">(</span><span class="s">"flag"</span><span class="o">)</span>
@@ -216,7 +218,7 @@ below, the string representation of the endpoint <code class="highlighter-rouge"
 <p>For every HTTP verb, there is a function <code class="highlighter-rouge">Endpoint[A] =&gt; Endpoint[A]</code> that takes a given endpoint of
 an arbitrary type and enriches it with an additional check/match of the HTTP method/verb.</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">finagle</span><span class="o">.</span><span class="n">http</span><span class="o">.{</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Method</span><span class="o">}</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">finagle</span><span class="o">.</span><span class="n">http</span><span class="o">.{</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Method</span><span class="o">}</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Method</span><span class="o">}</span>
 
@@ -328,12 +330,12 @@ need to deal with:</p>
 
 <ul>
   <li><code class="highlighter-rouge">::</code> that composes two endpoints in terms of the <em>and then</em> combinator into a product endpoint
-<code class="highlighter-rouge">Endpoint[L &lt;: HList]</code> (see <a href="https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.0.0#heterogenous-lists">Shapeless’ HList</a>)</li>
+<code class="highlighter-rouge">Endpoint[L &lt;: HList]</code> (see [Shapeless’ HList][hlist])</li>
   <li><code class="highlighter-rouge">:+:</code> that composes two endpoints of different types in terms of the <em>or else</em> combinator into a
-coproduct endpoint <code class="highlighter-rouge">Endpoint[C &lt;: Coproduct]</code> (see <a href="https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.0.0#coproducts-and-discriminated-unions">Shapeless’ Coproduct</a>)</li>
+coproduct endpoint <code class="highlighter-rouge">Endpoint[C &lt;: Coproduct]</code> (see [Shapeless’ Coproduct][coproduct])</li>
 </ul>
 
-<p>As you may have noticed, Finch heavily uses <a href="https://github.com/milessabin/shapeless">Shapeless</a> to empower its composability in a
+<p>As you may have noticed, Finch heavily uses [Shapeless][shapeless] to empower its composability in a
 type-safe, boilerplate-less way.</p>
 
 <h4 id="product-endpoints">Product Endpoints</h4>
@@ -342,7 +344,7 @@ type-safe, boilerplate-less way.</p>
 <code class="highlighter-rouge">Endpoint[Foo :: Bar :: HNil]</code> returns two values of types <code class="highlighter-rouge">Foo</code> and <code class="highlighter-rouge">Bar</code> wrapped with <code class="highlighter-rouge">HList</code>. To
 build a product endpoint, use the <code class="highlighter-rouge">::</code> combinator.</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">shapeless</span><span class="o">.</span><span class="k">_</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">shapeless</span><span class="o">.</span><span class="k">_</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">shapeless._</span>
 
@@ -361,7 +363,7 @@ endpoint), when applied to the <code class="highlighter-rouge">::</code> combina
 function defined in <code class="highlighter-rouge">Option</code> and <code class="highlighter-rouge">Try</code>: if the first endpoint fails to match the input, it fails
 through to the second one.</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">shapeless</span><span class="o">.</span><span class="k">_</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">shapeless</span><span class="o">.</span><span class="k">_</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">shapeless._</span>
 
@@ -385,7 +387,7 @@ wrapping the right hand side <code class="highlighter-rouge">Output[B]</code> in
 <p>In the following example, an <code class="highlighter-rouge">Endpoint[Int :: Int :: HNil]</code> is mapped to a function
 <code class="highlighter-rouge">(Int, Int) =&gt; Output[Int]</code>.</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">shapeless</span><span class="o">.</span><span class="k">_</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">shapeless</span><span class="o">.</span><span class="k">_</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">shapeless._</span>
 
@@ -400,7 +402,7 @@ wrapping the right hand side <code class="highlighter-rouge">Output[B]</code> in
 <p>There is a special case when <code class="highlighter-rouge">Endpoint[L &lt;: HList]</code> is converted into an endpoint of case class. For
 this purpose, the <code class="highlighter-rouge">Endpoint.as[A]</code> method might be used.</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">shapeless</span><span class="o">.</span><span class="k">_</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">shapeless</span><span class="o">.</span><span class="k">_</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">shapeless._</span>
 
@@ -434,7 +436,7 @@ value is serialized into an HTTP response. There are three cases of <code class=
 
 <p>A simplified version of this ADT is shown below.</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">Output</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">sealed</span> <span class="k">trait</span> <span class="nc">Output</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span>
 <span class="nc">object</span> <span class="nc">Output</span> <span class="o">{</span>
   <span class="k">case</span> <span class="k">class</span> <span class="nc">Payload</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">value</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Output</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span>
   <span class="k">case</span> <span class="k">class</span> <span class="nc">Failure</span><span class="o">(</span><span class="n">cause</span><span class="k">:</span> <span class="kt">Exception</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Output</span><span class="o">[</span><span class="kt">Nothing</span><span class="o">]</span>
@@ -446,7 +448,7 @@ value is serialized into an HTTP response. There are three cases of <code class=
 <p>Having an <code class="highlighter-rouge">Output</code> defined as an ADT allows us to return both payloads and failures from the same
 endpoint depending on the conditional result.</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">divOrFail</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="n">post</span><span class="o">(</span><span class="s">"div"</span> <span class="o">::</span> <span class="n">int</span> <span class="o">::</span> <span class="n">int</span><span class="o">)</span> <span class="o">{</span> <span class="o">(</span><span class="n">a</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">b</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span>
@@ -462,7 +464,7 @@ order to convert an <code class="highlighter-rouge">Endpoint</code> into a Finag
 <code class="highlighter-rouge">Encode[Exception]</code> for a given content-type available in the scope. For example, it might be defined
 in terms of Circe’s <code class="highlighter-rouge">Encoder</code>:</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">circe</span><span class="o">.</span><span class="k">_</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">circe</span><span class="o">.</span><span class="k">_</span>
 
 <span class="k">implicit</span> <span class="k">val</span> <span class="n">encodeException</span><span class="k">:</span> <span class="kt">Encoder</span><span class="o">[</span><span class="kt">Exception</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Encoder</span><span class="o">.</span><span class="n">instance</span><span class="o">(</span><span class="n">e</span> <span class="k">=&gt;</span>
   <span class="nc">Json</span><span class="o">.</span><span class="n">obj</span><span class="o">(</span><span class="s">"message"</span> <span class="o">-&gt;</span> <span class="nc">Json</span><span class="o">.</span><span class="n">fromString</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="n">getMessage</span><span class="o">)))</span>
@@ -487,7 +489,7 @@ compiler. This is done lift the following kind of errors at compile time:</p>
 the way to specify it is to explicitly pass a requested <code class="highlighter-rouge">Content-Type</code> either to a <code class="highlighter-rouge">toServiceAs</code>
 method call (to affect encoding) or <code class="highlighter-rouge">body</code> endpoint creation (to affect decoding).</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Response</span><span class="o">},</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">finagle</span><span class="o">.</span><span class="nc">Service</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="k">_</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Response</span><span class="o">},</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">finagle</span><span class="o">.</span><span class="nc">Service</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="k">_</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Response</span><span class="o">}</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.Service</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
@@ -536,7 +538,7 @@ long as a matching implicit <code class="highlighter-rouge">io.finch.DecodeEntit
 <code class="highlighter-rouge">io.finch.DecodeEntity[Seq[MyType]]</code> for converting a sequence. A decoder for a single item will
 allow you to convert <code class="highlighter-rouge">Option[String]</code> and <code class="highlighter-rouge">Seq[String]</code>, too:</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">param</span><span class="o">(</span><span class="s">"foo"</span><span class="o">).</span><span class="n">as</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span>
@@ -551,10 +553,10 @@ allow you to convert <code class="highlighter-rouge">Option[String]</code> and <
 </div>
 
 <p>The same method <code class="highlighter-rouge">as[A]</code> is also available on any <code class="highlighter-rouge">Endpoint[L &lt;: HList]</code> to perform
-<a href="https://github.com/milessabin/shapeless">Shapeless</a>-powered generic conversions from <code class="highlighter-rouge">HList</code>s to case classes with appropriately
+[Shapeless][shapeless]-powered generic conversions from <code class="highlighter-rouge">HList</code>s to case classes with appropriately
 typed members.</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">case</span> <span class="k">class</span> <span class="nc">Foo</span><span class="o">(</span><span class="n">i</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">s</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
@@ -575,7 +577,7 @@ some type <code class="highlighter-rouge">B</code> (that’s why they have simil
 example shows a decoder for a Joda <code class="highlighter-rouge">DateTime</code> from a <code class="highlighter-rouge">Long</code> representing the number of milliseconds
 since the epoch:</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">com.twitter.util.Try</span>
 <span class="k">import</span> <span class="nn">org.joda.time.DateTime</span>
 
@@ -589,7 +591,7 @@ since the epoch:</p>
 <p>As long as the implicit declared above is in scope, you can then use your custom decoder in the same
 way as any of the built-in decoders (in this case for creating a JodaTime <code class="highlighter-rouge">Interval</code>):</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">case</span> <span class="k">class</span> <span class="nc">Interval</span><span class="o">(</span><span class="n">start</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span> <span class="n">end</span><span class="k">:</span> <span class="kt">Long</span><span class="o">)</span>
@@ -613,7 +615,7 @@ is make the library-specific JSON decoders available for use as a <code class="h
 Circe as an example, you only have to import <code class="highlighter-rouge">io.finch.circe._</code> and have implicit <code class="highlighter-rouge">io.circe.Decoder[A]</code>
 instances in scope:</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">io.finch.circe._</span>
 <span class="k">import</span> <span class="nn">io.circe.Decoder</span><span class="o">,</span><span class="n">io</span><span class="o">.</span><span class="n">circe</span><span class="o">.</span><span class="nc">Encoder</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">circe</span><span class="o">.</span><span class="n">generic</span><span class="o">.</span><span class="n">semiauto</span><span class="o">.</span><span class="k">_</span>
 
@@ -629,7 +631,7 @@ instances in scope:</p>
 <p>Finch will automatically adapt these implicits to its own <code class="highlighter-rouge">io.finch.Decode.Json[Person]</code> type,  so
 that you can use the <code class="highlighter-rouge">jsonBody(Option)</code> endpoints to read the HTTP bodies sent in a JSON format:</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code>     <span class="o">|</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="nc">Buf</span><span class="o">,</span> <span class="nc">Person</span><span class="o">.</span><span class="k">_</span>
+<div class="highlighter-rouge"><pre class="highlight"><code>     <span class="o">|</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="nc">Buf</span><span class="o">,</span> <span class="nc">Person</span><span class="o">.</span><span class="k">_</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">com.twitter.io.Buf</span>
 <span class="k">import</span> <span class="nn">Person._</span>
@@ -638,7 +640,7 @@ that you can use the <code class="highlighter-rouge">jsonBody(Option)</code> end
 <span class="n">p</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="k">=</span> <span class="n">body</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">p</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">post</span><span class="o">(</span><span class="s">"/"</span><span class="o">).</span><span class="n">withBody</span><span class="o">[</span><span class="kt">Application.Json</span><span class="o">](</span><span class="nc">Buf</span><span class="o">.</span><span class="nc">Utf8</span><span class="o">(</span><span class="s">"""{"name":"foo","age":42}"""</span><span class="o">)))</span>
-<span class="n">res16</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"POST /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$14</span><span class="k">@</span><span class="mi">7</span><span class="n">aa5ca7c</span><span class="o">)</span>
+<span class="n">res16</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"POST /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$14</span><span class="k">@</span><span class="mf">7843f</span><span class="n">a4c</span><span class="o">)</span>
 </code></pre>
 </div>
 
@@ -666,8 +668,8 @@ Thus in most of the cases it’s not necessary to make any code changes (except 
 while switching the underlying JSON library.</p>
 
 <p>Finch comes with a rich support of many modern JSON libraries. While it’s totally possible to use
-Finch with runtime reflection based libraries such as <a href="http://wiki.fasterxml.com/JacksonHome">Jackson</a>, it’s highly recommended to
-use compile-time based solutions such as <a href="https://github.com/circe/circe">Circe</a> and <a href="http://argonaut.io">Argonaut</a> instead. When
+Finch with runtime reflection based libraries such as [Jackson][jackson], it’s highly recommended to
+use compile-time based solutions such as [Circe][circe] and [Argonaut][argonaut] instead. When
 starting out, Circe would be the best possible choice as a JSON library due to its great performance
 and a lack of boilerplate.</p>
 
@@ -682,7 +684,7 @@ and a lack of boilerplate.</p>
 <code class="highlighter-rouge">import io.circe.generic.auto_</code>.</li>
 </ul>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch.circe._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch.circe._</span>
 <span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
 </code></pre>
 </div>
@@ -690,17 +692,17 @@ and a lack of boilerplate.</p>
 <p>It’s also possible to import the Circe configuration which uses a pretty printer configured with
 <code class="highlighter-rouge">dropNullValues = true</code>. Use the following imports instead:</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch.circe.dropNullValues._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch.circe.dropNullValues._</span>
 <span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
 </code></pre>
 </div>
 
 <p>Unless it’s absolutely necessary to customize Circe’s output format (i.e., drop null keys), always
-prefer the <a href="https://github.com/circe/circe-jackson">Jackson serializer</a> for <a href="https://github.com/circe/circe-jackson#jackson-vs-jawn">better performance</a>.
+prefer the [Jackson serializer][circe-jackson] for [better performance][circe-jackson-performance].
 The following two imports show how to make Circe use Jackson while serializing instead of the
 built-in pretty printer.</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch.circe.jacksonSerializer._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch.circe.jacksonSerializer._</span>
 <span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
 </code></pre>
 </div>
@@ -713,7 +715,7 @@ built-in pretty printer.</p>
 <code class="highlighter-rouge">argonaut.DecodeJson[A]</code> in the scope.</li>
 </ul>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">argonaut._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">argonaut._</span>
 <span class="k">import</span> <span class="nn">argonaut.Argonaut._</span>
 <span class="k">import</span> <span class="nn">io.finch.argonaut._</span>
 
@@ -751,7 +753,7 @@ most dangerous one due to the level of involvement of the runtime based reflecti
   <li>Make sure there is an implicit instance of <code class="highlighter-rouge">Formats</code> in the scope.</li>
 </ul>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch.json4s._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch.json4s._</span>
 <span class="k">import</span> <span class="nn">org.json4s.DefaultFormats</span>
 
 <span class="k">implicit</span> <span class="k">val</span> <span class="n">formats</span><span class="k">:</span> <span class="kt">Formats</span> <span class="o">=</span> <span class="nc">DefaultFormats</span> <span class="o">++</span> <span class="nc">JodaTimeSerializers</span><span class="o">.</span><span class="n">all</span>
@@ -766,7 +768,7 @@ most dangerous one due to the level of involvement of the runtime based reflecti
 Play JSON <code class="highlighter-rouge">Reads</code> and <code class="highlighter-rouge">Writes</code>.</li>
 </ul>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch.playjson._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch.playjson._</span>
 <span class="k">import</span> <span class="nn">play.api.libs.json._</span>
 
 <span class="k">case</span> <span class="k">class</span> <span class="nc">Foo</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">age</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
@@ -785,7 +787,7 @@ Play JSON <code class="highlighter-rouge">Reads</code> and <code class="highligh
   <li>Create an implicit format convertor value for any type you defined.</li>
 </ul>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch.sprayjson._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch.sprayjson._</span>
 <span class="k">import</span> <span class="nn">spray.json._</span>
 <span class="k">import</span> <span class="nn">Defaultjsonprotocol._</span>
 
@@ -809,7 +811,7 @@ value is non-empty then all validations must succeed for the reader to succeed.<
 
 <p>For validation logic only needed in one place, the most convenient way is to declare it inline:</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="k">case</span> <span class="k">class</span> <span class="nc">User</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">age</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
 
@@ -823,7 +825,7 @@ value is non-empty then all validations must succeed for the reader to succeed.<
 <p>If you perform the same validation logic in multiple endpoints, it is more convenient to declare
 them separately and reuse them wherever needed:</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="k">val</span> <span class="n">bePositive</span> <span class="k">=</span> <span class="nc">ValidationRule</span><span class="o">[</span><span class="kt">Int</span><span class="o">](</span><span class="s">"be positive"</span><span class="o">)</span> <span class="o">{</span> <span class="k">_</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">}</span>
 <span class="k">def</span> <span class="n">beLessThan</span><span class="o">(</span><span class="n">value</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=</span> <span class="nc">ValidationRule</span><span class="o">[</span><span class="kt">Int</span><span class="o">](</span><span class="n">s</span><span class="s">"be less than $value"</span><span class="o">)</span> <span class="o">{</span> <span class="k">_</span> <span class="o">&lt;</span> <span class="n">value</span> <span class="o">}</span>
@@ -887,7 +889,7 @@ endpoint using the similarly named methods:</p>
 
 <p>The following example handles the <code class="highlighter-rouge">ArithmeticException</code> propagated from <code class="highlighter-rouge">a / b</code>.</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">divOrFail</span> <span class="k">=</span> <span class="n">post</span><span class="o">(</span><span class="s">"div"</span> <span class="o">::</span> <span class="n">int</span> <span class="o">::</span> <span class="n">int</span><span class="o">)</span> <span class="o">{</span> <span class="o">(</span><span class="n">a</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">b</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span>
@@ -907,7 +909,7 @@ into 400 responses with their messages serialized according to the rules defined
 <p>Define your own instance if you want to serialize handled exception into a payload of given
 content-type. For example, here is an instance for HTML.</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="nc">Buf</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="nc">Buf</span>
 
 <span class="k">implicit</span> <span class="k">val</span> <span class="n">e</span><span class="k">:</span> <span class="kt">Encode.Aux</span><span class="o">[</span><span class="kt">Exception</span>, <span class="kt">Text.Html</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Encode</span><span class="o">.</span><span class="n">instance</span><span class="o">((</span><span class="n">e</span><span class="o">,</span> <span class="n">cs</span><span class="o">)</span> <span class="k">=&gt;</span>
   <span class="nc">Buf</span><span class="o">.</span><span class="nc">Utf8</span><span class="o">(</span><span class="n">s</span><span class="s">"&lt;h1&gt;Bad thing happened: ${e.getMessage}&lt;h1&gt;"</span><span class="o">)</span>
@@ -917,14 +919,14 @@ content-type. For example, here is an instance for HTML.</p>
 
 <p>Finch used to provide exception encoders from all of its json libraries, but do to some issues 
 with implicit scope that made defining custom encoders difficult, you must now define your own.
-Here is an example Json encoder, that was formerly used in <code class="highlighter-rouge">finch-circe</code>:</p>
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.circe._</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="k">_</span>
+Here is an example Json encoder, that was formerly used in <code class="highlighter-rouge">finch-circe</code>:
+```scala
+import io.circe.<em>, io.finch.</em></p>
 
-<span class="k">implicit</span> <span class="k">val</span> <span class="n">encodeExceptionCirce</span><span class="k">:</span> <span class="kt">Encoder</span><span class="o">[</span><span class="kt">Exception</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Encoder</span><span class="o">.</span><span class="n">instance</span><span class="o">(</span><span class="n">e</span> <span class="k">=&gt;</span>		
-  <span class="nc">Json</span><span class="o">.</span><span class="n">obj</span><span class="o">(</span><span class="s">"message"</span> <span class="o">-&gt;</span> <span class="nc">Option</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="n">getMessage</span><span class="o">).</span><span class="n">fold</span><span class="o">(</span><span class="nc">Json</span><span class="o">.</span><span class="nc">Null</span><span class="o">)(</span><span class="nc">Json</span><span class="o">.</span><span class="n">fromString</span><span class="o">))</span>		
-<span class="o">)</span>
-</code></pre>
-</div>
+<p>implicit val encodeExceptionCirce: Encoder[Exception] = Encoder.instance(e =&gt;		
+  Json.obj(“message” -&gt; Option(e.getMessage).fold(Json.Null)(Json.fromString))		
+)
+```</p>
 
 <p>If no other <code class="highlighter-rouge">Encode[Exception]</code> is available, Finch provides a fallthrough of <code class="highlighter-rouge">Encode.Aux[Exception, ?]</code>
 that will return an empty content body.</p>
@@ -953,7 +955,7 @@ using <code class="highlighter-rouge">circe-streaming</code> library.</p>
 
 <p>Finch plugs in iteratee-powered decoding support via the <code class="highlighter-rouge">io.finch.iteratee.Enumerate</code> type-class:</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">java.nio.charset.Charset</span>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">java.nio.charset.Charset</span>
 <span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
 <span class="k">import</span> <span class="nn">io.iteratee._</span>
 
@@ -971,158 +973,228 @@ using <code class="highlighter-rouge">circe-streaming</code> library.</p>
 </code></pre>
 </div>
 
-<p>Here you can see an example how to work with decoding enumerators:</p>
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.catbird.util._</span>
-<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-<span class="k">import</span> <span class="nn">io.finch.circe._</span>
-<span class="k">import</span> <span class="nn">io.finch.iteratee._</span>
-<span class="k">import</span> <span class="nn">io.iteratee.</span><span class="o">{</span><span class="nc">Enumerator</span><span class="o">,</span> <span class="nc">Iteratee</span><span class="o">}</span>
+<p>Here you can see an example how to work with decoding enumerators:
+```scala
+     | import io.catbird.util.<em>, io.iteratee.{Enumerator, Iteratee}
+import io.catbird.util.</em>
+import io.iteratee.{Enumerator, Iteratee}</p>
 
-<span class="k">case</span> <span class="k">class</span> <span class="nc">Foo</span><span class="o">(</span><span class="n">bar</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
+<p>scala&gt; import io.circe.generic.auto._
+import io.circe.generic.auto._</p>
 
-<span class="cm">/**
-  * Sum stream values together
-  */</span>
-<span class="k">val</span> <span class="n">decodingJSON</span> <span class="k">=</span> <span class="n">post</span><span class="o">(</span><span class="s">"foo"</span> <span class="o">::</span> <span class="n">enumeratorJsonBody</span><span class="o">[</span><span class="kt">Foo</span><span class="o">])</span> <span class="o">{</span> <span class="o">(</span><span class="n">enumerator</span><span class="k">:</span> <span class="kt">Enumerator</span><span class="o">[</span><span class="kt">Future</span>, <span class="kt">Foo</span><span class="o">])</span> <span class="k">=&gt;</span>
-  <span class="k">val</span> <span class="n">enumeratorOfInts</span><span class="k">:</span> <span class="kt">Enumerator</span><span class="o">[</span><span class="kt">Future</span>, <span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="n">enumerator</span><span class="o">.</span><span class="n">through</span><span class="o">(</span><span class="nc">Enumeratee</span><span class="o">.</span><span class="n">map</span><span class="o">[</span><span class="kt">Future</span>, <span class="kt">Foo</span>, <span class="kt">Int</span><span class="o">](</span><span class="k">_</span><span class="o">.</span><span class="n">bar</span><span class="o">))</span>
-  <span class="k">val</span> <span class="n">futureSum</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="n">enumeratorOfInts</span><span class="o">.</span><span class="n">into</span><span class="o">(</span><span class="nc">Iteratee</span><span class="o">.</span><span class="n">fold</span><span class="o">[</span><span class="kt">Future</span>, <span class="kt">Int</span>, <span class="kt">Int</span><span class="o">](</span><span class="mi">0</span><span class="o">)(</span><span class="k">_</span> <span class="o">+</span> <span class="k">_</span><span class="o">))</span>
-  <span class="n">futureSum</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="nc">Ok</span><span class="o">)</span> <span class="c1">//future will be completed when whole stream is folded
-</span><span class="o">}</span>
+<p>scala&gt; import io.finch.<em>, io.finch.circe.</em>, io.finch.iteratee._
+import io.finch._
+import io.finch.circe._
+import io.finch.iteratee._</p>
 
-<span class="c1">// Some async task to store foos.
-</span><span class="k">val</span> <span class="n">storeFoos</span><span class="k">:</span> <span class="kt">Vector</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">Future</span><span class="o">[</span><span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="k">_</span> <span class="k">=&gt;</span> <span class="nc">Future</span><span class="o">.</span><span class="nc">Unit</span>
+<p>scala&gt; import com.twitter.util.Future
+import com.twitter.util.Future</p>
 
-<span class="cm">/**
-  * Backpressure with HTTP 1.1 could be implemented only in a way of closing a connection.
-  * If you don't want to consume more data, you could throw any exception while processing `Enumerator`,
-  * it'll close a connection.
-  *
-  * In this example connection going to be closed as soon as 10 elements has been stored.
-  */</span>
-<span class="k">val</span> <span class="n">backpressureJSON</span> <span class="k">=</span> <span class="n">post</span><span class="o">(</span><span class="s">"bar"</span> <span class="o">::</span> <span class="n">enumeratorJsonBody</span><span class="o">[</span><span class="kt">Foo</span><span class="o">])</span> <span class="o">{</span> <span class="o">(</span><span class="n">enumerator</span><span class="k">:</span> <span class="kt">Enumerator</span><span class="o">[</span><span class="kt">Future</span>, <span class="kt">Foo</span><span class="o">])</span> <span class="k">=&gt;</span>
-  <span class="k">val</span> <span class="n">iteratee</span> <span class="k">=</span> <span class="nc">Iteratee</span><span class="o">.</span><span class="n">take</span><span class="o">[</span><span class="kt">Future</span>, <span class="kt">Foo</span><span class="o">](</span><span class="mi">10</span><span class="o">).</span><span class="n">flatMapM</span> <span class="o">{</span> <span class="o">(</span><span class="n">fs</span><span class="k">:</span> <span class="kt">Vector</span><span class="o">[</span><span class="kt">Foo</span><span class="o">])</span> <span class="k">=&gt;</span> 
-    <span class="c1">// Processing pipeline will be interrupted in the case of an exception
-</span>    <span class="n">storeFoos</span><span class="o">(</span><span class="n">fs</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span> <span class="k">=&gt;</span> <span class="k">throw</span> <span class="k">new</span> <span class="nc">InterruptedException</span><span class="o">)</span>
-  <span class="o">}</span>
-  <span class="n">enumerator</span><span class="o">.</span><span class="n">into</span><span class="o">(</span><span class="n">iteratee</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="nc">Ok</span><span class="o">)</span>
-<span class="o">}</span>
+<p>scala&gt; case class Foo(bar: Int)
+defined class Foo</p>
 
-<span class="cm">/**
-  * You could use `enumeratorBody` if there is no need to decode input stream.
-  * Have in mind that for something except `Buf` one should provide implicit instance 
-  * of `io.finch.iteratee.Enumerate` in scope
-  */</span>
-<span class="k">val</span> <span class="n">bufEnumerator</span> <span class="k">=</span> <span class="n">post</span><span class="o">(</span><span class="s">"text"</span> <span class="o">::</span> <span class="n">enumeratorBody</span><span class="o">[</span><span class="kt">Buf</span>, <span class="kt">Application.OctetStream</span><span class="o">])</span> <span class="o">{</span> <span class="o">(</span><span class="n">enumerator</span><span class="k">:</span> <span class="kt">Enumerator</span><span class="o">[</span><span class="kt">Future</span>, <span class="kt">Buf</span><span class="o">])</span> <span class="k">=&gt;</span>
-  <span class="nc">Ok</span><span class="o">(</span><span class="nc">Buf</span><span class="o">.</span><span class="nc">Empty</span><span class="o">)</span>
-<span class="o">}</span>
+<p>scala&gt; /**
+     |   * Sum stream values together
+     |   */
+     | val decodingJSON = post(“foo” :: enumeratorJsonBody[Foo]) { (enumerator: Enumerator[Future, Foo]) =&gt;
+     |   val enumeratorOfInts: Enumerator[Future, Int] = enumerator.through(Enumeratee.map<a href="_.bar">Future, Foo, Int</a>)
+     |   val futureSum: Future[Int] = enumeratorOfInts.into(Iteratee.fold<a href="0">Future, Int, Int</a>(_ + _))
+     |   futureSum.map(Ok) //future will be completed when whole stream is folded
+     | }
+decodingJSON: io.finch.Endpoint[Int] = POST /foo :: enumeratorJsonBody</p>
 
-<span class="c1">// Http.server
-//     .withStreaming(enabled = true) //don't forget to enable streaming support
-//     .serve(":8080", (decodingJSON :+: backpressureJSON :+: bufEnumerator).toService)
-</span></code></pre>
-</div>
+<p>scala&gt; // Some async task to store foos.
+     | val storeFoos: Vector[Foo] =&gt; Future[Unit] = _ =&gt; Future.Unit
+storeFoos: Vector[Foo] =&gt; com.twitter.util.Future[Unit] = <script type="math/tex">$a5cddfc4633c5dd8aa603ddc4f9aad5</script><script type="math/tex">w</script>Lambda$2297/27645637@1a48e7b2</p>
 
-<p><strong>Encoding</strong></p>
+<p>scala&gt; /**
+     |   * Backpressure with HTTP 1.1 could be implemented only in a way of closing a connection.
+     |   * If you don’t want to consume more data, you could throw any exception while processing <code class="highlighter-rouge">Enumerator</code>,
+     |   * it’ll close a connection.
+     |   *
+     |   * In this example connection going to be closed as soon as 10 elements has been stored.
+     |   */
+     | val backpressureJSON = post(“bar” :: enumeratorJsonBody[Foo]) { (enumerator: Enumerator[Future, Foo]) =&gt;
+     |   val iteratee = Iteratee.take<a href="10">Future, Foo</a>.flatMapM { (fs: Vector[Foo]) =&gt; 
+     |     // Processing pipeline will be interrupted in the case of an exception
+     |     storeFoos(fs).map(_ =&gt; throw new InterruptedException)
+     |   }
+     |   enumerator.into(iteratee).map(Ok)
+     | }</p>
+<console>:188: warning: dead code following this construct
+         enumerator.into(iteratee).map(Ok)
+                                       ^
+backpressureJSON: io.finch.Endpoint[Nothing] = POST /bar :: enumeratorJsonBody
 
-<p>Beside decoding of input stream, it’s possible to make output stream with enumerator serving
-<code class="highlighter-rouge">Endpoint[Enumerator[Future, A]]</code>:</p>
+scala&gt; /**
+     |   * You could use `enumeratorBody` if there is no need to decode input stream.
+     |   * Have in mind that for something except `Buf` one should provide implicit instance 
+     |   * of `io.finch.iteratee.Enumerate` in scope
+     |   */
+     | val bufEnumerator =
+     |   post("text" :: enumeratorBody[Buf, Application.OctetStream]) { buf: Enumerator[Future, Buf] =&gt;
+     |     Ok(Buf.Empty)
+     |   }
+bufEnumerator: io.finch.Endpoint[com.twitter.io.Buf] = POST /text :: enumeratorBody
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.catbird.util._</span>
-<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-<span class="k">import</span> <span class="nn">io.finch.circe._</span>
-<span class="k">import</span> <span class="nn">io.finch.iteratee._</span>
-<span class="k">import</span> <span class="nn">io.iteratee._</span>
+scala&gt; // Http.server
+     | //     .withStreaming(enabled = true) //don't forget to enable streaming support
+     | //     .serve(":8080", (decodingJSON :+: backpressureJSON :+: bufEnumerator).toService)
+```
 
-<span class="k">case</span> <span class="k">class</span> <span class="nc">Foo</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
+**Encoding**
 
-<span class="k">val</span> <span class="n">streamingEndpoint</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Enumerator</span><span class="o">[</span><span class="kt">Future</span>, <span class="kt">Foo</span><span class="o">]]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"stream"</span><span class="o">)</span> <span class="o">{</span>
-  <span class="nc">Ok</span><span class="o">(</span><span class="nc">Enumerator</span><span class="o">.</span><span class="n">enumList</span><span class="o">[</span><span class="kt">Future</span>, <span class="kt">Foo</span><span class="o">](</span><span class="nc">List</span><span class="o">(</span><span class="nc">Foo</span><span class="o">(</span><span class="mi">1</span><span class="o">),</span> <span class="nc">Foo</span><span class="o">(</span><span class="mi">2</span><span class="o">))))</span>
-<span class="o">}</span>
+Beside decoding of input stream, it's possible to make output stream with enumerator serving
+`Endpoint[Enumerator[Future, A]]`:
 
-<span class="c1">// Http.server
+```scala
+import io.catbird.util._, io.iteratee.Enumerator
+import io.circe.generic.auto._
+import io.finch._, io.finch.circe._, io.finch.iteratee._
+
+case class Foo(x: Int)
+
+val streamingEndpoint = get("stream") {
+  Ok(enumList[Foo](List(Foo(1), Foo(2))))
+}
+
+// Http.server
 //     .withStreaming(enabled = true)
 //     .serve(":8080", streamingEndpoint.toService) //with Application.JSON Content-Type it's a JSON nd stream of Foos
-</span></code></pre>
-</div>
+```
 
-<h3 id="testing">Testing</h3>
+### Testing
 
-<p>One of the advantages of typeful endpoints in Finch is that they can be unit-tested independently in
+One of the advantages of typeful endpoints in Finch is that they can be unit-tested independently in
 a way similar to how functions are tested. The machinery is pretty straightforward: an endpoint
-takes an <code class="highlighter-rouge">Input</code> and returns <code class="highlighter-rouge">EndpointResult</code> that could be queried with <code class="highlighter-rouge">await*()</code> methods.</p>
+takes an `Input` and returns `EndpointResult` that could be queried with `await*()` methods.
 
-<p><strong>Building <code class="highlighter-rouge">Input</code>s</strong></p>
+**Building `Input`s**
 
-<p>There is a lightweight API around <code class="highlighter-rouge">Input</code>s to make them easy to build. For example, the following
-builds a <code class="highlighter-rouge">GET /foo?a=1&amp;b=2</code> request:</p>
+There is a lightweight API around `Input`s to make them easy to build. For example, the following
+builds a `GET /foo?a=1&amp;b=2` request:
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code>     <span class="o">|</span> <span class="k">import</span> <span class="nn">io.finch._</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
+```scala
+     | import io.finch._
+import io.finch._
 
-<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">foo</span> <span class="k">=</span> <span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/foo"</span><span class="o">,</span> <span class="s">"a"</span> <span class="o">-&gt;</span> <span class="s">"2"</span><span class="o">,</span> <span class="s">"b"</span> <span class="o">-&gt;</span> <span class="s">"3"</span><span class="o">)</span>
-<span class="n">foo</span><span class="k">:</span> <span class="kt">io.finch.Input</span> <span class="o">=</span> <span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"GET /foo?a=2&amp;b=3"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">(</span><span class="n">foo</span><span class="o">))</span>
-</code></pre>
-</div>
+scala&gt; val foo = Input.get("/foo", "a" -&gt; "2", "b" -&gt; "3")
+foo: io.finch.Input = Input(Request("GET /foo?a=2&amp;b=3", from 0.0.0.0/0.0.0.0:0),List(foo))
+```
 
-<p>Similarly a payload (<code class="highlighter-rouge">application/x-www-form-urlencoded</code> in this case) with headers may be added
-to an input:</p>
+Similarly a payload (`application/x-www-form-urlencoded` in this case) with headers may be added
+to an input:
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
+```scala
+scala&gt; import io.finch._
+import io.finch._
 
-<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">bar</span> <span class="k">=</span> <span class="nc">Input</span><span class="o">.</span><span class="n">post</span><span class="o">(</span><span class="s">"/bar"</span><span class="o">).</span><span class="n">withForm</span><span class="o">(</span><span class="s">"a"</span> <span class="o">-&gt;</span> <span class="s">"1"</span><span class="o">,</span> <span class="s">"b"</span> <span class="o">-&gt;</span> <span class="s">"2"</span><span class="o">).</span><span class="n">withHeaders</span><span class="o">(</span><span class="s">"X-Header"</span> <span class="o">-&gt;</span> <span class="s">"Y"</span><span class="o">)</span>
-<span class="n">bar</span><span class="k">:</span> <span class="kt">io.finch.Input</span> <span class="o">=</span> <span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"POST /bar"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">(</span><span class="n">bar</span><span class="o">))</span>
-</code></pre>
-</div>
+scala&gt; val bar = Input.post("/bar").withForm("a" -&gt; "1", "b" -&gt; "2").withHeaders("X-Header" -&gt; "Y")
+bar: io.finch.Input = Input(Request("POST /bar", from 0.0.0.0/0.0.0.0:0),List(bar))
+```
 
-<p>Additionally, there is JSON-specific support in the <code class="highlighter-rouge">Input</code> API through <code class="highlighter-rouge">withBody</code>.</p>
+Additionally, there is JSON-specific support in the `Input` API through `withBody`.
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.circe.generic.auto._</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="k">_</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="n">circe</span><span class="o">.</span><span class="k">_</span>
-<span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-<span class="k">import</span> <span class="nn">io.finch.circe._</span>
+```scala
+scala&gt; import io.circe.generic.auto._, io.finch._, io.finch.circe._
+import io.circe.generic.auto._
+import io.finch._
+import io.finch.circe._
 
-<span class="n">scala</span><span class="o">&gt;</span> <span class="k">case</span> <span class="k">class</span> <span class="nc">Baz</span><span class="o">(</span><span class="n">m</span><span class="k">:</span> <span class="kt">Map</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">String</span><span class="o">])</span>
-<span class="n">defined</span> <span class="k">class</span> <span class="nc">Baz</span>
+scala&gt; case class Baz(m: Map[String, String])
+defined class Baz
 
-<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">baz</span> <span class="k">=</span> <span class="nc">Input</span><span class="o">.</span><span class="n">put</span><span class="o">(</span><span class="s">"/baz"</span><span class="o">).</span><span class="n">withBody</span><span class="o">[</span><span class="kt">Application.Json</span><span class="o">](</span><span class="nc">Baz</span><span class="o">(</span><span class="nc">Map</span><span class="o">(</span><span class="s">"a"</span> <span class="o">-&gt;</span> <span class="s">"b"</span><span class="o">)))</span>
-<span class="n">baz</span><span class="k">:</span> <span class="kt">io.finch.Input</span> <span class="o">=</span> <span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"PUT /baz"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">(</span><span class="n">baz</span><span class="o">))</span>
-</code></pre>
-</div>
+scala&gt; val baz = Input.put("/baz").withBody[Application.Json](Baz(Map("a" -&gt; "b")))
+baz: io.finch.Input = Input(Request("PUT /baz", from 0.0.0.0/0.0.0.0:0),List(baz))
+```
 
-<p>Note that, assuming UTF-8 as the encoding, which is the default, <code class="highlighter-rouge">application/json;charset=utf-8</code>
-will be added as content type.</p>
+Note that, assuming UTF-8 as the encoding, which is the default, `application/json;charset=utf-8`
+will be added as content type.
 
-<p><strong>Querying <code class="highlighter-rouge">EndpointResult</code>s</strong></p>
+**Querying `EndpointResult`s**
 
-<p>Similarly to the <code class="highlighter-rouge">Input</code> API for testing, <code class="highlighter-rouge">EndpointResult</code> comes with a number of blocking methods
-(prefixed with <code class="highlighter-rouge">await</code>) designed to be used in tests.</p>
+Similarly to the `Input` API for testing, `EndpointResult` comes with a number of blocking methods
+(prefixed with `await`) designed to be used in tests.
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">finagle</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="nc">Status</span>
-<span class="k">import</span> <span class="nn">io.finch._</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
+```scala
+scala&gt; import io.finch._, com.twitter.finagle.http.Status
+import io.finch._
+import com.twitter.finagle.http.Status
 
-<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">divOrFail</span> <span class="k">=</span> <span class="n">post</span><span class="o">(</span><span class="n">int</span> <span class="o">::</span> <span class="n">int</span><span class="o">)</span> <span class="o">{</span> <span class="o">(</span><span class="n">a</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">b</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span>
-     <span class="o">|</span>   <span class="k">if</span> <span class="o">(</span><span class="n">b</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="nc">BadRequest</span><span class="o">(</span><span class="k">new</span> <span class="nc">Exception</span><span class="o">(</span><span class="s">"div by 0"</span><span class="o">))</span>
-     <span class="o">|</span>   <span class="k">else</span> <span class="nc">Ok</span><span class="o">(</span><span class="n">a</span> <span class="o">/</span> <span class="n">b</span><span class="o">)</span>
-     <span class="o">|</span> <span class="o">}</span>
-<span class="n">divOrFail</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="nc">POST</span> <span class="o">/:</span><span class="n">int</span> <span class="o">::</span> <span class="k">:</span><span class="kt">int</span>
+scala&gt; val divOrFail = post(int :: int) { (a: Int, b: Int) =&gt;
+     |   if (b == 0) BadRequest(new Exception("div by 0"))
+     |   else Ok(a / b)
+     | }
+divOrFail: io.finch.Endpoint[Int] = POST /:int :: :int
 
-<span class="n">scala</span><span class="o">&gt;</span> <span class="n">divOrFail</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">post</span><span class="o">(</span><span class="s">"/20/10"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span> <span class="o">==</span> <span class="nc">Some</span><span class="o">(</span><span class="mi">2</span><span class="o">)</span>
-<span class="n">res45</span><span class="k">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="kc">true</span>
+scala&gt; divOrFail(Input.post("/20/10")).awaitValueUnsafe() == Some(2)
+res39: Boolean = true
 
-<span class="n">scala</span><span class="o">&gt;</span> <span class="n">divOrFail</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/20/10"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span> <span class="o">==</span> <span class="nc">None</span>
-<span class="n">res46</span><span class="k">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="kc">true</span>
+scala&gt; divOrFail(Input.get("/20/10")).awaitValueUnsafe() == None
+res40: Boolean = true
 
-<span class="n">scala</span><span class="o">&gt;</span> <span class="n">divOrFail</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">post</span><span class="o">(</span><span class="s">"/20/0"</span><span class="o">)).</span><span class="n">awaitOutputUnsafe</span><span class="o">().</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">status</span><span class="o">)</span> <span class="o">==</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">Status</span><span class="o">.</span><span class="nc">BadRequest</span><span class="o">)</span>
-<span class="n">res47</span><span class="k">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="kc">true</span>
-</code></pre>
-</div>
+scala&gt; divOrFail(Input.post("/20/0")).awaitOutputUnsafe().map(_.status) == Some(Status.BadRequest)
+res41: Boolean = true
+```
 
-<p>You can find unit tests for the examples in the <a href="https://github.com/finagle/finch/tree/master/examples/src/test/scala/io/finch">examples folder</a>.</p>
+You can find unit tests for the examples in the [examples folder][examples].
 
+### Deriving Finagle Services
+
+Ultimately, any Finch program (i.e., endpoint(s)) should be translated into an HTTP service,
+exposable to the outside world.
+
+Finch uses compile-time machinery to derive Finagle HTTP services out of endpoints. `Bootstrap`
+represents an entry point API into this derivation. In a nutshell, `Bootstrap` provides only single
+method: `serve[A, CT &lt;: String]` that takes an endpoint of given type `A` and serves it with a
+content type `CT`.
+
+Bootstrap can also be configured with a `configure` method. At this point, we only support two
+options:
+
+- `includeServerHeader` (enabled by default) and
+- `includeDateHeader` (enabled by default)
+
+
+The quick start example looks fairly straightforward:
+
+```scala
+scala&gt; import io.finch._, io.finch.circe._
+import io.finch._
+import io.finch.circe._
+
+scala&gt; import io.circe.generic.auto._
+import io.circe.generic.auto._
+
+scala&gt; import com.twitter.finagle.Http
+import com.twitter.finagle.Http
+
+scala&gt; val json = get("json") { Ok(Map("foo" -&gt; "bar")) }
+json: io.finch.Endpoint[scala.collection.immutable.Map[String,String]] = GET /json
+
+scala&gt; val text = get("text") { Ok("Hello, World!") }
+text: io.finch.Endpoint[String] = GET /text
+
+scala&gt; val s = Bootstrap.configure(includeServerHeader = false).
+     |   serve[Application.Json](json).
+     |   serve[Text.Plain](text).
+     |   toService
+s: com.twitter.finagle.Service[com.twitter.finagle.http.Request,com.twitter.finagle.http.Response] = <function1>
+```
+
+[shapeless]: https://github.com/milessabin/shapeless
+[hlist]: https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.0.0#heterogenous-lists
+[coproduct]: https://github.com/milessabin/shapeless/wiki/Feature-overview:-shapeless-2.0.0#coproducts-and-discriminated-unions
+[examples]: https://github.com/finagle/finch/tree/master/examples/src/test/scala/io/finch
+[argonaut]: http://argonaut.io
+[jackson]: http://wiki.fasterxml.com/JacksonHome
+[json4s]: http://json4s.org/
+[circe]: https://github.com/circe/circe
+[circe-jackson]: https://github.com/circe/circe-jackson
+[circe-jackson-performance]: https://github.com/circe/circe-jackson#jackson-vs-jawn
+[playjson]: https://www.playframework.com/documentation/2.6.x/ScalaJson
+[spray-json]: https://github.com/spray/spray-json
+</function1></console>
 </section></div></div></div></div><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script><script src="/finch/highlight/highlight.pack.js"></script><script>hljs.configure({
 languages:['scala','java','bash']
 });
