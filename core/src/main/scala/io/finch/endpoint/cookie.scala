@@ -12,11 +12,11 @@ private abstract class Cookie[A](name: String) extends Endpoint[A] {
 
   def apply(input: Input): Endpoint.Result[A] = input.request.cookies.get(name) match {
     case None => EndpointResult.Matched(input, missing(name))
-    case Some(value) =>EndpointResult.Matched(input, present(value))
+    case Some(value) => EndpointResult.Matched(input, present(value))
   }
 
   final override def item: items.RequestItem = items.CookieItem(name)
-  final override def toString: String = s"param($name)"
+  final override def toString: String = s"cookie($name)"
 }
 
 private object Cookie {
