@@ -2,7 +2,6 @@ package io.finch.syntax
 
 import com.twitter.finagle.http.Method
 import io.finch._
-import shapeless.Lazy
 
 class EndpointMapper[A](m: Method, e: Endpoint[A]) extends Endpoint[A] { self =>
 
