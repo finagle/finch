@@ -1,5 +1,6 @@
 package io.finch.syntax
 
+import _root_.scala.annotation.implicitNotFound
 import cats.Id
 import com.twitter.finagle.http.Response
 import io.finch.{Endpoint, Output}
@@ -13,6 +14,18 @@ import shapeless.ops.function.FnToProduct
  * @groupname HighPriorityMapper High priority mapper conversions
  * @groupprio HighPriorityMapper 1
  */
+@implicitNotFound(
+  """"A value you're trying to apply to Endpoint is missing Mapper instance.
+
+  Make sure ${A} is one of the following:
+
+  * A com.twitter.finagle.http.Response or io.finch.Output
+  * A com.twitter.util.Future[Response] (or Output)
+  * A value of type F[Response] (or Output) with implicit `io.finch.syntax.ToTwitterFuture` instance
+  * A function with sufficient amount of arguments that returns one of values above
+
+  See https://github.com/finagle/finch/blob/master/docs/cookbook.md#mapper-syntax
+  """")
 trait Mapper[F, A] {
   type Out
 
@@ -25,20 +38,20 @@ private[finch] trait LowPriorityMapperConversions {
   def instance[F, A, B](fn: (Endpoint[A], => F) => Endpoint[B]): Mapper.Aux[F, A, B] = new Mapper[F, A] {
     type Out = B
 
-    override def apply(f: => F, e: Endpoint[A]): Endpoint[B] = fn(e, f)
+    def apply(f: => F, e: Endpoint[A]): Endpoint[B] = fn(e, f)
   }
 
   /**
     * @group LowPriorityMapper
     */
   implicit def mapperFromOutputFunction[A, B]: Mapper.Aux[A => Output[B], A, B] =
-    instance(_ mapOutput _)
+    instance((e, f) => e.mapOutput(f))
 
   /**
    * @group LowPriorityMapper
    */
   implicit def mapperFromResponseFunction[A]: Mapper.Aux[A => Response, A, Response] =
-    instance(_ mapOutput _.andThen(r => Output.payload(r, r.status)))
+    instance((e, f) => e.mapOutput(f.andThen(r => Output.payload(r, r.status))))
 
   /**
     * @group LowPriorityMapper
@@ -46,7 +59,7 @@ private[finch] trait LowPriorityMapperConversions {
   implicit def mapperFromHOutputFunction[F[_], A, B](implicit
                                                      ttf: ToTwitterFuture[F]
                                                     ): Mapper.Aux[A => F[Output[B]], A, B] =
-    instance(_ mapOutputAsync _.andThen(ttf.apply))
+    instance((e, f) => e.mapOutputAsync(f.andThen(ttf.apply)))
 
   /**
    * @group LowPriorityMapper
@@ -54,7 +67,7 @@ private[finch] trait LowPriorityMapperConversions {
   implicit def mapperFromHResponseFunction[F[_], A](implicit
     ttf: ToTwitterFuture[F]
   ): Mapper.Aux[A => F[Response], A, Response] =
-    instance(_ mapOutputAsync _.andThen(ttf.apply).andThen(fr => fr.map(r => Output.payload(r, r.status))))
+    instance((e, f) => e.mapOutputAsync(f.andThen(ttf.apply).andThen(fr => fr.map(r => Output.payload(r, r.status)))))
 }
 
 private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConversions {
@@ -88,7 +101,7 @@ private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConv
   /**
    * @group HighPriorityMapper
    */
-  implicit def mapperFromResponseValue: Mapper.Aux[Response, HNil, Response] =
+  implicit val mapperFromResponseValue: Mapper.Aux[Response, HNil, Response] =
     instance((e, r) => e.mapOutput(_ => Output.payload(r, r.status)))
 
   /**
