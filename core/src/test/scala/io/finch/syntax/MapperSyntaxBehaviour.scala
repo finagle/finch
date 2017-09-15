@@ -4,15 +4,21 @@ import cats.syntax.functor._
 import com.twitter.finagle.http.Response
 import io.finch._
 import io.finch.{FinchSpec, Text}
-import org.scalacheck.{Arbitrary, Prop}
+import org.scalacheck.Arbitrary
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
 trait MapperSyntaxBehaviour extends FinchSpec with GeneratorDrivenPropertyChecks {
 
-  def endpointMapper[F[_]](implicit ttf: ToTwitterFuture[F]): Unit = {
-    implicit val M = ttf.M
-    implicit val arbResponse: Arbitrary[Response] = Arbitrary(genOutput[String].map(_.toResponse[Text.Plain]))
+  implicit val arbResponse: Arbitrary[Response] = Arbitrary(genOutput[String].map(_.toResponse[Text.Plain]))
 
+  def endpointMapper[F[_]](implicit ttf: ToTwitterFuture[F]): Unit = {
+    valueBehaviour
+    function1behaviour
+    function2behaviour
+  }
+
+  private def valueBehaviour[F[_]](implicit ttf: ToTwitterFuture[F]): Unit = {
+    implicit val M = ttf.M
     it should "map Output value to endpoint" in {
       checkValue((i: String) => get(/) { Ok(i) })
     }
@@ -29,6 +35,10 @@ trait MapperSyntaxBehaviour extends FinchSpec with GeneratorDrivenPropertyChecks
       checkValue((i: Response) => get(/) { M.pure(Ok(i).toResponse[Text.Plain]) })
     }
 
+  }
+
+  private def function1behaviour[F[_]](implicit ttf: ToTwitterFuture[F]): Unit = {
+    implicit val M = ttf.M
     it should "map A => Output function to endpoint" in {
       checkFunction(get(int) { i: Int => Ok(i) })
     }
@@ -44,7 +54,10 @@ trait MapperSyntaxBehaviour extends FinchSpec with GeneratorDrivenPropertyChecks
     it should "map A => F[Response] function to endpoint" in {
       checkFunction(get(int) { i: Int => M.pure(i).map(Ok(_).toResponse[Text.Plain]) })
     }
+  }
 
+  private def function2behaviour[F[_]](implicit ttf: ToTwitterFuture[F]): Unit = {
+    implicit val M = ttf.M
     it should "map (A, B) => Output function to endpoint" in {
       checkFunction2(get(string :: int) { (x: String, y: Int) => Ok(s"$x$y") })
     }
