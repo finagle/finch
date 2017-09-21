@@ -5,7 +5,7 @@ import com.twitter.util.Future
 import io.catbird.util._
 
 /**
-  * Type class for conversion of some HKT (i.e. scala.concurrent.Future) to twitter future
+  * Type class for conversion of some HKT (i.e. `scala.concurrent.Future`) to `com.twitter.util.Future`
   */
 trait ToTwitterFuture[F[_]] {
 
