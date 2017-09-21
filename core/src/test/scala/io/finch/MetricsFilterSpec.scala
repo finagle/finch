@@ -14,7 +14,9 @@ class MetricsFilterSpec extends FinchSpec with OneInstancePerTest {
   private val metricsFilter = new MetricsFilter(inMemoryStats)
 
   private def successfulService: Service[Request, Response] = {
-    metricsFilter.andThen((_: Request) => Future(Response(Status.Ok)))
+    metricsFilter.andThen(new Service[Request, Response] {
+      def apply(request: Request): Future[Response] = Future(Response(Status.Ok))
+    })
   }
 
   private def hello[A](checkStats: InMemoryStatsReceiver  => A) = {
@@ -58,9 +60,9 @@ class MetricsFilterSpec extends FinchSpec with OneInstancePerTest {
   }
 
   it should "count failures if service has failed with exception" in {
-    val service = metricsFilter.andThen((_: Request) =>
-      Future.exception(new IllegalStateException)
-    )
+    val service = metricsFilter.andThen(new Service[Request, Response] {
+      def apply(request: Request): Future[Response] = Future.exception(new IllegalStateException())
+    })
     Try(Await.result(service(Request("/hello"))))
     inMemoryStats.counters(endpoint("failures")) shouldBe 1
   }

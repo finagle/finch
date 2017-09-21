@@ -1,6 +1,7 @@
 package io.finch
 
 import java.util.concurrent.ConcurrentHashMap
+import java.util.function.{Function => JavaFunction}
 
 import com.twitter.finagle.{Service, SimpleFilter}
 import com.twitter.finagle.http.{Request, Response}
@@ -24,12 +25,16 @@ case class MetricsFilter(receiver: StatsReceiver) extends SimpleFilter[Request, 
   /**
     * Get counter by its path. Potentially, create a new one
     */
-  private def counter(name: String*) = counters.computeIfAbsent(name, (t: Seq[String]) => receiver.counter(t: _*))
+  private def counter(name: String*) = counters.computeIfAbsent(name, new JavaFunction[Seq[String], Counter] {
+    def apply(v1: Seq[String]): Counter = receiver.counter(v1: _*)
+  })
 
   /**
     * Get stats by its path. Potentially, create a new one
     */
-  private def stat(name: String*) = stats.computeIfAbsent(name, (t: Seq[String]) => receiver.stat(t: _*))
+  private def stat(name: String*) = stats.computeIfAbsent(name, new JavaFunction[Seq[String], Stat] {
+    def apply(v1: Seq[String]): Stat = receiver.stat(v1: _*)
+  })
 
   /**
     * Store stats for each request/response. Endpoint name is extracted from request path
