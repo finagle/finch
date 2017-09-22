@@ -1,5 +1,6 @@
 package io.finch.syntax
 
+import cats.Monad
 import cats.syntax.functor._
 import com.twitter.finagle.http.Response
 import io.finch._
@@ -11,14 +12,13 @@ trait MapperSyntaxBehaviour extends FinchSpec with GeneratorDrivenPropertyChecks
 
   implicit val arbResponse: Arbitrary[Response] = Arbitrary(genOutput[String].map(_.toResponse[Text.Plain]))
 
-  def endpointMapper[F[_]](implicit ttf: ToTwitterFuture[F]): Unit = {
-    valueBehaviour
-    function1behaviour
-    function2behaviour
+  def endpointMapper[F[_]](implicit ttf: ToTwitterFuture[F], monad: Monad[F]): Unit = {
+    valueBehaviour(ttf, monad)
+    function1behaviour(ttf, monad)
+    function2behaviour(ttf, monad)
   }
 
-  private def valueBehaviour[F[_]](implicit ttf: ToTwitterFuture[F]): Unit = {
-    implicit val M = ttf.M
+  private def valueBehaviour[F[_]](implicit ttf: ToTwitterFuture[F], monad: Monad[F]): Unit = {
     it should "map Output value to endpoint" in {
       checkValue((i: String) => get(/) { Ok(i) })
     }
@@ -28,17 +28,16 @@ trait MapperSyntaxBehaviour extends FinchSpec with GeneratorDrivenPropertyChecks
     }
 
     it should "map F[Output[A]] value to endpoint" in {
-      checkValue((i: String) => get(/) { M.pure(Ok(i)) })
+      checkValue((i: String) => get(/) { Monad[F].pure(Ok(i)) })
     }
 
     it should "map F[Response] value to endpoint" in {
-      checkValue((i: Response) => get(/) { M.pure(Ok(i).toResponse[Text.Plain]) })
+      checkValue((i: Response) => get(/) { Monad[F].pure(Ok(i).toResponse[Text.Plain]) })
     }
 
   }
 
-  private def function1behaviour[F[_]](implicit ttf: ToTwitterFuture[F]): Unit = {
-    implicit val M = ttf.M
+  private def function1behaviour[F[_]](implicit ttf: ToTwitterFuture[F], monad: Monad[F]): Unit = {
     it should "map A => Output function to endpoint" in {
       checkFunction(get(int) { i: Int => Ok(i) })
     }
@@ -48,16 +47,15 @@ trait MapperSyntaxBehaviour extends FinchSpec with GeneratorDrivenPropertyChecks
     }
 
     it should "map A => F[Output[A]] function to endpoint" in {
-      checkFunction(get(int) { i: Int => M.pure(i).map(Ok) })
+      checkFunction(get(int) { i: Int => Monad[F].pure(i).map(Ok) })
     }
 
     it should "map A => F[Response] function to endpoint" in {
-      checkFunction(get(int) { i: Int => M.pure(i).map(Ok(_).toResponse[Text.Plain]) })
+      checkFunction(get(int) { i: Int => Monad[F].pure(i).map(Ok(_).toResponse[Text.Plain]) })
     }
   }
 
-  private def function2behaviour[F[_]](implicit ttf: ToTwitterFuture[F]): Unit = {
-    implicit val M = ttf.M
+  private def function2behaviour[F[_]](implicit ttf: ToTwitterFuture[F], monad: Monad[F]): Unit = {
     it should "map (A, B) => Output function to endpoint" in {
       checkFunction2(get(string :: int) { (x: String, y: Int) => Ok(s"$x$y") })
     }
@@ -67,11 +65,11 @@ trait MapperSyntaxBehaviour extends FinchSpec with GeneratorDrivenPropertyChecks
     }
 
     it should "map (A, B) => F[Output[String]] function to endpoint" in {
-      checkFunction2(get(string :: int) { (x: String, y: Int) => M.pure(Ok(s"$x$y")) })
+      checkFunction2(get(string :: int) { (x: String, y: Int) => Monad[F].pure(Ok(s"$x$y")) })
     }
 
     it should "map (A, B) => F[Response] function to endpoint" in {
-      checkFunction2(get(string :: int) { (x: String, y: Int) => M.pure(Ok(s"$x$y").toResponse[Text.Plain]) })
+      checkFunction2(get(string :: int) { (x: String, y: Int) => Monad[F].pure(Ok(s"$x$y").toResponse[Text.Plain]) })
     }
   }
 
