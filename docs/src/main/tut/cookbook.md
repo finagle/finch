@@ -370,7 +370,7 @@ import com.twitter.util.{Future => TFuture, Promise => TPromise, Return, Throw}
 import scala.concurrent.{Future => SFuture, Promise => SPromise, ExecutionContext}
 import scala.util.{Success, Failure}
 
-implicit class RichTFuture[A](f: TFuture[A]){
+implicit class RichTFuture[A](val f: TFuture[A]) extends AnyVal {
   def asScala(implicit e: ExecutionContext): SFuture[A] = {
     val p: SPromise[A] = SPromise()
     f.respond {
@@ -382,7 +382,7 @@ implicit class RichTFuture[A](f: TFuture[A]){
   }
 }
 
-implicit class RichSFuture[A](f: SFuture[A]) {
+implicit class RichSFuture[A](val f: SFuture[A]) extends AnyVal {
   def asTwitter(implicit e: ExecutionContext): TFuture[A] = {
     val p: TPromise[A] = new TPromise[A]
     f.onComplete {
