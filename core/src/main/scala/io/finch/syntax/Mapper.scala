@@ -7,12 +7,12 @@ import shapeless.HNil
 import shapeless.ops.function.FnToProduct
 
 /**
- * A type class that allows the [[Endpoint]] to be mapped to either `A => B` or `A => Future[B]`.
- * @groupname LowPriorityMapper Low Priority Mapper Conversions
- * @groupprio LowPriorityMapper 0
- * @groupname HighPriorityMapper High priority mapper conversions
- * @groupprio HighPriorityMapper 1
- */
+  * A type class that allows the [[Endpoint]] to be mapped to either `A => B` or `A => Future[B]`.
+  * @groupname LowPriorityMapper Low Priority Mapper Conversions
+  * @groupprio LowPriorityMapper 0
+  * @groupname HighPriorityMapper High priority mapper conversions
+  * @groupprio HighPriorityMapper 1
+  */
 trait Mapper[A] {
   type Out
 
@@ -34,8 +34,8 @@ private[finch] trait LowPriorityMapperConversions {
     instance(_.mapOutput(f))
 
   /**
-   * @group LowPriorityMapper
-   */
+    * @group LowPriorityMapper
+    */
   implicit def mapperFromResponseFunction[A](f: A => Response): Mapper.Aux[A, Response] =
     instance(_.mapOutput(f.andThen(r => Output.payload(r, r.status))))
 
@@ -46,10 +46,11 @@ private[finch] trait LowPriorityMapperConversions {
     instance(_.mapOutputAsync(f))
 
   /**
-   * @group LowPriorityMapper
-   */
+    * @group LowPriorityMapper
+    */
   implicit def mapperFromFutureResponseFunction[A](f: A => Future[Response]): Mapper.Aux[A, Response] =
     instance(_.mapOutputAsync(f.andThen(fr => fr.map(r => Output.payload(r, r.status)))))
+
 }
 
 private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConversions {
@@ -58,31 +59,31 @@ private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConv
     * @group HighPriorityMapper
     */
   implicit def mapperFromOutputHFunction[A, B, F, OB](f: F)(implicit
-    ftp: FnToProduct.Aux[F, A => OB],
-    ev: OB <:< Output[B]
+                                                            ftp: FnToProduct.Aux[F, A => OB],
+                                                            ev: OB <:< Output[B]
   ): Mapper.Aux[A, B] = instance(_.mapOutput(value => ev(ftp(f)(value))))
 
 
   /**
-   * @group HighPriorityMapper
-   */
+    * @group HighPriorityMapper
+    */
   implicit def mapperFromResponseHFunction[A, F, R](f: F)(implicit
-    ftp: FnToProduct.Aux[F, A => R],
-    ev: R <:< Response
+                                                          ftp: FnToProduct.Aux[F, A => R],
+                                                          ev: R <:< Response
   ): Mapper.Aux[A, Response] = instance(_.mapOutput { value =>
     val r = ev(ftp(f)(value))
     Output.payload(r, r.status)
   })
 
   /**
-   * @group HighPriorityMapper
-   */
+    * @group HighPriorityMapper
+    */
   implicit def mapperFromOutputValue[A](o: => Output[A]): Mapper.Aux[HNil, A] =
     instance(_.mapOutput(_ => o))
 
   /**
-   * @group HighPriorityMapper
-   */
+    * @group HighPriorityMapper
+    */
   implicit def mapperFromResponseValue(r: => Response): Mapper.Aux[HNil, Response] =
     instance(_.mapOutput(_ => Output.payload(r, r.status)))
 
@@ -93,23 +94,25 @@ private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConv
     instance(_.mapOutputAsync(_ => o))
 
   /**
-   * @group HighPriorityMapper
-   */
+    * @group HighPriorityMapper
+    */
   implicit def mapperFromFutureResponseValue(fr: => Future[Response]): Mapper.Aux[HNil, Response] =
     instance(_.mapOutputAsync(_ => fr.map(r => Output.payload(r, r.status))))
 }
 
-object Mapper extends HighPriorityMapperConversions {
+private[finch] trait TwitterMapper extends HighPriorityMapperConversions {
   implicit def mapperFromFutureOutputHFunction[A, B, F, FOB](f: F)(implicit
-    ftp: FnToProduct.Aux[F, A => FOB],
-    ev: FOB <:< Future[Output[B]]
+                                                                   ftp: FnToProduct.Aux[F, A => FOB],
+                                                                   ev: FOB <:< Future[Output[B]]
   ): Mapper.Aux[A, B] = instance(_.mapOutputAsync(value => ev(ftp(f)(value))))
 
   implicit def mapperFromFutureResponseHFunction[A, F, FR](f: F)(implicit
-    ftp: FnToProduct.Aux[F, A => FR],
-    ev: FR <:< Future[Response]
+                                                                 ftp: FnToProduct.Aux[F, A => FR],
+                                                                 ev: FR <:< Future[Response]
   ): Mapper.Aux[A, Response] = instance(_.mapOutputAsync { value =>
     val fr = ev(ftp(f)(value))
     fr.map(r => Output.payload(r, r.status))
   })
 }
+
+object Mapper extends TwitterMapper
