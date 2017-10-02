@@ -57,19 +57,19 @@ trait MapperSyntaxSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
 
   private def function2behaviour[F[_]](implicit ttf: ToTwitterFuture[F], monad: Monad[F]): Unit = {
     it should "map (A, B) => Output function to endpoint" in {
-      checkFunction2(get(string :: int) { (x: String, y: Int) => Ok(s"$x$y") })
+      checkFunction2(get(int :: int) { (x: Int, y: Int) => Ok(s"$x$y") })
     }
 
     it should "map (A, B) => Response function to endpoint" in {
-      checkFunction2(get(string :: int) { (x: String, y: Int) => Ok(s"$x$y").toResponse[Text.Plain] })
+      checkFunction2(get(int :: int) { (x: Int, y: Int) => Ok(s"$x$y").toResponse[Text.Plain] })
     }
 
     it should "map (A, B) => F[Output[String]] function to endpoint" in {
-      checkFunction2(get(string :: int) { (x: String, y: Int) => Monad[F].pure(Ok(s"$x$y")) })
+      checkFunction2(get(int :: int) { (x: Int, y: Int) => Monad[F].pure(Ok(s"$x$y")) })
     }
 
     it should "map (A, B) => F[Response] function to endpoint" in {
-      checkFunction2(get(string :: int) { (x: String, y: Int) => Monad[F].pure(Ok(s"$x$y").toResponse[Text.Plain]) })
+      checkFunction2(get(int :: int) { (x: Int, y: Int) => Monad[F].pure(Ok(s"$x$y").toResponse[Text.Plain]) })
     }
   }
 
@@ -90,11 +90,10 @@ trait MapperSyntaxSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
   }
 
   private def checkFunction2(e: Endpoint[_]): Unit = {
-    forAll((x: String, y: Int) => {
+    forAll((x: Int, y: Int) => {
       e(Input.get(s"/$x/$y")).awaitValueUnsafe() match {
         case Some(r: Response) => r.contentString shouldBe s"$x$y"
         case Some(a: String) => a shouldBe s"$x$y"
-
       }
     })
   }
