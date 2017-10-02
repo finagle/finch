@@ -18,6 +18,7 @@ import shapeless._
 abstract class FinchBenchmark {
   val postPayload: Input = Input.post("/").withBody[Text.Plain](Buf.Utf8("x" * 1024))
   val getRoot: Input = Input.get("/")
+  val getOne: Input = Input.get("/1")
   val getFooBarBaz: Input = Input.get("/foo/bar/baz")
   val getTenTwenty: Input = Input.get("/10/20")
   val getTrueFalse: Input = Input.get("/true/false")
@@ -157,6 +158,63 @@ class JsonBenchmark extends FinchBenchmark {
 
   @Benchmark
   def encode: Buf = encodeFoo(foo, StandardCharsets.UTF_8)
+}
+
+@State(Scope.Benchmark)
+class ApplyBenchmark extends FinchBenchmark {
+
+  val responseEndpoint: Endpoint[Response] = get("/")(Response())
+  val outputEndpoint: Endpoint[String] = get("/")(Ok("foo"))
+  val futureResponseEndpoint: Endpoint[Response] = get("/")(Future.value(Response()))
+  val futureOutputEndpoint: Endpoint[String] = get("/")(Future.value(Ok("foo")))
+
+  val function1ResponseEndpoint: Endpoint[Response] = get(int)((_: Int) => Response())
+  val function1OutputEndpoint: Endpoint[String] = get(int)((_: Int) => Ok("foo"))
+  val function1FutureResponseEndpoint: Endpoint[Response] = get(int)((_: Int) => Future.value(Response()))
+  val function1FutureOutputEndpoint: Endpoint[String] = get(int)((_: Int) => Future.value(Ok("foo")))
+
+  val functionNResponseEndpoint: Endpoint[Response] = get(int :: int)((_: Int, _: Int) => Response())
+  val functionNOutputEndpoint: Endpoint[String] = get(int :: int)((_: Int, _: Int) => Ok("foo"))
+  val functionNFutureResponseEndpoint: Endpoint[Response] = get(int :: int)((_: Int, _: Int) =>
+    Future.value(Response())
+  )
+  val functionNFutureOutputEndpoint: Endpoint[String] = get(int :: int)((_: Int, _: Int) => Future.value(Ok("foo")))
+
+  @Benchmark
+  def response: Endpoint.Result[Response] = responseEndpoint(getRoot)
+
+  @Benchmark
+  def output: Endpoint.Result[String] = outputEndpoint(getRoot)
+
+  @Benchmark
+  def futureResponse: Endpoint.Result[Response] = futureResponseEndpoint(getRoot)
+
+  @Benchmark
+  def futureOutput: Endpoint.Result[String] = futureOutputEndpoint(getRoot)
+
+  @Benchmark
+  def function1Response: Endpoint.Result[Response] = function1ResponseEndpoint(getOne)
+
+  @Benchmark
+  def function1Output: Endpoint.Result[String] = function1OutputEndpoint(getOne)
+
+  @Benchmark
+  def function1FutureResponse: Endpoint.Result[Response] = function1FutureResponseEndpoint(getOne)
+
+  @Benchmark
+  def function1FutureOutput: Endpoint.Result[String] = function1FutureOutputEndpoint(getOne)
+
+  @Benchmark
+  def functionNResponse: Endpoint.Result[Response] = functionNResponseEndpoint(getTenTwenty)
+
+  @Benchmark
+  def functionNOutput: Endpoint.Result[String] = functionNOutputEndpoint(getOne)
+
+  @Benchmark
+  def functionNFutureResponse: Endpoint.Result[Response] = functionNFutureResponseEndpoint(getOne)
+
+  @Benchmark
+  def functionNFutureOutput: Endpoint.Result[String] = functionNFutureOutputEndpoint(getOne)
 }
 
 @State(Scope.Benchmark)
