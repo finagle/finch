@@ -7,10 +7,8 @@ import com.twitter.util.{Future, Promise}
 import io.finch.syntax.ToTwitterFuture
 
 trait ScalaToTwitterFuture {
-
-  implicit def scalaToTwitterFuture(implicit ec: ExecutionContext): ToTwitterFuture[ScalaFuture] = {
+  implicit def scalaToTwitterFuture(implicit ec: ExecutionContext): ToTwitterFuture[ScalaFuture] =
     new ToTwitterFuture[ScalaFuture] {
-
       def apply[A](f: ScalaFuture[A]): Future[A] = {
         val p = Promise[A]
         f.onComplete {
@@ -19,8 +17,5 @@ trait ScalaToTwitterFuture {
         }
         p
       }
-
     }
-  }
-
 }
