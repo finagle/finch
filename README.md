@@ -116,6 +116,16 @@ Adopters
 * [RelinkLabs](https://relinklabs.com/)
 * *Submit a pull-request to include your company/project into the list*
 
+Related Projects
+----------------
+
+* [Finch Template](https://github.com/redbubble/finch-template): A Redbubble approach to building services with Finch
+* [Finch Server](https://github.com/BenWhitehead/finch-server): Finch's integration into TwitterServer
+* [Finch Sangria](https://github.com/redbubble/finch-sangria): Finch's GraphQL support
+* [Finch Demo](https://github.com/slouc/finch-demo): Community-maintained Finch user guide
+* [Finch Rich](https://github.com/akozhemiakin/finchrich): Macro-based controllers for Finch
+* [Finch Quckstart](https://github.com/zdavep/finch-quickstart): A skeleton Finch project
+
 Contributing
 ------------
 There are plenty of ways to contribute into Finch:
