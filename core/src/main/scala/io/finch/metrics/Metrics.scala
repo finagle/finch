@@ -30,7 +30,7 @@ trait Metrics {
   /**
     * Count size of a response
     */
-  def size(path: String, s: Float): Unit
+  def size(path: String, code: Int, s: Float): Unit
 
 }
 
@@ -43,7 +43,7 @@ object Metrics {
 
     def failureTime(path: String, e: Throwable, duration: Float): Unit = ()
 
-    def size(path: String, s: Float): Unit = ()
+    def size(path: String, code: Int, s: Float): Unit = ()
 
     def countSuccess(path: String, code: Int): Unit = ()
 

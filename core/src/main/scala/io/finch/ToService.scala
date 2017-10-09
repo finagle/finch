@@ -117,7 +117,7 @@ object ToService {
             val now = Stopwatch.timeMillis().toFloat
             metrics.countSuccess(path, response.statusCode)
             metrics.successTime(path, response.statusCode, now - start)
-            metrics.size(path, response.content.length.toFloat)
+            metrics.size(path, response.statusCode, response.content.length.toFloat)
           }).onFailure(e => {
             val now = Stopwatch.timeMillis().toFloat
             metrics.countFailure(path, e)
