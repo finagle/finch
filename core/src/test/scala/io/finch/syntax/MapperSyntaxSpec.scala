@@ -39,37 +39,39 @@ trait MapperSyntaxSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
 
   private def function1behaviour[F[_]](implicit ttf: ToTwitterFuture[F], monad: Monad[F]): Unit = {
     it should "map A => Output function to endpoint" in {
-      checkFunction(get(int) { i: Int => Ok(i) })
+      checkFunction(get(path[Int]) { i: Int => Ok(i) })
     }
 
     it should "map A => Response function to endpoint" in {
-      checkFunction(get(int) { i: Int => Ok(i).toResponse[Text.Plain] })
+      checkFunction(get(path[Int]) { i: Int => Ok(i).toResponse[Text.Plain] })
     }
 
     it should "map A => F[Output[A]] function to endpoint" in {
-      checkFunction(get(int) { i: Int => Monad[F].pure(i).map(Ok) })
+      checkFunction(get(path[Int]) { i: Int => Monad[F].pure(i).map(Ok) })
     }
 
     it should "map A => F[Response] function to endpoint" in {
-      checkFunction(get(int) { i: Int => Monad[F].pure(i).map(Ok(_).toResponse[Text.Plain]) })
+      checkFunction(get(path[Int]) { i: Int => Monad[F].pure(i).map(Ok(_).toResponse[Text.Plain]) })
     }
   }
 
   private def function2behaviour[F[_]](implicit ttf: ToTwitterFuture[F], monad: Monad[F]): Unit = {
     it should "map (A, B) => Output function to endpoint" in {
-      checkFunction2(get(int :: int) { (x: Int, y: Int) => Ok(s"$x$y") })
+      checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) => Ok(s"$x$y") })
     }
 
     it should "map (A, B) => Response function to endpoint" in {
-      checkFunction2(get(int :: int) { (x: Int, y: Int) => Ok(s"$x$y").toResponse[Text.Plain] })
+      checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) => Ok(s"$x$y").toResponse[Text.Plain] })
     }
 
     it should "map (A, B) => F[Output[String]] function to endpoint" in {
-      checkFunction2(get(int :: int) { (x: Int, y: Int) => Monad[F].pure(Ok(s"$x$y")) })
+      checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) => Monad[F].pure(Ok(s"$x$y")) })
     }
 
     it should "map (A, B) => F[Response] function to endpoint" in {
-      checkFunction2(get(int :: int) { (x: Int, y: Int) => Monad[F].pure(Ok(s"$x$y").toResponse[Text.Plain]) })
+      checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
+        Monad[F].pure(Ok(s"$x$y").toResponse[Text.Plain])
+      })
     }
   }
 
