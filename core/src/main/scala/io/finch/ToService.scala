@@ -74,6 +74,11 @@ object ToService {
     rep
   }
 
+  private def withPathContext(e: Endpoint[_])(rep: Response): Response = {
+    rep.ctx.updateAndLock(FinchContext.PathField, e.toString)
+    rep
+  }
+
   implicit val hnilTS: ToService[HNil, HNil] = new ToService[HNil, HNil] {
     def apply(
         endpoints: HNil,
@@ -104,7 +109,7 @@ object ToService {
           req.version,
           includeDateHeader,
           includeServerHeader
-        )).run
+        )).run.onSuccess(withPathContext(underlying))
 
         case _ => tsT(endpoints.tail, includeDateHeader, includeServerHeader)(req)
       }
