@@ -332,7 +332,7 @@ val headers = get("hello" :: headersAll) {headers: Map[String, String] =>
   Ok(s"Headers: $headers")
 }
 
-headers(Input.get("/").withHeaders("foo" -> "bar")).awaitValueUnsafe()
+headers(Input.get("/hello").withHeaders("foo" -> "bar")).awaitValueUnsafe()
 ```
 
 ### CORS in Finch

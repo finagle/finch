@@ -582,10 +582,10 @@ import io.circe.generic.auto._
 ```
 
 It's also possible to import the Circe configuration which uses a pretty printer configured with
-`dropNullValues = true`. Use the following imports instead:
+`dropNullKeys = true`. Use the following imports instead:
 
 ```tut:silent
-import io.finch.circe.dropNullValues._
+import io.finch.circe.dropNullKeys._
 import io.circe.generic.auto._
 ```
 

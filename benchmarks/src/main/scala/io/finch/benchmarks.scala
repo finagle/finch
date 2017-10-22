@@ -64,28 +64,28 @@ class MatchPathBenchmark extends FinchBenchmark {
 @State(Scope.Benchmark)
 class ExtractPathBenchmark extends FinchBenchmark {
   @Benchmark
-  def stringSome: Option[String] = string(getFooBarBaz).awaitValueUnsafe()
+  def stringSome: Option[String] = path[String].apply(getFooBarBaz).awaitValueUnsafe()
 
   @Benchmark
-  def stringNone: Option[String] = string(getRoot).awaitValueUnsafe()
+  def stringNone: Option[String] = path[String].apply(getRoot).awaitValueUnsafe()
 
   @Benchmark
-  def longSome: Option[Long] = long(getTenTwenty).awaitValueUnsafe()
+  def longSome: Option[Long] = path[Long].apply(getTenTwenty).awaitValueUnsafe()
 
   @Benchmark
-  def longNone: Option[Long] = long(getFooBarBaz).awaitValueUnsafe()
+  def longNone: Option[Long] = path[Long].apply(getFooBarBaz).awaitValueUnsafe()
 
   @Benchmark
-  def intSome: Option[Int] = int(getTenTwenty).awaitValueUnsafe()
+  def intSome: Option[Int] = path[Int].apply(getTenTwenty).awaitValueUnsafe()
 
   @Benchmark
-  def intNone: Option[Int] = int(getFooBarBaz).awaitValueUnsafe()
+  def intNone: Option[Int] = path[Int].apply(getFooBarBaz).awaitValueUnsafe()
 
   @Benchmark
-  def booleanSome: Option[Boolean] = boolean(getTrueFalse).awaitValueUnsafe()
+  def booleanSome: Option[Boolean] = path[Boolean].apply(getTrueFalse).awaitValueUnsafe()
 
   @Benchmark
-  def booleanNone: Option[Boolean] = boolean(getTenTwenty).awaitValueUnsafe()
+  def booleanNone: Option[Boolean] = path[Boolean].apply(getTenTwenty).awaitValueUnsafe()
 }
 
 @State(Scope.Benchmark)

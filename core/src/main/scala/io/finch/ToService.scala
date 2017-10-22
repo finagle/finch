@@ -28,7 +28,7 @@ import shapeless._
   * A value of a type with an io.finch.Encode instance (with the corresponding content-type)
   * A coproduct made up of some combination of the above
 
-  See https://github.com/finagle/finch/blob/master/docs/cookbook.md#fixing-the-toservice-compile-error
+  See https://github.com/finagle/finch/blob/master/docs/src/main/tut/cookbook.md#fixing-the-toservice-compile-error
 """
 )
 trait ToService[ES <: HList, CTS <: HList] {

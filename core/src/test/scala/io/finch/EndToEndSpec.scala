@@ -15,7 +15,7 @@ class EndToEndSpec extends FinchSpec {
       Encode.text((_, cs) => Buf.ByteArray.Owned("ERR!".getBytes(cs.name)))
 
     val service: Service[Request, Response] = (
-      get("foo" :: string) { s: String => Ok(Foo(s)) } :+:
+      get("foo" :: path[String]) { s: String => Ok(Foo(s)) } :+:
       get("bar") { Created("bar") } :+:
       get("baz") { BadRequest(new IllegalArgumentException("foo")): Output[Unit] } :+:
       get("qux" :: param("foo").as[Foo]) { f: Foo => Created(f) }

@@ -25,20 +25,20 @@ class EndpointSpec extends FinchSpec {
 
   it should "support very basic map" in {
     check { i: Input =>
-      string.map(_ * 2)(i).awaitValueUnsafe() === i.route.headOption.map(_ * 2)
+      path[String].map(_ * 2)(i).awaitValueUnsafe() === i.route.headOption.map(_ * 2)
     }
   }
 
   it should "support transform" in {
     check { i: Input =>
       val fn = (fs: Future[Output[String]]) => fs.map(_.map(_ * 2))
-      string.transform(fn)(i).awaitValueUnsafe() === i.route.headOption.map(_ * 2)
+      path[String].transform(fn)(i).awaitValueUnsafe() === i.route.headOption.map(_ * 2)
     }
   }
 
   it should "propagate the default (Ok) output" in {
     check { i: Input =>
-      string(i).awaitOutputUnsafe() === i.route.headOption.map(s => Ok(s))
+      path[String].apply(i).awaitOutputUnsafe() === i.route.headOption.map(s => Ok(s))
     }
   }
 
@@ -46,8 +46,8 @@ class EndpointSpec extends FinchSpec {
     check { i: Input =>
       val expected = i.route.headOption.map(s => Ok(s.length))
 
-      string.map(s => s.length)(i).awaitOutputUnsafe() === expected &&
-      string.mapAsync(s => Future.value(s.length))(i).awaitOutputUnsafe() === expected
+      path[String].map(s => s.length)(i).awaitOutputUnsafe() === expected &&
+      path[String].mapAsync(s => Future.value(s.length))(i).awaitOutputUnsafe() === expected
     }
   }
 
@@ -58,7 +58,7 @@ class EndpointSpec extends FinchSpec {
         .withCookie(new Cookie("C", "D"))
 
     check { i: Input =>
-      string.mapOutputAsync(s => Future.value(expected(s.length)))(i).awaitOutputUnsafe() ===
+      path[String].mapOutputAsync(s => Future.value(expected(s.length)))(i).awaitOutputUnsafe() ===
         i.route.headOption.map(s => expected(s.length))
     }
 
@@ -67,7 +67,7 @@ class EndpointSpec extends FinchSpec {
         .map(s => path(s))
         .foldLeft[Endpoint[HNil]](/)((acc, ee) => acc :: ee)
 
-      val v = (e :: string).mapOutputAsync(s => Future.value(expected(s.length)))(i)
+      val v = (e :: path[String]).mapOutputAsync(s => Future.value(expected(s.length)))(i)
       v.awaitOutputUnsafe() === i.route.lastOption.map(s => expected(s.length))
     }
   }
@@ -169,20 +169,20 @@ class EndpointSpec extends FinchSpec {
 
     *.toString shouldBe "*"
     /.toString shouldBe ""
-    int.toString shouldBe ":int"
-    string.toString shouldBe ":string"
-    long.toString shouldBe ":long"
-    uuid.toString shouldBe ":uuid"
-    boolean.toString shouldBe ":boolean"
+    path[Int].toString shouldBe ":int"
+    path[String].toString shouldBe ":string"
+    path[Long].toString shouldBe ":long"
+    path[UUID].toString shouldBe ":uuid"
+    path[Boolean].toString shouldBe ":boolean"
 
-    ints.toString shouldBe ":int*"
-    strings.toString shouldBe ":string*"
-    longs.toString shouldBe ":long*"
-    uuids.toString shouldBe ":uuid*"
-    booleans.toString shouldBe ":boolean*"
+    paths[Int].toString shouldBe ":int*"
+    paths[String].toString shouldBe ":string*"
+    paths[Long].toString shouldBe ":long*"
+    paths[UUID].toString shouldBe ":uuid*"
+    paths[Boolean].toString shouldBe ":boolean*"
 
-    (int :: string).toString shouldBe ":int :: :string"
-    (boolean :+: long).toString shouldBe "(:boolean :+: :long)"
+    (path[Int] :: path[String]).toString shouldBe ":int :: :string"
+    (path[Boolean] :+: path[Long]).toString shouldBe "(:boolean :+: :long)"
   }
 
   it should "always respond with the same output if it's a constant Endpoint" in {
@@ -201,7 +201,7 @@ class EndpointSpec extends FinchSpec {
   it should "support the as[A] method" in {
     case class Foo(s: String, i: Int, b: Boolean)
 
-    val foo = (string :: int :: boolean).as[Foo]
+    val foo = (path[String] :: path[Int] :: path[Boolean]).as[Foo]
 
     check { (s: String, i: Int, b: Boolean) =>
       foo(Input(emptyRequest, Seq(s, i.toString, b.toString))).awaitValueUnsafe() ===

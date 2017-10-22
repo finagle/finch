@@ -78,7 +78,7 @@ private[finch] trait Paths {
   /**
    * A matching [[Endpoint]] that reads a string value from the current path segment.
    */
-  @deprecated("Use path[Long] instead", "0.16")
+  @deprecated("Use path[String] instead", "0.16")
   val string: Endpoint[String] = path[String]
 
   /**
