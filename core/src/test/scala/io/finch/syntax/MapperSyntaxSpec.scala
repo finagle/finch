@@ -70,7 +70,8 @@ trait MapperSyntaxSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
 
     it should "map (A, B) => F[Response] function to endpoint" in {
       checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
-        Monad[F].pure(Ok(s"$x$y").toResponse[Text.Plain]) })
+        Monad[F].pure(Ok(s"$x$y").toResponse[Text.Plain])
+      })
     }
   }
 
