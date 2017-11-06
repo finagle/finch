@@ -8,10 +8,10 @@ lazy val buildSettings = Seq(
 )
 
 lazy val finagleVersion = "17.10.0"
-lazy val twitterServerVersion = "1.32.0"
+lazy val twitterServerVersion = "17.10.0"
 lazy val circeVersion = "0.9.0-M1"
 lazy val circeJacksonVersion = "0.9.0-M1"
-lazy val catbirdVersion = "0.18.0"
+lazy val catbirdVersion = "0.19.0"
 lazy val shapelessVersion = "2.3.2"
 lazy val catsVersion = "1.0.0-MF"
 lazy val sprayVersion = "1.3.3"
@@ -19,7 +19,7 @@ lazy val playVersion = "2.6.6"
 lazy val jacksonVersion = "2.8.8"
 lazy val argonautVersion = "6.2"
 lazy val json4sVersion = "3.5.2"
-lazy val iterateeVersion = "0.13.0"
+lazy val iterateeVersion = "0.14.0"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
