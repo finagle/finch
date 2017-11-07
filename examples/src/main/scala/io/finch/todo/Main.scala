@@ -86,7 +86,7 @@ object Main extends TwitterServer {
   }).toServiceAs[Application.Json]
 
   def main(): Unit = {
-    log.info("Serving the Todo application")
+    println("Serving the Todo application") //scalastyle:ignore
 
     val server = Http.server
       .withStatsReceiver(statsReceiver)
