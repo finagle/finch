@@ -3,8 +3,8 @@ package io.finch.circe
 import com.twitter.util.{Future, Return, Throw, Try}
 import io.catbird.util._
 import io.circe.Decoder
+import io.circe.iteratee._
 import io.circe.jawn._
-import io.circe.streaming._
 import io.finch.{Application, Decode}
 import io.finch.internal.HttpContent
 import io.finch.iteratee.Enumerate
