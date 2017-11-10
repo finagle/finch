@@ -2,7 +2,6 @@ package io.finch
 
 import java.nio.charset.Charset
 
-import cats.Eq
 import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._

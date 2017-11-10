@@ -2,7 +2,7 @@ import microsites.ExtraMdFileConfig
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  version := "0.16.0-M3",
+  version := "0.16.0-M4",
   scalaVersion := "2.12.4",
   crossScalaVersions := Seq("2.11.11", "2.12.4")
 )

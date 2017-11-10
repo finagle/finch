@@ -86,6 +86,7 @@ trait MapperSyntaxSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
       e(Input.get(s"/$input")).awaitValueUnsafe() match {
         case Some(r: Response) => r.contentString shouldBe input.toString
         case Some(a: Int) => a shouldBe input
+        case _ => ()
       }
     })
   }
@@ -95,6 +96,7 @@ trait MapperSyntaxSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
       e(Input.get(s"/$x/$y")).awaitValueUnsafe() match {
         case Some(r: Response) => r.contentString shouldBe s"$x$y"
         case Some(a: String) => a shouldBe s"$x$y"
+        case _ => ()
       }
     })
   }
