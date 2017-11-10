@@ -9,8 +9,8 @@ import cats.laws.discipline._
 import com.twitter.io.Buf
 import com.twitter.util._
 import io.circe.{Decoder, Encoder}
+import io.circe.iteratee._
 import io.circe.jawn
-import io.circe.streaming._
 import io.finch._
 import io.finch.internal.HttpContent
 import io.finch.iteratee.Enumerate

@@ -3,23 +3,24 @@ import microsites.ExtraMdFileConfig
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   version := "0.16.0-M3",
-  scalaVersion := "2.12.3",
-  crossScalaVersions := Seq("2.11.11", "2.12.3")
+  scalaVersion := "2.12.4",
+  crossScalaVersions := Seq("2.11.11", "2.12.4")
 )
 
 lazy val finagleVersion = "17.10.0"
 lazy val twitterServerVersion = "17.10.0"
-lazy val circeVersion = "0.9.0-M1"
-lazy val circeJacksonVersion = "0.9.0-M1"
-lazy val catbirdVersion = "0.19.0"
+lazy val circeVersion = "0.9.0-M2"
+lazy val circeIterateeVersion = "0.9.0-M3"
+lazy val circeJacksonVersion = "0.9.0-M2"
+lazy val catbirdVersion = "0.20.0"
 lazy val shapelessVersion = "2.3.2"
-lazy val catsVersion = "1.0.0-MF"
+lazy val catsVersion = "1.0.0-RC1"
 lazy val sprayVersion = "1.3.3"
 lazy val playVersion = "2.6.6"
 lazy val jacksonVersion = "2.8.8"
 lazy val argonautVersion = "6.2"
 lazy val json4sVersion = "3.5.2"
-lazy val iterateeVersion = "0.14.0"
+lazy val iterateeVersion = "0.15.0"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -216,7 +217,7 @@ lazy val jsonTest = project.in(file("json-test"))
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-jawn" % circeVersion,
-      "io.circe" %% "circe-streaming" % circeVersion
+      "io.circe" %% "circe-iteratee" % circeIterateeVersion
     ) ++ testDependencies
   )
   .dependsOn(core, iteratee)
@@ -253,7 +254,7 @@ lazy val circe = project
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % circeVersion,
-      "io.circe" %% "circe-streaming" % circeVersion,
+      "io.circe" %% "circe-iteratee" % circeIterateeVersion,
       "io.circe" %% "circe-jawn" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion % "test",
       "io.circe" %% "circe-jackson28" % circeJacksonVersion

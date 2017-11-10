@@ -808,7 +808,7 @@ that will return an empty content body.
 ### Streaming
 
 The `finch-iteratee` module enables high-level support of chunked request and response streaming using
-[iteratee.io](https://github.com/travisbrown/iteratee) and `circe-streaming` libraries. It allows encoding and decoding
+[iteratee.io](https://github.com/travisbrown/iteratee) and `circe-iteratee` libraries. It allows encoding and decoding
 newline delimited JSON streams, but also supports binary and text streaming.  
 Concept of [iteratee](https://en.wikipedia.org/wiki/Iteratee) could be complicated for understanding, but
 proves itself very powerful and useful abstraction over processing sequential data. The API of `iteratee.io` library 
@@ -823,7 +823,7 @@ Main points:
 **Decoding**
 
 Currently JSON decoding is supported only in `finch-circe` module and implemented
-using `circe-streaming` library.
+using `circe-iteratee` library.
 
 Finch plugs in iteratee-powered decoding support via the `io.finch.iteratee.Enumerate` type-class:
 
