@@ -36,7 +36,7 @@ import shapeless.ops.hlist.Tupler
  *   case class Bar(s: String)
  *
  *   val foo: Endpoint[Foo] = get("foo") { Ok(Foo(42)) }
- *   val bar: Endpoint[Bar] = get("bar" :: string) { s: String => Ok(Bar(s)) }
+ *   val bar: Endpoint[Bar] = get("bar" :: path[String]) { s: String => Ok(Bar(s)) }
  * }}}
  *
  * `Endpoint`s are also composable in terms of or-else combinator (known as a "space invader"
@@ -163,7 +163,7 @@ trait Endpoint[A] { self =>
         case (aa: Error, bb: Error) => Errors(NonEmptyList.of(aa, bb))
         case (aa: Error, Errors(bs)) => Errors(aa :: bs)
         case (Errors(as), bb: Error) => Errors(bb :: as)
-        case (Errors(as), Errors(bs)) => Errors(as.concat(bs))
+        case (Errors(as), Errors(bs)) => Errors(as.concatNel(bs))
         case (_: Error, _) => b // we fail-fast with first non-Error observed
         case (_: Errors, _) => b // we fail-fast with first non-Error observed
         case _ => a
