@@ -330,8 +330,8 @@ following:</p>
      <span class="o">|</span> <span class="o">}</span>
 <span class="n">headers</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">GET</span> <span class="o">/</span><span class="n">hello</span> <span class="o">::</span> <span class="n">root</span>
 
-<span class="n">scala</span><span class="o">&gt;</span> <span class="n">headers</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">).</span><span class="n">withHeaders</span><span class="o">(</span><span class="s">"foo"</span> <span class="o">-&gt;</span> <span class="s">"bar"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span>
-<span class="n">res31</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">None</span>
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">headers</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/hello"</span><span class="o">).</span><span class="n">withHeaders</span><span class="o">(</span><span class="s">"foo"</span> <span class="o">-&gt;</span> <span class="s">"bar"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span>
+<span class="n">res31</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">Headers</span><span class="k">:</span> <span class="kt">Map</span><span class="o">(</span><span class="kt">foo</span> <span class="kt">-&gt;</span> <span class="kt">bar</span><span class="o">))</span>
 </code></pre>
 </div>
 
@@ -369,7 +369,7 @@ because of a couple of functions which are fairly easy to implement.</p>
 <span class="k">import</span> <span class="nn">scala.concurrent.</span><span class="o">{</span><span class="nc">Future</span> <span class="k">=&gt;</span> <span class="nc">SFuture</span><span class="o">,</span> <span class="nc">Promise</span> <span class="k">=&gt;</span> <span class="nc">SPromise</span><span class="o">,</span> <span class="nc">ExecutionContext</span><span class="o">}</span>
 <span class="k">import</span> <span class="nn">scala.util.</span><span class="o">{</span><span class="nc">Success</span><span class="o">,</span> <span class="nc">Failure</span><span class="o">}</span>
 
-<span class="k">implicit</span> <span class="k">class</span> <span class="nc">RichTFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">TFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">]){</span>
+<span class="k">implicit</span> <span class="k">class</span> <span class="nc">RichTFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">TFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">])</span> <span class="o">{</span>
   <span class="k">def</span> <span class="n">asScala</span><span class="o">(</span><span class="k">implicit</span> <span class="n">e</span><span class="k">:</span> <span class="kt">ExecutionContext</span><span class="o">)</span><span class="k">:</span> <span class="kt">SFuture</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
     <span class="k">val</span> <span class="n">p</span><span class="k">:</span> <span class="kt">SPromise</span><span class="o">[</span><span class="kt">A</span><span class="o">]</span> <span class="k">=</span> <span class="nc">SPromise</span><span class="o">()</span>
     <span class="n">f</span><span class="o">.</span><span class="n">respond</span> <span class="o">{</span>
@@ -392,6 +392,19 @@ because of a couple of functions which are fairly easy to implement.</p>
     <span class="n">p</span>
   <span class="o">}</span>
 <span class="o">}</span>
+</code></pre>
+</div>
+
+<p>Also note that as of <a href="https://github.com/finagle/finch/releases/tag/0.16.0-M3">Finch 0.16-M3</a> there
+is a Scala Futures syntax support for endpoints.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="n">syntax</span><span class="o">.</span><span class="n">scala</span><span class="o">.</span><span class="k">_</span>
+<span class="k">import</span> <span class="nn">scala.concurrent.Future</span>
+<span class="k">import</span> <span class="nn">scala.concurrent.ExecutionContext.Implicits.global</span>
+
+<span class="k">val</span> <span class="n">e</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"foo"</span><span class="o">)</span> <span class="o">{</span> <span class="nc">Future</span><span class="o">.</span><span class="n">successful</span><span class="o">(</span><span class="nc">Ok</span><span class="o">(</span><span class="s">"bar"</span><span class="o">))</span> <span class="o">}</span>
+
+<span class="n">e</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/foo"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span>
 </code></pre>
 </div>
 
