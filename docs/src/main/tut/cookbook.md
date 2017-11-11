@@ -370,7 +370,7 @@ import com.twitter.util.{Future => TFuture, Promise => TPromise, Return, Throw}
 import scala.concurrent.{Future => SFuture, Promise => SPromise, ExecutionContext}
 import scala.util.{Success, Failure}
 
-implicit class RichTFuture[A](val f: TFuture[A]) extends AnyVal {
+implicit class RichTFuture[A](f: TFuture[A]) {
   def asScala(implicit e: ExecutionContext): SFuture[A] = {
     val p: SPromise[A] = SPromise()
     f.respond {
@@ -382,7 +382,7 @@ implicit class RichTFuture[A](val f: TFuture[A]) extends AnyVal {
   }
 }
 
-implicit class RichSFuture[A](val f: SFuture[A]) extends AnyVal {
+implicit class RichSFuture[A](f: SFuture[A]) {
   def asTwitter(implicit e: ExecutionContext): TFuture[A] = {
     val p: TPromise[A] = new TPromise[A]
     f.onComplete {
@@ -393,6 +393,19 @@ implicit class RichSFuture[A](val f: SFuture[A]) extends AnyVal {
     p
   }
 }
+```
+
+Also note that as of [Finch 0.16-M3](https://github.com/finagle/finch/releases/tag/0.16.0-M3) there
+is a Scala Futures syntax support for endpoints.
+
+```tut:silent
+import io.finch._, io.finch.syntax.scala._
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
+val e = get("foo") { Future.successful(Ok("bar")) }
+
+e(Input.get("/foo")).awaitValueUnsafe()
 ```
 
 ### Server Sent Events
