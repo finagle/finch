@@ -10,10 +10,10 @@ import shapeless._
  */
 trait Endpoints extends Bodies
   with Paths
-  with FileUploads
   with Headers
   with ParamAndParams
-  with Cookies {
+  with Cookies
+  with FileUploadsAndAttributes {
 
   /**
    * An [[Endpoint]] that skips all path segments.
