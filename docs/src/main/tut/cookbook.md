@@ -147,7 +147,7 @@ An `Endpoint[Unit]` represents an endpoint that doesn't return any payload in th
 ```tut:silent
 import io.finch._
 
-val empty: Endpoint[Unit] = get("empty" :: string) { s: String =>
+val empty: Endpoint[Unit] = get("empty" :: path[String]) { s: String =>
   NoContent[Unit].withHeader("X-String" -> s)
 }
 ```
@@ -163,13 +163,13 @@ import com.twitter.finagle.http.Status
 case class Foo(s: String)
 
 // This is possible
-val fooOrEmpty: Endpoint[Foo] = get("foo" :: string) { s: String =>
+val fooOrEmpty: Endpoint[Foo] = get("foo" :: path[String]) { s: String =>
   if (s != "") Ok(Foo(s))
   else NoContent
 }
 
 // This is recommended
-val fooOrFailure: Endpoint[Foo] = get("foo" :: string) { s: String =>
+val fooOrFailure: Endpoint[Foo] = get("foo" :: path[String]) { s: String =>
   if (s != "") Ok(Foo(s))
   else BadRequest(new IllegalArgumentException("empty string"))
 }

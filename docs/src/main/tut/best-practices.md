@@ -64,7 +64,7 @@ object Todo {
   def list():List[Todo] = ???
 }
 val patchedTodo: Endpoint[Todo => Todo] = jsonBody[Todo => Todo]
-val patchTodo: Endpoint[Todo] = patch("todos" :: uuid :: patchedTodo) { (id: UUID, pt: Todo => Todo) =>
+val patchTodo: Endpoint[Todo] = patch("todos" :: path[UUID] :: patchedTodo) { (id: UUID, pt: Todo => Todo) =>
   val oldTodo = ??? // get by id
   val newTodo = pt(oldTodo)
   // store newTodo in the DB
