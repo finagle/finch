@@ -10,9 +10,7 @@ private abstract class Param[A](name: String) extends Endpoint[A] {
   protected def present(input: Input, value: String): Endpoint.Result[A]
 
   final def apply(input: Input): Endpoint.Result[A] =
-    input.request.params.get(name).orElse(
-      input.request.multipart.flatMap(m => m.attributes.get(name).flatMap(_.headOption))
-    ) match {
+    input.request.params.get(name) match {
       case None => missing(input, name)
       case Some(value) => present(input, value)
     }
