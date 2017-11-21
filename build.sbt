@@ -4,15 +4,15 @@ lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   version := "0.16.0-M4",
   scalaVersion := "2.12.4",
-  crossScalaVersions := Seq("2.11.11", "2.12.4")
+  crossScalaVersions := Seq("2.11.12", "2.12.4")
 )
 
-lazy val finagleVersion = "17.10.0"
-lazy val twitterServerVersion = "17.10.0"
+lazy val finagleVersion = "17.11.0"
+lazy val twitterServerVersion = "17.11.0"
 lazy val circeVersion = "0.9.0-M2"
 lazy val circeIterateeVersion = "0.9.0-M3"
 lazy val circeJacksonVersion = "0.9.0-M2"
-lazy val catbirdVersion = "0.20.0"
+lazy val catbirdVersion = "0.21.0"
 lazy val shapelessVersion = "2.3.2"
 lazy val catsVersion = "1.0.0-RC1"
 lazy val sprayVersion = "1.3.3"
@@ -21,6 +21,7 @@ lazy val jacksonVersion = "2.8.8"
 lazy val argonautVersion = "6.2"
 lazy val json4sVersion = "3.5.2"
 lazy val iterateeVersion = "0.15.0"
+lazy val iterateeTwitterVersion = "0.16.0"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -191,7 +192,7 @@ lazy val iteratee = project
   .settings(
     libraryDependencies ++= Seq(
       "io.iteratee" %% "iteratee-core" % iterateeVersion,
-      "io.iteratee" %% "iteratee-twitter" % iterateeVersion
+      "io.iteratee" %% "iteratee-twitter" % iterateeTwitterVersion
     )
   )
   .dependsOn(core % "compile->compile;test->test")
