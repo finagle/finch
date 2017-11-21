@@ -103,13 +103,13 @@ val p = Endpoint.const(scala.math.random)
 
 val q = Endpoint.lift(scala.math.random)
 
-p(Input.get("/"))
+p(Input.get("/")).awaitValueUnsafe()
 
-p(Input.get("/"))
+p(Input.get("/")).awaitValueUnsafe()
 
-q(Input.get("/"))
+q(Input.get("/")).awaitValueUnsafe()
 
-q(Input.get("/"))
+q(Input.get("/")).awaitValueUnsafe()
 ```
 
 #### Root (Request)
@@ -119,13 +119,11 @@ it's evolved separately from Finagle. To overcome this and provide an extension 
 special endpoint instance, called `root` that returns a raw Finagle `Request`.
 
 ```tut
-import io.finch._
-import io.finch.Endpoint._
-import java.net.InetAddress
+import io.finch._, io.finch.Endpoint._, java.net.InetAddress
 
-val remoteAddr:Endpoint[InetAddress] = root.map(_.remoteAddress)
+val remoteAddr = root.map(_.remoteAddress)
 
-val result: Result[InetAddress] = remoteAddr(Input.get("/"))
+remoteAddr(Input.get("/")).awaitValueUnsafe()
 ```
 
 #### Match All
@@ -152,25 +150,25 @@ e(Input.get("/bar")).isMatched
 There are built-in matching endpoints that also extract a matched path segment as a value of a
 requested type:
 
-- `string: Endpoint[String]`
-- `long: Endpoint[Long]`
-- `int: Endpoint[Int]`
-- `boolean: Endpoint[Boolean]`
-- `uuid: Endpoint[java.lang.UUID]`
+- `path[String]: Endpoint[String]`
+- `path[Long]: Endpoint[Long]`
+- `path[Int]: Endpoint[Int]`
+- `path[Boolean]: Endpoint[Boolean]`
+- `path[UUID]: Endpoint[java.lang.UUID]`
 
 Each extracting endpoint has a corresponding _tail extracting_ endpoints.
 
 There are also tail extracting endpoints available out of the box. For example, the `strings`
 endpoint has type `Endpoint[Seq[String]]` and extracts the rest of the path in the input.
 
-By default, extractors are named after their types, i.e., `"string"`, `"boolean"`, etc. But you can
-specify the custom name for the extractor by calling the `apply` method on it. In the example
-below, the string representation of the endpoint `b` is `":flag"`.
+By default, extractors are named after their types, i.e., `"path[String]"`, `"path[Boolean]"`, etc.
+But you can specify the custom name for the extractor by calling the `withToString` method on it.
+In the example below, the string representation of the endpoint `b` is `":flag"`.
 
 ```tut
 import io.finch._
 
-boolean("flag")
+path[Boolean].withToString("flag")
 ```
 
 #### Match Verb
@@ -286,7 +284,7 @@ build a product endpoint, use the `::` combinator.
 ```tut:
 import io.finch._, shapeless._
 
-val both = int :: string
+val both = path[Int] :: path[String]
 ```
 
 No matter what the types of left-hand/right-hand endpoints are (`HList`-based endpoint or value
@@ -302,7 +300,7 @@ through to the second one.
 ```tut
 import io.finch._, shapeless._
 
-val either = int :+: string
+val either = path[Int] :+: path[String]
 ```
 
 Any coproduct endpoint may be converted into a Finagle HTTP service (i.e.,
@@ -323,7 +321,7 @@ In the following example, an `Endpoint[Int :: Int :: HNil]` is mapped to a funct
 ```tut
 import io.finch._, shapeless._
 
-val both = int :: int
+val both = path[Int] :: path[Int]
 
 val sum = both.mapOutput { case a :: b :: HNil => Ok(a + b) }
 ```
@@ -336,7 +334,7 @@ import io.finch._, shapeless._
 
 case class Bar(i: Int, s: String)
 
-val bar = (int :: string).as[Bar]
+val bar = (path[Int] :: path[String]).as[Bar]
 ```
 
 It's also possible to be explicit and use one of the `map*` methods defined on `Endpoint[A]`:
@@ -372,7 +370,7 @@ endpoint depending on the conditional result.
 ```tut
 import io.finch._
 
-val divOrFail: Endpoint[Int] = post("div" :: int :: int) { (a: Int, b: Int) =>
+val divOrFail: Endpoint[Int] = post("div" :: path[Int] :: path[Int]) { (a: Int, b: Int) =>
   if (b == 0) BadRequest(new ArithmeticException("Can not divide by 0"))
   else Ok(a / b)
 }
@@ -768,7 +766,7 @@ The following example handles the `ArithmeticException` propagated from `a / b`.
 ```tut
 import io.finch._
 
-val divOrFail = post("div" :: int :: int) { (a: Int, b: Int) =>
+val divOrFail = post("div" :: path[Int] :: path[Int]) { (a: Int, b: Int) =>
   Ok(a / b)
 } handle {
   case e: Exception => BadRequest(e)
@@ -963,7 +961,7 @@ Similarly to the `Input` API for testing, `EndpointResult` comes with a number o
 ```tut
 import io.finch._, com.twitter.finagle.http.Status
 
-val divOrFail = post(int :: int) { (a: Int, b: Int) =>
+val divOrFail = post(path[Int] :: path[Int]) { (a: Int, b: Int) =>
   if (b == 0) BadRequest(new Exception("div by 0"))
   else Ok(a / b)
 }
