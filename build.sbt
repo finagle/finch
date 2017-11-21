@@ -57,8 +57,15 @@ val baseSettings = Seq(
     Resolver.sonatypeRepo("releases"),
     Resolver.sonatypeRepo("snapshots")
   ),
-  scalacOptions ++= compilerOptions ++ Seq("-Ywarn-unused-import"),
-  scalacOptions in (Compile, console) ~= (_ filterNot (_ == "-Ywarn-unused-import")),
+  scalacOptions ++= compilerOptions ++ (
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, p)) if p >= 11 => Seq("-Ywarn-unused-import")
+      case _ => Nil
+    }
+  ),
+  scalacOptions in (Compile, console) ~= {
+    _.filterNot(Set("-Ywarn-unused-import"))
+  },
   scalacOptions in (Compile, console) += "-Yrepl-class-based"
 )
 
