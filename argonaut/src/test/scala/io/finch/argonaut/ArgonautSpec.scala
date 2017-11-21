@@ -2,8 +2,8 @@ package io.finch.argonaut
 
 import argonaut._
 import argonaut.Argonaut._
-import io.finch.test.data._
 import io.finch.test.AbstractJsonSpec
+import io.finch.test.data._
 
 class ArgonautSpec extends AbstractJsonSpec {
 
