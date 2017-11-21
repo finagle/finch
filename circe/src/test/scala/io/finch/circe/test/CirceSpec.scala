@@ -18,3 +18,8 @@ class CirceDropNullKeysSpec extends AbstractJsonSpec {
   import io.finch.circe.dropNullValues._
   checkJson("circe-dropNullKeys")
 }
+
+class CircePredictSizeSpec extends AbstractJsonSpec {
+  import io.finch.circe.predictSize._
+  checkJson("circe-predictSize")
+}
