@@ -443,7 +443,7 @@ deprecation cycles.
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <span class="name">Endpoints</span><span class="result"> extends <span class="extype" name="io.finch.endpoint.Bodies">Bodies</span> with <span class="extype" name="io.finch.endpoint.Paths">Paths</span> with <span class="extype" name="io.finch.endpoint.FileUploads">FileUploads</span> with <span class="extype" name="io.finch.endpoint.Headers">Headers</span> with <span class="extype" name="io.finch.endpoint.ParamAndParams">ParamAndParams</span> with <span class="extype" name="io.finch.endpoint.Cookies">Cookies</span></span>
+        <span class="name">Endpoints</span><span class="result"> extends <span class="extype" name="io.finch.endpoint.Bodies">Bodies</span> with <span class="extype" name="io.finch.endpoint.Paths">Paths</span> with <span class="extype" name="io.finch.endpoint.Headers">Headers</span> with <span class="extype" name="io.finch.endpoint.ParamAndParams">ParamAndParams</span> with <span class="extype" name="io.finch.endpoint.Cookies">Cookies</span> with <span class="extype" name="io.finch.endpoint.FileUploadsAndAttributes">FileUploadsAndAttributes</span></span>
       </span>
       </h4>
 
@@ -453,7 +453,7 @@ deprecation cycles.
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><span class="extype" name="io.finch.endpoint.Cookies">Cookies</span>, <span class="extype" name="io.finch.endpoint.ParamAndParams">ParamAndParams</span>, <span class="extype" name="io.finch.endpoint.Headers">Headers</span>, <span class="extype" name="io.finch.endpoint.FileUploads">FileUploads</span>, <span class="extype" name="io.finch.endpoint.Paths">Paths</span>, <span class="extype" name="io.finch.endpoint.Bodies">Bodies</span>, <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.AnyRef" class="extype" name="scala.collection.immutable.List">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.Any" class="extype" name="scala.collection.immutable.List">Any</a></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="io.finch.endpoint.FileUploadsAndAttributes">FileUploadsAndAttributes</span>, <span class="extype" name="io.finch.endpoint.Cookies">Cookies</span>, <span class="extype" name="io.finch.endpoint.ParamAndParams">ParamAndParams</span>, <span class="extype" name="io.finch.endpoint.Headers">Headers</span>, <span class="extype" name="io.finch.endpoint.Paths">Paths</span>, <span class="extype" name="io.finch.endpoint.Bodies">Bodies</span>, <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.AnyRef" class="extype" name="scala.collection.immutable.List">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.Any" class="extype" name="scala.collection.immutable.List">Any</a></div>
         </div></div>
         
 
@@ -479,7 +479,7 @@ deprecation cycles.
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="io.finch.Endpoints"><span>Endpoints</span></li><li class="in" name="io.finch.endpoint.Cookies"><span>Cookies</span></li><li class="in" name="io.finch.endpoint.ParamAndParams"><span>ParamAndParams</span></li><li class="in" name="io.finch.endpoint.Headers"><span>Headers</span></li><li class="in" name="io.finch.endpoint.FileUploads"><span>FileUploads</span></li><li class="in" name="io.finch.endpoint.Paths"><span>Paths</span></li><li class="in" name="io.finch.endpoint.Bodies"><span>Bodies</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="io.finch.Endpoints"><span>Endpoints</span></li><li class="in" name="io.finch.endpoint.FileUploadsAndAttributes"><span>FileUploadsAndAttributes</span></li><li class="in" name="io.finch.endpoint.Cookies"><span>Cookies</span></li><li class="in" name="io.finch.endpoint.ParamAndParams"><span>ParamAndParams</span></li><li class="in" name="io.finch.endpoint.Headers"><span>Headers</span></li><li class="in" name="io.finch.endpoint.Paths"><span>Paths</span></li><li class="in" name="io.finch.endpoint.Bodies"><span>Bodies</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
                   <span class="filtertype">Implicitly<br />
@@ -906,44 +906,6 @@ interpreted as <code>A</code>, into an <code>Option</code>. The returned <a href
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="io.finch.endpoint.FileUploads#fileUpload" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fileUpload(name:String):io.finch.Endpoint[com.twitter.finagle.http.exp.Multipart.FileUpload]"></a><a id="fileUpload(String):Endpoint[FileUpload]"></a>
-      <span class="permalink">
-      <a href="../../io/finch/Endpoints.html#fileUpload(name:String):io.finch.Endpoint[com.twitter.finagle.http.exp.Multipart.FileUpload]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">fileUpload</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="com.twitter.finagle.http.exp.Multipart.FileUpload">FileUpload</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a required file upload from a <code>multipart/form-data</code>
-request.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a required file upload from a <code>multipart/form-data</code>
-request.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>FileUploads</dd></dl></div>
-    </li><li name="io.finch.endpoint.FileUploads#fileUploadOption" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fileUploadOption(name:String):io.finch.Endpoint[Option[com.twitter.finagle.http.exp.Multipart.FileUpload]]"></a><a id="fileUploadOption(String):Endpoint[Option[FileUpload]]"></a>
-      <span class="permalink">
-      <a href="../../io/finch/Endpoints.html#fileUploadOption(name:String):io.finch.Endpoint[Option[com.twitter.finagle.http.exp.Multipart.FileUpload]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">fileUploadOption</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<span class="extype" name="com.twitter.finagle.http.exp.Multipart.FileUpload">FileUpload</span>]]</span>
-      </span>
-      
-      <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional file upload from a <code>multipart/form-data</code>
-request into an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional file upload from a <code>multipart/form-data</code>
-request into an <code>Option</code>.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>FileUploads</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
@@ -1148,6 +1110,82 @@ an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPrese
       
       <p class="shortcomment cmt">Alias for <code>bodyOption[A, Application.Json]</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Alias for <code>bodyOption[A, Application.Json]</code>.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>Bodies</dd></dl></div>
+    </li><li name="io.finch.endpoint.FileUploadsAndAttributes#multipartAttribute" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="multipartAttribute(name:String):io.finch.Endpoint[String]"></a><a id="multipartAttribute(String):Endpoint[String]"></a>
+      <span class="permalink">
+      <a href="../../io/finch/Endpoints.html#multipartAttribute(name:String):io.finch.Endpoint[String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">multipartAttribute</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a required attribute from a <code>multipart/form-data</code>
+request.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a required attribute from a <code>multipart/form-data</code>
+request.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>FileUploadsAndAttributes</dd></dl></div>
+    </li><li name="io.finch.endpoint.FileUploadsAndAttributes#multipartAttributeOption" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="multipartAttributeOption(name:String):io.finch.Endpoint[Option[String]]"></a><a id="multipartAttributeOption(String):Endpoint[Option[String]]"></a>
+      <span class="permalink">
+      <a href="../../io/finch/Endpoints.html#multipartAttributeOption(name:String):io.finch.Endpoint[Option[String]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">multipartAttributeOption</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+      </span>
+      
+      <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional attribute from a <code>multipart/form-data</code>
+request.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional attribute from a <code>multipart/form-data</code>
+request.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>FileUploadsAndAttributes</dd></dl></div>
+    </li><li name="io.finch.endpoint.FileUploadsAndAttributes#multipartFileUpload" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="multipartFileUpload(name:String):io.finch.Endpoint[com.twitter.finagle.http.exp.Multipart.FileUpload]"></a><a id="multipartFileUpload(String):Endpoint[FileUpload]"></a>
+      <span class="permalink">
+      <a href="../../io/finch/Endpoints.html#multipartFileUpload(name:String):io.finch.Endpoint[com.twitter.finagle.http.exp.Multipart.FileUpload]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">multipartFileUpload</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="com.twitter.finagle.http.exp.Multipart.FileUpload">FileUpload</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a required file upload from a <code>multipart/form-data</code>
+request.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a required file upload from a <code>multipart/form-data</code>
+request.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>FileUploadsAndAttributes</dd></dl></div>
+    </li><li name="io.finch.endpoint.FileUploadsAndAttributes#multipartFileUploadOption" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="multipartFileUploadOption(name:String):io.finch.Endpoint[Option[com.twitter.finagle.http.exp.Multipart.FileUpload]]"></a><a id="multipartFileUploadOption(String):Endpoint[Option[FileUpload]]"></a>
+      <span class="permalink">
+      <a href="../../io/finch/Endpoints.html#multipartFileUploadOption(name:String):io.finch.Endpoint[Option[com.twitter.finagle.http.exp.Multipart.FileUpload]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">multipartFileUploadOption</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<span class="extype" name="com.twitter.finagle.http.exp.Multipart.FileUpload">FileUpload</span>]]</span>
+      </span>
+      
+      <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional file upload from a <code>multipart/form-data</code>
+request into an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional file upload from a <code>multipart/form-data</code>
+request into an <code>Option</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>FileUploadsAndAttributes</dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -1683,6 +1721,50 @@ an <code>Option</code>. The returned <a href="Endpoint.html" class="extype" name
                 <span class="name">@deprecated</span>
               
         </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.16)</i> Use paths[Boolean] instead</p></dd></dl></div>
+    </li><li name="io.finch.endpoint.FileUploadsAndAttributes#fileUpload" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fileUpload(name:String):io.finch.Endpoint[com.twitter.finagle.http.exp.Multipart.FileUpload]"></a><a id="fileUpload(String):Endpoint[FileUpload]"></a>
+      <span class="permalink">
+      <a href="../../io/finch/Endpoints.html#fileUpload(name:String):io.finch.Endpoint[com.twitter.finagle.http.exp.Multipart.FileUpload]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.16) Use multipartFileUpload instead">fileUpload</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="com.twitter.finagle.http.exp.Multipart.FileUpload">FileUpload</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a required file upload from a <code>multipart/form-data</code>
+request.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a required file upload from a <code>multipart/form-data</code>
+request.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>FileUploadsAndAttributes</dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.16)</i> Use multipartFileUpload instead</p></dd></dl></div>
+    </li><li name="io.finch.endpoint.FileUploadsAndAttributes#fileUploadOption" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fileUploadOption(name:String):io.finch.Endpoint[Option[com.twitter.finagle.http.exp.Multipart.FileUpload]]"></a><a id="fileUploadOption(String):Endpoint[Option[FileUpload]]"></a>
+      <span class="permalink">
+      <a href="../../io/finch/Endpoints.html#fileUploadOption(name:String):io.finch.Endpoint[Option[com.twitter.finagle.http.exp.Multipart.FileUpload]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.16) Use multipartFileUploadOption instead">fileUploadOption</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<span class="extype" name="com.twitter.finagle.http.exp.Multipart.FileUpload">FileUpload</span>]]</span>
+      </span>
+      
+      <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional file upload from a <code>multipart/form-data</code>
+request into an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional file upload from a <code>multipart/form-data</code>
+request into an <code>Option</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>FileUploadsAndAttributes</dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.16)</i> Use multipartFileUploadOption instead</p></dd></dl></div>
     </li><li name="io.finch.endpoint.Paths#int" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="int(name:String):io.finch.Endpoint[Int]"></a><a id="int(String):Endpoint[Int]"></a>
       <span class="permalink">
@@ -1928,14 +2010,14 @@ an <code>Option</code>. The returned <a href="Endpoint.html" class="extype" name
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="io.finch.endpoint.Cookies">
+        <div class="parent" name="io.finch.endpoint.FileUploadsAndAttributes">
+              <h3>Inherited from <span class="extype" name="io.finch.endpoint.FileUploadsAndAttributes">FileUploadsAndAttributes</span></h3>
+            </div><div class="parent" name="io.finch.endpoint.Cookies">
               <h3>Inherited from <span class="extype" name="io.finch.endpoint.Cookies">Cookies</span></h3>
             </div><div class="parent" name="io.finch.endpoint.ParamAndParams">
               <h3>Inherited from <span class="extype" name="io.finch.endpoint.ParamAndParams">ParamAndParams</span></h3>
             </div><div class="parent" name="io.finch.endpoint.Headers">
               <h3>Inherited from <span class="extype" name="io.finch.endpoint.Headers">Headers</span></h3>
-            </div><div class="parent" name="io.finch.endpoint.FileUploads">
-              <h3>Inherited from <span class="extype" name="io.finch.endpoint.FileUploads">FileUploads</span></h3>
             </div><div class="parent" name="io.finch.endpoint.Paths">
               <h3>Inherited from <span class="extype" name="io.finch.endpoint.Paths">Paths</span></h3>
             </div><div class="parent" name="io.finch.endpoint.Bodies">
