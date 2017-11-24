@@ -232,12 +232,15 @@ trait Endpoint[A] { self =>
     left.coproduct(right)
   }
 
+  @deprecated("Use transform instead", "0.16")
   final def withHeader(header: (String, String)): Endpoint[A] =
     withOutput(o => o.withHeader(header))
 
+  @deprecated("Use transform instead", "0.16")
   final def withCookie(cookie: Cookie): Endpoint[A] =
     withOutput(o => o.withCookie(cookie))
 
+  @deprecated("Use transform instead", "0.16")
   final def withCharset(charset: Charset): Endpoint[A] =
     withOutput(o => o.withCharset(charset))
 
@@ -402,10 +405,16 @@ object Endpoint {
   /**
    * Creates an [[Endpoint]] that always matches and returns a given `Future` (evaluated lazily).
    */
-  def liftFuture[A](fa: => Future[A]): Endpoint[A] = new Endpoint[A] {
+  def liftAsync[A](fa: => Future[A]): Endpoint[A] = new Endpoint[A] {
     final def apply(input: Input): Result[A] =
       EndpointResult.Matched(input, Rerunnable.fromFuture(fa).map(a => Output.payload(a)))
   }
+
+  /**
+   * Creates an [[Endpoint]] that always matches and returns a given `Future` (evaluated lazily).
+   */
+  @deprecated("Use liftAsync instead", "0.16")
+  def liftFuture[A](fa: => Future[A]): Endpoint[A] = liftAsync(fa)
 
   /**
    * Creates an [[Endpoint]] that always matches and returns a given `Output` (evaluated lazily).
@@ -419,10 +428,17 @@ object Endpoint {
    * Creates an [[Endpoint]] that always matches and returns a given `Future[Output]`
    * (evaluated lazily).
    */
-  def liftFutureOutput[A](foa: => Future[Output[A]]): Endpoint[A] = new Endpoint[A] {
+  def liftOutputAsync[A](foa: => Future[Output[A]]): Endpoint[A] = new Endpoint[A] {
     final def apply(input: Input): Result[A] =
       EndpointResult.Matched(input, Rerunnable.fromFuture(foa))
   }
+
+  /**
+   * Creates an [[Endpoint]] that always matches and returns a given `Future[Output]`
+   * (evaluated lazily).
+   */
+  @deprecated("Use liftOutputAsync instead", "0.16")
+  def liftFutureOutput[A](foa: => Future[Output[A]]): Endpoint[A] = liftOutputAsync(foa)
 
   final implicit class ValueEndpointOps[B](val self: Endpoint[B]) extends AnyVal {
     /**
