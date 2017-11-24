@@ -27,9 +27,13 @@ class MultipartSpec extends FinchSpec {
       val i = withFileUpload("foo", b)
       val fu = multipartFileUpload("foo")(i).awaitValueUnsafe()
       val fuo = multipartFileUploadOption("foo")(i).awaitValueUnsafe().flatten
+      val fus = multipartFileUploads("foo")(i).awaitValueUnsafe()
+      val fun = multipartFileUploadsNel("foo")(i).awaitValueUnsafe()
 
       fu.map(_.asInstanceOf[Multipart.InMemoryFileUpload].content) === Some(b) &&
-      fuo.map(_.asInstanceOf[Multipart.InMemoryFileUpload].content) === Some(b)
+      fuo.map(_.asInstanceOf[Multipart.InMemoryFileUpload].content) === Some(b) //&&
+      fus.exists(_.forall(_.asInstanceOf[Multipart.InMemoryFileUpload].content === b)) &&
+      fun.exists(_.forall(_.asInstanceOf[Multipart.InMemoryFileUpload].content === b))
     }
   }
 

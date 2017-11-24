@@ -246,13 +246,13 @@ Chunked bodies:
 
 #### File Uploads
 
-Finch supports reading file uploads from the `multipart/form-data` HTTP bodies with the help of two
+Finch supports reading file uploads from the `multipart/form-data` HTTP bodies with the help of four
 instances (evaluating endpoints that also only match non-chunked requests).
 
-- `fileUpload("foo")` - required, non-chunked (only matches non-chunked requests) file upload with
-  name "foo"
-- `fileUploadOption("foo")` - optional, non-chunked (only matches non-chunked requests) file upload
-  with name "foo"
+- `multipartFileUpload("foo")` - required, non-chunked file upload with name "foo"
+- `multipartFileUploadOption("foo")` - optional, non-chunked file upload with name "foo"
+- `multipartFileUploads("foo")` - optional, non-chunked multiple file uploads with name "foo"
+- `multipartFileUploadsNel("foo")` - required at least one, non-chunked multiple file upload with name "foo"
 
 #### Cookies
 

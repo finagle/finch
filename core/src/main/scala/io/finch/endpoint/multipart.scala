@@ -1,5 +1,6 @@
 package io.finch.endpoint
 
+import cats.data.NonEmptyList
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart}
 import io.catbird.util.Rerunnable
 import io.finch._
@@ -9,24 +10,24 @@ import scala.util.control.NonFatal
 
 private abstract class Multipart[A, B](name: String) extends Endpoint[B] {
   protected def missing(name: String): Rerunnable[Output[B]]
-  protected def present(a: A): Rerunnable[Output[B]]
+  protected def present(a: NonEmptyList[A]): Rerunnable[Output[B]]
   protected def fetch(mp: FinagleMultipart): Option[Seq[A]]
 
   private[this] def multipart(input: Input): Option[FinagleMultipart] =
     try input.request.multipart catch { case NonFatal(_) => None }
 
-  private[this] final def first(input: Input): Option[A] =
+  private[this] final def uploads(input: Input): Option[NonEmptyList[A]] =
     for {
       mp <- multipart(input)
       all <- fetch(mp)
-      first <- all.headOption
-    } yield first
+      nel <- NonEmptyList.fromList[A](all.toList)
+    } yield nel
 
     final def apply(input: Input): Endpoint.Result[B] =
       if (input.request.isChunked) EndpointResult.Skipped
       else {
-        first(input) match {
-          case Some(fa) => EndpointResult.Matched(input, present(fa))
+        uploads(input) match {
+          case Some(nel) => EndpointResult.Matched(input, present(nel))
           case None => EndpointResult.Matched(input, missing(name))
         }
       }
@@ -38,12 +39,22 @@ private abstract class Multipart[A, B](name: String) extends Endpoint[B] {
 private object Multipart {
   trait Required[A] { _: Multipart[A, A] =>
     protected def missing(name: String): Rerunnable[Output[A]] = Rs.paramNotPresent(name)
-    protected def present(a: A): Rerunnable[Output[A]] = Rs.payload(a)
+    protected def present(a: NonEmptyList[A]): Rerunnable[Output[A]] = Rs.payload(a.head)
   }
 
   trait Optional[A] { _: Multipart[A, Option[A]] =>
     protected def missing(name: String): Rerunnable[Output[Option[A]]] = Rs.none
-    protected def present(a: A): Rerunnable[Output[Option[A]]] = Rs.payload(Some(a))
+    protected def present(a: NonEmptyList[A]): Rerunnable[Output[Option[A]]] = Rs.payload(Some(a.head))
+  }
+
+  trait Sequence[A] { _: Multipart[A, Seq[A]] =>
+    protected def missing(name: String): Rerunnable[Output[Seq[A]]] = Rs.nil
+    protected def present(fa: NonEmptyList[A]): Rerunnable[Output[Seq[A]]] = Rs.payload(fa.toList)
+  }
+
+  trait Nel[A] { _: Multipart[A, NonEmptyList[A]] =>
+    protected def missing(name: String): Rerunnable[Output[NonEmptyList[A]]] = Rs.paramNotPresent(name)
+    protected def present(fa: NonEmptyList[A]): Rerunnable[Output[NonEmptyList[A]]] = Rs.payload(fa)
   }
 }
 
@@ -75,6 +86,22 @@ private[finch] trait FileUploadsAndAttributes {
   def multipartFileUpload(name: String): Endpoint[FinagleMultipart.FileUpload] =
     new FileUpload[FinagleMultipart.FileUpload](name)
       with Multipart.Required[FinagleMultipart.FileUpload]
+
+  /**
+   * An evaluating [[Endpoint]] that optionally reads multiple file uploads from a `multipart/form-data`
+   * request.
+   */
+  def multipartFileUploads(name: String): Endpoint[Seq[FinagleMultipart.FileUpload]] =
+    new FileUpload[Seq[FinagleMultipart.FileUpload]](name)
+      with Multipart.Sequence[FinagleMultipart.FileUpload]
+
+  /**
+   * An evaluating [[Endpoint]] that requires multiple file uploads from a `multipart/form-data`
+   * request.
+   */
+  def multipartFileUploadsNel(name: String): Endpoint[NonEmptyList[FinagleMultipart.FileUpload]] =
+    new FileUpload[NonEmptyList[FinagleMultipart.FileUpload]](name)
+      with Multipart.Nel[FinagleMultipart.FileUpload]
 
   /**
    * An evaluating [[Endpoint]] that reads a required attribute from a `multipart/form-data`
