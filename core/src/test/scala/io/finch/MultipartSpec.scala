@@ -15,33 +15,44 @@ class MultipartSpec extends FinchSpec {
       .buildFormPost(multipart = true)
     )
 
-  def withAttribute(name: String, value: String): Input =
-    Input.fromRequest(RequestBuilder()
+  def withAttribute(first: (String, String), rest: (String, String)*): Input = {
+    val req = RequestBuilder()
       .url("http://example.com")
-      .add(SimpleElement(name, value))
-      .buildFormPost(multipart = true)
-    )
+      .add(SimpleElement(first._1, first._2))
 
-  it should "file upload" in {
+    Input.fromRequest(
+      rest.foldLeft(req)((builder, attr) =>
+        builder.add(SimpleElement(attr._1, attr._2))
+      ).buildFormPost(multipart = true)
+    )
+  }
+
+  it should "file upload (single)" in {
     check { b: Buf =>
       val i = withFileUpload("foo", b)
       val fu = multipartFileUpload("foo")(i).awaitValueUnsafe()
       val fuo = multipartFileUploadOption("foo")(i).awaitValueUnsafe().flatten
-      val fus = multipartFileUploads("foo")(i).awaitValueUnsafe()
-      val fun = multipartFileUploadsNel("foo")(i).awaitValueUnsafe()
 
       fu.map(_.asInstanceOf[Multipart.InMemoryFileUpload].content) === Some(b) &&
-      fuo.map(_.asInstanceOf[Multipart.InMemoryFileUpload].content) === Some(b) //&&
-      fus.exists(_.forall(_.asInstanceOf[Multipart.InMemoryFileUpload].content === b)) &&
-      fun.exists(_.forall(_.asInstanceOf[Multipart.InMemoryFileUpload].content === b))
+      fuo.map(_.asInstanceOf[Multipart.InMemoryFileUpload].content) === Some(b)
     }
   }
 
-  it should "attribute" in {
+  it should "attribute (single)" in {
     check { s: String =>
-      val i = withAttribute("foo", s)
+      val i = withAttribute("foo" -> s)
+
       multipartAttribute("foo")(i).awaitValueUnsafe() === Some(s) &&
       multipartAttributeOption("foo")(i).awaitValueUnsafe().flatten === Some(s)
+    }
+  }
+
+  it should "attribute (multiple)" in {
+    check { (a: String, b: String) =>
+      val i = withAttribute("foo" -> a, "foo" -> b)
+
+      multipartAttributes("foo")(i).awaitValueUnsafe() === Some(Seq(a, b)) &&
+      multipartAttributesNel("foo")(i).awaitValueUnsafe().map(_.toList) === Some(List(a, b))
     }
   }
 }
