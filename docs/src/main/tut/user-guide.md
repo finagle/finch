@@ -188,11 +188,10 @@ e(Input.get("/bar")).isMatched
 
 #### Params
 
-Finch aggregates for you all the possible param sources (query-string params, urlencoded params and
-multipart params) behind a single namespace `param*`. That being said, an endpoint `param("foo")`
-works as follows: 1) tries to fetch param `foo` from the query string 2) if the previous step
-failed, tries to fetch param `foo` from the urlencoded body 3) if the previous step failed, tries
-to fetch param `foo` from the multipart body.
+Finch aggregates for you all the possible param sources (query-string params from GET requests and
+urlencoded params from POST requests) behind a single namespace `param*`. That being said, an
+endpoint `param("foo")` works as follows: 1) tries to fetch param `foo` from the query string 2) if
+the previous step failed, tries to fetch param `foo` from the urlencoded body.
 
 Finch provides the following instances for reading HTTP params (evaluating endpoints):
 
@@ -244,15 +243,20 @@ Chunked bodies:
 - `asyncBody` - chunked/streamed (only matches chunked requests) body represented as an
   `AsyncStream[Buf]`.
 
-#### File Uploads
+#### Multipart
 
-Finch supports reading file uploads from the `multipart/form-data` HTTP bodies with the help of four
-instances (evaluating endpoints that also only match non-chunked requests).
+Finch supports reading file uploads and attributes from the `multipart/form-data` HTTP bodies with
+the help of four instances (evaluating endpoints that also only match non-chunked requests).
 
 - `multipartFileUpload("foo")` - required, non-chunked file upload with name "foo"
 - `multipartFileUploadOption("foo")` - optional, non-chunked file upload with name "foo"
-- `multipartFileUploads("foo")` - optional, non-chunked multiple file uploads with name "foo"
-- `multipartFileUploadsNel("foo")` - required at least one, non-chunked multiple file upload with name "foo"
+- `multipartFileUploads("foo")` - non-chunked multiple file uploads with name "foo" (could be empty)
+- `multipartFileUploadsNel("foo")` - required at least one, non-chunked multiple file upload with
+  name "foo"
+- `multipartAttribute("foo")` - required multipart attribute with name "foo"
+- `multipartAttributeOption("foo")` - optional multipart attribute with name "foo
+- `multipartAttributes("foo")` - multiple multipart attributes named "foo" (could be empty)
+- `multipartAttributesNel("foo")` - multiple multipart attributes named "foo" (can't be empty)
 
 #### Cookies
 
