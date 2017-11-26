@@ -6,7 +6,7 @@ class ParamSpec extends FinchSpec {
 
   behavior of "param*"
 
-  def withParam(k: String)(v: String): Input = Input.get("/", k -> v)
+  def withParam[A](k: String)(v: A): Input = Input.get("/", k -> v.toString)
 
   checkAll("Param[String]", EntityEndpointLaws[String](paramOption("x"))(withParam("x")).evaluating)
   checkAll("Param[Int]", EntityEndpointLaws[Int](paramOption("x"))(withParam("x")).evaluating)

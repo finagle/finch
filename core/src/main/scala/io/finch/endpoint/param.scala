@@ -1,39 +1,49 @@
 package io.finch.endpoint
 
+import scala.reflect.ClassTag
+
 import cats.data.NonEmptyList
+import com.twitter.util._
 import io.finch._
 import io.finch.internal.Rs
 
-private abstract class Param[A](name: String) extends Endpoint[A] {
+private abstract class Param[A](name: String)(implicit d: DecodeEntity[A], tag: ClassTag[A]) extends Endpoint[A] {
+  self =>
 
   protected def missing(input: Input, name: String): Endpoint.Result[A]
-  protected def present(input: Input, value: String): Endpoint.Result[A]
+  protected def present(input: Input, value: A): Endpoint.Result[A]
 
   final def apply(input: Input): Endpoint.Result[A] =
     input.request.params.get(name) match {
       case None => missing(input, name)
-      case Some(value) => present(input, value)
+      case Some(value) =>
+        d(value) match {
+          case Return(r) => present(input, r)
+          case Throw(e) => notParsed(self, input, e, tag)
+        }
     }
 
   final override def item: items.RequestItem = items.ParamItem(name)
   final override def toString: String = s"param($name)"
+
+
 }
 
 private object Param {
-  trait Required { _: Param[String] =>
-    protected def missing(input: Input, name: String): Endpoint.Result[String] =
+  trait Required[A] { _: Param[A] =>
+    protected def missing(input: Input, name: String): Endpoint.Result[A] =
       EndpointResult.Matched(input, Rs.paramNotPresent(name))
 
-    protected def present(input: Input, value: String): Endpoint.Result[String] =
+    protected def present(input: Input, value: A): Endpoint.Result[A] =
       EndpointResult.Matched(input, Rs.payload(value))
   }
 
-  trait Optional { _: Param[Option[String]] =>
-    protected def missing(input: Input, name: String): Endpoint.Result[Option[String]] =
+  trait Optional[A] { _: Param[Option[A]] =>
+    protected def missing(input: Input, name: String): Endpoint.Result[Option[A]] =
       EndpointResult.Matched(input, Rs.none)
 
-    protected def present(input: Input, value: String): Endpoint.Result[Option[String]] =
-      EndpointResult.Matched(input, Rs.payload(Some(value)))
+    protected def present(input: Input, value: Option[A]): Endpoint.Result[Option[A]] =
+      EndpointResult.Matched(input, Rs.payload(value))
   }
 
   trait Exists { _: Param[String] =>
@@ -85,16 +95,16 @@ private[finch] trait ParamAndParams {
    * An evaluating [[Endpoint]] that reads an optional query-string param `name` from the request
    * into an `Option`.
    */
-  def paramOption(name: String): Endpoint[Option[String]] =
-    new Param[Option[String]](name) with Param.Optional
+  def paramOption[A](name: String)(implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[Option[A]] =
+    new Param[Option[A]](name) with Param.Optional[A]
 
   /**
    * An evaluating [[Endpoint]] that reads a required query-string param `name` from the
    * request or raises an [[Error.NotPresent]] exception when the param is missing; an
    * [[Error.NotValid]] exception is the param is empty.
    */
-  def param(name: String): Endpoint[String] =
-    new Param[String](name) with Param.Required
+  def param[A](name: String)(implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[A] =
+    new Param[A](name) with Param.Required[A]
 
   /**
    * A matching [[Endpoint]] that only matches the requests that contain a given query-string

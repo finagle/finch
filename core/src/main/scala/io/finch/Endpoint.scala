@@ -478,6 +478,7 @@ object Endpoint {
    * The resulting endpoint will fail when type conversion fails.
    */
   implicit class StringEndpointOps(val self: Endpoint[String]) extends AnyVal {
+    @deprecated(s"Use apply[A] instead for a corresponding endpoint (param[A], header[A], ...)", "0.16")
     def as[A](implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[A] =
       self.mapAsync(value => Future.const(d(value).rescue(notParsed[A](self, tag))))
   }

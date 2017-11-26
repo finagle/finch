@@ -12,19 +12,12 @@ trait DecodeEntity[A] {
   def apply(s: String): Try[A]
 }
 
-object DecodeEntity {
+object DecodeEntity extends LowPriorityDecode {
 
   /**
    * Returns a [[DecodeEntity]] instance for a given type.
    */
   @inline def apply[A](implicit d: DecodeEntity[A]): DecodeEntity[A] = d
-
-  /**
-   * Creates an [[DecodeEntity]] instance from a given function `String => Try[A]`.
-   */
-  def instance[A](fn: String => Try[A]): DecodeEntity[A] = new DecodeEntity[A] {
-    def apply(s: String): Try[A] = fn(s)
-  }
 
   /**
    * Creates a [[Decode]] from [[shapeless.Generic]].
@@ -38,6 +31,20 @@ object DecodeEntity {
   ): DecodeEntity[A] = instance(s => Return(gen.from(s :: HNil)))
 
   implicit val decodeString: DecodeEntity[String] = instance(s => Return(s))
+
+}
+
+trait LowPriorityDecode {
+
+  /**
+    * Creates an [[DecodeEntity]] instance from a given function `String => Try[A]`.
+    */
+  def instance[A](fn: String => Try[A]): DecodeEntity[A] = new DecodeEntity[A] {
+    def apply(s: String): Try[A] = fn(s)
+  }
+
+  implicit def decodeOptional[A](implicit d: DecodeEntity[A]): DecodeEntity[Option[A]] =
+    instance(s => d(s).map(Option.apply))
 
   implicit val decodeInt: DecodeEntity[Int] = instance(s => Try(s.toInt))
 
