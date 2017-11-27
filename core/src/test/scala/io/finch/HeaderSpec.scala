@@ -17,7 +17,7 @@ class HeaderSpec extends FinchSpec {
   checkAll("Header[Int]", EntityEndpointLaws[Int](headerOption("x"))(withHeader("x")).evaluating)
   checkAll("Header[Long]", EntityEndpointLaws[Long](headerOption("x"))(withHeader("x")).evaluating)
   checkAll("Header[Boolean]", EntityEndpointLaws[Boolean](headerOption("x"))(withHeader("x")).evaluating)
-  checkAll("Header[Fl oat]", EntityEndpointLaws[Float](headerOption("x"))(withHeader("x")).evaluating)
+  checkAll("Header[Float]", EntityEndpointLaws[Float](headerOption("x"))(withHeader("x")).evaluating)
   checkAll("Header[Double]", EntityEndpointLaws[Double](headerOption("x"))(withHeader("x")).evaluating)
   checkAll("Header[UUID]", EntityEndpointLaws[UUID](headerOption("x"))(withHeader("x")).evaluating)
 }

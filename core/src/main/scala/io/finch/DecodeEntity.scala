@@ -19,29 +19,11 @@ object DecodeEntity extends LowPriorityDecode {
    */
   @inline def apply[A](implicit d: DecodeEntity[A]): DecodeEntity[A] = d
 
-  /**
-   * Creates a [[Decode]] from [[shapeless.Generic]].
-   *
-   * Note: This is mostly a workaround for `Endpoint[String].as[CaseClassOfASingleString]`,
-   *       because by some reason, compiler doesn't pick `ValueEndpointOps` for
-   *       `Endpoint[String]`.
-   */
-  implicit def decodeFromGeneric[A](implicit
-    gen: Generic.Aux[A, String :: HNil]
-  ): DecodeEntity[A] = instance(s => Return(gen.from(s :: HNil)))
-
   implicit val decodeString: DecodeEntity[String] = instance(s => Return(s))
 
 }
 
-trait LowPriorityDecode {
-
-  /**
-    * Creates an [[DecodeEntity]] instance from a given function `String => Try[A]`.
-    */
-  def instance[A](fn: String => Try[A]): DecodeEntity[A] = new DecodeEntity[A] {
-    def apply(s: String): Try[A] = fn(s)
-  }
+trait LowPriorityDecode extends LowLowPriorityDecode {
 
   implicit def decodeOptional[A](implicit d: DecodeEntity[A]): DecodeEntity[Option[A]] =
     instance(s => d(s).map(Option.apply))
@@ -60,4 +42,28 @@ trait LowPriorityDecode {
     if (s.length != 36) Throw(new IllegalArgumentException(s"Too long for UUID: ${s.length}"))
     else Try(UUID.fromString(s))
   )
+}
+
+trait LowLowPriorityDecode {
+
+  /**
+    * Creates an [[DecodeEntity]] instance from a given function `String => Try[A]`.
+    */
+  def instance[A](fn: String => Try[A]): DecodeEntity[A] = new DecodeEntity[A] {
+    def apply(s: String): Try[A] = fn(s)
+  }
+
+
+  /**
+    * Creates a [[Decode]] from [[shapeless.Generic]].
+    *
+    * Note: This is mostly a workaround for `Endpoint[String].as[CaseClassOfASingleString]`,
+    *       because by some reason, compiler doesn't pick `ValueEndpointOps` for
+    *       `Endpoint[String]`.
+    */
+  implicit def decodeFromGeneric[A, H <: HList, E](implicit
+    gen: Generic.Aux[A, H],
+    ev: (E :: HNil) =:= H,
+    de: DecodeEntity[E]
+  ): DecodeEntity[A] = instance(s => de(s).map(b => gen.from(b :: HNil)))
 }
