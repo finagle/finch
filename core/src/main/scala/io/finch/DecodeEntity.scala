@@ -12,7 +12,7 @@ trait DecodeEntity[A] {
   def apply(s: String): Try[A]
 }
 
-object DecodeEntity extends LowPriorityDecode {
+object DecodeEntity extends HighPriorityDecode {
 
   /**
    * Returns a [[DecodeEntity]] instance for a given type.
@@ -23,7 +23,7 @@ object DecodeEntity extends LowPriorityDecode {
 
 }
 
-trait LowPriorityDecode extends LowLowPriorityDecode {
+trait HighPriorityDecode extends LowPriorityDecode {
 
   implicit val decodeInt: DecodeEntity[Int] = instance(s => Try(s.toInt))
 
@@ -41,7 +41,7 @@ trait LowPriorityDecode extends LowLowPriorityDecode {
   )
 }
 
-trait LowLowPriorityDecode {
+trait LowPriorityDecode {
 
   /**
     * Creates an [[DecodeEntity]] instance from a given function `String => Try[A]`.

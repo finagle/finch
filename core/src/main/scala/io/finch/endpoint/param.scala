@@ -63,7 +63,10 @@ private abstract class Params[F[_], A](name: String, d: DecodeEntity[A], tag: Cl
 
   def apply(input: Input): Endpoint.Result[F[A]] = input.request.params.getAll(name) match {
     case value if value.isEmpty => missing(input, name)
-    case value => present(input, value)
+    case value => Try.collect(value.map(d.apply).toSeq) match {
+      case Return(r) => present(input, r)
+      case Throw(e) => EndpointResult.Matched(input, Rs.paramNotParsed(name, tag, e))
+    }
   }
   final override def item: items.RequestItem = items.ParamItem(name)
   final override def toString: String = s"params($name)"

@@ -2,7 +2,7 @@ package io.finch.data
 
 import cats.{Eq, Show}
 import com.twitter.util.Return
-import io.finch.{Decode, DecodeEntity}
+import io.finch.Decode
 import io.finch.internal.HttpContent
 import org.scalacheck.{Arbitrary, Gen}
 
