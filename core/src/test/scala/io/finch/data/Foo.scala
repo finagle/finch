@@ -1,6 +1,6 @@
 package io.finch.data
 
-import cats.Show
+import cats.{Eq, Show}
 import com.twitter.util.Return
 import io.finch.{Decode, DecodeEntity}
 import io.finch.internal.HttpContent
@@ -12,8 +12,7 @@ object Foo {
   implicit val showFoo: Show[Foo] =
     Show.show(_.s)
 
-  implicit val decodeEntityFoo: DecodeEntity[Foo] =
-    DecodeEntity.instance(s => Return(Foo(s)))
+  implicit val eqFoo: Eq[Foo] = Eq.fromUniversalEquals
 
   implicit val decodeTextFoo: Decode.Text[Foo] =
     Decode.text((b, cs) => Return(Foo(b.asString(cs))))

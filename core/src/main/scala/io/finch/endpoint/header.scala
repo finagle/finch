@@ -2,23 +2,27 @@ package io.finch.endpoint
 
 import scala.reflect.ClassTag
 
+import cats.Id
 import com.twitter.util.{Return, Throw}
 import io.finch._
 import io.finch.internal._
 import io.finch.items._
 
-private abstract class Header[A](name: String)(implicit d: DecodeEntity[A], tag: ClassTag[A]) extends Endpoint[A] {
+private abstract class Header[F[_], A](name: String)(implicit
+                                                     d: DecodeEntity[A],
+                                                     tag: ClassTag[A]
+                                                    ) extends Endpoint[F[A]] {
   self =>
 
-  protected def missing(input: Input, name: String): Endpoint.Result[A]
-  protected def present(input: Input, value: A): Endpoint.Result[A]
+  protected def missing(input: Input, name: String): Endpoint.Result[F[A]]
+  protected def present(input: Input, value: A): Endpoint.Result[F[A]]
 
-  final def apply(input: Input): Endpoint.Result[A] =
+  final def apply(input: Input): Endpoint.Result[F[A]] =
     input.request.headerMap.getOrNull(name) match {
       case null => missing(input, name)
       case value => d(value) match {
         case Return(r) => present(input, r)
-        case Throw(e) => notParsed(self, input, e, tag)
+        case Throw(e) => notParsed[F, A](self, input, e, tag)
       }
     }
 
@@ -27,27 +31,27 @@ private abstract class Header[A](name: String)(implicit d: DecodeEntity[A], tag:
 }
 
 private object Header {
-  trait Required[A] { _: Header[A] =>
-    protected def missing(input: Input, name: String): Endpoint.Result[A] =
+  trait Required[A] { _: Header[Id, A] =>
+    protected def missing(input: Input, name: String): Endpoint.Result[Id[A]] =
       EndpointResult.Matched(input, Rs.headerNotPresent(name))
 
-    protected def present(input: Input, value: A): Endpoint.Result[A] =
+    protected def present(input: Input, value: A): Endpoint.Result[Id[A]] =
       EndpointResult.Matched(input, Rs.payload(value))
   }
 
-  trait Optional[A] { _: Header[Option[A]] =>
+  trait Optional[A] { _: Header[Option,A] =>
     protected def missing(input: Input, name: String): Endpoint.Result[Option[A]] =
       EndpointResult.Matched(input, Rs.none)
 
-    protected def present(input: Input, value: Option[A]): Endpoint.Result[Option[A]] =
-      EndpointResult.Matched(input, Rs.payload(value))
+    protected def present(input: Input, value: A): Endpoint.Result[Option[A]] =
+      EndpointResult.Matched(input, Rs.payload(Some(value)))
   }
 
-  trait Exists { _: Header[String] =>
-    protected def missing(input: Input, name: String): Endpoint.Result[String] =
+  trait Exists { _: Header[Id, String] =>
+    protected def missing(input: Input, name: String): Endpoint.Result[Id[String]] =
       EndpointResult.Skipped
 
-    protected def present(input: Input, value: String): Endpoint.Result[String] =
+    protected def present(input: Input, value: String): Endpoint.Result[Id[String]] =
       EndpointResult.Matched(input, Rs.payload(value))
   }
 }
@@ -59,18 +63,18 @@ private[finch] trait Headers {
    * an [[Error.NotPresent]] exception when the header is missing.
    */
   def header[A](name: String)(implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[A] =
-    new Header[A](name) with Header.Required[A]
+    new Header[Id, A](name) with Header.Required[A]
 
   /**
    * An evaluating [[Endpoint]] that reads an optional HTTP header `name` from the request into an
    * `Option`.
    */
   def headerOption[A](name: String)(implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[Option[A]] =
-    new Header[Option[A]](name) with Header.Optional[A]
+    new Header[Option, A](name) with Header.Optional[A]
 
   /**
    * A matching [[Endpoint]] that only matches the requests that contain a given header `name`.
    */
   def headerExists(name: String): Endpoint[String] =
-    new Header[String](name) with Header.Exists
+    new Header[Id, String](name) with Header.Exists
 }

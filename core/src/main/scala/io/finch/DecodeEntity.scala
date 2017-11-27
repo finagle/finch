@@ -25,9 +25,6 @@ object DecodeEntity extends LowPriorityDecode {
 
 trait LowPriorityDecode extends LowLowPriorityDecode {
 
-  implicit def decodeOptional[A](implicit d: DecodeEntity[A]): DecodeEntity[Option[A]] =
-    instance(s => d(s).map(Option.apply))
-
   implicit val decodeInt: DecodeEntity[Int] = instance(s => Try(s.toInt))
 
   implicit val decodeLong: DecodeEntity[Long] = instance(s => Try(s.toLong))
@@ -53,13 +50,8 @@ trait LowLowPriorityDecode {
     def apply(s: String): Try[A] = fn(s)
   }
 
-
   /**
-    * Creates a [[Decode]] from [[shapeless.Generic]].
-    *
-    * Note: This is mostly a workaround for `Endpoint[String].as[CaseClassOfASingleString]`,
-    *       because by some reason, compiler doesn't pick `ValueEndpointOps` for
-    *       `Endpoint[String]`.
+    * Creates a [[Decode]] from [[shapeless.Generic]] for single value case classes.
     */
   implicit def decodeFromGeneric[A, H <: HList, E](implicit
     gen: Generic.Aux[A, H],
