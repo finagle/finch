@@ -3,6 +3,7 @@ package io.finch.internal
 import com.twitter.util.Future
 import io.catbird.util.Rerunnable
 import io.finch._
+import scala.reflect.ClassTag
 import shapeless.HNil
 
 /**
@@ -47,6 +48,9 @@ private[finch] object Rs {
 
   final def paramNotPresent[A](name: String): Rerunnable[Output[A]] =
     exception(Error.NotPresent(items.ParamItem(name)))
+
+  final def paramNotParsed[A](name: String, ct: ClassTag[_], t: Throwable): Rerunnable[Output[A]] =
+    exception(Error.NotParsed(items.ParamItem(name), ct, t))
 
   final def headerNotPresent[A](name: String): Rerunnable[Output[A]] =
     exception(Error.NotPresent(items.HeaderItem(name)))
