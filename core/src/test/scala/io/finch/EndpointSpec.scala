@@ -198,7 +198,7 @@ class EndpointSpec extends FinchSpec {
     }
   }
 
-  it should "support the as[A] method" in {
+  it should "support the as[A] method for HList" in {
     case class Foo(s: String, i: Int, b: Boolean)
 
     val foo = (path[String] :: path[Int] :: path[Boolean]).as[Foo]

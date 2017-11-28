@@ -12,13 +12,12 @@ trait EntityEndpointLaws[A] extends Laws with MissingInstances with AllInstances
 
   def decoder: DecodeEntity[A]
   def classTag: ClassTag[A]
-  def endpoint: Endpoint[Option[String]]
-  def serialize: String => Input
+  def endpoint: Endpoint[Option[A]]
+  def serialize: A => Input
 
   def roundTrip(a: A): IsEq[Option[A]] = {
-    val s = a.toString
-    val i = serialize(s)
-    val e = endpoint.as(decoder, classTag)
+    val i = serialize(a)
+    val e = endpoint
     e(i).awaitValueUnsafe().flatten <-> Some(a)
   }
 
@@ -32,11 +31,11 @@ trait EntityEndpointLaws[A] extends Laws with MissingInstances with AllInstances
 
 object EntityEndpointLaws {
   def apply[A: DecodeEntity: ClassTag](
-    e: Endpoint[Option[String]]
-  )(f: String => Input): EntityEndpointLaws[A] = new EntityEndpointLaws[A] {
+    e: Endpoint[Option[A]]
+  )(f: A => Input): EntityEndpointLaws[A] = new EntityEndpointLaws[A] {
     val decoder: DecodeEntity[A] = DecodeEntity[A]
     val classTag: ClassTag[A] = implicitly[ClassTag[A]]
-    val endpoint: Endpoint[Option[String]] = e
-    val serialize: String => Input = f
+    val endpoint: Endpoint[Option[A]] = e
+    val serialize: A => Input = f
   }
 }

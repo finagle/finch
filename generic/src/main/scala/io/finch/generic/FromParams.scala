@@ -38,27 +38,27 @@ private[generic] object Extractor extends Poly1 {
     dh: DecodeEntity[V],
     ct: ClassTag[V]
   ): Case.Aux[String, Endpoint[Option[V]]] = at[String] { key =>
-    paramOption(key).as(dh, ct)
+    paramOption[V](key)
   }
 
   implicit def seqExtractor[V](implicit
     dh: DecodeEntity[V],
     ct: ClassTag[V]
   ): Case.Aux[String, Endpoint[Seq[V]]] = at[String] { key =>
-    params(key).as(dh, ct)
+    params[V](key)
   }
 
   implicit def nelExtractor[V](implicit
     dh: DecodeEntity[V],
     ct: ClassTag[V]
   ): Case.Aux[String, Endpoint[NonEmptyList[V]]] = at[String] { key =>
-    paramsNel(key).as(dh, ct)
+    paramsNel[V](key)
   }
 
   implicit def extractor[V](implicit
     dh: DecodeEntity[V],
     ct: ClassTag[V]
   ): Case.Aux[String, Endpoint[V]] = at[String] { key =>
-    param(key).as(dh, ct)
+    param[V](key)
   }
 }
