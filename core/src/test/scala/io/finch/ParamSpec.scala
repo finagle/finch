@@ -3,6 +3,7 @@ package io.finch
 import java.util.UUID
 
 import cats.Show
+import cats.data.NonEmptyList
 import io.finch.data.Foo
 
 class ParamSpec extends FinchSpec {
@@ -19,4 +20,32 @@ class ParamSpec extends FinchSpec {
   checkAll("Param[Double]", EntityEndpointLaws[Double](paramOption("x"))(withParam("x")).evaluating)
   checkAll("Param[UUID]", EntityEndpointLaws[UUID](paramOption("x"))(withParam("x")).evaluating)
   checkAll("Param[Foo]", EntityEndpointLaws[Foo](paramOption("x"))(withParam("x")).evaluating)
+
+  it should "throw an error if required param is missing" in {
+    val endpoint: Endpoint[UUID] = param[UUID]("testEndpoint")
+    an[Error.NotPresent] shouldBe thrownBy {
+      endpoint(Input.get("/index")).awaitValueUnsafe()
+    }
+  }
+
+  it should "throw an error if parameter is malformed" in {
+    val endpoint: Endpoint[UUID] = param[UUID]("testEndpoint")
+    an[Error.NotParsed] shouldBe thrownBy {
+      endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe()
+    }
+  }
+
+  it should "collect errors on Endpoint[Seq[String]] failure" in {
+    val endpoint: Endpoint[Seq[UUID]] = params[UUID]("testEndpoint")
+    an[Errors] shouldBe thrownBy (
+      endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe()
+    )
+  }
+
+  it should "collect errors on Endpoint[NonEmptyList[String]] failure" in {
+    val endpoint: Endpoint[NonEmptyList[UUID]] = paramsNel[UUID]("testEndpoint")
+    an[Errors] shouldBe thrownBy (
+      endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe()
+    )
+  }
 }

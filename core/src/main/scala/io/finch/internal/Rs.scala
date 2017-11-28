@@ -2,6 +2,7 @@ package io.finch.internal
 
 import scala.reflect.ClassTag
 
+import cats.data.NonEmptyList
 import com.twitter.util.Future
 import io.catbird.util.Rerunnable
 import io.finch._
@@ -58,4 +59,7 @@ private[finch] object Rs {
 
   final def paramNotParsed[A](name: String, ct: ClassTag[_], t: Throwable): Rerunnable[Output[A]] =
     exception(Error.NotParsed(items.ParamItem(name), ct, t))
+
+  final def paramsNotParsed[A](name: String, ct: ClassTag[_], ts: NonEmptyList[Throwable]): Rerunnable[Output[A]] =
+    exception(Errors(ts.map(t => Error.NotParsed(items.ParamItem(name), ct, t))))
 }

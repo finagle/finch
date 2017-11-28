@@ -1,31 +1,12 @@
 package io.finch
 
-import java.util.UUID
-
-import cats.Show
 import com.twitter.finagle.http.Request
-import com.twitter.io.Buf
 import com.twitter.util.{Return, Throw}
 import io.finch.data.Foo
 
 class BodySpec extends FinchSpec {
 
   behavior of "body*"
-
-  def withBody[A : Show](b: A): Input = Input.post("/").withBody[Text.Plain](Buf.Utf8(Show[A].show(b)))
-
-  implicit def decodeBodyEntity[A](implicit de: DecodeEntity[A]): Decode.Text[A] = Decode.text[A]((b, _) => {
-    val Buf.Utf8(str) = b
-    de(str)
-  })
-
-  checkAll("Body[Int]", EntityEndpointLaws[Int](textBodyOption)(withBody).evaluating)
-  checkAll("Body[Long]", EntityEndpointLaws[Long](textBodyOption)(withBody).evaluating)
-  checkAll("Body[Boolean]", EntityEndpointLaws[Boolean](textBodyOption)(withBody).evaluating)
-  checkAll("Body[Float]", EntityEndpointLaws[Float](textBodyOption)(withBody).evaluating)
-  checkAll("Body[Double]", EntityEndpointLaws[Double](textBodyOption)(withBody).evaluating)
-  checkAll("Body[UUID]", EntityEndpointLaws[UUID](textBodyOption)(withBody).evaluating)
-  checkAll("Body[Foo]", EntityEndpointLaws[Foo](textBodyOption)(withBody).evaluating)
 
   it should "respond with NotFound when it's required" in {
     body[Foo, Text.Plain].apply(Input.get("/")).awaitValue() shouldBe
@@ -49,7 +30,7 @@ class BodySpec extends FinchSpec {
     }
   }
 
-  it should "respond with Some(value) when it's present and optional" in {
+  it should "respond with Some(value) when it'ss present and optional" in {
     check { f: Foo =>
       val i = Input.post("/").withBody[Text.Plain](f)
       bodyOption[Foo, Text.Plain].apply(i).awaitValueUnsafe().flatten === Some(f)

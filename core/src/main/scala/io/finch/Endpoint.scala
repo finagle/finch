@@ -512,6 +512,7 @@ object Endpoint {
    * or more of the elements in the `NonEmptyList`. It will succeed if type conversion succeeds for all elements.
    */
   implicit class StringNelEndpointOps(val self: Endpoint[NonEmptyList[String]]) extends AnyVal {
+    @deprecated(s"Use type parameter instead for a corresponding endpoint (param[A], header[A], ...)", "0.16")
     def as[A](implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[NonEmptyList[A]] =
       self.mapAsync { items =>
         val decoded = items.toList.map(d.apply)
@@ -537,6 +538,7 @@ object Endpoint {
     * succeeds for all elements.
     */
   implicit class StringSeqEndpointOps(val self: Endpoint[Seq[String]]) extends AnyVal {
+    @deprecated(s"Use type parameter instead for a corresponding endpoint (param[A], header[A], ...)", "0.16")
     def as[A](implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[Seq[A]] =
       self.mapAsync { items =>
         val decoded = items.map(d.apply)
@@ -559,6 +561,7 @@ object Endpoint {
    * will succeed if the result is empty or type conversion succeeds.
    */
   implicit class StringOptionEndpointOps(val self: Endpoint[Option[String]]) extends AnyVal {
+    @deprecated(s"Use type parameter instead for a corresponding endpoint (param[A], header[A], ...)", "0.16")
     def as[A](implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[Option[A]] =
       self.mapAsync {
         case Some(value) =>

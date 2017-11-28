@@ -22,4 +22,18 @@ class HeaderSpec extends FinchSpec {
   checkAll("Header[Double]", EntityEndpointLaws[Double](headerOption("x"))(withHeader("x")).evaluating)
   checkAll("Header[UUID]", EntityEndpointLaws[UUID](headerOption("x"))(withHeader("x")).evaluating)
   checkAll("Header[Foo]", EntityEndpointLaws[Foo](headerOption("x"))(withHeader("x")).evaluating)
+
+  it should "throw an error if required header is missing" in {
+    val endpoint: Endpoint[UUID] = header[UUID]("header")
+    an[Error.NotPresent] shouldBe thrownBy {
+      endpoint(Input.get("/index")).awaitValueUnsafe()
+    }
+  }
+
+  it should "throw an error if header is malformed" in {
+    val endpoint: Endpoint[UUID] = header[UUID]("header")
+    an[Error.NotParsed] shouldBe thrownBy {
+      endpoint(Input.get("/index").withHeaders("header" -> "a")).awaitValueUnsafe()
+    }
+  }
 }
