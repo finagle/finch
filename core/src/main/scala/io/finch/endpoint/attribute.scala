@@ -31,17 +31,20 @@ private abstract class Attribute[F[_], A](val name: String, val d: DecodeEntity[
   }
 
   final def apply(input: Input): Endpoint.Result[F[A]] = {
-    all(input) match {
-      case None => EndpointResult.Matched(input, missing(name))
-      case Some(values) =>
-        val decoded = values.map(d.apply)
-        val errors = decoded.collect {
-          case Throw(t) => t
-        }
-        NonEmptyList.fromList(errors) match {
-          case None => EndpointResult.Matched(input, present(decoded.map(_.get())))
-          case Some(es) => EndpointResult.Matched(input, notparsed(es))
-        }
+    if (input.request.isChunked) EndpointResult.Skipped
+    else {
+      all(input) match {
+        case None => EndpointResult.Matched(input, missing(name))
+        case Some(values) =>
+          val decoded = values.map(d.apply)
+          val errors = decoded.collect {
+            case Throw(t) => t
+          }
+          NonEmptyList.fromList(errors) match {
+            case None => EndpointResult.Matched(input, present(decoded.map(_.get())))
+            case Some(es) => EndpointResult.Matched(input, notparsed(es))
+          }
+      }
     }
   }
 
