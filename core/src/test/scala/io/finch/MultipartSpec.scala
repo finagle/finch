@@ -42,8 +42,8 @@ class MultipartSpec extends FinchSpec {
     check { s: String =>
       val i = withAttribute("foo" -> s)
 
-      multipartAttribute("foo")(i).awaitValueUnsafe() === Some(s) &&
-      multipartAttributeOption("foo")(i).awaitValueUnsafe().flatten === Some(s)
+      multipartAttribute("foo").apply(i).awaitValueUnsafe() === Some(s) &&
+      multipartAttributeOption("foo").apply(i).awaitValueUnsafe().flatten === Some(s)
     }
   }
 
@@ -51,8 +51,8 @@ class MultipartSpec extends FinchSpec {
     check { (a: String, b: String) =>
       val i = withAttribute("foo" -> a, "foo" -> b)
 
-      multipartAttributes("foo")(i).awaitValueUnsafe() === Some(Seq(a, b)) &&
-      multipartAttributesNel("foo")(i).awaitValueUnsafe().map(_.toList) === Some(List(a, b))
+      multipartAttributes("foo").apply(i).awaitValueUnsafe() === Some(Seq(a, b)) &&
+      multipartAttributesNel("foo").apply(i).awaitValueUnsafe().map(_.toList) === Some(List(a, b))
     }
   }
 }

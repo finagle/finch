@@ -13,7 +13,8 @@ trait Endpoints extends Bodies
   with Headers
   with ParamAndParams
   with Cookies
-  with FileUploadsAndAttributes {
+  with FileUploads
+  with Attributes {
 
   /**
    * An [[Endpoint]] that skips all path segments.

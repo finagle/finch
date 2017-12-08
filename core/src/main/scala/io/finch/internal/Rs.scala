@@ -57,9 +57,18 @@ private[finch] object Rs {
   final def cookieNotPresent[A](name: String): Rerunnable[Output[A]] =
     exception(Error.NotPresent(items.CookieItem(name)))
 
+  final def attributeNotPresent[A](name: String): Rerunnable[Output[A]] =
+    exception(Error.NotPresent(items.AttributeItem(name)))
+
   final def paramNotParsed[A](name: String, ct: ClassTag[_], t: Throwable): Rerunnable[Output[A]] =
     exception(Error.NotParsed(items.ParamItem(name), ct, t))
 
   final def paramsNotParsed[A](name: String, ct: ClassTag[_], ts: NonEmptyList[Throwable]): Rerunnable[Output[A]] =
     exception(Errors(ts.map(t => Error.NotParsed(items.ParamItem(name), ct, t))))
+
+  final def attributeNotParsed[A](name: String, ct: ClassTag[_], t: Throwable): Rerunnable[Output[A]] =
+    exception(Error.NotParsed(items.AttributeItem(name), ct, t))
+
+  final def attributesNotParsed[A](name: String, ct: ClassTag[_], ts: NonEmptyList[Throwable]): Rerunnable[Output[A]] =
+    exception(Errors(ts.map(t => Error.NotParsed(items.AttributeItem(name), ct, t))))
 }
