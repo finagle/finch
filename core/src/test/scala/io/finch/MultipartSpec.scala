@@ -1,8 +1,12 @@
 package io.finch
 
+import java.util.UUID
+
+import cats.Show
 import com.twitter.finagle.http.{FileElement, RequestBuilder, SimpleElement}
 import com.twitter.finagle.http.exp.Multipart
 import com.twitter.io.Buf
+import io.finch.data.Foo
 
 class MultipartSpec extends FinchSpec {
 
@@ -15,17 +19,35 @@ class MultipartSpec extends FinchSpec {
       .buildFormPost(multipart = true)
     )
 
-  def withAttribute(first: (String, String), rest: (String, String)*): Input = {
+  def withAttribute[A : Show](first: (String, A), rest: (String, A)*): Input = {
     val req = RequestBuilder()
       .url("http://example.com")
-      .add(SimpleElement(first._1, first._2))
+      .add(SimpleElement(first._1, Show[A].show(first._2)))
 
     Input.fromRequest(
       rest.foldLeft(req)((builder, attr) =>
-        builder.add(SimpleElement(attr._1, attr._2))
+        builder.add(SimpleElement(attr._1, Show[A].show(attr._2)))
       ).buildFormPost(multipart = true)
     )
   }
+
+  checkAll("Attribute[String]",
+    EntityEndpointLaws[String](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+  checkAll("Attribute[Int]",
+    EntityEndpointLaws[Int](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+  checkAll("Attribute[Long]",
+    EntityEndpointLaws[Long](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+  checkAll("Attribute[Boolean]",
+    EntityEndpointLaws[Boolean](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+  checkAll("Attribute[Float]",
+    EntityEndpointLaws[Float](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+  checkAll("Attribute[Double]",
+    EntityEndpointLaws[Double](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+  checkAll("Attribute[UUID]",
+    EntityEndpointLaws[UUID](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+  checkAll("Attribute[Foo]",
+    EntityEndpointLaws[Foo](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+
 
   it should "file upload (single)" in {
     check { b: Buf =>
@@ -38,21 +60,29 @@ class MultipartSpec extends FinchSpec {
     }
   }
 
-  it should "attribute (single)" in {
-    check { s: String =>
-      val i = withAttribute("foo" -> s)
-
-      multipartAttribute("foo").apply(i).awaitValueUnsafe() === Some(s) &&
-      multipartAttributeOption("foo").apply(i).awaitValueUnsafe().flatten === Some(s)
+  it should "fail when attribute is missing" in {
+    an[Error.NotPresent] should be thrownBy {
+      multipartAttribute("foo").apply(Input.get("/")).awaitValueUnsafe()
     }
   }
 
-  it should "attribute (multiple)" in {
-    check { (a: String, b: String) =>
-      val i = withAttribute("foo" -> a, "foo" -> b)
+  it should "return None for when attribute is missing for optional endpoint" in {
+    multipartAttributeOption("foo").apply(Input.get("/")).awaitValueUnsafe().flatten shouldBe None
+  }
 
-      multipartAttributes("foo").apply(i).awaitValueUnsafe() === Some(Seq(a, b)) &&
-      multipartAttributesNel("foo").apply(i).awaitValueUnsafe().map(_.toList) === Some(List(a, b))
+  it should "fail when attributes are missing" in {
+    an[Error.NotPresent] should be thrownBy {
+      multipartAttributesNel("foo").apply(Input.get("/")).awaitValueUnsafe()
+    }
+  }
+
+  it should "return empty sequence when attributes are missing for seq endpoint" in {
+    multipartAttributes("foo").apply(Input.get("/")).awaitValueUnsafe() === Some(Seq())
+  }
+
+  it should "fail when attribute is malformed" in {
+    an[Error.NotParsed] should be thrownBy {
+      multipartAttribute[Int]("foo").apply(withAttribute("foo" -> "bar")).awaitValueUnsafe()
     }
   }
 }
