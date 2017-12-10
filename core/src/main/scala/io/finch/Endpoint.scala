@@ -69,6 +69,8 @@ trait Endpoint[A] { self =>
    */
   def apply(input: Input): Endpoint.Result[A]
 
+  def meta: Endpoint.Meta
+
   /**
    * Maps this endpoint to the given function `A => B`.
    */
@@ -91,6 +93,7 @@ trait Endpoint[A] { self =>
 
       final override def item = self.item
       final override def toString: String = self.toString
+      final override def meta: Endpoint.Meta = self.meta
   }
 
   /**
@@ -114,6 +117,7 @@ trait Endpoint[A] { self =>
 
       override def item = self.item
       final override def toString: String = self.toString
+      final override def meta: Endpoint.Meta = self.meta
     }
 
   /**
@@ -141,6 +145,7 @@ trait Endpoint[A] { self =>
 
       override def item = self.item
       final override def toString: String = self.toString
+      final override def meta: Endpoint.Meta = self.meta
    }
 
   /**
@@ -187,6 +192,7 @@ trait Endpoint[A] { self =>
 
       override def item = self.item
       final override def toString: String = self.toString
+      final override def meta: Endpoint.Meta = self.meta
     }
 
   /**
@@ -202,6 +208,7 @@ trait Endpoint[A] { self =>
 
       override def item = items.MultipleItems
       final override def toString: String = s"${other.toString} :: ${self.toString}"
+      final override def meta: Endpoint.Meta = EndpointMetadata.Product(other.meta, self.meta)
     }
 
   /**
@@ -220,6 +227,7 @@ trait Endpoint[A] { self =>
 
     override def item = items.MultipleItems
     final override def toString: String = s"(${self.toString} :+: ${other.toString})"
+    final override def meta: Endpoint.Meta = EndpointMetadata.Coproduct(other.meta, self.meta)
   }
 
   /**
@@ -349,6 +357,7 @@ trait Endpoint[A] { self =>
 
       override def item = self.item
       override final def toString: String = self.toString
+      override final def meta: Endpoint.Meta = self.meta
     }
 
   /**
@@ -357,6 +366,7 @@ trait Endpoint[A] { self =>
   final def withToString(ts: => String): Endpoint[A] = new Endpoint[A] {
     final def apply(input: Input): Endpoint.Result[A] = self(input)
     final override def toString: String = ts
+    final override def meta: Endpoint.Meta = self.meta
   }
 
   private[this] def withOutput[B](fn: Output[A] => Output[B]): Endpoint[B] =
@@ -370,11 +380,14 @@ object Endpoint {
 
   type Result[A] = EndpointResult[A]
 
+  type Meta = EndpointMetadata
+
   /**
    * Creates an empty [[Endpoint]] (an endpoint that never matches) for a given type.
    */
   def empty[A]: Endpoint[A] = new Endpoint[A] {
     final def apply(input: Input): Result[A] = EndpointResult.Skipped
+    final def meta: Endpoint.Meta = EndpointMetadata.Empty
   }
 
   /**
@@ -383,6 +396,8 @@ object Endpoint {
   def const[A](a: A): Endpoint[A] = new Endpoint[A] {
     final def apply(input: Input): Result[A] =
       EndpointResult.Matched(input, Rerunnable.const(Output.payload(a)))
+
+    final def meta: Endpoint.Meta = EndpointMetadata.Const
   }
 
   /**
@@ -400,6 +415,8 @@ object Endpoint {
   def lift[A](a: => A): Endpoint[A] = new Endpoint[A] {
     final def apply(input: Input): Result[A] =
       EndpointResult.Matched(input, Rerunnable(Output.payload(a)))
+
+    final def meta: Endpoint.Meta = EndpointMetadata.Const
   }
 
   /**
@@ -408,6 +425,8 @@ object Endpoint {
   def liftAsync[A](fa: => Future[A]): Endpoint[A] = new Endpoint[A] {
     final def apply(input: Input): Result[A] =
       EndpointResult.Matched(input, Rerunnable.fromFuture(fa).map(a => Output.payload(a)))
+
+    final def meta: Endpoint.Meta = EndpointMetadata.Const
   }
 
   /**
@@ -422,6 +441,8 @@ object Endpoint {
   def liftOutput[A](oa: => Output[A]): Endpoint[A] = new Endpoint[A] {
     final def apply(input: Input): Result[A] =
       EndpointResult.Matched(input, Rerunnable(oa))
+
+    final def meta: Endpoint.Meta = EndpointMetadata.Const
   }
 
   /**
@@ -431,6 +452,8 @@ object Endpoint {
   def liftOutputAsync[A](foa: => Future[Output[A]]): Endpoint[A] = new Endpoint[A] {
     final def apply(input: Input): Result[A] =
       EndpointResult.Matched(input, Rerunnable.fromFuture(foa))
+
+    final def meta: Endpoint.Meta = EndpointMetadata.Const
   }
 
   /**

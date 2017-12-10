@@ -15,4 +15,6 @@ class EndpointMapper[A](m: Method, e: Endpoint[A]) extends Endpoint[A] { self =>
     else EndpointResult.Skipped
 
   final override def toString: String = s"${ m.toString.toUpperCase } /${ e.toString }"
+
+  final def meta: Endpoint.Meta = EndpointMetadata.Method(m, e.meta)
 }

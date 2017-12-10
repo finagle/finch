@@ -48,6 +48,7 @@ package object iteratee extends IterateeInstances {
 
       final override def item: RequestItem = items.BodyItem
       final override def toString: String = "enumeratorBody"
+      final def meta: Endpoint.Meta = EndpointMetadata.Body
     }
   }
 

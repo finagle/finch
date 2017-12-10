@@ -26,7 +26,7 @@ private abstract class Param[F[_], A](name: String, d: DecodeEntity[A], tag: Cla
 
   final override def item: items.RequestItem = items.ParamItem(name)
   final override def toString: String = s"param($name)"
-
+  final def meta: Endpoint.Meta = EndpointMetadata.Parameter(name)
 
 }
 
@@ -75,6 +75,7 @@ private abstract class Params[F[_], A](name: String, d: DecodeEntity[A], tag: Cl
   }
   final override def item: items.RequestItem = items.ParamItem(name)
   final override def toString: String = s"params($name)"
+  final def meta: Endpoint.Meta = EndpointMetadata.Parameters(name)
 }
 
 private object Params {

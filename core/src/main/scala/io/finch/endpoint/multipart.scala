@@ -34,6 +34,7 @@ private abstract class Multipart[A, B](name: String) extends Endpoint[B] {
 
   final override def item: RequestItem = ParamItem(name)
   final override def toString: String = name
+  final def meta: Endpoint.Meta = EndpointMetadata.Multipart(name)
 }
 
 private object Multipart {

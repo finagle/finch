@@ -23,6 +23,8 @@ trait Endpoints extends Bodies
       EndpointResult.Matched(input.copy(route = Nil), Rs.OutputHNil)
 
     final override def toString: String = "*"
+
+    final def meta: Endpoint.Meta = EndpointMetadata.Path(Segment.Wildcard)
   }
 
   /**
@@ -33,6 +35,8 @@ trait Endpoints extends Bodies
       EndpointResult.Matched(input, Rs.OutputHNil)
 
     final override def toString: String = ""
+
+    final def meta: Endpoint.Meta = EndpointMetadata.Path(Segment.Empty)
   }
 
   /**
@@ -43,5 +47,7 @@ trait Endpoints extends Bodies
       EndpointResult.Matched(input, Rs.payload(input.request))
 
     final override def toString: String = "root"
+
+    final def meta: Endpoint.Meta = EndpointMetadata.Const
   }
 }
