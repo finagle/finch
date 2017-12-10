@@ -25,6 +25,7 @@ private abstract class Header[F[_], A](name: String, d: DecodeEntity[A], tag: Cl
 
   final override def item: RequestItem = items.HeaderItem(name)
   final override def toString: String = s"header($name)"
+  final def meta: Endpoint.Meta = EndpointMetadata.Header(name)
 }
 
 private object Header {

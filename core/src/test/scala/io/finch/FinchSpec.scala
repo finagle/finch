@@ -141,6 +141,63 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
     Method.Options, Method.Patch, Method.Post, Method.Put, Method.Trace
   )
 
+  def genMetadataCoproduct(maxDepth: Int): Gen[EndpointMetadata.Coproduct] = for {
+    a <- genMetadata(maxDepth - 1)
+    b <- genMetadata(maxDepth - 1)
+  } yield {
+    EndpointMetadata.Coproduct(a, b)
+  }
+
+  def genMetadataProduct(maxDepth: Int): Gen[EndpointMetadata.Product] = for {
+    a <- genMetadata(maxDepth - 1)
+    b <- genMetadata(maxDepth - 1)
+  } yield {
+    EndpointMetadata.Product(a, b)
+  }
+
+  def genMetadataPath: Gen[EndpointMetadata.Path] = Gen.oneOf(
+    Gen.const(EndpointMetadata.Path(Segment.Empty)),
+    Gen.const(EndpointMetadata.Path(Segment.Wildcard)),
+    Gen.alphaStr.map(s => EndpointMetadata.Path(Segment.Part(s)))
+  )
+
+  def genMetadataMethod(maxDepth: Int): Gen[EndpointMetadata.Method] = {
+    for {
+      method <- genMethod
+      meta <- genMetadata(maxDepth - 1)
+    } yield {
+      EndpointMetadata.Method(method, meta)
+    }
+  }
+
+  def genMetadata(maxDepth: Int): Gen[EndpointMetadata] = {
+
+    val const: List[Gen[EndpointMetadata]] = List(
+      Gen.const(EndpointMetadata.Body),
+      Gen.const(EndpointMetadata.Const),
+      Gen.const(EndpointMetadata.Empty),
+      Gen.alphaStr.map(EndpointMetadata.Parameter.apply),
+      Gen.alphaStr.map(EndpointMetadata.Parameters.apply),
+      Gen.alphaStr.map(EndpointMetadata.Header.apply),
+      Gen.alphaStr.map(EndpointMetadata.Cookie.apply),
+      Gen.alphaStr.map(EndpointMetadata.Multipart),
+      genMetadataPath
+    )
+
+    val withRecursive: List[Gen[EndpointMetadata]] = if (maxDepth > 0) {
+      const ++ List(
+        genMetadataCoproduct(maxDepth),
+        genMetadataMethod(maxDepth),
+        genMetadataProduct(maxDepth)
+      )
+    } else {
+      const
+    }
+
+    val (a :: b :: tail) = withRecursive
+    Gen.oneOf(a, b, tail:_*)
+  }
+
   def genVersion: Gen[Version] = Gen.oneOf(Version.Http10, Version.Http11)
 
   def genPath: Gen[Path] = for {
@@ -196,6 +253,8 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
         new Endpoint[A] {
           final def apply(input: Input): Endpoint.Result[A] =
             EndpointResult.Matched(input, Rerunnable(Output.payload(f(input))))
+
+          final def meta: Endpoint.Meta = EndpointMetadata.Const
         }
       }
     )
@@ -271,4 +330,8 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
 
   implicit def arbitraryErrors: Arbitrary[Errors] =
     Arbitrary(genErrors)
+
+  implicit def aribtraryMetadata: Arbitrary[EndpointMetadata] =
+    Arbitrary(genMetadata(maxDepth = 10))
+
 }

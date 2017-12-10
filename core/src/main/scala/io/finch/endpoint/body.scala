@@ -28,6 +28,8 @@ private abstract class FullBody[A] extends Endpoint[A] {
     }
 
   final override def item: RequestItem = items.BodyItem
+
+  final def meta: Endpoint.Meta = EndpointMetadata.Body
 }
 
 private object FullBody {
@@ -153,5 +155,6 @@ private[finch] trait Bodies {
 
     final override def item: RequestItem = items.BodyItem
     final override def toString: String = "asyncBody"
+    final def meta: Endpoint.Meta = EndpointMetadata.Body
   }
 }

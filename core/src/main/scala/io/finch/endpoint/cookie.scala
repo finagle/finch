@@ -17,6 +17,7 @@ private abstract class Cookie[A](name: String) extends Endpoint[A] {
 
   final override def item: items.RequestItem = items.CookieItem(name)
   final override def toString: String = s"cookie($name)"
+  final def meta: Endpoint.Meta = EndpointMetadata.Cookie(name)
 }
 
 private object Cookie {

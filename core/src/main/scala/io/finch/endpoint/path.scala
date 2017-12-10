@@ -14,6 +14,7 @@ private class MatchPath(s: String) extends Endpoint[HNil] {
   }
 
   final override def toString: String = s
+  final def meta: Endpoint.Meta = EndpointMetadata.Path(Segment.Part(s))
 }
 
 private class ExtractPath[A](implicit d: DecodePath[A], ct: ClassTag[A]) extends Endpoint[A] {
@@ -28,6 +29,9 @@ private class ExtractPath[A](implicit d: DecodePath[A], ct: ClassTag[A]) extends
   }
 
   final override def toString: String = s":${ct.runtimeClass.getSimpleName.toLowerCase}"
+
+  final def meta: Endpoint.Meta =
+    EndpointMetadata.Path(Segment.Part(ct.runtimeClass.getSimpleName.toLowerCase))
 }
 
 private class ExtractPaths[A](implicit d: DecodePath[A], ct: ClassTag[A]) extends Endpoint[Seq[A]] {
@@ -38,6 +42,9 @@ private class ExtractPaths[A](implicit d: DecodePath[A], ct: ClassTag[A]) extend
     )
 
   final override def toString: String = s":${ct.runtimeClass.getSimpleName.toLowerCase}*"
+
+  final def meta: Endpoint.Meta =
+    EndpointMetadata.Path(Segment.Part(s"${ct.runtimeClass.getSimpleName.toLowerCase}*"))
 }
 
 private[finch] trait Paths {
