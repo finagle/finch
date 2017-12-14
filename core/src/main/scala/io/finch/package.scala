@@ -15,7 +15,6 @@ package object finch extends Endpoints
     sealed abstract class RequestItem(val kind: String, val nameOption:Option[String] = None) {
       val description = kind + nameOption.fold("")(" '" + _ + "'")
     }
-    final case class AttributeItem(name: String) extends RequestItem("attribute", Some(name))
     final case class ParamItem(name: String) extends RequestItem("param", Some(name))
     final case class HeaderItem(name: String) extends RequestItem("header", Some(name))
     final case class CookieItem(name: String) extends RequestItem("cookie", Some(name))

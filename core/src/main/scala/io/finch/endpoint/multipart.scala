@@ -52,7 +52,7 @@ private abstract class Attribute[F[_], A](val name: String, val d: DecodeEntity[
     }
   }
 
-  final override def item: items.RequestItem = items.AttributeItem(name)
+  final override def item: items.RequestItem = items.ParamItem(name)
 
 }
 
@@ -61,7 +61,7 @@ private object Attribute {
   trait SingleError[F[_], A] { _: Attribute[F, A] =>
 
     protected def unparsed(errors: NonEmptyList[Throwable]): Rerunnable[Output[F[A]]] =
-      Rs.attributeNotParsed(name, tag, errors.head)
+      Rs.paramNotParsed(name, tag, errors.head)
 
     final override def toString: String = s"attribute($name)"
 
@@ -70,14 +70,14 @@ private object Attribute {
   trait MultipleErrors[F[_], A] { _: Attribute[F, A] =>
 
     protected def unparsed(errors: NonEmptyList[Throwable]): Rerunnable[Output[F[A]]] =
-      Rs.attributesNotParsed(name, tag, errors)
+      Rs.paramsNotParsed(name, tag, errors)
 
     final override def toString: String = s"attributes($name)"
 
   }
 
   trait Required[A] { _: Attribute[Id, A] =>
-    protected def missing(name: String): Rerunnable[Output[A]] = Rs.attributeNotPresent(name)
+    protected def missing(name: String): Rerunnable[Output[A]] = Rs.paramNotPresent(name)
     protected def present(value: NonEmptyList[A]): Rerunnable[Output[A]] = Rs.payload(value.head)
   }
 
@@ -92,7 +92,7 @@ private object Attribute {
   }
 
   trait NonEmpty[A] { _: Attribute[NonEmptyList, A] =>
-    protected def missing(name: String): Rerunnable[Output[NonEmptyList[A]]] = Rs.attributeNotPresent(name)
+    protected def missing(name: String): Rerunnable[Output[NonEmptyList[A]]] = Rs.paramNotPresent(name)
     protected def present(value: NonEmptyList[A]): Rerunnable[Output[NonEmptyList[A]]] = Rs.payload(value)
   }
 }
