@@ -34,6 +34,9 @@ import io.finch.syntax._
  */
 object Main extends TwitterServer {
 
+  implicit def e[A]: Encode.Aux[A, Text.Plain] =
+    Encode.instance[A, Text.Plain]((a, _) => Buf.Utf8(a.toString))
+
   val port: Flag[Int] = flag("port", 8081, "TCP port for HTTP server")
 
   val todos: Counter = statsReceiver.counter("todos")

@@ -3,6 +3,7 @@ package io.finch
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.{Response, Status, Version}
 import com.twitter.io.Buf
+import io.finch.internal.Accept
 import java.nio.charset.Charset
 import scala.annotation.implicitNotFound
 import shapeless._
@@ -11,9 +12,53 @@ import shapeless._
  * Represents a conversion from `A` to [[Response]].
  */
 trait ToResponse[A] {
-  type ContentType <: String
+  type ContentType
 
   def apply(a: A, cs: Charset): Response
+}
+
+trait ContentTypeNegotiation[A] {
+
+  type ContentType
+
+  def apply(accept: Seq[Accept]): ToResponse.Aux[A, ContentType]
+
+}
+
+object ContentTypeNegotiation extends LowPriorityNegotiation {
+
+  type Aux[A, CT] = ContentTypeNegotiation[A] { type ContentType = CT }
+
+  implicit def mkCoproduct[A, CTH <: String, CTT <: Coproduct](implicit
+   h: ToResponse.Aux[A, CTH],
+   t: ContentTypeNegotiation.Aux[A, CTT],
+   w: Witness.Aux[CTH]
+  ): ContentTypeNegotiation.Aux[A, CTH :+: CTT] = instance { accept =>
+    Accept(w.value) match {
+      case Some(ct) if accept.exists(_.matches(ct)) =>
+        ToResponse.instance[A, CTH :+: CTT]((a, cs) => h(a, cs))
+      case _ =>
+        ToResponse.instance[A, CTH :+: CTT]((a, cs) => t(accept)(a, cs))
+    }
+  }
+
+}
+
+trait LowPriorityNegotiation {
+
+  def instance[A, CT](f: Seq[Accept] => ToResponse.Aux[A, CT]): ContentTypeNegotiation.Aux[A, CT] = {
+    new ContentTypeNegotiation[A] {
+      type ContentType = CT
+      def apply(accept: Seq[Accept]): ToResponse.Aux[A, CT] = f(accept)
+    }
+  }
+
+  implicit def mkLast[A, CTH <: String](implicit
+   h: ToResponse.Aux[A, CTH]
+  ): ContentTypeNegotiation.Aux[A, CTH :+: CNil] = instance { _ =>
+    ToResponse.instance[A, CTH :+: CNil]((a, cs) => h(a, cs))
+  }
+
 }
 
 trait LowPriorityToResponseInstances {
@@ -31,7 +76,7 @@ trait LowPriorityToResponseInstances {
   )
   type Aux[A, CT] = ToResponse[A] { type ContentType = CT }
 
-  def instance[A, CT <: String](fn: (A, Charset) => Response): Aux[A, CT] = new ToResponse[A] {
+  def instance[A, CT](fn: (A, Charset) => Response): Aux[A, CT] = new ToResponse[A] {
     type ContentType = CT
     def apply(a: A, cs: Charset): Response = fn(a, cs)
   }

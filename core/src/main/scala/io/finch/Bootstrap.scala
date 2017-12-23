@@ -21,7 +21,7 @@ class Bootstrap[ES <: HList, CTS <: HList](
     val includeDateHeader: Boolean = true,
     val includeServerHeader: Boolean = true) { self =>
 
-  class Serve[CT <: String] {
+  class Serve[CT] {
     def apply[E](e: Endpoint[E]): Bootstrap[Endpoint[E] :: ES, CT :: CTS] =
       new Bootstrap[Endpoint[E] :: ES, CT :: CTS](
         e :: self.endpoints, includeDateHeader, includeServerHeader
@@ -33,7 +33,7 @@ class Bootstrap[ES <: HList, CTS <: HList](
     includeServerHeader: Boolean = self.includeServerHeader
   ): Bootstrap[ES, CTS] = new Bootstrap[ES, CTS](endpoints, includeDateHeader, includeServerHeader)
 
-  def serve[CT <: String]: Serve[CT] = new Serve[CT]
+  def serve[CT]: Serve[CT] = new Serve[CT]
 
   def toService(implicit ts: ToService[ES, CTS]): Service[Request, Response] =
     ts(endpoints, includeDateHeader, includeServerHeader)
