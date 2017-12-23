@@ -11,7 +11,7 @@ import shapeless._
  * Represents a conversion from `A` to [[Response]].
  */
 trait ToResponse[A] {
-  type ContentType <: String
+  type ContentType
 
   def apply(a: A, cs: Charset): Response
 }
@@ -31,7 +31,7 @@ trait LowPriorityToResponseInstances {
   )
   type Aux[A, CT] = ToResponse[A] { type ContentType = CT }
 
-  def instance[A, CT <: String](fn: (A, Charset) => Response): Aux[A, CT] = new ToResponse[A] {
+  def instance[A, CT](fn: (A, Charset) => Response): Aux[A, CT] = new ToResponse[A] {
     type ContentType = CT
     def apply(a: A, cs: Charset): Response = fn(a, cs)
   }
@@ -55,19 +55,19 @@ trait LowPriorityToResponseInstances {
   implicit def jsonAsyncStreamToResponse[A](implicit
     e: Encode.Json[A]
   ): Aux[AsyncStream[A], Application.Json] =
-    asyncResponseBuilder((a, cs) => e(a, cs).concat(NewLine))
+    asyncResponseBuilder[A, Application.Json]((a, cs) => e(a, cs).concat(NewLine))
 
   implicit def textAsyncStreamToResponse[A](implicit
     e: Encode.Text[A]
   ): Aux[AsyncStream[A], Text.Plain] =
-    asyncResponseBuilder((a, cs) => e(a, cs).concat(NewLine))
+    asyncResponseBuilder[A, Text.Plain]((a, cs) => e(a, cs).concat(NewLine))
 }
 
 trait HighPriorityToResponseInstances extends LowPriorityToResponseInstances {
 
   implicit def asyncBufToResponse[CT <: String](implicit
     w: Witness.Aux[CT]
-  ): Aux[AsyncStream[Buf], CT] = asyncResponseBuilder((a, _) => a)
+  ): Aux[AsyncStream[Buf], CT] = asyncResponseBuilder[Buf, CT]((a, _) => a)
 
   implicit def responseToResponse[CT <: String]: Aux[Response, CT] = instance((r, _) => r)
 
