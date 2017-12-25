@@ -17,9 +17,9 @@ trait ToResponse[A] {
   def apply(a: A, cs: Charset): Response
 }
 
-trait ContentTypeNegotiation[A] {
+trait ContentTypeNegotiation[ContentType] {
 
-  type ContentType
+  type A
 
   def apply(accept: Seq[Accept]): ToResponse.Aux[A, ContentType]
 
@@ -27,13 +27,13 @@ trait ContentTypeNegotiation[A] {
 
 object ContentTypeNegotiation extends LowPriorityNegotiation {
 
-  type Aux[A, CT] = ContentTypeNegotiation[A] { type ContentType = CT }
+  type Aux[CT, α] = ContentTypeNegotiation[CT] { type A = α }
 
   implicit def mkCoproduct[A, CTH <: String, CTT <: Coproduct](implicit
    h: ToResponse.Aux[A, CTH],
-   t: ContentTypeNegotiation.Aux[A, CTT],
+   t: ContentTypeNegotiation.Aux[CTT, A],
    w: Witness.Aux[CTH]
-  ): ContentTypeNegotiation.Aux[A, CTH :+: CTT] = instance { accept =>
+  ): ContentTypeNegotiation.Aux[CTH :+: CTT, A] = instance { accept =>
     Accept(w.value) match {
       case Some(ct) if accept.exists(_.matches(ct)) =>
         ToResponse.instance[A, CTH :+: CTT]((a, cs) => h(a, cs))
@@ -46,16 +46,16 @@ object ContentTypeNegotiation extends LowPriorityNegotiation {
 
 trait LowPriorityNegotiation {
 
-  def instance[A, CT](f: Seq[Accept] => ToResponse.Aux[A, CT]): ContentTypeNegotiation.Aux[A, CT] = {
-    new ContentTypeNegotiation[A] {
-      type ContentType = CT
+  def instance[CT, α](f: Seq[Accept] => ToResponse.Aux[α, CT]): ContentTypeNegotiation.Aux[CT, α] = {
+    new ContentTypeNegotiation[CT] {
+      type A = α
       def apply(accept: Seq[Accept]): ToResponse.Aux[A, CT] = f(accept)
     }
   }
 
   implicit def mkLast[A, CTH <: String](implicit
    h: ToResponse.Aux[A, CTH]
-  ): ContentTypeNegotiation.Aux[A, CTH :+: CNil] = instance { _ =>
+  ): ContentTypeNegotiation.Aux[CTH :+: CNil, A] = instance { _ =>
     ToResponse.instance[A, CTH :+: CNil]((a, cs) => h(a, cs))
   }
 

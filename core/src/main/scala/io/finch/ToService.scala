@@ -91,8 +91,8 @@ object ToService extends LowPriorityToService {
 trait LowPriorityToService {
 
   implicit def hlistNegTS[A, EH <: Endpoint[A], ET <: HList, CTH <: Coproduct, CTT <: HList](implicit
-   nctH: ContentTypeNegotiation.Aux[A, CTH],
-   nctE: ContentTypeNegotiation.Aux[Exception, CTH],
+   nctH: ContentTypeNegotiation.Aux[CTH, A],
+   nctE: ContentTypeNegotiation.Aux[CTH, Exception],
    tsT: ToService[ET, CTT]
   ): ToService[Endpoint[A] :: ET, CTH :: CTT] = new ToService[Endpoint[A] :: ET, CTH :: CTT] {
     def apply(
