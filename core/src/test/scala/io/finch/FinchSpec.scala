@@ -10,13 +10,12 @@ import com.twitter.finagle.http._
 import com.twitter.io.Buf
 import com.twitter.util.{Future, Try}
 import io.catbird.util.Rerunnable
+import io.finch.internal.Accept
 import org.scalacheck.{Arbitrary, Cogen, Gen}
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers
 import org.typelevel.discipline.Laws
 import scala.reflect.ClassTag
-
-import io.finch.internal.Accept
 import shapeless.Witness
 
 trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
