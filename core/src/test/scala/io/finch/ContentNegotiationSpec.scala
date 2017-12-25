@@ -48,7 +48,7 @@ class ContentNegotiationSpec extends FinchSpec {
 
   it should "ignore order of values in Accept header and use first appropriate encoder in coproduct" in {
     check { (req: Request, accept: Accept) =>
-      val a = s"${accept.`type`}/${accept.subtype}"
+      val a = s"${accept.primary}/${accept.subtype}"
       req.accept = a +: req.accept
 
       val s = Bootstrap.serve[AllContentTypes](*).toService
@@ -74,7 +74,7 @@ class ContentNegotiationSpec extends FinchSpec {
 
   it should "select last encoder when Accept header value doesn't match any existing encoder" in {
     check { (req: Request, accept: Accept) =>
-      req.accept = s"${accept.`type`}/foo"
+      req.accept = s"${accept.primary}/foo"
       val s = Bootstrap.serve[AllContentTypes](*).toService
       val rep = Await.result(s(req))
 

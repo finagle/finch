@@ -1,5 +1,6 @@
 package io.finch
 
+import cats.syntax.eq._
 import io.finch.internal.Accept
 import shapeless._
 
@@ -21,7 +22,7 @@ object ContentTypeNegotiation extends LowPriorityNegotiation {
     w: Witness.Aux[CTH]
   ): ContentTypeNegotiation.Aux[CTH :+: CTT, A] = instance { accept =>
     Accept(w.value) match {
-      case Some(ct) if accept.exists(_.matches(ct)) =>
+      case Some(ct) if accept.exists(_ === ct) =>
         ToResponse.instance[A, CTH :+: CTT]((a, cs) => h(a, cs))
       case _ =>
         ToResponse.instance[A, CTH :+: CTT]((a, cs) => t(accept)(a, cs))

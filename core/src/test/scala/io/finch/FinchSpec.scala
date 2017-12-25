@@ -194,7 +194,7 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
       r.content = b
       r.contentLength = b.length.toLong
       r.charset = "utf-8"
-      r.accept = s"${a.`type`}/${a.subtype}"
+      r.accept = s"${a.primary}/${a.subtype}"
       r
     }
   )

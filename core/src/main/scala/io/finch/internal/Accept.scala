@@ -1,21 +1,22 @@
 package io.finch.internal
 
-import com.twitter.util.Try
+import cats.Eq
 import javax.activation.MimeType
+import scala.util.control.NonFatal
 
-case class Accept(`type`: String, subtype: String) { self =>
-
-  def matches(other: Accept): Boolean = {
-    (self.`type` == other.`type` || self.`type` == "*") &&
-      (self.subtype == other.subtype || self.subtype == "*")
-  }
-
-}
+case class Accept(primary: String, subtype: String)
 
 object Accept {
 
-  def apply(s: String): Option[Accept] = Try {
+  def apply(s: String): Option[Accept] = try {
     val mt = new MimeType(s)
-    Accept(mt.getPrimaryType, mt.getSubType)
-  }.toOption
+    Some(Accept(mt.getPrimaryType, mt.getSubType))
+  } catch {
+    case NonFatal(_) => None
+  }
+
+  implicit val eq: Eq[Accept] = Eq.instance((a, b) => {
+    (a.primary == b.primary || a.primary == "*") &&
+      (a.subtype == b.subtype || a.subtype == "*")
+  })
 }
