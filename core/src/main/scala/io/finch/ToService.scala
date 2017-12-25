@@ -48,7 +48,7 @@ trait ToService[ES <: HList, CTS <: HList] {
  * - copy requests's HTTP version onto a response
  * - respond with 404 when en endpoint is not matched
  */
-object ToService extends LowPriorityToService {
+object ToService {
 
   implicit def hnilTS: ToService[HNil, HNil] = new ToService[HNil, HNil] {
     def apply(
@@ -63,8 +63,8 @@ object ToService extends LowPriorityToService {
   }
 
   implicit def hlistTS[A, EH <: Endpoint[A], ET <: HList, CTH, CTT <: HList](implicit
-    trA: ToResponse.Aux[A, CTH],
-    trE: ToResponse.Aux[Exception, CTH],
+    ntrA: NegotiateToResponse.Aux[CTH, A],
+    ntrE: NegotiateToResponse.Aux[CTH, Exception],
     tsT: ToService[ET, CTT]
   ): ToService[Endpoint[A] :: ET, CTH :: CTT] = new ToService[Endpoint[A] :: ET, CTH :: CTT] {
     def apply(
@@ -75,38 +75,10 @@ object ToService extends LowPriorityToService {
       private[this] val underlying = endpoints.head.handle(respond400OnErrors)
 
       def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
-        case EndpointResult.Matched(rem, out) if rem.route.isEmpty => out.map(oa => conformHttp(
-          oa.toResponse(trA, trE),
-          req.version,
-          includeDateHeader,
-          includeServerHeader
-        )).run
-
-        case _ => tsT(endpoints.tail, includeDateHeader, includeServerHeader)(req)
-      }
-    }
-  }
-}
-
-trait LowPriorityToService {
-
-  implicit def hlistNegTS[A, EH <: Endpoint[A], ET <: HList, CTH <: Coproduct, CTT <: HList](implicit
-   nctH: ContentTypeNegotiation.Aux[CTH, A],
-   nctE: ContentTypeNegotiation.Aux[CTH, Exception],
-   tsT: ToService[ET, CTT]
-  ): ToService[Endpoint[A] :: ET, CTH :: CTT] = new ToService[Endpoint[A] :: ET, CTH :: CTT] {
-    def apply(
-               endpoints: Endpoint[A] :: ET,
-               includeDateHeader: Boolean,
-               includeServerHeader: Boolean): Service[Request, Response] = new Service[Request, Response] {
-
-      private[this] val underlying = endpoints.head.handle(respond400OnErrors)
-
-      def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
         case EndpointResult.Matched(rem, out) if rem.route.isEmpty =>
           val accept = req.accept.flatMap(a => Accept(a))
           out.map(oa => conformHttp(
-            oa.toResponse(nctH(accept), nctE(accept)),
+            oa.toResponse(ntrA(accept), ntrE(accept)),
             req.version,
             includeDateHeader,
             includeServerHeader
@@ -140,5 +112,4 @@ trait LowPriorityToService {
 
     rep
   }
-
 }

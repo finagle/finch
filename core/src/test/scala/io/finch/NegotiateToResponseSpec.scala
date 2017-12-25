@@ -6,7 +6,7 @@ import com.twitter.util.Await
 import io.finch.internal.Accept
 import shapeless.{:+:, CNil}
 
-class ContentNegotiationSpec extends FinchSpec {
+class NegotiateToResponseSpec extends FinchSpec {
 
   type AllContentTypes = Application.Json :+: Application.AtomXml :+: Application.Csv :+:
     Application.Javascript :+: Application.OctetStream :+: Application.RssXml :+:
