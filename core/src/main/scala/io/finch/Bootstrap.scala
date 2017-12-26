@@ -19,7 +19,8 @@ import shapeless._
 class Bootstrap[ES <: HList, CTS <: HList](
     val endpoints: ES,
     val includeDateHeader: Boolean = true,
-    val includeServerHeader: Boolean = true) { self =>
+    val includeServerHeader: Boolean = true,
+    val negotiateContentType: Boolean = false) { self =>
 
   class Serve[CT] {
     def apply[E](e: Endpoint[E]): Bootstrap[Endpoint[E] :: ES, CT :: CTS] =
@@ -30,13 +31,15 @@ class Bootstrap[ES <: HList, CTS <: HList](
 
   def configure(
     includeDateHeader: Boolean = self.includeDateHeader,
-    includeServerHeader: Boolean = self.includeServerHeader
-  ): Bootstrap[ES, CTS] = new Bootstrap[ES, CTS](endpoints, includeDateHeader, includeServerHeader)
+    includeServerHeader: Boolean = self.includeServerHeader,
+    negotiateContentType: Boolean = self.negotiateContentType
+  ): Bootstrap[ES, CTS] =
+    new Bootstrap[ES, CTS](endpoints, includeDateHeader, includeServerHeader, negotiateContentType)
 
   def serve[CT]: Serve[CT] = new Serve[CT]
 
   def toService(implicit ts: ToService[ES, CTS]): Service[Request, Response] =
-    ts(endpoints, includeDateHeader, includeServerHeader)
+    ts(endpoints, includeDateHeader, includeServerHeader, negotiateContentType)
 
   final override def toString: String = s"Bootstrap($endpoints)"
 }
@@ -44,4 +47,6 @@ class Bootstrap[ES <: HList, CTS <: HList](
 object Bootstrap extends Bootstrap[HNil, HNil](
     endpoints = HNil,
     includeDateHeader = true,
-    includeServerHeader = true)
+    includeServerHeader = true,
+    negotiateContentType = false
+)

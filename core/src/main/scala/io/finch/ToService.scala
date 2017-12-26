@@ -3,7 +3,7 @@ package io.finch
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response, Status, Version}
 import com.twitter.util.Future
-import io.finch.internal.{currentTime, Accept}
+import io.finch.internal.currentTime
 import scala.annotation.implicitNotFound
 import shapeless._
 
@@ -35,7 +35,8 @@ trait ToService[ES <: HList, CTS <: HList] {
   def apply(
     endpoints: ES,
     includeDateHeader: Boolean,
-    includeServerHeader: Boolean
+    includeServerHeader: Boolean,
+    negotiateContentType: Boolean
   ): Service[Request, Response]
 }
 
@@ -50,11 +51,36 @@ trait ToService[ES <: HList, CTS <: HList] {
  */
 object ToService {
 
+  private val respond400OnErrors: PartialFunction[Throwable, Output[Nothing]] = {
+    case e: io.finch.Error => Output.failure(e, Status.BadRequest)
+    case es: io.finch.Errors => Output.failure(es, Status.BadRequest)
+  }
+
+  private def conformHttp(
+      rep: Response,
+      version: Version,
+      includeDateHeader: Boolean,
+      includeServerHeader: Boolean): Response = {
+
+    rep.version = version
+
+    if (includeDateHeader) {
+      rep.date = currentTime()
+    }
+
+    if (includeServerHeader) {
+      rep.server = "Finch"
+    }
+
+    rep
+  }
+
   implicit def hnilTS: ToService[HNil, HNil] = new ToService[HNil, HNil] {
     def apply(
         endpoints: HNil,
         includeDateHeader: Boolean,
-        includeServerHeader: Boolean): Service[Request, Response] = new Service[Request, Response] {
+        includeServerHeader: Boolean,
+        negotiateContentType: Boolean): Service[Request, Response] = new Service[Request, Response] {
 
       def apply(req: Request): Future[Response] = Future.value(
         conformHttp(Response(Status.NotFound), req.version, includeDateHeader, includeServerHeader)
@@ -70,13 +96,14 @@ object ToService {
     def apply(
         endpoints: Endpoint[A] :: ET,
         includeDateHeader: Boolean,
-        includeServerHeader: Boolean): Service[Request, Response] = new Service[Request, Response] {
+        includeServerHeader: Boolean,
+        negotiateContentType: Boolean): Service[Request, Response] = new Service[Request, Response] {
 
       private[this] val underlying = endpoints.head.handle(respond400OnErrors)
 
       def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
         case EndpointResult.Matched(rem, out) if rem.route.isEmpty =>
-          val accept = req.accept.flatMap(a => Accept(a))
+          val accept = if (negotiateContentType) req.accept.flatMap(a => Accept(a)) else Seq.empty
           out.map(oa => conformHttp(
             oa.toResponse(ntrA(accept), ntrE(accept)),
             req.version,
@@ -84,32 +111,9 @@ object ToService {
             includeServerHeader
           )).run
 
-        case _ => tsT(endpoints.tail, includeDateHeader, includeServerHeader)(req)
+        case _ => tsT(endpoints.tail, includeDateHeader, includeServerHeader, negotiateContentType)(req)
       }
     }
   }
 
-  protected val respond400OnErrors: PartialFunction[Throwable, Output[Nothing]] = {
-    case e: io.finch.Error => Output.failure(e, Status.BadRequest)
-    case es: io.finch.Errors => Output.failure(es, Status.BadRequest)
-  }
-
-  protected def conformHttp(
-   rep: Response,
-   version: Version,
-   includeDateHeader: Boolean,
-   includeServerHeader: Boolean): Response = {
-
-    rep.version = version
-
-    if (includeDateHeader) {
-      rep.date = currentTime()
-    }
-
-    if (includeServerHeader) {
-      rep.server = "Finch"
-    }
-
-    rep
-  }
 }

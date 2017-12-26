@@ -1,4 +1,4 @@
-package io.finch.internal
+package io.finch
 
 import cats.Eq
 import javax.activation.MimeType
