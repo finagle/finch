@@ -75,7 +75,7 @@ object ToService {
     rep
   }
 
-  implicit def hnilTS: ToService[HNil, HNil] = new ToService[HNil, HNil] {
+  implicit val hnilTS: ToService[HNil, HNil] = new ToService[HNil, HNil] {
     def apply(
         endpoints: HNil,
         includeDateHeader: Boolean,

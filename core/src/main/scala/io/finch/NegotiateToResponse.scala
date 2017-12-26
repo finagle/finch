@@ -37,12 +37,12 @@ object NegotiateToResponse {
   }
 
   implicit def mkLast[A, CTH <: String](implicit
-                                        tr: ToResponse.Aux[A, CTH]
-                                       ): NegotiateToResponse[A, CTH :+: CNil] = instance { _ =>
+    tr: ToResponse.Aux[A, CTH]
+  ): NegotiateToResponse[A, CTH :+: CNil] = instance { _ =>
     tr.asInstanceOf[ToResponse.Aux[A, CTH :+: CNil]]
   }
 
   implicit def mkSingle[A, CT <: String](implicit
-                                         tr: ToResponse.Aux[A, CT]
-                                        ): NegotiateToResponse[A, CT] = instance(_ => tr)
+    tr: ToResponse.Aux[A, CT]
+  ): NegotiateToResponse[A, CT] = instance(_ => tr)
 }

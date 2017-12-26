@@ -15,7 +15,6 @@ import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers
 import org.typelevel.discipline.Laws
 import scala.reflect.ClassTag
-
 import shapeless.Witness
 
 trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
