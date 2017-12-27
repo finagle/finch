@@ -94,8 +94,7 @@ class EndpointSpec extends FinchSpec {
         f: Endpoint[HNil] => Endpoint[HNil]): Input => Boolean = { i: Input =>
 
       val v = f(/)(i)
-      (i.request.method === m && v.remainder === Some(i)) ||
-      (i.request.method != m && v.remainder === None)
+      v.remainder === Some(i.withMethod(m))
     }
 
     check(matchMethod(Method.Get, get))
