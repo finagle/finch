@@ -14,7 +14,4 @@ class DivSpec extends FlatSpec with Matchers {
   it should "give back bad request if we divide by 0" in {
     div(Input.post("/20/0")).awaitOutputUnsafe().map(_.status) shouldBe Some(Status.BadRequest)
   }
-  it should "give back nothing for other verbs" in {
-    div(Input.get("/20/10")).awaitValueUnsafe() shouldBe None
-  }
 }

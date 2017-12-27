@@ -29,13 +29,28 @@ class BootstrapSpec extends FinchSpec {
     }
   }
 
-  it should "respond 405 if endpoint method is not matched" in {
+  it should "respond 405 if endpoint method is not matched and MethodNotAllowed is enabled" in {
     check { req: Request =>
       req.method = Method.Post
-      val s = get(*)(Ok("foo")).toServiceAs[Text.Plain]
+      val s = Bootstrap
+        .serve[Text.Plain](get(*)(Ok("foo")))
+        .configure(enableMethodNotAllowed = true)
+        .toService
       val rep = Await.result(s(req))
 
       rep.status === Status.MethodNotAllowed
+    }
+  }
+
+  it should "respond 404 if endpoint method is not matched and MethodNotAllowed is disabled" in {
+    check { req: Request =>
+      req.method = Method.Post
+      val s = Bootstrap
+        .serve[Text.Plain](get(*)(Ok("foo")))
+        .toService
+      val rep = Await.result(s(req))
+
+      rep.status === Status.NotFound
     }
   }
 
@@ -45,6 +60,7 @@ class BootstrapSpec extends FinchSpec {
     val s = Bootstrap
       .serve[Text.Plain](post("foo")(out) :+: delete("foo")(out))
       .serve[Text.Plain](get("foo")(out))
+      .configure(enableMethodNotAllowed = true)
       .toService
     val rep = Await.result(s(req))
 

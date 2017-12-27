@@ -37,7 +37,24 @@ trait ToService[ES <: HList, CTS <: HList] {
     includeDateHeader: Boolean,
     includeServerHeader: Boolean,
     negotiateContentType: Boolean,
-    methodNotAllowed: Boolean
+    enableMethodNotAllowed: Boolean
+  ): Service[Request, Response] =
+    run(
+      endpoints,
+      includeDateHeader,
+      includeServerHeader,
+      enableMethodNotAllowed,
+      negotiateContentType,
+      matchedWithoutMethod = false
+    )
+
+  protected def run(
+    endpoints: ES,
+    includeDateHeader: Boolean,
+    includeServerHeader: Boolean,
+    negotiateContentType: Boolean,
+    enableMethodNotAllowed: Boolean,
+    matchedWithoutMethod: Boolean
   ): Service[Request, Response]
 }
 
@@ -77,15 +94,16 @@ object ToService {
   }
 
   implicit val hnilTS: ToService[HNil, HNil] = new ToService[HNil, HNil] {
-    def apply(
+    def run(
         endpoints: HNil,
         includeDateHeader: Boolean,
         includeServerHeader: Boolean,
         negotiateContentType: Boolean,
+        enableMethodNotAllowed: Boolean,
         methodNotAllowed: Boolean): Service[Request, Response] = new Service[Request, Response] {
 
       def apply(req: Request): Future[Response] = {
-        val status = if (methodNotAllowed) Status.MethodNotAllowed else Status.NotFound
+        val status = if (methodNotAllowed && enableMethodNotAllowed) Status.MethodNotAllowed else Status.NotFound
         Future.value(conformHttp(Response(status), req.version, includeDateHeader, includeServerHeader))
       }
     }
@@ -96,12 +114,13 @@ object ToService {
     ntrE: ToResponse.Negotiable[Exception, CTH],
     tsT: ToService[ET, CTT]
   ): ToService[Endpoint[A] :: ET, CTH :: CTT] = new ToService[Endpoint[A] :: ET, CTH :: CTT] {
-    def apply(
+    def run(
         endpoints: Endpoint[A] :: ET,
         includeDateHeader: Boolean,
         includeServerHeader: Boolean,
         negotiateContentType: Boolean,
-        methodNotAllowed: Boolean): Service[Request, Response] = new Service[Request, Response] {
+        enableMethodNotAllowed: Boolean,
+        matchedWithoutMethod: Boolean): Service[Request, Response] = new Service[Request, Response] {
 
       private[this] val underlying = endpoints.head.handle(respond400OnErrors)
 
@@ -114,13 +133,23 @@ object ToService {
             includeDateHeader,
             includeServerHeader
           )).run
-        case EndpointResult.Matched(rem, _) if rem.route.isEmpty =>
-          tsT(
-            endpoints.tail, includeDateHeader, includeServerHeader, negotiateContentType, methodNotAllowed = true
-          )(req)
+
+        case EndpointResult.Matched(rem, out) if rem.route.isEmpty && enableMethodNotAllowed =>
+          tsT.run(
+            endpoints.tail,
+            includeDateHeader,
+            includeServerHeader,
+            negotiateContentType,
+            enableMethodNotAllowed,
+            matchedWithoutMethod = true)(req)
         case _ =>
-          tsT(
-            endpoints.tail, includeDateHeader, includeServerHeader, negotiateContentType, methodNotAllowed
+          tsT.run(
+            endpoints.tail,
+            includeDateHeader,
+            includeServerHeader,
+            negotiateContentType,
+            enableMethodNotAllowed,
+            matchedWithoutMethod
           )(req)
       }
     }

@@ -19,10 +19,6 @@ class StreamingSpec extends FlatSpec with Matchers {
       Some(Seq.empty)
   }
 
-  it should "give back nothing for other verbs" in {
-    sumTo(Input.get("/sumTo/3")).awaitValueUnsafe() shouldBe None
-  }
-
   behavior of "the examples endpoint"
 
   it should "give back a stream of examples" in {
@@ -35,7 +31,4 @@ class StreamingSpec extends FlatSpec with Matchers {
       Some(Seq.empty)
   }
 
-  it should "give back nothing for other verbs" in {
-    examples(Input.post("/examples/3")).awaitValueUnsafe() shouldBe None
-  }
 }
