@@ -1,6 +1,6 @@
 package io.finch
 
-import com.twitter.finagle.http.{Request, Status}
+import com.twitter.finagle.http._
 import com.twitter.util.{Await, Future}
 import io.finch.internal.currentTime
 import java.time.{ZonedDateTime, ZoneOffset}
@@ -27,6 +27,25 @@ class BootstrapSpec extends FinchSpec {
 
       rep.status === Status.NotFound
     }
+  }
+
+  it should "respond 405 if endpoint method is not matched" in {
+    check { req: Request =>
+      req.method = Method.Post
+      val s = get(*)(Ok("foo")).toServiceAs[Text.Plain]
+      val rep = Await.result(s(req))
+
+      rep.status === Status.MethodNotAllowed
+    }
+  }
+
+  it should "respond 200 if endpoint is matched" in {
+    val req = Request("/foo")
+    val out = Ok("bar")
+    val s = (post("foo")(out) :+: get("foo")(out)).toServiceAs[Text.Plain]
+    val rep = Await.result(s(req))
+
+    rep.status === Status.Ok
   }
 
   it should "match the request version" in {

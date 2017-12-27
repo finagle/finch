@@ -10,9 +10,7 @@ class EndpointMapper[A](m: Method, e: Endpoint[A]) extends Endpoint[A] { self =>
    */
   final def apply(mapper: Mapper[A]): Endpoint[mapper.Out] = mapper(self)
 
-  final def apply(input: Input): Endpoint.Result[A] =
-    if (input.request.method == m) e(input)
-    else EndpointResult.Skipped
+  final def apply(input: Input): Endpoint.Result[A] = e(input.withMethod(m))
 
   final override def toString: String = s"${ m.toString.toUpperCase } /${ e.toString }"
 }

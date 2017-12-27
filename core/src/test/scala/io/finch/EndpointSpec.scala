@@ -205,7 +205,7 @@ class EndpointSpec extends FinchSpec {
     val foo = (path[String] :: path[Int] :: path[Boolean]).as[Foo]
 
     check { (s: String, i: Int, b: Boolean) =>
-      foo(Input(emptyRequest, Seq(s, i.toString, b.toString))).awaitValueUnsafe() ===
+      foo(Input(emptyRequest, Seq(s, i.toString, b.toString), Method.Get)).awaitValueUnsafe() ===
         Some(Foo(s, i, b))
     }
   }
@@ -235,7 +235,7 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "maps lazily to values" in {
-    val i = Input(emptyRequest, Seq.empty)
+    val i = Input.fromRequest(emptyRequest)
     var c = 0
     val e = get(*) { c = c + 1; Ok(c) }
 
@@ -244,7 +244,7 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "not evaluate Futures until matched" in {
-    val i = Input(emptyRequest, Seq("a", "10"))
+    val i = Input(emptyRequest, Seq("a", "10"), Method.Get)
     var flag = false
 
     val endpointWithFailedFuture = "a".mapAsync { nil =>
@@ -257,8 +257,8 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "be greedy in terms of | compositor" in {
-    val a = Input(emptyRequest, Seq("a", "10"))
-    val b = Input(emptyRequest, Seq("a"))
+    val a = Input(emptyRequest, Seq("a", "10"), Method.Get)
+    val b = Input(emptyRequest, Seq("a"), Method.Get)
 
     val e1 = "a".coproduct("b").coproduct("a" :: 10)
     val e2 = ("a" :: 10).coproduct("b").coproduct("a")

@@ -36,7 +36,8 @@ trait ToService[ES <: HList, CTS <: HList] {
     endpoints: ES,
     includeDateHeader: Boolean,
     includeServerHeader: Boolean,
-    negotiateContentType: Boolean
+    negotiateContentType: Boolean,
+    methodNotAllowed: Boolean
   ): Service[Request, Response]
 }
 
@@ -80,11 +81,13 @@ object ToService {
         endpoints: HNil,
         includeDateHeader: Boolean,
         includeServerHeader: Boolean,
-        negotiateContentType: Boolean): Service[Request, Response] = new Service[Request, Response] {
+        negotiateContentType: Boolean,
+        methodNotAllowed: Boolean): Service[Request, Response] = new Service[Request, Response] {
 
-      def apply(req: Request): Future[Response] = Future.value(
-        conformHttp(Response(Status.NotFound), req.version, includeDateHeader, includeServerHeader)
-      )
+      def apply(req: Request): Future[Response] = {
+        val status = if (methodNotAllowed) Status.MethodNotAllowed else Status.NotFound
+        Future.value(conformHttp(Response(status), req.version, includeDateHeader, includeServerHeader))
+      }
     }
   }
 
@@ -97,22 +100,28 @@ object ToService {
         endpoints: Endpoint[A] :: ET,
         includeDateHeader: Boolean,
         includeServerHeader: Boolean,
-        negotiateContentType: Boolean): Service[Request, Response] = new Service[Request, Response] {
+        negotiateContentType: Boolean,
+        methodNotAllowed: Boolean): Service[Request, Response] = new Service[Request, Response] {
 
       private[this] val underlying = endpoints.head.handle(respond400OnErrors)
 
       def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
-        case EndpointResult.Matched(rem, out) if rem.route.isEmpty =>
+        case EndpointResult.Matched(rem, out) if rem.route.isEmpty && rem.method == req.method =>
           val accept = if (negotiateContentType) req.accept.map(a => Accept.fromString(a)) else Nil
-
           out.map(oa => conformHttp(
             oa.toResponse(ntrA(accept), ntrE(accept)),
             req.version,
             includeDateHeader,
             includeServerHeader
           )).run
-
-        case _ => tsT(endpoints.tail, includeDateHeader, includeServerHeader, negotiateContentType)(req)
+        case EndpointResult.Matched(rem, _) if rem.route.isEmpty =>
+          tsT(
+            endpoints.tail, includeDateHeader, includeServerHeader, negotiateContentType, methodNotAllowed = true
+          )(req)
+        case _ =>
+          tsT(
+            endpoints.tail, includeDateHeader, includeServerHeader, negotiateContentType, methodNotAllowed
+          )(req)
       }
     }
   }
