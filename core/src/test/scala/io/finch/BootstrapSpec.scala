@@ -42,7 +42,10 @@ class BootstrapSpec extends FinchSpec {
   it should "respond 200 if endpoint is matched" in {
     val req = Request("/foo")
     val out = Ok("bar")
-    val s = (post("foo")(out) :+: get("foo")(out)).toServiceAs[Text.Plain]
+    val s = Bootstrap
+      .serve[Text.Plain](post("foo")(out) :+: delete("foo")(out))
+      .serve[Text.Plain](get("foo")(out))
+      .toService
     val rep = Await.result(s(req))
 
     rep.status === Status.Ok
