@@ -38,24 +38,18 @@ trait ToService[ES <: HList, CTS <: HList] {
     includeServerHeader: Boolean,
     negotiateContentType: Boolean,
     enableMethodNotAllowed: Boolean
-  ): Service[Request, Response] =
-    run(
-      endpoints,
-      includeDateHeader,
-      includeServerHeader,
-      enableMethodNotAllowed,
-      negotiateContentType,
-      matchedWithoutMethod = false
-    )
+  ): Service[Request, Response] = {
+    withContext(
+      endpoints, includeDateHeader, includeServerHeader, negotiateContentType, enableMethodNotAllowed
+    )(matchedWithoutMethod = false)
+  }
 
-  protected def run(
+  protected def withContext(
     endpoints: ES,
     includeDateHeader: Boolean,
     includeServerHeader: Boolean,
     negotiateContentType: Boolean,
-    enableMethodNotAllowed: Boolean,
-    matchedWithoutMethod: Boolean
-  ): Service[Request, Response]
+    enableMethodNotAllowed: Boolean)(matchedWithoutMethod: Boolean): Service[Request, Response]
 }
 
 /**
@@ -94,19 +88,19 @@ object ToService {
   }
 
   implicit val hnilTS: ToService[HNil, HNil] = new ToService[HNil, HNil] {
-    def run(
+    def withContext(
         endpoints: HNil,
         includeDateHeader: Boolean,
         includeServerHeader: Boolean,
         negotiateContentType: Boolean,
         enableMethodNotAllowed: Boolean,
-        methodNotAllowed: Boolean): Service[Request, Response] = new Service[Request, Response] {
+    )(matchedWithoutMethod: Boolean): Service[Request, Response] = new Service[Request, Response] {
 
-      def apply(req: Request): Future[Response] = {
-        val status = if (methodNotAllowed && enableMethodNotAllowed) Status.MethodNotAllowed else Status.NotFound
-        Future.value(conformHttp(Response(status), req.version, includeDateHeader, includeServerHeader))
+        def apply(req: Request): Future[Response] = {
+          val status = if (matchedWithoutMethod && enableMethodNotAllowed) Status.MethodNotAllowed else Status.NotFound
+          Future.value(conformHttp(Response(status), req.version, includeDateHeader, includeServerHeader))
+        }
       }
-    }
   }
 
   implicit def hlistTS[A, EH <: Endpoint[A], ET <: HList, CTH, CTT <: HList](implicit
@@ -114,13 +108,13 @@ object ToService {
     ntrE: ToResponse.Negotiable[Exception, CTH],
     tsT: ToService[ET, CTT]
   ): ToService[Endpoint[A] :: ET, CTH :: CTT] = new ToService[Endpoint[A] :: ET, CTH :: CTT] {
-    def run(
+    def withContext(
         endpoints: Endpoint[A] :: ET,
         includeDateHeader: Boolean,
         includeServerHeader: Boolean,
         negotiateContentType: Boolean,
-        enableMethodNotAllowed: Boolean,
-        matchedWithoutMethod: Boolean): Service[Request, Response] = new Service[Request, Response] {
+        enableMethodNotAllowed: Boolean
+    )(matchedWithoutMethod: Boolean): Service[Request, Response] = new Service[Request, Response] {
 
       private[this] val underlying = endpoints.head.handle(respond400OnErrors)
 
@@ -135,22 +129,21 @@ object ToService {
           )).run
 
         case EndpointResult.Matched(rem, out) if rem.route.isEmpty && enableMethodNotAllowed =>
-          tsT.run(
+          tsT.withContext(
             endpoints.tail,
             includeDateHeader,
             includeServerHeader,
             negotiateContentType,
-            enableMethodNotAllowed,
-            matchedWithoutMethod = true)(req)
+            enableMethodNotAllowed
+          )(matchedWithoutMethod = true)(req)
         case _ =>
-          tsT.run(
+          tsT.withContext(
             endpoints.tail,
             includeDateHeader,
             includeServerHeader,
             negotiateContentType,
             enableMethodNotAllowed,
-            matchedWithoutMethod
-          )(req)
+          )(matchedWithoutMethod)(req)
       }
     }
   }
