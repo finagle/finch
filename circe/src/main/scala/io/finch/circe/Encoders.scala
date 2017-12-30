@@ -1,13 +1,14 @@
 package io.finch.circe
 
 import com.twitter.io.Buf
-import io.circe.{Encoder, Json}
+import io.circe._
 import io.finch.Encode
 import java.nio.charset.Charset
 
 trait Encoders {
 
-  protected def print(json: Json, cs: Charset): Buf
+  protected def print(json: Json, cs: Charset): Buf =
+    Buf.ByteBuffer.Owned(Printer.noSpaces.prettyByteBuffer(json, cs))
 
   /**
    * Maps Circe's [[Encoder]] to Finch's [[Encode]].
