@@ -9,6 +9,12 @@ class CirceSpec extends AbstractJsonSpec {
   checkEnumerateJson("circe")
 }
 
+class CirceAccumulatingSpec extends AbstractJsonSpec {
+  import io.finch.circe.accumulating._
+  checkJson("circe-accumulating")
+  checkEnumerateJson("circe-accumulating")
+}
+
 class CirceJacksonSpec extends AbstractJsonSpec {
   import io.finch.circe.jacksonSerializer._
   checkJson("circe-jackson")
