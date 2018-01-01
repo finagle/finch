@@ -441,25 +441,27 @@ where abstraction's concerns end, but also helps performance-wise quite a lot.
 
 #### Type Conversion
 
-For all `String`-based endpoints, Finch provides an `as[A]` method to perform type conversions. It
-is available for any `Endpoint[String]`, `Endpoint[Option[String]]` or `Endpoint[Seq[String]]` as
-long as a matching implicit `io.finch.DecodeEntity[A]` type-class is in the scope.
+For the vast majority of endpoints, Finch also accepts a target type as a type parameter such that
+a corresponding implicit decoder (i.e., `io.finch.DecodeEntity[A]`) will be resolved and applied
+automatically.
 
 This facility is designed to be intuitive, meaning that you do not have to provide a
 `io.finch.DecodeEntity[Seq[MyType]]` for converting a sequence. A decoder for a single item will
-allow you to convert `Option[String]` and `Seq[String]`, too:
+allow you to convert optinal endpoints too:
 
 ```tut
 import io.finch._
 
-param("foo").as[Int]
+param[Int]("foo")
 
-paramOption("bar").as[Int]
+paramOption[Int]("bar")
 
-params("bazs").as[Int]
+params[Int]("baz")
 ```
 
-The same method `as[A]` is also available on any `Endpoint[L <: HList]` to perform
+Note when no type parameter is specified, `String` is being resolved implicitly.
+
+A similar machinery is also available on any `Endpoint[L <: HList]` via `.as[A]` method to perform
 [Shapeless][shapeless]-powered generic conversions from `HList`s to case classes with appropriately
 typed members.
 
@@ -470,10 +472,6 @@ case class Foo(i: Int, s: String)
 
 val foo = (param("i").as[Int] :: param("s")).as[Foo]
 ```
-
-Note that while both methods take different implicit params and use different techniques to perform
-type-conversion, they're basically doing the same thing: transforming the underlying type `A` into
-some type `B` (that's why they have similar names).
 
 #### Custom Decoders
 
@@ -501,8 +499,8 @@ import io.finch._
 case class Interval(start: Long, end: Long)
 
 val interval = (
-  param("start").as[Long] ::
-  param("end").as[Long]
+  param[Long]("start") ::
+  param[Long]("end")
 ).as[Interval]
 ```
 
@@ -693,14 +691,14 @@ value is non-empty then all validations must succeed for the reader to succeed.
 
 For validation logic only needed in one place, the most convenient way is to declare it inline:
 
-```tut:silent
+```tut:silent:reset
 import io.finch._
 
 case class User(name: String, age: Int)
 
 val user: Endpoint[User] = (
-  param("name") ::
-  param("age").as[Int].shouldNot("be less than 18") { _ < 18 }
+  param[String]("name") ::
+  param[Int]("age").shouldNot("be less than 18") { _ < 18 }
 ).as[User]
 ```
 
@@ -715,7 +713,7 @@ def beLessThan(value: Int) = ValidationRule[Int](s"be less than $value") { _ < v
 
 val child: Endpoint[User] = (
   param("name") ::
-  param("age").as[Int].should(bePositive and beLessThan(18))
+  param[Int]("age").should(bePositive and beLessThan(18))
 ).as[User]
 ```
 
