@@ -53,10 +53,11 @@ libraryDependencies ++= Seq(
 
 Hello World!
 ------------
-This "Hello World!" example is built with the `0.16.0-M5` version of just `finch-core`.
+This "Hello World!" example is built with the `0.16.0` version of just `finch-core`.
 
 ```scala
 import io.finch._
+import io.finch.syntax._
 import com.twitter.finagle.Http
 
 val api: Endpoint[String] = get("hello") { Ok("Hello, World!") }
