@@ -358,6 +358,10 @@ deprecation cycles.
                         <a href="Errors.html" title="Multiple errors from an Endpoint.">Errors</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="trait" href="HighPriorityDecode.html" title=""></a>
+                        <a href="HighPriorityDecode.html" title="">HighPriorityDecode</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="trait" href="HighPriorityEncodeInstances.html" title=""></a>
                         <a href="HighPriorityEncodeInstances.html" title="">HighPriorityEncodeInstances</a>
                       </li><li class="current-entities indented2">
@@ -372,6 +376,10 @@ deprecation cycles.
                         <span class="separator"></span>
                         <a class="trait" href="IterateeInstances.html" title=""></a>
                         <a href="IterateeInstances.html" title="">IterateeInstances</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="LowPriorityDecode.html" title=""></a>
+                        <a href="LowPriorityDecode.html" title="">LowPriorityDecode</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="LowPriorityEncodeInstances.html" title=""></a>
@@ -990,9 +998,9 @@ interpreted as <code>A</code>, into an <code>Option</code>. The returned <a href
               
         </dd></dl></div>
     </li><li name="io.finch.endpoint.Headers#header" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="header(name:String):io.finch.Endpoint[String]"></a><a id="header(String):Endpoint[String]"></a>
+      <a id="header[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a><a id="header[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[A]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Endpoints.html#header(name:String):io.finch.Endpoint[String]" title="Permalink">
+      <a href="../../io/finch/Endpoints.html#header[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1001,7 +1009,7 @@ interpreted as <code>A</code>, into an <code>Option</code>. The returned <a href
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">header</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">header</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.endpoint.Headers.header.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.4/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.Headers.header.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.endpoint.Headers.header.A">A</span>]</span>
       </span>
       
       <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a required HTTP header <code>name</code> from the request or raises
@@ -1009,9 +1017,9 @@ an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPrese
 an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception when the header is missing.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>Headers</dd></dl></div>
     </li><li name="io.finch.endpoint.Headers#headerExists" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="headerExists(name:String):io.finch.Endpoint[String]"></a><a id="headerExists(String):Endpoint[String]"></a>
+      <a id="headerExists[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a><a id="headerExists[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[A]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Endpoints.html#headerExists(name:String):io.finch.Endpoint[String]" title="Permalink">
+      <a href="../../io/finch/Endpoints.html#headerExists[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1020,15 +1028,15 @@ an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPrese
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">headerExists</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">headerExists</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.endpoint.Headers.headerExists.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.4/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.Headers.headerExists.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.endpoint.Headers.headerExists.A">A</span>]</span>
       </span>
       
       <p class="shortcomment cmt">A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that only matches the requests that contain a given header <code>name</code>.</p><div class="fullcomment"><div class="comment cmt"><p>A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that only matches the requests that contain a given header <code>name</code>.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>Headers</dd></dl></div>
     </li><li name="io.finch.endpoint.Headers#headerOption" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="headerOption(name:String):io.finch.Endpoint[Option[String]]"></a><a id="headerOption(String):Endpoint[Option[String]]"></a>
+      <a id="headerOption[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]"></a><a id="headerOption[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[Option[A]]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Endpoints.html#headerOption(name:String):io.finch.Endpoint[Option[String]]" title="Permalink">
+      <a href="../../io/finch/Endpoints.html#headerOption[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1037,7 +1045,7 @@ an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPrese
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">headerOption</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="name">headerOption</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.endpoint.Headers.headerOption.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.4/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.Headers.headerOption.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<span class="extype" name="io.finch.endpoint.Headers.headerOption.A">A</span>]]</span>
       </span>
       
       <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional HTTP header <code>name</code> from the request into an
@@ -1111,9 +1119,9 @@ an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPrese
       <p class="shortcomment cmt">Alias for <code>bodyOption[A, Application.Json]</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Alias for <code>bodyOption[A, Application.Json]</code>.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>Bodies</dd></dl></div>
     </li><li name="io.finch.endpoint.FileUploadsAndAttributes#multipartAttribute" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="multipartAttribute(name:String):io.finch.Endpoint[String]"></a><a id="multipartAttribute(String):Endpoint[String]"></a>
+      <a id="multipartAttribute[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a><a id="multipartAttribute[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[A]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Endpoints.html#multipartAttribute(name:String):io.finch.Endpoint[String]" title="Permalink">
+      <a href="../../io/finch/Endpoints.html#multipartAttribute[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1122,7 +1130,7 @@ an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPrese
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">multipartAttribute</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">multipartAttribute</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.endpoint.FileUploadsAndAttributes.multipartAttribute.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.4/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.FileUploadsAndAttributes.multipartAttribute.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.endpoint.FileUploadsAndAttributes.multipartAttribute.A">A</span>]</span>
       </span>
       
       <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a required attribute from a <code>multipart/form-data</code>
@@ -1130,9 +1138,9 @@ request.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <
 request.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>FileUploadsAndAttributes</dd></dl></div>
     </li><li name="io.finch.endpoint.FileUploadsAndAttributes#multipartAttributeOption" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="multipartAttributeOption(name:String):io.finch.Endpoint[Option[String]]"></a><a id="multipartAttributeOption(String):Endpoint[Option[String]]"></a>
+      <a id="multipartAttributeOption[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]"></a><a id="multipartAttributeOption[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[Option[A]]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Endpoints.html#multipartAttributeOption(name:String):io.finch.Endpoint[Option[String]]" title="Permalink">
+      <a href="../../io/finch/Endpoints.html#multipartAttributeOption[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1141,11 +1149,49 @@ request.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">multipartAttributeOption</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="name">multipartAttributeOption</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.endpoint.FileUploadsAndAttributes.multipartAttributeOption.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.4/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.FileUploadsAndAttributes.multipartAttributeOption.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<span class="extype" name="io.finch.endpoint.FileUploadsAndAttributes.multipartAttributeOption.A">A</span>]]</span>
       </span>
       
       <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional attribute from a <code>multipart/form-data</code>
 request.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional attribute from a <code>multipart/form-data</code>
+request.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>FileUploadsAndAttributes</dd></dl></div>
+    </li><li name="io.finch.endpoint.FileUploadsAndAttributes#multipartAttributes" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="multipartAttributes[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[Seq[A]]"></a><a id="multipartAttributes[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[Seq[A]]"></a>
+      <span class="permalink">
+      <a href="../../io/finch/Endpoints.html#multipartAttributes[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[Seq[A]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">multipartAttributes</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.endpoint.FileUploadsAndAttributes.multipartAttributes.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.4/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.FileUploadsAndAttributes.multipartAttributes.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="io.finch.endpoint.FileUploadsAndAttributes.multipartAttributes.A">A</span>]]</span>
+      </span>
+      
+      <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a required attribute from a <code>multipart/form-data</code>
+request.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a required attribute from a <code>multipart/form-data</code>
+request.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>FileUploadsAndAttributes</dd></dl></div>
+    </li><li name="io.finch.endpoint.FileUploadsAndAttributes#multipartAttributesNel" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="multipartAttributesNel[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicitt:scala.reflect.ClassTag[A]):io.finch.Endpoint[cats.data.NonEmptyList[A]]"></a><a id="multipartAttributesNel[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[NonEmptyList[A]]"></a>
+      <span class="permalink">
+      <a href="../../io/finch/Endpoints.html#multipartAttributesNel[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicitt:scala.reflect.ClassTag[A]):io.finch.Endpoint[cats.data.NonEmptyList[A]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">multipartAttributesNel</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.endpoint.FileUploadsAndAttributes.multipartAttributesNel.A">A</span>]</span>, <span name="t">t: <a href="http://www.scala-lang.org/api/2.12.4/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.FileUploadsAndAttributes.multipartAttributesNel.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://typelevel.org/cats/api/cats/data/NonEmptyList.html#cats.data.NonEmptyList" class="extype" name="cats.data.NonEmptyList">NonEmptyList</a>[<span class="extype" name="io.finch.endpoint.FileUploadsAndAttributes.multipartAttributesNel.A">A</span>]]</span>
+      </span>
+      
+      <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a required attribute from a <code>multipart/form-data</code>
+request.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a required attribute from a <code>multipart/form-data</code>
 request.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>FileUploadsAndAttributes</dd></dl></div>
     </li><li name="io.finch.endpoint.FileUploadsAndAttributes#multipartFileUpload" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
@@ -1185,6 +1231,44 @@ request.
       <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional file upload from a <code>multipart/form-data</code>
 request into an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional file upload from a <code>multipart/form-data</code>
 request into an <code>Option</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>FileUploadsAndAttributes</dd></dl></div>
+    </li><li name="io.finch.endpoint.FileUploadsAndAttributes#multipartFileUploads" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="multipartFileUploads(name:String):io.finch.Endpoint[Seq[com.twitter.finagle.http.exp.Multipart.FileUpload]]"></a><a id="multipartFileUploads(String):Endpoint[Seq[FileUpload]]"></a>
+      <span class="permalink">
+      <a href="../../io/finch/Endpoints.html#multipartFileUploads(name:String):io.finch.Endpoint[Seq[com.twitter.finagle.http.exp.Multipart.FileUpload]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">multipartFileUploads</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="com.twitter.finagle.http.exp.Multipart.FileUpload">FileUpload</span>]]</span>
+      </span>
+      
+      <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that optionally reads multiple file uploads from a <code>multipart/form-data</code>
+request.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that optionally reads multiple file uploads from a <code>multipart/form-data</code>
+request.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>FileUploadsAndAttributes</dd></dl></div>
+    </li><li name="io.finch.endpoint.FileUploadsAndAttributes#multipartFileUploadsNel" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="multipartFileUploadsNel(name:String):io.finch.Endpoint[cats.data.NonEmptyList[com.twitter.finagle.http.exp.Multipart.FileUpload]]"></a><a id="multipartFileUploadsNel(String):Endpoint[NonEmptyList[FileUpload]]"></a>
+      <span class="permalink">
+      <a href="../../io/finch/Endpoints.html#multipartFileUploadsNel(name:String):io.finch.Endpoint[cats.data.NonEmptyList[com.twitter.finagle.http.exp.Multipart.FileUpload]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">multipartFileUploadsNel</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://typelevel.org/cats/api/cats/data/NonEmptyList.html#cats.data.NonEmptyList" class="extype" name="cats.data.NonEmptyList">NonEmptyList</a>[<span class="extype" name="com.twitter.finagle.http.exp.Multipart.FileUpload">FileUpload</span>]]</span>
+      </span>
+      
+      <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that requires multiple file uploads from a <code>multipart/form-data</code>
+request.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that requires multiple file uploads from a <code>multipart/form-data</code>
+request.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>FileUploadsAndAttributes</dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
@@ -1241,9 +1325,9 @@ request into an <code>Option</code>.
               
         </dd></dl></div>
     </li><li name="io.finch.endpoint.ParamAndParams#param" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="param(name:String):io.finch.Endpoint[String]"></a><a id="param(String):Endpoint[String]"></a>
+      <a id="param[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a><a id="param[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[A]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Endpoints.html#param(name:String):io.finch.Endpoint[String]" title="Permalink">
+      <a href="../../io/finch/Endpoints.html#param[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1252,7 +1336,7 @@ request into an <code>Option</code>.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">param</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">param</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.param.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.4/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.param.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.param.A">A</span>]</span>
       </span>
       
       <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a required query-string param <code>name</code> from the
@@ -1262,9 +1346,9 @@ request or raises an <a href="Error$$NotPresent.html" class="extype" name="io.fi
 <a href="Error$$NotValid.html" class="extype" name="io.finch.Error.NotValid">Error.NotValid</a> exception is the param is empty.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>ParamAndParams</dd></dl></div>
     </li><li name="io.finch.endpoint.ParamAndParams#paramExists" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="paramExists(name:String):io.finch.Endpoint[String]"></a><a id="paramExists(String):Endpoint[String]"></a>
+      <a id="paramExists[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a><a id="paramExists[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[A]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Endpoints.html#paramExists(name:String):io.finch.Endpoint[String]" title="Permalink">
+      <a href="../../io/finch/Endpoints.html#paramExists[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1273,7 +1357,7 @@ request or raises an <a href="Error$$NotPresent.html" class="extype" name="io.fi
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">paramExists</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">paramExists</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.paramExists.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.4/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.paramExists.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.paramExists.A">A</span>]</span>
       </span>
       
       <p class="shortcomment cmt">A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that only matches the requests that contain a given query-string
@@ -1281,9 +1365,9 @@ param <code>name</code>.</p><div class="fullcomment"><div class="comment cmt"><p
 param <code>name</code>.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>ParamAndParams</dd></dl></div>
     </li><li name="io.finch.endpoint.ParamAndParams#paramOption" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="paramOption(name:String):io.finch.Endpoint[Option[String]]"></a><a id="paramOption(String):Endpoint[Option[String]]"></a>
+      <a id="paramOption[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]"></a><a id="paramOption[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[Option[A]]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Endpoints.html#paramOption(name:String):io.finch.Endpoint[Option[String]]" title="Permalink">
+      <a href="../../io/finch/Endpoints.html#paramOption[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1292,7 +1376,7 @@ param <code>name</code>.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">paramOption</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="name">paramOption</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.paramOption.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.4/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.paramOption.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.paramOption.A">A</span>]]</span>
       </span>
       
       <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional query-string param <code>name</code> from the request
@@ -1300,9 +1384,9 @@ into an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt
 into an <code>Option</code>.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>ParamAndParams</dd></dl></div>
     </li><li name="io.finch.endpoint.ParamAndParams#params" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="params(name:String):io.finch.Endpoint[Seq[String]]"></a><a id="params(String):Endpoint[Seq[String]]"></a>
+      <a id="params[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[Seq[A]]"></a><a id="params[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[Seq[A]]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Endpoints.html#params(name:String):io.finch.Endpoint[Seq[String]]" title="Permalink">
+      <a href="../../io/finch/Endpoints.html#params[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[Seq[A]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1311,7 +1395,7 @@ into an <code>Option</code>.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">params</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="name">params</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.params.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.4/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.params.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="io.finch.endpoint.ParamAndParams.params.A">A</span>]]</span>
       </span>
       
       <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional (in a meaning that a resulting
@@ -1319,9 +1403,9 @@ into an <code>Option</code>.
 <code>Seq</code> may be empty) multi-value query-string param <code>name</code> from the request into a <code>Seq</code>.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>ParamAndParams</dd></dl></div>
     </li><li name="io.finch.endpoint.ParamAndParams#paramsNel" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="paramsNel(name:String):io.finch.Endpoint[cats.data.NonEmptyList[String]]"></a><a id="paramsNel(String):Endpoint[NonEmptyList[String]]"></a>
+      <a id="paramsNel[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[cats.data.NonEmptyList[A]]"></a><a id="paramsNel[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[NonEmptyList[A]]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Endpoints.html#paramsNel(name:String):io.finch.Endpoint[cats.data.NonEmptyList[String]]" title="Permalink">
+      <a href="../../io/finch/Endpoints.html#paramsNel[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[cats.data.NonEmptyList[A]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1330,7 +1414,7 @@ into an <code>Option</code>.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">paramsNel</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://typelevel.org/cats/api/cats/data/NonEmptyList.html#cats.data.NonEmptyList" class="extype" name="cats.data.NonEmptyList">NonEmptyList</a>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="name">paramsNel</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.paramsNel.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.4/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.paramsNel.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://typelevel.org/cats/api/cats/data/NonEmptyList.html#cats.data.NonEmptyList" class="extype" name="cats.data.NonEmptyList">NonEmptyList</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.paramsNel.A">A</span>]]</span>
       </span>
       
       <p class="shortcomment cmt">An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a required multi-value query-string param <code>name</code>

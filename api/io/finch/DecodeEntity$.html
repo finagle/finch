@@ -358,6 +358,10 @@ deprecation cycles.
                         <a href="Errors.html" title="Multiple errors from an Endpoint.">Errors</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="trait" href="HighPriorityDecode.html" title=""></a>
+                        <a href="HighPriorityDecode.html" title="">HighPriorityDecode</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="trait" href="HighPriorityEncodeInstances.html" title=""></a>
                         <a href="HighPriorityEncodeInstances.html" title="">HighPriorityEncodeInstances</a>
                       </li><li class="current-entities indented2">
@@ -372,6 +376,10 @@ deprecation cycles.
                         <span class="separator"></span>
                         <a class="trait" href="IterateeInstances.html" title=""></a>
                         <a href="IterateeInstances.html" title="">IterateeInstances</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="LowPriorityDecode.html" title=""></a>
+                        <a href="LowPriorityDecode.html" title="">LowPriorityDecode</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="LowPriorityEncodeInstances.html" title=""></a>
@@ -445,7 +453,7 @@ deprecation cycles.
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">DecodeEntity</span>
+        <span class="name">DecodeEntity</span><span class="result"> extends <a href="HighPriorityDecode.html" class="extype" name="io.finch.HighPriorityDecode">HighPriorityDecode</a></span>
       </span>
       </h4>
 
@@ -454,7 +462,7 @@ deprecation cycles.
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.AnyRef" class="extype" name="scala.collection.immutable.List">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.Any" class="extype" name="scala.collection.immutable.List">Any</a></div>
+          <div class="superTypes hiddenContent"><a href="HighPriorityDecode.html" class="extype" name="io.finch.HighPriorityDecode">HighPriorityDecode</a>, <a href="LowPriorityDecode.html" class="extype" name="io.finch.LowPriorityDecode">LowPriorityDecode</a>, <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.AnyRef" class="extype" name="scala.collection.immutable.List">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.Any" class="extype" name="scala.collection.immutable.List">Any</a></div>
         </div></div>
         
 
@@ -480,7 +488,7 @@ deprecation cycles.
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="io.finch.DecodeEntity"><span>DecodeEntity</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="io.finch.DecodeEntity"><span>DecodeEntity</span></li><li class="in" name="io.finch.HighPriorityDecode"><span>HighPriorityDecode</span></li><li class="in" name="io.finch.LowPriorityDecode"><span>LowPriorityDecode</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -615,7 +623,7 @@ deprecation cycles.
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.finch.DecodeEntity#decodeBoolean" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.finch.HighPriorityDecode#decodeBoolean" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="decodeBoolean:io.finch.DecodeEntity[Boolean]"></a><a id="decodeBoolean:DecodeEntity[Boolean]"></a>
       <span class="permalink">
       <a href="../../io/finch/DecodeEntity$.html#decodeBoolean:io.finch.DecodeEntity[Boolean]" title="Permalink">
@@ -630,8 +638,8 @@ deprecation cycles.
         <span class="name">decodeBoolean</span><span class="result">: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a>]</span>
       </span>
       
-      
-    </li><li name="io.finch.DecodeEntity#decodeDouble" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HighPriorityDecode.html" class="extype" name="io.finch.HighPriorityDecode">HighPriorityDecode</a></dd></dl></div>
+    </li><li name="io.finch.HighPriorityDecode#decodeDouble" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="decodeDouble:io.finch.DecodeEntity[Double]"></a><a id="decodeDouble:DecodeEntity[Double]"></a>
       <span class="permalink">
       <a href="../../io/finch/DecodeEntity$.html#decodeDouble:io.finch.DecodeEntity[Double]" title="Permalink">
@@ -646,8 +654,8 @@ deprecation cycles.
         <span class="name">decodeDouble</span><span class="result">: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/Double.html#scala.Double" class="extype" name="scala.Double">Double</a>]</span>
       </span>
       
-      
-    </li><li name="io.finch.DecodeEntity#decodeFloat" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HighPriorityDecode.html" class="extype" name="io.finch.HighPriorityDecode">HighPriorityDecode</a></dd></dl></div>
+    </li><li name="io.finch.HighPriorityDecode#decodeFloat" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="decodeFloat:io.finch.DecodeEntity[Float]"></a><a id="decodeFloat:DecodeEntity[Float]"></a>
       <span class="permalink">
       <a href="../../io/finch/DecodeEntity$.html#decodeFloat:io.finch.DecodeEntity[Float]" title="Permalink">
@@ -662,11 +670,11 @@ deprecation cycles.
         <span class="name">decodeFloat</span><span class="result">: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/Float.html#scala.Float" class="extype" name="scala.Float">Float</a>]</span>
       </span>
       
-      
-    </li><li name="io.finch.DecodeEntity#decodeFromGeneric" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="decodeFromGeneric[A](implicitgen:shapeless.Generic.Aux[A,String::shapeless.HNil]):io.finch.DecodeEntity[A]"></a><a id="decodeFromGeneric[A](Aux[A,::[String,HNil]]):DecodeEntity[A]"></a>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HighPriorityDecode.html" class="extype" name="io.finch.HighPriorityDecode">HighPriorityDecode</a></dd></dl></div>
+    </li><li name="io.finch.LowPriorityDecode#decodeFromGeneric" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="decodeFromGeneric[A,H&lt;:shapeless.HList,E](implicitgen:shapeless.Generic.Aux[A,H],implicitev:E::shapeless.HNil=:=H,implicitde:io.finch.DecodeEntity[E]):io.finch.DecodeEntity[A]"></a><a id="decodeFromGeneric[A,H&lt;:HList,E](Aux[A,H],=:=[::[E,HNil],H],DecodeEntity[E]):DecodeEntity[A]"></a>
       <span class="permalink">
-      <a href="../../io/finch/DecodeEntity$.html#decodeFromGeneric[A](implicitgen:shapeless.Generic.Aux[A,String::shapeless.HNil]):io.finch.DecodeEntity[A]" title="Permalink">
+      <a href="../../io/finch/DecodeEntity$.html#decodeFromGeneric[A,H&lt;:shapeless.HList,E](implicitgen:shapeless.Generic.Aux[A,H],implicitev:E::shapeless.HNil=:=H,implicitde:io.finch.DecodeEntity[E]):io.finch.DecodeEntity[A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -675,14 +683,12 @@ deprecation cycles.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">decodeFromGeneric</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="gen">gen: <span class="extype" name="shapeless.Generic.Aux">Aux</span>[<span class="extype" name="io.finch.DecodeEntity.decodeFromGeneric.A">A</span>, <span class="extype" name="shapeless.::">::</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="shapeless.HNil">HNil</span>]]</span>)</span><span class="result">: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.DecodeEntity.decodeFromGeneric.A">A</span>]</span>
+        <span class="name">decodeFromGeneric</span><span class="tparams">[<span name="A">A</span>, <span name="H">H &lt;: <span class="extype" name="shapeless.HList">HList</span></span>, <span name="E">E</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="gen">gen: <span class="extype" name="shapeless.Generic.Aux">Aux</span>[<span class="extype" name="io.finch.LowPriorityDecode.decodeFromGeneric.A">A</span>, <span class="extype" name="io.finch.LowPriorityDecode.decodeFromGeneric.H">H</span>]</span>, <span name="ev">ev: <span class="extype" name="scala.Predef.=:=">=:=</span>[<span class="extype" name="shapeless.::">::</span>[<span class="extype" name="io.finch.LowPriorityDecode.decodeFromGeneric.E">E</span>, <span class="extype" name="shapeless.HNil">HNil</span>], <span class="extype" name="io.finch.LowPriorityDecode.decodeFromGeneric.H">H</span>]</span>, <span name="de">de: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.LowPriorityDecode.decodeFromGeneric.E">E</span>]</span>)</span><span class="result">: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.LowPriorityDecode.decodeFromGeneric.A">A</span>]</span>
       </span>
       
-      <p class="shortcomment cmt">Creates a <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a> from <span class="extype" name="shapeless.Generic">shapeless.Generic</span>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a> from <span class="extype" name="shapeless.Generic">shapeless.Generic</span>.</p><p>Note: This is mostly a workaround for <code>Endpoint[String].as[CaseClassOfASingleString]</code>,
-      because by some reason, compiler doesn't pick <code>ValueEndpointOps</code> for
-      <code>Endpoint[String]</code>.
-</p></div></div>
-    </li><li name="io.finch.DecodeEntity#decodeInt" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Creates a <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a> from <span class="extype" name="shapeless.Generic">shapeless.Generic</span> for single value case classes.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a <a href="Decode.html" class="extype" name="io.finch.Decode">Decode</a> from <span class="extype" name="shapeless.Generic">shapeless.Generic</span> for single value case classes.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityDecode.html" class="extype" name="io.finch.LowPriorityDecode">LowPriorityDecode</a></dd></dl></div>
+    </li><li name="io.finch.HighPriorityDecode#decodeInt" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="decodeInt:io.finch.DecodeEntity[Int]"></a><a id="decodeInt:DecodeEntity[Int]"></a>
       <span class="permalink">
       <a href="../../io/finch/DecodeEntity$.html#decodeInt:io.finch.DecodeEntity[Int]" title="Permalink">
@@ -697,8 +703,8 @@ deprecation cycles.
         <span class="name">decodeInt</span><span class="result">: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/Int.html#scala.Int" class="extype" name="scala.Int">Int</a>]</span>
       </span>
       
-      
-    </li><li name="io.finch.DecodeEntity#decodeLong" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HighPriorityDecode.html" class="extype" name="io.finch.HighPriorityDecode">HighPriorityDecode</a></dd></dl></div>
+    </li><li name="io.finch.HighPriorityDecode#decodeLong" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="decodeLong:io.finch.DecodeEntity[Long]"></a><a id="decodeLong:DecodeEntity[Long]"></a>
       <span class="permalink">
       <a href="../../io/finch/DecodeEntity$.html#decodeLong:io.finch.DecodeEntity[Long]" title="Permalink">
@@ -713,7 +719,7 @@ deprecation cycles.
         <span class="name">decodeLong</span><span class="result">: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/Long.html#scala.Long" class="extype" name="scala.Long">Long</a>]</span>
       </span>
       
-      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HighPriorityDecode.html" class="extype" name="io.finch.HighPriorityDecode">HighPriorityDecode</a></dd></dl></div>
     </li><li name="io.finch.DecodeEntity#decodeString" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="decodeString:io.finch.DecodeEntity[String]"></a><a id="decodeString:DecodeEntity[String]"></a>
       <span class="permalink">
@@ -730,7 +736,7 @@ deprecation cycles.
       </span>
       
       
-    </li><li name="io.finch.DecodeEntity#decodeUUID" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.finch.HighPriorityDecode#decodeUUID" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="decodeUUID:io.finch.DecodeEntity[java.util.UUID]"></a><a id="decodeUUID:DecodeEntity[UUID]"></a>
       <span class="permalink">
       <a href="../../io/finch/DecodeEntity$.html#decodeUUID:io.finch.DecodeEntity[java.util.UUID]" title="Permalink">
@@ -745,7 +751,7 @@ deprecation cycles.
         <span class="name">decodeUUID</span><span class="result">: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="java.util.UUID">UUID</span>]</span>
       </span>
       
-      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HighPriorityDecode.html" class="extype" name="io.finch.HighPriorityDecode">HighPriorityDecode</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -838,7 +844,7 @@ deprecation cycles.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="io.finch.DecodeEntity#instance" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.finch.LowPriorityDecode#instance" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="instance[A](fn:String=&gt;com.twitter.util.Try[A]):io.finch.DecodeEntity[A]"></a><a id="instance[A]((String)⇒Try[A]):DecodeEntity[A]"></a>
       <span class="permalink">
       <a href="../../io/finch/DecodeEntity$.html#instance[A](fn:String=&gt;com.twitter.util.Try[A]):io.finch.DecodeEntity[A]" title="Permalink">
@@ -850,10 +856,11 @@ deprecation cycles.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">instance</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <a href="https://twitter.github.io/util/docs/com/twitter/util/Try.html#com.twitter.util.Try" class="extype" name="com.twitter.util.Try">Try</a>[<span class="extype" name="io.finch.DecodeEntity.instance.A">A</span>]</span>)</span><span class="result">: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.DecodeEntity.instance.A">A</span>]</span>
+        <span class="name">instance</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="fn">fn: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <a href="https://twitter.github.io/util/docs/com/twitter/util/Try.html#com.twitter.util.Try" class="extype" name="com.twitter.util.Try">Try</a>[<span class="extype" name="io.finch.LowPriorityDecode.instance.A">A</span>]</span>)</span><span class="result">: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.LowPriorityDecode.instance.A">A</span>]</span>
       </span>
       
-      <p class="shortcomment cmt">Creates an <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a> instance from a given function <code>String =&gt; Try[A]</code>.</p>
+      <p class="shortcomment cmt">Creates an <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a> instance from a given function <code>String =&gt; Try[A]</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Creates an <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a> instance from a given function <code>String =&gt; Try[A]</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="LowPriorityDecode.html" class="extype" name="io.finch.LowPriorityDecode">LowPriorityDecode</a></dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
@@ -1034,7 +1041,11 @@ deprecation cycles.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="io.finch.HighPriorityDecode">
+              <h3>Inherited from <a href="HighPriorityDecode.html" class="extype" name="io.finch.HighPriorityDecode">HighPriorityDecode</a></h3>
+            </div><div class="parent" name="io.finch.LowPriorityDecode">
+              <h3>Inherited from <a href="LowPriorityDecode.html" class="extype" name="io.finch.LowPriorityDecode">LowPriorityDecode</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.AnyRef" class="extype" name="scala.collection.immutable.List">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.Any" class="extype" name="scala.collection.immutable.List">Any</a></h3>

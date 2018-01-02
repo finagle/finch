@@ -141,12 +141,20 @@ types atop of Finagle for writing lightweight HTTP services.
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="io.finch">finch</a></dd></dl></div>
     </li><li class="current-entities indented3">
                         <span class="separator"></span>
+                        <a class="trait" href="AccumulatingDecoders.html" title=""></a>
+                        <a href="AccumulatingDecoders.html" title="">AccumulatingDecoders</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
                         <a class="trait" href="Decoders.html" title=""></a>
                         <a href="Decoders.html" title="">Decoders</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="Encoders.html" title=""></a>
                         <a href="Encoders.html" title="">Encoders</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="package$$accumulating$.html" title=""></a>
+                        <a href="package$$accumulating$.html" title="">accumulating</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="object" href="package$$dropNullValues$.html" title="Provides a Printer that drops null keys."></a>
@@ -404,7 +412,23 @@ deprecation cycles.
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="io.finch.circe.Decoders" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+              <ol><li name="io.finch.circe.AccumulatingDecoders" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="AccumulatingDecodersextendsAnyRef"></a><a id="AccumulatingDecoders:AccumulatingDecoders"></a>
+      <span class="permalink">
+      <a href="../../../io/finch/circe/index.html#AccumulatingDecodersextendsAnyRef" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="AccumulatingDecoders.html"><span class="name">AccumulatingDecoders</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.AnyRef" class="extype" name="scala.collection.immutable.List">AnyRef</a></span>
+      </span>
+      
+      
+    </li><li name="io.finch.circe.Decoders" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="DecodersextendsAnyRef"></a><a id="Decoders:Decoders"></a>
       <span class="permalink">
       <a href="../../../io/finch/circe/index.html#DecodersextendsAnyRef" title="Permalink">
@@ -439,29 +463,10 @@ deprecation cycles.
     </li></ol>
             </div>
 
-        <div class="values members">
-              <h3>Abstract Value Members</h3>
-              <ol><li name="io.finch.circe.Encoders#print" visbl="prt" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="print(json:io.circe.Json,cs:java.nio.charset.Charset):com.twitter.io.Buf"></a><a id="print(Json,Charset):Buf"></a>
-      <span class="permalink">
-      <a href="../../../io/finch/circe/index.html#print(json:io.circe.Json,cs:java.nio.charset.Charset):com.twitter.io.Buf" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">print</span><span class="params">(<span name="json">json: <a href="https://circe.github.io/circe/api/io/circe/Json.html#io.circe.Json" class="extype" name="io.circe.Json">Json</a></span>, <span name="cs">cs: <span class="extype" name="java.nio.charset.Charset">Charset</span></span>)</span><span class="result">: <a href="https://twitter.github.io/util/docs/com/twitter/io/Buf.html#com.twitter.io.Buf" class="extype" name="com.twitter.io.Buf">Buf</a></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="Encoders.html" class="extype" name="io.finch.circe.Encoders">Encoders</a></dd></dl></div>
-    </li></ol>
-            </div>
+        
 
         <div class="values members">
-              <h3>Concrete Value Members</h3>
+              <h3>Value Members</h3>
               <ol>
                 <li name="io.finch.circe.Decoders#decodeCirce" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="decodeCirce[A](implicitevidence$1:io.circe.Decoder[A]):io.finch.Decode.Json[A]"></a><a id="decodeCirce[A](Decoder[A]):Json[A]"></a>
@@ -513,6 +518,38 @@ deprecation cycles.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Decoders.html" class="extype" name="io.finch.circe.Decoders">Decoders</a></dd></dl></div>
+    </li><li name="io.finch.circe.Encoders#print" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="print(json:io.circe.Json,cs:java.nio.charset.Charset):com.twitter.io.Buf"></a><a id="print(Json,Charset):Buf"></a>
+      <span class="permalink">
+      <a href="../../../io/finch/circe/index.html#print(json:io.circe.Json,cs:java.nio.charset.Charset):com.twitter.io.Buf" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">print</span><span class="params">(<span name="json">json: <a href="https://circe.github.io/circe/api/io/circe/Json.html#io.circe.Json" class="extype" name="io.circe.Json">Json</a></span>, <span name="cs">cs: <span class="extype" name="java.nio.charset.Charset">Charset</span></span>)</span><span class="result">: <a href="https://twitter.github.io/util/docs/com/twitter/io/Buf.html#com.twitter.io.Buf" class="extype" name="com.twitter.io.Buf">Buf</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="Encoders.html" class="extype" name="io.finch.circe.Encoders">Encoders</a></dd></dl></div>
+    </li><li name="io.finch.circe.accumulating" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="accumulating"></a><a id="accumulating:accumulating"></a>
+      <span class="permalink">
+      <a href="../../../io/finch/circe/index.html#accumulating" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="package$$accumulating$.html"><span class="name">accumulating</span></a><span class="result"> extends <a href="Encoders.html" class="extype" name="io.finch.circe.Encoders">Encoders</a> with <a href="AccumulatingDecoders.html" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a></span>
+      </span>
+      
+      
     </li><li name="io.finch.circe.dropNullValues" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="dropNullValues"></a><a id="dropNullValues:dropNullValues"></a>
       <span class="permalink">

@@ -358,6 +358,10 @@ deprecation cycles.
                         <a href="Errors.html" title="Multiple errors from an Endpoint.">Errors</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="trait" href="HighPriorityDecode.html" title=""></a>
+                        <a href="HighPriorityDecode.html" title="">HighPriorityDecode</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="trait" href="HighPriorityEncodeInstances.html" title=""></a>
                         <a href="HighPriorityEncodeInstances.html" title="">HighPriorityEncodeInstances</a>
                       </li><li class="current-entities indented2">
@@ -372,6 +376,10 @@ deprecation cycles.
                         <span class="separator"></span>
                         <a class="trait" href="IterateeInstances.html" title=""></a>
                         <a href="IterateeInstances.html" title="">IterateeInstances</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="LowPriorityDecode.html" title=""></a>
+                        <a href="LowPriorityDecode.html" title="">LowPriorityDecode</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="LowPriorityEncodeInstances.html" title=""></a>
@@ -916,10 +924,10 @@ succeeds for all elements.
       
       <p class="shortcomment cmt">Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that always matches and returns a given value (evaluated lazily).</p><div class="fullcomment"><div class="comment cmt"><p>Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that always matches and returns a given value (evaluated lazily).</p><p>This might be useful for wrapping functions returning arbitrary value within <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>
 context.</p><p>Example: the following endpoint will recompute a random integer on each request.</p><pre><span class="kw">val</span> nextInt: Endpoint[<span class="std">Int</span>] = Endpoint.lift(scala.util.random.nextInt)</pre></div></div>
-    </li><li name="io.finch.Endpoint#liftFuture" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="liftFuture[A](fa:=&gt;com.twitter.util.Future[A]):io.finch.Endpoint[A]"></a><a id="liftFuture[A](⇒Future[A]):Endpoint[A]"></a>
+    </li><li name="io.finch.Endpoint#liftAsync" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="liftAsync[A](fa:=&gt;com.twitter.util.Future[A]):io.finch.Endpoint[A]"></a><a id="liftAsync[A](⇒Future[A]):Endpoint[A]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Endpoint$.html#liftFuture[A](fa:=&gt;com.twitter.util.Future[A]):io.finch.Endpoint[A]" title="Permalink">
+      <a href="../../io/finch/Endpoint$.html#liftAsync[A](fa:=&gt;com.twitter.util.Future[A]):io.finch.Endpoint[A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -928,27 +936,10 @@ context.</p><p>Example: the following endpoint will recompute a random integer o
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">liftFuture</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="fa">fa: ⇒ <a href="https://twitter.github.io/util/docs/com/twitter/util/Future.html#com.twitter.util.Future" class="extype" name="com.twitter.util.Future">Future</a>[<span class="extype" name="io.finch.Endpoint.liftFuture.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.liftFuture.A">A</span>]</span>
+        <span class="name">liftAsync</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="fa">fa: ⇒ <a href="https://twitter.github.io/util/docs/com/twitter/util/Future.html#com.twitter.util.Future" class="extype" name="com.twitter.util.Future">Future</a>[<span class="extype" name="io.finch.Endpoint.liftAsync.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.liftAsync.A">A</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that always matches and returns a given <code>Future</code> (evaluated lazily).</p>
-    </li><li name="io.finch.Endpoint#liftFutureOutput" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="liftFutureOutput[A](foa:=&gt;com.twitter.util.Future[io.finch.Output[A]]):io.finch.Endpoint[A]"></a><a id="liftFutureOutput[A](⇒Future[Output[A]]):Endpoint[A]"></a>
-      <span class="permalink">
-      <a href="../../io/finch/Endpoint$.html#liftFutureOutput[A](foa:=&gt;com.twitter.util.Future[io.finch.Output[A]]):io.finch.Endpoint[A]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">liftFutureOutput</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="foa">foa: ⇒ <a href="https://twitter.github.io/util/docs/com/twitter/util/Future.html#com.twitter.util.Future" class="extype" name="com.twitter.util.Future">Future</a>[<a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Endpoint.liftFutureOutput.A">A</span>]]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.liftFutureOutput.A">A</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that always matches and returns a given <code>Future[Output]</code>
-(evaluated lazily).</p>
     </li><li name="io.finch.Endpoint#liftOutput" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="liftOutput[A](oa:=&gt;io.finch.Output[A]):io.finch.Endpoint[A]"></a><a id="liftOutput[A](⇒Output[A]):Endpoint[A]"></a>
       <span class="permalink">
@@ -965,6 +956,23 @@ context.</p><p>Example: the following endpoint will recompute a random integer o
       </span>
       
       <p class="shortcomment cmt">Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that always matches and returns a given <code>Output</code> (evaluated lazily).</p>
+    </li><li name="io.finch.Endpoint#liftOutputAsync" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="liftOutputAsync[A](foa:=&gt;com.twitter.util.Future[io.finch.Output[A]]):io.finch.Endpoint[A]"></a><a id="liftOutputAsync[A](⇒Future[Output[A]]):Endpoint[A]"></a>
+      <span class="permalink">
+      <a href="../../io/finch/Endpoint$.html#liftOutputAsync[A](foa:=&gt;com.twitter.util.Future[io.finch.Output[A]]):io.finch.Endpoint[A]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">liftOutputAsync</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="foa">foa: ⇒ <a href="https://twitter.github.io/util/docs/com/twitter/util/Future.html#com.twitter.util.Future" class="extype" name="com.twitter.util.Future">Future</a>[<a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Endpoint.liftOutputAsync.A">A</span>]]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.liftOutputAsync.A">A</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that always matches and returns a given <code>Future[Output]</code>
+(evaluated lazily).</p>
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -1125,7 +1133,52 @@ context.</p><p>Example: the following endpoint will recompute a random integer o
 
         
 
-        
+        <div class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="io.finch.Endpoint#liftFuture" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="liftFuture[A](fa:=&gt;com.twitter.util.Future[A]):io.finch.Endpoint[A]"></a><a id="liftFuture[A](⇒Future[A]):Endpoint[A]"></a>
+      <span class="permalink">
+      <a href="../../io/finch/Endpoint$.html#liftFuture[A](fa:=&gt;com.twitter.util.Future[A]):io.finch.Endpoint[A]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.16) Use liftAsync instead">liftFuture</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="fa">fa: ⇒ <a href="https://twitter.github.io/util/docs/com/twitter/util/Future.html#com.twitter.util.Future" class="extype" name="com.twitter.util.Future">Future</a>[<span class="extype" name="io.finch.Endpoint.liftFuture.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.liftFuture.A">A</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that always matches and returns a given <code>Future</code> (evaluated lazily).</p><div class="fullcomment"><div class="comment cmt"><p>Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that always matches and returns a given <code>Future</code> (evaluated lazily).
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.16)</i> Use liftAsync instead</p></dd></dl></div>
+    </li><li name="io.finch.Endpoint#liftFutureOutput" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="liftFutureOutput[A](foa:=&gt;com.twitter.util.Future[io.finch.Output[A]]):io.finch.Endpoint[A]"></a><a id="liftFutureOutput[A](⇒Future[Output[A]]):Endpoint[A]"></a>
+      <span class="permalink">
+      <a href="../../io/finch/Endpoint$.html#liftFutureOutput[A](foa:=&gt;com.twitter.util.Future[io.finch.Output[A]]):io.finch.Endpoint[A]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.16) Use liftOutputAsync instead">liftFutureOutput</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="foa">foa: ⇒ <a href="https://twitter.github.io/util/docs/com/twitter/util/Future.html#com.twitter.util.Future" class="extype" name="com.twitter.util.Future">Future</a>[<a href="Output.html" class="extype" name="io.finch.Output">Output</a>[<span class="extype" name="io.finch.Endpoint.liftFutureOutput.A">A</span>]]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.liftFutureOutput.A">A</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that always matches and returns a given <code>Future[Output]</code>
+(evaluated lazily).</p><div class="fullcomment"><div class="comment cmt"><p>Creates an <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that always matches and returns a given <code>Future[Output]</code>
+(evaluated lazily).
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.16)</i> Use liftOutputAsync instead</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">

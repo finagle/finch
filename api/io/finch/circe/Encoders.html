@@ -125,12 +125,20 @@ types atop of Finagle for writing lightweight HTTP services.
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="io.finch">finch</a></dd></dl></div>
     </li><li class="current-entities indented3">
                         <span class="separator"></span>
+                        <a class="trait" href="AccumulatingDecoders.html" title=""></a>
+                        <a href="AccumulatingDecoders.html" title="">AccumulatingDecoders</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
                         <a class="trait" href="Decoders.html" title=""></a>
                         <a href="Decoders.html" title="">Decoders</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="" title=""></a>
                         <a href="" title="">Encoders</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="package$$accumulating$.html" title=""></a>
+                        <a href="package$$accumulating$.html" title="">accumulating</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="object" href="package$$dropNullValues$.html" title="Provides a Printer that drops null keys."></a>
@@ -180,7 +188,7 @@ types atop of Finagle for writing lightweight HTTP services.
             <span class="toggle">
               Known Subclasses
             </span>
-            <div class="subClasses hiddenContent"><a href="package$$dropNullValues$.html" class="extype" name="io.finch.circe.dropNullValues">dropNullValues</a>, <a href="package$$jacksonSerializer$.html" class="extype" name="io.finch.circe.jacksonSerializer">jacksonSerializer</a>, <a href="package$$predictSize$.html" class="extype" name="io.finch.circe.predictSize">predictSize</a></div>
+            <div class="subClasses hiddenContent"><a href="package$$accumulating$.html" class="extype" name="io.finch.circe.accumulating">accumulating</a>, <a href="package$$dropNullValues$.html" class="extype" name="io.finch.circe.dropNullValues">dropNullValues</a>, <a href="package$$jacksonSerializer$.html" class="extype" name="io.finch.circe.jacksonSerializer">jacksonSerializer</a>, <a href="package$$predictSize$.html" class="extype" name="io.finch.circe.predictSize">predictSize</a></div>
           </div></div>
         
 
@@ -233,29 +241,10 @@ types atop of Finagle for writing lightweight HTTP services.
 
         
 
-        <div class="values members">
-              <h3>Abstract Value Members</h3>
-              <ol><li name="io.finch.circe.Encoders#print" visbl="prt" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="print(json:io.circe.Json,cs:java.nio.charset.Charset):com.twitter.io.Buf"></a><a id="print(Json,Charset):Buf"></a>
-      <span class="permalink">
-      <a href="../../../io/finch/circe/Encoders.html#print(json:io.circe.Json,cs:java.nio.charset.Charset):com.twitter.io.Buf" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">print</span><span class="params">(<span name="json">json: <a href="https://circe.github.io/circe/api/io/circe/Json.html#io.circe.Json" class="extype" name="io.circe.Json">Json</a></span>, <span name="cs">cs: <span class="extype" name="java.nio.charset.Charset">Charset</span></span>)</span><span class="result">: <a href="https://twitter.github.io/util/docs/com/twitter/io/Buf.html#com.twitter.io.Buf" class="extype" name="com.twitter.io.Buf">Buf</a></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
-    </li></ol>
-            </div>
+        
 
         <div class="values members">
-              <h3>Concrete Value Members</h3>
+              <h3>Value Members</h3>
               <ol>
                 <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
@@ -669,6 +658,22 @@ types atop of Finagle for writing lightweight HTTP services.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="io.finch.circe.Encoders#print" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="print(json:io.circe.Json,cs:java.nio.charset.Charset):com.twitter.io.Buf"></a><a id="print(Json,Charset):Buf"></a>
+      <span class="permalink">
+      <a href="../../../io/finch/circe/Encoders.html#print(json:io.circe.Json,cs:java.nio.charset.Charset):com.twitter.io.Buf" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">print</span><span class="params">(<span name="json">json: <a href="https://circe.github.io/circe/api/io/circe/Json.html#io.circe.Json" class="extype" name="io.circe.Json">Json</a></span>, <span name="cs">cs: <span class="extype" name="java.nio.charset.Charset">Charset</span></span>)</span><span class="result">: <a href="https://twitter.github.io/util/docs/com/twitter/io/Buf.html#com.twitter.io.Buf" class="extype" name="com.twitter.io.Buf">Buf</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">

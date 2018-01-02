@@ -125,8 +125,8 @@ types atop of Finagle for writing lightweight HTTP services.
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="io.finch">finch</a></dd></dl></div>
     </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="AccumulatingDecoders.html" title=""></a>
-                        <a href="AccumulatingDecoders.html" title="">AccumulatingDecoders</a>
+                        <a class="trait" href="" title=""></a>
+                        <a href="" title="">AccumulatingDecoders</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="trait" href="Decoders.html" title=""></a>
@@ -141,8 +141,8 @@ types atop of Finagle for writing lightweight HTTP services.
                         <a href="package$$accumulating$.html" title="">accumulating</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="" title="Provides a Printer that drops null keys."></a>
-                        <a href="" title="Provides a Printer that drops null keys.">dropNullValues</a>
+                        <a class="object" href="package$$dropNullValues$.html" title="Provides a Printer that drops null keys."></a>
+                        <a href="package$$dropNullValues$.html" title="Provides a Printer that drops null keys.">dropNullValues</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="object" href="package$$jacksonSerializer$.html" title="Provides Jackson Serializer."></a>
@@ -156,12 +156,12 @@ types atop of Finagle for writing lightweight HTTP services.
             </div>
           </div>
           <div id="content">
-            <body class="object value">
+            <body class="trait type">
       <div id="definition">
-        <div class="big-circle object">o</div>
+        <div class="big-circle trait">t</div>
         <p id="owner"><a href="../../index.html" class="extype" name="io">io</a>.<a href="../index.html" class="extype" name="io.finch">finch</a>.<a href="index.html" class="extype" name="io.finch.circe">circe</a></p>
-        <h1>dropNullValues<span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html" title="Permalink">
+        <h1>AccumulatingDecoders<span class="permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
@@ -171,21 +171,25 @@ types atop of Finagle for writing lightweight HTTP services.
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">object</span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <span class="name">dropNullValues</span><span class="result"> extends <a href="Encoders.html" class="extype" name="io.finch.circe.Encoders">Encoders</a> with <a href="Decoders.html" class="extype" name="io.finch.circe.Decoders">Decoders</a></span>
+        <span class="name">AccumulatingDecoders</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.AnyRef" class="extype" name="scala.collection.immutable.List">AnyRef</a></span>
       </span>
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Provides a <span class="extype" name="Printer">Printer</span> that drops null keys.
-</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/finagle/finch/tree/master/circe/src/main/scala/io/finch/circe/package.scala" target="_blank">package.scala</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/finagle/finch/tree/master/circe/src/main/scala/io/finch/circe/AccumulatingDecoders.scala" target="_blank">AccumulatingDecoders.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><a href="Decoders.html" class="extype" name="io.finch.circe.Decoders">Decoders</a>, <a href="Encoders.html" class="extype" name="io.finch.circe.Encoders">Encoders</a>, <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.AnyRef" class="extype" name="scala.collection.immutable.List">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.Any" class="extype" name="scala.collection.immutable.List">Any</a></div>
-        </div></div>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.AnyRef" class="extype" name="scala.collection.immutable.List">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.Any" class="extype" name="scala.collection.immutable.List">Any</a></div>
+        </div><div class="toggleContainer block">
+            <span class="toggle">
+              Known Subclasses
+            </span>
+            <div class="subClasses hiddenContent"><a href="package$$accumulating$.html" class="extype" name="io.finch.circe.accumulating">accumulating</a></div>
+          </div></div>
         
 
       <div id="mbrsel">
@@ -210,7 +214,12 @@ types atop of Finagle for writing lightweight HTTP services.
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="io.finch.circe.dropNullValues"><span>dropNullValues</span></li><li class="in" name="io.finch.circe.Decoders"><span>Decoders</span></li><li class="in" name="io.finch.circe.Encoders"><span>Encoders</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="io.finch.circe.AccumulatingDecoders"><span>AccumulatingDecoders</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  </ol>
+                </div><div class="ancestors">
+                  <span class="filtertype">Implicitly<br />
+                  </span>
+                  <ol id="implicits"> <li class="in" name="scala.Predef.any2stringadd" data-hidden="true"><span>by any2stringadd</span></li><li class="in" name="scala.Predef.StringFormat" data-hidden="true"><span>by StringFormat</span></li><li class="in" name="scala.Predef.Ensuring" data-hidden="true"><span>by Ensuring</span></li><li class="in" name="scala.Predef.ArrowAssoc" data-hidden="true"><span>by ArrowAssoc</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -240,7 +249,7 @@ types atop of Finagle for writing lightweight HTTP services.
                 <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#!=(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#!=(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -256,7 +265,7 @@ types atop of Finagle for writing lightweight HTTP services.
     </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html###():Int" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html###():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -269,10 +278,53 @@ types atop of Finagle for writing lightweight HTTP services.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Predef.any2stringadd#+" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="+(other:String):String"></a><a id="+(String):String"></a>
+      <span class="permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#+(other:String):String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $plus" class="implicit">+</span><span class="params">(<span name="other">other: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a> to
+            <span class="extype" name="scala.Predef.any2stringadd">any2stringadd</span>[<a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a>] performed by method any2stringadd in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>any2stringadd</dd></dl></div>
+    </li><li name="scala.Predef.ArrowAssoc#-&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="-&gt;[B](y:B):(A,B)"></a><a id="-&gt;[B](B):(AccumulatingDecoders,B)"></a>
+      <span class="permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#-&gt;[B](y:B):(A,B)" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $minus$greater" class="implicit">-&gt;</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="y">y: <span class="extype" name="scala.Predef.ArrowAssoc.-&gt;.B">B</span></span>)</span><span class="result">: (<a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a>, <span class="extype" name="scala.Predef.ArrowAssoc.-&gt;.B">B</span>)</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a> to
+            <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a>] performed by method ArrowAssoc in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>ArrowAssoc</dd><dt>Annotations</dt><dd>
+                <span class="name">@inline</span><span class="args">()</span>
+              
+        </dd></dl></div>
     </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#==(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#==(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -288,7 +340,7 @@ types atop of Finagle for writing lightweight HTTP services.
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#asInstanceOf[T0]:T0" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#asInstanceOf[T0]:T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -304,7 +356,7 @@ types atop of Finagle for writing lightweight HTTP services.
     </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a><a id="clone():AnyRef"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#clone():Object" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#clone():Object" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -325,10 +377,10 @@ types atop of Finagle for writing lightweight HTTP services.
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.finch.circe.Decoders#decodeCirce" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="io.finch.circe.AccumulatingDecoders#decodeCirce" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="decodeCirce[A](implicitevidence$1:io.circe.Decoder[A]):io.finch.Decode.Json[A]"></a><a id="decodeCirce[A](Decoder[A]):Json[A]"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#decodeCirce[A](implicitevidence$1:io.circe.Decoder[A]):io.finch.Decode.Json[A]" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#decodeCirce[A](implicitevidence$1:io.circe.Decoder[A]):io.finch.Decode.Json[A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -337,32 +389,94 @@ types atop of Finagle for writing lightweight HTTP services.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">decodeCirce</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="https://circe.github.io/circe/api/io/circe/Decoder.html#io.circe.Decoder" class="extype" name="io.circe.Decoder">Decoder</a>[<span class="extype" name="io.finch.circe.Decoders.decodeCirce.A">A</span>]</span>)</span><span class="result">: <a href="../Decode$.html#Json[A]=io.finch.Decode.Aux[A,io.finch.Application.Json]" class="extmbr" name="io.finch.Decode.Json">Json</a>[<span class="extype" name="io.finch.circe.Decoders.decodeCirce.A">A</span>]</span>
+        <span class="name">decodeCirce</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="https://circe.github.io/circe/api/io/circe/Decoder.html#io.circe.Decoder" class="extype" name="io.circe.Decoder">Decoder</a>[<span class="extype" name="io.finch.circe.AccumulatingDecoders.decodeCirce.A">A</span>]</span>)</span><span class="result">: <a href="../Decode$.html#Json[A]=io.finch.Decode.Aux[A,io.finch.Application.Json]" class="extmbr" name="io.finch.Decode.Json">Json</a>[<span class="extype" name="io.finch.circe.AccumulatingDecoders.decodeCirce.A">A</span>]</span>
       </span>
       
-      <p class="shortcomment cmt">Maps a Circe's <span class="extype" name="Decoder">Decoder</span> to Finch's <a href="../Decode.html" class="extype" name="io.finch.Decode">Decode</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Maps a Circe's <span class="extype" name="Decoder">Decoder</span> to Finch's <a href="../Decode.html" class="extype" name="io.finch.Decode">Decode</a>.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Decoders.html" class="extype" name="io.finch.circe.Decoders">Decoders</a></dd></dl></div>
-    </li><li name="io.finch.circe.Encoders#encodeCirce" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="encodeCirce[A](implicite:io.circe.Encoder[A]):io.finch.Encode.Json[A]"></a><a id="encodeCirce[A](Encoder[A]):Encode.Json[A]"></a>
+      <p class="shortcomment cmt">Maps a Circe's <span class="extype" name="Decoder">Decoder</span> to Finch's <a href="../Decode.html" class="extype" name="io.finch.Decode">Decode</a>.</p>
+    </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ensuring(cond:A=&gt;Boolean,msg:=&gt;Any):A"></a><a id="ensuring((AccumulatingDecoders)⇒Boolean,⇒Any):AccumulatingDecoders"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#encodeCirce[A](implicite:io.circe.Encoder[A]):io.finch.Encode.Json[A]" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#ensuring(cond:A=&gt;Boolean,msg:=&gt;Any):A" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
-        <span class="modifier">implicit </span>
+        <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">encodeCirce</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="e">e: <a href="https://circe.github.io/circe/api/io/circe/Encoder.html#io.circe.Encoder" class="extype" name="io.circe.Encoder">Encoder</a>[<span class="extype" name="io.finch.circe.Encoders.encodeCirce.A">A</span>]</span>)</span><span class="result">: <a href="../Encode$.html#Json[A]=LowPriorityEncodeInstances.this.Aux[A,io.finch.Application.Json]" class="extmbr" name="io.finch.Encode.Json">Encode.Json</a>[<span class="extype" name="io.finch.circe.Encoders.encodeCirce.A">A</span>]</span>
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: (<a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a>) ⇒ <a href="http://www.scala-lang.org/api/2.12.4/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a></span>, <span name="msg">msg: ⇒ <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.Any" class="extype" name="scala.collection.immutable.List">Any</a></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a></span>
       </span>
       
-      <p class="shortcomment cmt">Maps Circe's <span class="extype" name="Encoder">Encoder</span> to Finch's <a href="../Encode.html" class="extype" name="io.finch.Encode">Encode</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Maps Circe's <span class="extype" name="Encoder">Encoder</span> to Finch's <a href="../Encode.html" class="extype" name="io.finch.Encode">Encode</a>.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Encoders.html" class="extype" name="io.finch.circe.Encoders">Encoders</a></dd></dl></div>
-    </li><li name="io.finch.circe.Decoders#enumerateCirce" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a> to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a>] performed by method Ensuring in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
+    </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ensuring(cond:A=&gt;Boolean):A"></a><a id="ensuring((AccumulatingDecoders)⇒Boolean):AccumulatingDecoders"></a>
+      <span class="permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#ensuring(cond:A=&gt;Boolean):A" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: (<a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a>) ⇒ <a href="http://www.scala-lang.org/api/2.12.4/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a> to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a>] performed by method Ensuring in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
+    </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ensuring(cond:Boolean,msg:=&gt;Any):A"></a><a id="ensuring(Boolean,⇒Any):AccumulatingDecoders"></a>
+      <span class="permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#ensuring(cond:Boolean,msg:=&gt;Any):A" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: <a href="http://www.scala-lang.org/api/2.12.4/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a></span>, <span name="msg">msg: ⇒ <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.Any" class="extype" name="scala.collection.immutable.List">Any</a></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a> to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a>] performed by method Ensuring in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
+    </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ensuring(cond:Boolean):A"></a><a id="ensuring(Boolean):AccumulatingDecoders"></a>
+      <span class="permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#ensuring(cond:Boolean):A" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: <a href="http://www.scala-lang.org/api/2.12.4/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a> to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a>] performed by method Ensuring in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
+    </li><li name="io.finch.circe.AccumulatingDecoders#enumerateCirce" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="enumerateCirce[A](implicitevidence$2:io.circe.Decoder[A]):io.finch.iteratee.Enumerate.Json[A]"></a><a id="enumerateCirce[A](Decoder[A]):Json[A]"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#enumerateCirce[A](implicitevidence$2:io.circe.Decoder[A]):io.finch.iteratee.Enumerate.Json[A]" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#enumerateCirce[A](implicitevidence$2:io.circe.Decoder[A]):io.finch.iteratee.Enumerate.Json[A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -371,14 +485,14 @@ types atop of Finagle for writing lightweight HTTP services.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">enumerateCirce</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="https://circe.github.io/circe/api/io/circe/Decoder.html#io.circe.Decoder" class="extype" name="io.circe.Decoder">Decoder</a>[<span class="extype" name="io.finch.circe.Decoders.enumerateCirce.A">A</span>]</span>)</span><span class="result">: <a href="../iteratee/Enumerate$.html#Json[A]=io.finch.iteratee.Enumerate.Aux[A,io.finch.Application.Json]" class="extmbr" name="io.finch.iteratee.Enumerate.Json">Json</a>[<span class="extype" name="io.finch.circe.Decoders.enumerateCirce.A">A</span>]</span>
+        <span class="name">enumerateCirce</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <a href="https://circe.github.io/circe/api/io/circe/Decoder.html#io.circe.Decoder" class="extype" name="io.circe.Decoder">Decoder</a>[<span class="extype" name="io.finch.circe.AccumulatingDecoders.enumerateCirce.A">A</span>]</span>)</span><span class="result">: <a href="../iteratee/Enumerate$.html#Json[A]=io.finch.iteratee.Enumerate.Aux[A,io.finch.Application.Json]" class="extmbr" name="io.finch.iteratee.Enumerate.Json">Json</a>[<span class="extype" name="io.finch.circe.AccumulatingDecoders.enumerateCirce.A">A</span>]</span>
       </span>
       
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Decoders.html" class="extype" name="io.finch.circe.Decoders">Decoders</a></dd></dl></div>
+      
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#eq(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -394,7 +508,7 @@ types atop of Finagle for writing lightweight HTTP services.
     </li><li name="scala.AnyRef#equals" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="equals(x$1:Any):Boolean"></a><a id="equals(Any):Boolean"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#equals(x$1:Any):Boolean" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#equals(x$1:Any):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -410,7 +524,7 @@ types atop of Finagle for writing lightweight HTTP services.
     </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#finalize():Unit" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#finalize():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -429,10 +543,33 @@ types atop of Finagle for writing lightweight HTTP services.
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="scala.Predef.StringFormat#formatted" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="formatted(fmtstr:String):String"></a><a id="formatted(String):String"></a>
+      <span class="permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#formatted(fmtstr:String):String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">formatted</span><span class="params">(<span name="fmtstr">fmtstr: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a> to
+            <span class="extype" name="scala.Predef.StringFormat">StringFormat</span>[<a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a>] performed by method StringFormat in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>StringFormat</dd><dt>Annotations</dt><dd>
+                <span class="name">@inline</span><span class="args">()</span>
+              
+        </dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#getClass():Class[_]" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#getClass():Class[_]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -451,7 +588,7 @@ types atop of Finagle for writing lightweight HTTP services.
     </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#hashCode():Int" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#hashCode():Int" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -470,7 +607,7 @@ types atop of Finagle for writing lightweight HTTP services.
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#isInstanceOf[T0]:Boolean" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#isInstanceOf[T0]:Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -486,7 +623,7 @@ types atop of Finagle for writing lightweight HTTP services.
     </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#ne(x$1:AnyRef):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -502,7 +639,7 @@ types atop of Finagle for writing lightweight HTTP services.
     </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#notify():Unit" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#notify():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -521,7 +658,7 @@ types atop of Finagle for writing lightweight HTTP services.
     </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#notifyAll():Unit" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#notifyAll():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -537,26 +674,10 @@ types atop of Finagle for writing lightweight HTTP services.
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="io.finch.circe.dropNullValues#print" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="print(json:io.circe.Json,cs:java.nio.charset.Charset):com.twitter.io.Buf"></a><a id="print(Json,Charset):Buf"></a>
-      <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#print(json:io.circe.Json,cs:java.nio.charset.Charset):com.twitter.io.Buf" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">print</span><span class="params">(<span name="json">json: <a href="https://circe.github.io/circe/api/io/circe/Json.html#io.circe.Json" class="extype" name="io.circe.Json">Json</a></span>, <span name="cs">cs: <span class="extype" name="java.nio.charset.Charset">Charset</span></span>)</span><span class="result">: <a href="https://twitter.github.io/util/docs/com/twitter/io/Buf.html#com.twitter.io.Buf" class="extype" name="com.twitter.io.Buf">Buf</a></span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="io.finch.circe.dropNullValues">dropNullValues</a> → <a href="Encoders.html" class="extype" name="io.finch.circe.Encoders">Encoders</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -572,7 +693,7 @@ types atop of Finagle for writing lightweight HTTP services.
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#toString():String" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#toString():String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -588,7 +709,7 @@ types atop of Finagle for writing lightweight HTTP services.
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#wait():Unit" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#wait():Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -610,7 +731,7 @@ types atop of Finagle for writing lightweight HTTP services.
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -632,7 +753,7 @@ types atop of Finagle for writing lightweight HTTP services.
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
       <span class="permalink">
-      <a href="../../../io/finch/circe/package$$dropNullValues$.html#wait(x$1:Long):Unit" title="Permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#wait(x$1:Long):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -653,6 +774,26 @@ types atop of Finagle for writing lightweight HTTP services.
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="scala.Predef.ArrowAssoc#→" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="→[B](y:B):(A,B)"></a><a id="→[B](B):(AccumulatingDecoders,B)"></a>
+      <span class="permalink">
+      <a href="../../../io/finch/circe/AccumulatingDecoders.html#→[B](y:B):(A,B)" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $u2192" class="implicit">→</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="y">y: <span class="extype" name="scala.Predef.ArrowAssoc.→.B">B</span></span>)</span><span class="result">: (<a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a>, <span class="extype" name="scala.Predef.ArrowAssoc.→.B">B</span>)</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a> to
+            <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a>] performed by method ArrowAssoc in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>ArrowAssoc</dd></dl></div>
     </li>
               </ol>
             </div>
@@ -663,16 +804,28 @@ types atop of Finagle for writing lightweight HTTP services.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="io.finch.circe.Decoders">
-              <h3>Inherited from <a href="Decoders.html" class="extype" name="io.finch.circe.Decoders">Decoders</a></h3>
-            </div><div class="parent" name="io.finch.circe.Encoders">
-              <h3>Inherited from <a href="Encoders.html" class="extype" name="io.finch.circe.Encoders">Encoders</a></h3>
-            </div><div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.AnyRef">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.AnyRef" class="extype" name="scala.collection.immutable.List">AnyRef</a></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.Any" class="extype" name="scala.collection.immutable.List">Any</a></h3>
             </div>
-        
+        <div class="conversion" name="scala.Predef.any2stringadd">
+              <h3>Inherited by implicit conversion any2stringadd from
+                <a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a> to <span class="extype" name="scala.Predef.any2stringadd">any2stringadd</span>[<a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a>]
+              </h3>
+            </div><div class="conversion" name="scala.Predef.StringFormat">
+              <h3>Inherited by implicit conversion StringFormat from
+                <a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a> to <span class="extype" name="scala.Predef.StringFormat">StringFormat</span>[<a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a>]
+              </h3>
+            </div><div class="conversion" name="scala.Predef.Ensuring">
+              <h3>Inherited by implicit conversion Ensuring from
+                <a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a> to <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a>]
+              </h3>
+            </div><div class="conversion" name="scala.Predef.ArrowAssoc">
+              <h3>Inherited by implicit conversion ArrowAssoc from
+                <a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a> to <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="io.finch.circe.AccumulatingDecoders">AccumulatingDecoders</a>]
+              </h3>
+            </div>
         </div>
 
         <div id="groupedMembers">
