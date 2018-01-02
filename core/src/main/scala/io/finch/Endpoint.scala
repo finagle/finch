@@ -209,7 +209,7 @@ trait Endpoint[A] { self =>
     final def apply(input: Input): Endpoint.Result[B] = self(input) match {
       case a @ EndpointResult.Matched(_, _) => other(input) match {
         case b @ EndpointResult.Matched(_, _) =>
-          if (a.rem.route.length <= b.rem.route.length) a else b
+          if (a.rem.route.length <= b.rem.route.length && a.rem.method == input.method) a else b
         case _ => a
       }
       case _ => other(input)

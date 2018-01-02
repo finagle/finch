@@ -93,7 +93,7 @@ object ToService {
         includeDateHeader: Boolean,
         includeServerHeader: Boolean,
         negotiateContentType: Boolean,
-        enableMethodNotAllowed: Boolean,
+        enableMethodNotAllowed: Boolean
     )(matchedWithoutMethod: Boolean): Service[Request, Response] = new Service[Request, Response] {
 
         def apply(req: Request): Future[Response] = {
@@ -142,7 +142,7 @@ object ToService {
             includeDateHeader,
             includeServerHeader,
             negotiateContentType,
-            enableMethodNotAllowed,
+            enableMethodNotAllowed
           )(matchedWithoutMethod)(req)
       }
     }

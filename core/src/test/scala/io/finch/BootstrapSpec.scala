@@ -3,6 +3,7 @@ package io.finch
 import com.twitter.finagle.http._
 import com.twitter.util.{Await, Future}
 import io.finch.internal.currentTime
+import io.finch.syntax._
 import java.time.{ZonedDateTime, ZoneOffset}
 import java.time.format.DateTimeFormatter
 
@@ -55,16 +56,18 @@ class BootstrapSpec extends FinchSpec {
   }
 
   it should "respond 200 if endpoint is matched" in {
-    val req = Request("/foo")
-    val out = Ok("bar")
-    val s = Bootstrap
-      .serve[Text.Plain](post("foo")(out) :+: delete("foo")(out))
-      .serve[Text.Plain](get("foo")(out))
-      .configure(enableMethodNotAllowed = true)
-      .toService
-    val rep = Await.result(s(req))
-
-    rep.status === Status.Ok
+    check { m: Method =>
+      val s = Bootstrap
+        .serve[Text.Plain](post("foo")(Ok("POST")) :+: delete("foo")(Ok("DELETE")))
+        .serve[Text.Plain](get("foo")(Ok("GET")))
+        .serve[Text.Plain](put("foo")(Ok("PUT")) :+: head("foo")(Ok("HEAD")) :+: trace("foo")(Ok("TRACE")))
+        .serve[Text.Plain](patch("foo")(Ok("PATCH")))
+        .serve[Text.Plain](connect("foo")(Ok("CONNECT")) :+: options("foo")(Ok("OPTIONS")))
+        .configure(enableMethodNotAllowed = true)
+        .toService
+      val rep = Await.result(s(Request(m, "/foo")))
+      rep.status === Status.Ok && rep.contentString === m.name
+    }
   }
 
   it should "match the request version" in {
