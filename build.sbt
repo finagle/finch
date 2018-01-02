@@ -150,7 +150,7 @@ lazy val docSettings = allSettings ++ Seq(
     "-doc-root-content", (resourceDirectory.in(Compile).value / "rootdoc.txt").getAbsolutePath
   ),
   scalacOptions ~= {
-    _.filterNot(Set("-Yno-predef", "-Xlint"))
+    _.filterNot(Set("-Yno-predef", "-Xlint", "-Ywarn-unused-import"))
   },
   git.remoteRepo := "git@github.com:finagle/finch.git",
   unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(benchmarks, jsonTest),
