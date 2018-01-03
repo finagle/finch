@@ -185,7 +185,7 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
       Gen.const(Endpoint.empty[A]),
       A.arbitrary.map(a => Endpoint.const(a)),
       Arbitrary.arbitrary[Throwable].map(e =>
-        Endpoint.liftFutureOutput(Future.exception[Output[A]](e))
+        Endpoint.liftOutputAsync(Future.exception[Output[A]](e))
       ),
       /**
        * Note that we don't provide instances of arbitrary endpoints wrapping

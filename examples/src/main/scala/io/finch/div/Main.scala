@@ -4,6 +4,7 @@ import cats.instances.int._
 import com.twitter.finagle.Http
 import com.twitter.util.Await
 import io.finch._
+import io.finch.syntax._
 
 /**
  * A tiny Finch application that serves a single endpoint `POST /:a/b:` that divides `a` by `b`.

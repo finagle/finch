@@ -209,19 +209,4 @@ private[finch] trait FileUploadsAndAttributes {
     */
   def multipartAttributesNel[A](name: String)(implicit d: DecodeEntity[A], t: ClassTag[A]): Endpoint[NonEmptyList[A]] =
     new Attribute[NonEmptyList, A](name, d, t) with Attribute.NonEmpty[A] with Attribute.MultipleErrors[NonEmptyList, A]
-
-  /**
-   * An evaluating [[Endpoint]] that reads an optional file upload from a `multipart/form-data`
-   * request into an `Option`.
-   */
-  @deprecated("Use multipartFileUploadOption instead", "0.16")
-  def fileUploadOption(name: String): Endpoint[Option[FinagleMultipart.FileUpload]] =
-    multipartFileUploadOption(name)
-
-  /**
-   * An evaluating [[Endpoint]] that reads a required file upload from a `multipart/form-data`
-   * request.
-   */
-  @deprecated("Use multipartFileUpload instead", "0.16")
-  def fileUpload(name: String): Endpoint[FinagleMultipart.FileUpload] = multipartFileUpload(name)
 }

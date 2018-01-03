@@ -5,6 +5,7 @@ import com.twitter.finagle.http.{Request, Response, Status}
 import com.twitter.io.Buf
 import com.twitter.util.Await
 import io.finch.data.Foo
+import io.finch.syntax._
 
 class EndToEndSpec extends FinchSpec {
 

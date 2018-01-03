@@ -1,12 +1,9 @@
 package io.finch
 
-import java.nio.charset.Charset
-import scala.reflect.ClassTag
-
 import cats.Alternative
 import cats.data.NonEmptyList
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Cookie, Request, Response}
+import com.twitter.finagle.http.{Request, Response}
 import com.twitter.util.{Future, Return, Throw, Try}
 import io.catbird.util.Rerunnable
 import io.finch.internal._
@@ -232,18 +229,6 @@ trait Endpoint[A] { self =>
     left.coproduct(right)
   }
 
-  @deprecated("Use transform instead", "0.16")
-  final def withHeader(header: (String, String)): Endpoint[A] =
-    withOutput(o => o.withHeader(header))
-
-  @deprecated("Use transform instead", "0.16")
-  final def withCookie(cookie: Cookie): Endpoint[A] =
-    withOutput(o => o.withCookie(cookie))
-
-  @deprecated("Use transform instead", "0.16")
-  final def withCharset(charset: Charset): Endpoint[A] =
-    withOutput(o => o.withCharset(charset))
-
   /**
    * Converts this endpoint to a Finagle service `Request => Future[Response]` that serves JSON.
    *
@@ -358,9 +343,6 @@ trait Endpoint[A] { self =>
     final def apply(input: Input): Endpoint.Result[A] = self(input)
     final override def toString: String = ts
   }
-
-  private[this] def withOutput[B](fn: Output[A] => Output[B]): Endpoint[B] =
-    transform(foa => foa.map(oa => fn(oa)))
 }
 
 /**
@@ -411,12 +393,6 @@ object Endpoint {
   }
 
   /**
-   * Creates an [[Endpoint]] that always matches and returns a given `Future` (evaluated lazily).
-   */
-  @deprecated("Use liftAsync instead", "0.16")
-  def liftFuture[A](fa: => Future[A]): Endpoint[A] = liftAsync(fa)
-
-  /**
    * Creates an [[Endpoint]] that always matches and returns a given `Output` (evaluated lazily).
    */
   def liftOutput[A](oa: => Output[A]): Endpoint[A] = new Endpoint[A] {
@@ -432,13 +408,6 @@ object Endpoint {
     final def apply(input: Input): Result[A] =
       EndpointResult.Matched(input, Rerunnable.fromFuture(foa))
   }
-
-  /**
-   * Creates an [[Endpoint]] that always matches and returns a given `Future[Output]`
-   * (evaluated lazily).
-   */
-  @deprecated("Use liftOutputAsync instead", "0.16")
-  def liftFutureOutput[A](foa: => Future[Output[A]]): Endpoint[A] = liftOutputAsync(foa)
 
   final implicit class ValueEndpointOps[B](val self: Endpoint[B]) extends AnyVal {
     /**
@@ -465,33 +434,10 @@ object Endpoint {
     def asTuple(implicit t: Tupler[L]): Endpoint[t.Out] = self.map(t(_))
   }
 
-  private[this] def notParsed[A](
-    e: Endpoint[_], tag: ClassTag[_]
-  ): PartialFunction[Throwable, Try[A]] = {
-    case exc => Throw[A](Error.NotParsed(e.item, tag, exc))
-  }
-
-  /**
-   * Implicit conversion that allows to call `as[A]` on any `Endpoint[String]` to perform a type
-   * conversion based on an implicit `DecodeEntity[A]` which must be in scope.
-   *
-   * The resulting endpoint will fail when type conversion fails.
-   */
-  implicit class StringEndpointOps(val self: Endpoint[String]) extends AnyVal {
-    @deprecated(s"Use type parameter instead for a corresponding endpoint (param[A], header[A], ...)", "0.16")
-    def as[A](implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[A] =
-      self.mapAsync(value => Future.const(d(value).rescue(notParsed[A](self, tag))))
-  }
-
   /**
    * Implicit conversion that adds convenience methods to endpoint for optional values.
    */
   implicit class OptionEndpointOps[A](val self: Endpoint[Option[A]]) extends AnyVal {
-    private[finch] def failIfNone: Endpoint[A] = self.mapAsync {
-      case Some(value) => Future.value(value)
-      case None => Future.exception(Error.NotPresent(self.item))
-    }
-
     /**
      * If endpoint is empty it will return provided default value.
      */
@@ -502,73 +448,6 @@ object Endpoint {
      */
     def orElse[B >: A](alternative: => Option[B]): Endpoint[Option[B]] =
       self.map(_.orElse(alternative))
-  }
-
-  /**
-   * Implicit conversion that allows to call `as[A]` on any `Endpoint[NonEmptyList[String]]` to perform a
-   * type conversion based on an implicit `Decode[A]` which must be in scope.
-   *
-   * The resulting endpoint will fail when type conversion fails on one
-   * or more of the elements in the `NonEmptyList`. It will succeed if type conversion succeeds for all elements.
-   */
-  implicit class StringNelEndpointOps(val self: Endpoint[NonEmptyList[String]]) extends AnyVal {
-    @deprecated(s"Use type parameter instead for a corresponding endpoint (param[A], header[A], ...)", "0.16")
-    def as[A](implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[NonEmptyList[A]] =
-      self.mapAsync { items =>
-        val decoded = items.toList.map(d.apply)
-        val errors = decoded.collect {
-          case Throw(e) => Error.NotParsed(self.item, tag, e)
-        }
-
-        NonEmptyList.fromList(errors) match {
-          case None =>
-            Future.const(Try.collect(decoded).map(seq => NonEmptyList(seq.head, seq.tail.toList)))
-          case Some(err) =>
-            Future.exception(Errors(err))
-        }
-      }
-  }
-
-  /**
-    * Implicit conversion that allows to call `as[A]` on any `Endpoint[Seq[String]]` to perform a
-    * type conversion based on an implicit `DecodeRequest[A]` which must be in scope.
-    *
-    * The resulting endpoint will fail when the result is non-empty and type conversion fails on one
-    * or more of the elements in the `Seq`. It will succeed if the result is empty or type conversion
-    * succeeds for all elements.
-    */
-  implicit class StringSeqEndpointOps(val self: Endpoint[Seq[String]]) extends AnyVal {
-    @deprecated(s"Use type parameter instead for a corresponding endpoint (param[A], header[A], ...)", "0.16")
-    def as[A](implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[Seq[A]] =
-      self.mapAsync { items =>
-        val decoded = items.map(d.apply)
-        val errors = decoded.collect {
-          case Throw(e) => Error.NotParsed(self.item, tag, e)
-        }
-
-        NonEmptyList.fromList(errors.toList) match {
-          case None => Future.const(Try.collect(decoded))
-          case Some(err) => Future.exception(Errors(err))
-        }
-      }
-  }
-
-  /**
-   * Implicit conversion that allows to call `as[A]` on any `Endpoint[Option[String]]` to perform a
-   * type conversion based on an implicit `DecodeRequest[A]` which must be in scope.
-   *
-   * The resulting endpoint will fail when the result is non-empty and type conversion fails. It
-   * will succeed if the result is empty or type conversion succeeds.
-   */
-  implicit class StringOptionEndpointOps(val self: Endpoint[Option[String]]) extends AnyVal {
-    @deprecated(s"Use type parameter instead for a corresponding endpoint (param[A], header[A], ...)", "0.16")
-    def as[A](implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[Option[A]] =
-      self.mapAsync {
-        case Some(value) =>
-          Future.const(d(value).rescue(notParsed[A](self, tag))).map(Some.apply)
-        case None =>
-          Future.None
-      }
   }
 
   implicit val endpointInstance: Alternative[Endpoint] = new Alternative[Endpoint] {

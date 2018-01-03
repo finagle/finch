@@ -9,6 +9,7 @@ import com.twitter.finagle.Http
 import com.twitter.io.Buf
 import com.twitter.util.{Await, Try}
 import io.finch._
+import io.finch.syntax._
 
 /**
 * A simple Finch application featuring very basic, `Buf`-based streaming support.

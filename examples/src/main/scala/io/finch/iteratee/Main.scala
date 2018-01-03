@@ -8,6 +8,7 @@ import io.catbird.util._
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
+import io.finch.syntax._
 import io.iteratee.{Enumerator, Iteratee}
 
 /**
