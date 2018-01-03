@@ -8,6 +8,7 @@ import com.twitter.conversions.time._
 import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.util.{Future, Throw}
 import io.finch.data.Foo
+import io.finch.syntax._
 import shapeless._
 
 class EndpointSpec extends FinchSpec {
@@ -189,12 +190,12 @@ class EndpointSpec extends FinchSpec {
     check { s: String =>
       Endpoint.const(s)(Input.get("/")).awaitValueUnsafe() === Some(s) &&
       Endpoint.lift(s)(Input.get("/")).awaitValueUnsafe() === Some(s) &&
-      Endpoint.liftFuture(Future.value(s))(Input.get("/")).awaitValueUnsafe() === Some(s)
+      Endpoint.liftAsync(Future.value(s))(Input.get("/")).awaitValueUnsafe() === Some(s)
     }
 
     check { o: Output[String] =>
       Endpoint.liftOutput(o)(Input.get("/")).awaitOutputUnsafe() === Some(o) &&
-      Endpoint.liftFutureOutput(Future.value(o))(Input.get("/")).awaitOutputUnsafe() === Some(o)
+      Endpoint.liftOutputAsync(Future.value(o))(Input.get("/")).awaitOutputUnsafe() === Some(o)
     }
   }
 
@@ -211,7 +212,7 @@ class EndpointSpec extends FinchSpec {
 
   it should "rescue the exception occurred in it" in {
     check { (i: Input, s: String, e: Exception) =>
-      Endpoint.liftFuture[Unit](Future.exception(e))
+      Endpoint.liftAsync[Unit](Future.exception(e))
         .handle({ case _ => Created(s) })(i)
         .awaitOutputUnsafe() === Some(Created(s))
     }
@@ -228,7 +229,7 @@ class EndpointSpec extends FinchSpec {
 
     Seq(
       param("foo"), header("foo"), cookie("foo").map(_.value),
-      fileUpload("foo").map(_.fileName), paramsNel("foo").map(_.toList.mkString),
+      multipartFileUpload("foo").map(_.fileName), paramsNel("foo").map(_.toList.mkString),
       paramsNel("foor").map(_.toList.mkString), binaryBody.map(new String(_)), stringBody
     ).foreach { ii => ii(i).awaitValue() shouldBe Some(Throw(Error.NotPresent(ii.item))) }
   }
@@ -273,8 +274,8 @@ class EndpointSpec extends FinchSpec {
       val aa = a.fold[Exception](identity, identity)
       val bb = b.fold[Exception](identity, identity)
 
-      val left = Endpoint.liftFuture[Unit](Future.exception(aa))
-      val right = Endpoint.liftFuture[Unit](Future.exception(bb))
+      val left = Endpoint.liftAsync[Unit](Future.exception(aa))
+      val right = Endpoint.liftAsync[Unit](Future.exception(bb))
 
       val lr = left.product(right)
       val rl = right.product(left)
@@ -293,9 +294,9 @@ class EndpointSpec extends FinchSpec {
 
   it should "fail-fast with the first non-error observed" in {
     check { (a: Error, b: Errors, e: Exception) =>
-      val aa = Endpoint.liftFuture[Unit](Future.exception(a))
-      val bb = Endpoint.liftFuture[Unit](Future.exception(b))
-      val ee = Endpoint.liftFuture[Unit](Future.exception(e))
+      val aa = Endpoint.liftAsync[Unit](Future.exception(a))
+      val bb = Endpoint.liftAsync[Unit](Future.exception(b))
+      val ee = Endpoint.liftAsync[Unit](Future.exception(e))
 
       val aaee = aa.product(ee)
       val eeaa = ee.product(aa)
@@ -311,7 +312,7 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "support the as[A] method on Endpoint[Seq[String]]" in {
-    val foos = params("testEndpoint").as[Foo]
+    val foos = params[Foo]("testEndpoint")
     foos(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe() shouldBe Some(Seq(Foo("a")))
   }
 
@@ -323,20 +324,20 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "collect errors on Endpoint[Seq[String]] failure" in {
-    val endpoint: Endpoint[Seq[UUID]] = params("testEndpoint").as[UUID]
+    val endpoint: Endpoint[Seq[UUID]] = params[UUID]("testEndpoint")
     an[Errors] shouldBe thrownBy (
       endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe()
     )
   }
 
   it should "support the as[A] method on Endpoint[NonEmptyList[A]]" in {
-    val foos = paramsNel("testEndpoint").as[Foo]
+    val foos = paramsNel[Foo]("testEndpoint")
     foos(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe() shouldBe
       Some(NonEmptyList.of(Foo("a")))
   }
 
   it should "collect errors on Endpoint[NonEmptyList[String]] failure" in {
-    val endpoint: Endpoint[NonEmptyList[UUID]] = paramsNel("testEndpoint").as[UUID]
+    val endpoint: Endpoint[NonEmptyList[UUID]] = paramsNel[UUID]("testEndpoint")
     an[Errors] shouldBe thrownBy (
       endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe(10.seconds)
     )

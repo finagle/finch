@@ -14,7 +14,7 @@ class BootstrapSpec extends FinchSpec {
     check { e: Either[Error, Errors] =>
       val exception = e.fold[Exception](identity, identity)
 
-      val ee = Endpoint.liftFuture[Unit](Future.exception(exception))
+      val ee = Endpoint.liftAsync[Unit](Future.exception(exception))
       val rep = Await.result(ee.toServiceAs[Text.Plain].apply(Request()))
       rep.status === Status.BadRequest
     }
