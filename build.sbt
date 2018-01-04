@@ -107,7 +107,11 @@ lazy val publishSettings = Seq(
         <name>Ryan Plessner</name>
         <url>https://twitter.com/ryan_plessner</url>
       </developer>
-
+      <developer>
+        <id>ImLiar</id>
+        <name>Sergey Kolbasov</name>
+        <url>https://twitter.com/sergey_kolbasov</url>
+      </developer>
     </developers>
 )
 
