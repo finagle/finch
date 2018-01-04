@@ -139,9 +139,9 @@ There are plenty of ways to contribute into Finch:
 The Finch project supports the [Typelevel][typelevel] [code of conduct][conduct] and wants all of its channels
 (Gitter, GitHub, etc.) to be welcoming environments for everyone.
 
-Finch is currently maintained by [Vladimir Kostyukov][vkostyukov], [Travis Brown][travisbrown], and
-[Ryan Plessner][ryan_plessner]. After the 1.0 release, all pull requests will require two sign-offs
-by a maintainer to be merged.
+Finch is currently maintained by [Vladimir Kostyukov][vkostyukov], [Travis Brown][travisbrown],
+[Ryan Plessner][ryan_plessner], and [Sergey Kolbasov][sergey_kolbasov]. After the 1.0 release, all
+pull requests will require two sign-offs by a maintainer to be merged.
 
 License
 -------
@@ -175,3 +175,4 @@ limitations under the License.
 [vkostyukov]: https://twitter.com/vkostyukov
 [travisbrown]: https://twitter.com/travisbrown
 [ryan_plessner]: https://twitter.com/ryan_plessner
+[sergey_kolbasov]: https://twitter.com/sergey_kolbasov
