@@ -1,6 +1,6 @@
 package io.finch.syntax
 
-import io.finch.syntax.scalafutures._
+import io.finch.syntax.scalaFutures._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
