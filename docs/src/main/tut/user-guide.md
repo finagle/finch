@@ -177,13 +177,16 @@ For every HTTP verb, there is a function `Endpoint[A] => Endpoint[A]` that takes
 an arbitrary type and enriches it with an additional check/match of the HTTP method/verb.
 
 ```tut
-import io.finch._, com.twitter.finagle.http.{Request, Method}
+
+import io.finch._
 
 val e = path("foo")
 
-e(Input.get("/foo")).isMatched
+val a = get(e)
 
-e(Input.get("/bar")).isMatched
+a(Input.get("/foo")).isMatched
+
+a(Input.post("/foo")).isMatched
 ```
 
 #### Params
