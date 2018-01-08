@@ -399,7 +399,7 @@ Also note that as of [Finch 0.16-M3](https://github.com/finagle/finch/releases/t
 is a Scala Futures syntax support for endpoints.
 
 ```tut:silent
-import io.finch._, io.finch.syntax.scala._
+import io.finch._, io.finch.syntax.scalaFutures._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
