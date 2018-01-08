@@ -26,7 +26,6 @@ Finch uses multi-project structure and contains of the following _modules_:
 * [`finch-playjson`](playjson) - The JSON API support for the [PlayJson][playjson] library
 * [`finch-sprayjson`](sprayjson) - The JSON API support for the [SprayJson][sprayjson] library
 * [`finch-test`](test) - the test support classes/functions
-* [`finch-oauth2`](oauth2) - the OAuth2 support backed by the [finagle-oauth2][finagle-oauth2] library
 * [`finch-sse`](sse) - SSE ([Server Sent Events][server-sent-events]) support in Finch
 
 Installation
@@ -126,6 +125,7 @@ Related Projects
 * [Finch Demo](https://github.com/slouc/finch-demo): Community-maintained Finch user guide
 * [Finch Rich](https://github.com/akozhemiakin/finchrich): Macro-based controllers for Finch
 * [Finch Quckstart](https://github.com/zdavep/finch-quickstart): A skeleton Finch project
+* [Finch OAuth2](https://github.com/finch/finch-oauth2): the OAuth2 support backed by the [finagle-oauth2][finagle-oauth2] library
 
 Contributing
 ------------
