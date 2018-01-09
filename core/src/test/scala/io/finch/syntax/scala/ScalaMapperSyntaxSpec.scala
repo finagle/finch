@@ -7,6 +7,7 @@ import io.finch.syntax.MapperSyntaxSpec
 
 class ScalaMapperSyntaxSpec extends MapperSyntaxSpec {
 
-  it should behave like endpointMapper[Future]
+  import scalaFutures._
 
+  it should behave like endpointMapper[Future]
 }
