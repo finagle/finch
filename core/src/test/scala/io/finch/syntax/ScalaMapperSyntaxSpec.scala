@@ -1,9 +1,7 @@
-package io.finch.syntax.scala
+package io.finch.syntax
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
-import io.finch.syntax.MapperSyntaxSpec
 
 class ScalaMapperSyntaxSpec extends MapperSyntaxSpec {
 
