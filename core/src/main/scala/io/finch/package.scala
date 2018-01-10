@@ -9,7 +9,7 @@ import shapeless.Witness
 package object finch extends Endpoints
     with Outputs
     with ValidationRules
-    with io.finch.syntax.DeprecatedEndpointMappers {
+    with io.finch.syntax.EndpointMappers {
 
   object items {
     sealed abstract class RequestItem(val kind: String, val nameOption:Option[String] = None) {
