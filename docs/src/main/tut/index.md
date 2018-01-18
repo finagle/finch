@@ -36,6 +36,7 @@ import com.twitter.util.Await
 
 import io.finch._
 import io.finch.circe._
+import io.finch.syntax._
 import io.circe.generic.auto._
 
 object Main extends App {
