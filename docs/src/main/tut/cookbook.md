@@ -68,6 +68,7 @@ cornerstone idea is to return a `Buf` instance from the endpoint so we could use
 
 ```tut:silent
 import io.finch._
+import io.finch.syntax._
 import com.twitter.io.{Reader, Buf}
 import com.twitter.finagle.Http
 import com.twitter.util.Await
@@ -90,6 +91,7 @@ It's also possible to _stream_ the file content to the client using [`AsyncStrea
 
 ```tut:silent
 import io.finch._
+import io.finch.syntax._
 import com.twitter.conversions.storage._
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.Http
@@ -215,7 +217,7 @@ import io.finch._
 
 case class Foo(i: Int, s: String)
 
-val foo: Endpoint[Foo] = (param("i").as[Int] :: param("s")).as[Foo]
+val foo: Endpoint[Foo] = (param[Int]("i") :: param("s")).as[Foo]
 
 val getFoo: Endpoint[Foo] = get("foo" :: foo) { f: Foo =>
   println(s"Got foo: $f")

@@ -56,6 +56,7 @@ class patchers are usually represented as `Endpoint[A => A]`, which
 import java.util.UUID
 import io.finch._
 import io.finch.circe._
+import io.finch.syntax._
 import io.circe.generic.auto._
 
 
@@ -109,9 +110,10 @@ endpoints. Use `FuturePool`s to wrap expensive computations.
 
 ```tut:silent
 import io.finch._
+import io.finch.syntax._
 import com.twitter.util.FuturePool
 
-val expensive: Endpoint[BigInt] = get(int) { i: Int =>
+val expensive: Endpoint[BigInt] = get(path[Int]) { i: Int =>
   FuturePool.unboundedPool {
     Ok(BigInt(i).pow(i))
   }

@@ -179,6 +179,7 @@ an arbitrary type and enriches it with an additional check/match of the HTTP met
 ```tut
 
 import io.finch._
+import io.finch.syntax._
 
 val e = path("foo")
 
@@ -376,6 +377,7 @@ endpoint depending on the conditional result.
 
 ```tut
 import io.finch._
+import io.finch.syntax._
 
 val divOrFail: Endpoint[Int] = post("div" :: path[Int] :: path[Int]) { (a: Int, b: Int) =>
   if (b == 0) BadRequest(new ArithmeticException("Can not divide by 0"))
@@ -470,10 +472,11 @@ typed members.
 
 ```tut
 import io.finch._
+import io.finch.syntax._
 
 case class Foo(i: Int, s: String)
 
-val foo = (param("i").as[Int] :: param("s")).as[Foo]
+val foo = (param[Int]("i") :: param("s")).as[Foo]
 ```
 
 #### Custom Decoders
@@ -770,6 +773,7 @@ The following example handles the `ArithmeticException` propagated from `a / b`.
 
 ```tut
 import io.finch._
+import io.finch.syntax._
 
 val divOrFail = post("div" :: path[Int] :: path[Int]) { (a: Int, b: Int) =>
   Ok(a / b)
