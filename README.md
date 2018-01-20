@@ -124,7 +124,7 @@ Related Projects
 * [Finch Sangria](https://github.com/redbubble/finch-sangria): Finch's GraphQL support
 * [Finch Demo](https://github.com/slouc/finch-demo): Community-maintained Finch user guide
 * [Finch Rich](https://github.com/akozhemiakin/finchrich): Macro-based controllers for Finch
-* [Finch Quckstart](https://github.com/zdavep/finch-quickstart): A skeleton Finch project
+* [Finch Quickstart](https://github.com/zdavep/finch-quickstart): A skeleton Finch project
 * [Finch OAuth2](https://github.com/finch/finch-oauth2): the OAuth2 support backed by the [finagle-oauth2][finagle-oauth2] library
 
 Contributing
