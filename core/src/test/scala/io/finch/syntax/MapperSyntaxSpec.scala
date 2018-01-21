@@ -10,7 +10,7 @@ import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
 trait MapperSyntaxSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
 
-  implicit val arbResponse: Arbitrary[Response] = Arbitrary(genOutput[String].map(_.toResponse[Text.Plain]))
+  implicit val arbResponse: Arbitrary[Response] = Arbitrary(genOutput[String].map(_.toResponse[Text.Plain]()))
 
   def endpointMapper[F[_]](implicit ttf: ToTwitterFuture[F], monad: Monad[F]): Unit = {
     valueBehaviour(ttf, monad)
@@ -32,7 +32,7 @@ trait MapperSyntaxSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
     }
 
     it should "map F[Response] value to endpoint" in {
-      checkValue((i: Response) => get(/) { Monad[F].pure(Ok(i).toResponse[Text.Plain]) })
+      checkValue((i: Response) => get(/) { Monad[F].pure(Ok(i).toResponse[Text.Plain]()) })
     }
 
   }
@@ -43,7 +43,7 @@ trait MapperSyntaxSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
     }
 
     it should "map A => Response function to endpoint" in {
-      checkFunction(get(path[Int]) { i: Int => Ok(i).toResponse[Text.Plain] })
+      checkFunction(get(path[Int]) { i: Int => Ok(i).toResponse[Text.Plain]() })
     }
 
     it should "map A => F[Output[A]] function to endpoint" in {
@@ -51,7 +51,7 @@ trait MapperSyntaxSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
     }
 
     it should "map A => F[Response] function to endpoint" in {
-      checkFunction(get(path[Int]) { i: Int => Monad[F].pure(i).map(Ok(_).toResponse[Text.Plain]) })
+      checkFunction(get(path[Int]) { i: Int => Monad[F].pure(i).map(Ok(_).toResponse[Text.Plain]()) })
     }
   }
 
@@ -61,7 +61,7 @@ trait MapperSyntaxSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
     }
 
     it should "map (A, B) => Response function to endpoint" in {
-      checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) => Ok(s"$x$y").toResponse[Text.Plain] })
+      checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) => Ok(s"$x$y").toResponse[Text.Plain]() })
     }
 
     it should "map (A, B) => F[Output[String]] function to endpoint" in {
@@ -70,7 +70,7 @@ trait MapperSyntaxSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
 
     it should "map (A, B) => F[Response] function to endpoint" in {
       checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
-        Monad[F].pure(Ok(s"$x$y").toResponse[Text.Plain]) })
+        Monad[F].pure(Ok(s"$x$y").toResponse[Text.Plain]()) })
     }
   }
 

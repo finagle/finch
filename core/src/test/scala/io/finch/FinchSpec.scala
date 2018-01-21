@@ -154,7 +154,7 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
       witness[Text.Plain],
       witness[Text.Html],
       witness[Text.EventStream]
-    ).map(s => Accept(s).get)
+    ).map(s => Accept.fromString(s).get)
   }
 
   def genMethod: Gen[Method] = Gen.oneOf(

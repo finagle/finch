@@ -8,7 +8,7 @@ case class Accept(primary: String, subtype: String)
 
 object Accept {
 
-  def apply(s: String): Option[Accept] = try {
+  def fromString(s: String): Option[Accept] = try {
     val mt = new MimeType(s)
     Some(Accept(mt.getPrimaryType, mt.getSubType))
   } catch {

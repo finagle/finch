@@ -89,8 +89,8 @@ object ToService {
   }
 
   implicit def hlistTS[A, EH <: Endpoint[A], ET <: HList, CTH, CTT <: HList](implicit
-    ntrA: NegotiateToResponse[A, CTH],
-    ntrE: NegotiateToResponse[Exception, CTH],
+    trA: ToResponse[A, CTH],
+    trE: ToResponse[Exception, CTH],
     tsT: ToService[ET, CTT]
   ): ToService[Endpoint[A] :: ET, CTH :: CTT] = new ToService[Endpoint[A] :: ET, CTH :: CTT] {
     def apply(
@@ -103,9 +103,9 @@ object ToService {
 
       def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
         case EndpointResult.Matched(rem, out) if rem.route.isEmpty =>
-          val accept = if (negotiateContentType) req.accept.flatMap(a => Accept(a)) else Seq.empty
+          val accept = if (negotiateContentType) req.accept.flatMap(a => Accept.fromString(a)) else Seq.empty
           out.map(oa => conformHttp(
-            oa.toResponse(ntrA(accept), ntrE(accept)),
+            oa.toResponse(accept),
             req.version,
             includeDateHeader,
             includeServerHeader
