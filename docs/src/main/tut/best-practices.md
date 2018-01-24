@@ -209,6 +209,31 @@ object Main extends TwitterServer {
 Both Finagle and user-defined stats are available via the TwitterServer's HTTP admin interface or
 through the `/admin/metrics.json` HTTP endpoint.
 
+#### Monitoring Individual Endpoints
+While it is possible to use a `SimpleFilter` and the `Request`'s path to monitor each endpoint from 
+a filter, this can be detrimental to some metrics systems if the path has dynamic values in it. To 
+support per-endpoint monitoring, Finch exports the Endpoint's `toString` in the `Response`'s `ctx`.
+
+As an example, using `FinchContext` it is possible to define a `Filter` that counts the number of 
+times an `Endpoint` returns a particular status code:
+```tut
+import com.twitter.finagle.{Service, SimpleFilter}
+import com.twitter.finagle.http.{Request, Response}
+import com.twitter.finagle.stats.StatsReceiver
+import com.twitter.util.Future
+import io.finch.FinchContext
+
+class MetricFilter(statsReceiver: StatsReceiver) extends SimpleFilter[Request, Response] {
+
+  def apply(request: Request, service: Service[Request, Response]): Future[Response] = {
+    service(request).onSuccess({ resp =>
+      val path: String = resp.ctx[String](FinchContext.PathField)
+      statsReceiver.counter(path.replace("/","_"), resp.statusCode.toString).incr()
+    })
+  }
+}
+```
+
 ### Picking HTTP statuses for responses
 
 There is no one-size-fits-all answer on what HTTP status code to use for a particular response, but

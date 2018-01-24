@@ -2,8 +2,9 @@ package io.finch
 
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response, Status, Version}
-import com.twitter.util.Future
+import com.twitter.util.{Future, Return, Throw}
 import io.finch.internal.currentTime
+
 import scala.annotation.implicitNotFound
 import shapeless._
 
@@ -74,6 +75,12 @@ object ToService {
     rep
   }
 
+  private def withPathContext(e: Endpoint[_], req: Request)(rep: Response): Response = {
+    req.ctx.updateAndLock(FinchContext.RequestPathField, e.toString)
+    rep.ctx.updateAndLock(FinchContext.ResponsePathField, e.toString)
+    rep
+  }
+
   implicit val hnilTS: ToService[HNil, HNil] = new ToService[HNil, HNil] {
     def apply(
         endpoints: HNil,
@@ -104,7 +111,10 @@ object ToService {
           req.version,
           includeDateHeader,
           includeServerHeader
-        )).run
+        )).run.respond({
+          case Return(rep) => withPathContext(underlying, req)(rep)
+          case Throw(_) => req.ctx.updateAndLock(FinchContext.RequestPathField, underlying.toString)
+        })
 
         case _ => tsT(endpoints.tail, includeDateHeader, includeServerHeader)(req)
       }
