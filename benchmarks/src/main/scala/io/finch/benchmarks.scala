@@ -8,6 +8,7 @@ import io.finch.data.Foo
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations._
+import scala.util.Random
 import shapeless._
 
 @BenchmarkMode(Array(Mode.AverageTime))
@@ -179,6 +180,39 @@ class ToServiceBenchmark extends FinchBenchmark {
 
   @Benchmark
   def ints: Response = Await.result(intService(Request()))
+}
+
+@State(Scope.Benchmark)
+@BenchmarkMode(Array(Mode.Throughput))
+@OutputTimeUnit(TimeUnit.SECONDS)
+class BootstrapBenchmark extends FinchBenchmark {
+  import io.circe.generic.auto._
+  import io.finch.circe._
+
+  implicit val encodeFoo: Encode.Aux[List[Foo], Text.Plain] =
+    Encode.instance[List[Foo], Text.Plain]((a, _) => Buf.Utf8(a.toString))
+
+  val endpoint: Endpoint[List[Foo]] =
+    Endpoint.const(List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString)))
+
+  val singleType: Service[Request, Response] =
+    Bootstrap.serve[Application.Json](endpoint).toService
+
+  val negotiatable: Service[Request, Response] =
+    Bootstrap
+      .serve[Application.Json :+: Text.Plain :+: CNil](endpoint)
+      .configure(negotiateContentType = true).toService
+
+  @Benchmark
+  def foos: Response = Await.result(singleType(Request()))
+
+  @Benchmark
+  def negotiation: Response = Await.result(negotiatable {
+    val req = Request()
+    req.accept = Random.shuffle("application/json" :: "text/plain" :: Nil).head
+    req
+  })
+
 }
 
 @State(Scope.Benchmark)

@@ -1,5 +1,6 @@
 package io.finch
 
+import cats.syntax.eq._
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.{Response, Status, Version}
 import com.twitter.io.Buf
@@ -10,10 +11,9 @@ import shapeless._
 /**
  * Represents a conversion from `A` to [[Response]].
  */
-trait ToResponse[A] {
-  type ContentType <: String
+trait ToResponse[A, CT] {
 
-  def apply(a: A, cs: Charset): Response
+  def apply(a: A, cs: Charset, accept: Seq[Accept]): Response
 }
 
 trait LowPriorityToResponseInstances {
@@ -29,16 +29,15 @@ trait LowPriorityToResponseInstances {
   See https://github.com/finagle/finch/blob/master/docs/src/main/tut/cookbook.md#fixing-the-toservice-compile-error
 """
   )
-  type Aux[A, CT] = ToResponse[A] { type ContentType = CT }
+  type Aux[A, CT] = ToResponse[A, CT]
 
-  def instance[A, CT <: String](fn: (A, Charset) => Response): Aux[A, CT] = new ToResponse[A] {
-    type ContentType = CT
-    def apply(a: A, cs: Charset): Response = fn(a, cs)
+  def instance[A, CT](fn: (A, Charset, Seq[Accept]) => Response): Aux[A, CT] = new ToResponse[A, CT] {
+    def apply(a: A, cs: Charset, accept: Seq[Accept]): Response = fn(a, cs, accept)
   }
 
   protected[finch] def asyncResponseBuilder[A, CT <: String](writer: (A, Charset) => Buf)(implicit
     w: Witness.Aux[CT]
-  ): Aux[AsyncStream[A], CT] = instance { (as, cs) =>
+  ): Aux[AsyncStream[A], CT] = instance { (as, cs, _) =>
     val rep = Response()
     rep.setChunked(true)
 
@@ -55,26 +54,45 @@ trait LowPriorityToResponseInstances {
   implicit def jsonAsyncStreamToResponse[A](implicit
     e: Encode.Json[A]
   ): Aux[AsyncStream[A], Application.Json] =
-    asyncResponseBuilder((a, cs) => e(a, cs).concat(NewLine))
+    asyncResponseBuilder[A, Application.Json]((a, cs) => e(a, cs).concat(NewLine))
 
   implicit def textAsyncStreamToResponse[A](implicit
     e: Encode.Text[A]
   ): Aux[AsyncStream[A], Text.Plain] =
-    asyncResponseBuilder((a, cs) => e(a, cs).concat(NewLine))
+    asyncResponseBuilder[A, Text.Plain]((a, cs) => e(a, cs).concat(NewLine))
+
+  implicit def coproductCtToResponse[A, CT <: String, CTT <: Coproduct](implicit
+    h: ToResponse[A, CT],
+    t: ToResponse[A, CTT],
+    w: Witness.Aux[CT]
+  ): ToResponse[A, CT :+: CTT] = instance { (a, ch, accept) =>
+    Accept.fromString(w.value) match {
+      case Some(ct) if accept.isEmpty || accept.exists(_ === ct) =>
+        h(a, ch, accept)
+      case _ =>
+        t(a, ch, accept)
+    }
+  }
+
+  implicit def cnilCtToResponse[A, CT <: String](implicit
+    tr: ToResponse[A, CT]
+  ): ToResponse[A, CT :+: CNil] = instance { (a, ch, accept) =>
+    tr(a, ch, accept)
+  }
 }
 
 trait HighPriorityToResponseInstances extends LowPriorityToResponseInstances {
 
   implicit def asyncBufToResponse[CT <: String](implicit
     w: Witness.Aux[CT]
-  ): Aux[AsyncStream[Buf], CT] = asyncResponseBuilder((a, _) => a)
+  ): Aux[AsyncStream[Buf], CT] = asyncResponseBuilder[Buf, CT]((a, _) => a)
 
-  implicit def responseToResponse[CT <: String]: Aux[Response, CT] = instance((r, _) => r)
+  implicit def responseToResponse[CT <: String]: Aux[Response, CT] = instance((r, _, _) => r)
 
   implicit def valueToResponse[A, CT <: String](implicit
     e: Encode.Aux[A, CT],
     w: Witness.Aux[CT]
-  ): Aux[A, CT] = instance { (a, cs) =>
+  ): Aux[A, CT] = instance { (a, cs, _) =>
     val buf = e(a, cs)
     val rep = Response()
 
@@ -90,13 +108,13 @@ trait HighPriorityToResponseInstances extends LowPriorityToResponseInstances {
 object ToResponse extends HighPriorityToResponseInstances {
 
   implicit def cnilToResponse[CT <: String]: Aux[CNil, CT] =
-    instance((_, _) => Response(Version.Http10, Status.NotFound))
+    instance((_, _, _) => Response(Version.Http10, Status.NotFound))
 
-  implicit def coproductToResponse[H, T <: Coproduct, CT <: String](implicit
+  implicit def coproductToResponse[H, T <: Coproduct, CT](implicit
     trH: ToResponse.Aux[H, CT],
     trT: ToResponse.Aux[T, CT]
   ): Aux[H :+: T, CT] = instance {
-    case (Inl(h), cs) => trH(h, cs)
-    case (Inr(t), cs) => trT(t, cs)
+    case (Inl(h), cs, accept) => trH(h, cs, accept)
+    case (Inr(t), cs, accept) => trT(t, cs, accept)
   }
 }

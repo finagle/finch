@@ -195,13 +195,13 @@ object Output {
     /**
      * Converts this [[Output]] to the HTTP response of the given `version`.
      */
-    def toResponse[CT <: String](implicit
+    def toResponse[CT](accept: Seq[Accept] = Seq.empty)(implicit
       tr: ToResponse.Aux[A, CT],
       tre: ToResponse.Aux[Exception, CT]
     ): Response = {
       val rep = o match {
-        case p: Output.Payload[A] => tr(p.value, p.charset.getOrElse(StandardCharsets.UTF_8))
-        case f: Output.Failure => tre(f.cause, f.charset.getOrElse(StandardCharsets.UTF_8))
+        case p: Output.Payload[A] => tr(p.value, p.charset.getOrElse(StandardCharsets.UTF_8), accept)
+        case f: Output.Failure => tre(f.cause, f.charset.getOrElse(StandardCharsets.UTF_8), accept)
         case e: Output.Empty => Response()
       }
 

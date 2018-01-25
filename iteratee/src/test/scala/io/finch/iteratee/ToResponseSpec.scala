@@ -32,6 +32,6 @@ class ToResponseSpec extends FinchSpec with GeneratorDrivenPropertyChecks with F
     val toResponse = implicitly[ToResponse.Aux[Enumerator[Future, A], CT]]
     val enumerator = enumList(data)
 
-    toResponse(enumerator, StandardCharsets.UTF_8)
+    toResponse(enumerator, StandardCharsets.UTF_8, Seq.empty)
   }
 }

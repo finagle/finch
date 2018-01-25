@@ -15,6 +15,7 @@ import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers
 import org.typelevel.discipline.Laws
 import scala.reflect.ClassTag
+import shapeless.Witness
 
 trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
   with MissingInstances {
@@ -136,6 +137,26 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
     genPayloadOutput[A], genFailureOutput, genEmptyOutput
   )
 
+
+
+  def genAccept: Gen[Accept] = {
+    def witness[T <: String](implicit w: Witness.Aux[T]): String = w.value
+    Gen.oneOf(
+      witness[Application.Json],
+      witness[Application.AtomXml],
+      witness[Application.Csv],
+      witness[Application.Javascript],
+      witness[Application.OctetStream],
+      witness[Application.RssXml],
+      witness[Application.AtomXml],
+      witness[Application.WwwFormUrlencoded],
+      witness[Application.Xml],
+      witness[Text.Plain],
+      witness[Text.Html],
+      witness[Text.EventStream]
+    ).map(s => Accept.fromString(s).get)
+  }
+
   def genMethod: Gen[Method] = Gen.oneOf(
     Method.Get, Method.Connect, Method.Delete, Method.Head,
     Method.Options, Method.Patch, Method.Post, Method.Put, Method.Trace
@@ -166,14 +187,18 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
       v <- genVersion
       s <- genPath
       b <- genBuf
+      a <- genAccept
     } yield {
       val r = Request(v, m, s.p)
       r.content = b
       r.contentLength = b.length.toLong
       r.charset = "utf-8"
+      r.accept = s"${a.primary}/${a.subtype}"
       r
     }
   )
+
+  implicit def arbitraryAccept: Arbitrary[Accept] = Arbitrary(genAccept)
 
   implicit def cogenRequest: Cogen[Request] =
     Cogen[(String, String, String, Array[Byte])].contramap { r =>

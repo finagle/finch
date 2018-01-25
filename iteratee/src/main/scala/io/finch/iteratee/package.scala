@@ -84,7 +84,7 @@ trait LowPriorityInstances extends FutureModule {
     e: Encode.Aux[A, CT],
     w: Witness.Aux[CT]
   ): ToResponse.Aux[Enumerator[Future, A], CT] = {
-    ToResponse.instance[Enumerator[Future, A], CT]((enum, cs) => {
+    ToResponse.instance[Enumerator[Future, A], CT]((enum, cs, _) => {
       val response = Response()
       response.setChunked(true)
       response.contentType = w.value
