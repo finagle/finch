@@ -1,10 +1,12 @@
 package io.finch
 
+import scala.annotation.implicitNotFound
+
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response, Status, Version}
-import com.twitter.util.Future
+import com.twitter.util.{Future, Stopwatch}
 import io.finch.internal.currentTime
-import scala.annotation.implicitNotFound
+import io.finch.metrics.Metrics
 import shapeless._
 
 /**
@@ -35,7 +37,8 @@ trait ToService[ES <: HList, CTS <: HList] {
   def apply(
     endpoints: ES,
     includeDateHeader: Boolean,
-    includeServerHeader: Boolean
+    includeServerHeader: Boolean,
+    metrics: Metrics
   ): Service[Request, Response]
 }
 
@@ -78,7 +81,8 @@ object ToService {
     def apply(
         endpoints: HNil,
         includeDateHeader: Boolean,
-        includeServerHeader: Boolean): Service[Request, Response] = new Service[Request, Response] {
+        includeServerHeader: Boolean,
+        metrics: Metrics): Service[Request, Response] = new Service[Request, Response] {
 
       def apply(req: Request): Future[Response] = Future.value(
         conformHttp(Response(Status.NotFound), req.version, includeDateHeader, includeServerHeader)
@@ -94,19 +98,33 @@ object ToService {
     def apply(
         endpoints: Endpoint[A] :: ET,
         includeDateHeader: Boolean,
-        includeServerHeader: Boolean): Service[Request, Response] = new Service[Request, Response] {
+        includeServerHeader: Boolean,
+        metrics: Metrics): Service[Request, Response] = new Service[Request, Response] {
 
       private[this] val underlying = endpoints.head.handle(respond400OnErrors)
 
       def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
-        case EndpointResult.Matched(rem, out) if rem.route.isEmpty => out.map(oa => conformHttp(
-          oa.toResponse(trA, trE),
-          req.version,
-          includeDateHeader,
-          includeServerHeader
-        )).run
+        case EndpointResult.Matched(rem, out) if rem.route.isEmpty =>
+          val path = underlying.toString
+          val start = Stopwatch.timeMillis().toFloat
+          metrics.countCall(path)
+          out.map(oa => conformHttp(
+            oa.toResponse(trA, trE),
+            req.version,
+            includeDateHeader,
+            includeServerHeader
+          )).run.onSuccess(response => {
+            val now = Stopwatch.timeMillis().toFloat
+            metrics.countSuccess(path, response.statusCode)
+            metrics.successTime(path, response.statusCode, now - start)
+            metrics.size(path, response.statusCode, response.content.length.toFloat)
+          }).onFailure(e => {
+            val now = Stopwatch.timeMillis().toFloat
+            metrics.countFailure(path, e)
+            metrics.failureTime(path, e, now - start)
+          })
 
-        case _ => tsT(endpoints.tail, includeDateHeader, includeServerHeader)(req)
+        case _ => tsT(endpoints.tail, includeDateHeader, includeServerHeader, metrics)(req)
       }
     }
   }
