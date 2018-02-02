@@ -25,7 +25,7 @@ class Bootstrap[ES <: HList, CTS <: HList](
   class Serve[CT] {
     def apply[E](e: Endpoint[E]): Bootstrap[Endpoint[E] :: ES, CT :: CTS] =
       new Bootstrap[Endpoint[E] :: ES, CT :: CTS](
-        e :: self.endpoints, includeDateHeader, includeServerHeader
+        e :: self.endpoints, includeDateHeader, includeServerHeader, negotiateContentType
       )
     }
 
