@@ -14,7 +14,18 @@ import shapeless._
  *  .toService
  * }}}
  *
- * @note This API is experimental/unstable. Use with caution.
+ *
+ * == Supported Configuration Options ==
+ *
+ * - `includeDateHeader` (default: `true`): whether or not to include the Date header into
+ *   each response (see RFC2616, section 14.18)
+ * - `includeServerHeader` (default: `true`): whether or not to include the Server header into
+ *   each response (see RFC2616, section 14.38)
+ * - `negotiateContentType` (default: `false`): whether or not to enable server-driven content type
+ *   negotiation (see RFC2616, section 12.1)
+ *
+ * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
+ * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec12.html
  */
 class Bootstrap[ES <: HList, CTS <: HList](
     val endpoints: ES,

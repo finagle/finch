@@ -103,7 +103,9 @@ object ToService {
 
       def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
         case EndpointResult.Matched(rem, out) if rem.route.isEmpty =>
-          val accept = if (negotiateContentType) req.accept.flatMap(a => Accept(a)) else Seq.empty
+          val accept =
+            if (negotiateContentType) req.accept.flatMap(a => Option(Accept.fromString(a))) else Nil
+
           out.map(oa => conformHttp(
             oa.toResponse(ntrA(accept), ntrE(accept)),
             req.version,
