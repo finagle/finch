@@ -56,7 +56,7 @@ class NegotiateToResponseSpec extends FinchSpec {
 
   it should "ignore order of values in Accept header and use first appropriate encoder in coproduct" in {
     check { (req: Request, accept: Accept) =>
-      val a = s"${accept.primary}/${accept.subtype}"
+      val a = s"${accept.primary}/${accept.sub}"
       req.accept = a +: req.accept
 
       val s = Bootstrap.serve[AllContentTypes](*).configure(negotiateContentType = true).toService

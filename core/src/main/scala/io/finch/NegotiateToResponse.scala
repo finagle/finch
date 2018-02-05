@@ -1,6 +1,5 @@
 package io.finch
 
-import cats.syntax.eq._
 import shapeless._
 
 /**
@@ -28,8 +27,8 @@ object NegotiateToResponse {
     t: NegotiateToResponse[A, CTT],
     w: Witness.Aux[CTH]
   ): NegotiateToResponse[A, CTH :+: CTT] = instance { accept =>
-    Accept(w.value) match {
-      case Some(ct) if accept.exists(_ === ct) =>
+    Accept.fromString(w.value) match {
+      case ct if (ct ne null) && accept.exists(_.matches(ct)) =>
         h.asInstanceOf[ToResponse.Aux[A, CTH :+: CTT]]
       case _ =>
         t(accept).asInstanceOf[ToResponse.Aux[A, CTH :+: CTT]]

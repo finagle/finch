@@ -137,8 +137,6 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
     genPayloadOutput[A], genFailureOutput, genEmptyOutput
   )
 
-
-
   def genAccept: Gen[Accept] = {
     def witness[T <: String](implicit w: Witness.Aux[T]): String = w.value
     Gen.oneOf(
@@ -154,7 +152,7 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
       witness[Text.Plain],
       witness[Text.Html],
       witness[Text.EventStream]
-    ).map(s => Accept(s).get)
+    ).map(s => Accept.fromString(s))
   }
 
   def genMethod: Gen[Method] = Gen.oneOf(
@@ -193,7 +191,7 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
       r.content = b
       r.contentLength = b.length.toLong
       r.charset = "utf-8"
-      r.accept = s"${a.primary}/${a.subtype}"
+      r.accept = s"${a.primary}/${a.sub}"
       r
     }
   )
