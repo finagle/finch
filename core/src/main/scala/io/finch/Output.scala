@@ -195,7 +195,7 @@ object Output {
     /**
      * Converts this [[Output]] to the HTTP response of the given `version`.
      */
-    def toResponse[CT <: String](implicit
+    def toResponse[CT](implicit
       tr: ToResponse.Aux[A, CT],
       tre: ToResponse.Aux[Exception, CT]
     ): Response = {
