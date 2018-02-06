@@ -9,17 +9,17 @@ lazy val buildSettings = Seq(
 
 lazy val finagleVersion = "18.2.0"
 lazy val twitterServerVersion = "18.2.0"
-lazy val circeVersion = "0.9.0"
+lazy val circeVersion = "0.9.1"
 lazy val circeIterateeVersion = "0.9.0"
 lazy val circeJacksonVersion = "0.9.0"
 lazy val catbirdVersion = "18.2.0"
 lazy val shapelessVersion = "2.3.3"
 lazy val catsVersion = "1.0.1"
-lazy val sprayVersion = "1.3.3"
-lazy val playVersion = "2.6.6"
-lazy val jacksonVersion = "2.8.8"
-lazy val argonautVersion = "6.2"
-lazy val json4sVersion = "3.5.2"
+lazy val sprayVersion = "1.3.4"
+lazy val playVersion = "2.6.8"
+lazy val jacksonVersion = "2.8.9"
+lazy val argonautVersion = "6.2.1"
+lazy val json4sVersion = "3.5.3"
 lazy val iterateeVersion = "0.17.0"
 lazy val iterateeTwitterVersion = "0.20.0"
 
@@ -40,7 +40,7 @@ lazy val compilerOptions = Seq(
 
 val testDependencies = Seq(
   "org.scalacheck" %% "scalacheck" % "1.13.5",
-  "org.scalatest" %% "scalatest" % "3.0.4",
+  "org.scalatest" %% "scalatest" % "3.0.5",
   "org.typelevel" %% "cats-laws" % catsVersion,
   "org.typelevel" %% "discipline" % "0.8"
 )
