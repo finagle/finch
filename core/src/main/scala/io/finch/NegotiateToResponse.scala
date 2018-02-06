@@ -16,23 +16,18 @@ trait NegotiateToResponse[A, ContentType] {
 
 object NegotiateToResponse {
 
-  def instance[A, CT](f: Seq[Accept] => ToResponse.Aux[A, CT]): NegotiateToResponse[A, CT] = {
+  def instance[A, CT](f: Seq[Accept] => ToResponse.Aux[A, CT]): NegotiateToResponse[A, CT] =
     new NegotiateToResponse[A, CT] {
       def apply(accept: Seq[Accept]): ToResponse.Aux[A, CT] = f(accept)
     }
-  }
 
   implicit def mkCoproduct[A, CTH <: String, CTT <: Coproduct](implicit
     h: ToResponse.Aux[A, CTH],
     t: NegotiateToResponse[A, CTT],
-    w: Witness.Aux[CTH]
+    a: Accept.Matcher[CTH]
   ): NegotiateToResponse[A, CTH :+: CTT] = instance { accept =>
-    Accept.fromString(w.value) match {
-      case ct if (ct ne null) && accept.exists(_.matches(ct)) =>
-        h.asInstanceOf[ToResponse.Aux[A, CTH :+: CTT]]
-      case _ =>
-        t(accept).asInstanceOf[ToResponse.Aux[A, CTH :+: CTT]]
-    }
+    if (accept.exists(_.matches[CTH])) h.asInstanceOf[ToResponse.Aux[A, CTH :+: CTT]]
+    else t(accept).asInstanceOf[ToResponse.Aux[A, CTH :+: CTT]]
   }
 
   implicit def mkLast[A, CTH <: String](implicit
