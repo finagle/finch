@@ -4,6 +4,7 @@ import scala.reflect.ClassTag
 
 import cats.Id
 import cats.data.NonEmptyList
+import com.twitter.finagle.http.Request
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart, MultipartDecoder}
 import com.twitter.finagle.http.exp.Multipart.{FileUpload => FinagleFileUpload}
 import com.twitter.util.Throw
@@ -21,12 +22,9 @@ private abstract class Attribute[F[_], A](val name: String, val d: DecodeEntity[
   protected def present(value: NonEmptyList[A]): Rerunnable[Output[F[A]]]
   protected def unparsed(errors: NonEmptyList[Throwable]): Rerunnable[Output[F[A]]]
 
-  private def multipart(input: Input): Option[FinagleMultipart] =
-    try MultipartDecoder.decode(input.request) catch { case NonFatal(_) => None }
-
   private def all(input: Input): Option[NonEmptyList[String]] = {
     for {
-      m <- multipart(input)
+      m <- Multipart.decodeIfNeeded(input.request)
       attrs <- m.attributes.get(name)
       nel <- NonEmptyList.fromList(attrs.toList)
     } yield {
@@ -102,12 +100,9 @@ private abstract class FileUpload[F[_]](name: String) extends Endpoint[F[Finagle
   protected def missing(name: String): Rerunnable[Output[F[FinagleFileUpload]]]
   protected def present(a: NonEmptyList[FinagleFileUpload]): Rerunnable[Output[F[FinagleFileUpload]]]
 
-  private def multipart(input: Input): Option[FinagleMultipart] =
-    try MultipartDecoder.decode(input.request) catch { case NonFatal(_) => None }
-
   private final def all(input: Input): Option[NonEmptyList[FinagleFileUpload]] =
     for {
-      mp <- multipart(input)
+      mp <- Multipart.decodeIfNeeded(input.request)
       all <- mp.files.get(name)
       nel <- NonEmptyList.fromList(all.toList)
     } yield nel
@@ -149,6 +144,21 @@ private object FileUpload {
     protected def missing(name: String): Rerunnable[Output[NonEmptyList[FinagleFileUpload]]] = Rs.paramNotPresent(name)
     protected def present(fa: NonEmptyList[FinagleFileUpload]): Rerunnable[Output[NonEmptyList[FinagleFileUpload]]] =
       Rs.payload(fa)
+  }
+}
+
+private object Multipart {
+  private val field = Request.Schema.newField[Option[FinagleMultipart]](null)
+
+  def decodeNow(req: Request): Option[FinagleMultipart] =
+    try MultipartDecoder.decode(req) catch { case NonFatal(_) => None }
+
+  def decodeIfNeeded(req: Request): Option[FinagleMultipart] = req.ctx(field) match {
+    case null => // was never decoded for this request
+      val value = decodeNow(req)
+      req.ctx.update(field, value)
+      value
+    case value => value // was already decoded for this request
   }
 }
 
