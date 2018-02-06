@@ -11,9 +11,12 @@ object Foo {
   implicit val decodeEntityFoo: DecodeEntity[Foo] =
     DecodeEntity.instance(s => Return(Foo(s)))
 
-  implicit def decodeFoo[CT <: String]: Decode.Aux[Foo, CT] =
-    Decode.instance((b, cs) => Return(Foo(b.asString(cs))))
+  implicit val decodeFoo: Decode.Text[Foo] =
+    Decode.text((b, cs) => Return(Foo(b.asString(cs))))
 
-  implicit def encodeFoo[CT <: String]: Encode.Aux[Foo, CT] =
-    Encode.instance((f, cs) => Buf.ByteArray.Owned(f.s.getBytes(cs.name)))
+  implicit val encodeFoo: Encode.Text[Foo] =
+    Encode.text((f, cs) => Buf.ByteArray.Owned(f.s.getBytes(cs.name)))
+
+  implicit def encodeList(implicit e: Encode.Text[Foo]): Encode.Text[List[Foo]] =
+    Encode.text((fs, cs) => fs.map(f => e(f, cs)).reduce(_ concat _))
 }

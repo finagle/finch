@@ -4,11 +4,12 @@ import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.io.Buf
 import com.twitter.util.{Await, Future, Try}
+import io.circe.generic.auto._
+import io.finch.circe._
 import io.finch.data.Foo
 import java.nio.charset.StandardCharsets
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
 import org.openjdk.jmh.annotations._
-import scala.util.Random
 import shapeless._
 
 @BenchmarkMode(Array(Mode.AverageTime))
@@ -163,56 +164,41 @@ class JsonBenchmark extends FinchBenchmark {
 @State(Scope.Benchmark)
 @BenchmarkMode(Array(Mode.Throughput))
 @OutputTimeUnit(TimeUnit.SECONDS)
-class ToServiceBenchmark extends FinchBenchmark {
-  import io.circe.generic.auto._
-  import io.finch.circe._
+abstract class BootstrapBenchmark[CT](init: Bootstrap[HNil, HNil])(implicit
+  tsf: ToService[Endpoint[List[Foo]] :: HNil, CT :: HNil]
+) extends FinchBenchmark {
 
-  val fooService: Service[Request, Response] = Endpoint.const(
-    List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString))
-  ).toService
+  protected def issueRequest(): Request = Request()
 
-  val intService: Service[Request, Response] = Endpoint.const(
-    List.fill(128)(scala.util.Random.nextInt)
-  ).toService
+  private val foo: Service[Request, Response] = init
+    .serve[CT](Endpoint.const(List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString))))
+    .toService
 
   @Benchmark
-  def foos: Response = Await.result(fooService(Request()))
-
-  @Benchmark
-  def ints: Response = Await.result(intService(Request()))
+  def foos: Response = Await.result(foo(issueRequest()))
 }
 
-@State(Scope.Benchmark)
-@BenchmarkMode(Array(Mode.Throughput))
-@OutputTimeUnit(TimeUnit.SECONDS)
-class BootstrapBenchmark extends FinchBenchmark {
-  import io.circe.generic.auto._
-  import io.finch.circe._
+class JsonBootstrapBenchmark extends BootstrapBenchmark[Application.Json](Bootstrap)
 
-  implicit val encodeFoo: Encode.Aux[List[Foo], Text.Plain] =
-    Encode.instance[List[Foo], Text.Plain]((a, _) => Buf.Utf8(a.toString))
+class JsonNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Application.Json](
+    Bootstrap.configure(negotiateContentType = true))
 
-  val endpoint: Endpoint[List[Foo]] =
-    Endpoint.const(List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString)))
+class TextBootstrapBenchmark extends BootstrapBenchmark[Text.Plain](Bootstrap)
 
-  val singleType: Service[Request, Response] =
-    Bootstrap.serve[Application.Json](endpoint).toService
+class TextNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Text.Plain](
+    Bootstrap.configure(negotiateContentType = true))
 
-  val negotiatable: Service[Request, Response] =
-    Bootstrap
-      .serve[Application.Json :+: Text.Plain :+: CNil](endpoint)
-      .configure(negotiateContentType = true).toService
+class JsonAndTextNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Application.Json :+: Text.Plain :+: CNil](
+    Bootstrap.configure(negotiateContentType = true)) {
 
-  @Benchmark
-  def foos: Response = Await.result(singleType(Request()))
+  private val acceptValues: Array[String] = Array("application/json", "text/plain")
 
-  @Benchmark
-  def negotiation: Response = Await.result(negotiatable {
+  override protected def issueRequest(): Request = {
     val req = Request()
-    req.accept = Random.shuffle("application/json" :: "text/plain" :: Nil).head
-    req
-  })
+    req.accept = acceptValues(ThreadLocalRandom.current().nextInt(acceptValues.length))
 
+    req
+  }
 }
 
 @State(Scope.Benchmark)
