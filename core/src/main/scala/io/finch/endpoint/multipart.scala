@@ -4,9 +4,9 @@ import scala.reflect.ClassTag
 
 import cats.Id
 import cats.data.NonEmptyList
-import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart}
+import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart, MultipartDecoder}
 import com.twitter.finagle.http.exp.Multipart.{FileUpload => FinagleFileUpload}
-import com.twitter.util.{Throw, Try}
+import com.twitter.util.Throw
 import io.catbird.util.Rerunnable
 import io.finch._
 import io.finch.internal.Rs
@@ -22,7 +22,7 @@ private abstract class Attribute[F[_], A](val name: String, val d: DecodeEntity[
   protected def unparsed(errors: NonEmptyList[Throwable]): Rerunnable[Output[F[A]]]
 
   private def multipart(input: Input): Option[FinagleMultipart] =
-    Try(input.request.multipart).toOption.flatten
+    try MultipartDecoder.decode(input.request) catch { case NonFatal(_) => None }
 
   private def all(input: Input): Option[NonEmptyList[String]] = {
     for {
@@ -103,7 +103,7 @@ private abstract class FileUpload[F[_]](name: String) extends Endpoint[F[Finagle
   protected def present(a: NonEmptyList[FinagleFileUpload]): Rerunnable[Output[F[FinagleFileUpload]]]
 
   private def multipart(input: Input): Option[FinagleMultipart] =
-    try input.request.multipart catch { case NonFatal(_) => None }
+    try MultipartDecoder.decode(input.request) catch { case NonFatal(_) => None }
 
   private final def all(input: Input): Option[NonEmptyList[FinagleFileUpload]] =
     for {
