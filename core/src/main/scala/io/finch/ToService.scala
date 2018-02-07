@@ -89,8 +89,8 @@ object ToService {
   }
 
   implicit def hlistTS[A, EH <: Endpoint[A], ET <: HList, CTH, CTT <: HList](implicit
-    ntrA: NegotiateToResponse[A, CTH],
-    ntrE: NegotiateToResponse[Exception, CTH],
+    ntrA: ToResponse.Negotiable[A, CTH],
+    ntrE: ToResponse.Negotiable[Exception, CTH],
     tsT: ToService[ET, CTT]
   ): ToService[Endpoint[A] :: ET, CTH :: CTT] = new ToService[Endpoint[A] :: ET, CTH :: CTT] {
     def apply(
