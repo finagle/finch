@@ -119,7 +119,7 @@ it's evolved separately from Finagle. To overcome this and provide an extension 
 special endpoint instance, called `root` that returns a raw Finagle `Request`.
 
 ```tut
-import io.finch._, io.finch.Endpoint._, java.net.InetAddress
+import io.finch._, java.net.InetAddress
 
 val remoteAddr = root.map(_.remoteAddress)
 
@@ -178,8 +178,7 @@ an arbitrary type and enriches it with an additional check/match of the HTTP met
 
 ```tut
 
-import io.finch._
-import io.finch.syntax._
+import io.finch._, io.finch.syntax._
 
 val e = path("foo")
 
@@ -376,8 +375,7 @@ Having an `Output` defined as an ADT allows us to return both payloads and failu
 endpoint depending on the conditional result.
 
 ```tut
-import io.finch._
-import io.finch.syntax._
+import io.finch._, io.finch.syntax._
 
 val divOrFail: Endpoint[Int] = post("div" :: path[Int] :: path[Int]) { (a: Int, b: Int) =>
   if (b == 0) BadRequest(new ArithmeticException("Can not divide by 0"))
@@ -472,7 +470,6 @@ typed members.
 
 ```tut
 import io.finch._
-import io.finch.syntax._
 
 case class Foo(i: Int, s: String)
 
