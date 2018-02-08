@@ -18,6 +18,7 @@ package object circe extends Encoders with Decoders {
   /**
    * Provides Jackson Serializer.
    */
+  @deprecated("Use standard Circe serializer - it works great!", "0.17")
   object jacksonSerializer extends Encoders with Decoders {
     override protected def print(json: Json, cs: Charset): Buf =
       if (cs == StandardCharsets.UTF_8)
