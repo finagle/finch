@@ -70,7 +70,7 @@
       
       <p class="shortcomment cmt">This is the API documentation for <a href="https://github.com/finagle/finch" target="_blank">finch</a></p><div class="fullcomment"><div class="comment cmt"><p>This is the API documentation for <a href="https://github.com/finagle/finch" target="_blank">finch</a></p><p>Finch is a thin layer of purely functional basic blocks atop of [Finagle][finagle] for
 building composable HTTP APIs. Its mission is to provide the developers simple and robust HTTP primitives being as
-close as possible to the bare metal Finagle API.</p><p>Finch uses multi-project structure and contains of the following _modules_:</p><ul><li><span class="extype" name="finch-core">core</span> - the core classes/functions</li><li><span class="extype" name="finch-argonaut">argonaut</span> - the JSON API support for the [Argonaut][argonaut] library</li><li><span class="extype" name="finch-jackson">jackson</span> - the JSON API support for the [Jackson][jackson] library</li><li><span class="extype" name="finch-json4s">json4s</span> - the JSON API support for the [JSON4S][json4s] library</li><li><span class="extype" name="finch-circe">circe</span> - the JSON API support for the [Circe][circe] library</li><li><span class="extype" name="finch-playjson">playjson</span> - The JSON API support for the [PlayJson][playjson] library</li><li><span class="extype" name="finch-sprayjson">sprayjson</span> - The JSON API support for the [SprayJson][sprayjson] library</li><li><span class="extype" name="finch-test">test</span> - the test support classes/functions</li><li><span class="extype" name="finch-oauth2">oauth2</span> - the OAuth2 support backed by the [finagle-oauth2][finagle-oauth2] library</li><li><span class="extype" name="finch-sse">see</span> - SSE ([Server Sent Events][server-sent-events]) support in Finch</li></ul><p>Please refer to the <a href="https://finch.github.io/finagle/finch/" target="_blank">documentation</a> for a more
+close as possible to the bare metal Finagle API.</p><p>Finch uses multi-project structure and contains of the following _modules_:</p><ul><li><span class="extype" name="finch-core">core</span> - the core classes/functions</li><li><span class="extype" name="finch-argonaut">argonaut</span> - the JSON API support for the [Argonaut][argonaut] library</li><li><span class="extype" name="finch-jackson">jackson</span> - the JSON API support for the [Jackson][jackson] library</li><li><span class="extype" name="finch-json4s">json4s</span> - the JSON API support for the [JSON4S][json4s] library</li><li><span class="extype" name="finch-circe">circe</span> - the JSON API support for the [Circe][circe] library</li><li><span class="extype" name="finch-playjson">playjson</span> - The JSON API support for the [PlayJson][playjson] library</li><li><span class="extype" name="finch-sprayjson">sprayjson</span> - The JSON API support for the [SprayJson][sprayjson] library</li><li><span class="extype" name="finch-test">test</span> - the test support classes/functions</li><li><span class="extype" name="finch-oauth2">oauth2</span> - the OAuth2 support backed by the [finagle-oauth2][finagle-oauth2] library</li><li><span class="extype" name="finch-sse">see</span> - SSE ([Server Sent Events][server-sent-events]) support in Finch</li></ul><p>Please refer to the <a href="https://finagle.github.io/finch/" target="_blank">documentation</a> for a more
 detailed introduction to the library.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
     </li><li name="_root_.io" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="io"></a><a id="io:io"></a>
@@ -124,22 +124,6 @@ types atop of Finagle for writing lightweight HTTP services.
       
       <p class="shortcomment cmt">Enables Sinatra-like syntax extensions for endpoints.</p><div class="fullcomment"><div class="comment cmt"><p>Enables Sinatra-like syntax extensions for endpoints.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="io.finch">finch</a></dd></dl></div>
-    </li><li name="io.finch.syntax.scala" visbl="pub" class="indented4 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="scala"></a><a id="scala:scala"></a>
-      <span class="permalink">
-      <a href="../../../io/finch/syntax/index.html#scala" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a title="" href="scala/index.html"><span class="name">scala</span></a>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="io.finch.syntax">syntax</a></dd></dl></div>
     </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="" title=""></a>
@@ -152,6 +136,10 @@ types atop of Finagle for writing lightweight HTTP services.
                         <a class="object" href="ToTwitterFuture$.html" title=""></a>
                         <a class="trait" href="ToTwitterFuture.html" title="Type class for conversion of some HKT (i.e."></a>
                         <a href="ToTwitterFuture.html" title="Type class for conversion of some HKT (i.e.">ToTwitterFuture</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="package$$scalaFutures$.html" title="Enables Scala Futures support for Finch syntax."></a>
+                        <a href="package$$scalaFutures$.html" title="Enables Scala Futures support for Finch syntax.">scalaFutures</a>
                       </li>
               </ul>
             </div>
@@ -215,7 +203,7 @@ types atop of Finagle for writing lightweight HTTP services.
                 </div><div class="ancestors">
                   <span class="filtertype">Implicitly<br />
                   </span>
-                  <ol id="implicits"> <li class="in" name="io.finch.Endpoint.StringOptionEndpointOps" data-hidden="false"><span>by StringOptionEndpointOps</span></li><li class="in" name="io.finch.Endpoint.StringSeqEndpointOps" data-hidden="false"><span>by StringSeqEndpointOps</span></li><li class="in" name="io.finch.Endpoint.StringNelEndpointOps" data-hidden="false"><span>by StringNelEndpointOps</span></li><li class="in" name="io.finch.Endpoint.OptionEndpointOps" data-hidden="false"><span>by OptionEndpointOps</span></li><li class="in" name="io.finch.Endpoint.StringEndpointOps" data-hidden="false"><span>by StringEndpointOps</span></li><li class="in" name="io.finch.Endpoint.HListEndpointOps" data-hidden="false"><span>by HListEndpointOps</span></li><li class="in" name="io.finch.Endpoint.ValueEndpointOps" data-hidden="false"><span>by ValueEndpointOps</span></li><li class="in" name="scala.Predef.any2stringadd" data-hidden="true"><span>by any2stringadd</span></li><li class="in" name="scala.Predef.StringFormat" data-hidden="true"><span>by StringFormat</span></li><li class="in" name="scala.Predef.Ensuring" data-hidden="true"><span>by Ensuring</span></li><li class="in" name="scala.Predef.ArrowAssoc" data-hidden="true"><span>by ArrowAssoc</span></li>
+                  <ol id="implicits"> <li class="in" name="io.finch.Endpoint.OptionEndpointOps" data-hidden="false"><span>by OptionEndpointOps</span></li><li class="in" name="io.finch.Endpoint.HListEndpointOps" data-hidden="false"><span>by HListEndpointOps</span></li><li class="in" name="io.finch.Endpoint.ValueEndpointOps" data-hidden="false"><span>by ValueEndpointOps</span></li><li class="in" name="scala.Predef.any2stringadd" data-hidden="true"><span>by any2stringadd</span></li><li class="in" name="scala.Predef.StringFormat" data-hidden="true"><span>by StringFormat</span></li><li class="in" name="scala.Predef.Ensuring" data-hidden="true"><span>by Ensuring</span></li><li class="in" name="scala.Predef.ArrowAssoc" data-hidden="true"><span>by ArrowAssoc</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -331,7 +319,7 @@ types atop of Finagle for writing lightweight HTTP services.
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
             This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.syntax.EndpointMapper">EndpointMapper</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>] to
             <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="io.finch.syntax.EndpointMapper">EndpointMapper</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>]] performed by method ArrowAssoc in scala.Predef.
-            This conversion will take place only if A is a superclass of AnyRef and a subclass of String with Option[Nothing] with NonEmptyList[String] with Seq[String] (A &gt;: <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.AnyRef" class="extype" name="scala.collection.immutable.List">AnyRef</a> &lt;: <span class="extype" name="scala.Predef.String">String</span> with <a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.Nothing" class="extype" name="scala.collection.immutable.List">Nothing</a>] with <a href="http://typelevel.org/cats/api/cats/data/NonEmptyList.html#cats.data.NonEmptyList" class="extype" name="cats.data.NonEmptyList">NonEmptyList</a>[<span class="extype" name="scala.Predef.String">String</span>] with <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]).
+            This conversion will take place only if A is Option[Nothing] (A =:= <a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.Nothing" class="extype" name="scala.collection.immutable.List">Nothing</a>]).
           </dd><dt>Definition Classes</dt><dd>ArrowAssoc</dd><dt>Annotations</dt><dd>
                 <span class="name">@inline</span><span class="args">()</span>
               
@@ -1301,7 +1289,7 @@ the latency of the given endpoint.</p><pre><span class="kw">import</span> io.fin
       <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
             This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.syntax.EndpointMapper">EndpointMapper</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>] to
             <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="io.finch.syntax.EndpointMapper">EndpointMapper</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>]] performed by method ArrowAssoc in scala.Predef.
-            This conversion will take place only if A is a superclass of AnyRef and a subclass of String with Option[Nothing] with NonEmptyList[String] with Seq[String] (A &gt;: <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.AnyRef" class="extype" name="scala.collection.immutable.List">AnyRef</a> &lt;: <span class="extype" name="scala.Predef.String">String</span> with <a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.Nothing" class="extype" name="scala.collection.immutable.List">Nothing</a>] with <a href="http://typelevel.org/cats/api/cats/data/NonEmptyList.html#cats.data.NonEmptyList" class="extype" name="cats.data.NonEmptyList">NonEmptyList</a>[<span class="extype" name="scala.Predef.String">String</span>] with <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]).
+            This conversion will take place only if A is Option[Nothing] (A =:= <a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.Nothing" class="extype" name="scala.collection.immutable.List">Nothing</a>]).
           </dd><dt>Definition Classes</dt><dd>ArrowAssoc</dd></dl></div>
     </li>
               </ol>
@@ -1309,67 +1297,7 @@ the latency of the given endpoint.</p><pre><span class="kw">import</span> io.fin
 
         <div class="values members">
               <h3>Shadowed Implicit Value Members</h3>
-              <ol><li name="io.finch.Endpoint.StringOptionEndpointOps#self" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="self:io.finch.Endpoint[Option[String]]"></a><a id="self:Endpoint[Option[String]]"></a>
-      <span class="permalink">
-      <a href="../../../io/finch/syntax/EndpointMapper.html#self:io.finch.Endpoint[Option[String]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="implicit shadowed">self</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.syntax.EndpointMapper">EndpointMapper</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>] to
-            <a href="../Endpoint$$StringOptionEndpointOps.html" class="extype" name="io.finch.Endpoint.StringOptionEndpointOps">StringOptionEndpointOps</a> performed by method StringOptionEndpointOps in <a href="../Endpoint$.html" class="extype" name="io.finch.Endpoint">io.finch.Endpoint</a>.
-            This conversion will take place only if A is Option[String] (A =:= <a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]).
-          </dd><dt class="implicit">Shadowing</dt><dd>This implicitly inherited member is ambiguous. One or more implicitly inherited members have similar signatures, so calling this member may produce an ambiguous implicit conversion compiler error.<br />To access this member you can use a <a href="http://stackoverflow.com/questions/2087250/what-is-the-purpose-of-type-ascription-in-scala" target="_blank">type ascription</a>:<br /><div class="cmt"><pre>(endpointMapper: StringOptionEndpointOps).self</pre></div></dd><dt>Definition Classes</dt><dd><a href="../Endpoint$$StringOptionEndpointOps.html" class="extype" name="io.finch.Endpoint.StringOptionEndpointOps">StringOptionEndpointOps</a></dd></dl></div>
-    </li><li name="io.finch.Endpoint.StringSeqEndpointOps#self" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="self:io.finch.Endpoint[Seq[String]]"></a><a id="self:Endpoint[Seq[String]]"></a>
-      <span class="permalink">
-      <a href="../../../io/finch/syntax/EndpointMapper.html#self:io.finch.Endpoint[Seq[String]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="implicit shadowed">self</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.syntax.EndpointMapper">EndpointMapper</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>] to
-            <a href="../Endpoint$$StringSeqEndpointOps.html" class="extype" name="io.finch.Endpoint.StringSeqEndpointOps">StringSeqEndpointOps</a> performed by method StringSeqEndpointOps in <a href="../Endpoint$.html" class="extype" name="io.finch.Endpoint">io.finch.Endpoint</a>.
-            This conversion will take place only if A is Seq[String] (A =:= <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]).
-          </dd><dt class="implicit">Shadowing</dt><dd>This implicitly inherited member is ambiguous. One or more implicitly inherited members have similar signatures, so calling this member may produce an ambiguous implicit conversion compiler error.<br />To access this member you can use a <a href="http://stackoverflow.com/questions/2087250/what-is-the-purpose-of-type-ascription-in-scala" target="_blank">type ascription</a>:<br /><div class="cmt"><pre>(endpointMapper: StringSeqEndpointOps).self</pre></div></dd><dt>Definition Classes</dt><dd><a href="../Endpoint$$StringSeqEndpointOps.html" class="extype" name="io.finch.Endpoint.StringSeqEndpointOps">StringSeqEndpointOps</a></dd></dl></div>
-    </li><li name="io.finch.Endpoint.StringNelEndpointOps#self" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="self:io.finch.Endpoint[cats.data.NonEmptyList[String]]"></a><a id="self:Endpoint[NonEmptyList[String]]"></a>
-      <span class="permalink">
-      <a href="../../../io/finch/syntax/EndpointMapper.html#self:io.finch.Endpoint[cats.data.NonEmptyList[String]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="implicit shadowed">self</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://typelevel.org/cats/api/cats/data/NonEmptyList.html#cats.data.NonEmptyList" class="extype" name="cats.data.NonEmptyList">NonEmptyList</a>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.syntax.EndpointMapper">EndpointMapper</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>] to
-            <a href="../Endpoint$$StringNelEndpointOps.html" class="extype" name="io.finch.Endpoint.StringNelEndpointOps">StringNelEndpointOps</a> performed by method StringNelEndpointOps in <a href="../Endpoint$.html" class="extype" name="io.finch.Endpoint">io.finch.Endpoint</a>.
-            This conversion will take place only if A is NonEmptyList[String] (A =:= <a href="http://typelevel.org/cats/api/cats/data/NonEmptyList.html#cats.data.NonEmptyList" class="extype" name="cats.data.NonEmptyList">NonEmptyList</a>[<span class="extype" name="scala.Predef.String">String</span>]).
-          </dd><dt class="implicit">Shadowing</dt><dd>This implicitly inherited member is ambiguous. One or more implicitly inherited members have similar signatures, so calling this member may produce an ambiguous implicit conversion compiler error.<br />To access this member you can use a <a href="http://stackoverflow.com/questions/2087250/what-is-the-purpose-of-type-ascription-in-scala" target="_blank">type ascription</a>:<br /><div class="cmt"><pre>(endpointMapper: StringNelEndpointOps).self</pre></div></dd><dt>Definition Classes</dt><dd><a href="../Endpoint$$StringNelEndpointOps.html" class="extype" name="io.finch.Endpoint.StringNelEndpointOps">StringNelEndpointOps</a></dd></dl></div>
-    </li><li name="io.finch.Endpoint.OptionEndpointOps#self" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+              <ol><li name="io.finch.Endpoint.OptionEndpointOps#self" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="self:io.finch.Endpoint[Option[A]]"></a><a id="self:Endpoint[Option[A]]"></a>
       <span class="permalink">
       <a href="../../../io/finch/syntax/EndpointMapper.html#self:io.finch.Endpoint[Option[A]]" title="Permalink">
@@ -1389,26 +1317,6 @@ the latency of the given endpoint.</p><pre><span class="kw">import</span> io.fin
             <a href="../Endpoint$$OptionEndpointOps.html" class="extype" name="io.finch.Endpoint.OptionEndpointOps">OptionEndpointOps</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>] performed by method OptionEndpointOps in <a href="../Endpoint$.html" class="extype" name="io.finch.Endpoint">io.finch.Endpoint</a>.
             This conversion will take place only if A is Option[A] (A =:= <a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>]).
           </dd><dt class="implicit">Shadowing</dt><dd>This implicitly inherited member is ambiguous. One or more implicitly inherited members have similar signatures, so calling this member may produce an ambiguous implicit conversion compiler error.<br />To access this member you can use a <a href="http://stackoverflow.com/questions/2087250/what-is-the-purpose-of-type-ascription-in-scala" target="_blank">type ascription</a>:<br /><div class="cmt"><pre>(endpointMapper: OptionEndpointOps[A]).self</pre></div></dd><dt>Definition Classes</dt><dd><a href="../Endpoint$$OptionEndpointOps.html" class="extype" name="io.finch.Endpoint.OptionEndpointOps">OptionEndpointOps</a></dd></dl></div>
-    </li><li name="io.finch.Endpoint.StringEndpointOps#self" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="self:io.finch.Endpoint[String]"></a><a id="self:Endpoint[String]"></a>
-      <span class="permalink">
-      <a href="../../../io/finch/syntax/EndpointMapper.html#self:io.finch.Endpoint[String]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="implicit shadowed">self</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.syntax.EndpointMapper">EndpointMapper</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>] to
-            <a href="../Endpoint$$StringEndpointOps.html" class="extype" name="io.finch.Endpoint.StringEndpointOps">StringEndpointOps</a> performed by method StringEndpointOps in <a href="../Endpoint$.html" class="extype" name="io.finch.Endpoint">io.finch.Endpoint</a>.
-            This conversion will take place only if A is String (A =:= <span class="extype" name="scala.Predef.String">String</span>).
-          </dd><dt class="implicit">Shadowing</dt><dd>This implicitly inherited member is ambiguous. One or more implicitly inherited members have similar signatures, so calling this member may produce an ambiguous implicit conversion compiler error.<br />To access this member you can use a <a href="http://stackoverflow.com/questions/2087250/what-is-the-purpose-of-type-ascription-in-scala" target="_blank">type ascription</a>:<br /><div class="cmt"><pre>(endpointMapper: StringEndpointOps).self</pre></div></dd><dt>Definition Classes</dt><dd><a href="../Endpoint$$StringEndpointOps.html" class="extype" name="io.finch.Endpoint.StringEndpointOps">StringEndpointOps</a></dd></dl></div>
     </li><li name="io.finch.Endpoint.HListEndpointOps#self" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="self:io.finch.Endpoint[L]"></a><a id="self:Endpoint[A]"></a>
       <span class="permalink">
@@ -1452,159 +1360,7 @@ the latency of the given endpoint.</p><pre><span class="kw">import</span> io.fin
     </li></ol>
             </div>
 
-        <div class="values members">
-              <h3>Deprecated Value Members</h3>
-              <ol><li name="io.finch.Endpoint.StringOptionEndpointOps#as" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="as[A](implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]"></a><a id="as[A](DecodeEntity[A],ClassTag[A]):Endpoint[Option[A]]"></a>
-      <span class="permalink">
-      <a href="../../../io/finch/syntax/EndpointMapper.html#as[A](implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="implicit deprecated" title="Deprecated: (Since version 0.16)">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="../DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.Endpoint.StringOptionEndpointOps.as.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.4/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.Endpoint.StringOptionEndpointOps.as.A">A</span>]</span>)</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<span class="extype" name="io.finch.Endpoint.StringOptionEndpointOps.as.A">A</span>]]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.syntax.EndpointMapper">EndpointMapper</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>] to
-            <a href="../Endpoint$$StringOptionEndpointOps.html" class="extype" name="io.finch.Endpoint.StringOptionEndpointOps">StringOptionEndpointOps</a> performed by method StringOptionEndpointOps in <a href="../Endpoint$.html" class="extype" name="io.finch.Endpoint">io.finch.Endpoint</a>.
-            This conversion will take place only if A is Option[String] (A =:= <a href="http://www.scala-lang.org/api/2.12.4/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]).
-          </dd><dt>Definition Classes</dt><dd><a href="../Endpoint$$StringOptionEndpointOps.html" class="extype" name="io.finch.Endpoint.StringOptionEndpointOps">StringOptionEndpointOps</a></dd><dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.16)</i></p></dd></dl></div>
-    </li><li name="io.finch.Endpoint.StringSeqEndpointOps#as" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="as[A](implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[Seq[A]]"></a><a id="as[A](DecodeEntity[A],ClassTag[A]):Endpoint[Seq[A]]"></a>
-      <span class="permalink">
-      <a href="../../../io/finch/syntax/EndpointMapper.html#as[A](implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[Seq[A]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="implicit deprecated" title="Deprecated: (Since version 0.16)">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="../DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.Endpoint.StringSeqEndpointOps.as.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.4/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.Endpoint.StringSeqEndpointOps.as.A">A</span>]</span>)</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="io.finch.Endpoint.StringSeqEndpointOps.as.A">A</span>]]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.syntax.EndpointMapper">EndpointMapper</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>] to
-            <a href="../Endpoint$$StringSeqEndpointOps.html" class="extype" name="io.finch.Endpoint.StringSeqEndpointOps">StringSeqEndpointOps</a> performed by method StringSeqEndpointOps in <a href="../Endpoint$.html" class="extype" name="io.finch.Endpoint">io.finch.Endpoint</a>.
-            This conversion will take place only if A is Seq[String] (A =:= <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]).
-          </dd><dt>Definition Classes</dt><dd><a href="../Endpoint$$StringSeqEndpointOps.html" class="extype" name="io.finch.Endpoint.StringSeqEndpointOps">StringSeqEndpointOps</a></dd><dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.16)</i></p></dd></dl></div>
-    </li><li name="io.finch.Endpoint.StringNelEndpointOps#as" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="as[A](implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[cats.data.NonEmptyList[A]]"></a><a id="as[A](DecodeEntity[A],ClassTag[A]):Endpoint[NonEmptyList[A]]"></a>
-      <span class="permalink">
-      <a href="../../../io/finch/syntax/EndpointMapper.html#as[A](implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[cats.data.NonEmptyList[A]]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="implicit deprecated" title="Deprecated: (Since version 0.16)">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="../DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.Endpoint.StringNelEndpointOps.as.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.4/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.Endpoint.StringNelEndpointOps.as.A">A</span>]</span>)</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://typelevel.org/cats/api/cats/data/NonEmptyList.html#cats.data.NonEmptyList" class="extype" name="cats.data.NonEmptyList">NonEmptyList</a>[<span class="extype" name="io.finch.Endpoint.StringNelEndpointOps.as.A">A</span>]]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.syntax.EndpointMapper">EndpointMapper</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>] to
-            <a href="../Endpoint$$StringNelEndpointOps.html" class="extype" name="io.finch.Endpoint.StringNelEndpointOps">StringNelEndpointOps</a> performed by method StringNelEndpointOps in <a href="../Endpoint$.html" class="extype" name="io.finch.Endpoint">io.finch.Endpoint</a>.
-            This conversion will take place only if A is NonEmptyList[String] (A =:= <a href="http://typelevel.org/cats/api/cats/data/NonEmptyList.html#cats.data.NonEmptyList" class="extype" name="cats.data.NonEmptyList">NonEmptyList</a>[<span class="extype" name="scala.Predef.String">String</span>]).
-          </dd><dt>Definition Classes</dt><dd><a href="../Endpoint$$StringNelEndpointOps.html" class="extype" name="io.finch.Endpoint.StringNelEndpointOps">StringNelEndpointOps</a></dd><dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.16)</i></p></dd></dl></div>
-    </li><li name="io.finch.Endpoint.StringEndpointOps#as" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="as[A](implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a><a id="as[A](DecodeEntity[A],ClassTag[A]):Endpoint[A]"></a>
-      <span class="permalink">
-      <a href="../../../io/finch/syntax/EndpointMapper.html#as[A](implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="implicit deprecated" title="Deprecated: (Since version 0.16)">as</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="../DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.Endpoint.StringEndpointOps.as.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.4/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.Endpoint.StringEndpointOps.as.A">A</span>]</span>)</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.Endpoint.StringEndpointOps.as.A">A</span>]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit</dt><dd>
-            This member is added by an implicit conversion from <a href="" class="extype" name="io.finch.syntax.EndpointMapper">EndpointMapper</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>] to
-            <a href="../Endpoint$$StringEndpointOps.html" class="extype" name="io.finch.Endpoint.StringEndpointOps">StringEndpointOps</a> performed by method StringEndpointOps in <a href="../Endpoint$.html" class="extype" name="io.finch.Endpoint">io.finch.Endpoint</a>.
-            This conversion will take place only if A is String (A =:= <span class="extype" name="scala.Predef.String">String</span>).
-          </dd><dt>Definition Classes</dt><dd><a href="../Endpoint$$StringEndpointOps.html" class="extype" name="io.finch.Endpoint.StringEndpointOps">StringEndpointOps</a></dd><dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.16)</i></p></dd></dl></div>
-    </li><li name="io.finch.Endpoint#withCharset" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withCharset(charset:java.nio.charset.Charset):io.finch.Endpoint[A]"></a><a id="withCharset(Charset):Endpoint[A]"></a>
-      <span class="permalink">
-      <a href="../../../io/finch/syntax/EndpointMapper.html#withCharset(charset:java.nio.charset.Charset):io.finch.Endpoint[A]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version 0.16) Use transform instead">withCharset</span><span class="params">(<span name="charset">charset: <span class="extype" name="java.nio.charset.Charset">Charset</span></span>)</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd><dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.16)</i> Use transform instead</p></dd></dl></div>
-    </li><li name="io.finch.Endpoint#withCookie" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withCookie(cookie:com.twitter.finagle.http.Cookie):io.finch.Endpoint[A]"></a><a id="withCookie(Cookie):Endpoint[A]"></a>
-      <span class="permalink">
-      <a href="../../../io/finch/syntax/EndpointMapper.html#withCookie(cookie:com.twitter.finagle.http.Cookie):io.finch.Endpoint[A]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version 0.16) Use transform instead">withCookie</span><span class="params">(<span name="cookie">cookie: <a href="https://twitter.github.io/finagle/docs/com/twitter/finagle/http/Cookie.html#com.twitter.finagle.http.Cookie" class="extype" name="com.twitter.finagle.http.Cookie">Cookie</a></span>)</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd><dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.16)</i> Use transform instead</p></dd></dl></div>
-    </li><li name="io.finch.Endpoint#withHeader" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withHeader(header:(String,String)):io.finch.Endpoint[A]"></a><a id="withHeader((String,String)):Endpoint[A]"></a>
-      <span class="permalink">
-      <a href="../../../io/finch/syntax/EndpointMapper.html#withHeader(header:(String,String)):io.finch.Endpoint[A]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version 0.16) Use transform instead">withHeader</span><span class="params">(<span name="header">header: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)</span>)</span><span class="result">: <a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>]</span>
-      </span>
-      
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a></dd><dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.16)</i> Use transform instead</p></dd></dl></div>
-    </li></ol>
-            </div>
+        
         </div>
 
         <div id="inheritedMembers">
@@ -1615,25 +1371,9 @@ the latency of the given endpoint.</p><pre><span class="kw">import</span> io.fin
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.Any" class="extype" name="scala.collection.immutable.List">Any</a></h3>
             </div>
-        <div class="conversion" name="io.finch.Endpoint.StringOptionEndpointOps">
-              <h3>Inherited by implicit conversion StringOptionEndpointOps from
-                <a href="" class="extype" name="io.finch.syntax.EndpointMapper">EndpointMapper</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>] to <a href="../Endpoint$$StringOptionEndpointOps.html" class="extype" name="io.finch.Endpoint.StringOptionEndpointOps">StringOptionEndpointOps</a>
-              </h3>
-            </div><div class="conversion" name="io.finch.Endpoint.StringSeqEndpointOps">
-              <h3>Inherited by implicit conversion StringSeqEndpointOps from
-                <a href="" class="extype" name="io.finch.syntax.EndpointMapper">EndpointMapper</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>] to <a href="../Endpoint$$StringSeqEndpointOps.html" class="extype" name="io.finch.Endpoint.StringSeqEndpointOps">StringSeqEndpointOps</a>
-              </h3>
-            </div><div class="conversion" name="io.finch.Endpoint.StringNelEndpointOps">
-              <h3>Inherited by implicit conversion StringNelEndpointOps from
-                <a href="" class="extype" name="io.finch.syntax.EndpointMapper">EndpointMapper</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>] to <a href="../Endpoint$$StringNelEndpointOps.html" class="extype" name="io.finch.Endpoint.StringNelEndpointOps">StringNelEndpointOps</a>
-              </h3>
-            </div><div class="conversion" name="io.finch.Endpoint.OptionEndpointOps">
+        <div class="conversion" name="io.finch.Endpoint.OptionEndpointOps">
               <h3>Inherited by implicit conversion OptionEndpointOps from
                 <a href="" class="extype" name="io.finch.syntax.EndpointMapper">EndpointMapper</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>] to <a href="../Endpoint$$OptionEndpointOps.html" class="extype" name="io.finch.Endpoint.OptionEndpointOps">OptionEndpointOps</a>[<span class="extype" name="io.finch.Endpoint.OptionEndpointOps.A">A</span>]
-              </h3>
-            </div><div class="conversion" name="io.finch.Endpoint.StringEndpointOps">
-              <h3>Inherited by implicit conversion StringEndpointOps from
-                <a href="" class="extype" name="io.finch.syntax.EndpointMapper">EndpointMapper</a>[<span class="extype" name="io.finch.syntax.EndpointMapper.A">A</span>] to <a href="../Endpoint$$StringEndpointOps.html" class="extype" name="io.finch.Endpoint.StringEndpointOps">StringEndpointOps</a>
               </h3>
             </div><div class="conversion" name="io.finch.Endpoint.HListEndpointOps">
               <h3>Inherited by implicit conversion HListEndpointOps from

@@ -70,7 +70,7 @@
       
       <p class="shortcomment cmt">This is the API documentation for <a href="https://github.com/finagle/finch" target="_blank">finch</a></p><div class="fullcomment"><div class="comment cmt"><p>This is the API documentation for <a href="https://github.com/finagle/finch" target="_blank">finch</a></p><p>Finch is a thin layer of purely functional basic blocks atop of [Finagle][finagle] for
 building composable HTTP APIs. Its mission is to provide the developers simple and robust HTTP primitives being as
-close as possible to the bare metal Finagle API.</p><p>Finch uses multi-project structure and contains of the following _modules_:</p><ul><li><span class="extype" name="finch-core">core</span> - the core classes/functions</li><li><span class="extype" name="finch-argonaut">argonaut</span> - the JSON API support for the [Argonaut][argonaut] library</li><li><span class="extype" name="finch-jackson">jackson</span> - the JSON API support for the [Jackson][jackson] library</li><li><span class="extype" name="finch-json4s">json4s</span> - the JSON API support for the [JSON4S][json4s] library</li><li><span class="extype" name="finch-circe">circe</span> - the JSON API support for the [Circe][circe] library</li><li><span class="extype" name="finch-playjson">playjson</span> - The JSON API support for the [PlayJson][playjson] library</li><li><span class="extype" name="finch-sprayjson">sprayjson</span> - The JSON API support for the [SprayJson][sprayjson] library</li><li><span class="extype" name="finch-test">test</span> - the test support classes/functions</li><li><span class="extype" name="finch-oauth2">oauth2</span> - the OAuth2 support backed by the [finagle-oauth2][finagle-oauth2] library</li><li><span class="extype" name="finch-sse">see</span> - SSE ([Server Sent Events][server-sent-events]) support in Finch</li></ul><p>Please refer to the <a href="https://finch.github.io/finagle/finch/" target="_blank">documentation</a> for a more
+close as possible to the bare metal Finagle API.</p><p>Finch uses multi-project structure and contains of the following _modules_:</p><ul><li><span class="extype" name="finch-core">core</span> - the core classes/functions</li><li><span class="extype" name="finch-argonaut">argonaut</span> - the JSON API support for the [Argonaut][argonaut] library</li><li><span class="extype" name="finch-jackson">jackson</span> - the JSON API support for the [Jackson][jackson] library</li><li><span class="extype" name="finch-json4s">json4s</span> - the JSON API support for the [JSON4S][json4s] library</li><li><span class="extype" name="finch-circe">circe</span> - the JSON API support for the [Circe][circe] library</li><li><span class="extype" name="finch-playjson">playjson</span> - The JSON API support for the [PlayJson][playjson] library</li><li><span class="extype" name="finch-sprayjson">sprayjson</span> - The JSON API support for the [SprayJson][sprayjson] library</li><li><span class="extype" name="finch-test">test</span> - the test support classes/functions</li><li><span class="extype" name="finch-oauth2">oauth2</span> - the OAuth2 support backed by the [finagle-oauth2][finagle-oauth2] library</li><li><span class="extype" name="finch-sse">see</span> - SSE ([Server Sent Events][server-sent-events]) support in Finch</li></ul><p>Please refer to the <a href="https://finagle.github.io/finch/" target="_blank">documentation</a> for a more
 detailed introduction to the library.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
     </li><li name="_root_.io" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="io"></a><a id="io:io"></a>
@@ -313,6 +313,10 @@ deprecation cycles.
                         <a class="object" href="Endpoints$$div$.html" title="An identity Endpoint."></a>
                         <a href="Endpoints$$div$.html" title="An identity Endpoint.">/</a>
                       </li><li class="current-entities indented2">
+                        <a class="object" href="Accept$.html" title=""></a>
+                        <a class="class" href="Accept.html" title="Models an HTTP Accept header (see RFC2616, 14.1)."></a>
+                        <a href="Accept.html" title="Models an HTTP Accept header (see RFC2616, 14.1).">Accept</a>
+                      </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="object" href="package$$Application$.html" title=""></a>
                         <a href="package$$Application$.html" title="">Application</a>
@@ -461,7 +465,13 @@ deprecation cycles.
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Bootstraps a Finagle HTTP service out of the collection of Finch endpoints.</p><pre><span class="kw">val</span> api: Service[Request, Response] = Bootstrap
  .serve[Application.Json](getUser :+: postUser)
  .serve[Text.Plain](healthcheck)
- .toService</pre></div><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="io.finch.Bootstrap">Bootstrap</a>[<span class="extype" name="io.finch.Bootstrap.ES">ES</span>, <span class="extype" name="io.finch.Bootstrap.CTS">CTS</span>]</dd><dt>Source</dt><dd><a href="https://github.com/finagle/finch/tree/master/core/src/main/scala/io/finch/Bootstrap.scala" target="_blank">Bootstrap.scala</a></dd><dt>Note</dt><dd><span class="cmt"><p>This API is experimental/unstable. Use with caution.</p></span></dd></dl><div class="toggleContainer block">
+ .toService</pre><h4> Supported Configuration Options </h4><p>- <code>includeDateHeader</code> (default: <code>true</code>): whether or not to include the Date header into
+  each response (see RFC2616, section 14.18)
+- <code>includeServerHeader</code> (default: <code>true</code>): whether or not to include the Server header into
+  each response (see RFC2616, section 14.38)
+- <code>negotiateContentType</code> (default: <code>false</code>): whether or not to enable server-driven content type
+  negotiation (see RFC2616, section 12.1)
+</p></div><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="io.finch.Bootstrap">Bootstrap</a>[<span class="extype" name="io.finch.Bootstrap.ES">ES</span>, <span class="extype" name="io.finch.Bootstrap.CTS">CTS</span>]</dd><dt>Source</dt><dd><a href="https://github.com/finagle/finch/tree/master/core/src/main/scala/io/finch/Bootstrap.scala" target="_blank">Bootstrap.scala</a></dd><dt>See also</dt><dd><span class="cmt"><p>https://www.w3.org/Protocols/rfc2616/rfc2616-sec12.html</p></span><span class="cmt"><p>https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html</p></span></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -522,9 +532,9 @@ deprecation cycles.
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="io.finch.Bootstrap#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(endpoints:ES,includeDateHeader:Boolean,includeServerHeader:Boolean):io.finch.Bootstrap[ES,CTS]"></a><a id="&lt;init&gt;:Bootstrap[ES,CTS]"></a>
+      <a id="&lt;init&gt;(endpoints:ES,includeDateHeader:Boolean,includeServerHeader:Boolean,negotiateContentType:Boolean):io.finch.Bootstrap[ES,CTS]"></a><a id="&lt;init&gt;:Bootstrap[ES,CTS]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Bootstrap.html#&lt;init&gt;(endpoints:ES,includeDateHeader:Boolean,includeServerHeader:Boolean):io.finch.Bootstrap[ES,CTS]" title="Permalink">
+      <a href="../../io/finch/Bootstrap.html#&lt;init&gt;(endpoints:ES,includeDateHeader:Boolean,includeServerHeader:Boolean,negotiateContentType:Boolean):io.finch.Bootstrap[ES,CTS]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -533,7 +543,7 @@ deprecation cycles.
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">Bootstrap</span><span class="params">(<span name="endpoints">endpoints: <span class="extype" name="io.finch.Bootstrap.ES">ES</span></span>, <span name="includeDateHeader">includeDateHeader: <a href="http://www.scala-lang.org/api/2.12.4/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a> = <span class="symbol">true</span></span>, <span name="includeServerHeader">includeServerHeader: <a href="http://www.scala-lang.org/api/2.12.4/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a> = <span class="symbol">true</span></span>)</span>
+        <span class="name">Bootstrap</span><span class="params">(<span name="endpoints">endpoints: <span class="extype" name="io.finch.Bootstrap.ES">ES</span></span>, <span name="includeDateHeader">includeDateHeader: <a href="http://www.scala-lang.org/api/2.12.4/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a> = <span class="symbol">true</span></span>, <span name="includeServerHeader">includeServerHeader: <a href="http://www.scala-lang.org/api/2.12.4/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a> = <span class="symbol">true</span></span>, <span name="negotiateContentType">negotiateContentType: <a href="http://www.scala-lang.org/api/2.12.4/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a> = <span class="symbol">false</span></span>)</span>
       </span>
       
       
@@ -543,9 +553,9 @@ deprecation cycles.
         <div id="types" class="types members">
               <h3>Type Members</h3>
               <ol><li name="io.finch.Bootstrap.Serve" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Serve[CT&lt;:String]extendsAnyRef"></a><a id="Serve[CT&lt;:String]:Serve[CT]"></a>
+      <a id="Serve[CT]extendsAnyRef"></a><a id="Serve[CT]:Serve[CT]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Bootstrap.html#Serve[CT&lt;:String]extendsAnyRef" title="Permalink">
+      <a href="../../io/finch/Bootstrap.html#Serve[CT]extendsAnyRef" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -554,7 +564,7 @@ deprecation cycles.
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a title="" href="Bootstrap$Serve.html"><span class="name">Serve</span></a><span class="tparams">[<span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.AnyRef" class="extype" name="scala.collection.immutable.List">AnyRef</a></span>
+        <a title="" href="Bootstrap$Serve.html"><span class="name">Serve</span></a><span class="tparams">[<span name="CT">CT</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.12.4/scala/collection/immutable/List.html#scala.AnyRef" class="extype" name="scala.collection.immutable.List">AnyRef</a></span>
       </span>
       
       
@@ -698,9 +708,9 @@ deprecation cycles.
               
         </dd></dl></div>
     </li><li name="io.finch.Bootstrap#configure" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="configure(includeDateHeader:Boolean,includeServerHeader:Boolean):io.finch.Bootstrap[ES,CTS]"></a><a id="configure(Boolean,Boolean):Bootstrap[ES,CTS]"></a>
+      <a id="configure(includeDateHeader:Boolean,includeServerHeader:Boolean,negotiateContentType:Boolean):io.finch.Bootstrap[ES,CTS]"></a><a id="configure(Boolean,Boolean,Boolean):Bootstrap[ES,CTS]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Bootstrap.html#configure(includeDateHeader:Boolean,includeServerHeader:Boolean):io.finch.Bootstrap[ES,CTS]" title="Permalink">
+      <a href="../../io/finch/Bootstrap.html#configure(includeDateHeader:Boolean,includeServerHeader:Boolean,negotiateContentType:Boolean):io.finch.Bootstrap[ES,CTS]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -709,7 +719,7 @@ deprecation cycles.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">configure</span><span class="params">(<span name="includeDateHeader">includeDateHeader: <a href="http://www.scala-lang.org/api/2.12.4/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a> = <span class="symbol"><span class="name"><a href="#includeDateHeader:Boolean">self.includeDateHeader</a></span></span></span>, <span name="includeServerHeader">includeServerHeader: <a href="http://www.scala-lang.org/api/2.12.4/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a> = <span class="symbol"><span class="name"><a href="#includeServerHeader:Boolean">self.includeServerHeader</a></span></span></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Bootstrap">Bootstrap</a>[<span class="extype" name="io.finch.Bootstrap.ES">ES</span>, <span class="extype" name="io.finch.Bootstrap.CTS">CTS</span>]</span>
+        <span class="name">configure</span><span class="params">(<span name="includeDateHeader">includeDateHeader: <a href="http://www.scala-lang.org/api/2.12.4/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a> = <span class="symbol"><span class="name"><a href="#includeDateHeader:Boolean">self.includeDateHeader</a></span></span></span>, <span name="includeServerHeader">includeServerHeader: <a href="http://www.scala-lang.org/api/2.12.4/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a> = <span class="symbol"><span class="name"><a href="#includeServerHeader:Boolean">self.includeServerHeader</a></span></span></span>, <span name="negotiateContentType">negotiateContentType: <a href="http://www.scala-lang.org/api/2.12.4/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a> = <span class="symbol"><span class="name"><a href="#negotiateContentType:Boolean">self.negotiateContentType</a></span></span></span>)</span><span class="result">: <a href="" class="extype" name="io.finch.Bootstrap">Bootstrap</a>[<span class="extype" name="io.finch.Bootstrap.ES">ES</span>, <span class="extype" name="io.finch.Bootstrap.CTS">CTS</span>]</span>
       </span>
       
       
@@ -988,6 +998,22 @@ deprecation cycles.
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="io.finch.Bootstrap#negotiateContentType" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="negotiateContentType:Boolean"></a>
+      <span class="permalink">
+      <a href="../../io/finch/Bootstrap.html#negotiateContentType:Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">negotiateContentType</span><span class="result">: <a href="http://www.scala-lang.org/api/2.12.4/scala/Boolean.html#scala.Boolean" class="extype" name="scala.Boolean">Boolean</a></span>
+      </span>
+      
+      
     </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
       <span class="permalink">
@@ -1027,9 +1053,9 @@ deprecation cycles.
               
         </dd></dl></div>
     </li><li name="io.finch.Bootstrap#serve" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="serve[CT&lt;:String]:Bootstrap.this.Serve[CT]"></a><a id="serve[CT&lt;:String]:Serve[CT]"></a>
+      <a id="serve[CT]:Bootstrap.this.Serve[CT]"></a><a id="serve[CT]:Serve[CT]"></a>
       <span class="permalink">
-      <a href="../../io/finch/Bootstrap.html#serve[CT&lt;:String]:Bootstrap.this.Serve[CT]" title="Permalink">
+      <a href="../../io/finch/Bootstrap.html#serve[CT]:Bootstrap.this.Serve[CT]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1038,7 +1064,7 @@ deprecation cycles.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">serve</span><span class="tparams">[<span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="result">: <a href="Bootstrap$Serve.html" class="extype" name="io.finch.Bootstrap.Serve">Serve</a>[<span class="extype" name="io.finch.Bootstrap.serve.CT">CT</span>]</span>
+        <span class="name">serve</span><span class="tparams">[<span name="CT">CT</span>]</span><span class="result">: <a href="Bootstrap$Serve.html" class="extype" name="io.finch.Bootstrap.Serve">Serve</a>[<span class="extype" name="io.finch.Bootstrap.serve.CT">CT</span>]</span>
       </span>
       
       

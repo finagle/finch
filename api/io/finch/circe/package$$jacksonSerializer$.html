@@ -70,7 +70,7 @@
       
       <p class="shortcomment cmt">This is the API documentation for <a href="https://github.com/finagle/finch" target="_blank">finch</a></p><div class="fullcomment"><div class="comment cmt"><p>This is the API documentation for <a href="https://github.com/finagle/finch" target="_blank">finch</a></p><p>Finch is a thin layer of purely functional basic blocks atop of [Finagle][finagle] for
 building composable HTTP APIs. Its mission is to provide the developers simple and robust HTTP primitives being as
-close as possible to the bare metal Finagle API.</p><p>Finch uses multi-project structure and contains of the following _modules_:</p><ul><li><span class="extype" name="finch-core">core</span> - the core classes/functions</li><li><span class="extype" name="finch-argonaut">argonaut</span> - the JSON API support for the [Argonaut][argonaut] library</li><li><span class="extype" name="finch-jackson">jackson</span> - the JSON API support for the [Jackson][jackson] library</li><li><span class="extype" name="finch-json4s">json4s</span> - the JSON API support for the [JSON4S][json4s] library</li><li><span class="extype" name="finch-circe">circe</span> - the JSON API support for the [Circe][circe] library</li><li><span class="extype" name="finch-playjson">playjson</span> - The JSON API support for the [PlayJson][playjson] library</li><li><span class="extype" name="finch-sprayjson">sprayjson</span> - The JSON API support for the [SprayJson][sprayjson] library</li><li><span class="extype" name="finch-test">test</span> - the test support classes/functions</li><li><span class="extype" name="finch-oauth2">oauth2</span> - the OAuth2 support backed by the [finagle-oauth2][finagle-oauth2] library</li><li><span class="extype" name="finch-sse">see</span> - SSE ([Server Sent Events][server-sent-events]) support in Finch</li></ul><p>Please refer to the <a href="https://finch.github.io/finagle/finch/" target="_blank">documentation</a> for a more
+close as possible to the bare metal Finagle API.</p><p>Finch uses multi-project structure and contains of the following _modules_:</p><ul><li><span class="extype" name="finch-core">core</span> - the core classes/functions</li><li><span class="extype" name="finch-argonaut">argonaut</span> - the JSON API support for the [Argonaut][argonaut] library</li><li><span class="extype" name="finch-jackson">jackson</span> - the JSON API support for the [Jackson][jackson] library</li><li><span class="extype" name="finch-json4s">json4s</span> - the JSON API support for the [JSON4S][json4s] library</li><li><span class="extype" name="finch-circe">circe</span> - the JSON API support for the [Circe][circe] library</li><li><span class="extype" name="finch-playjson">playjson</span> - The JSON API support for the [PlayJson][playjson] library</li><li><span class="extype" name="finch-sprayjson">sprayjson</span> - The JSON API support for the [SprayJson][sprayjson] library</li><li><span class="extype" name="finch-test">test</span> - the test support classes/functions</li><li><span class="extype" name="finch-oauth2">oauth2</span> - the OAuth2 support backed by the [finagle-oauth2][finagle-oauth2] library</li><li><span class="extype" name="finch-sse">see</span> - SSE ([Server Sent Events][server-sent-events]) support in Finch</li></ul><p>Please refer to the <a href="https://finagle.github.io/finch/" target="_blank">documentation</a> for a more
 detailed introduction to the library.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
     </li><li name="_root_.io" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="io"></a><a id="io:io"></a>
@@ -174,13 +174,16 @@ types atop of Finagle for writing lightweight HTTP services.
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">jacksonSerializer</span><span class="result"> extends <a href="Encoders.html" class="extype" name="io.finch.circe.Encoders">Encoders</a> with <a href="Decoders.html" class="extype" name="io.finch.circe.Decoders">Decoders</a></span>
+        <span class="name deprecated" title="Deprecated: (Since version 0.17) Use standard Circe serializer - it works great!">jacksonSerializer</span><span class="result"> extends <a href="Encoders.html" class="extype" name="io.finch.circe.Encoders">Encoders</a> with <a href="Decoders.html" class="extype" name="io.finch.circe.Decoders">Decoders</a></span>
       </span>
       </h4>
 
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Provides Jackson Serializer.
-</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/finagle/finch/tree/master/circe/src/main/scala/io/finch/circe/package.scala" target="_blank">package.scala</a></dd></dl><div class="toggleContainer block">
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.17)</i> Use standard Circe serializer - it works great!</p></dd><dt>Source</dt><dd><a href="https://github.com/finagle/finch/tree/master/circe/src/main/scala/io/finch/circe/package.scala" target="_blank">package.scala</a></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
