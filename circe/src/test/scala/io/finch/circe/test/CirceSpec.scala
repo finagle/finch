@@ -15,11 +15,6 @@ class CirceAccumulatingSpec extends AbstractJsonSpec {
   checkEnumerateJson("circe-accumulating")
 }
 
-class CirceJacksonSpec extends AbstractJsonSpec {
-  import io.finch.circe.jacksonSerializer._
-  checkJson("circe-jackson")
-}
-
 class CirceDropNullKeysSpec extends AbstractJsonSpec {
   import io.finch.circe.dropNullValues._
   checkJson("circe-dropNullKeys")
