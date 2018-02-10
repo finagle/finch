@@ -2,7 +2,7 @@ import microsites.ExtraMdFileConfig
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  version := "0.17.0",
+  version := "0.18.0-SNAPSHOT",
   scalaVersion := "2.12.4",
   crossScalaVersions := Seq("2.11.12", "2.12.4")
 )
@@ -11,7 +11,6 @@ lazy val finagleVersion = "18.2.0"
 lazy val twitterServerVersion = "18.2.0"
 lazy val circeVersion = "0.9.1"
 lazy val circeIterateeVersion = "0.9.0"
-lazy val circeJacksonVersion = "0.9.0"
 lazy val catbirdVersion = "18.2.0"
 lazy val shapelessVersion = "2.3.3"
 lazy val catsVersion = "1.0.1"
@@ -268,8 +267,7 @@ lazy val circe = project
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-iteratee" % circeIterateeVersion,
       "io.circe" %% "circe-jawn" % circeVersion,
-      "io.circe" %% "circe-generic" % circeVersion % "test",
-      "io.circe" %% "circe-jackson28" % circeJacksonVersion
+      "io.circe" %% "circe-generic" % circeVersion % "test"
     )
   )
   .dependsOn(core, iteratee, jsonTest % "test")
