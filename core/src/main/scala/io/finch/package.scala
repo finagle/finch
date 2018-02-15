@@ -35,6 +35,7 @@ package object finch extends Endpoints
   object Text {
     type Plain = Witness.`"text/plain"`.T
     type Html = Witness.`"text/html"`.T
+    type Css = Witness.`"text/css"`.T
     type EventStream = Witness.`"text/event-stream"`.T
   }
 }
