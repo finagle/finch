@@ -1,6 +1,7 @@
 package io.finch
 
 import cats.instances.AllInstances
+import io.netty.handler.codec.http.QueryStringEncoder
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 import scala.reflect.ClassTag
@@ -14,6 +15,7 @@ trait ExtractPathLaws[A]  extends Laws with MissingInstances with AllInstances {
     name = "all",
     parent = None,
     "extractOne" -> Prop.forAll { i: Input =>
+      val encodedInput = i.withRoute(i.route.map(s => new QueryStringEncoder(s).toString))
       val o = one(i)
       val v = i.route.headOption.flatMap(s => decode(s))
 

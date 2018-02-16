@@ -3,6 +3,7 @@ package io.finch.endpoint
 import io.catbird.util.Rerunnable
 import io.finch._
 import io.finch.internal.Rs
+import io.netty.handler.codec.http.QueryStringDecoder
 import scala.reflect.ClassTag
 import shapeless.HNil
 
@@ -17,7 +18,7 @@ private class MatchPath(s: String) extends Endpoint[HNil] {
 
 private class ExtractPath[A](implicit d: DecodePath[A], ct: ClassTag[A]) extends Endpoint[A] {
   final def apply(input: Input): Endpoint.Result[A] = input.route match {
-    case s +: rest => d(s) match {
+    case s +: rest => d(QueryStringDecoder.decodeComponent(s)) match {
       case Some(a) =>
         EndpointResult.Matched(input.withRoute(rest), Rerunnable.const(Output.payload(a)))
       case _ =>
@@ -33,7 +34,7 @@ private class ExtractPaths[A](implicit d: DecodePath[A], ct: ClassTag[A]) extend
   final def apply(input: Input): Endpoint.Result[Seq[A]] =
     EndpointResult.Matched(
       input.copy(route = Nil),
-      Rerunnable.const(Output.payload(input.route.flatMap(p => d(p).toSeq)))
+      Rerunnable.const(Output.payload(input.route.flatMap(p => d(QueryStringDecoder.decodeComponent(p)).toSeq)))
     )
 
   final override def toString: String = s":${ct.runtimeClass.getSimpleName.toLowerCase}*"
