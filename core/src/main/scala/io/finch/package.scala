@@ -40,10 +40,6 @@ package object finch extends Endpoints
     type EventStream = Witness.`"text/event-stream"`.T
   }
 
-  object Multipart {
-    type FormData = Witness.`"multipart/form-data"`.T
-  }
-
   object Image {
     type Gif = Witness.`"image/gif"`.T
     type Jpeg = Witness.`"image/jpeg"`.T
