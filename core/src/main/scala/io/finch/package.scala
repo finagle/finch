@@ -30,6 +30,7 @@ package object finch extends Endpoints
     type OctetStream = Witness.`"application/octet-stream"`.T
     type RssXml = Witness.`"application/rss+xml"`.T
     type WwwFormUrlencoded = Witness.`"application/x-www-form-urlencoded"`.T
+    type Ogg = Witness.`"application/ogg"`.T
   }
 
   object Text {
@@ -38,4 +39,23 @@ package object finch extends Endpoints
     type Css = Witness.`"text/css"`.T
     type EventStream = Witness.`"text/event-stream"`.T
   }
+
+  object Multipart {
+    type FormData = Witness.`"multipart/form-data"`.T
+  }
+
+  object Image {
+    type Gif = Witness.`"image/gif"`.T
+    type Jpeg = Witness.`"image/jpeg"`.T
+    type Png = Witness.`"image/png"`.T
+    type Svg = Witness.`"image/svg+xml"`.T
+  }
+
+  object Audio {
+    type Wave = Witness.`"audio/wave"`.T
+    type Wav = Witness.`"audio/wav"`.T
+    type Webm = Witness.`"audio/webm"`.T
+    type Ogg = Witness.`"audio/ogg"`.T
+  }
+
 }
