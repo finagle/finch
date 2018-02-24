@@ -14,15 +14,16 @@ trait ExtractPathLaws[A]  extends Laws with MissingInstances with AllInstances {
   def all(implicit A: Arbitrary[Input]): RuleSet = new DefaultRuleSet(
     name = "all",
     parent = None,
-    "extractOne" -> Prop.forAll { i: Input =>
-      val encodedInput = i.withRoute(i.route.map(s => new QueryStringEncoder(s).toString))
+    "extractOne" -> Prop.forAll { input: Input =>
+      val i = input.withRoute(input.route.map(s => new QueryStringEncoder(s).toString))
       val o = one(i)
       val v = i.route.headOption.flatMap(s => decode(s))
 
       o.awaitValueUnsafe() == v &&
         (v.isEmpty || o.remainder.contains(i.withRoute(i.route.tail)))
     },
-    "extractTail" -> Prop.forAll { i: Input =>
+    "extractTail" -> Prop.forAll { input: Input =>
+      val i = input.withRoute(input.route.map(s => new QueryStringEncoder(s).toString))
       val o = tail(i)
 
       o.awaitValueUnsafe().contains(i.route.flatMap(decode.apply)) &&
