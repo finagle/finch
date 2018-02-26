@@ -198,7 +198,7 @@ trait Endpoint[A] { self =>
       final def apply(input: Input): Endpoint.Result[pa.Out] = inner(input)
 
       override def item = items.MultipleItems
-      final override def toString: String = s"${other.toString} :: ${self.toString}"
+      final override def toString: String = s"${other.toString}/${self.toString}"
     }
 
   /**
