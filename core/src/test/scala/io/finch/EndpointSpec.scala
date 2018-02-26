@@ -164,7 +164,7 @@ class EndpointSpec extends FinchSpec {
 
     check { (s: String, i: Int) => path(s).map(_ => i).toString === s }
     check { (s: String, t: String) => (path(s) :+: path(t)).toString === s"($s :+: $t)" }
-    check { (s: String, t: String) => (path(s) :: path(t)).toString === s"$s :: $t" }
+    check { (s: String, t: String) => (path(s) :: path(t)).toString === s"$s/$t" }
     check { s: String => path(s).product[String](*.map(_ => "foo")).toString === s }
     check { (s: String, t: String) => path(s).mapAsync(_ => Future.value(t)).toString === s }
 
