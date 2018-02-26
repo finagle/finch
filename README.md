@@ -20,7 +20,6 @@ Finch uses multi-project structure and contains of the following _modules_:
 * [`finch-core`](core) - the core classes/functions
 * [`finch-generic`](generic) - generic derivation for endpoints
 * [`finch-argonaut`](argonaut) - the JSON API support for the [Argonaut][argonaut] library
-* [`finch-jackson`](jackson) - the JSON API support for the [Jackson][jackson] library
 * [`finch-json4s`](json4s) - the JSON API support for the [JSON4S][json4s] library
 * [`finch-circe`](circe) - the JSON API support for the [Circe][circe] library
 * [`finch-playjson`](playjson) - The JSON API support for the [PlayJson][playjson] library

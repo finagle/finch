@@ -16,7 +16,6 @@ lazy val shapelessVersion = "2.3.3"
 lazy val catsVersion = "1.0.1"
 lazy val sprayVersion = "1.3.4"
 lazy val playVersion = "2.6.8"
-lazy val jacksonVersion = "2.8.9"
 lazy val argonautVersion = "6.2.1"
 lazy val json4sVersion = "3.5.3"
 lazy val iterateeVersion = "0.17.0"
@@ -188,7 +187,7 @@ lazy val finch = project.in(file("."))
     "io.spray" %%  "spray-json" % sprayVersion
   ))
   .aggregate(
-    core, iteratee, generic, argonaut, jackson, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest, examples, sse
+    core, iteratee, generic, argonaut, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest, examples, sse
   )
   .dependsOn(core, iteratee, generic, circe)
 
@@ -238,15 +237,6 @@ lazy val argonaut = project
   .settings(allSettings)
   .settings(libraryDependencies ++= Seq(
     "io.argonaut" %% "argonaut" % argonautVersion
-  ))
-  .dependsOn(core, jsonTest % "test")
-
-lazy val jackson = project
-  .settings(moduleName := "finch-jackson")
-  .settings(allSettings)
-  .settings(libraryDependencies ++= Seq(
-    "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
-    "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion
   ))
   .dependsOn(core, jsonTest % "test")
 
@@ -302,7 +292,7 @@ lazy val docs = project
     )
   )
   .enablePlugins(MicrositesPlugin, ScalaUnidocPlugin)
-  .dependsOn(core, circe, jackson, sse, argonaut, json4s, playjson, iteratee)
+  .dependsOn(core, circe, sse, argonaut, json4s, playjson, iteratee)
 
 
 lazy val examples = project
@@ -325,7 +315,7 @@ lazy val examples = project
       "com.twitter" %% "twitter-server" % twitterServerVersion
     )
   )
-  .dependsOn(core, circe, jackson, iteratee)
+  .dependsOn(core, circe, iteratee)
 
 lazy val benchmarks = project
   .settings(moduleName := "finch-benchmarks")
@@ -354,7 +344,7 @@ lazy val benchmarks = project
       "-server"
     )
   )
-  .dependsOn(core, circe, jackson)
+  .dependsOn(core, circe)
 
 val validateCommands = List(
   "clean",
