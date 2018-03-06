@@ -124,14 +124,29 @@ object ToResponse extends HighPriorityToResponseInstances {
     }
   }
 
-  implicit def cnilToResponse[CT <: String]: Aux[CNil, CT] =
-    instance((_, _) => Response(Version.Http10, Status.NotFound))
+  trait FromCoproduct[C <: Coproduct] extends ToResponse[C]
 
-  implicit def coproductToResponse[H, T <: Coproduct, CT <: String](implicit
-    trH: ToResponse.Aux[H, CT],
-    trT: ToResponse.Aux[T, CT]
-  ): Aux[H :+: T, CT] = instance {
-    case (Inl(h), cs) => trH(h, cs)
-    case (Inr(t), cs) => trT(t, cs)
+  object FromCoproduct {
+    type Aux[C <: Coproduct, CT] = FromCoproduct[C] { type ContentType = CT }
+
+    def instance[C <: Coproduct, CT <: String](fn: (C, Charset) => Response): Aux[C, CT] =
+      new FromCoproduct[C] {
+        type ContentType = CT
+        def apply(c: C, cs: Charset): Response = fn(c, cs)
+      }
+
+    implicit def cnilToResponse[CT <: String]: Aux[CNil, CT] =
+      instance((_, _) => Response(Version.Http10, Status.NotFound))
+
+    implicit def cconsToResponse[L, R <: Coproduct, CT <: String](
+      implicit trL: ToResponse.Aux[L, CT], fcR: Aux[R, CT]
+    ): Aux[L :+: R, CT] = instance {
+      case (Inl(h), cs) => trL(h, cs)
+      case (Inr(t), cs) => fcR(t, cs)
+    }
   }
+
+  implicit def coproductToResponse[C <: Coproduct, CT <: String](
+    implicit fc: FromCoproduct.Aux[C, CT]
+  ): Aux[C, CT] = fc
 }
