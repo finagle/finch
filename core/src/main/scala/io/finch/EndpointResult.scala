@@ -1,5 +1,6 @@
 package io.finch
 
+import com.twitter.finagle.http.Method
 import com.twitter.util.{Await, Duration, Future, Try}
 import io.catbird.util.Rerunnable
 
@@ -7,8 +8,13 @@ import io.catbird.util.Rerunnable
  * A result returned from an [[Endpoint]]. This models `Option[(Input, Future[Output])]` and
  * represents two cases:
  *
- *  - Endpoint is matched so both `remainder` and `output` is returned.
- *  - Endpoint is skipped so `None` is returned.
+ *  - Endpoint is matched (think of 200).
+ *  - Endpoint is not matched (think of 404, 405, etc).
+ *
+ * In its current state, `EndpointResult.NotMatched` represented with two cases:
+ *
+ *  - `EndpointResult.NotMatched` (very generic result usually indicating 404)
+ *  - `EndpointResult.NotMatched.MethodNotAllowed` (indicates 405)
  *
  * API methods exposed on this type are mostly introduced for testing.
  *
@@ -93,11 +99,15 @@ sealed abstract class EndpointResult[+A] {
 
 object EndpointResult {
 
-  case object Skipped extends EndpointResult[Nothing] {
+  final case class Matched[A](rem: Input, out: Rerunnable[Output[A]]) extends EndpointResult[A] {
+    def isMatched: Boolean = true
+  }
+
+  abstract class NotMatched extends EndpointResult[Nothing] {
     def isMatched: Boolean = false
   }
 
-  final case class Matched[A](rem: Input, out: Rerunnable[Output[A]]) extends EndpointResult[A] {
-    def isMatched: Boolean = true
+  object NotMatched extends NotMatched {
+    final case class MethodNotAllowed(allowed: List[Method]) extends NotMatched
   }
 }

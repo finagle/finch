@@ -33,7 +33,7 @@ class EnumerateEndpointSpec extends FinchSpec with GeneratorDrivenPropertyChecks
   }
 
   "enumeratorBody" should "skip matching if request is not chunked" in {
-    enumeratorBody[Buf, Application.OctetStream].apply(Input.fromRequest(Request())) shouldBe EndpointResult.Skipped
+    enumeratorBody[Buf, Application.OctetStream].apply(Input.fromRequest(Request())) shouldBe EndpointResult.NotMatched
   }
 
   "enumeratorJsonBody" should "enumerate input stream if required Enumerate instance is presented" in {

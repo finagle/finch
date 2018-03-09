@@ -83,7 +83,7 @@ trait Endpoint[A] { self =>
       final def apply(input: Input): Endpoint.Result[B] = self(input) match {
         case EndpointResult.Matched(rem, out) =>
           EndpointResult.Matched(rem, out.flatMapF(this))
-        case _ => EndpointResult.Skipped
+        case skipped: EndpointResult.NotMatched => skipped
       }
 
       final override def item = self.item
@@ -106,7 +106,7 @@ trait Endpoint[A] { self =>
       final def apply(input: Input): Endpoint.Result[B] = self(input) match {
         case EndpointResult.Matched(rem, out) =>
           EndpointResult.Matched(rem, out.flatMapF(this))
-        case _ => EndpointResult.Skipped
+        case skipped: EndpointResult.NotMatched => skipped
       }
 
       override def item = self.item
@@ -133,7 +133,7 @@ trait Endpoint[A] { self =>
       final def apply(input: Input): Endpoint.Result[B] = self(input) match {
         case EndpointResult.Matched(rem, out) =>
           EndpointResult.Matched(rem, Rerunnable.fromFuture(fn(out.run)))
-        case _ => EndpointResult.Skipped
+        case skipped: EndpointResult.NotMatched => skipped
       }
 
       override def item = self.item
@@ -177,9 +177,9 @@ trait Endpoint[A] { self =>
         case a @ EndpointResult.Matched(_, _) => other(a.rem) match {
           case b @ EndpointResult.Matched(_, _) =>
             EndpointResult.Matched(b.rem, a.out.liftToTry.product(b.out.liftToTry).flatMapF(this))
-          case _ => EndpointResult.Skipped
+          case skipped: EndpointResult.NotMatched => skipped
         }
-        case _ => EndpointResult.Skipped
+        case skipped: EndpointResult.NotMatched => skipped
       }
 
       override def item = self.item
@@ -204,6 +204,12 @@ trait Endpoint[A] { self =>
   /**
    * Sequentially composes this endpoint with the given `other` endpoint. The resulting endpoint
    * will succeed if either this or `that` endpoints are succeed.
+   *
+   * == Matching Rules ==
+   *
+   * - if both endpoints match, the result with a shorter remainder (in terms of consumed route) is picked
+   * - if both endpoints don't match, the more specific result (explaining the reason for not matching)
+   *   is picked
    */
   final def coproduct[B >: A](other: Endpoint[B]): Endpoint[B] = new Endpoint[B] {
     final def apply(input: Input): Endpoint.Result[B] = self(input) match {
@@ -212,7 +218,15 @@ trait Endpoint[A] { self =>
           if (a.rem.route.length <= b.rem.route.length) a else b
         case _ => a
       }
-      case _ => other(input)
+      case a => other(input) match {
+        case EndpointResult.NotMatched.MethodNotAllowed(bb) => a match {
+          case EndpointResult.NotMatched.MethodNotAllowed(aa) =>
+            EndpointResult.NotMatched.MethodNotAllowed(aa ++ bb)
+          case b => b
+        }
+        case EndpointResult.NotMatched => a
+        case b => b
+      }
     }
 
     override def item = items.MultipleItems
@@ -329,7 +343,7 @@ trait Endpoint[A] { self =>
       final def apply(input: Input): Endpoint.Result[Try[A]] = self(input) match {
         case EndpointResult.Matched(rem, out) =>
           EndpointResult.Matched(rem, out.liftToTry.map(this))
-        case _ => EndpointResult.Skipped
+        case skipped: EndpointResult.NotMatched => skipped
       }
 
       override def item = self.item
@@ -356,7 +370,7 @@ object Endpoint {
    * Creates an empty [[Endpoint]] (an endpoint that never matches) for a given type.
    */
   def empty[A]: Endpoint[A] = new Endpoint[A] {
-    final def apply(input: Input): Result[A] = EndpointResult.Skipped
+    final def apply(input: Input): Result[A] = EndpointResult.NotMatched
   }
 
   /**

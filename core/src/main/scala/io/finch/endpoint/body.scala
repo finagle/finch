@@ -17,7 +17,7 @@ private abstract class FullBody[A] extends Endpoint[A] {
   protected def present(content: Buf, cs: Charset): Rerunnable[Output[A]]
 
   final def apply(input: Input): Endpoint.Result[A] =
-    if (input.request.isChunked) EndpointResult.Skipped
+    if (input.request.isChunked) EndpointResult.NotMatched
     else {
       val contentLength = input.request.headerMap.getOrNull(Fields.ContentLength)
       val output =
@@ -147,7 +147,7 @@ private[finch] trait Bodies {
    */
   val asyncBody: Endpoint[AsyncStream[Buf]] = new Endpoint[AsyncStream[Buf]] {
     final def apply(input: Input): Endpoint.Result[AsyncStream[Buf]] =
-      if (!input.request.isChunked) EndpointResult.Skipped
+      if (!input.request.isChunked) EndpointResult.NotMatched
       else EndpointResult.Matched(input,
         Rerunnable(Output.payload(AsyncStream.fromReader(input.request.reader))))
 

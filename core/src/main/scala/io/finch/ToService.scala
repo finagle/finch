@@ -1,7 +1,7 @@
 package io.finch
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Request, Response, Status, Version}
+import com.twitter.finagle.http.{Method, Request, Response, Status, Version}
 import com.twitter.util.Future
 import io.finch.internal.currentTime
 import scala.annotation.implicitNotFound
@@ -14,8 +14,8 @@ import shapeless._
  *
  * - handle Finch's own errors (i.e., [[Error]] and [[Error]]) as 400s
  * - copy requests's HTTP version onto a response
- * - respond with 404 when en endpoint is not matched
-
+ * - respond with 404 when an endpoint is not matched
+ * - respond with 405 when an endpoint is not matched because method wasn't allowed (serve back an `Allow` header)
  * - include the date header on each response (unless disabled)
  * - include the server header on each response (unless disabled)
  */
@@ -32,43 +32,41 @@ import shapeless._
 """
 )
 trait ToService[ES <: HList, CTS <: HList] {
-  def apply(
-    endpoints: ES,
-    includeDateHeader: Boolean,
-    includeServerHeader: Boolean,
-    negotiateContentType: Boolean
-  ): Service[Request, Response]
+  def apply(endpoints: ES, options: ToService.Options, context: ToService.Context): Service[Request, Response]
 }
 
-/**
- * Wraps a given [[Endpoint]] with a Finagle [[Service]].
- *
- * Guarantees to:
- *
- * - handle Finch's own errors (i.e., [[Error]] and [[Error]]) as 400s
- * - copy requests's HTTP version onto a response
- * - respond with 404 when en endpoint is not matched
- */
 object ToService {
+
+  /**
+   * HTTP options propagated from [[Bootstrap]].
+   */
+  final case class Options(
+    includeDateHeader: Boolean,
+    includeServerHeader: Boolean,
+    negotiateContentType: Boolean,
+    enableMethodNotAllowed: Boolean
+  )
+
+  /**
+   * HTTP context propagated between endpoints.
+   *
+   * - `wouldAllow`: when non-empty, indicates that the incoming method wasn't allowed/matched
+   */
+  final case class Context(wouldAllow: List[Method] = Nil)
 
   private val respond400OnErrors: PartialFunction[Throwable, Output[Nothing]] = {
     case e: io.finch.Error => Output.failure(e, Status.BadRequest)
     case es: io.finch.Errors => Output.failure(es, Status.BadRequest)
   }
 
-  private def conformHttp(
-      rep: Response,
-      version: Version,
-      includeDateHeader: Boolean,
-      includeServerHeader: Boolean): Response = {
-
+  private def conformHttp(rep: Response, version: Version, options: Options): Response = {
     rep.version = version
 
-    if (includeDateHeader) {
+    if (options.includeDateHeader) {
       rep.date = currentTime()
     }
 
-    if (includeServerHeader) {
+    if (options.includeServerHeader) {
       rep.server = "Finch"
     }
 
@@ -76,15 +74,19 @@ object ToService {
   }
 
   implicit val hnilTS: ToService[HNil, HNil] = new ToService[HNil, HNil] {
-    def apply(
-        endpoints: HNil,
-        includeDateHeader: Boolean,
-        includeServerHeader: Boolean,
-        negotiateContentType: Boolean): Service[Request, Response] = new Service[Request, Response] {
+    def apply(es: HNil, opts: Options, ctx: Context): Service[Request, Response] = new Service[Request, Response] {
+      def apply(req: Request): Future[Response] = {
+        val rep = Response()
 
-      def apply(req: Request): Future[Response] = Future.value(
-        conformHttp(Response(Status.NotFound), req.version, includeDateHeader, includeServerHeader)
-      )
+        if (ctx.wouldAllow.nonEmpty && opts.enableMethodNotAllowed) {
+          rep.status = Status.MethodNotAllowed
+          rep.allow = ctx.wouldAllow
+        } else {
+          rep.status = Status.NotFound
+        }
+
+        Future.value(conformHttp(rep, req.version, opts))
+      }
     }
   }
 
@@ -93,27 +95,21 @@ object ToService {
     ntrE: ToResponse.Negotiable[Exception, CTH],
     tsT: ToService[ET, CTT]
   ): ToService[Endpoint[A] :: ET, CTH :: CTT] = new ToService[Endpoint[A] :: ET, CTH :: CTT] {
-    def apply(
-        endpoints: Endpoint[A] :: ET,
-        includeDateHeader: Boolean,
-        includeServerHeader: Boolean,
-        negotiateContentType: Boolean): Service[Request, Response] = new Service[Request, Response] {
+    def apply(es: Endpoint[A] :: ET, opts: Options, ctx: Context): Service[Request, Response] =
+      new Service[Request, Response] {
+        private[this] val underlying = es.head.handle(respond400OnErrors)
 
-      private[this] val underlying = endpoints.head.handle(respond400OnErrors)
+        def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
+          case EndpointResult.Matched(rem, out) if rem.route.isEmpty =>
+            val accept = if (opts.negotiateContentType) req.accept.map(a => Accept.fromString(a)) else Nil
+            out.map(oa => conformHttp(oa.toResponse(ntrA(accept), ntrE(accept)), req.version, opts)).run
 
-      def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
-        case EndpointResult.Matched(rem, out) if rem.route.isEmpty =>
-          val accept = if (negotiateContentType) req.accept.map(a => Accept.fromString(a)) else Nil
+          case EndpointResult.NotMatched.MethodNotAllowed(allowed) =>
+            tsT(es.tail, opts, ctx.copy(wouldAllow = ctx.wouldAllow ++ allowed))(req)
 
-          out.map(oa => conformHttp(
-            oa.toResponse(ntrA(accept), ntrE(accept)),
-            req.version,
-            includeDateHeader,
-            includeServerHeader
-          )).run
-
-        case _ => tsT(endpoints.tail, includeDateHeader, includeServerHeader, negotiateContentType)(req)
-      }
+          case _ =>
+            tsT(es.tail, opts, ctx)(req)
+        }
     }
   }
 

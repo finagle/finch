@@ -1,6 +1,6 @@
 package io.finch
 
-import com.twitter.finagle.http.{Request, Status}
+import com.twitter.finagle.http.{Method, Request, Status}
 import com.twitter.util.{Await, Future}
 import io.finch.internal.currentTime
 import java.time.{ZonedDateTime, ZoneOffset}
@@ -29,6 +29,34 @@ class BootstrapSpec extends FinchSpec {
     }
   }
 
+  it should "respond 405 if method not allowed" in {
+    import io.finch.syntax._
+    val a = get("foo") { Ok("get foo") }
+    val b = put("foo") { Ok("put foo") }
+    val c = post("foo") { Ok("post foo") }
+
+    val s = Bootstrap
+      .configure(enableMethodNotAllowed = true)
+      .serve[Text.Plain](a :+: b)
+      .serve[Text.Plain](c)
+      .toService
+
+    val aa = Request(Method.Get, "/foo")
+    val bb = Request(Method.Put, "/foo")
+    val cc = Request(Method.Post, "/foo")
+    val dd = Request(Method.Delete, "/foo")
+
+    Await.result(s(Request(Method.Get, "/bar"))).status shouldBe Status.NotFound
+
+    Await.result(s(aa)).contentString shouldBe "get foo"
+    Await.result(s(bb)).contentString shouldBe "put foo"
+    Await.result(s(cc)).contentString shouldBe "post foo"
+
+    val rep = Await.result(s(dd))
+    rep.status shouldBe Status.MethodNotAllowed
+    rep.allow shouldBe Some("POST,GET,PUT")
+  }
+
   it should "match the request version" in {
     check { req: Request =>
       val s = Endpoint.const(()).toServiceAs[Text.Plain]
@@ -50,8 +78,7 @@ class BootstrapSpec extends FinchSpec {
       val rep = Await.result(s(req))
       val now = parseDate(currentTime())
 
-      (include && (parseDate(rep.date.get) - now).abs <= 1) ||
-      (!include && rep.date.isEmpty)
+      (include && (parseDate(rep.date.get) - now).abs <= 1) || (!include && rep.date.isEmpty)
     }
   }
 
@@ -63,8 +90,7 @@ class BootstrapSpec extends FinchSpec {
 
       val rep = Await.result(s(req))
 
-      (include && rep.server === Some("Finch")) ||
-      (!include && rep.server.isEmpty)
+      (include && rep.server === Some("Finch")) || (!include && rep.server.isEmpty)
     }
   }
 }
