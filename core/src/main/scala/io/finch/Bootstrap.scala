@@ -31,7 +31,8 @@ class Bootstrap[ES <: HList, CTS <: HList](
     val endpoints: ES,
     val includeDateHeader: Boolean = true,
     val includeServerHeader: Boolean = true,
-    val negotiateContentType: Boolean = false) { self =>
+    val negotiateContentType: Boolean = false,
+    val enableMethodNotAllowed: Boolean = false) { self =>
 
   class Serve[CT] {
     def apply[E](e: Endpoint[E]): Bootstrap[Endpoint[E] :: ES, CT :: CTS] =
@@ -43,14 +44,21 @@ class Bootstrap[ES <: HList, CTS <: HList](
   def configure(
     includeDateHeader: Boolean = self.includeDateHeader,
     includeServerHeader: Boolean = self.includeServerHeader,
-    negotiateContentType: Boolean = self.negotiateContentType
+    negotiateContentType: Boolean = self.negotiateContentType,
+    enableMethodNotAllowed: Boolean = self.enableMethodNotAllowed
   ): Bootstrap[ES, CTS] =
-    new Bootstrap[ES, CTS](endpoints, includeDateHeader, includeServerHeader, negotiateContentType)
+    new Bootstrap[ES, CTS](
+      endpoints,
+      includeDateHeader,
+      includeServerHeader,
+      negotiateContentType,
+      enableMethodNotAllowed
+    )
 
   def serve[CT]: Serve[CT] = new Serve[CT]
 
   def toService(implicit ts: ToService[ES, CTS]): Service[Request, Response] =
-    ts(endpoints, includeDateHeader, includeServerHeader, negotiateContentType)
+    ts(endpoints, includeDateHeader, includeServerHeader, negotiateContentType, enableMethodNotAllowed)
 
   final override def toString: String = s"Bootstrap($endpoints)"
 }
@@ -59,5 +67,5 @@ object Bootstrap extends Bootstrap[HNil, HNil](
     endpoints = HNil,
     includeDateHeader = true,
     includeServerHeader = true,
-    negotiateContentType = false
-)
+    negotiateContentType = false,
+    enableMethodNotAllowed = false)

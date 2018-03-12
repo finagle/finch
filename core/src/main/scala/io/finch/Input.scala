@@ -15,12 +15,17 @@ import shapeless.Witness
  * - Finagle's [[Request]] needed for evaluating (e.g., `body`, `param`)
  * - Finch's route (represented as `Seq[String]`) needed for matching (e.g., `path`)
  */
-final case class Input(request: Request, route: Seq[String]) {
+final case class Input(request: Request, route: Seq[String], method: Method) {
 
   /**
    * Returns the new `Input` wrapping a given `route`.
    */
-  def withRoute(route: Seq[String]): Input = Input(request, route)
+  def withRoute(route: Seq[String]): Input = Input(request, route, method)
+
+  /**
+    * Returns the new `Input` wrapping a given `method`.
+    */
+  def withMethod(method: Method): Input = Input(request, route, method)
 
   /**
    * Returns the new `Input` wrapping a given payload. This requires the content-type as a first
@@ -42,7 +47,7 @@ final case class Input(request: Request, route: Seq[String]) {
     val copied = Input.copyRequest(request)
     headers.foreach { case (k, v) => copied.headerMap.set(k, v) }
 
-    Input(copied, route)
+    Input(copied, route, method)
   }
 
   /**
@@ -110,7 +115,7 @@ object Input {
       copied.contentLength = content.length.toLong
       charset.foreach(cs => copied.charset = cs.displayName().toLowerCase)
 
-      Input(copied, i.route)
+      Input(copied, i.route, i.method)
     }
   }
 
@@ -119,7 +124,7 @@ object Input {
   /**
    * Creates an [[Input]] from a given [[Request]].
    */
-  def fromRequest(req: Request): Input = Input(req, req.path.split("/").toList.drop(1))
+  def fromRequest(req: Request): Input = Input(req, req.path.split("/").toList.drop(1), req.method)
 
   /**
    * Creates a `GET` input with a given query string (represented as `params`).

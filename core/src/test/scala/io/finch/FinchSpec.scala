@@ -179,6 +179,8 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
     end <- Gen.choose(begin, size)
   } yield Buf.ByteArray.Owned(bytes.toArray, begin, end)
 
+  implicit def arbitraryMethod: Arbitrary[Method] = Arbitrary(genMethod)
+
   implicit def arbitraryRequest: Arbitrary[Request] = Arbitrary(
     for {
       m <- genMethod

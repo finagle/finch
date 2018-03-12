@@ -1,8 +1,9 @@
 package io.finch
 
-import com.twitter.finagle.http.{Request, Status}
+import com.twitter.finagle.http._
 import com.twitter.util.{Await, Future}
 import io.finch.internal.currentTime
+import io.finch.syntax._
 import java.time.{ZonedDateTime, ZoneOffset}
 import java.time.format.DateTimeFormatter
 
@@ -26,6 +27,46 @@ class BootstrapSpec extends FinchSpec {
       val rep = Await.result(s(req))
 
       rep.status === Status.NotFound
+    }
+  }
+
+  it should "respond 405 if endpoint method is not matched and MethodNotAllowed is enabled" in {
+    check { req: Request =>
+      req.method = Method.Post
+      val s = Bootstrap
+        .serve[Text.Plain](get(*)(Ok("foo")))
+        .configure(enableMethodNotAllowed = true)
+        .toService
+      val rep = Await.result(s(req))
+
+      rep.status === Status.MethodNotAllowed
+    }
+  }
+
+  it should "respond 404 if endpoint method is not matched and MethodNotAllowed is disabled" in {
+    check { req: Request =>
+      req.method = Method.Post
+      val s = Bootstrap
+        .serve[Text.Plain](get(*)(Ok("foo")))
+        .toService
+      val rep = Await.result(s(req))
+
+      rep.status === Status.NotFound
+    }
+  }
+
+  it should "respond 200 if endpoint is matched" in {
+    check { m: Method =>
+      val s = Bootstrap
+        .serve[Text.Plain](post("foo")(Ok("POST")) :+: delete("foo")(Ok("DELETE")))
+        .serve[Text.Plain](get("foo")(Ok("GET")))
+        .serve[Text.Plain](put("foo")(Ok("PUT")) :+: head("foo")(Ok("HEAD")) :+: trace("foo")(Ok("TRACE")))
+        .serve[Text.Plain](patch("foo")(Ok("PATCH")))
+        .serve[Text.Plain](connect("foo")(Ok("CONNECT")) :+: options("foo")(Ok("OPTIONS")))
+        .configure(enableMethodNotAllowed = true)
+        .toService
+      val rep = Await.result(s(Request(m, "/foo")))
+      rep.status === Status.Ok && rep.contentString === m.name
     }
   }
 
