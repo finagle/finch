@@ -10,7 +10,7 @@ import shapeless.HNil
 private class MatchPath(s: String) extends Endpoint[HNil] {
   final def apply(input: Input): Endpoint.Result[HNil] = input.route match {
     case `s` +: rest => EndpointResult.Matched(input.withRoute(rest), Rs.OutputHNil)
-    case _ => EndpointResult.Skipped
+    case _ => EndpointResult.NotMatched
   }
 
   final override def toString: String = s
@@ -22,9 +22,9 @@ private class ExtractPath[A](implicit d: DecodePath[A], ct: ClassTag[A]) extends
       case Some(a) =>
         EndpointResult.Matched(input.withRoute(rest), Rerunnable.const(Output.payload(a)))
       case _ =>
-        EndpointResult.Skipped
+        EndpointResult.NotMatched
     }
-    case _ => EndpointResult.Skipped
+    case _ => EndpointResult.NotMatched
   }
 
   final override def toString: String = s":${ct.runtimeClass.getSimpleName.toLowerCase}"

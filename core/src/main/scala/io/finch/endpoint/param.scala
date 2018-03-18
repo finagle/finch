@@ -49,7 +49,7 @@ private object Param {
 
   trait Exists[A] { _: Param[Id, A] =>
     protected def missing(input: Input, name: String): Endpoint.Result[A] =
-      EndpointResult.Skipped
+      EndpointResult.NotMatched
 
     protected def present(input: Input, value: A): Endpoint.Result[A] =
       EndpointResult.Matched(input, Rs.payload(value))

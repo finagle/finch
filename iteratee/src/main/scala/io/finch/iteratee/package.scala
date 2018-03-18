@@ -35,9 +35,8 @@ package object iteratee extends IterateeInstances {
   def enumeratorBody[A, CT <: String](implicit decode: Enumerate.Aux[A, CT]): Endpoint[Enumerator[Future, A]] = {
     new Endpoint[Enumerator[Future, A]] {
       final def apply(input: Input): Endpoint.Result[Enumerator[Future, A]] = {
-        if (!input.request.isChunked) {
-          EndpointResult.Skipped
-        } else {
+        if (!input.request.isChunked) EndpointResult.NotMatched
+        else {
           val req = input.request
           EndpointResult.Matched(
             input,

@@ -311,6 +311,19 @@ class EndpointSpec extends FinchSpec {
     }
   }
 
+  it should "accumulate EndpointResult.NotMatched in its | compositor" in {
+    val a = get("foo")
+    val b = post("foo")
+    val ab = a.coproduct(b)
+
+    ab(Input.get("/foo")).isMatched shouldBe true
+    ab(Input.post("/foo")).isMatched shouldBe true
+
+    val put = ab(Input.put("/foo"))
+    put.isMatched shouldBe false
+    put.asInstanceOf[EndpointResult.NotMatched.MethodNotAllowed].allowed.toSet shouldBe Set(Method.Post, Method.Get)
+  }
+
   it should "support the as[A] method on Endpoint[Seq[String]]" in {
     val foos = params[Foo]("testEndpoint")
     foos(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe() shouldBe Some(Seq(Foo("a")))

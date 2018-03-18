@@ -33,7 +33,7 @@ private abstract class Attribute[F[_], A](val name: String, val d: DecodeEntity[
   }
 
   final def apply(input: Input): Endpoint.Result[F[A]] = {
-    if (input.request.isChunked) EndpointResult.Skipped
+    if (input.request.isChunked) EndpointResult.NotMatched
     else {
       all(input) match {
         case None => EndpointResult.Matched(input, missing(name))
@@ -108,7 +108,7 @@ private abstract class FileUpload[F[_]](name: String) extends Endpoint[F[Finagle
     } yield nel
 
   final def apply(input: Input): Endpoint.Result[F[FinagleFileUpload]] =
-    if (input.request.isChunked) EndpointResult.Skipped
+    if (input.request.isChunked) EndpointResult.NotMatched
     else {
       all(input) match {
         case Some(nel) => EndpointResult.Matched(input, present(nel))
