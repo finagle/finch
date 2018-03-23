@@ -19,7 +19,7 @@ private abstract class Header[F[_], A](name: String, d: DecodeEntity[A], tag: Cl
       case null => missing(input, name)
       case value => d(value) match {
         case Return(r) => present(input, r)
-        case Throw(e) => EndpointResult.Matched(input, Rs.paramNotParsed(name, tag, e))
+        case Throw(e) => EndpointResult.Matched(input, Rs.headerNotParsed(name, tag, e))
       }
     }
 
