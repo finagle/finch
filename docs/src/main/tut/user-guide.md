@@ -795,9 +795,10 @@ implicit val e: Encode.Aux[Exception, Text.Html] = Encode.instance((e, cs) =>
 )
 ```
 
-Finch used to provide exception encoders from all of its json libraries, but do to some issues 
-with implicit scope that made defining custom encoders difficult, you must now define your own.
+**Finch used to provide exception encoders** from all of its json libraries, but do to some issues 
+with implicit scope that made defining custom encoders difficult, you must now **define your own**.
 Here is an example Json encoder, that was formerly used in `finch-circe`:
+
 ```tut:silent
 import io.circe._, io.finch._
 
