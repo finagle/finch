@@ -3,15 +3,15 @@ import microsites.ExtraMdFileConfig
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   version := "0.19.0",
-  scalaVersion := "2.12.5",
-  crossScalaVersions := Seq("2.11.12", "2.12.5")
+  scalaVersion := "2.12.6",
+  crossScalaVersions := Seq("2.11.12", "2.12.6")
 )
 
-lazy val finagleVersion = "18.4.0"
-lazy val twitterServerVersion = "18.4.0"
+lazy val finagleVersion = "18.5.0"
+lazy val twitterServerVersion = "18.5.0"
 lazy val circeVersion = "0.9.3"
 lazy val circeIterateeVersion = "0.9.0"
-lazy val catbirdVersion = "18.4.0"
+lazy val catbirdVersion = "18.5.0"
 lazy val shapelessVersion = "2.3.3"
 lazy val catsVersion = "1.1.0"
 lazy val sprayVersion = "1.3.4"
@@ -19,7 +19,7 @@ lazy val playVersion = "2.6.9"
 lazy val argonautVersion = "6.2.1"
 lazy val json4sVersion = "3.5.3"
 lazy val iterateeVersion = "0.17.0"
-lazy val iterateeTwitterVersion = "18.4.0"
+lazy val iterateeTwitterVersion = "18.5.0"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
