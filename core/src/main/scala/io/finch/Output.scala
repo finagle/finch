@@ -210,7 +210,7 @@ object Output {
       o.headers.foreach { case (k, v) => rep.headerMap.set(k, v) }
       o.cookies.foreach(rep.cookies.add)
       o.charset.foreach { c =>
-        if (!rep.content.isEmpty) {
+        if (!rep.content.isEmpty || rep.isChunked) {
           rep.charset = c.displayName.toLowerCase
         }
       }
