@@ -6,6 +6,7 @@ import java.util.UUID
 import cats.Eq
 import cats.data.NonEmptyList
 import cats.instances.AllInstances
+import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http._
 import com.twitter.io.Buf
 import com.twitter.util.{Future, Try}
@@ -132,6 +133,14 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
     (st, cs, hs, c) <- genOutputMeta
     a <- Arbitrary.arbitrary[A]
   } yield Output.Payload(a, st, cs, hs, c)
+
+  def genAsyncStreamOutput[A: Arbitrary]: Gen[Output[AsyncStream[A]]] = Gen.oneOf(
+    genEmptyOutput,
+    for {
+      (st, cs, hs, c) <- genOutputMeta
+      a <- Arbitrary.arbitrary[A]
+    } yield Output.Payload(AsyncStream.of(a), st, cs, hs, c)
+  )
 
   def genOutput[A: Arbitrary]: Gen[Output[A]] = Gen.oneOf(
     genPayloadOutput[A], genFailureOutput, genEmptyOutput
@@ -285,6 +294,9 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
     Arbitrary(genPayloadOutput[A])
 
   implicit def arbitraryOutput[A: Arbitrary]: Arbitrary[Output[A]] = Arbitrary(genOutput[A])
+
+  implicit def arbitraryAsyncStreamOutput[A: Arbitrary]: Arbitrary[Output[AsyncStream[A]]] =
+    Arbitrary(genAsyncStreamOutput[A])
 
   implicit def arbitraryRequestItem: Arbitrary[items.RequestItem] =
     Arbitrary(genRequestItem)
