@@ -1,6 +1,7 @@
 package io.finch
 
 import com.twitter.finagle.http.Request
+import io.catbird.util.Rerunnable
 import io.finch.endpoint._
 import io.finch.internal._
 import shapeless._
@@ -20,7 +21,7 @@ trait Endpoints extends Bodies
    */
   object * extends Endpoint[HNil] {
     final def apply(input: Input): Endpoint.Result[HNil] =
-      EndpointResult.Matched(input.copy(route = Nil), Rs.OutputHNil)
+      EndpointResult.Matched(input.copy(route = Nil), EmptyOutput)
 
     final override def toString: String = "*"
   }
@@ -30,7 +31,7 @@ trait Endpoints extends Bodies
    */
   object / extends Endpoint[HNil] {
     final def apply(input: Input): Endpoint.Result[HNil] =
-      EndpointResult.Matched(input, Rs.OutputHNil)
+      EndpointResult.Matched(input, EmptyOutput)
 
     final override def toString: String = ""
   }
@@ -40,7 +41,7 @@ trait Endpoints extends Bodies
    */
   object root extends Endpoint[Request] {
     final def apply(input: Input): Endpoint.Result[Request] =
-      EndpointResult.Matched(input, Rs.payload(input.request))
+      EndpointResult.Matched(input, Rerunnable(Output.payload(input.request)))
 
     final override def toString: String = "root"
   }

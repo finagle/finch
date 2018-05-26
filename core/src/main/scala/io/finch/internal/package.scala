@@ -2,8 +2,11 @@ package io.finch
 
 import com.twitter.finagle.http.Message
 import com.twitter.io.Buf
+import com.twitter.util.Future
+import io.catbird.util.Rerunnable
 import java.nio.ByteBuffer
 import java.nio.charset.{Charset, StandardCharsets}
+import shapeless.HNil
 
 /**
  * This package contains an internal-use only type-classes and utilities that power Finch's API.
@@ -15,6 +18,11 @@ package object internal {
 
   @inline private[this] final val someTrue: Option[Boolean] = Some(true)
   @inline private[this] final val someFalse: Option[Boolean] = Some(false)
+
+  val EmptyOutput: Rerunnable[Output[HNil]] =
+    new Rerunnable[Output[HNil]] {
+      override val run: Future[Output[HNil]] = Future.value(Output.payload(HNil))
+    }
 
   // Missing in StandardCharsets.
   val Utf32: Charset = Charset.forName("UTF-32")

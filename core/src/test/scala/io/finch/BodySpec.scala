@@ -1,10 +1,25 @@
 package io.finch
 
 import com.twitter.finagle.http.Request
-import com.twitter.util.{Return, Throw}
+import com.twitter.io.Buf
+import com.twitter.util.{Return, Throw, Try}
 import io.finch.data.Foo
+import java.nio.charset.Charset
 
 class BodySpec extends FinchSpec {
+
+  private class EvalDecode[A](d: Decode.Text[A]) extends Decode[A] {
+    type ContentType = Text.Plain
+
+    @volatile private var e = false
+
+    def apply(b: Buf, cs: Charset): Try[A] = {
+      e = true
+      d(b, cs)
+    }
+
+    def evaluated: Boolean = e
+  }
 
   behavior of "body*"
 
@@ -43,5 +58,15 @@ class BodySpec extends FinchSpec {
     bodyOption[Foo, Text.Plain].apply(i).awaitValueUnsafe().flatten shouldBe None
     stringBodyOption(i).awaitValueUnsafe().flatten shouldBe None
     binaryBodyOption(i).awaitValueUnsafe().flatten shouldBe None
+  }
+
+  it should "never evaluate until run" in {
+    check { f: Foo =>
+      val i = Input.post("/").withBody[Text.Plain](f)
+
+      implicit val ed = new EvalDecode[Foo](Decode[Foo, Text.Plain])
+      textBody[Foo].apply(i)
+      !ed.evaluated
+    }
   }
 }

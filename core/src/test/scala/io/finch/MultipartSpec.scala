@@ -48,6 +48,10 @@ class MultipartSpec extends FinchSpec {
   checkAll("Attribute[Foo]",
     EntityEndpointLaws[Foo](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
 
+  checkAll(
+    "EvaluatingAttribute[String]",
+    EvaluatingEndpointLaws[String](implicit de => multipartAttribute("foo")).all
+  )
 
   it should "file upload (single)" in {
     check { b: Buf =>

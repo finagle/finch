@@ -21,6 +21,11 @@ class ParamSpec extends FinchSpec {
   checkAll("Param[UUID]", EntityEndpointLaws[UUID](paramOption("x"))(withParam("x")).evaluating)
   checkAll("Param[Foo]", EntityEndpointLaws[Foo](paramOption("x"))(withParam("x")).evaluating)
 
+  checkAll(
+    "EvaluatingParam[String]",
+    EvaluatingEndpointLaws[String](implicit de => param("foo")).all
+  )
+
   it should "throw an error if required param is missing" in {
     val endpoint: Endpoint[UUID] = param[UUID]("testEndpoint")
     an[Error.NotPresent] shouldBe thrownBy {
