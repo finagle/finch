@@ -3,7 +3,7 @@ package io.finch.endpoint
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.Fields
 import com.twitter.io.Buf
-import com.twitter.util.{Return, Throw}
+import com.twitter.util.{Future, Return, Throw, Try}
 import io.catbird.util.Rerunnable
 import io.finch._
 import io.finch.internal._
@@ -13,16 +13,17 @@ import scala.reflect.ClassTag
 
 private abstract class FullBody[A] extends Endpoint[A] {
 
-  protected def missing: Rerunnable[Output[A]]
-  protected def present(content: Buf, cs: Charset): Rerunnable[Output[A]]
+  protected def missing: Future[Output[A]]
+  protected def present(content: Buf, cs: Charset): Future[Output[A]]
 
   final def apply(input: Input): Endpoint.Result[A] =
     if (input.request.isChunked) EndpointResult.NotMatched
     else {
-      val contentLength = input.request.headerMap.getOrNull(Fields.ContentLength)
-      val output =
+      val output = Rerunnable.fromFuture {
+        val contentLength = input.request.headerMap.getOrNull(Fields.ContentLength)
         if (contentLength == null || contentLength == "0") missing
         else present(input.request.content, input.request.charsetOrUtf8)
+      }
 
       EndpointResult.Matched(input, output)
     }
@@ -31,42 +32,58 @@ private abstract class FullBody[A] extends Endpoint[A] {
 }
 
 private object FullBody {
+
+  private val notPresentInstance: Future[Output[Nothing]] =
+    Future.exception(Error.NotPresent(items.BodyItem))
+
+  private val noneInstance: Future[Output[Option[Nothing]]] = Future.value(Output.None)
+
+  private def notPresent[A] = notPresentInstance.asInstanceOf[Future[Output[A]]]
+  private def none[A] = noneInstance.asInstanceOf[Future[Output[Option[A]]]]
+
   trait PreparedBody[A, B] { _: FullBody[B] =>
     protected def prepare(a: A): B
   }
 
   trait Required[A] extends PreparedBody[A, A] { _: FullBody[A] =>
     protected def prepare(a: A): A = a
-    protected def missing: Rerunnable[Output[A]] = Rs.bodyNotPresent[A]
+    protected def missing: Future[Output[A]] = notPresent[A]
   }
 
   trait Optional[A] extends PreparedBody[A, Option[A]] { _: FullBody[Option[A]] =>
     protected def prepare(a: A): Option[A] = Some(a)
-    protected def missing: Rerunnable[Output[Option[A]]] = Rs.none[A]
+    protected def missing: Future[Output[Option[A]]] = none[A]
   }
 }
 
 private abstract class Body[A, B, CT <: String](
-    d: Decode.Aux[A, CT], ct: ClassTag[A]) extends FullBody[B] with FullBody.PreparedBody[A, B] {
+  d: Decode.Aux[A, CT],
+  ct: ClassTag[A]
+) extends FullBody[B] with FullBody.PreparedBody[A, B] with (Try[A] => Try[Output[B]]) {
 
-  protected def present(content: Buf, cs: Charset): Rerunnable[Output[B]] = d(content, cs) match {
-    case Return(r) => Rs.payload(prepare(r))
-    case Throw(t) => Rs.exception(Error.NotParsed(items.BodyItem, ct, t))
+  final def apply(ta: Try[A]): Try[Output[B]] = ta match {
+    case Return(r) => Return(Output.payload(prepare(r)))
+    case Throw(t) => Throw(Error.NotParsed(items.BodyItem, ct, t))
   }
+
+  protected def present(content: Buf, cs: Charset): Future[Output[B]] =
+    Future.const(d(content, cs).transform(this))
 
   final override def toString: String = "body"
 }
 
-private abstract class BinaryBody[A] extends FullBody[A] with FullBody.PreparedBody[Array[Byte], A] {
-  protected def present(content: Buf, cs: Charset): Rerunnable[Output[A]] =
-    Rs.payload(prepare(content.asByteArray))
+private abstract class BinaryBody[A]
+    extends FullBody[A] with FullBody.PreparedBody[Array[Byte], A] {
+
+  protected def present(content: Buf, cs: Charset): Future[Output[A]] =
+    Future.value(Output.payload(prepare(content.asByteArray)))
 
   final override def toString: String = "binaryBody"
 }
 
 private abstract class StringBody[A] extends FullBody[A] with FullBody.PreparedBody[String, A] {
-  protected def present(content: Buf, cs: Charset): Rerunnable[Output[A]] =
-    Rs.payload(prepare(content.asString(cs)))
+  protected def present(content: Buf, cs: Charset): Future[Output[A]] =
+    Future.value(Output.payload(prepare(content.asString(cs))))
 
   final override def toString: String = "stringBody"
 }

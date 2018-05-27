@@ -1,101 +1,124 @@
 package io.finch.endpoint
 
-import scala.reflect.ClassTag
-
 import cats.Id
 import cats.data.NonEmptyList
 import com.twitter.util._
+import io.catbird.util.Rerunnable
 import io.finch._
-import io.finch.internal.Rs
+import scala.reflect.ClassTag
 
-private abstract class Param[F[_], A](name: String, d: DecodeEntity[A], tag: ClassTag[A]) extends Endpoint[F[A]] {
-  self =>
+private abstract class Param[F[_], A](
+  name: String,
+  d: DecodeEntity[A],
+  tag: ClassTag[A]
+) extends Endpoint[F[A]] with (Try[A] => Try[Output[F[A]]]) { self =>
 
-  protected def missing(input: Input, name: String): Endpoint.Result[F[A]]
-  protected def present(input: Input, value: A): Endpoint.Result[F[A]]
+  protected def matches(input: Input, name: String): Boolean = true
 
-  final def apply(input: Input): Endpoint.Result[F[A]] =
-    input.request.params.get(name) match {
-      case None => missing(input, name)
-      case Some(value) =>
-        d(value) match {
-          case Return(r) => present(input, r)
-          case Throw(e) => EndpointResult.Matched(input, Rs.paramNotParsed(name, tag, e))
+  protected def missing(name: String): Future[Output[F[A]]]
+  protected def present(value: A): F[A]
+
+  final def apply(ta: Try[A]): Try[Output[F[A]]] = ta match {
+    case Return(r) => Return(Output.payload(present(r)))
+    case Throw(e) => Throw(Error.NotParsed(items.ParamItem(name), tag, e))
+  }
+
+  final def apply(input: Input): Endpoint.Result[F[A]] = {
+    if (!matches(input, name)) EndpointResult.NotMatched
+    else {
+      val output = Rerunnable.fromFuture {
+        input.request.params.get(name) match {
+          case None => missing(name)
+          case Some(value) => Future.const(d(value).transform(self))
         }
+      }
+
+      EndpointResult.Matched(input, output)
     }
+  }
 
   final override def item: items.RequestItem = items.ParamItem(name)
   final override def toString: String = s"param($name)"
-
-
 }
 
 private object Param {
-  trait Required[A] { _: Param[Id, A] =>
-    protected def missing(input: Input, name: String): Endpoint.Result[A] =
-      EndpointResult.Matched(input, Rs.paramNotPresent(name))
 
-    protected def present(input: Input, value: A): Endpoint.Result[A] =
-      EndpointResult.Matched(input, Rs.payload(value))
+  private val noneInstance: Future[Output[Option[Nothing]]] = Future.value(Output.None)
+
+  private def none[A]: Future[Output[Option[A]]] =
+    noneInstance.asInstanceOf[Future[Output[Option[A]]]]
+
+  trait Required[A] { _: Param[Id, A] =>
+    protected def missing(name: String): Future[Output[A]] =
+      Future.exception(Error.NotPresent(items.ParamItem(name)))
+    protected def present(a: A): Id[A] = a
   }
 
   trait Optional[A] { _: Param[Option, A] =>
-    protected def missing(input: Input, name: String): Endpoint.Result[Option[A]] =
-      EndpointResult.Matched(input, Rs.none)
-
-    protected def present(input: Input, value: A): Endpoint.Result[Option[A]] =
-      EndpointResult.Matched(input, Rs.payload(Some(value)))
+    protected def missing(name: String): Future[Output[Option[A]]] = none[A]
+    protected def present(a: A): Option[A] = Some(a)
   }
 
   trait Exists[A] { _: Param[Id, A] =>
-    protected def missing(input: Input, name: String): Endpoint.Result[A] =
-      EndpointResult.NotMatched
 
-    protected def present(input: Input, value: A): Endpoint.Result[A] =
-      EndpointResult.Matched(input, Rs.payload(value))
+    override protected def matches(input: Input, name: String): Boolean =
+      input.request.params.contains(name)
+
+    protected def missing(name: String): Future[Output[A]] = Future.exception(
+      new IllegalStateException(
+        s"Param $name was found during routing but disappeared during evaluation."
+      )
+    )
+
+    protected def present(a: A): Id[A] = a
   }
 }
 
-private abstract class Params[F[_], A](name: String, d: DecodeEntity[A], tag: ClassTag[A]) extends Endpoint[F[A]] {
+private abstract class Params[F[_], A](name: String, d: DecodeEntity[A], tag: ClassTag[A])
+    extends Endpoint[F[A]] {
 
-  protected def missing(input: Input, name: String): Endpoint.Result[F[A]]
-  protected def present(input: Input, value: Iterable[A]): Endpoint.Result[F[A]]
+  protected def missing(name: String): Future[Output[F[A]]]
+  protected def present(value: Iterable[A]): F[A]
 
-  def apply(input: Input): Endpoint.Result[F[A]] = input.request.params.getAll(name) match {
-    case value if value.isEmpty => missing(input, name)
-    case value =>
-      val decoded = value.map(d.apply).toList
-      val errors = decoded.collect {
-        case Throw(t) => t
+  final def apply(input: Input): Endpoint.Result[F[A]] = {
+    val output = Rerunnable.fromFuture {
+      input.request.params.getAll(name) match {
+        case value if value.isEmpty => missing(name)
+        case value =>
+          val decoded = value.map(d.apply).toList
+          val errors = decoded.collect { case Throw(t) => t }
+
+          NonEmptyList.fromList(errors) match {
+            case None =>
+              Future.value(Output.payload(present(decoded.map(_.get()))))
+            case Some(es) =>
+              Future.exception(Errors(es.map(t => Error.NotParsed(items.ParamItem(name), tag, t))))
+          }
       }
-      NonEmptyList.fromList(errors) match {
-        case None => present(input, decoded.map(_.get()))
-        case Some(es) => EndpointResult.Matched(input, Rs.paramsNotParsed(name, tag, es))
-      }
+    }
+
+    EndpointResult.Matched(input, output)
   }
+
   final override def item: items.RequestItem = items.ParamItem(name)
   final override def toString: String = s"params($name)"
 }
 
 private object Params {
-  trait AllowEmpty[A] { _: Params[Seq, A] =>
-    protected def missing(input: Input, name: String): Endpoint.Result[Seq[A]] =
-      EndpointResult.Matched(input, Rs.nil)
 
-    protected def present(input: Input, value: Iterable[A]): Endpoint.Result[Seq[A]] =
-      EndpointResult.Matched(input, Rs.payload(value.toSeq))
+  private val nilInstance: Future[Output[Seq[Nothing]]] =  Future.value(Output.payload(Nil))
+  private def nil[A] = nilInstance.asInstanceOf[Future[Output[Seq[A]]]]
+
+  trait AllowEmpty[A] { _: Params[Seq, A] =>
+    protected def missing(name: String): Future[Output[Seq[A]]] = nil[A]
+    protected def present(value: Iterable[A]): Seq[A] = value.toSeq
   }
 
   trait NonEmpty[A] { _: Params[NonEmptyList, A] =>
-    protected def missing(input: Input, name: String): Endpoint.Result[NonEmptyList[A]] =
-      EndpointResult.Matched(input, Rs.paramNotPresent(name))
-
-    protected def present(
-      input: Input,
-      value: Iterable[A]
-    ): Endpoint.Result[NonEmptyList[A]] = EndpointResult.Matched(
-      input, Rs.payload(NonEmptyList.fromListUnsafe(value.toList))
-    )
+    protected def missing(name: String): Future[Output[NonEmptyList[A]]] =
+      Future.exception(Error.NotPresent(items.ParamItem(name)))
+    protected def present(value: Iterable[A]): NonEmptyList[A] =
+      NonEmptyList.fromListUnsafe(value.toList)
   }
 }
 
@@ -104,8 +127,10 @@ private[finch] trait ParamAndParams {
    * An evaluating [[Endpoint]] that reads an optional query-string param `name` from the request
    * into an `Option`.
    */
-  def paramOption[A](name: String)(implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[Option[A]] =
-    new Param[Option, A](name, d, tag) with Param.Optional[A]
+  def paramOption[A](name: String)(implicit
+    d: DecodeEntity[A],
+    tag: ClassTag[A]
+  ): Endpoint[Option[A]] = new Param[Option, A](name, d, tag) with Param.Optional[A]
 
   /**
    * An evaluating [[Endpoint]] that reads a required query-string param `name` from the
@@ -134,6 +159,8 @@ private[finch] trait ParamAndParams {
    * from the request into a `NonEmptyList` or raises a [[Error.NotPresent]] exception
    * when the params are missing or empty.
    */
-  def paramsNel[A](name: String)(implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[NonEmptyList[A]] =
-    new Params[NonEmptyList, A](name, d, tag) with Params.NonEmpty[A]
+  def paramsNel[A](name: String)(implicit
+    d: DecodeEntity[A],
+    tag: ClassTag[A]
+  ): Endpoint[NonEmptyList[A]] = new Params[NonEmptyList, A](name, d, tag) with Params.NonEmpty[A]
 }

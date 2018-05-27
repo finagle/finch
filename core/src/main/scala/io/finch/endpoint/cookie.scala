@@ -1,18 +1,24 @@
 package io.finch.endpoint
 
 import com.twitter.finagle.http.{Cookie => FinagleCookie}
+import com.twitter.util.Future
 import io.catbird.util.Rerunnable
 import io.finch._
-import io.finch.internal._
 
 private abstract class Cookie[A](name: String) extends Endpoint[A] {
 
-  protected def missing(name: String): Rerunnable[Output[A]]
-  protected def present(value: FinagleCookie): Rerunnable[Output[A]]
+  protected def missing(name: String): Future[Output[A]]
+  protected def present(value: FinagleCookie): Future[Output[A]]
 
-  def apply(input: Input): Endpoint.Result[A] = input.request.cookies.get(name) match {
-    case None => EndpointResult.Matched(input, missing(name))
-    case Some(value) => EndpointResult.Matched(input, present(value))
+  def apply(input: Input): Endpoint.Result[A] = {
+    val output = Rerunnable.fromFuture {
+      input.request.cookies.get(name) match {
+        case None => missing(name)
+        case Some(value) => present(value)
+      }
+    }
+
+    EndpointResult.Matched(input, output)
   }
 
   final override def item: items.RequestItem = items.CookieItem(name)
@@ -20,21 +26,23 @@ private abstract class Cookie[A](name: String) extends Endpoint[A] {
 }
 
 private object Cookie {
+
+  private val noneInstance: Future[Output[Option[Nothing]]] = Future.value(Output.None)
+  private def none[A] = noneInstance.asInstanceOf[Future[Output[Option[A]]]]
+
   trait Optional { _: Cookie[Option[FinagleCookie]] =>
-    protected def missing(name: String): Rerunnable[Output[Option[FinagleCookie]]] =
-      Rs.none
-    protected def present(value: FinagleCookie): Rerunnable[Output[Option[FinagleCookie]]] =
-      Rs.payload(Some(value))
+    protected def missing(name: String): Future[Output[Option[FinagleCookie]]] = none[FinagleCookie]
+    protected def present(value: FinagleCookie): Future[Output[Option[FinagleCookie]]] =
+      Future.value(Output.payload(Some(value)))
   }
 
   trait Required { _: Cookie[FinagleCookie] =>
-    protected def missing(name: String): Rerunnable[Output[FinagleCookie]] =
-      Rs.cookieNotPresent(name)
-    protected def present(value: FinagleCookie): Rerunnable[Output[FinagleCookie]] =
-      Rs.payload(value)
+    protected def missing(name: String): Future[Output[FinagleCookie]] =
+      Future.exception(Error.NotPresent(items.CookieItem(name)))
+    protected def present(value: FinagleCookie): Future[Output[FinagleCookie]] =
+      Future.value(Output.payload(value))
   }
 }
-
 
 private[finch] trait Cookies {
 
