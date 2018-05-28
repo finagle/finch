@@ -70,8 +70,6 @@ cornerstone idea is to return a `Buf` instance from the endpoint so we could use
 import io.finch._
 import io.finch.syntax._
 import com.twitter.io.{Reader, Buf}
-import com.twitter.finagle.Http
-import com.twitter.util.Await
 import java.io.File
 
 val reader: Reader = Reader.fromFile(new File("/dev/urandom"))
@@ -79,10 +77,8 @@ val reader: Reader = Reader.fromFile(new File("/dev/urandom"))
 val file: Endpoint[Buf] = get("file") {
   Reader.readAll(reader).map(Ok)
 }
-val service = file.toServiceAs[Text.Plain]
-
-// Await.ready(Http.server.serve(":8081", service))
 ```
+
 **Note:** It's usually not a great idea to use tools like Finch (or similar) to serve static
 content given their _dynamic_ nature. Instead, a static HTTP server (i.e., [Nginx][nginx]) would be
 the perfect fit.
@@ -104,11 +100,6 @@ val reader: Reader = Reader.fromFile(new File("/dev/urandom"))
 val file: Endpoint[AsyncStream[Buf]] = get("stream-of-file") {
   Ok(AsyncStream.fromReader(reader, chunkSize = 512.kilobytes.inBytes.toInt))
 }
-
-// Http.server
-//   .withStreaming(enabled = true)
-//   .serve(":8081", file.toServiceAs[Text.Plain])
- 
 ```
 
 ### Converting `Errors` into JSON
@@ -427,7 +418,8 @@ NOTE: SSE requires `Cache-Control` to be disabled.
 import cats.Show
 import com.twitter.concurrent.AsyncStream
 import com.twitter.conversions.time._
-import com.twitter.finagle.Http
+import com.twitter.finagle.Service
+import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.util.DefaultTimer
 import com.twitter.util.{ Await, Future, Timer}
 import io.finch._
@@ -436,7 +428,7 @@ import java.util.Date
 
 implicit val showDate: Show[Date] = Show.fromToString[Date]
 
-implicit val timest: Timer = DefaultTimer.twitter
+implicit val timer: Timer = DefaultTimer
 
 def streamTime(): AsyncStream[ServerSentEvent[Date]] =
   AsyncStream.fromFuture(
@@ -450,7 +442,7 @@ val time: Endpoint[AsyncStream[ServerSentEvent[Date]]] = get("time") {
     .withHeader("Cache-Control" -> "no-cache")
 }
 
-//Await.ready(Http.server.serve(":8081", time.toServiceAs[Text.EventStream]))
+val service: Service[Request, Response] = time.toServiceAs[Text.EventStream]
 ```
 
 ### JSONP
@@ -461,7 +453,8 @@ filter `JsonpFilter` that can be applied to an HTTP service returning JSON to "u
 Here is a small example on how to wire this filter with Finch's endpoint.
 
 ```tut:silent
-import com.twitter.finagle.Http
+import com.twitter.finagle.Service
+import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.http.filter.JsonpFilter
 import io.finch._
 import io.finch.circe._
@@ -471,9 +464,8 @@ val endpoint: Endpoint[Map[String, String]] = get("jsonp") {
   Ok(Map("foo" -> "bar"))
 }
 
-val service = endpoint.toServiceAs[Application.Json]
-
-// Http.server.serve(":8080", JsonpFilter.andThen(service))
+val service: Service[Request, Response] =
+  JsonpFilter.andThen(endpoint.toServiceAs[Application.Json])
 ```
 
 `JsonpFilter` is dead simple. It checks the returned HTTP payload and if it's a JSON string, wraps

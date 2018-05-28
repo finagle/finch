@@ -6,7 +6,17 @@
   background-size: 36px 36px !important;
 }
 
+body {
+  color: #5D5E5D;
+}
 
+#content a {
+  text-decoration: underline;
+}
+
+#content code {
+  color: #5D5E5D;
+}
 
 #site-header .navbar-wrapper .brand .icon-wrapper {
   width: 36px;

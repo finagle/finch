@@ -592,16 +592,6 @@ import io.finch.circe.dropNullValues._
 import io.circe.generic.auto._
 ```
 
-Unless it's absolutely necessary to customize Circe's output format (i.e., drop null keys), always
-prefer the [Jackson serializer][circe-jackson] for [better performance][circe-jackson-performance].
-The following two imports show how to make Circe use Jackson while serializing instead of the
-built-in pretty printer.
-
-```tut:silent
-import io.finch.circe.jacksonSerializer._
-import io.circe.generic.auto._
-```
-
 #### Argonaut
 
 * Add the dependency to the `finch-argonaut` module.
@@ -797,7 +787,7 @@ implicit val e: Encode.Aux[Exception, Text.Html] = Encode.instance((e, cs) =>
 
 **Finch used to provide exception encoders** from all of its json libraries, but do to some issues 
 with implicit scope that made defining custom encoders difficult, you must now **define your own**.
-Here is an example Json encoder, that was formerly used in `finch-circe`:
+Here is an example Json encoder, that was formerly used in finch-circe:
 
 ```tut:silent
 import io.circe._, io.finch._
@@ -894,10 +884,6 @@ val bufEnumerator =
   post("text" :: enumeratorBody[Buf, Application.OctetStream]) { buf: Enumerator[Future, Buf] =>
     Ok(Buf.Empty)
   }
-
-// Http.server
-//     .withStreaming(enabled = true) //don't forget to enable streaming support
-//     .serve(":8080", (decodingJSON :+: backpressureJSON :+: bufEnumerator).toService)
 ```
 
 **Encoding**
@@ -915,10 +901,6 @@ case class Foo(x: Int)
 val streamingEndpoint = get("stream") {
   Ok(enumList[Foo](List(Foo(1), Foo(2))))
 }
-
-// Http.server
-//     .withStreaming(enabled = true)
-//     .serve(":8080", streamingEndpoint.toService) //with Application.JSON Content-Type it's a JSON nd stream of Foos
 ```
 
 ### Testing
