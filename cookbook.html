@@ -46,7 +46,7 @@ free (preferred).</p>
 <p>For example, to bring the <a href="https://github.com/circe/circe">Circe</a> support and benefit from its auto-derivation of codecs
 you’d only need to add two extra imports to the scope (file) where you call the <code class="highlighter-rouge">.toService</code> method.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.circe.generic.auto._</span>
 <span class="k">import</span> <span class="nn">io.finch.circe._</span>
 </code></pre>
 </div>
@@ -62,11 +62,9 @@ cornerstone idea is to return a <code class="highlighter-rouge">Buf</code> insta
 <code class="highlighter-rouge">Encode[Buf]</code>, thereby lifting the encoding part onto the endpoint itself
 (where it’s quite legal to return a <code class="highlighter-rouge">Future[Buf]</code>).</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">io.finch.syntax._</span>
 <span class="k">import</span> <span class="nn">com.twitter.io.</span><span class="o">{</span><span class="nc">Reader</span><span class="o">,</span> <span class="nc">Buf</span><span class="o">}</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
-<span class="k">import</span> <span class="nn">com.twitter.util.Await</span>
 <span class="k">import</span> <span class="nn">java.io.File</span>
 
 <span class="k">val</span> <span class="n">reader</span><span class="k">:</span> <span class="kt">Reader</span> <span class="o">=</span> <span class="nc">Reader</span><span class="o">.</span><span class="n">fromFile</span><span class="o">(</span><span class="k">new</span> <span class="nc">File</span><span class="o">(</span><span class="s">"/dev/urandom"</span><span class="o">))</span>
@@ -74,18 +72,16 @@ cornerstone idea is to return a <code class="highlighter-rouge">Buf</code> insta
 <span class="k">val</span> <span class="n">file</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Buf</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"file"</span><span class="o">)</span> <span class="o">{</span>
   <span class="nc">Reader</span><span class="o">.</span><span class="n">readAll</span><span class="o">(</span><span class="n">reader</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="nc">Ok</span><span class="o">)</span>
 <span class="o">}</span>
-<span class="k">val</span> <span class="n">service</span> <span class="k">=</span> <span class="n">file</span><span class="o">.</span><span class="n">toServiceAs</span><span class="o">[</span><span class="kt">Text.Plain</span><span class="o">]</span>
-
-<span class="c1">// Await.ready(Http.server.serve(":8081", service))
-</span></code></pre>
+</code></pre>
 </div>
+
 <p><strong>Note:</strong> It’s usually not a great idea to use tools like Finch (or similar) to serve static
 content given their <em>dynamic</em> nature. Instead, a static HTTP server (i.e., <a href="http://nginx.org/en/">Nginx</a>) would be
 the perfect fit.</p>
 
 <p>It’s also possible to <em>stream</em> the file content to the client using <a href="https://github.com/twitter/util/blob/develop/util-core/src/main/scala/com/twitter/concurrent/AsyncStream.scala"><code class="highlighter-rouge">AsyncStream</code></a>.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">io.finch.syntax._</span>
 <span class="k">import</span> <span class="nn">com.twitter.conversions.storage._</span>
 <span class="k">import</span> <span class="nn">com.twitter.concurrent.AsyncStream</span>
@@ -99,11 +95,6 @@ the perfect fit.</p>
 <span class="k">val</span> <span class="n">file</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">AsyncStream</span><span class="o">[</span><span class="kt">Buf</span><span class="o">]]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"stream-of-file"</span><span class="o">)</span> <span class="o">{</span>
   <span class="nc">Ok</span><span class="o">(</span><span class="nc">AsyncStream</span><span class="o">.</span><span class="n">fromReader</span><span class="o">(</span><span class="n">reader</span><span class="o">,</span> <span class="n">chunkSize</span> <span class="k">=</span> <span class="mf">512.</span><span class="n">kilobytes</span><span class="o">.</span><span class="n">inBytes</span><span class="o">.</span><span class="n">toInt</span><span class="o">))</span>
 <span class="o">}</span>
-
-<span class="c1">// Http.server
-//   .withStreaming(enabled = true)
-//   .serve(":8081", file.toServiceAs[Text.Plain])
-</span> 
 </code></pre>
 </div>
 
@@ -116,7 +107,7 @@ trivial thing to do.</p>
 
 <p>With <a href="https://github.com/circe/circe">Circe</a> the complete implementation might look like the following.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.circe.</span><span class="o">{</span><span class="nc">Encoder</span><span class="o">,</span> <span class="nc">Json</span><span class="o">}</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">io.finch.circe._</span>
 
@@ -142,7 +133,7 @@ trivial thing to do.</p>
 value), in Finch, you can define an endpoint returning an empty response (an empty/unit output).
 An <code class="highlighter-rouge">Endpoint[Unit]</code> represents an endpoint that doesn’t return any payload in the response.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="k">val</span> <span class="n">empty</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"empty"</span> <span class="o">::</span> <span class="n">path</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span> <span class="o">{</span> <span class="n">s</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=&gt;</span>
   <span class="nc">NoContent</span><span class="o">[</span><span class="kt">Unit</span><span class="o">].</span><span class="n">withHeader</span><span class="o">(</span><span class="s">"X-String"</span> <span class="o">-&gt;</span> <span class="n">s</span><span class="o">)</span>
@@ -154,7 +145,7 @@ An <code class="highlighter-rouge">Endpoint[Unit]</code> represents an endpoint 
 probably a better idea to use failures in order to explain to the remote client why there is no
 payload in the response, it’s totally possible to send empty ones instead.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
 
 <span class="k">case</span> <span class="k">class</span> <span class="nc">Foo</span><span class="o">(</span><span class="n">s</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
@@ -179,7 +170,7 @@ payload in the response, it’s totally possible to send empty ones instead.</p>
 reasonable way of defining redirecting endpoints is to represent them as <code class="highlighter-rouge">Endpoint[Unit]</code> (empty
 output) indicating that there is no payload returned.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.http.Status</span>
 
 <span class="k">val</span> <span class="n">redirect</span><span class="k">:</span> <span class="kt">Endpoint</span><span class="o">[</span><span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"redirect"</span> <span class="o">::</span> <span class="s">"from"</span><span class="o">)</span> <span class="o">{</span>
@@ -208,7 +199,7 @@ behavior) wasn’t touched at all.</p>
 <p>In the following example, we define a new endpoint <code class="highlighter-rouge">foo</code> that reads an instance of the case class
 <code class="highlighter-rouge">Foo</code> from the request during the <em>evaluation</em> stage. So it won’t affect matching.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="k">case</span> <span class="k">class</span> <span class="nc">Foo</span><span class="o">(</span><span class="n">i</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">s</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
 
@@ -236,7 +227,7 @@ outputs).</p>
 authenticate it by the user name passed in the <code class="highlighter-rouge">User</code> header. If the header is missing, the request
 is considered unauthorized.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="k">case</span> <span class="k">class</span> <span class="nc">User</span><span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
 
@@ -273,7 +264,7 @@ that takes a function of type <code class="highlighter-rouge">(A) =&gt; Future[O
 
 <p>The previous example’s <code class="highlighter-rouge">auth</code> endpoint can be updated as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.util.Future</span>
 
 <span class="k">def</span> <span class="n">fetchUserForToken</span><span class="o">(</span><span class="n">token</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">User</span><span class="o">]]</span> <span class="k">=</span> <span class="o">???</span>
 
@@ -298,7 +289,7 @@ that takes a function of type <code class="highlighter-rouge">(A) =&gt; Future[O
 <p>Let’s say you want to write a custom <em>matching</em> endpoint that only matches requests whose current
 path segment might be extracted as (converted to) Java 8’s <code class="highlighter-rouge">LocalDateTime</code>.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">com.twitter.util.Try</span>
 <span class="k">import</span> <span class="nn">java.time.LocalDateTime</span>
 
@@ -321,7 +312,7 @@ to non-experimental.</p>
 need to get only query parameters or headers, it’s easy to reuse this endpoint to get something like
 following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">headersAll</span> <span class="k">=</span> <span class="n">root</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">headerMap</span><span class="o">.</span><span class="n">toMap</span><span class="o">)</span>
@@ -333,7 +324,7 @@ following:</p>
 <span class="n">headers</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">GET</span> <span class="o">/</span><span class="n">hello</span> <span class="o">::</span> <span class="n">root</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">headers</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/hello"</span><span class="o">).</span><span class="n">withHeaders</span><span class="o">(</span><span class="s">"foo"</span> <span class="o">-&gt;</span> <span class="s">"bar"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span>
-<span class="n">res31</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">Headers</span><span class="k">:</span> <span class="kt">Map</span><span class="o">(</span><span class="kt">foo</span> <span class="kt">-&gt;</span> <span class="kt">bar</span><span class="o">))</span>
+<span class="n">res2</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">Headers</span><span class="k">:</span> <span class="kt">Map</span><span class="o">(</span><span class="kt">foo</span> <span class="kt">-&gt;</span> <span class="kt">bar</span><span class="o">))</span>
 </code></pre>
 </div>
 
@@ -343,7 +334,7 @@ following:</p>
 <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS">CORS</a> behavior. The following example builds a CORS filter that allows <code class="highlighter-rouge">GET</code> and <code class="highlighter-rouge">POST</code>
 requests with an <code class="highlighter-rouge">Accept</code> header from any origin.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.finagle.http.filter.Cors</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.finagle.http.filter.Cors</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Response</span><span class="o">}</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.Service</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
@@ -367,7 +358,7 @@ there is already an official tool for performing conversions between Scala futur
 futures (i.e., <a href="https://github.com/twitter/bijection">Twitter Bijection</a>), it usually makes sense to avoid an extra dependency
 because of a couple of functions which are fairly easy to implement.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.util.</span><span class="o">{</span><span class="nc">Future</span> <span class="k">=&gt;</span> <span class="nc">TFuture</span><span class="o">,</span> <span class="nc">Promise</span> <span class="k">=&gt;</span> <span class="nc">TPromise</span><span class="o">,</span> <span class="nc">Return</span><span class="o">,</span> <span class="nc">Throw</span><span class="o">}</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.util.</span><span class="o">{</span><span class="nc">Future</span> <span class="k">=&gt;</span> <span class="nc">TFuture</span><span class="o">,</span> <span class="nc">Promise</span> <span class="k">=&gt;</span> <span class="nc">TPromise</span><span class="o">,</span> <span class="nc">Return</span><span class="o">,</span> <span class="nc">Throw</span><span class="o">}</span>
 <span class="k">import</span> <span class="nn">scala.concurrent.</span><span class="o">{</span><span class="nc">Future</span> <span class="k">=&gt;</span> <span class="nc">SFuture</span><span class="o">,</span> <span class="nc">Promise</span> <span class="k">=&gt;</span> <span class="nc">SPromise</span><span class="o">,</span> <span class="nc">ExecutionContext</span><span class="o">}</span>
 <span class="k">import</span> <span class="nn">scala.util.</span><span class="o">{</span><span class="nc">Success</span><span class="o">,</span> <span class="nc">Failure</span><span class="o">}</span>
 
@@ -400,7 +391,7 @@ because of a couple of functions which are fairly easy to implement.</p>
 <p>Also note that as of <a href="https://github.com/finagle/finch/releases/tag/0.16.0-M3">Finch 0.16-M3</a> there
 is a Scala Futures syntax support for endpoints.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="n">syntax</span><span class="o">.</span><span class="n">scalaFutures</span><span class="o">.</span><span class="k">_</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="n">syntax</span><span class="o">.</span><span class="n">scalaFutures</span><span class="o">.</span><span class="k">_</span>
 <span class="k">import</span> <span class="nn">scala.concurrent.Future</span>
 <span class="k">import</span> <span class="nn">scala.concurrent.ExecutionContext.Implicits.global</span>
 
@@ -423,10 +414,11 @@ the <code class="highlighter-rouge">time</code> endpoint.</p>
 
 <p>NOTE: SSE requires <code class="highlighter-rouge">Cache-Control</code> to be disabled.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">cats.Show</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">cats.Show</span>
 <span class="k">import</span> <span class="nn">com.twitter.concurrent.AsyncStream</span>
 <span class="k">import</span> <span class="nn">com.twitter.conversions.time._</span>
-<span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.Service</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Response</span><span class="o">}</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.util.DefaultTimer</span>
 <span class="k">import</span> <span class="nn">com.twitter.util.</span><span class="o">{</span> <span class="nc">Await</span><span class="o">,</span> <span class="nc">Future</span><span class="o">,</span> <span class="nc">Timer</span><span class="o">}</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
@@ -435,7 +427,7 @@ the <code class="highlighter-rouge">time</code> endpoint.</p>
 
 <span class="k">implicit</span> <span class="k">val</span> <span class="n">showDate</span><span class="k">:</span> <span class="kt">Show</span><span class="o">[</span><span class="kt">Date</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Show</span><span class="o">.</span><span class="n">fromToString</span><span class="o">[</span><span class="kt">Date</span><span class="o">]</span>
 
-<span class="k">implicit</span> <span class="k">val</span> <span class="n">timest</span><span class="k">:</span> <span class="kt">Timer</span> <span class="o">=</span> <span class="nc">DefaultTimer</span><span class="o">.</span><span class="n">twitter</span>
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">timer</span><span class="k">:</span> <span class="kt">Timer</span> <span class="o">=</span> <span class="nc">DefaultTimer</span>
 
 <span class="k">def</span> <span class="n">streamTime</span><span class="o">()</span><span class="k">:</span> <span class="kt">AsyncStream</span><span class="o">[</span><span class="kt">ServerSentEvent</span><span class="o">[</span><span class="kt">Date</span><span class="o">]]</span> <span class="k">=</span>
   <span class="nc">AsyncStream</span><span class="o">.</span><span class="n">fromFuture</span><span class="o">(</span>
@@ -449,8 +441,8 @@ the <code class="highlighter-rouge">time</code> endpoint.</p>
     <span class="o">.</span><span class="n">withHeader</span><span class="o">(</span><span class="s">"Cache-Control"</span> <span class="o">-&gt;</span> <span class="s">"no-cache"</span><span class="o">)</span>
 <span class="o">}</span>
 
-<span class="c1">//Await.ready(Http.server.serve(":8081", time.toServiceAs[Text.EventStream]))
-</span></code></pre>
+<span class="k">val</span> <span class="n">service</span><span class="k">:</span> <span class="kt">Service</span><span class="o">[</span><span class="kt">Request</span>, <span class="kt">Response</span><span class="o">]</span> <span class="k">=</span> <span class="n">time</span><span class="o">.</span><span class="n">toServiceAs</span><span class="o">[</span><span class="kt">Text.EventStream</span><span class="o">]</span>
+</code></pre>
 </div>
 
 <h3 id="jsonp">JSONP</h3>
@@ -460,7 +452,8 @@ filter <code class="highlighter-rouge">JsonpFilter</code> that can be applied to
 
 <p>Here is a small example on how to wire this filter with Finch’s endpoint.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.finagle.Service</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http.</span><span class="o">{</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Response</span><span class="o">}</span>
 <span class="k">import</span> <span class="nn">com.twitter.finagle.http.filter.JsonpFilter</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">io.finch.circe._</span>
@@ -470,10 +463,9 @@ filter <code class="highlighter-rouge">JsonpFilter</code> that can be applied to
   <span class="nc">Ok</span><span class="o">(</span><span class="nc">Map</span><span class="o">(</span><span class="s">"foo"</span> <span class="o">-&gt;</span> <span class="s">"bar"</span><span class="o">))</span>
 <span class="o">}</span>
 
-<span class="k">val</span> <span class="n">service</span> <span class="k">=</span> <span class="n">endpoint</span><span class="o">.</span><span class="n">toServiceAs</span><span class="o">[</span><span class="kt">Application.Json</span><span class="o">]</span>
-
-<span class="c1">// Http.server.serve(":8080", JsonpFilter.andThen(service))
-</span></code></pre>
+<span class="k">val</span> <span class="n">service</span><span class="k">:</span> <span class="kt">Service</span><span class="o">[</span><span class="kt">Request</span>, <span class="kt">Response</span><span class="o">]</span> <span class="k">=</span>
+  <span class="nc">JsonpFilter</span><span class="o">.</span><span class="n">andThen</span><span class="o">(</span><span class="n">endpoint</span><span class="o">.</span><span class="n">toServiceAs</span><span class="o">[</span><span class="kt">Application.Json</span><span class="o">])</span>
+</code></pre>
 </div>
 
 <p><code class="highlighter-rouge">JsonpFilter</code> is dead simple. It checks the returned HTTP payload and if it’s a JSON string, wraps
