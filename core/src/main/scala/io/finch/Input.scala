@@ -7,6 +7,7 @@ import com.twitter.io.Buf
 import java.nio.charset.{Charset, StandardCharsets}
 import org.jboss.netty.handler.codec.http.{DefaultHttpRequest, HttpMethod, HttpVersion}
 import org.jboss.netty.handler.codec.http.multipart.{DefaultHttpDataFactory, HttpPostRequestEncoder}
+import scala.collection.mutable.ListBuffer
 import shapeless.Witness
 
 /**
@@ -119,7 +120,30 @@ object Input {
   /**
    * Creates an [[Input]] from a given [[Request]].
    */
-  def fromRequest(req: Request): Input = Input(req, req.path.split("/").toList.drop(1))
+  def fromRequest(req: Request): Input = {
+    val p = req.path
+
+    if (p.length == 1) Input(req, Nil)
+    else {
+      val route = new ListBuffer[String]
+      var i, j = 1 // drop the first slash
+
+      while (j < p.length) {
+        if (p.charAt(j) == '/') {
+          route += p.substring(i, j)
+          i = j + 1
+        }
+
+        j += 1
+      }
+
+      if (j > i) {
+        route += p.substring(i, j)
+      }
+
+      Input(req, route.toList)
+    }
+  }
 
   /**
    * Creates a `GET` input with a given query string (represented as `params`).

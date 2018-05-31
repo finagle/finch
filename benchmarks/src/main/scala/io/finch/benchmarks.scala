@@ -26,6 +26,18 @@ abstract class FinchBenchmark {
 }
 
 @State(Scope.Benchmark)
+class InputBenchmark extends FinchBenchmark {
+  val foo = Request()
+  val bar = Request("/foo/bar/baz/que/quz")
+
+  @Benchmark
+  def fromEmptyPath: Input = Input.fromRequest(foo)
+
+  @Benchmark
+  def fromPath: Input = Input.fromRequest(bar)
+}
+
+@State(Scope.Benchmark)
 class BodyBenchmark extends FinchBenchmark {
 
   val fooOptionAsText: Endpoint[Option[Foo]] = bodyOption[Foo, Text.Plain]
