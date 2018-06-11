@@ -906,7 +906,6 @@ val u: Endpoint[URL] = get("foo" :: param[String Refined Url]("url")) { (s: Stri
   Ok(new URL(s.value))
 }
 
-//Throw(io.finch.Error.NotParsed: param 'int' cannot be converted to Refined: Predicate failed: (-1 > 0)..)
 e(Input.get("/foo?int=-1")).awaitValue().get
 ```
 
