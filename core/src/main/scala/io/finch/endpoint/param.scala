@@ -144,6 +144,7 @@ private[finch] trait ParamAndParams {
    * A matching [[Endpoint]] that only matches the requests that contain a given query-string
    * param `name`.
    */
+  @deprecated("Use paramOption to retrieve optional params", "0.21")
   def paramExists[A](name: String)(implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[A] =
     new Param[Id, A](name, d, tag) with Param.Exists[A]
 
