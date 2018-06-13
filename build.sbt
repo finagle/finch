@@ -20,6 +20,7 @@ lazy val argonautVersion = "6.2.1"
 lazy val json4sVersion = "3.5.3"
 lazy val iterateeVersion = "0.17.0"
 lazy val iterateeTwitterVersion = "18.5.0"
+lazy val refinedVersion = "0.9.0"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -106,7 +107,7 @@ lazy val publishSettings = Seq(
         <url>https://twitter.com/ryan_plessner</url>
       </developer>
       <developer>
-        <id>ImLiar</id>
+        <id>sergeykolbasov</id>
         <name>Sergey Kolbasov</name>
         <url>https://twitter.com/sergey_kolbasov</url>
       </developer>
@@ -278,6 +279,18 @@ lazy val sse = project
   .settings(moduleName := "finch-sse")
   .settings(allSettings)
   .dependsOn(core)
+
+lazy val refined = project
+  .settings(moduleName := "finch-refined")
+  .settings(allSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      "eu.timepit" %% "refined" % refinedVersion,
+      "eu.timepit" %% "refined-cats" % refinedVersion % "test",
+      "eu.timepit" %% "refined-scalacheck" % refinedVersion % "test"
+    )
+  )
+  .dependsOn(core % "test->test;compile->compile")
 
 lazy val docs = project
   .settings(moduleName := "finch-docs")

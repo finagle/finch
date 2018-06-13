@@ -886,6 +886,30 @@ val bufEnumerator =
   }
 ```
 
+The `finch-refined` module provides support for [refined][refined] types in path segments, query parameters and
+other request entities. This approach enables validation of API on type level:
+
+```tut
+import java.net.URL
+
+import eu.timepit.refined.api.Refined
+import eu.timepit.refined.numeric._
+import eu.timepit.refined.string._
+import io.finch._
+import io.finch.syntax._
+
+val e: Endpoint[Int] = get("foo" :: param[Int Refined Positive]("int")) { (i: Int Refined Positive) =>
+  Ok(i.value)
+}
+
+val u: Endpoint[URL] = get("foo" :: param[String Refined Url]("url")) { (s: String Refined Url) =>
+  Ok(new URL(s.value))
+}
+
+e(Input.get("/foo?int=-1")).awaitValue().get
+```
+
+
 **Encoding**
 
 Beside decoding of input stream, it's possible to make output stream with enumerator serving
@@ -1008,4 +1032,5 @@ val s = Bootstrap.configure(includeServerHeader = false).
 [circe-jackson]: https://github.com/circe/circe-jackson
 [circe-jackson-performance]: https://github.com/circe/circe-jackson#jackson-vs-jawn
 [playjson]: https://www.playframework.com/documentation/2.6.x/ScalaJson
+[refined]: https://github.com/fthomas/refined
 [spray-json]: https://github.com/spray/spray-json
