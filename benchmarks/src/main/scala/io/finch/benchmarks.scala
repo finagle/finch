@@ -7,7 +7,7 @@ import com.twitter.util.{Await, Future, Try}
 import io.circe.generic.auto._
 import io.finch.circe._
 import io.finch.data.Foo
-import java.nio.charset.StandardCharsets
+import java.nio.charset.{Charset, StandardCharsets}
 import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
 import org.openjdk.jmh.annotations._
 import shapeless._
@@ -226,4 +226,22 @@ class TooFastStringBenchmark extends FinchBenchmark {
 
   @Benchmark
   def someLong: Option[Long] = "12345678".tooLong
+}
+
+@State(Scope.Benchmark)
+class HttpMessageBenchmark extends FinchBenchmark {
+
+  import io.finch.internal.HttpMessage
+
+  val req = Request()
+  req.contentType = "application/json;charset=utf-8"
+
+  @Benchmark
+  def fastChartset: Charset = req.charsetOrUtf8
+
+  @Benchmark
+  def slowCharset: Charset = req.charset match {
+    case Some(cs) => Charset.forName(cs)
+    case None => StandardCharsets.UTF_8
+  }
 }

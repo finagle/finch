@@ -1,11 +1,12 @@
 package io.finch
 
-import com.twitter.finagle.http.Message
+import com.twitter.finagle.http.{Fields, Message}
 import com.twitter.io.Buf
 import com.twitter.util.Future
 import io.catbird.util.Rerunnable
 import java.nio.ByteBuffer
 import java.nio.charset.{Charset, StandardCharsets}
+import scala.annotation.tailrec
 import shapeless.HNil
 
 /**
@@ -59,10 +60,29 @@ package object internal {
   }
 
   implicit class HttpMessage(val self: Message) extends AnyVal {
+
+    // Returns message's content length or null.
+    def contentLengthOrNull: String = self.headerMap.getOrNull(Fields.ContentLength)
+
     // Returns message's charset or UTF-8 if it's not defined.
-    def charsetOrUtf8: Charset = self.charset match {
-      case Some(cs) => Charset.forName(cs)
-      case None => StandardCharsets.UTF_8
+    def charsetOrUtf8: Charset = {
+
+      val contentType = self.headerMap.getOrNull(Fields.ContentType)
+
+      @tailrec
+      def loop(semicolon: Int): Charset =
+        if (semicolon == -1 || semicolon == contentType.length) StandardCharsets.UTF_8
+        else {
+          val next = contentType.indexOf(';', semicolon + 1)
+          if (contentType.startsWith("charset=", semicolon + 1)) {
+            val start = contentType.indexOf('=', semicolon + 1) + 1
+            val end = if (next == -1) contentType.length else next
+            Charset.forName(contentType.substring(start, end))
+          } else loop(next)
+        }
+
+      if (contentType == null) StandardCharsets.UTF_8
+      else loop(contentType.indexOf(';'))
     }
   }
 

@@ -1,7 +1,6 @@
 package io.finch.endpoint
 
 import com.twitter.concurrent.AsyncStream
-import com.twitter.finagle.http.Fields
 import com.twitter.io.Buf
 import com.twitter.util.{Future, Return, Throw, Try}
 import io.catbird.util.Rerunnable
@@ -20,7 +19,7 @@ private abstract class FullBody[A] extends Endpoint[A] {
     if (input.request.isChunked) EndpointResult.NotMatched
     else {
       val output = Rerunnable.fromFuture {
-        val contentLength = input.request.headerMap.getOrNull(Fields.ContentLength)
+        val contentLength = input.request.contentLengthOrNull
         if (contentLength == null || contentLength == "0") missing
         else present(input.request.content, input.request.charsetOrUtf8)
       }
