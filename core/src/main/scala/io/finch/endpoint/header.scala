@@ -92,6 +92,7 @@ private[finch] trait Headers {
   /**
    * A matching [[Endpoint]] that only matches the requests that contain a given header `name`.
    */
+  @deprecated("Use headerOption to retrieve optional headers", "0.21")
   def headerExists[A](name: String)(implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[A] =
     new Header[Id, A](name, d, tag) with Header.Exists[A]
 }
