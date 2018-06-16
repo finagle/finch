@@ -206,6 +206,22 @@ deprecation cycles.
       
       <p class="shortcomment cmt">Iteratee module
 </p>
+    </li><li name="io.finch.refined" visbl="pub" class="indented3 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="refined"></a><a id="refined:refined"></a>
+      <span class="permalink">
+      <a href="../../io/finch/index.html#refined" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="refined/index.html"><span class="name">refined</span></a>
+      </span>
+      
+      
     </li><li name="io.finch.sse" visbl="pub" class="indented3 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="sse"></a><a id="sse:sse"></a>
       <span class="permalink">
@@ -1675,23 +1691,6 @@ interpreted as <code>A</code>, into an <code>Option</code>. The returned <a href
 an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception when the header is missing.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a required HTTP header <code>name</code> from the request or raises
 an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception when the header is missing.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>Headers</dd></dl></div>
-    </li><li name="io.finch.endpoint.Headers#headerExists" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="headerExists[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a><a id="headerExists[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[A]"></a>
-      <span class="permalink">
-      <a href="../../io/finch/index.html#headerExists[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">headerExists</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.endpoint.Headers.headerExists.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.6/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.Headers.headerExists.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.endpoint.Headers.headerExists.A">A</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that only matches the requests that contain a given header <code>name</code>.</p><div class="fullcomment"><div class="comment cmt"><p>A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that only matches the requests that contain a given header <code>name</code>.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>Headers</dd></dl></div>
     </li><li name="io.finch.endpoint.Headers#headerOption" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="headerOption[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]"></a><a id="headerOption[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[Option[A]]"></a>
       <span class="permalink">
@@ -1933,25 +1932,6 @@ request or raises an <a href="Error$$NotPresent.html" class="extype" name="io.fi
 <a href="Error$$NotValid.html" class="extype" name="io.finch.Error.NotValid">Error.NotValid</a> exception is the param is empty.</p><div class="fullcomment"><div class="comment cmt"><p>An evaluating <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads a required query-string param <code>name</code> from the
 request or raises an <a href="Error$$NotPresent.html" class="extype" name="io.finch.Error.NotPresent">Error.NotPresent</a> exception when the param is missing; an
 <a href="Error$$NotValid.html" class="extype" name="io.finch.Error.NotValid">Error.NotValid</a> exception is the param is empty.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>ParamAndParams</dd></dl></div>
-    </li><li name="io.finch.endpoint.ParamAndParams#paramExists" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="paramExists[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a><a id="paramExists[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[A]"></a>
-      <span class="permalink">
-      <a href="../../io/finch/index.html#paramExists[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">paramExists</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.paramExists.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.6/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.paramExists.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.paramExists.A">A</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that only matches the requests that contain a given query-string
-param <code>name</code>.</p><div class="fullcomment"><div class="comment cmt"><p>A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that only matches the requests that contain a given query-string
-param <code>name</code>.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>ParamAndParams</dd></dl></div>
     </li><li name="io.finch.endpoint.ParamAndParams#paramOption" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="paramOption[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]"></a><a id="paramOption[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[Option[A]]"></a>
@@ -2519,7 +2499,52 @@ an <code>Option</code>. The returned <a href="Endpoint.html" class="extype" name
 
         
 
-        
+        <div class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="io.finch.endpoint.Headers#headerExists" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="headerExists[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a><a id="headerExists[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[A]"></a>
+      <span class="permalink">
+      <a href="../../io/finch/index.html#headerExists[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.21) Use headerOption to retrieve optional headers">headerExists</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.endpoint.Headers.headerExists.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.6/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.Headers.headerExists.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.endpoint.Headers.headerExists.A">A</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that only matches the requests that contain a given header <code>name</code>.</p><div class="fullcomment"><div class="comment cmt"><p>A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that only matches the requests that contain a given header <code>name</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>Headers</dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.21)</i> Use headerOption to retrieve optional headers</p></dd></dl></div>
+    </li><li name="io.finch.endpoint.ParamAndParams#paramExists" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="paramExists[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a><a id="paramExists[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[A]"></a>
+      <span class="permalink">
+      <a href="../../io/finch/index.html#paramExists[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.21) Use paramOption to retrieve optional params">paramExists</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.paramExists.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.6/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.paramExists.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.paramExists.A">A</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that only matches the requests that contain a given query-string
+param <code>name</code>.</p><div class="fullcomment"><div class="comment cmt"><p>A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that only matches the requests that contain a given query-string
+param <code>name</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>ParamAndParams</dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.21)</i> Use paramOption to retrieve optional params</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">

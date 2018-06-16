@@ -117,22 +117,22 @@ the <code class="highlighter-rouge">p</code> endpoint, and generated on each req
 <span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">p</span> <span class="k">=</span> <span class="nc">Endpoint</span><span class="o">.</span><span class="n">const</span><span class="o">(</span><span class="n">scala</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">random</span><span class="o">)</span>
-<span class="n">p</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">Endpoint$$anon$11</span><span class="k">@</span><span class="mf">3d01d</span><span class="mi">90</span><span class="n">e</span>
+<span class="n">p</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">Endpoint$$anon$11</span><span class="k">@</span><span class="mi">12</span><span class="n">cde2c6</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">q</span> <span class="k">=</span> <span class="nc">Endpoint</span><span class="o">.</span><span class="n">lift</span><span class="o">(</span><span class="n">scala</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">random</span><span class="o">)</span>
-<span class="n">q</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">Endpoint$$anon$12</span><span class="k">@</span><span class="mi">28500578</span>
+<span class="n">q</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">Endpoint$$anon$12</span><span class="k">@</span><span class="mi">1</span><span class="n">c2f137b</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">p</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span>
-<span class="n">res0</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="mf">0.12255943934587887</span><span class="o">)</span>
+<span class="n">res0</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="mf">0.26404941618466704</span><span class="o">)</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">p</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span>
-<span class="n">res1</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="mf">0.12255943934587887</span><span class="o">)</span>
+<span class="n">res1</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="mf">0.26404941618466704</span><span class="o">)</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">q</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span>
-<span class="n">res2</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="mf">0.17178854649790343</span><span class="o">)</span>
+<span class="n">res2</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="mf">0.6842729206824022</span><span class="o">)</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">q</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span>
-<span class="n">res3</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="mf">0.5301916820528879</span><span class="o">)</span>
+<span class="n">res3</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="mf">0.6681286267135649</span><span class="o">)</span>
 </code></pre>
 </div>
 
@@ -501,7 +501,7 @@ method call (to affect encoding) or <code class="highlighter-rouge">body</code> 
 <span class="n">e</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">GET</span> <span class="o">/</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">s</span> <span class="k">=</span> <span class="n">e</span><span class="o">.</span><span class="n">toServiceAs</span><span class="o">[</span><span class="kt">Text.Plain</span><span class="o">]</span>
-<span class="n">s</span><span class="k">:</span> <span class="kt">com.twitter.finagle.Service</span><span class="o">[</span><span class="kt">com.twitter.finagle.http.Request</span>,<span class="kt">com.twitter.finagle.http.Response</span><span class="o">]</span> <span class="k">=</span> <span class="o">&lt;</span><span class="n">function1</span><span class="o">&gt;</span>
+<span class="n">s</span><span class="k">:</span> <span class="kt">com.twitter.finagle.Service</span><span class="o">[</span><span class="kt">com.twitter.finagle.http.Request</span>,<span class="kt">com.twitter.finagle.http.Response</span><span class="o">]</span> <span class="k">=</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">ToService$$anon$4$$anon$2</span>
 </code></pre>
 </div>
 
@@ -641,7 +641,7 @@ that you can use the <code class="highlighter-rouge">jsonBody(Option)</code> end
 <span class="n">p</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="k">=</span> <span class="n">body</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">p</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">post</span><span class="o">(</span><span class="s">"/"</span><span class="o">).</span><span class="n">withBody</span><span class="o">[</span><span class="kt">Application.Json</span><span class="o">](</span><span class="nc">Buf</span><span class="o">.</span><span class="nc">Utf8</span><span class="o">(</span><span class="s">"""{"name":"foo","age":42}"""</span><span class="o">)))</span>
-<span class="n">res13</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"POST /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$16</span><span class="k">@</span><span class="mf">6f</span><span class="n">e21766</span><span class="o">)</span>
+<span class="n">res13</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"POST /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$16</span><span class="k">@</span><span class="mi">56</span><span class="n">a4fcae</span><span class="o">)</span>
 </code></pre>
 </div>
 
@@ -999,7 +999,7 @@ using <code class="highlighter-rouge">circe-iteratee</code> library.</p>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="c1">// Some async task to store foos.
 </span>     <span class="o">|</span> <span class="k">val</span> <span class="n">storeFoos</span><span class="k">:</span> <span class="kt">Vector</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">Future</span><span class="o">[</span><span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="k">_</span> <span class="k">=&gt;</span> <span class="nc">Future</span><span class="o">.</span><span class="nc">Unit</span>
-<span class="n">storeFoos</span><span class="k">:</span> <span class="kt">Vector</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Future</span><span class="o">[</span><span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="nc">$$Lambda$5705</span><span class="o">/</span><span class="mi">181364423</span><span class="k">@</span><span class="mi">13224926</span>
+<span class="n">storeFoos</span><span class="k">:</span> <span class="kt">Vector</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Future</span><span class="o">[</span><span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="nc">$$Lambda$5712</span><span class="o">/</span><span class="mi">1263495245</span><span class="k">@</span><span class="mf">2d</span><span class="n">e92486</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="cm">/**
      |   * Backpressure with HTTP 1.1 could be implemented only in a way of closing a connection.
@@ -1027,6 +1027,41 @@ using <code class="highlighter-rouge">circe-iteratee</code> library.</p>
      <span class="o">|</span>     <span class="nc">Ok</span><span class="o">(</span><span class="nc">Buf</span><span class="o">.</span><span class="nc">Empty</span><span class="o">)</span>
      <span class="o">|</span>   <span class="o">}</span>
 <span class="n">bufEnumerator</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">com.twitter.io.Buf</span><span class="o">]</span> <span class="k">=</span> <span class="nc">POST</span> <span class="o">/</span><span class="n">text</span> <span class="o">::</span> <span class="n">enumeratorBody</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">finch-refined</code> module provides support for <a href="https://github.com/fthomas/refined">refined</a> types in path segments, query parameters and
+other request entities. This approach enables validation of API on type level:</p>
+
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">java.net.URL</span>
+<span class="k">import</span> <span class="nn">java.net.URL</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">eu.timepit.refined.api.Refined</span>
+<span class="k">import</span> <span class="nn">eu.timepit.refined.api.Refined</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">eu.timepit.refined.numeric._</span>
+<span class="k">import</span> <span class="nn">eu.timepit.refined.numeric._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">eu.timepit.refined.string._</span>
+<span class="k">import</span> <span class="nn">eu.timepit.refined.string._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="n">refined</span><span class="o">.</span><span class="k">_</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="n">syntax</span><span class="o">.</span><span class="k">_</span>
+<span class="k">import</span> <span class="nn">io.finch._</span>
+<span class="k">import</span> <span class="nn">io.finch.refined._</span>
+<span class="k">import</span> <span class="nn">io.finch.syntax._</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">e</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"foo"</span> <span class="o">::</span> <span class="n">param</span><span class="o">[</span><span class="kt">Int</span> <span class="kt">Refined</span> <span class="kt">Positive</span><span class="o">](</span><span class="s">"int"</span><span class="o">))</span> <span class="o">{</span> <span class="o">(</span><span class="n">i</span><span class="k">:</span> <span class="kt">Int</span> <span class="kt">Refined</span> <span class="kt">Positive</span><span class="o">)</span> <span class="k">=&gt;</span>
+     <span class="o">|</span>   <span class="nc">Ok</span><span class="o">(</span><span class="n">i</span><span class="o">.</span><span class="n">value</span><span class="o">)</span>
+     <span class="o">|</span> <span class="o">}</span>
+<span class="n">e</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="nc">GET</span> <span class="o">/</span><span class="n">foo</span> <span class="o">::</span> <span class="n">param</span><span class="o">(</span><span class="n">int</span><span class="o">)</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">u</span> <span class="k">=</span> <span class="n">get</span><span class="o">(</span><span class="s">"foo"</span> <span class="o">::</span> <span class="n">param</span><span class="o">[</span><span class="kt">String</span> <span class="kt">Refined</span> <span class="kt">Url</span><span class="o">](</span><span class="s">"url"</span><span class="o">))</span> <span class="o">{</span> <span class="o">(</span><span class="n">s</span><span class="k">:</span> <span class="kt">String</span> <span class="kt">Refined</span> <span class="kt">Url</span><span class="o">)</span> <span class="k">=&gt;</span>
+     <span class="o">|</span>   <span class="nc">Ok</span><span class="o">(</span><span class="k">new</span> <span class="nc">URL</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="n">value</span><span class="o">))</span>
+     <span class="o">|</span> <span class="o">}</span>
+<span class="n">u</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">java.net.URL</span><span class="o">]</span> <span class="k">=</span> <span class="nc">GET</span> <span class="o">/</span><span class="n">foo</span> <span class="o">::</span> <span class="n">param</span><span class="o">(</span><span class="n">url</span><span class="o">)</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">e</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/foo?int=-1"</span><span class="o">)).</span><span class="n">awaitValue</span><span class="o">()</span>
+<span class="n">res5</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">com.twitter.util.Try</span><span class="o">[</span><span class="kt">Int</span><span class="o">]]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">Throw</span><span class="o">(</span><span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">Error$NotParsed</span><span class="k">:</span> <span class="kt">param</span> <span class="kt">'int'</span> <span class="kt">cannot</span> <span class="kt">be</span> <span class="kt">converted</span> <span class="kt">to</span> <span class="kt">Refined:</span> <span class="kt">Predicate</span> <span class="kt">failed:</span> <span class="o">(</span><span class="kt">-</span><span class="err">1</span> <span class="kt">&gt;</span> <span class="err">0</span><span class="o">)</span><span class="kt">..</span><span class="o">))</span>
 </code></pre>
 </div>
 
@@ -1121,13 +1156,13 @@ will be added as content type.</p>
 <span class="n">divOrFail</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="nc">POST</span> <span class="o">/:</span><span class="n">int</span> <span class="o">::</span> <span class="k">:</span><span class="kt">int</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">divOrFail</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">post</span><span class="o">(</span><span class="s">"/20/10"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span> <span class="o">==</span> <span class="nc">Some</span><span class="o">(</span><span class="mi">2</span><span class="o">)</span>
-<span class="n">res5</span><span class="k">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="kc">true</span>
-
-<span class="n">scala</span><span class="o">&gt;</span> <span class="n">divOrFail</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/20/10"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span> <span class="o">==</span> <span class="nc">None</span>
 <span class="n">res6</span><span class="k">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="kc">true</span>
 
-<span class="n">scala</span><span class="o">&gt;</span> <span class="n">divOrFail</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">post</span><span class="o">(</span><span class="s">"/20/0"</span><span class="o">)).</span><span class="n">awaitOutputUnsafe</span><span class="o">().</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">status</span><span class="o">)</span> <span class="o">==</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">Status</span><span class="o">.</span><span class="nc">BadRequest</span><span class="o">)</span>
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">divOrFail</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/20/10"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span> <span class="o">==</span> <span class="nc">None</span>
 <span class="n">res7</span><span class="k">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="kc">true</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">divOrFail</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">post</span><span class="o">(</span><span class="s">"/20/0"</span><span class="o">)).</span><span class="n">awaitOutputUnsafe</span><span class="o">().</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">status</span><span class="o">)</span> <span class="o">==</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">Status</span><span class="o">.</span><span class="nc">BadRequest</span><span class="o">)</span>
+<span class="n">res8</span><span class="k">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="kc">true</span>
 </code></pre>
 </div>
 
@@ -1173,7 +1208,7 @@ options:</p>
      <span class="o">|</span>   <span class="n">serve</span><span class="o">[</span><span class="kt">Application.Json</span><span class="o">](</span><span class="n">json</span><span class="o">).</span>
      <span class="o">|</span>   <span class="n">serve</span><span class="o">[</span><span class="kt">Text.Plain</span><span class="o">](</span><span class="n">text</span><span class="o">).</span>
      <span class="o">|</span>   <span class="n">toService</span>
-<span class="n">s</span><span class="k">:</span> <span class="kt">com.twitter.finagle.Service</span><span class="o">[</span><span class="kt">com.twitter.finagle.http.Request</span>,<span class="kt">com.twitter.finagle.http.Response</span><span class="o">]</span> <span class="k">=</span> <span class="o">&lt;</span><span class="n">function1</span><span class="o">&gt;</span>
+<span class="n">s</span><span class="k">:</span> <span class="kt">com.twitter.finagle.Service</span><span class="o">[</span><span class="kt">com.twitter.finagle.http.Request</span>,<span class="kt">com.twitter.finagle.http.Response</span><span class="o">]</span> <span class="k">=</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">ToService$$anon$4$$anon$2</span>
 </code></pre>
 </div>
 
