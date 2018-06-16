@@ -305,8 +305,7 @@ lazy val docs = project
     )
   )
   .enablePlugins(MicrositesPlugin, ScalaUnidocPlugin)
-  .dependsOn(core, circe, sse, argonaut, json4s, playjson, iteratee)
-
+  .dependsOn(core, circe, sse, argonaut, json4s, playjson, iteratee, refined)
 
 lazy val examples = project
   .settings(moduleName := "finch-examples")
