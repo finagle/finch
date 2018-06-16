@@ -895,18 +895,17 @@ import java.net.URL
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.numeric._
 import eu.timepit.refined.string._
-import io.finch._
-import io.finch.syntax._
+import io.finch._, io.finch.refined._, io.finch.syntax._
 
-val e: Endpoint[Int] = get("foo" :: param[Int Refined Positive]("int")) { (i: Int Refined Positive) =>
+val e = get("foo" :: param[Int Refined Positive]("int")) { (i: Int Refined Positive) =>
   Ok(i.value)
 }
 
-val u: Endpoint[URL] = get("foo" :: param[String Refined Url]("url")) { (s: String Refined Url) =>
+val u = get("foo" :: param[String Refined Url]("url")) { (s: String Refined Url) =>
   Ok(new URL(s.value))
 }
 
-e(Input.get("/foo?int=-1")).awaitValue().get
+e(Input.get("/foo?int=-1")).awaitValue()
 ```
 
 
