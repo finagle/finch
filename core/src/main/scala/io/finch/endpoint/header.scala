@@ -13,8 +13,6 @@ private abstract class Header[F[_], A](
   tag: ClassTag[A]
 ) extends Endpoint[F[A]] with (Try[A] => Try[Output[F[A]]]) { self =>
 
-  protected def matches(input: Input, name: String): Boolean = true
-
   protected def missing(name: String): Future[Output[F[A]]]
   protected def present(value: A): F[A]
 
@@ -24,17 +22,14 @@ private abstract class Header[F[_], A](
   }
 
   final def apply(input: Input): Endpoint.Result[F[A]] = {
-    if (!matches(input, name)) EndpointResult.NotMatched
-    else {
-      val output = Rerunnable.fromFuture {
-        input.request.headerMap.getOrNull(name) match {
-          case null => missing(name)
-          case value => Future.const(d(value).transform(self))
-        }
+    val output = Rerunnable.fromFuture {
+      input.request.headerMap.getOrNull(name) match {
+        case null => missing(name)
+        case value => Future.const(d(value).transform(self))
       }
-
-      EndpointResult.Matched(input, output)
     }
+
+    EndpointResult.Matched(input, output)
   }
 
   final override def item: RequestItem = items.HeaderItem(name)
@@ -56,19 +51,6 @@ private object Header {
     protected def missing(name: String): Future[Output[Option[A]]] = none[A]
     protected def present(value: A): Option[A] = Some(value)
   }
-
-  trait Exists[A] { _: Header[Id, A] =>
-    override protected def matches(input: Input, name: String): Boolean =
-      input.request.headerMap.contains(name)
-
-    protected def missing(name: String): Future[Output[A]] = Future.exception(
-      new IllegalStateException(
-        s"Header $name was found during routing but disappeared during evaluation."
-      )
-    )
-
-    protected def present(value: A): Id[A] = value
-  }
 }
 
 private[finch] trait Headers {
@@ -88,11 +70,4 @@ private[finch] trait Headers {
     d: DecodeEntity[A],
     tag: ClassTag[A]
   ): Endpoint[Option[A]] = new Header[Option, A](name, d, tag) with Header.Optional[A]
-
-  /**
-   * A matching [[Endpoint]] that only matches the requests that contain a given header `name`.
-   */
-  @deprecated("Use headerOption to retrieve optional headers", "0.21")
-  def headerExists[A](name: String)(implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[A] =
-    new Header[Id, A](name, d, tag) with Header.Exists[A]
 }

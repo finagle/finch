@@ -13,8 +13,6 @@ private abstract class Param[F[_], A](
   tag: ClassTag[A]
 ) extends Endpoint[F[A]] with (Try[A] => Try[Output[F[A]]]) { self =>
 
-  protected def matches(input: Input, name: String): Boolean = true
-
   protected def missing(name: String): Future[Output[F[A]]]
   protected def present(value: A): F[A]
 
@@ -24,17 +22,14 @@ private abstract class Param[F[_], A](
   }
 
   final def apply(input: Input): Endpoint.Result[F[A]] = {
-    if (!matches(input, name)) EndpointResult.NotMatched
-    else {
-      val output = Rerunnable.fromFuture {
-        input.request.params.get(name) match {
-          case None => missing(name)
-          case Some(value) => Future.const(d(value).transform(self))
-        }
+    val output = Rerunnable.fromFuture {
+      input.request.params.get(name) match {
+        case None => missing(name)
+        case Some(value) => Future.const(d(value).transform(self))
       }
-
-      EndpointResult.Matched(input, output)
     }
+
+    EndpointResult.Matched(input, output)
   }
 
   final override def item: items.RequestItem = items.ParamItem(name)
@@ -57,20 +52,6 @@ private object Param {
   trait Optional[A] { _: Param[Option, A] =>
     protected def missing(name: String): Future[Output[Option[A]]] = none[A]
     protected def present(a: A): Option[A] = Some(a)
-  }
-
-  trait Exists[A] { _: Param[Id, A] =>
-
-    override protected def matches(input: Input, name: String): Boolean =
-      input.request.params.contains(name)
-
-    protected def missing(name: String): Future[Output[A]] = Future.exception(
-      new IllegalStateException(
-        s"Param $name was found during routing but disappeared during evaluation."
-      )
-    )
-
-    protected def present(a: A): Id[A] = a
   }
 }
 
@@ -139,14 +120,6 @@ private[finch] trait ParamAndParams {
    */
   def param[A](name: String)(implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[A] =
     new Param[Id, A](name, d, tag) with Param.Required[A]
-
-  /**
-   * A matching [[Endpoint]] that only matches the requests that contain a given query-string
-   * param `name`.
-   */
-  @deprecated("Use paramOption to retrieve optional params", "0.21")
-  def paramExists[A](name: String)(implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[A] =
-    new Param[Id, A](name, d, tag) with Param.Exists[A]
 
   /**
    * An evaluating [[Endpoint]] that reads an optional (in a meaning that a resulting
