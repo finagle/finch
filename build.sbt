@@ -15,7 +15,6 @@ lazy val catbirdVersion = "18.6.0"
 lazy val shapelessVersion = "2.3.3"
 lazy val catsVersion = "1.1.0"
 lazy val sprayVersion = "1.3.4"
-lazy val playVersion = "2.6.9"
 lazy val argonautVersion = "6.2.2"
 lazy val json4sVersion = "3.5.4"
 lazy val iterateeVersion = "0.17.0"
@@ -188,7 +187,7 @@ lazy val finch = project.in(file("."))
     "io.spray" %%  "spray-json" % sprayVersion
   ))
   .aggregate(
-    core, iteratee, generic, argonaut, json4s, circe, playjson, sprayjson, benchmarks, test, jsonTest, examples, sse
+    core, iteratee, generic, argonaut, json4s, circe, sprayjson, benchmarks, test, jsonTest, examples, sse
   )
   .dependsOn(core, iteratee, generic, circe)
 
@@ -222,7 +221,6 @@ lazy val test = project
 lazy val jsonTest = project.in(file("json-test"))
   .settings(moduleName := "finch-json-test")
   .settings(allSettings)
-  .settings(noPublish)
   .settings(coverageExcludedPackages := "io\\.finch\\.test\\..*")
   .settings(
     libraryDependencies ++= Seq(
@@ -263,12 +261,6 @@ lazy val circe = project
   )
   .dependsOn(core, iteratee, jsonTest % "test")
 
-lazy val playjson = project
-  .settings(moduleName :="finch-playjson")
-  .settings(allSettings)
-  .settings(libraryDependencies += "com.typesafe.play" %% "play-json" % playVersion)
-  .dependsOn(core, jsonTest % "test")
-
 lazy val sprayjson = project
   .settings(moduleName := "finch-sprayjson")
   .settings(allSettings)
@@ -305,7 +297,7 @@ lazy val docs = project
     )
   )
   .enablePlugins(MicrositesPlugin, ScalaUnidocPlugin)
-  .dependsOn(core, circe, sse, argonaut, json4s, playjson, iteratee, refined)
+  .dependsOn(core, circe, sse, argonaut, json4s, iteratee, refined)
 
 lazy val examples = project
   .settings(moduleName := "finch-examples")
