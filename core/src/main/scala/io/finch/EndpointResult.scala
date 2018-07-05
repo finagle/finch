@@ -34,7 +34,7 @@ sealed abstract class EndpointResult[+A] {
    *         `None` otherwise.
    */
   final def remainder: Option[Input] = this match {
-    case EndpointResult.Matched(rem, _) => Some(rem)
+    case EndpointResult.Matched(rem, _, _) => Some(rem)
     case _ => None
   }
 
@@ -45,7 +45,18 @@ sealed abstract class EndpointResult[+A] {
    *         `None` otherwise.
    */
   final def output: Option[Future[Output[A]]] = this match {
-    case EndpointResult.Matched(_, out) => Some(out.run)
+    case EndpointResult.Matched(_, _, out) => Some(out.run)
+    case _ => None
+  }
+
+  /**
+   * Returns the [[Trace]] if an [[Endpoint]] is matched.
+   *
+   * @return `Some(trace)` if this endpoint is matched on a given input,
+   *          `None` otherwise.
+   */
+  final def trace: Option[Trace] = this match {
+    case EndpointResult.Matched(_, trc, _) => Some(trc)
     case _ => None
   }
 
@@ -58,7 +69,7 @@ sealed abstract class EndpointResult[+A] {
    * @return `Some(output)` if this endpoint was matched on a given input, `None` otherwise.
    */
   final def awaitOutput(d: Duration = Duration.Top): Option[Try[Output[A]]] = this match {
-    case EndpointResult.Matched(_, out) => Some(Await.result(out.liftToTry.run, d))
+    case EndpointResult.Matched(_, _, out) => Some(Await.result(out.liftToTry.run, d))
     case _ => None
   }
 
@@ -99,7 +110,11 @@ sealed abstract class EndpointResult[+A] {
 
 object EndpointResult {
 
-  final case class Matched[A](rem: Input, out: Rerunnable[Output[A]]) extends EndpointResult[A] {
+  final case class Matched[A](
+    rem: Input,
+    trc: Trace,
+    out: Rerunnable[Output[A]]
+  ) extends EndpointResult[A] {
     def isMatched: Boolean = true
   }
 

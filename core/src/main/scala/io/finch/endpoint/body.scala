@@ -24,7 +24,7 @@ private abstract class FullBody[A] extends Endpoint[A] {
         else present(input.request.content, input.request.charsetOrUtf8)
       }
 
-      EndpointResult.Matched(input, output)
+      EndpointResult.Matched(input, Trace.empty, output)
     }
 
   final override def item: RequestItem = items.BodyItem
@@ -164,8 +164,12 @@ private[finch] trait Bodies {
   val asyncBody: Endpoint[AsyncStream[Buf]] = new Endpoint[AsyncStream[Buf]] {
     final def apply(input: Input): Endpoint.Result[AsyncStream[Buf]] =
       if (!input.request.isChunked) EndpointResult.NotMatched
-      else EndpointResult.Matched(input,
-        Rerunnable(Output.payload(AsyncStream.fromReader(input.request.reader))))
+      else
+        EndpointResult.Matched(
+          input,
+          Trace.empty,
+          Rerunnable(Output.payload(AsyncStream.fromReader(input.request.reader)))
+        )
 
     final override def item: RequestItem = items.BodyItem
     final override def toString: String = "asyncBody"

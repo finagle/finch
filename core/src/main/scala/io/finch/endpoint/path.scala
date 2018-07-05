@@ -9,7 +9,8 @@ import shapeless.HNil
 
 private class MatchPath(s: String) extends Endpoint[HNil] {
   final def apply(input: Input): Endpoint.Result[HNil] = input.route match {
-    case `s` +: rest => EndpointResult.Matched(input.withRoute(rest), EmptyOutput)
+    case `s` +: rest =>
+      EndpointResult.Matched(input.withRoute(rest), Trace.segment(s), EmptyOutput)
     case _ => EndpointResult.NotMatched
   }
 
@@ -17,28 +18,34 @@ private class MatchPath(s: String) extends Endpoint[HNil] {
 }
 
 private class ExtractPath[A](implicit d: DecodePath[A], ct: ClassTag[A]) extends Endpoint[A] {
+
   final def apply(input: Input): Endpoint.Result[A] = input.route match {
     case s +: rest => d(QueryStringDecoder.decodeComponent(s)) match {
       case Some(a) =>
-        EndpointResult.Matched(input.withRoute(rest), Rerunnable.const(Output.payload(a)))
+        EndpointResult.Matched(
+          input.withRoute(rest),
+          Trace.segment(toString),
+          Rerunnable.const(Output.payload(a))
+        )
       case _ =>
         EndpointResult.NotMatched
     }
     case _ => EndpointResult.NotMatched
   }
 
-  final override def toString: String = s":${ct.runtimeClass.getSimpleName.toLowerCase}"
+  final override lazy val toString: String = s":${ct.runtimeClass.getSimpleName.toLowerCase}"
 }
 
 private class ExtractPaths[A](implicit d: DecodePath[A], ct: ClassTag[A]) extends Endpoint[Seq[A]] {
   final def apply(input: Input): Endpoint.Result[Seq[A]] = EndpointResult.Matched(
     input.copy(route = Nil),
+    Trace.segment(toString),
     Rerunnable.const(
       Output.payload(input.route.flatMap(p => d(QueryStringDecoder.decodeComponent(p)).toSeq))
     )
   )
 
-  final override def toString: String = s":${ct.runtimeClass.getSimpleName.toLowerCase}*"
+  final override lazy val toString: String = s":${ct.runtimeClass.getSimpleName.toLowerCase}*"
 }
 
 private[finch] trait Paths {

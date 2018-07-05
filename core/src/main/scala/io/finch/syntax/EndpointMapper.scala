@@ -13,7 +13,7 @@ class EndpointMapper[A](m: Method, e: Endpoint[A]) extends Endpoint[A] { self =>
   final def apply(input: Input): Endpoint.Result[A] =
       if (input.request.method == m) e(input)
       else e(input) match {
-        case EndpointResult.Matched(_, _) => EndpointResult.NotMatched.MethodNotAllowed(m :: Nil)
+        case EndpointResult.Matched(_, _, _) => EndpointResult.NotMatched.MethodNotAllowed(m :: Nil)
         case skipped => skipped
       }
 

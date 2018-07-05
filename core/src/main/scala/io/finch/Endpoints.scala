@@ -21,7 +21,7 @@ trait Endpoints extends Bodies
    */
   object * extends Endpoint[HNil] {
     final def apply(input: Input): Endpoint.Result[HNil] =
-      EndpointResult.Matched(input.copy(route = Nil), EmptyOutput)
+      EndpointResult.Matched(input.copy(route = Nil), Trace.empty, EmptyOutput)
 
     final override def toString: String = "*"
   }
@@ -31,7 +31,7 @@ trait Endpoints extends Bodies
    */
   object / extends Endpoint[HNil] {
     final def apply(input: Input): Endpoint.Result[HNil] =
-      EndpointResult.Matched(input, EmptyOutput)
+      EndpointResult.Matched(input, Trace.empty, EmptyOutput)
 
     final override def toString: String = ""
   }
@@ -41,7 +41,7 @@ trait Endpoints extends Bodies
    */
   object root extends Endpoint[Request] {
     final def apply(input: Input): Endpoint.Result[Request] =
-      EndpointResult.Matched(input, Rerunnable(Output.payload(input.request)))
+      EndpointResult.Matched(input, Trace.empty, Rerunnable(Output.payload(input.request)))
 
     final override def toString: String = "root"
   }

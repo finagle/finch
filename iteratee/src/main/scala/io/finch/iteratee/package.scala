@@ -40,6 +40,7 @@ package object iteratee extends IterateeInstances {
           val req = input.request
           EndpointResult.Matched(
             input,
+            Trace.empty,
             Rerunnable(Output.payload(decode(enumeratorFromReader(req.reader), req.charsetOrUtf8)))
           )
         }
