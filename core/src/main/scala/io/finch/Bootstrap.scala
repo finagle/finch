@@ -30,6 +30,9 @@ import shapeless._
  * - `enableMethodNotAllowed` (default: `false`): whether or not to enable 405 MethodNotAllowed HTTP
  *   response (see RFC2616, section 10.4.6)
  *
+ * - `enableTracing` (default: `false`): whether or not to enable tracing of called endpoint propagated
+ *   through Response.ctx
+ *
  * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
  * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec12.html
  * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
@@ -39,12 +42,18 @@ class Bootstrap[ES <: HList, CTS <: HList](
     val includeDateHeader: Boolean = true,
     val includeServerHeader: Boolean = true,
     val negotiateContentType: Boolean = false,
-    val enableMethodNotAllowed: Boolean = false) { self =>
+    val enableMethodNotAllowed: Boolean = false,
+    val enableTracing: Boolean = false) { self =>
 
   class Serve[CT] {
     def apply[E](e: Endpoint[E]): Bootstrap[Endpoint[E] :: ES, CT :: CTS] =
       new Bootstrap[Endpoint[E] :: ES, CT :: CTS](
-        e :: self.endpoints, includeDateHeader, includeServerHeader, negotiateContentType, enableMethodNotAllowed
+        e :: self.endpoints,
+        includeDateHeader,
+        includeServerHeader,
+        negotiateContentType,
+        enableMethodNotAllowed,
+        enableTracing
       )
     }
 
@@ -52,20 +61,28 @@ class Bootstrap[ES <: HList, CTS <: HList](
     includeDateHeader: Boolean = self.includeDateHeader,
     includeServerHeader: Boolean = self.includeServerHeader,
     negotiateContentType: Boolean = self.negotiateContentType,
-    enableMethodNotAllowed: Boolean = self.enableMethodNotAllowed
+    enableMethodNotAllowed: Boolean = self.enableMethodNotAllowed,
+    enableTracing: Boolean = self.enableTracing
   ): Bootstrap[ES, CTS] = new Bootstrap[ES, CTS](
     endpoints,
     includeDateHeader,
     includeServerHeader,
     negotiateContentType,
-    enableMethodNotAllowed
+    enableMethodNotAllowed,
+    enableTracing
   )
 
   def serve[CT]: Serve[CT] = new Serve[CT]
 
   def toService(implicit ts: ToService[ES, CTS]): Service[Request, Response] = ts(
     endpoints,
-    ToService.Options(includeDateHeader, includeServerHeader, negotiateContentType, enableMethodNotAllowed),
+    ToService.Options(
+      includeDateHeader,
+      includeServerHeader,
+      negotiateContentType,
+      enableMethodNotAllowed,
+      enableTracing
+    ),
     ToService.Context()
   )
 
@@ -77,5 +94,6 @@ object Bootstrap extends Bootstrap[HNil, HNil](
     includeDateHeader = true,
     includeServerHeader = true,
     negotiateContentType = false,
-    enableMethodNotAllowed = false
+    enableMethodNotAllowed = false,
+    enableTracing = false
 )

@@ -1,7 +1,7 @@
 package io.finch
 
 import com.twitter.finagle.http.{Method, Request, Status}
-import com.twitter.util.{Await, Future}
+import com.twitter.util.{Await, Future, Try}
 import io.finch.internal.currentTime
 import java.time.{ZonedDateTime, ZoneOffset}
 import java.time.format.DateTimeFormatter
@@ -91,6 +91,18 @@ class BootstrapSpec extends FinchSpec {
       val rep = Await.result(s(req))
 
       (include && rep.server === Some("Finch")) || (!include && rep.server.isEmpty)
+    }
+  }
+
+  it should "trace called endpoint if tracing is enabled" in {
+    check { (req: Request, tracing: Boolean) =>
+      val s = Bootstrap.configure(enableTracing = tracing)
+        .serve[Text.Plain](Endpoint.const(()))
+        .toService
+
+      val rep = Await.result(s(req))
+      val t = Try(rep.ctx(FinchContext.EndpointTrace))
+      (tracing && t.get() === Trace.empty) || (!tracing && t.isThrow)
     }
   }
 }
