@@ -44,7 +44,8 @@ object ToService {
     includeDateHeader: Boolean,
     includeServerHeader: Boolean,
     negotiateContentType: Boolean,
-    enableMethodNotAllowed: Boolean
+    enableMethodNotAllowed: Boolean,
+    enableTracing: Boolean
   )
 
   /**
@@ -86,6 +87,10 @@ object ToService {
             rep.status = Status.NotFound
           }
 
+          if (opts.enableTracing) {
+            rep.ctx.update(FinchContext.EndpointTrace, Trace.empty)
+          }
+
           Future.value(conformHttp(rep, req.version, opts))
         }
       }
@@ -101,15 +106,17 @@ object ToService {
         private[this] val underlying = es.head.handle(respond400OnErrors)
 
         def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
-          case EndpointResult.Matched(rem, _, out) if rem.route.isEmpty =>
-
-            // TODO: Use Trace to report telemetry.
+          case EndpointResult.Matched(rem, trace, out) if rem.route.isEmpty =>
 
             val accept =
               if (opts.negotiateContentType) req.accept.map(a => Accept.fromString(a)) else Nil
-            out.map(oa =>
-              conformHttp(oa.toResponse(ntrA(accept), ntrE(accept)), req.version, opts)
-            ).run
+            out.map { oa =>
+              val response = oa.toResponse(ntrA(accept), ntrE(accept))
+              if (opts.enableTracing) {
+                response.ctx.update(FinchContext.EndpointTrace, trace)
+              }
+              conformHttp(response, req.version, opts)
+            }.run
 
           case EndpointResult.NotMatched.MethodNotAllowed(allowed) =>
             tsT(es.tail, opts, ctx.copy(wouldAllow = ctx.wouldAllow ++ allowed))(req)
