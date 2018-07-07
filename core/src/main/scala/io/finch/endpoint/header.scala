@@ -29,7 +29,7 @@ private abstract class Header[F[_], A](
       }
     }
 
-    EndpointResult.Matched(input, output)
+    EndpointResult.Matched(input, Trace.empty, output)
   }
 
   final override def item: RequestItem = items.HeaderItem(name)

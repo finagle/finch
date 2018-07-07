@@ -74,20 +74,21 @@ object ToService {
   }
 
   implicit val hnilTS: ToService[HNil, HNil] = new ToService[HNil, HNil] {
-    def apply(es: HNil, opts: Options, ctx: Context): Service[Request, Response] = new Service[Request, Response] {
-      def apply(req: Request): Future[Response] = {
-        val rep = Response()
+    def apply(es: HNil, opts: Options, ctx: Context): Service[Request, Response] =
+      new Service[Request, Response] {
+        def apply(req: Request): Future[Response] = {
+          val rep = Response()
 
-        if (ctx.wouldAllow.nonEmpty && opts.enableMethodNotAllowed) {
-          rep.status = Status.MethodNotAllowed
-          rep.allow = ctx.wouldAllow
-        } else {
-          rep.status = Status.NotFound
+          if (ctx.wouldAllow.nonEmpty && opts.enableMethodNotAllowed) {
+            rep.status = Status.MethodNotAllowed
+            rep.allow = ctx.wouldAllow
+          } else {
+            rep.status = Status.NotFound
+          }
+
+          Future.value(conformHttp(rep, req.version, opts))
         }
-
-        Future.value(conformHttp(rep, req.version, opts))
       }
-    }
   }
 
   implicit def hlistTS[A, EH <: Endpoint[A], ET <: HList, CTH, CTT <: HList](implicit
@@ -100,9 +101,15 @@ object ToService {
         private[this] val underlying = es.head.handle(respond400OnErrors)
 
         def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
-          case EndpointResult.Matched(rem, out) if rem.route.isEmpty =>
-            val accept = if (opts.negotiateContentType) req.accept.map(a => Accept.fromString(a)) else Nil
-            out.map(oa => conformHttp(oa.toResponse(ntrA(accept), ntrE(accept)), req.version, opts)).run
+          case EndpointResult.Matched(rem, _, out) if rem.route.isEmpty =>
+
+            // TODO: Use Trace to report telemetry.
+
+            val accept =
+              if (opts.negotiateContentType) req.accept.map(a => Accept.fromString(a)) else Nil
+            out.map(oa =>
+              conformHttp(oa.toResponse(ntrA(accept), ntrE(accept)), req.version, opts)
+            ).run
 
           case EndpointResult.NotMatched.MethodNotAllowed(allowed) =>
             tsT(es.tail, opts, ctx.copy(wouldAllow = ctx.wouldAllow ++ allowed))(req)

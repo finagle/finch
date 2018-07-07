@@ -81,8 +81,8 @@ trait Endpoint[A] { self =>
       final def apply(oa: Output[A]): Future[Output[B]] = oa.traverse(fn)
 
       final def apply(input: Input): Endpoint.Result[B] = self(input) match {
-        case EndpointResult.Matched(rem, out) =>
-          EndpointResult.Matched(rem, out.flatMapF(this))
+        case EndpointResult.Matched(rem, trc, out) =>
+          EndpointResult.Matched(rem, trc, out.flatMapF(this))
         case skipped: EndpointResult.NotMatched => skipped
       }
 
@@ -104,8 +104,8 @@ trait Endpoint[A] { self =>
       final def apply(oa: Output[A]): Future[Output[B]] = oa.traverseFlatten(fn)
 
       final def apply(input: Input): Endpoint.Result[B] = self(input) match {
-        case EndpointResult.Matched(rem, out) =>
-          EndpointResult.Matched(rem, out.flatMapF(this))
+        case EndpointResult.Matched(rem, trc, out) =>
+          EndpointResult.Matched(rem, trc, out.flatMapF(this))
         case skipped: EndpointResult.NotMatched => skipped
       }
 
@@ -131,8 +131,8 @@ trait Endpoint[A] { self =>
   final def transform[B](fn: Future[Output[A]] => Future[Output[B]]): Endpoint[B] =
     new Endpoint[B] {
       final def apply(input: Input): Endpoint.Result[B] = self(input) match {
-        case EndpointResult.Matched(rem, out) =>
-          EndpointResult.Matched(rem, Rerunnable.fromFuture(fn(out.run)))
+        case EndpointResult.Matched(rem, trc, out) =>
+          EndpointResult.Matched(rem, trc, Rerunnable.fromFuture(fn(out.run)))
         case skipped: EndpointResult.NotMatched => skipped
       }
 
@@ -174,9 +174,13 @@ trait Endpoint[A] { self =>
       }
 
       final def apply(input: Input): Endpoint.Result[O] = self(input) match {
-        case a @ EndpointResult.Matched(_, _) => other(a.rem) match {
-          case b @ EndpointResult.Matched(_, _) =>
-            EndpointResult.Matched(b.rem, a.out.liftToTry.product(b.out.liftToTry).flatMapF(this))
+        case a @ EndpointResult.Matched(_, _, _) => other(a.rem) match {
+          case b @ EndpointResult.Matched(_, _, _) =>
+            EndpointResult.Matched(
+              b.rem,
+              a.trc.concat(b.trc),
+              a.out.liftToTry.product(b.out.liftToTry).flatMapF(this)
+            )
           case skipped: EndpointResult.NotMatched => skipped
         }
         case skipped: EndpointResult.NotMatched => skipped
@@ -213,8 +217,8 @@ trait Endpoint[A] { self =>
    */
   final def coproduct[B >: A](other: Endpoint[B]): Endpoint[B] = new Endpoint[B] {
     final def apply(input: Input): Endpoint.Result[B] = self(input) match {
-      case a @ EndpointResult.Matched(_, _) => other(input) match {
-        case b @ EndpointResult.Matched(_, _) =>
+      case a @ EndpointResult.Matched(_, _, _) => other(input) match {
+        case b @ EndpointResult.Matched(_, _, _) =>
           if (a.rem.route.length <= b.rem.route.length) a else b
         case _ => a
       }
@@ -341,8 +345,8 @@ trait Endpoint[A] { self =>
       }
 
       final def apply(input: Input): Endpoint.Result[Try[A]] = self(input) match {
-        case EndpointResult.Matched(rem, out) =>
-          EndpointResult.Matched(rem, out.liftToTry.map(this))
+        case EndpointResult.Matched(rem, trc, out) =>
+          EndpointResult.Matched(rem, trc, out.liftToTry.map(this))
         case skipped: EndpointResult.NotMatched => skipped
       }
 
@@ -378,7 +382,7 @@ object Endpoint {
    */
   def const[A](a: A): Endpoint[A] = new Endpoint[A] {
     final def apply(input: Input): Result[A] =
-      EndpointResult.Matched(input, Rerunnable.const(Output.payload(a)))
+      EndpointResult.Matched(input, Trace.empty, Rerunnable.const(Output.payload(a)))
   }
 
   /**
@@ -395,7 +399,7 @@ object Endpoint {
    */
   def lift[A](a: => A): Endpoint[A] = new Endpoint[A] {
     final def apply(input: Input): Result[A] =
-      EndpointResult.Matched(input, Rerunnable(Output.payload(a)))
+      EndpointResult.Matched(input, Trace.empty, Rerunnable(Output.payload(a)))
   }
 
   /**
@@ -403,7 +407,7 @@ object Endpoint {
    */
   def liftAsync[A](fa: => Future[A]): Endpoint[A] = new Endpoint[A] {
     final def apply(input: Input): Result[A] =
-      EndpointResult.Matched(input, Rerunnable.fromFuture(fa).map(a => Output.payload(a)))
+      EndpointResult.Matched(input, Trace.empty, Rerunnable.fromFuture(fa).map(a => Output.payload(a)))
   }
 
   /**
@@ -411,7 +415,7 @@ object Endpoint {
    */
   def liftOutput[A](oa: => Output[A]): Endpoint[A] = new Endpoint[A] {
     final def apply(input: Input): Result[A] =
-      EndpointResult.Matched(input, Rerunnable(oa))
+      EndpointResult.Matched(input, Trace.empty, Rerunnable(oa))
   }
 
   /**
@@ -420,7 +424,7 @@ object Endpoint {
    */
   def liftOutputAsync[A](foa: => Future[Output[A]]): Endpoint[A] = new Endpoint[A] {
     final def apply(input: Input): Result[A] =
-      EndpointResult.Matched(input, Rerunnable.fromFuture(foa))
+      EndpointResult.Matched(input, Trace.empty, Rerunnable.fromFuture(foa))
   }
 
   final implicit class ValueEndpointOps[B](val self: Endpoint[B]) extends AnyVal {

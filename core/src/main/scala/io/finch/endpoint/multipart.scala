@@ -44,7 +44,7 @@ private abstract class Attribute[F[_], A](val name: String, d: DecodeEntity[A], 
         }
       }
 
-      EndpointResult.Matched(input, output)
+      EndpointResult.Matched(input, Trace.empty, output)
     }
   }
 
@@ -129,7 +129,7 @@ private abstract class FileUpload[F[_]](name: String)
         }
       }
 
-      EndpointResult.Matched(input, output)
+      EndpointResult.Matched(input, Trace.empty, output)
     }
 
   final override def item: RequestItem = ParamItem(name)

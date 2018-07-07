@@ -188,6 +188,13 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
     end <- Gen.choose(begin, size)
   } yield Buf.ByteArray.Owned(bytes.toArray, begin, end)
 
+  def genTrace: Gen[Trace] = Gen.oneOf(
+    Gen.const(Trace.empty),
+    Gen.nonEmptyListOf(Gen.alphaStr).map(l =>
+      l.foldLeft(Trace.empty)((t, s) => t.concat(Trace.segment(s)))
+    )
+  )
+
   implicit def arbitraryRequest: Arbitrary[Request] = Arbitrary(
     for {
       m <- genMethod
@@ -227,7 +234,7 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
       Arbitrary.arbitrary[Input => A].map { f =>
         new Endpoint[A] {
           final def apply(input: Input): Endpoint.Result[A] =
-            EndpointResult.Matched(input, Rerunnable(Output.payload(f(input))))
+            EndpointResult.Matched(input, Trace.empty, Rerunnable(Output.payload(f(input))))
         }
       }
     )
@@ -306,4 +313,6 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
 
   implicit def arbitraryErrors: Arbitrary[Errors] =
     Arbitrary(genErrors)
+
+  implicit def arbitraryTrace: Arbitrary[Trace] = Arbitrary(genTrace)
 }

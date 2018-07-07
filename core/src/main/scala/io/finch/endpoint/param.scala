@@ -29,7 +29,7 @@ private abstract class Param[F[_], A](
       }
     }
 
-    EndpointResult.Matched(input, output)
+    EndpointResult.Matched(input, Trace.empty, output)
   }
 
   final override def item: items.RequestItem = items.ParamItem(name)
@@ -78,7 +78,7 @@ private abstract class Params[F[_], A](name: String, d: DecodeEntity[A], tag: Cl
       }
     }
 
-    EndpointResult.Matched(input, output)
+    EndpointResult.Matched(input, Trace.empty, output)
   }
 
   final override def item: items.RequestItem = items.ParamItem(name)

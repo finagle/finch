@@ -18,7 +18,7 @@ private abstract class Cookie[A](name: String) extends Endpoint[A] {
       }
     }
 
-    EndpointResult.Matched(input, output)
+    EndpointResult.Matched(input, Trace.empty, output)
   }
 
   final override def item: items.RequestItem = items.CookieItem(name)
