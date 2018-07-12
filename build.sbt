@@ -19,7 +19,7 @@ lazy val argonautVersion = "6.2.2"
 lazy val json4sVersion = "3.5.4"
 lazy val iterateeVersion = "0.17.0"
 lazy val iterateeTwitterVersion = "18.7.0"
-lazy val refinedVersion = "0.9.0"
+lazy val refinedVersion = "0.9.2"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
