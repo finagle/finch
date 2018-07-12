@@ -101,9 +101,9 @@ object ToService {
         private[this] val underlying = es.head.handle(respond400OnErrors)
 
         def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
-          case EndpointResult.Matched(rem, _, out) if rem.route.isEmpty =>
+          case EndpointResult.Matched(rem, trc, out) if rem.route.isEmpty =>
 
-            // TODO: Use Trace to report telemetry.
+            Trace.captureIfNeeded(trc)
 
             val accept =
               if (opts.negotiateContentType) req.accept.map(a => Accept.fromString(a)) else Nil

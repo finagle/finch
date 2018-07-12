@@ -5,6 +5,7 @@ import com.twitter.util.{Await, Future}
 import io.finch.internal.currentTime
 import java.time.{ZonedDateTime, ZoneOffset}
 import java.time.format.DateTimeFormatter
+import shapeless.HNil
 
 class BootstrapSpec extends FinchSpec {
 
@@ -91,6 +92,20 @@ class BootstrapSpec extends FinchSpec {
       val rep = Await.result(s(req))
 
       (include && rep.server === Some("Finch")) || (!include && rep.server.isEmpty)
+    }
+  }
+
+  it should "capture trace when needed" in {
+    check { req: Request =>
+      val p = req.path.split("/").drop(1)
+      val e = p
+        .map(s => path(s))
+        .foldLeft(Endpoint.const(HNil : HNil))((p, e) => p :: e)
+        .map(_ => "foo")
+      val s = e.toServiceAs[Text.Plain]
+
+      val captured = Await.result(Trace.capture(s(req).map(_ => Trace.captured)))
+      captured.toList === p.toList
     }
   }
 }
