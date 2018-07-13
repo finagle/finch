@@ -32,6 +32,7 @@ position: 1
   * [Error Handling](#error-handling)
 * [Streaming](#streaming)
 * [Testing](#testing)
+* [Telemetry](#telemetry)
 * [Deriving Finagle Services](#deriving-finagle-services)
 
 
@@ -986,6 +987,51 @@ divOrFail(Input.post("/20/0")).awaitOutputUnsafe().map(_.status) == Some(Status.
 ```
 
 You can find unit tests for the examples in the [examples folder][examples].
+
+### Telemetry
+
+When it comes to observing certain metrics within endpoints (usually, a derived Finagle `Service`),
+it becomes channeling to distinguish between individual endpoints in a coproduct. To solve this and
+provide users with a means to report per-endpoint telemetry, when matched, endpoints return an
+instance of `io.finch.Trace` object that represents a matched path.
+
+```tut
+import io.finch._, io.finch.syntax._
+
+val foo = get("foo" :: "bar" :: path[String]) { s: String => Ok(s) }
+
+val bar = get("bar" :: "foo" :: path[Int]) { i: Int => Ok(i) }
+
+val fooBar = foo :+: bar
+
+fooBar(Input.get("/foo/bar/baz")).trace
+
+fooBar(Input.get("/bar/foo/10")).trace
+```
+
+A `Trace` instance returned from an endpoint (including coproducts) can be captured on the call-site
+(presumably, in a Finagle filter) using Twitter Future Locals.
+
+```tut
+import io.finch._, io.finch.syntax._, com.twitter.finagle.http.Request
+
+val foo = get("foo" :: path[String]) { s: String => Ok(s) }
+
+val s = foo.toServiceAs[Text.Plain]
+
+Trace.capture { s(Request("/foo/bar")).map(_ => Trace.captured).poll }
+```
+
+A couple of things worth noting with regards to the "tracing" machinery:
+
+ - There is no need to explicitly enable it in `Bootstrap` options, a `Trace` will always be
+   captured within a `Trace.capture` context.
+
+ - There is no need to wait for a service's future to resolve before retrieving a captured `Trace`
+   as it's immediately available once endpoint is matched (i.e., after the `service.apply` call).
+
+ - Obviously materializing a new structure on each request comes at the cost of allocations/running
+   time. We, however, haven't observed any significant overhead in Finch's benchmarks.
 
 ### Deriving Finagle Services
 

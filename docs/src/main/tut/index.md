@@ -100,4 +100,3 @@ object Main extends App {
 [travisbrown]: https://twitter.com/travisbrown
 [tomjadams]: https://twitter.com/tomjadams
 [davegurnell]: https://twitter.com/davegurnell
-
