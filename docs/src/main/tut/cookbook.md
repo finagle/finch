@@ -15,6 +15,7 @@ This is a collection of short recipes of "How to X in Finch".
 * [Defining redirecting endpoints](#defining-redirecting-endpoints)
 * [Defining custom endpoints](#defining-custom-endpoints)
 * [CORS in Finch](#cors-in-finch)
+* [Creating a Finagle Client](#creating-a-finagle-client)
 * [Converting between Scala futures and Twitter futures](#converting-between-scala-futures-and-twitter-futures)
 * [Server Sent Events](#server-sent-events)
 * [JSONP](#jsonp)
@@ -351,9 +352,32 @@ val policy: Cors.Policy = Cors.Policy(
 val corsService: Service[Request, Response] = new Cors.HttpFilter(policy).andThen(service)
 ```
 
+### Creating a Finagle Client
+
+Since Finch is built on top of Finagle, it shares its utilities like the stateless [client][client]. Do read the Finagle's
+documentation to get a full understanding of the configuration options for the client e.g. [loadbalancing][loadbalancing] abilities. A simple example is given below.
+
+```tut:silent
+import com.twitter.finagle.Http
+import com.twitter.finagle.http._
+import com.twitter.util.{Await, Future}
+
+val host = "api.nasa.gov"
+val client: Service[Request, Response] = Http.client.withTls(host).newService(s"$host:443")
+val request = Request(Method.Get, "/planetary/apod?api_key=DEMO_KEY")
+val response: Future[Response] = client(request)
+
+Await.result(response.onSuccess { rep: Response =>
+  println("GET success: " + rep)
+})
+
+```
+
+
+
 ### Converting between Scala futures and Twitter futures
 
-Since Finch is built on top of Finagle, it shares its utilities, including [futures][futures]. While
+Another shared utility are Twitter's [futures][futures]. While
 there is already an official tool for performing conversions between Scala futures and Twitter
 futures (i.e., [Twitter Bijection][bijection]), it usually makes sense to avoid an extra dependency
 because of a couple of functions which are fairly easy to implement.
@@ -507,6 +531,8 @@ call. See finagle-http-auth's README for more usage details.
 [nginx]: http://nginx.org/en/
 [circe]: https://github.com/circe/circe
 [issue191]: https://github.com/finagle/finch/issues/191
+[client]: http://twitter.github.io/finagle/guide/Clients.html
+[loadbalancing]: http://twitter.github.io/finagle/guide/Clients.html#load-balancing
 [futures]: http://twitter.github.io/finagle/guide/Futures.html
 [bijection]: https://github.com/twitter/bijection
 [as]: https://github.com/twitter/util/blob/develop/util-core/src/main/scala/com/twitter/concurrent/AsyncStream.scala
