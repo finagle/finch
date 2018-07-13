@@ -6,7 +6,6 @@ import cats.data.NonEmptyList
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.util.{Future, Return, Throw, Try}
-import io.catbird.util.Rerunnable
 import io.finch.internal._
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
@@ -85,7 +84,7 @@ trait Endpoint[A] { self =>
 
       final def apply(input: Input): Endpoint.Result[B] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
-          EndpointResult.Matched(rem, trc, out.run.flatMap(apply))
+          EndpointResult.Matched(rem, trc, out.run.flatMap(this))
         case skipped: EndpointResult.NotMatched => skipped
       }
 
@@ -108,7 +107,7 @@ trait Endpoint[A] { self =>
 
       final def apply(input: Input): Endpoint.Result[B] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
-          EndpointResult.Matched(rem, trc, out.run.flatMap(apply))
+          EndpointResult.Matched(rem, trc, out.run.flatMap(this))
         case skipped: EndpointResult.NotMatched => skipped
       }
 

@@ -1,8 +1,8 @@
 package io.finch.endpoint
 
+import arrows.twitter.Task
 import com.twitter.finagle.http.{Cookie => FinagleCookie}
 import com.twitter.util.Future
-import io.catbird.util.Rerunnable
 import io.finch._
 
 private abstract class Cookie[A](name: String) extends Endpoint[A] {
@@ -11,7 +11,7 @@ private abstract class Cookie[A](name: String) extends Endpoint[A] {
   protected def present(value: FinagleCookie): Future[Output[A]]
 
   def apply(input: Input): Endpoint.Result[A] = {
-    val output = Rerunnable.fromFuture {
+    val output = Task.async {
       input.request.cookies.get(name) match {
         case None => missing(name)
         case Some(value) => present(value)

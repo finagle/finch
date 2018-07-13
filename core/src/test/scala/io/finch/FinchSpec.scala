@@ -3,6 +3,7 @@ package io.finch
 import java.nio.charset.{Charset, StandardCharsets}
 import java.util.UUID
 
+import arrows.twitter.Task
 import cats.Eq
 import cats.data.NonEmptyList
 import cats.instances.AllInstances
@@ -10,11 +11,11 @@ import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http._
 import com.twitter.io.Buf
 import com.twitter.util.{Future, Try}
-import io.catbird.util.Rerunnable
 import org.scalacheck.{Arbitrary, Cogen, Gen}
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers
 import org.typelevel.discipline.Laws
+
 import scala.reflect.ClassTag
 import shapeless.Witness
 
@@ -234,7 +235,7 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
       Arbitrary.arbitrary[Input => A].map { f =>
         new Endpoint[A] {
           final def apply(input: Input): Endpoint.Result[A] =
-            EndpointResult.Matched(input, Trace.empty, Rerunnable(Output.payload(f(input))))
+            EndpointResult.Matched(input, Trace.empty, Task(Output.payload(f(input))))
         }
       }
     )

@@ -3,7 +3,6 @@ package io.finch
 import arrows.twitter.Task
 import com.twitter.finagle.http.Method
 import com.twitter.util.{Await, Duration, Future, Try}
-import io.catbird.util.Rerunnable
 
 /**
  * A result returned from an [[Endpoint]]. This models `Option[(Input, Future[Output])]` and
