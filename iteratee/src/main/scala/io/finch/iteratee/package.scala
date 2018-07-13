@@ -1,5 +1,6 @@
 package io.finch
 
+import arrows.twitter.Task
 import cats.Eval
 import com.twitter.finagle.http.Response
 import com.twitter.io._
@@ -41,7 +42,7 @@ package object iteratee extends IterateeInstances {
           EndpointResult.Matched(
             input,
             Trace.empty,
-            Rerunnable(Output.payload(decode(enumeratorFromReader(req.reader), req.charsetOrUtf8)))
+            Task(Output.payload(decode(enumeratorFromReader(req.reader), req.charsetOrUtf8)))
           )
         }
       }

@@ -1,10 +1,13 @@
 import microsites.ExtraMdFileConfig
 
+
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   version := "0.22.0",
   scalaVersion := "2.12.6",
+  scalafixSemanticdbVersion := "4.0.0-M1",
   crossScalaVersions := Seq("2.11.12", "2.12.6")
+
 )
 
 lazy val finagleVersion = "18.7.0"
@@ -12,6 +15,7 @@ lazy val twitterServerVersion = "18.7.0"
 lazy val circeVersion = "0.9.3"
 lazy val circeIterateeVersion = "0.9.0"
 lazy val catbirdVersion = "18.6.0"
+lazy val arrowsVersion = "0.1.19"
 lazy val shapelessVersion = "2.3.3"
 lazy val catsVersion = "1.1.0"
 lazy val sprayVersion = "1.3.4"
@@ -33,8 +37,13 @@ lazy val compilerOptions = Seq(
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
   "-Xfuture",
-  "-Xlint"
+  "-Xlint",
+  "-Xplugin-require:semanticdb"
 )
+
+
+scalafixSettings
+sbtfixSettings // enable semanticdb-sbt for sbt metabuilds.
 
 val testDependencies = Seq(
   "org.scalacheck" %% "scalacheck" % "1.13.5",
@@ -49,7 +58,8 @@ val baseSettings = Seq(
     "org.typelevel" %% "cats-core" % catsVersion,
     "com.twitter" %% "finagle-http" % finagleVersion,
     scalaOrganization.value % "scala-reflect" % scalaVersion.value,
-    "io.catbird" %% "catbird-util" % catbirdVersion
+    "io.catbird" %% "catbird-util" % catbirdVersion,
+    "io.trane" %% "arrows-twitter" % arrowsVersion
   ) ++ testDependencies.map(_ % "test"),
   resolvers ++= Seq(
     Resolver.sonatypeRepo("releases"),
