@@ -10,6 +10,7 @@
   <li><a href="#defining-redirecting-endpoints">Defining redirecting endpoints</a></li>
   <li><a href="#defining-custom-endpoints">Defining custom endpoints</a></li>
   <li><a href="#cors-in-finch">CORS in Finch</a></li>
+  <li><a href="#creating-a-finagle-client">Creating a Finagle Client</a></li>
   <li><a href="#converting-between-scala-futures-and-twitter-futures">Converting between Scala futures and Twitter futures</a></li>
   <li><a href="#server-sent-events">Server Sent Events</a></li>
   <li><a href="#jsonp">JSONP</a></li>
@@ -351,9 +352,30 @@ requests with an <code class="highlighter-rouge">Accept</code> header from any o
 </code></pre>
 </div>
 
+<h3 id="creating-a-finagle-client">Creating a Finagle Client</h3>
+
+<p>Since Finch is built on top of Finagle, it shares its utilities like the stateless <a href="http://twitter.github.io/finagle/guide/Clients.html">client</a>. Do read the Finagle’s
+documentation to get a full understanding of the configuration options for the client e.g. <a href="http://twitter.github.io/finagle/guide/Clients.html#load-balancing">loadbalancing</a> abilities. A simple example is given below.</p>
+
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">com.twitter.finagle.Http</span>
+<span class="k">import</span> <span class="nn">com.twitter.finagle.http._</span>
+<span class="k">import</span> <span class="nn">com.twitter.util.</span><span class="o">{</span><span class="nc">Await</span><span class="o">,</span> <span class="nc">Future</span><span class="o">}</span>
+
+<span class="k">val</span> <span class="n">host</span> <span class="k">=</span> <span class="s">"api.nasa.gov"</span>
+<span class="k">val</span> <span class="n">client</span><span class="k">:</span> <span class="kt">Service</span><span class="o">[</span><span class="kt">Request</span>, <span class="kt">Response</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Http</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">withTls</span><span class="o">(</span><span class="n">host</span><span class="o">).</span><span class="n">newService</span><span class="o">(</span><span class="n">s</span><span class="s">"$host:443"</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">request</span> <span class="k">=</span> <span class="nc">Request</span><span class="o">(</span><span class="nc">Method</span><span class="o">.</span><span class="nc">Get</span><span class="o">,</span> <span class="s">"/planetary/apod?api_key=DEMO_KEY"</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">response</span><span class="k">:</span> <span class="kt">Future</span><span class="o">[</span><span class="kt">Response</span><span class="o">]</span> <span class="k">=</span> <span class="n">client</span><span class="o">(</span><span class="n">request</span><span class="o">)</span>
+
+<span class="nc">Await</span><span class="o">.</span><span class="n">result</span><span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="n">onSuccess</span> <span class="o">{</span> <span class="n">rep</span><span class="k">:</span> <span class="kt">Response</span> <span class="o">=&gt;</span>
+  <span class="n">println</span><span class="o">(</span><span class="s">"GET success: "</span> <span class="o">+</span> <span class="n">rep</span><span class="o">)</span>
+<span class="o">})</span>
+
+</code></pre>
+</div>
+
 <h3 id="converting-between-scala-futures-and-twitter-futures">Converting between Scala futures and Twitter futures</h3>
 
-<p>Since Finch is built on top of Finagle, it shares its utilities, including <a href="http://twitter.github.io/finagle/guide/Futures.html">futures</a>. While
+<p>Another shared utility are Twitter’s <a href="http://twitter.github.io/finagle/guide/Futures.html">futures</a>. While
 there is already an official tool for performing conversions between Scala futures and Twitter
 futures (i.e., <a href="https://github.com/twitter/bijection">Twitter Bijection</a>), it usually makes sense to avoid an extra dependency
 because of a couple of functions which are fairly easy to implement.</p>

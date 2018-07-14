@@ -439,6 +439,10 @@ deprecation cycles.
                         <a class="trait" href="ToService.html" title="Wraps a given list of Endpoints and their content-types with a Finagle Service."></a>
                         <a href="ToService.html" title="Wraps a given list of Endpoints and their content-types with a Finagle Service.">ToService</a>
                       </li><li class="current-entities indented2">
+                        <a class="object" href="Trace$.html" title=""></a>
+                        <a class="trait" href="Trace.html" title="Models a trace of a matched Endpoint."></a>
+                        <a href="Trace.html" title="Models a trace of a matched Endpoint.">Trace</a>
+                      </li><li class="current-entities indented2">
                         <a class="object" href="ValidationRule$.html" title="Allows the creation of reusable validation rules for Endpoints."></a>
                         <a class="trait" href="ValidationRule.html" title="A ValidationRule enables a reusable way of defining a validation rules in the application domain."></a>
                         <a href="ValidationRule.html" title="A ValidationRule enables a reusable way of defining a validation rules in the application domain.">ValidationRule</a>
@@ -973,6 +977,23 @@ into a single instance of <a href="Errors.html" class="extype" name="io.finch.Er
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="io.finch.Trace" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="TraceextendsAnyRef"></a><a id="Trace:Trace"></a>
+      <span class="permalink">
+      <a href="../../io/finch/index.html#TraceextendsAnyRef" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a title="Models a trace of a matched Endpoint." href="Trace.html"><span class="name">Trace</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.12.6/scala/AnyRef.html#scala.AnyRef" class="extype" name="scala.AnyRef">AnyRef</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Models a trace of a matched <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>.</p><div class="fullcomment"><div class="comment cmt"><p>Models a trace of a matched <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>. For example, <code>/hello/:name</code>.
+</p></div><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p>represented as a linked-list-like structure for efficiency.</p></span></dd></dl></div>
     </li><li name="io.finch.ValidationRule" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="ValidationRule[A]extendsAnyRef"></a><a id="ValidationRule[A]:ValidationRule[A]"></a>
       <span class="permalink">
@@ -2461,6 +2482,22 @@ an <code>Option</code>. The returned <a href="Endpoint.html" class="extype" name
       </span>
       
       
+    </li><li name="io.finch.Trace" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Trace"></a><a id="Trace:Trace"></a>
+      <span class="permalink">
+      <a href="../../io/finch/index.html#Trace" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="Trace$.html"><span class="name">Trace</span></a>
+      </span>
+      
+      
     </li><li name="io.finch.ValidationRule" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ValidationRule"></a><a id="ValidationRule:ValidationRule"></a>
       <span class="permalink">
@@ -2499,52 +2536,7 @@ an <code>Option</code>. The returned <a href="Endpoint.html" class="extype" name
 
         
 
-        <div class="values members">
-              <h3>Deprecated Value Members</h3>
-              <ol><li name="io.finch.endpoint.Headers#headerExists" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="headerExists[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a><a id="headerExists[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[A]"></a>
-      <span class="permalink">
-      <a href="../../io/finch/index.html#headerExists[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version 0.21) Use headerOption to retrieve optional headers">headerExists</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.endpoint.Headers.headerExists.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.6/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.Headers.headerExists.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.endpoint.Headers.headerExists.A">A</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that only matches the requests that contain a given header <code>name</code>.</p><div class="fullcomment"><div class="comment cmt"><p>A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that only matches the requests that contain a given header <code>name</code>.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>Headers</dd><dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.21)</i> Use headerOption to retrieve optional headers</p></dd></dl></div>
-    </li><li name="io.finch.endpoint.ParamAndParams#paramExists" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="paramExists[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a><a id="paramExists[A](String)(DecodeEntity[A],ClassTag[A]):Endpoint[A]"></a>
-      <span class="permalink">
-      <a href="../../io/finch/index.html#paramExists[A](name:String)(implicitd:io.finch.DecodeEntity[A],implicittag:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version 0.21) Use paramOption to retrieve optional params">paramExists</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="DecodeEntity.html" class="extype" name="io.finch.DecodeEntity">DecodeEntity</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.paramExists.A">A</span>]</span>, <span name="tag">tag: <a href="http://www.scala-lang.org/api/2.12.6/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.paramExists.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.endpoint.ParamAndParams.paramExists.A">A</span>]</span>
-      </span>
-      
-      <p class="shortcomment cmt">A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that only matches the requests that contain a given query-string
-param <code>name</code>.</p><div class="fullcomment"><div class="comment cmt"><p>A matching <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that only matches the requests that contain a given query-string
-param <code>name</code>.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>ParamAndParams</dd><dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.21)</i> Use paramOption to retrieve optional params</p></dd></dl></div>
-    </li></ol>
-            </div>
+        
         </div>
 
         <div id="inheritedMembers">
