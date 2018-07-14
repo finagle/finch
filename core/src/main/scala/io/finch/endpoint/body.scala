@@ -13,7 +13,7 @@ import scala.reflect.ClassTag
 private abstract class FullBody[A] extends Endpoint[A] {
 
   protected def missing: Future[Output[A]]
-  protected def present(content: Buf, cs: Charset): Future[Output[A]]
+  protected def present(contentType: Option[String], content: Buf, cs: Charset): Future[Output[A]]
 
   final def apply(input: Input): Endpoint.Result[A] =
     if (input.request.isChunked) EndpointResult.NotMatched
@@ -21,7 +21,7 @@ private abstract class FullBody[A] extends Endpoint[A] {
       val output = Rerunnable.fromFuture {
         val contentLength = input.request.contentLengthOrNull
         if (contentLength == null || contentLength == "0") missing
-        else present(input.request.content, input.request.charsetOrUtf8)
+        else present(input.request.contentType, input.request.content, input.request.charsetOrUtf8)
       }
 
       EndpointResult.Matched(input, Trace.empty, output)
@@ -55,8 +55,8 @@ private object FullBody {
   }
 }
 
-private abstract class Body[A, B, CT <: String](
-  d: Decode.Aux[A, CT],
+private abstract class Body[A, B, CT](
+  ad: AdaptableDecode[A, CT],
   ct: ClassTag[A]
 ) extends FullBody[B] with FullBody.PreparedBody[A, B] with (Try[A] => Try[Output[B]]) {
 
@@ -65,8 +65,8 @@ private abstract class Body[A, B, CT <: String](
     case Throw(t) => Throw(Error.NotParsed(items.BodyItem, ct, t))
   }
 
-  protected def present(content: Buf, cs: Charset): Future[Output[B]] =
-    Future.const(d(content, cs).transform(this))
+  protected def present(contentType: Option[String], content: Buf, cs: Charset): Future[Output[B]] =
+    Future.const(ad(contentType)(content, cs).transform(this))
 
   final override def toString: String = "body"
 }
@@ -74,14 +74,14 @@ private abstract class Body[A, B, CT <: String](
 private abstract class BinaryBody[A]
     extends FullBody[A] with FullBody.PreparedBody[Array[Byte], A] {
 
-  protected def present(content: Buf, cs: Charset): Future[Output[A]] =
+  protected def present(contentType: Option[String], content: Buf, cs: Charset): Future[Output[A]] =
     Future.value(Output.payload(prepare(content.asByteArray)))
 
   final override def toString: String = "binaryBody"
 }
 
 private abstract class StringBody[A] extends FullBody[A] with FullBody.PreparedBody[String, A] {
-  protected def present(content: Buf, cs: Charset): Future[Output[A]] =
+  protected def present(contentType: Option[String], content: Buf, cs: Charset): Future[Output[A]] =
     Future.value(Output.payload(prepare(content.asString(cs))))
 
   final override def toString: String = "stringBody"
@@ -125,7 +125,7 @@ private[finch] trait Bodies {
    * (non-streamed) requests.
    */
   def bodyOption[A, CT <: String](implicit
-    d: Decode.Aux[A, CT], ct: ClassTag[A]
+    d: AdaptableDecode[A, CT], ct: ClassTag[A]
   ): Endpoint[Option[A]] = new Body[A, Option[A], CT](d, ct) with FullBody.Optional[A]
 
   /**
@@ -133,7 +133,7 @@ private[finch] trait Bodies {
    * interpreted as `A`, or throws an [[Error.NotPresent]] exception. The returned [[Endpoint]]
    * only matches non-chunked (non-streamed) requests.
    */
-  def body[A, CT <: String](implicit d: Decode.Aux[A, CT], ct: ClassTag[A]): Endpoint[A] =
+  def body[A, CT](implicit d: AdaptableDecode[A, CT], ct: ClassTag[A]): Endpoint[A] =
     new Body[A, A, CT](d, ct) with FullBody.Required[A]
 
   /**

@@ -18,6 +18,7 @@ position: 1
   * [Type Conversion](#type-conversion)
   * [Custom Decoders](#custom-decoders)
   * [Decoding from JSON](#decoding-from-json)
+  * [Content-Type-based decoding](#content-type-based-decoding)
 * [Encoding](#encoding)
   * [Encoding to JSON](#encoding-to-json)
 * [JSON](#json)
@@ -542,6 +543,41 @@ p(Input.post("/").withBody[Application.Json](Buf.Utf8("""{"name":"foo","age":42}
 ```
 
 The integration for the other JSON libraries works in a similar way.
+
+### Content-Type-based decoding
+
+Finch supports multiple decoders in the single `body` endpoint selecting the decoder with respect to the `Content-Type`
+header of a request. This behavior can be enabled using `shapeless.Coproduct`:
+
+```tut
+import io.finch._, io.finch.internal._, shapeless._, com.twitter.io.Buf, com.twitter.util.Try, Person._
+
+//example decoder and encoder for text/plain content-type.
+//Represents Person as a string with semicolon delimeter
+implicit val decodeTextPlainPerson: Decode.Aux[Person, Text.Plain] = Decode.instance((b, cs) => {
+  Try {
+    val l = b.asString(cs).split(";").toList
+    Person(l.head, l.last.toInt)
+  }
+})
+
+implicit val encodeTextPlainPerson: Encode.Aux[Person, Text.Plain] = Encode.instance((a, cs) => {
+ Buf.Utf8(s"${a.name};${a.age}")
+})
+
+val person = Person("John", 42)
+val json = Input.post("/").withBody[Application.Json](person)
+val plain = Input.post("/").withBody[Text.Plain](person)
+
+//Use coproduct to define support for multiple Content-Types
+val e = body[Person, Application.Json :+: Text.Plain :+: CNil]
+
+e(json).awaitValue()
+e(plain).awaitValue()
+```
+
+If there was no `Content-Type` header in a request or none of the decoders supports it,
+last one in the coproduct is used.
 
 ### Encoding
 

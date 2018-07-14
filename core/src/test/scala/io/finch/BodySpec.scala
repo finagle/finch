@@ -5,6 +5,7 @@ import com.twitter.io.Buf
 import com.twitter.util.{Return, Throw, Try}
 import io.finch.data.Foo
 import java.nio.charset.Charset
+import shapeless.{:+:, CNil}
 
 class BodySpec extends FinchSpec {
 
@@ -67,6 +68,44 @@ class BodySpec extends FinchSpec {
       implicit val ed = new EvalDecode[Foo](Decode[Foo, Text.Plain])
       textBody[Foo].apply(i)
       !ed.evaluated
+    }
+  }
+
+  it should "respect Content-Type header and pick corresponding decoder for coproduct" in {
+    check { f: Foo =>
+      val plain = Input.post("/").withBody[Text.Plain](f)
+      val csv = Input.post("/").withBody[Application.Csv](f)
+      val endpoint = body[Foo, Text.Plain :+: Application.Csv :+: CNil]
+
+      endpoint(plain).awaitValueUnsafe() === Some(f) && endpoint(csv).awaitValueUnsafe() === Some(f)
+    }
+  }
+
+  it should "select last decoder in the coproduct if request doesn't contain Content-Type" in {
+    check { f: Foo =>
+      val i = Input.post("/").withBody[Application.Csv](f)
+      val input = i.copy(request = {
+        val req = i.request
+        req.headerMap.remove("Content-Type")
+        req
+      })
+      val endpoint = body[Foo, Text.Plain :+: Application.Csv :+: CNil]
+
+      endpoint(input).awaitValueUnsafe() === Some(f)
+    }
+  }
+
+  it should "select last decoder in the coproduct if request doesn't contain supported Content-Type" in {
+    check { f: Foo =>
+      val i = Input.post("/").withBody[Application.Csv](f)
+      val input = i.copy(request = {
+        val req = i.request
+        req.headerMap.set("Content-Type", "foobar")
+        req
+      })
+      val endpoint = body[Foo, Text.Plain :+: Application.Csv :+: CNil]
+
+      endpoint(input).awaitValueUnsafe() === Some(f)
     }
   }
 }
