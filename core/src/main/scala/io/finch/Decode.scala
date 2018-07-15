@@ -10,14 +10,14 @@ import shapeless.{:+:, CNil, Coproduct, Witness}
  * an arbitrary type `A`.
  */
 trait Decode[A] {
-  type ContentType
+  type ContentType <: String
 
   def apply(b: Buf, cs: Charset): Try[A]
 }
 
 object Decode {
 
-  type Aux[A, CT] = Decode[A] { type ContentType = CT }
+  type Aux[A, CT <: String] = Decode[A] { type ContentType = CT }
 
   type Json[A] = Aux[A, Application.Json]
   type Text[A] = Aux[A, Text.Plain]
@@ -40,37 +40,40 @@ object Decode {
    * Returns a [[Decode]] instance for a given type (with required content type).
    */
   @inline def apply[A, CT <: String](implicit d: Aux[A, CT]): Aux[A, CT] = d
-}
 
-trait AdaptableDecode[A, CT] {
-
-  def apply(contentType: Option[String]): Decode.Aux[A, CT]
-
-}
-
-object AdaptableDecode {
-
-  def instance[A, CT](fn: Option[String] => Decode.Aux[A, CT]):  AdaptableDecode[A, CT] = new AdaptableDecode[A, CT] {
-    def apply(contentType: Option[String]): Decode.Aux[A, CT] = fn(contentType)
+  /**
+    * Abstraction over [[Decode]] to select correct decoder according to Content-Type of a request
+    */
+  trait Dispatchable[A, CT] {
+    def apply(contentType: Option[String], b: Buf, cs: Charset): Try[A]
   }
 
-  implicit def mkCnil[A, CTH <: String](implicit decode: Decode.Aux[A, CTH]): AdaptableDecode[A, CTH :+: CNil] =
-    instance(_ => decode.asInstanceOf[Decode.Aux[A, CTH :+: CNil]])
+  object Dispatchable {
 
-  implicit def mkCons[A, CTH <: String, CTT <: Coproduct](implicit
-    decode: Decode.Aux[A, CTH],
-    witness: Witness.Aux[CTH],
-    tail: AdaptableDecode[A, CTT]
-  ): AdaptableDecode[A, CTH :+: CTT] = instance(contentType => {
-    if (contentType.exists(ct => ct.equalsIgnoreCase(witness.value))) {
-      decode.asInstanceOf[Decode.Aux[A, CTH :+: CTT]]
-    } else {
-      tail(contentType).asInstanceOf[Decode.Aux[A, CTH :+: CTT]]
+    def instance[A, CT](fn: (Option[String], Buf, Charset) => Try[A]):  Dispatchable[A, CT] = new Dispatchable[A, CT] {
+      def apply(contentType: Option[String], b: Buf, cs: Charset): Try[A] = fn(contentType, b, cs)
     }
-  })
 
-  implicit def mkSingle[A, CT <: String](implicit
-    decode: Decode.Aux[A, CT]
-  ): AdaptableDecode[A, CT] = instance(_ => decode)
+    implicit def mkCnil[A, CTH <: String](implicit decode: Decode.Aux[A, CTH]): Dispatchable[A, CTH :+: CNil] =
+      instance((_, b, cs) => decode(b, cs))
+
+    implicit def mkCons[A, CTH <: String, CTT <: Coproduct](implicit
+                                                            decode: Decode.Aux[A, CTH],
+                                                            witness: Witness.Aux[CTH],
+                                                            tail: Dispatchable[A, CTT]
+                                                           ): Dispatchable[A, CTH :+: CTT] =
+      instance((contentType, b, cs) => {
+        if (contentType.exists(ct => ct.equalsIgnoreCase(witness.value))) {
+          decode(b, cs)
+        } else {
+          tail(contentType, b, cs)
+        }
+      })
+
+    implicit def mkSingle[A, CT <: String](implicit
+                                           decode: Decode.Aux[A, CT]
+                                          ): Dispatchable[A, CT] = instance((_, b, cs) => decode(b, cs))
+
+  }
 
 }

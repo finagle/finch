@@ -56,8 +56,8 @@ private object FullBody {
 }
 
 private abstract class Body[A, B, CT](
-  ad: AdaptableDecode[A, CT],
-  ct: ClassTag[A]
+                                       ad: Decode.Dispatchable[A, CT],
+                                       ct: ClassTag[A]
 ) extends FullBody[B] with FullBody.PreparedBody[A, B] with (Try[A] => Try[Output[B]]) {
 
   final def apply(ta: Try[A]): Try[Output[B]] = ta match {
@@ -66,7 +66,7 @@ private abstract class Body[A, B, CT](
   }
 
   protected def present(contentType: Option[String], content: Buf, cs: Charset): Future[Output[B]] =
-    Future.const(ad(contentType)(content, cs).transform(this))
+    Future.const(ad(contentType, content, cs).transform(this))
 
   final override def toString: String = "body"
 }
@@ -124,16 +124,15 @@ private[finch] trait Bodies {
    * interpreted as `A`, into an `Option`. The returned [[Endpoint]] only matches non-chunked
    * (non-streamed) requests.
    */
-  def bodyOption[A, CT <: String](implicit
-    d: AdaptableDecode[A, CT], ct: ClassTag[A]
-  ): Endpoint[Option[A]] = new Body[A, Option[A], CT](d, ct) with FullBody.Optional[A]
+  def bodyOption[A, CT](implicit d: Decode.Dispatchable[A, CT], ct: ClassTag[A]): Endpoint[Option[A]] =
+    new Body[A, Option[A], CT](d, ct) with FullBody.Optional[A]
 
   /**
    * An [[Endpoint]] that reads the required request body represented as `CT` (`ContentType`) and
    * interpreted as `A`, or throws an [[Error.NotPresent]] exception. The returned [[Endpoint]]
    * only matches non-chunked (non-streamed) requests.
    */
-  def body[A, CT](implicit d: AdaptableDecode[A, CT], ct: ClassTag[A]): Endpoint[A] =
+  def body[A, CT](implicit d: Decode.Dispatchable[A, CT], ct: ClassTag[A]): Endpoint[A] =
     new Body[A, A, CT](d, ct) with FullBody.Required[A]
 
   /**
