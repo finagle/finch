@@ -55,10 +55,8 @@ private object FullBody {
   }
 }
 
-private abstract class Body[A, B, CT](
-                                       ad: Decode.Dispatchable[A, CT],
-                                       ct: ClassTag[A]
-) extends FullBody[B] with FullBody.PreparedBody[A, B] with (Try[A] => Try[Output[B]]) {
+private abstract class Body[A, B, CT](ad: Decode.Dispatchable[A, CT], ct: ClassTag[A])
+  extends FullBody[B] with FullBody.PreparedBody[A, B] with (Try[A] => Try[Output[B]]) {
 
   final def apply(ta: Try[A]): Try[Output[B]] = ta match {
     case Return(r) => Return(Output.payload(prepare(r)))

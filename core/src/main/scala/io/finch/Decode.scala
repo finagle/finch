@@ -58,21 +58,20 @@ object Decode {
       instance((_, b, cs) => decode(b, cs))
 
     implicit def mkCons[A, CTH <: String, CTT <: Coproduct](implicit
-                                                            decode: Decode.Aux[A, CTH],
-                                                            witness: Witness.Aux[CTH],
-                                                            tail: Dispatchable[A, CTT]
-                                                           ): Dispatchable[A, CTH :+: CTT] =
-      instance((contentType, b, cs) => {
-        if (contentType.exists(ct => ct.equalsIgnoreCase(witness.value))) {
-          decode(b, cs)
-        } else {
-          tail(contentType, b, cs)
-        }
-      })
+      decode: Decode.Aux[A, CTH],
+      witness: Witness.Aux[CTH],
+      tail: Dispatchable[A, CTT]
+    ): Dispatchable[A, CTH :+: CTT] = instance((contentType, b, cs) => {
+      if (contentType.exists(ct => ct.equalsIgnoreCase(witness.value))) {
+        decode(b, cs)
+      } else {
+        tail(contentType, b, cs)
+      }
+    })
 
     implicit def mkSingle[A, CT <: String](implicit
-                                           decode: Decode.Aux[A, CT]
-                                          ): Dispatchable[A, CT] = instance((_, b, cs) => decode(b, cs))
+      decode: Decode.Aux[A, CT]
+    ): Dispatchable[A, CT] = instance((_, b, cs) => decode(b, cs))
 
   }
 
