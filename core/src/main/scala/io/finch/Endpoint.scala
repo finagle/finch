@@ -1,8 +1,6 @@
 package io.finch
 
-//import arrows.twitter.ArrowImpl.{Exception, FlatMap}
-//import arrows.twitter.{Arrow, Task}
-import arrows.twitter.{Arrow, Task}
+import arrows.twitter.Task
 import cats.Alternative
 import cats.data.NonEmptyList
 import com.twitter.finagle.Service
@@ -109,7 +107,7 @@ trait Endpoint[A] { self =>
 
       final def apply(input: Input): Endpoint.Result[B] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
-            EndpointResult.Matched(rem, trc, out.flatMap(o => fn(o.value)))
+            EndpointResult.Matched(rem, trc, out.flatMap(o => Task.async(fn(o.value))))
         case skipped: EndpointResult.NotMatched => skipped
       }
 
@@ -117,12 +115,6 @@ trait Endpoint[A] { self =>
       final override def toString: String = self.toString
     }
 
-
-//  private final def flatMapF[U,V](f: Output[U] => Future[Output[V]]): Arrow[T, V] =
-//    this match {
-//      case a: Exception[_] => a.asInstanceOf[Arrow[T, V]]
-//      case a:Arrow[T, U]   => FlatMap(a, f)
-//    }
 
   /**
    * Transforms this endpoint to the given function `Future[Output[A]] => Future[Output[B]]`.
@@ -143,7 +135,7 @@ trait Endpoint[A] { self =>
     new Endpoint[B] {
       final def apply(input: Input): Endpoint.Result[B] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
-          EndpointResult.Matched(rem, trc,Task.async(fn(out.run)))
+            EndpointResult.Matched(rem, trc, out.flatMap(a => Task.async(fn(Future.value(a)))))
         case skipped: EndpointResult.NotMatched => skipped
       }
 
@@ -187,11 +179,13 @@ trait Endpoint[A] { self =>
       final def apply(input: Input): Endpoint.Result[O] = self(input) match {
         case a @ EndpointResult.Matched(_, _, _) => other(a.rem) match {
           case b @ EndpointResult.Matched(_, _, _) =>
-            EndpointResult.Matched(
-              b.rem,
-              a.trc.concat(b.trc),
-              a.out.liftToTry.join(b.out.liftToTry).run.flatMap(this)
-            )
+            {
+              EndpointResult.Matched(
+                b.rem,
+                a.trc.concat(b.trc),
+                a.out.liftToTry.join(b.out.liftToTry).map( this).flatMap(f => Task.async(f))
+              )
+            }
           case skipped: EndpointResult.NotMatched => skipped
         }
         case skipped: EndpointResult.NotMatched => skipped
