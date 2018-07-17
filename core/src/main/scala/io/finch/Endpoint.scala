@@ -1,6 +1,8 @@
 package io.finch
 
-import arrows.twitter.Task
+//import arrows.twitter.ArrowImpl.{Exception, FlatMap}
+//import arrows.twitter.{Arrow, Task}
+import arrows.twitter.{Arrow, Task}
 import cats.Alternative
 import cats.data.NonEmptyList
 import com.twitter.finagle.Service
@@ -84,7 +86,7 @@ trait Endpoint[A] { self =>
 
       final def apply(input: Input): Endpoint.Result[B] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
-          EndpointResult.Matched(rem, trc, out.run.flatMap(this))
+            EndpointResult.Matched(rem, trc, out.map(o => o.traverse(fn)).flatMap(f => Task.async(f)))
         case skipped: EndpointResult.NotMatched => skipped
       }
 
@@ -107,13 +109,20 @@ trait Endpoint[A] { self =>
 
       final def apply(input: Input): Endpoint.Result[B] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
-          EndpointResult.Matched(rem, trc, out.run.flatMap(this))
+            EndpointResult.Matched(rem, trc, out.flatMap(o => fn(o.value)))
         case skipped: EndpointResult.NotMatched => skipped
       }
 
       override def item = self.item
       final override def toString: String = self.toString
     }
+
+
+//  private final def flatMapF[U,V](f: Output[U] => Future[Output[V]]): Arrow[T, V] =
+//    this match {
+//      case a: Exception[_] => a.asInstanceOf[Arrow[T, V]]
+//      case a:Arrow[T, U]   => FlatMap(a, f)
+//    }
 
   /**
    * Transforms this endpoint to the given function `Future[Output[A]] => Future[Output[B]]`.
