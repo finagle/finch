@@ -1,6 +1,5 @@
 import microsites.ExtraMdFileConfig
 
-
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   version := "0.22.0",
@@ -38,8 +37,8 @@ lazy val compilerOptions = Seq(
   "-Xlint"
 )
 
-
 val testDependencies = Seq(
+  "io.catbird" %% "catbird-util" % catbirdVersion,
   "org.scalacheck" %% "scalacheck" % "1.13.5",
   "org.scalatest" %% "scalatest" % "3.0.5",
   "org.typelevel" %% "cats-laws" % catsVersion,
@@ -52,7 +51,6 @@ val baseSettings = Seq(
     "org.typelevel" %% "cats-core" % catsVersion,
     "com.twitter" %% "finagle-http" % finagleVersion,
     scalaOrganization.value % "scala-reflect" % scalaVersion.value,
-    "io.catbird" %% "catbird-util" % catbirdVersion,
     "io.trane" %% "arrows-twitter" % arrowsVersion
   ) ++ testDependencies.map(_ % "test"),
   resolvers ++= Seq(

@@ -72,10 +72,8 @@ trait Endpoint[A] { self =>
   final def map[B](fn: A => B): Endpoint[B] =
     mapAsync(fn.andThen(Future.value))
 
-
   /**
    * Maps this endpoint to the given function `A => Future[B]`.
-    * B == Output[A]
    */
   final def mapAsync[B](fn: A => Future[B]): Endpoint[B] =
     new Endpoint[B] with (Output[A] => Task[Output[B]]) {
@@ -114,7 +112,6 @@ trait Endpoint[A] { self =>
       override def item = self.item
       final override def toString: String = self.toString
     }
-
 
   /**
    * Transforms this endpoint to the given function `Future[Output[A]] => Future[Output[B]]`.
@@ -179,13 +176,11 @@ trait Endpoint[A] { self =>
       final def apply(input: Input): Endpoint.Result[O] = self(input) match {
         case a @ EndpointResult.Matched(_, _, _) => other(a.rem) match {
           case b @ EndpointResult.Matched(_, _, _) =>
-            {
-              EndpointResult.Matched(
-                b.rem,
-                a.trc.concat(b.trc),
-                a.out.liftToTry.join(b.out.liftToTry).flatMap(this)
-              )
-            }
+            EndpointResult.Matched(
+              b.rem,
+              a.trc.concat(b.trc),
+              a.out.liftToTry.join(b.out.liftToTry).flatMap(this)
+            )
           case skipped: EndpointResult.NotMatched => skipped
         }
         case skipped: EndpointResult.NotMatched => skipped
