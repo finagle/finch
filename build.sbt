@@ -9,7 +9,7 @@ lazy val buildSettings = Seq(
 
 lazy val argonautVersion = "6.2.2"
 lazy val arrowsVersion = "0.1.20-SNAPSHOT"
-lazy val catbirdVersion = "18.6.0"
+lazy val catbirdVersion = "18.7.0"
 lazy val catsVersion = "1.1.0"
 lazy val circeIterateeVersion = "0.9.0"
 lazy val circeVersion = "0.9.3"
