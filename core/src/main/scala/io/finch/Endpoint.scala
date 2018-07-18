@@ -84,7 +84,7 @@ trait Endpoint[A] { self =>
 
       final def apply(input: Input): Endpoint.Result[B] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
-            EndpointResult.Matched(rem, trc, out.map(o => o.traverse(fn)).flatMap(f => Task.async(f)))
+              EndpointResult.Matched(rem, trc, out.flatMap(o => Task.async(this(o))))
         case skipped: EndpointResult.NotMatched => skipped
       }
 
@@ -107,7 +107,7 @@ trait Endpoint[A] { self =>
 
       final def apply(input: Input): Endpoint.Result[B] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
-            EndpointResult.Matched(rem, trc, out.flatMap(o => Task.async(fn(o.value))))
+            EndpointResult.Matched(rem, trc, out.flatMap(o => Task.async(this(o))))
         case skipped: EndpointResult.NotMatched => skipped
       }
 
@@ -183,7 +183,7 @@ trait Endpoint[A] { self =>
               EndpointResult.Matched(
                 b.rem,
                 a.trc.concat(b.trc),
-                a.out.liftToTry.join(b.out.liftToTry).map( this).flatMap(f => Task.async(f))
+                a.out.liftToTry.join(b.out.liftToTry).flatMap(o => Task.async(this(o)))
               )
             }
           case skipped: EndpointResult.NotMatched => skipped
