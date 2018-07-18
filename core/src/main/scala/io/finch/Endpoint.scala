@@ -1,6 +1,6 @@
 package io.finch
 
-import arrows.twitter.{Arrow, Task}
+import arrows.twitter.Task
 import cats.Alternative
 import cats.data.NonEmptyList
 import com.twitter.finagle.Service

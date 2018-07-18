@@ -5,9 +5,7 @@ lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   version := "0.22.0",
   scalaVersion := "2.12.6",
-  scalafixSemanticdbVersion := "4.0.0-M1",
   crossScalaVersions := Seq("2.11.12", "2.12.6")
-
 )
 
 lazy val finagleVersion = "18.7.0"
@@ -37,13 +35,9 @@ lazy val compilerOptions = Seq(
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
   "-Xfuture",
-  "-Xlint",
-  "-Xplugin-require:semanticdb"
+  "-Xlint"
 )
 
-
-scalafixSettings
-sbtfixSettings // enable semanticdb-sbt for sbt metabuilds.
 
 val testDependencies = Seq(
   "org.scalacheck" %% "scalacheck" % "1.13.5",
