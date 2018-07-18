@@ -1,6 +1,6 @@
 package io.finch
 
-import arrows.twitter.Task
+import arrows.twitter.{Arrow, Task}
 import cats.Alternative
 import cats.data.NonEmptyList
 import com.twitter.finagle.Service
@@ -78,13 +78,13 @@ trait Endpoint[A] { self =>
     * B == Output[A]
    */
   final def mapAsync[B](fn: A => Future[B]): Endpoint[B] =
-    new Endpoint[B] with (Output[A] => Future[Output[B]]) {
+    new Endpoint[B] with (Output[A] => Task[Output[B]]) {
 
-      final def apply(oa: Output[A]): Future[Output[B]] = oa.traverse(fn)
+      final def apply(oa: Output[A]): Task[Output[B]] = Task.async(oa.traverse(fn))
 
       final def apply(input: Input): Endpoint.Result[B] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
-              EndpointResult.Matched(rem, trc, out.flatMap(o => Task.async(this(o))))
+              EndpointResult.Matched(rem, trc, out.flatMap(this))
         case skipped: EndpointResult.NotMatched => skipped
       }
 
@@ -102,12 +102,12 @@ trait Endpoint[A] { self =>
    * Maps this endpoint to the given function `A => Future[Output[B]]`.
    */
   final def mapOutputAsync[B](fn: A => Future[Output[B]]): Endpoint[B] =
-    new Endpoint[B] with (Output[A] => Future[Output[B]]) {
-      final def apply(oa: Output[A]): Future[Output[B]] = oa.traverseFlatten(fn)
+    new Endpoint[B] with (Output[A] => Task[Output[B]]) {
+      final def apply(oa: Output[A]): Task[Output[B]] = Task.async(oa.traverseFlatten(fn))
 
       final def apply(input: Input): Endpoint.Result[B] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
-            EndpointResult.Matched(rem, trc, out.flatMap(o => Task.async(this(o))))
+            EndpointResult.Matched(rem, trc, out.flatMap(this))
         case skipped: EndpointResult.NotMatched => skipped
       }
 
@@ -158,7 +158,7 @@ trait Endpoint[A] { self =>
    * resulting type for product function.
    */
   final def productWith[B, O](other: Endpoint[B])(p: (A, B) => O): Endpoint[O] =
-    new Endpoint[O] with (((Try[Output[A]], Try[Output[B]])) => Future[Output[O]]) {
+    new Endpoint[O] with (((Try[Output[A]], Try[Output[B]])) => Task[Output[O]]) {
       private[this] final def collect(a: Throwable, b: Throwable): Throwable = (a, b) match {
         case (aa: Error, bb: Error) => Errors(NonEmptyList.of(aa, bb))
         case (aa: Error, Errors(bs)) => Errors(aa :: bs)
@@ -169,11 +169,11 @@ trait Endpoint[A] { self =>
         case _ => a
       }
 
-      final def apply(both: (Try[Output[A]], Try[Output[B]])): Future[Output[O]] = both match {
-        case (Return(oa), Return(ob)) => Future.value(oa.flatMap(a => ob.map(b => p(a, b))))
-        case (Throw(a), Throw(b)) => Future.exception(collect(a, b))
-        case (Throw(a), _) => Future.exception(a)
-        case (_, Throw(b)) => Future.exception(b)
+      final def apply(both: (Try[Output[A]], Try[Output[B]])): Task[Output[O]] = both match {
+        case (Return(oa), Return(ob)) => Task.value(oa.flatMap(a => ob.map(b => p(a, b))))
+        case (Throw(a), Throw(b)) => Task.exception(collect(a, b))
+        case (Throw(a), _) => Task.exception(a)
+        case (_, Throw(b)) => Task.exception(b)
       }
 
       final def apply(input: Input): Endpoint.Result[O] = self(input) match {
@@ -183,7 +183,7 @@ trait Endpoint[A] { self =>
               EndpointResult.Matched(
                 b.rem,
                 a.trc.concat(b.trc),
-                a.out.liftToTry.join(b.out.liftToTry).flatMap(o => Task.async(this(o)))
+                a.out.liftToTry.join(b.out.liftToTry).flatMap(this)
               )
             }
           case skipped: EndpointResult.NotMatched => skipped
@@ -412,7 +412,7 @@ object Endpoint {
    */
   def liftAsync[A](fa: => Future[A]): Endpoint[A] = new Endpoint[A] {
     final def apply(input: Input): Result[A] =
-      EndpointResult.Matched(input, Trace.empty, Task.async(fa).map(a => Output.payload(a)))
+        EndpointResult.Matched(input, Trace.empty, Task.async(fa.map(a => Output.payload(a))))
   }
 
   /**
