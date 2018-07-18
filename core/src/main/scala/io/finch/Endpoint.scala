@@ -132,7 +132,7 @@ trait Endpoint[A] { self =>
     new Endpoint[B] {
       final def apply(input: Input): Endpoint.Result[B] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
-          EndpointResult.Matched(rem, trc, out.flatMap(a => Task.async(fn(Future.value(a)))))
+          EndpointResult.Matched(rem, trc, Task.async(fn(out.run)))
         case skipped: EndpointResult.NotMatched => skipped
       }
 
