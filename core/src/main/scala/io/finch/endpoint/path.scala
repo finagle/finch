@@ -4,7 +4,6 @@ import arrows.twitter.Task
 import io.finch._
 import io.finch.internal.EmptyOutput
 import io.netty.handler.codec.http.QueryStringDecoder
-
 import scala.reflect.ClassTag
 import shapeless.HNil
 

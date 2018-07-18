@@ -5,7 +5,6 @@ import cats.Id
 import cats.data.NonEmptyList
 import com.twitter.util._
 import io.finch._
-
 import scala.reflect.ClassTag
 
 private abstract class Param[F[_], A](

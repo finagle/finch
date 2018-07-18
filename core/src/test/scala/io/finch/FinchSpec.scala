@@ -1,8 +1,5 @@
 package io.finch
 
-import java.nio.charset.{Charset, StandardCharsets}
-import java.util.UUID
-
 import arrows.twitter.Task
 import cats.Eq
 import cats.data.NonEmptyList
@@ -11,11 +8,12 @@ import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http._
 import com.twitter.io.Buf
 import com.twitter.util.{Future, Try}
+import java.nio.charset.{Charset, StandardCharsets}
+import java.util.UUID
 import org.scalacheck.{Arbitrary, Cogen, Gen}
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers
 import org.typelevel.discipline.Laws
-
 import scala.reflect.ClassTag
 import shapeless.Witness
 

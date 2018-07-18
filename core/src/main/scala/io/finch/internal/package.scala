@@ -1,12 +1,10 @@
 package io.finch
 
+import arrows.twitter.Task
 import com.twitter.finagle.http.{Fields, Message}
 import com.twitter.io.Buf
 import java.nio.ByteBuffer
 import java.nio.charset.{Charset, StandardCharsets}
-
-import arrows.twitter.Task
-
 import scala.annotation.tailrec
 import shapeless.HNil
 

@@ -5,7 +5,6 @@ import cats.Id
 import com.twitter.util.{Future, Return, Throw, Try}
 import io.finch._
 import io.finch.items._
-
 import scala.reflect.ClassTag
 
 private abstract class Header[F[_], A](

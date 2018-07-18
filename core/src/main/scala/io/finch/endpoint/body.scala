@@ -1,5 +1,6 @@
 package io.finch.endpoint
 
+import arrows.twitter.Task
 import com.twitter.concurrent.AsyncStream
 import com.twitter.io.Buf
 import com.twitter.util.{Future, Return, Throw, Try}
@@ -7,9 +8,6 @@ import io.finch._
 import io.finch.internal._
 import io.finch.items._
 import java.nio.charset.Charset
-
-import arrows.twitter.Task
-
 import scala.reflect.ClassTag
 
 private abstract class FullBody[A] extends Endpoint[A] {
