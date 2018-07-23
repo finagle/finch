@@ -161,7 +161,7 @@ lazy val docSettings = allSettings ++ Seq(
 )
 
 lazy val finch = project.in(file("."))
-  .settings(moduleName := "finch")
+  .settings(moduleName := "finch-arrows")
   .settings(allSettings)
   .settings(noPublish)
   .settings(
@@ -192,11 +192,11 @@ lazy val finch = project.in(file("."))
   .dependsOn(core, iteratee, generic, circe)
 
 lazy val core = project
-  .settings(moduleName := "finch-core")
+  .settings(moduleName := "finch-arrows-core")
   .settings(allSettings)
 
 lazy val iteratee = project
-  .settings(moduleName := "finch-iteratee")
+  .settings(moduleName := "finch-arrows-iteratee")
   .settings(allSettings)
   .settings(
     libraryDependencies ++= Seq(
@@ -207,19 +207,19 @@ lazy val iteratee = project
   .dependsOn(core % "compile->compile;test->test")
 
 lazy val generic = project
-  .settings(moduleName := "finch-generic")
+  .settings(moduleName := "finch-arrows-generic")
   .settings(allSettings)
   .dependsOn(core % "compile->compile;test->test")
 
 lazy val test = project
-  .settings(moduleName := "finch-test")
+  .settings(moduleName := "finch-arrows-test")
   .settings(allSettings)
   .settings(coverageExcludedPackages := "io\\.finch\\.test\\..*")
   .settings(libraryDependencies ++= testDependencies)
   .dependsOn(core)
 
 lazy val jsonTest = project.in(file("json-test"))
-  .settings(moduleName := "finch-json-test")
+  .settings(moduleName := "finch-arrows-json-test")
   .settings(allSettings)
   .settings(coverageExcludedPackages := "io\\.finch\\.test\\..*")
   .settings(
@@ -232,7 +232,7 @@ lazy val jsonTest = project.in(file("json-test"))
   .dependsOn(core, iteratee)
 
 lazy val argonaut = project
-  .settings(moduleName := "finch-argonaut")
+  .settings(moduleName := "finch-arrows-argonaut")
   .settings(allSettings)
   .settings(libraryDependencies ++= Seq(
     "io.argonaut" %% "argonaut" % argonautVersion
@@ -240,7 +240,7 @@ lazy val argonaut = project
   .dependsOn(core, jsonTest % "test")
 
 lazy val json4s = project
-  .settings(moduleName := "finch-json4s")
+  .settings(moduleName := "finch-arrows-json4s")
   .settings(allSettings)
   .settings(libraryDependencies ++= Seq(
     "org.json4s" %% "json4s-jackson" % json4sVersion,
@@ -249,7 +249,7 @@ lazy val json4s = project
   .dependsOn(core, jsonTest % "test")
 
 lazy val circe = project
-  .settings(moduleName := "finch-circe")
+  .settings(moduleName := "finch-arrows-circe")
   .settings(allSettings)
   .settings(
     libraryDependencies ++= Seq(
@@ -262,18 +262,18 @@ lazy val circe = project
   .dependsOn(core, iteratee, jsonTest % "test")
 
 lazy val sprayjson = project
-  .settings(moduleName := "finch-sprayjson")
+  .settings(moduleName := "finch-arrows-sprayjson")
   .settings(allSettings)
   .settings(libraryDependencies += "io.spray" %%  "spray-json" % sprayVersion)
   .dependsOn(core, jsonTest % "test")
 
 lazy val sse = project
-  .settings(moduleName := "finch-sse")
+  .settings(moduleName := "finch-arrows-sse")
   .settings(allSettings)
   .dependsOn(core)
 
 lazy val refined = project
-  .settings(moduleName := "finch-refined")
+  .settings(moduleName := "finch-arrows-refined")
   .settings(allSettings)
   .settings(
     libraryDependencies ++= Seq(
@@ -285,7 +285,7 @@ lazy val refined = project
   .dependsOn(core % "test->test;compile->compile")
 
 lazy val docs = project
-  .settings(moduleName := "finch-docs")
+  .settings(moduleName := "finch-arrows-docs")
   .settings(docSettings)
   .settings(noPublish)
   .settings(
@@ -300,7 +300,7 @@ lazy val docs = project
   .dependsOn(core, circe, sse, argonaut, json4s, iteratee, refined)
 
 lazy val examples = project
-  .settings(moduleName := "finch-examples")
+  .settings(moduleName := "finch-arrows-examples")
   .settings(allSettings)
   .settings(noPublish)
   .settings(resolvers += "TM" at "http://maven.twttr.com")
@@ -322,7 +322,7 @@ lazy val examples = project
   .dependsOn(core, circe, iteratee)
 
 lazy val benchmarks = project
-  .settings(moduleName := "finch-benchmarks")
+  .settings(moduleName := "finch-arrows-benchmarks")
   .enablePlugins(JmhPlugin)
   .settings(allSettings)
   .settings(noPublish)
