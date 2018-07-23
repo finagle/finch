@@ -1,12 +1,12 @@
 package io.finch.endpoint
 
+import arrows.twitter.Task
 import cats.Id
 import cats.data.NonEmptyList
 import com.twitter.finagle.http.Request
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart, MultipartDecoder}
 import com.twitter.finagle.http.exp.Multipart.{FileUpload => FinagleFileUpload}
 import com.twitter.util.{Future, Throw}
-import io.catbird.util.Rerunnable
 import io.finch._
 import io.finch.items._
 import scala.reflect.ClassTag
@@ -30,7 +30,7 @@ private abstract class Attribute[F[_], A](val name: String, d: DecodeEntity[A], 
   final def apply(input: Input): Endpoint.Result[F[A]] = {
     if (input.request.isChunked) EndpointResult.NotMatched
     else {
-      val output = Rerunnable.fromFuture {
+      val output = Task.async {
         all(input) match {
           case None => missing(name)
           case Some(values) =>
@@ -122,7 +122,7 @@ private abstract class FileUpload[F[_]](name: String)
   final def apply(input: Input): Endpoint.Result[F[FinagleFileUpload]] =
     if (input.request.isChunked) EndpointResult.NotMatched
     else {
-      val output = Rerunnable.fromFuture {
+      val output = Task.async {
         all(input) match {
           case Some(nel) => present(nel)
           case None => missing(name)

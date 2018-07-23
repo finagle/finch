@@ -1,8 +1,8 @@
 package io.finch.endpoint
 
+import arrows.twitter.Task
 import cats.Id
 import com.twitter.util.{Future, Return, Throw, Try}
-import io.catbird.util.Rerunnable
 import io.finch._
 import io.finch.items._
 import scala.reflect.ClassTag
@@ -22,7 +22,7 @@ private abstract class Header[F[_], A](
   }
 
   final def apply(input: Input): Endpoint.Result[F[A]] = {
-    val output = Rerunnable.fromFuture {
+    val output = Task.async {
       input.request.headerMap.getOrNull(name) match {
         case null => missing(name)
         case value => Future.const(d(value).transform(self))

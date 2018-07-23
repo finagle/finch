@@ -1,9 +1,9 @@
 package io.finch.endpoint
 
+import arrows.twitter.Task
 import com.twitter.concurrent.AsyncStream
 import com.twitter.io.Buf
 import com.twitter.util.{Future, Return, Throw, Try}
-import io.catbird.util.Rerunnable
 import io.finch._
 import io.finch.internal._
 import io.finch.items._
@@ -18,7 +18,7 @@ private abstract class FullBody[A] extends Endpoint[A] {
   final def apply(input: Input): Endpoint.Result[A] =
     if (input.request.isChunked) EndpointResult.NotMatched
     else {
-      val output = Rerunnable.fromFuture {
+      val output = Task.async {
         val contentLength = input.request.contentLengthOrNull
         if (contentLength == null || contentLength == "0") missing
         else present(input.request.contentType, input.request.content, input.request.charsetOrUtf8)
@@ -165,7 +165,7 @@ private[finch] trait Bodies {
         EndpointResult.Matched(
           input,
           Trace.empty,
-          Rerunnable(Output.payload(AsyncStream.fromReader(input.request.reader)))
+          Task(Output.payload(AsyncStream.fromReader(input.request.reader)))
         )
 
     final override def item: RequestItem = items.BodyItem

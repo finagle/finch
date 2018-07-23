@@ -1,9 +1,9 @@
 package io.finch.endpoint
 
+import arrows.twitter.Task
 import cats.Id
 import cats.data.NonEmptyList
 import com.twitter.util._
-import io.catbird.util.Rerunnable
 import io.finch._
 import scala.reflect.ClassTag
 
@@ -22,7 +22,7 @@ private abstract class Param[F[_], A](
   }
 
   final def apply(input: Input): Endpoint.Result[F[A]] = {
-    val output = Rerunnable.fromFuture {
+    val output = Task.async {
       input.request.params.get(name) match {
         case None => missing(name)
         case Some(value) => Future.const(d(value).transform(self))
@@ -62,7 +62,7 @@ private abstract class Params[F[_], A](name: String, d: DecodeEntity[A], tag: Cl
   protected def present(value: Iterable[A]): F[A]
 
   final def apply(input: Input): Endpoint.Result[F[A]] = {
-    val output = Rerunnable.fromFuture {
+    val output = Task.async {
       input.request.params.getAll(name) match {
         case value if value.isEmpty => missing(name)
         case value =>

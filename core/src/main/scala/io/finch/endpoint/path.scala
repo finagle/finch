@@ -1,6 +1,6 @@
 package io.finch.endpoint
 
-import io.catbird.util.Rerunnable
+import arrows.twitter.Task
 import io.finch._
 import io.finch.internal.EmptyOutput
 import io.netty.handler.codec.http.QueryStringDecoder
@@ -25,7 +25,7 @@ private class ExtractPath[A](implicit d: DecodePath[A], ct: ClassTag[A]) extends
         EndpointResult.Matched(
           input.withRoute(rest),
           Trace.segment(toString),
-          Rerunnable.const(Output.payload(a))
+          Task.value(Output.payload(a))
         )
       case _ =>
         EndpointResult.NotMatched
@@ -40,7 +40,7 @@ private class ExtractPaths[A](implicit d: DecodePath[A], ct: ClassTag[A]) extend
   final def apply(input: Input): Endpoint.Result[Seq[A]] = EndpointResult.Matched(
     input.copy(route = Nil),
     Trace.segment(toString),
-    Rerunnable.const(
+    Task.value(
       Output.payload(input.route.flatMap(p => d(QueryStringDecoder.decodeComponent(p)).toSeq))
     )
   )

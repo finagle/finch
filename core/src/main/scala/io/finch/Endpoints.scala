@@ -1,7 +1,7 @@
 package io.finch
 
+import arrows.twitter.Task
 import com.twitter.finagle.http.Request
-import io.catbird.util.Rerunnable
 import io.finch.endpoint._
 import io.finch.internal._
 import shapeless._
@@ -41,7 +41,7 @@ trait Endpoints extends Bodies
    */
   object root extends Endpoint[Request] {
     final def apply(input: Input): Endpoint.Result[Request] =
-      EndpointResult.Matched(input, Trace.empty, Rerunnable(Output.payload(input.request)))
+      EndpointResult.Matched(input, Trace.empty, Task(Output.payload(input.request)))
 
     final override def toString: String = "root"
   }

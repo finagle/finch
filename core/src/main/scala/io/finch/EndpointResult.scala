@@ -1,8 +1,8 @@
 package io.finch
 
+import arrows.twitter.Task
 import com.twitter.finagle.http.Method
 import com.twitter.util.{Await, Duration, Future, Try}
-import io.catbird.util.Rerunnable
 
 /**
  * A result returned from an [[Endpoint]]. This models `Option[(Input, Future[Output])]` and
@@ -113,7 +113,7 @@ object EndpointResult {
   final case class Matched[A](
     rem: Input,
     trc: Trace,
-    out: Rerunnable[Output[A]]
+    out: Task[Output[A]]
   ) extends EndpointResult[A] {
     def isMatched: Boolean = true
   }
