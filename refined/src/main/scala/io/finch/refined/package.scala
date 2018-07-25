@@ -9,7 +9,7 @@ package object refined {
     ad: DecodePath[A],
     v: Validate[A, B],
     rt: RefType[F]
-  ): DecodePath[F[A, B]] = DecodePath.instance(s => ad(s).flatMap(p => rt.refine[B](p).toOption))
+  ): DecodePath[F[A, B]] = DecodePath.instance(s => ad(s).flatMap(p => rt.refine[B](p).right.toOption))
 
   implicit def decodeEntityRefined[F[_, _], A, B](implicit
     ad: DecodeEntity[A],
