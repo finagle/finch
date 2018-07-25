@@ -189,7 +189,7 @@ lazy val finch = project.in(file("."))
     "io.spray" %%  "spray-json" % sprayVersion
   ))
   .aggregate(
-    core, iteratee, generic, argonaut, json4s, circe, sprayjson, benchmarks, test, jsonTest, examples, sse
+    core, iteratee, generic, argonaut, json4s, circe, sprayjson, benchmarks, test, jsonTest, examples, sse, refined
   )
   .dependsOn(core, iteratee, generic, circe)
 
