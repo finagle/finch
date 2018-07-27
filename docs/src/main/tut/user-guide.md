@@ -522,13 +522,12 @@ instances in scope:
 ```tut:silent
 import io.finch._
 import io.finch.circe._
-import io.circe.Decoder,io.circe.Encoder, io.circe.generic.semiauto._
+import io.circe.Decoder, io.circe.Encoder, io.circe.generic.semiauto._
 
 case class Person(name: String, age: Int)
-object Person {
-  implicit val decoder: Decoder[Person] = deriveDecoder[Person]
-  implicit val encoder: Encoder[Person] = deriveEncoder[Person]
-}
+
+implicit val decoder: Decoder[Person] = deriveDecoder[Person]
+implicit val encoder: Encoder[Person] = deriveEncoder[Person]
 
 ```
 
@@ -536,7 +535,7 @@ Finch will automatically adapt these implicits to its own `io.finch.Decode.Json[
 that you can use the `jsonBody(Option)` endpoints to read the HTTP bodies sent in a JSON format:
 
 ```tut
-import io.finch._, com.twitter.io.Buf, Person._
+import io.finch._, com.twitter.io.Buf
 
 val p = jsonBody[Person]
 
@@ -551,7 +550,7 @@ Finch supports multiple decoders in the single `body` endpoint selecting the dec
 header of a request. This behavior can be enabled using `shapeless.Coproduct`:
 
 ```tut
-import io.finch._, io.finch.internal._, shapeless._, com.twitter.io.Buf, com.twitter.util.Try, Person._
+import io.finch.internal._, shapeless._, com.twitter.io.Buf
 
 //example decoder and encoder for text/plain content-type.
 //Represents Person as a string with semicolon delimeter
@@ -822,17 +821,29 @@ implicit val e: Encode.Aux[Exception, Text.Html] = Encode.instance((e, cs) =>
 )
 ```
 
-**Finch used to provide exception encoders** from all of its json libraries, but do to some issues 
+**Finch used to provide exception encoders** from all of its json libraries, but due to some issues
 with implicit scope that made defining custom encoders difficult, you must now **define your own**.
-Here is an example Json encoder, that was formerly used in finch-circe:
+Here is an example Json encoder for finch-circe:
 
 ```tut:silent
 import io.circe._, io.finch._
 
-implicit val encodeExceptionCirce: Encoder[Exception] = Encoder.instance(e =>		
-  Json.obj("message" -> Option(e.getMessage).fold(Json.Null)(Json.fromString))		
-)
+def encodeErrorList(es: List[Exception]): Json = {
+  val messages = es.map(x => Json.fromString(x.getMessage))
+  Json.obj("errors" -> Json.arr(messages: _*))
+}
+
+implicit val encodeException: Encoder[Exception] = Encoder.instance({
+  case e: io.finch.Errors => encodeErrorList(e.errors.toList)
+  case e: io.finch.Error =>
+    e.getCause match {
+      case e: io.circe.Errors => encodeErrorList(e.errors.toList)
+      case err => Json.obj("message" -> Json.fromString(e.getMessage))
+    }
+  case e: Exception => Json.obj("message" -> Json.fromString(e.getMessage))
+})
 ```
+This encoder will handle any accumulated Finch and Circe errors in addition to single exceptions.
 
 If no other `Encode[Exception]` is available, Finch provides a fallthrough of `Encode.Aux[Exception, ?]`
 that will return an empty content body.
