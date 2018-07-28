@@ -16,7 +16,6 @@ lazy val shapelessVersion = "2.3.3"
 lazy val catsVersion = "1.1.0"
 lazy val sprayVersion = "1.3.4"
 lazy val argonautVersion = "6.2.2"
-lazy val json4sVersion = "3.5.4"
 lazy val iterateeVersion = "0.17.0"
 lazy val iterateeTwitterVersion = "18.7.0"
 lazy val refinedVersion = "0.9.2"
@@ -187,7 +186,7 @@ lazy val finch = project.in(file("."))
     "io.spray" %%  "spray-json" % sprayVersion
   ))
   .aggregate(
-    core, iteratee, generic, argonaut, json4s, circe, sprayjson, benchmarks, test, jsonTest, examples, sse, refined
+    core, iteratee, generic, argonaut, circe, sprayjson, benchmarks, test, jsonTest, examples, sse, refined
   )
   .dependsOn(core, iteratee, generic, circe)
 
@@ -236,15 +235,6 @@ lazy val argonaut = project
   .settings(allSettings)
   .settings(libraryDependencies ++= Seq(
     "io.argonaut" %% "argonaut" % argonautVersion
-  ))
-  .dependsOn(core, jsonTest % "test")
-
-lazy val json4s = project
-  .settings(moduleName := "finch-json4s")
-  .settings(allSettings)
-  .settings(libraryDependencies ++= Seq(
-    "org.json4s" %% "json4s-jackson" % json4sVersion,
-    "org.json4s" %% "json4s-ext" % json4sVersion
   ))
   .dependsOn(core, jsonTest % "test")
 
@@ -297,7 +287,7 @@ lazy val docs = project
     )
   )
   .enablePlugins(MicrositesPlugin, ScalaUnidocPlugin)
-  .dependsOn(core, circe, sse, argonaut, json4s, iteratee, refined)
+  .dependsOn(core, circe, sse, argonaut, iteratee, refined)
 
 lazy val examples = project
   .settings(moduleName := "finch-examples")
