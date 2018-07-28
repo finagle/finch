@@ -189,7 +189,7 @@ lazy val finch = project.in(file("."))
     "io.spray" %%  "spray-json" % sprayVersion
   ))
   .aggregate(
-    core, iteratee, generic, argonaut, json4s, circe, sprayjson, benchmarks, test, jsonTest, examples, sse, refined
+    core, iteratee, generic, argonaut, circe, sprayjson, benchmarks, test, jsonTest, examples, sse, refined
   )
   .dependsOn(core, iteratee, generic, circe)
 
@@ -241,6 +241,7 @@ lazy val argonaut = project
   ))
   .dependsOn(core, jsonTest % "test")
 
+<<<<<<< HEAD
 lazy val json4s = project
   .settings(moduleName := "finch-arrows-json4s")
   .settings(allSettings)
@@ -250,6 +251,8 @@ lazy val json4s = project
   ))
   .dependsOn(core, jsonTest % "test")
 
+=======
+>>>>>>> 97557f8... Extract finch-json4s into its own project
 lazy val circe = project
   .settings(moduleName := "finch-arrows-circe")
   .settings(allSettings)
@@ -299,7 +302,7 @@ lazy val docs = project
     )
   )
   .enablePlugins(MicrositesPlugin, ScalaUnidocPlugin)
-  .dependsOn(core, circe, sse, argonaut, json4s, iteratee, refined)
+  .dependsOn(core, circe, sse, argonaut, iteratee, refined)
 
 lazy val examples = project
   .settings(moduleName := "finch-arrows-examples")
