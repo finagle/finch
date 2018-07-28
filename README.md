@@ -13,19 +13,30 @@ Badges
 [![Gitter](https://img.shields.io/badge/gitter-join%20chat-green.svg)](https://gitter.im/finagle/finch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.finagle/finch-core_2.11.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.finagle/finch-core_2.11)
 
-Modules
--------
+Standard Modules
+----------------
 Finch uses multi-project structure and contains of the following _modules_:
 
-* [`finch-core`](core) - the core classes/functions
+* [`finch-core`](core) - core classes/functions
 * [`finch-generic`](generic) - generic derivation for endpoints
-* [`finch-argonaut`](argonaut) - the JSON API support for the [Argonaut][argonaut] library
-* [`finch-json4s`](json4s) - the JSON API support for the [JSON4S][json4s] library
-* [`finch-circe`](circe) - the JSON API support for the [Circe][circe] library
-* [`finch-playjson`](playjson) - The JSON API support for the [PlayJson][playjson] library
-* [`finch-sprayjson`](sprayjson) - The JSON API support for the [SprayJson][sprayjson] library
+* [`finch-argonaut`](argonaut) - [Argonaut][argonaut] + Finch
+* [`finch-circe`](circe) - [Circe][circe] + Finch
+* [`finch-sprayjson`](sprayjson) - [SprayJson][sprayjson] + Finch
+* [`finch-iteratee`](iteratee) - [Iteratee][iteratee] + Finch
+* [`finch-refined`](refined) - [Refined][refined] + Finch
 * [`finch-test`](test) - the test support classes/functions
 * [`finch-sse`](sse) - SSE ([Server Sent Events][server-sent-events]) support in Finch
+
+Additional Modules
+------------------
+
+Finch's Github organization has even more modules (these are, however, not published regularly;
+reach out if you need published artifacts):
+
+* [`finch-jackson`][finch-jackson] - [Jackson][jackson] + Finch
+* [`finch-json4s`][finch-json4s] - [JSON4s][json4s] + Finch
+* [`finch-playjson`][finch-playjson] - [PlayJson][playjson] + Finch
+* [`finch-oauth2`](finch-oath2) - [Finagle OAuth2](finagle-oauth2) + Finch
 
 Installation
 ------------
@@ -161,14 +172,21 @@ limitations under the License.
 [json4s]: http://json4s.org
 [playjson]: https://www.playframework.com/documentation/2.6.x/ScalaJson
 [sprayjson]: https://github.com/spray/spray-json
+[iteratee]: https://github.com/travisbrown/iteratee
+[refined]: https://github.com/fthomas/refined
 [scaladoc]: http://finagle.github.io/finch/docs/#io.finch.package
 [typelevel]: http://typelevel.org/
 [conduct]: http://typelevel.org/conduct.html
 [wrk]: https://github.com/wg/wrk
 [finch-bench]: https://github.com/finagle/finch/blob/master/examples/src/main/scala/io/finch/wrk/Finch.scala
 [finagle-bench]: https://github.com/finagle/finch/blob/master/examples/src/main/scala/io/finch/wrk/Finagle.scala
+[finagle-oauth2]: https://github.com/finagle/finagle-oauth2
 [tempower]: https://www.techempower.com/benchmarks/#section=data-r12&hw=peak&test=json&l=6bk
 [finch-is-fast]: http://vkostyukov.net/posts/how-fast-is-finch/
+[finch-jackson]: https://github.com/finch/finch-jackson
+[finch-json4s]: https://github.com/finch/finch-json4s
+[finch-playjson]: https://github.com/finch/finch-playjson
+[finch-oauth2]: https://github.com/finch/finch-ouath2
 [server-sent-events]: https://en.wikipedia.org/wiki/Server-sent_events
 [vkostyukov]: https://twitter.com/vkostyukov
 [travisbrown]: https://twitter.com/travisbrown
