@@ -1600,9 +1600,9 @@ into an <code>Option</code>.</p><div class="fullcomment"><div class="comment cmt
 into an <code>Option</code>. The returned <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> only matches non-chunked (non-streamed) requests.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>Bodies</dd></dl></div>
     </li><li name="io.finch.endpoint.Bodies#body" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="body[A,CT&lt;:String](implicitd:io.finch.Decode.Aux[A,CT],implicitct:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a><a id="body[A,CT&lt;:String](Aux[A,CT],ClassTag[A]):Endpoint[A]"></a>
+      <a id="body[A,CT](implicitd:io.finch.Decode.Dispatchable[A,CT],implicitct:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]"></a><a id="body[A,CT](Dispatchable[A,CT],ClassTag[A]):Endpoint[A]"></a>
       <span class="permalink">
-      <a href="../../io/finch/index.html#body[A,CT&lt;:String](implicitd:io.finch.Decode.Aux[A,CT],implicitct:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink">
+      <a href="../../io/finch/index.html#body[A,CT](implicitd:io.finch.Decode.Dispatchable[A,CT],implicitct:scala.reflect.ClassTag[A]):io.finch.Endpoint[A]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1611,7 +1611,7 @@ into an <code>Option</code>. The returned <a href="Endpoint.html" class="extype"
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">body</span><span class="tparams">[<span name="A">A</span>, <span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="Decode$.html#Aux[A,CT&lt;:String]=io.finch.Decode[A]{typeContentType=CT}" class="extmbr" name="io.finch.Decode.Aux">Aux</a>[<span class="extype" name="io.finch.endpoint.Bodies.body.A">A</span>, <span class="extype" name="io.finch.endpoint.Bodies.body.CT">CT</span>]</span>, <span name="ct">ct: <a href="http://www.scala-lang.org/api/2.12.6/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.Bodies.body.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.endpoint.Bodies.body.A">A</span>]</span>
+        <span class="name">body</span><span class="tparams">[<span name="A">A</span>, <span name="CT">CT</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="Decode$$Dispatchable.html" class="extype" name="io.finch.Decode.Dispatchable">Dispatchable</a>[<span class="extype" name="io.finch.endpoint.Bodies.body.A">A</span>, <span class="extype" name="io.finch.endpoint.Bodies.body.CT">CT</span>]</span>, <span name="ct">ct: <a href="http://www.scala-lang.org/api/2.12.6/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.Bodies.body.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<span class="extype" name="io.finch.endpoint.Bodies.body.A">A</span>]</span>
       </span>
       
       <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads the required request body represented as <code>CT</code> (<code>ContentType</code>) and
@@ -1620,9 +1620,9 @@ interpreted as <code>A</code>, or throws an <a href="Error$$NotPresent.html" cla
 only matches non-chunked (non-streamed) requests.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>Bodies</dd></dl></div>
     </li><li name="io.finch.endpoint.Bodies#bodyOption" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="bodyOption[A,CT&lt;:String](implicitd:io.finch.Decode.Aux[A,CT],implicitct:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]"></a><a id="bodyOption[A,CT&lt;:String](Aux[A,CT],ClassTag[A]):Endpoint[Option[A]]"></a>
+      <a id="bodyOption[A,CT](implicitd:io.finch.Decode.Dispatchable[A,CT],implicitct:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]"></a><a id="bodyOption[A,CT](Dispatchable[A,CT],ClassTag[A]):Endpoint[Option[A]]"></a>
       <span class="permalink">
-      <a href="../../io/finch/index.html#bodyOption[A,CT&lt;:String](implicitd:io.finch.Decode.Aux[A,CT],implicitct:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]" title="Permalink">
+      <a href="../../io/finch/index.html#bodyOption[A,CT](implicitd:io.finch.Decode.Dispatchable[A,CT],implicitct:scala.reflect.ClassTag[A]):io.finch.Endpoint[Option[A]]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1631,7 +1631,7 @@ only matches non-chunked (non-streamed) requests.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">bodyOption</span><span class="tparams">[<span name="A">A</span>, <span name="CT">CT &lt;: <span class="extype" name="scala.Predef.String">String</span></span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="Decode$.html#Aux[A,CT&lt;:String]=io.finch.Decode[A]{typeContentType=CT}" class="extmbr" name="io.finch.Decode.Aux">Aux</a>[<span class="extype" name="io.finch.endpoint.Bodies.bodyOption.A">A</span>, <span class="extype" name="io.finch.endpoint.Bodies.bodyOption.CT">CT</span>]</span>, <span name="ct">ct: <a href="http://www.scala-lang.org/api/2.12.6/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.Bodies.bodyOption.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.6/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<span class="extype" name="io.finch.endpoint.Bodies.bodyOption.A">A</span>]]</span>
+        <span class="name">bodyOption</span><span class="tparams">[<span name="A">A</span>, <span name="CT">CT</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <a href="Decode$$Dispatchable.html" class="extype" name="io.finch.Decode.Dispatchable">Dispatchable</a>[<span class="extype" name="io.finch.endpoint.Bodies.bodyOption.A">A</span>, <span class="extype" name="io.finch.endpoint.Bodies.bodyOption.CT">CT</span>]</span>, <span name="ct">ct: <a href="http://www.scala-lang.org/api/2.12.6/scala/reflect/ClassTag.html#scala.reflect.ClassTag" class="extype" name="scala.reflect.ClassTag">ClassTag</a>[<span class="extype" name="io.finch.endpoint.Bodies.bodyOption.A">A</span>]</span>)</span><span class="result">: <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a>[<a href="http://www.scala-lang.org/api/2.12.6/scala/Option.html#scala.Option" class="extype" name="scala.Option">Option</a>[<span class="extype" name="io.finch.endpoint.Bodies.bodyOption.A">A</span>]]</span>
       </span>
       
       <p class="shortcomment cmt">An <a href="Endpoint.html" class="extype" name="io.finch.Endpoint">Endpoint</a> that reads an optional request body represented as <code>CT</code> (<code>ContentType</code>) and

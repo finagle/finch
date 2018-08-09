@@ -17,6 +17,7 @@
       <li><a href="#type-conversion">Type Conversion</a></li>
       <li><a href="#custom-decoders">Custom Decoders</a></li>
       <li><a href="#decoding-from-json">Decoding from JSON</a></li>
+      <li><a href="#content-type-based-decoding">Content-Type-based decoding</a></li>
     </ul>
   </li>
   <li><a href="#encoding">Encoding</a>
@@ -118,22 +119,22 @@ the <code class="highlighter-rouge">p</code> endpoint, and generated on each req
 <span class="k">import</span> <span class="nn">io.finch._</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">p</span> <span class="k">=</span> <span class="nc">Endpoint</span><span class="o">.</span><span class="n">const</span><span class="o">(</span><span class="n">scala</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">random</span><span class="o">)</span>
-<span class="n">p</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">Endpoint$$anon$11</span><span class="k">@</span><span class="mf">57071f</span><span class="mi">8</span><span class="n">b</span>
+<span class="n">p</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">Endpoint$$anon$11</span><span class="k">@</span><span class="mi">10777</span><span class="n">b23</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">q</span> <span class="k">=</span> <span class="nc">Endpoint</span><span class="o">.</span><span class="n">lift</span><span class="o">(</span><span class="n">scala</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">random</span><span class="o">)</span>
-<span class="n">q</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">Endpoint$$anon$12</span><span class="k">@</span><span class="mi">285</span><span class="n">c1fb8</span>
+<span class="n">q</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">Endpoint$$anon$12</span><span class="k">@</span><span class="mi">8</span><span class="n">aafbe1</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">p</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span>
-<span class="n">res0</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="mf">0.029694402682109766</span><span class="o">)</span>
+<span class="n">res0</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="mf">0.38819309331006346</span><span class="o">)</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">p</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span>
-<span class="n">res1</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="mf">0.029694402682109766</span><span class="o">)</span>
+<span class="n">res1</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="mf">0.38819309331006346</span><span class="o">)</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">q</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span>
-<span class="n">res2</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="mf">0.99330222508607</span><span class="o">)</span>
+<span class="n">res2</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="mf">0.8273721596136595</span><span class="o">)</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">q</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">)).</span><span class="n">awaitValueUnsafe</span><span class="o">()</span>
-<span class="n">res3</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="mf">0.195036481532481</span><span class="o">)</span>
+<span class="n">res3</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="mf">0.8584700630754422</span><span class="o">)</span>
 </code></pre>
 </div>
 
@@ -619,13 +620,12 @@ instances in scope:</p>
 
 <div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">io.finch.circe._</span>
-<span class="k">import</span> <span class="nn">io.circe.Decoder</span><span class="o">,</span><span class="n">io</span><span class="o">.</span><span class="n">circe</span><span class="o">.</span><span class="nc">Encoder</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">circe</span><span class="o">.</span><span class="n">generic</span><span class="o">.</span><span class="n">semiauto</span><span class="o">.</span><span class="k">_</span>
+<span class="k">import</span> <span class="nn">io.circe.Decoder</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">circe</span><span class="o">.</span><span class="nc">Encoder</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">circe</span><span class="o">.</span><span class="n">generic</span><span class="o">.</span><span class="n">semiauto</span><span class="o">.</span><span class="k">_</span>
 
 <span class="k">case</span> <span class="k">class</span> <span class="nc">Person</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">age</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
-<span class="k">object</span> <span class="nc">Person</span> <span class="o">{</span>
-  <span class="k">implicit</span> <span class="k">val</span> <span class="n">decoder</span><span class="k">:</span> <span class="kt">Decoder</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="k">=</span> <span class="n">deriveDecoder</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span>
-  <span class="k">implicit</span> <span class="k">val</span> <span class="n">encoder</span><span class="k">:</span> <span class="kt">Encoder</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="k">=</span> <span class="n">deriveEncoder</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span>
-<span class="o">}</span>
+
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">decoder</span><span class="k">:</span> <span class="kt">Decoder</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="k">=</span> <span class="n">deriveDecoder</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span>
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">encoder</span><span class="k">:</span> <span class="kt">Encoder</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="k">=</span> <span class="n">deriveEncoder</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span>
 
 </code></pre>
 </div>
@@ -633,20 +633,68 @@ instances in scope:</p>
 <p>Finch will automatically adapt these implicits to its own <code class="highlighter-rouge">io.finch.Decode.Json[Person]</code> type,  so
 that you can use the <code class="highlighter-rouge">jsonBody(Option)</code> endpoints to read the HTTP bodies sent in a JSON format:</p>
 
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="nc">Buf</span><span class="o">,</span> <span class="nc">Person</span><span class="o">.</span><span class="k">_</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch._</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="nc">Buf</span>
 <span class="k">import</span> <span class="nn">io.finch._</span>
 <span class="k">import</span> <span class="nn">com.twitter.io.Buf</span>
-<span class="k">import</span> <span class="nn">Person._</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">p</span> <span class="k">=</span> <span class="n">jsonBody</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span>
 <span class="n">p</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="k">=</span> <span class="n">body</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">p</span><span class="o">(</span><span class="nc">Input</span><span class="o">.</span><span class="n">post</span><span class="o">(</span><span class="s">"/"</span><span class="o">).</span><span class="n">withBody</span><span class="o">[</span><span class="kt">Application.Json</span><span class="o">](</span><span class="nc">Buf</span><span class="o">.</span><span class="nc">Utf8</span><span class="o">(</span><span class="s">"""{"name":"foo","age":42}"""</span><span class="o">)))</span>
-<span class="n">res13</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"POST /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),/,</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$16</span><span class="k">@</span><span class="mi">265</span><span class="n">a8d04</span><span class="o">)</span>
+<span class="n">res13</span><span class="k">:</span> <span class="kt">io.finch.Endpoint.Result</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Matched</span><span class="o">(</span><span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"POST /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">()),/,</span><span class="n">io</span><span class="o">.</span><span class="n">catbird</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Rerunnable$$anon$16</span><span class="k">@</span><span class="mi">52112523</span><span class="o">)</span>
 </code></pre>
 </div>
 
 <p>The integration for the other JSON libraries works in a similar way.</p>
+
+<h3 id="content-type-based-decoding">Content-Type-based decoding</h3>
+
+<p>Finch supports multiple decoders in the single <code class="highlighter-rouge">body</code> endpoint selecting the decoder with respect to the <code class="highlighter-rouge">Content-Type</code>
+header of a request. This behavior can be enabled using <code class="highlighter-rouge">shapeless.Coproduct</code>:</p>
+
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">io.finch.internal._</span><span class="o">,</span> <span class="n">shapeless</span><span class="o">.</span><span class="k">_</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="nc">Buf</span>
+<span class="k">import</span> <span class="nn">io.finch.internal._</span>
+<span class="k">import</span> <span class="nn">shapeless._</span>
+<span class="k">import</span> <span class="nn">com.twitter.io.Buf</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="c1">//example decoder and encoder for text/plain content-type.
+</span>     <span class="o">|</span> <span class="c1">//Represents Person as a string with semicolon delimeter
+</span>     <span class="o">|</span> <span class="k">implicit</span> <span class="k">val</span> <span class="n">decodeTextPlainPerson</span><span class="k">:</span> <span class="kt">Decode.Aux</span><span class="o">[</span><span class="kt">Person</span>, <span class="kt">Text.Plain</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Decode</span><span class="o">.</span><span class="n">instance</span><span class="o">((</span><span class="n">b</span><span class="o">,</span> <span class="n">cs</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">{</span>
+     <span class="o">|</span>   <span class="nc">Try</span> <span class="o">{</span>
+     <span class="o">|</span>     <span class="k">val</span> <span class="n">l</span> <span class="k">=</span> <span class="n">b</span><span class="o">.</span><span class="n">asString</span><span class="o">(</span><span class="n">cs</span><span class="o">).</span><span class="n">split</span><span class="o">(</span><span class="s">";"</span><span class="o">).</span><span class="n">toList</span>
+     <span class="o">|</span>     <span class="nc">Person</span><span class="o">(</span><span class="n">l</span><span class="o">.</span><span class="n">head</span><span class="o">,</span> <span class="n">l</span><span class="o">.</span><span class="n">last</span><span class="o">.</span><span class="n">toInt</span><span class="o">)</span>
+     <span class="o">|</span>   <span class="o">}</span>
+     <span class="o">|</span> <span class="o">})</span>
+<span class="n">decodeTextPlainPerson</span><span class="k">:</span> <span class="kt">io.finch.Decode.Aux</span><span class="o">[</span><span class="kt">Person</span>,<span class="kt">io.finch.Text.Plain</span><span class="o">]</span> <span class="k">=</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">Decode$$anon$1</span><span class="k">@</span><span class="mf">19d</span><span class="mi">398</span><span class="n">bd</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">implicit</span> <span class="k">val</span> <span class="n">encodeTextPlainPerson</span><span class="k">:</span> <span class="kt">Encode.Aux</span><span class="o">[</span><span class="kt">Person</span>, <span class="kt">Text.Plain</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Encode</span><span class="o">.</span><span class="n">instance</span><span class="o">((</span><span class="n">a</span><span class="o">,</span> <span class="n">cs</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">{</span>
+     <span class="o">|</span>  <span class="nc">Buf</span><span class="o">.</span><span class="nc">Utf8</span><span class="o">(</span><span class="n">s</span><span class="s">"${a.name};${a.age}"</span><span class="o">)</span>
+     <span class="o">|</span> <span class="o">})</span>
+<span class="n">encodeTextPlainPerson</span><span class="k">:</span> <span class="kt">io.finch.Encode.Aux</span><span class="o">[</span><span class="kt">Person</span>,<span class="kt">io.finch.Text.Plain</span><span class="o">]</span> <span class="k">=</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="nc">LowPriorityEncodeInstances$$anon$1</span><span class="k">@</span><span class="mi">76</span><span class="n">ec922e</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">person</span> <span class="k">=</span> <span class="nc">Person</span><span class="o">(</span><span class="s">"John"</span><span class="o">,</span> <span class="mi">42</span><span class="o">)</span>
+<span class="n">person</span><span class="k">:</span> <span class="kt">Person</span> <span class="o">=</span> <span class="nc">Person</span><span class="o">(</span><span class="nc">John</span><span class="o">,</span><span class="mi">42</span><span class="o">)</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">json</span> <span class="k">=</span> <span class="nc">Input</span><span class="o">.</span><span class="n">post</span><span class="o">(</span><span class="s">"/"</span><span class="o">).</span><span class="n">withBody</span><span class="o">[</span><span class="kt">Application.Json</span><span class="o">](</span><span class="n">person</span><span class="o">)</span>
+<span class="n">json</span><span class="k">:</span> <span class="kt">io.finch.Input</span> <span class="o">=</span> <span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"POST /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">())</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">plain</span> <span class="k">=</span> <span class="nc">Input</span><span class="o">.</span><span class="n">post</span><span class="o">(</span><span class="s">"/"</span><span class="o">).</span><span class="n">withBody</span><span class="o">[</span><span class="kt">Text.Plain</span><span class="o">](</span><span class="n">person</span><span class="o">)</span>
+<span class="n">plain</span><span class="k">:</span> <span class="kt">io.finch.Input</span> <span class="o">=</span> <span class="nc">Input</span><span class="o">(</span><span class="nc">Request</span><span class="o">(</span><span class="s">"POST /"</span><span class="o">,</span> <span class="n">from</span> <span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="k">:</span><span class="err">0</span><span class="o">),</span><span class="nc">List</span><span class="o">())</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="c1">//Use coproduct to define support for multiple Content-Types
+</span>     <span class="o">|</span> <span class="k">val</span> <span class="n">e</span> <span class="k">=</span> <span class="n">body</span><span class="o">[</span><span class="kt">Person</span>, <span class="kt">Application.Json</span> <span class="kt">:+:</span> <span class="kt">Text.Plain</span> <span class="kt">:+:</span> <span class="kt">CNil</span><span class="o">]</span>
+<span class="n">e</span><span class="k">:</span> <span class="kt">io.finch.Endpoint</span><span class="o">[</span><span class="kt">Person</span><span class="o">]</span> <span class="k">=</span> <span class="n">body</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">e</span><span class="o">(</span><span class="n">json</span><span class="o">).</span><span class="n">awaitValue</span><span class="o">()</span>
+<span class="n">res17</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">com.twitter.util.Try</span><span class="o">[</span><span class="kt">Person</span><span class="o">]]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">Return</span><span class="o">(</span><span class="nc">Person</span><span class="o">(</span><span class="nc">John</span><span class="o">,</span><span class="mi">42</span><span class="o">)))</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">e</span><span class="o">(</span><span class="n">plain</span><span class="o">).</span><span class="n">awaitValue</span><span class="o">()</span>
+<span class="n">res18</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">com.twitter.util.Try</span><span class="o">[</span><span class="kt">Person</span><span class="o">]]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">Return</span><span class="o">(</span><span class="nc">Person</span><span class="o">(</span><span class="nc">John</span><span class="o">,</span><span class="mi">42</span><span class="o">)))</span>
+</code></pre>
+</div>
+
+<p>If there was no <code class="highlighter-rouge">Content-Type</code> header in a request or none of the decoders supports it,
+last one in the coproduct is used.</p>
 
 <h3 id="encoding">Encoding</h3>
 
@@ -912,17 +960,29 @@ content-type. For example, here is an instance for HTML.</p>
 </code></pre>
 </div>
 
-<p><strong>Finch used to provide exception encoders</strong> from all of its json libraries, but do to some issues 
+<p><strong>Finch used to provide exception encoders</strong> from all of its json libraries, but due to some issues
 with implicit scope that made defining custom encoders difficult, you must now <strong>define your own</strong>.
-Here is an example Json encoder, that was formerly used in finch-circe:</p>
+Here is an example Json encoder for finch-circe:</p>
 
 <div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">io.circe._</span><span class="o">,</span> <span class="n">io</span><span class="o">.</span><span class="n">finch</span><span class="o">.</span><span class="k">_</span>
 
-<span class="k">implicit</span> <span class="k">val</span> <span class="n">encodeExceptionCirce</span><span class="k">:</span> <span class="kt">Encoder</span><span class="o">[</span><span class="kt">Exception</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Encoder</span><span class="o">.</span><span class="n">instance</span><span class="o">(</span><span class="n">e</span> <span class="k">=&gt;</span>		
-  <span class="nc">Json</span><span class="o">.</span><span class="n">obj</span><span class="o">(</span><span class="s">"message"</span> <span class="o">-&gt;</span> <span class="nc">Option</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="n">getMessage</span><span class="o">).</span><span class="n">fold</span><span class="o">(</span><span class="nc">Json</span><span class="o">.</span><span class="nc">Null</span><span class="o">)(</span><span class="nc">Json</span><span class="o">.</span><span class="n">fromString</span><span class="o">))</span>		
-<span class="o">)</span>
+<span class="k">def</span> <span class="n">encodeErrorList</span><span class="o">(</span><span class="n">es</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">Exception</span><span class="o">])</span><span class="k">:</span> <span class="kt">Json</span> <span class="o">=</span> <span class="o">{</span>
+  <span class="k">val</span> <span class="n">messages</span> <span class="k">=</span> <span class="n">es</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">x</span> <span class="k">=&gt;</span> <span class="nc">Json</span><span class="o">.</span><span class="n">fromString</span><span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="n">getMessage</span><span class="o">))</span>
+  <span class="nc">Json</span><span class="o">.</span><span class="n">obj</span><span class="o">(</span><span class="s">"errors"</span> <span class="o">-&gt;</span> <span class="nc">Json</span><span class="o">.</span><span class="n">arr</span><span class="o">(</span><span class="n">messages</span><span class="k">:</span> <span class="k">_</span><span class="kt">*</span><span class="o">))</span>
+<span class="o">}</span>
+
+<span class="k">implicit</span> <span class="k">val</span> <span class="n">encodeException</span><span class="k">:</span> <span class="kt">Encoder</span><span class="o">[</span><span class="kt">Exception</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Encoder</span><span class="o">.</span><span class="n">instance</span><span class="o">({</span>
+  <span class="k">case</span> <span class="n">e</span><span class="k">:</span> <span class="kt">io.finch.Errors</span> <span class="o">=&gt;</span> <span class="n">encodeErrorList</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">toList</span><span class="o">)</span>
+  <span class="k">case</span> <span class="n">e</span><span class="k">:</span> <span class="kt">io.finch.Error</span> <span class="o">=&gt;</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">getCause</span> <span class="k">match</span> <span class="o">{</span>
+      <span class="k">case</span> <span class="n">e</span><span class="k">:</span> <span class="kt">io.circe.Errors</span> <span class="o">=&gt;</span> <span class="n">encodeErrorList</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">toList</span><span class="o">)</span>
+      <span class="k">case</span> <span class="n">err</span> <span class="k">=&gt;</span> <span class="nc">Json</span><span class="o">.</span><span class="n">obj</span><span class="o">(</span><span class="s">"message"</span> <span class="o">-&gt;</span> <span class="nc">Json</span><span class="o">.</span><span class="n">fromString</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="n">getMessage</span><span class="o">))</span>
+    <span class="o">}</span>
+  <span class="k">case</span> <span class="n">e</span><span class="k">:</span> <span class="kt">Exception</span> <span class="o">=&gt;</span> <span class="nc">Json</span><span class="o">.</span><span class="n">obj</span><span class="o">(</span><span class="s">"message"</span> <span class="o">-&gt;</span> <span class="nc">Json</span><span class="o">.</span><span class="n">fromString</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="n">getMessage</span><span class="o">))</span>
+<span class="o">})</span>
 </code></pre>
 </div>
+<p>This encoder will handle any accumulated Finch and Circe errors in addition to single exceptions.</p>
 
 <p>If no other <code class="highlighter-rouge">Encode[Exception]</code> is available, Finch provides a fallthrough of <code class="highlighter-rouge">Encode.Aux[Exception, ?]</code>
 that will return an empty content body.</p>
@@ -1000,7 +1060,7 @@ using <code class="highlighter-rouge">circe-iteratee</code> library.</p>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="c1">// Some async task to store foos.
 </span>     <span class="o">|</span> <span class="k">val</span> <span class="n">storeFoos</span><span class="k">:</span> <span class="kt">Vector</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">Future</span><span class="o">[</span><span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="k">_</span> <span class="k">=&gt;</span> <span class="nc">Future</span><span class="o">.</span><span class="nc">Unit</span>
-<span class="n">storeFoos</span><span class="k">:</span> <span class="kt">Vector</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Future</span><span class="o">[</span><span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="nc">$$Lambda$6221</span><span class="o">/</span><span class="mi">1632372159</span><span class="k">@</span><span class="mi">2</span><span class="n">a4732fb</span>
+<span class="n">storeFoos</span><span class="k">:</span> <span class="kt">Vector</span><span class="o">[</span><span class="kt">Foo</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">com</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">Future</span><span class="o">[</span><span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="nc">$$Lambda$6299</span><span class="o">/</span><span class="mi">46257925</span><span class="k">@</span><span class="mi">786</span><span class="n">cbbc1</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="cm">/**
      |   * Backpressure with HTTP 1.1 could be implemented only in a way of closing a connection.
