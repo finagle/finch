@@ -7,17 +7,14 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.11.12", "2.12.6")
 )
 
-lazy val finagleVersion = "18.8.0"
-lazy val twitterServerVersion = "18.8.0"
+lazy val twitterVersion = "18.8.0"
 lazy val circeVersion = "0.9.3"
 lazy val circeIterateeVersion = "0.9.0"
-lazy val catbirdVersion = "18.8.0"
 lazy val shapelessVersion = "2.3.3"
 lazy val catsVersion = "1.1.0"
 lazy val sprayVersion = "1.3.4"
 lazy val argonautVersion = "6.2.2"
 lazy val iterateeVersion = "0.17.0"
-lazy val iterateeTwitterVersion = "18.8.0"
 lazy val refinedVersion = "0.9.2"
 
 lazy val compilerOptions = Seq(
@@ -47,7 +44,7 @@ val baseSettings = Seq(
   libraryDependencies ++= Seq(
     "com.chuusai" %% "shapeless" % shapelessVersion,
     "org.typelevel" %% "cats-core" % catsVersion,
-    "com.twitter" %% "finagle-http" % finagleVersion,
+    "com.twitter" %% "finagle-http" % twitterVersion,
     scalaOrganization.value % "scala-reflect" % scalaVersion.value,
     "io.trane" %% "arrows-twitter" % arrowsVersion
   ) ++ testDependencies.map(_ % "test"),
@@ -201,7 +198,7 @@ lazy val iteratee = project
   .settings(
     libraryDependencies ++= Seq(
       "io.iteratee" %% "iteratee-core" % iterateeVersion,
-      "io.iteratee" %% "iteratee-twitter" % iterateeTwitterVersion
+      "io.iteratee" %% "iteratee-twitter" % twitterVersion
     )
   )
   .dependsOn(core % "compile->compile;test->test")
@@ -282,7 +279,7 @@ lazy val docs = project
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-generic" % circeVersion,
-      "com.twitter" %% "twitter-server" % twitterServerVersion,
+      "com.twitter" %% "twitter-server" % twitterVersion,
       "joda-time" % "joda-time" % "2.9.9",
       "org.mockito" % "mockito-all" % "1.10.19"
     )
@@ -306,8 +303,8 @@ lazy val examples = project
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-generic" % circeVersion,
-      "com.twitter" %% "finagle-stats" % finagleVersion,
-      "com.twitter" %% "twitter-server" % twitterServerVersion
+      "com.twitter" %% "finagle-stats" % twitterVersion,
+      "com.twitter" %% "twitter-server" % twitterVersion
     )
   )
   .dependsOn(core, circe, iteratee)
