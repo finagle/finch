@@ -7,6 +7,7 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.11.12", "2.12.6")
 )
 
+lazy val arrowsVersion = "0.1.21"
 lazy val twitterVersion = "18.8.0"
 lazy val circeVersion = "0.9.3"
 lazy val circeIterateeVersion = "0.9.0"
@@ -33,7 +34,7 @@ lazy val compilerOptions = Seq(
 )
 
 val testDependencies = Seq(
-  "io.catbird" %% "catbird-util" % catbirdVersion,
+  "io.catbird" %% "catbird-util" % twitterVersion,
   "org.scalacheck" %% "scalacheck" % "1.13.5",
   "org.scalatest" %% "scalatest" % "3.0.5",
   "org.typelevel" %% "cats-laws" % catsVersion,
