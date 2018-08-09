@@ -241,18 +241,6 @@ lazy val argonaut = project
   ))
   .dependsOn(core, jsonTest % "test")
 
-<<<<<<< HEAD
-lazy val json4s = project
-  .settings(moduleName := "finch-arrows-json4s")
-  .settings(allSettings)
-  .settings(libraryDependencies ++= Seq(
-    "org.json4s" %% "json4s-jackson" % json4sVersion,
-    "org.json4s" %% "json4s-ext" % json4sVersion
-  ))
-  .dependsOn(core, jsonTest % "test")
-
-=======
->>>>>>> 97557f8... Extract finch-json4s into its own project
 lazy val circe = project
   .settings(moduleName := "finch-arrows-circe")
   .settings(allSettings)
