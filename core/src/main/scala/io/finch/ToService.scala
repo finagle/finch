@@ -1,8 +1,10 @@
 package io.finch
 
+import cats.effect.{Effect, IO}
+import cats.syntax.all._
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Method, Request, Response, Status, Version}
-import com.twitter.util.Future
+import com.twitter.util.{Future, Promise}
 import io.finch.internal.currentTime
 import scala.annotation.implicitNotFound
 import shapeless._
@@ -97,12 +99,13 @@ object ToService {
       }
   }
 
-  implicit def hlistTS[A, EH <: Endpoint[A], ET <: HList, CTH, CTT <: HList](implicit
+  implicit def hlistTS[F[_], A, EH <: Endpoint[F, A], ET <: HList, CTH, CTT <: HList](implicit
     ntrA: ToResponse.Negotiable[A, CTH],
     ntrE: ToResponse.Negotiable[Exception, CTH],
+    effect: Effect[F],
     tsT: ToService[ET, CTT]
-  ): ToService[Endpoint[A] :: ET, CTH :: CTT] = new ToService[Endpoint[A] :: ET, CTH :: CTT] {
-    def apply(es: Endpoint[A] :: ET, opts: Options, ctx: Context): Service[Request, Response] =
+  ): ToService[Endpoint[F, A] :: ET, CTH :: CTT] = new ToService[Endpoint[F, A] :: ET, CTH :: CTT] {
+    def apply(es: Endpoint[F, A] :: ET, opts: Options, ctx: Context): Service[Request, Response] =
       new Service[Request, Response] {
         private[this] val handler =
           if (opts.enableUnsupportedMediaType) respond415.orElse(respond400)
@@ -118,11 +121,15 @@ object ToService {
             val accept =
               if (opts.negotiateContentType) req.accept.map(a => Accept.fromString(a)) else Nil
 
-            val response = out.map(oa =>
-              conformHttp(oa.toResponse(ntrA(accept), ntrE(accept)), req.version, opts)
+            val promise = Promise[Output[A]]
+            val io = effect.runAsync(out) {
+              case Left(t) => IO.pure(promise.setException(t))
+              case Right(value) => IO.pure(promise.setValue(value))
+            }
+            io.unsafeRunSync()
+            promise.map(oa =>
+              conformHttp(oa.convertToResponse(ntrA(accept).apply, ntrE(accept).apply), req.version, opts)
             )
-
-            response.run
 
           case EndpointResult.NotMatched.MethodNotAllowed(allowed) =>
             tsT(es.tail, opts, ctx.copy(wouldAllow = ctx.wouldAllow ++ allowed))(req)

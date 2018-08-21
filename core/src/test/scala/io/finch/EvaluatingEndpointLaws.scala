@@ -1,14 +1,15 @@
 package io.finch
 
+import cats.effect.Effect
 import cats.instances.AllInstances
 import com.twitter.util.Try
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
-trait EvaluatingEndpointLaws[A] extends Laws with MissingInstances with AllInstances {
+abstract class EvaluatingEndpointLaws[F[_] : Effect, A] extends Laws with MissingInstances with AllInstances {
 
   def decode: DecodeEntity[A]
-  def endpoint(d: DecodeEntity[A]): Endpoint[A]
+  def endpoint(d: DecodeEntity[A]): Endpoint[F, A]
 
   def doNotEvaluateOnMatch(i: Input): Boolean = {
     val ed = new EvaluatingEndpointLaws.EvalDecodeEntity[A](decode)
@@ -35,9 +36,9 @@ object EvaluatingEndpointLaws {
     def evaluated: Boolean = e
   }
 
-  def apply[A: DecodeEntity](e: DecodeEntity[A] => Endpoint[A]): EvaluatingEndpointLaws[A] =
-    new EvaluatingEndpointLaws[A] {
+  def apply[F[_] : Effect, A: DecodeEntity](e: DecodeEntity[A] => Endpoint[F, A]): EvaluatingEndpointLaws[F, A] =
+    new EvaluatingEndpointLaws[F, A] {
       val decode: DecodeEntity[A] = DecodeEntity[A]
-      def endpoint(d: DecodeEntity[A]): Endpoint[A] = e(d)
+      def endpoint(d: DecodeEntity[A]): Endpoint[F, A] = e(d)
     }
 }

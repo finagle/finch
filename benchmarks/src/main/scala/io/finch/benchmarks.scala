@@ -3,10 +3,12 @@ package io.finch
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.io.Buf
-import com.twitter.util.{Await, Future, Try}
+import com.twitter.util.{Await, Try}
+import io.catbird.util.Rerunnable
 import io.circe.generic.auto._
 import io.finch.circe._
 import io.finch.data.Foo
+import io.finch.rerunnable._
 import java.nio.charset.{Charset, StandardCharsets}
 import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
 import org.openjdk.jmh.annotations._
@@ -40,8 +42,8 @@ class InputBenchmark extends FinchBenchmark {
 @State(Scope.Benchmark)
 class BodyBenchmark extends FinchBenchmark {
 
-  val fooOptionAsText: Endpoint[Option[Foo]] = bodyOption[Foo, Text.Plain]
-  val fooAsText: Endpoint[Foo] = body[Foo, Text.Plain]
+  val fooOptionAsText: Endpoint[Rerunnable, Option[Foo]] = bodyOption[Foo, Text.Plain]
+  val fooAsText: Endpoint[Rerunnable, Foo] = body[Foo, Text.Plain]
 
   @Benchmark
   def fooOption: Option[Option[Foo]] = fooOptionAsText(postPayload).awaitValueUnsafe()
@@ -65,7 +67,7 @@ class BodyBenchmark extends FinchBenchmark {
 @State(Scope.Benchmark)
 class MatchPathBenchmark extends FinchBenchmark {
 
-  val foo: Endpoint[HNil] = "foo"
+  val foo: Endpoint[Rerunnable, HNil] = "foo"
 
   @Benchmark
   def stringSome: Option[HNil] = foo(getFooBarBaz).awaitValueUnsafe()
@@ -103,9 +105,9 @@ class ExtractPathBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class ProductBenchmark extends FinchBenchmark {
-  val both: Endpoint[(Int, String)] = Endpoint.const(42).product(Endpoint.const("foo"))
-  val left: Endpoint[(Int, String)] = Endpoint.const(42).product(Endpoint.empty[String])
-  val right: Endpoint[(Int, String)] = Endpoint.empty[Int].product(Endpoint.const("foo"))
+  val both: Endpoint[Rerunnable, (Int, String)] = Endpoint.const(42).product(Endpoint.const("foo"))
+  val left: Endpoint[Rerunnable, (Int, String)] = Endpoint.const(42).product(Endpoint.empty)
+  val right: Endpoint[Rerunnable, (Int, String)] = Endpoint.empty[Rerunnable, Int].product(Endpoint.const("foo"))
 
   @Benchmark
   def bothMatched: Option[(Int, String)] = both(getRoot).awaitValueUnsafe()
@@ -119,9 +121,9 @@ class ProductBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class CoproductBenchmark extends FinchBenchmark {
-  val both: Endpoint[String] = Endpoint.const("foo").coproduct(Endpoint.const("bar"))
-  val left: Endpoint[String] = Endpoint.const("foo").coproduct(Endpoint.empty[String])
-  val right: Endpoint[String] = Endpoint.empty[String].coproduct(Endpoint.const("bar"))
+  val both: Endpoint[Rerunnable, String] = Endpoint.const("foo").coproduct(Endpoint.const("bar"))
+  val left: Endpoint[Rerunnable, String] = Endpoint.const("foo").coproduct(Endpoint.empty)
+  val right: Endpoint[Rerunnable, String] = Endpoint.empty[Rerunnable, String].coproduct(Endpoint.const("bar"))
 
   @Benchmark
   def bothMatched: Option[String] = both(getRoot).awaitValueUnsafe()
@@ -135,11 +137,11 @@ class CoproductBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class MapBenchmark extends FinchBenchmark {
-  val ten: Endpoint[Int] = Endpoint.const(10)
-  val mapTen: Endpoint[Int] = ten.map(a => a + 20)
-  val mapTenAsync: Endpoint[Int] = ten.mapAsync(a => Future.value(a + 20))
-  val mapTenOutput: Endpoint[Int] = ten.mapOutput(a => Ok(a + 10))
-  val mapTenOutputAsync: Endpoint[Int] = ten.mapOutputAsync(a => Future.value(Ok(a + 10)))
+  val ten: Endpoint[Rerunnable, Int] = Endpoint.const(10)
+  val mapTen: Endpoint[Rerunnable, Int] = ten.map(a => a + 20)
+  val mapTenAsync: Endpoint[Rerunnable, Int] = ten.mapAsync(a => Rerunnable.const(a + 20))
+  val mapTenOutput: Endpoint[Rerunnable, Int] = ten.mapOutput(a => Ok(a + 10))
+  val mapTenOutputAsync: Endpoint[Rerunnable, Int] = ten.mapOutputAsync(a => Rerunnable.const(Ok(a + 10)))
 
   @Benchmark
   def map: Option[Int] = mapTen(getRoot).awaitValueUnsafe()
@@ -177,7 +179,7 @@ class JsonBenchmark extends FinchBenchmark {
 @BenchmarkMode(Array(Mode.Throughput))
 @OutputTimeUnit(TimeUnit.SECONDS)
 abstract class BootstrapBenchmark[CT](init: Bootstrap[HNil, HNil])(implicit
-  tsf: ToService[Endpoint[List[Foo]] :: HNil, CT :: HNil]
+  tsf: ToService[Endpoint[Rerunnable, List[Foo]] :: HNil, CT :: HNil]
 ) extends FinchBenchmark {
 
   protected def issueRequest(): Request = Request()

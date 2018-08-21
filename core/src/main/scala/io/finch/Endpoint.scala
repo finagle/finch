@@ -2,10 +2,11 @@ package io.finch
 
 import cats.Alternative
 import cats.data.NonEmptyList
+import cats.effect.Effect
+import cats.syntax.all._
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
-import com.twitter.util.{Future, Return, Throw, Try}
-import io.catbird.util.Rerunnable
+import com.twitter.util.{Return, Throw, Try}
 import io.finch.internal._
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
@@ -54,59 +55,59 @@ import shapeless.ops.hlist.Tupler
  *   Http.server.serve(foobar.toService)
  * }}}
  */
-trait Endpoint[A] { self =>
+abstract class Endpoint[F[_], A](implicit E: Effect[F]) { self =>
 
   /**
-   * Request item (part) that's this endpoint work with.
-   */
+    * Request item (part) that's this endpoint work with.
+    */
   def item: items.RequestItem = items.MultipleItems
 
   /**
-   * Runs this endpoint.
-   */
-  def apply(input: Input): Endpoint.Result[A]
+    * Runs this endpoint.
+    */
+  def apply(input: Input): EndpointResult[F, A]
 
   /**
-   * Maps this endpoint to the given function `A => B`.
-   */
-  final def map[B](fn: A => B): Endpoint[B] =
-    mapAsync(fn.andThen(Future.value))
+    * Maps this endpoint to the given function `A => B`.
+    */
+  final def map[B](fn: A => B): Endpoint[F, B] =
+    mapAsync(fn.andThen(E.pure))
 
   /**
-   * Maps this endpoint to the given function `A => Future[B]`.
-   */
-  final def mapAsync[B](fn: A => Future[B]): Endpoint[B] =
-    new Endpoint[B] with (Output[A] => Future[Output[B]]) {
+    * Maps this endpoint to the given function `A => Future[B]`.
+    */
+  final def mapAsync[B](fn: A => F[B]): Endpoint[F, B] =
+    new Endpoint[F, B] with (Output[A] => F[Output[B]]) {
 
-      final def apply(oa: Output[A]): Future[Output[B]] = oa.traverse(fn)
+      final def apply(oa: Output[A]): F[Output[B]] = oa.traverse(fn)
 
-      final def apply(input: Input): Endpoint.Result[B] = self(input) match {
+      final def apply(input: Input): EndpointResult[F, B] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
-          EndpointResult.Matched(rem, trc, out.flatMapF(this))
-        case skipped: EndpointResult.NotMatched => skipped
+          EndpointResult.Matched[F, B](rem, trc, out.flatMap(this))
+        case skipped: EndpointResult.NotMatched[F] => skipped
       }
 
       final override def item = self.item
       final override def toString: String = self.toString
-  }
+    }
 
   /**
-   * Maps this endpoint to the given function `A => Output[B]`.
-   */
-  final def mapOutput[B](fn: A => Output[B]): Endpoint[B] =
-    mapOutputAsync(fn.andThen(Future.value))
+    * Maps this endpoint to the given function `A => Output[B]`.
+    */
+  final def mapOutput[B](fn: A => Output[B]): Endpoint[F, B] =
+    mapOutputAsync(fn.andThen(E.pure))
 
   /**
-   * Maps this endpoint to the given function `A => Future[Output[B]]`.
-   */
-  final def mapOutputAsync[B](fn: A => Future[Output[B]]): Endpoint[B] =
-    new Endpoint[B] with (Output[A] => Future[Output[B]]) {
-      final def apply(oa: Output[A]): Future[Output[B]] = oa.traverseFlatten(fn)
+    * Maps this endpoint to the given function `A => Future[Output[B]]`.
+    */
+  final def mapOutputAsync[B](fn: A => F[Output[B]]): Endpoint[F, B] =
+    new Endpoint[F, B] with (Output[A] => F[Output[B]]) {
+      final def apply(oa: Output[A]): F[Output[B]] = oa.traverseFlatten(fn)
 
-      final def apply(input: Input): Endpoint.Result[B] = self(input) match {
+      final def apply(input: Input): EndpointResult[F, B] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
-          EndpointResult.Matched(rem, trc, out.flatMapF(this))
-        case skipped: EndpointResult.NotMatched => skipped
+          EndpointResult.Matched(rem, trc, out.flatMap(this))
+        case skipped: EndpointResult.NotMatched[F] => skipped
       }
 
       override def item = self.item
@@ -114,48 +115,48 @@ trait Endpoint[A] { self =>
     }
 
   /**
-   * Transforms this endpoint to the given function `Future[Output[A]] => Future[Output[B]]`.
-   *
-   *
-   * Might be useful to perform some extra action on the underlying `Future`. For example, time
-   * the latency of the given endpoint.
-   *
-   * {{{
-   *   import io.finch._
-   *   import com.twitter.finagle.stats._
-   *
-   *   def time[A](stat: Stat, e: Endpoint[A]): Endpoint[A] =
-   *     e.transform(f => Stat.timeFuture(s)(f))
-   * }}}
-   */
-  final def transform[B](fn: Future[Output[A]] => Future[Output[B]]): Endpoint[B] =
-    new Endpoint[B] {
-      final def apply(input: Input): Endpoint.Result[B] = self(input) match {
+    * Transforms this endpoint to the given function `Future[Output[A]] => Future[Output[B]]`.
+    *
+    *
+    * Might be useful to perform some extra action on the underlying `Future`. For example, time
+    * the latency of the given endpoint.
+    *
+    * {{{
+    *   import io.finch._
+    *   import com.twitter.finagle.stats._
+    *
+    *   def time[A](stat: Stat, e: Endpoint[A]): Endpoint[A] =
+    *     e.transform(f => Stat.timeFuture(s)(f))
+    * }}}
+    */
+  final def transform[B](fn: F[Output[A]] => F[Output[B]]): Endpoint[F, B] =
+    new Endpoint[F, B] {
+      final def apply(input: Input): EndpointResult[F, B] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
-          EndpointResult.Matched(rem, trc, Rerunnable.fromFuture(fn(out.run)))
-        case skipped: EndpointResult.NotMatched => skipped
+          EndpointResult.Matched(rem, trc, fn(out))
+        case skipped: EndpointResult.NotMatched[F] => skipped
       }
 
       override def item = self.item
       final override def toString: String = self.toString
-   }
+    }
 
   /**
-   * Returns a product of this and `other` endpoint. The resulting endpoint returns a tuple
-   * of both values.
-   *
-   * This combinator is an important piece for Finch's error accumulation. In its current form,
-   * `product` will accumulate Finch's own errors (i.e., [[Error]]s) into [[Errors]]) and
-   * will fail-fast with the first non-Finch error (just ordinary `Exception`) observed.
-   */
-  final def product[B](other: Endpoint[B]): Endpoint[(A, B)] = productWith(other)(Tuple2.apply)
+    * Returns a product of this and `other` endpoint. The resulting endpoint returns a tuple
+    * of both values.
+    *
+    * This combinator is an important piece for Finch's error accumulation. In its current form,
+    * `product` will accumulate Finch's own errors (i.e., [[io.finch.Error]]s) into [[io.finch.Errors]]) and
+    * will fail-fast with the first non-Finch error (just ordinary `Exception`) observed.
+    */
+  final def product[B](other: Endpoint[F, B]): Endpoint[F, (A, B)] = productWith(other)(Tuple2.apply)
 
   /**
-   * Returns a product of this and `other` endpoint. The resulting endpoint returns a value of
-   * resulting type for product function.
-   */
-  final def productWith[B, O](other: Endpoint[B])(p: (A, B) => O): Endpoint[O] =
-    new Endpoint[O] with (((Try[Output[A]], Try[Output[B]])) => Future[Output[O]]) {
+    * Returns a product of this and `other` endpoint. The resulting endpoint returns a value of
+    * resulting type for product function.
+    */
+  final def productWith[B, O](other: Endpoint[F, B])(p: (A, B) => O): Endpoint[F, O] =
+    new Endpoint[F, O] with (((Either[Throwable, Output[A]], Either[Throwable, Output[B]])) => F[Output[O]]) {
       private[this] final def collect(a: Throwable, b: Throwable): Throwable = (a, b) match {
         case (aa: Error, bb: Error) => Errors(NonEmptyList.of(aa, bb))
         case (aa: Error, Errors(bs)) => Errors(aa :: bs)
@@ -166,24 +167,24 @@ trait Endpoint[A] { self =>
         case _ => a
       }
 
-      final def apply(both: (Try[Output[A]], Try[Output[B]])): Future[Output[O]] = both match {
-        case (Return(oa), Return(ob)) => Future.value(oa.flatMap(a => ob.map(b => p(a, b))))
-        case (Throw(a), Throw(b)) => Future.exception(collect(a, b))
-        case (Throw(a), _) => Future.exception(a)
-        case (_, Throw(b)) => Future.exception(b)
+      final def apply(both: (Either[Throwable, Output[A]], Either[Throwable, Output[B]])): F[Output[O]] = both match {
+        case (Right(oa), Right(ob)) => E.pure(oa.flatMap(a => ob.map(b => p(a, b))))
+        case (Left(a), Left(b)) => E.raiseError(collect(a, b))
+        case (Left(a), _) => E.raiseError(a)
+        case (_, Left(b)) => E.raiseError(b)
       }
 
-      final def apply(input: Input): Endpoint.Result[O] = self(input) match {
+      final def apply(input: Input): EndpointResult[F, O] = self(input) match {
         case a @ EndpointResult.Matched(_, _, _) => other(a.rem) match {
           case b @ EndpointResult.Matched(_, _, _) =>
             EndpointResult.Matched(
               b.rem,
               a.trc.concat(b.trc),
-              a.out.liftToTry.product(b.out.liftToTry).flatMapF(this)
+              a.out.attempt.product(b.out.attempt).flatMap(this)
             )
-          case skipped: EndpointResult.NotMatched => skipped
+          case skipped: EndpointResult.NotMatched[F] => skipped
         }
-        case skipped: EndpointResult.NotMatched => skipped
+        case skipped: EndpointResult.NotMatched[F] => skipped
       }
 
       override def item = self.item
@@ -191,32 +192,32 @@ trait Endpoint[A] { self =>
     }
 
   /**
-   * Composes this endpoint with the given [[Endpoint]].
-   */
-  final def ::[B](other: Endpoint[B])(implicit pa: PairAdjoin[B, A]): Endpoint[pa.Out] =
-    new Endpoint[pa.Out] with ((B, A) => pa.Out) {
+    * Composes this endpoint with the given [[Endpoint]].
+    */
+  final def ::[B](other: Endpoint[F, B])(implicit pa: PairAdjoin[B, A]): Endpoint[F, pa.Out] =
+    new Endpoint[F, pa.Out] with ((B, A) => pa.Out) {
       private[this] val inner = other.productWith(self)(this)
 
       final def apply(b: B, a: A): pa.Out = pa(b, a)
 
-      final def apply(input: Input): Endpoint.Result[pa.Out] = inner(input)
+      final def apply(input: Input): EndpointResult[F, pa.Out] = inner(input)
 
       override def item = items.MultipleItems
       final override def toString: String = s"${other.toString} :: ${self.toString}"
     }
 
   /**
-   * Sequentially composes this endpoint with the given `other` endpoint. The resulting endpoint
-   * will succeed if either this or `that` endpoints are succeed.
-   *
-   * == Matching Rules ==
-   *
-   * - if both endpoints match, the result with a shorter remainder (in terms of consumed route) is picked
-   * - if both endpoints don't match, the more specific result (explaining the reason for not matching)
-   *   is picked
-   */
-  final def coproduct[B >: A](other: Endpoint[B]): Endpoint[B] = new Endpoint[B] {
-    final def apply(input: Input): Endpoint.Result[B] = self(input) match {
+    * Sequentially composes this endpoint with the given `other` endpoint. The resulting endpoint
+    * will succeed if either this or `that` endpoints are succeed.
+    *
+    * == Matching Rules ==
+    *
+    * - if both endpoints match, the result with a shorter remainder (in terms of consumed route) is picked
+    * - if both endpoints don't match, the more specific result (explaining the reason for not matching)
+    *   is picked
+    */
+  final def coproduct[B >: A](other: Endpoint[F, B]): Endpoint[F, B] = new Endpoint[F, B] {
+    final def apply(input: Input): EndpointResult[F, B] = self(input) match {
       case a @ EndpointResult.Matched(_, _, _) => other(input) match {
         case b @ EndpointResult.Matched(_, _, _) =>
           if (a.rem.route.length <= b.rem.route.length) a else b
@@ -228,7 +229,7 @@ trait Endpoint[A] { self =>
             EndpointResult.NotMatched.MethodNotAllowed(aa ++ bb)
           case b => b
         }
-        case EndpointResult.NotMatched => a
+        case _: EndpointResult.NotMatched[F] => a
         case b => b
       }
     }
@@ -238,9 +239,9 @@ trait Endpoint[A] { self =>
   }
 
   /**
-   * Composes this endpoint with another in such a way that coproducts are flattened.
-   */
-  final def :+:[B](that: Endpoint[B])(implicit a: Adjoin[B :+: A :+: CNil]): Endpoint[a.Out] = {
+    * Composes this endpoint with another in such a way that coproducts are flattened.
+    */
+  final def :+:[B](that: Endpoint[F, B])(implicit a: Adjoin[B :+: A :+: CNil]): Endpoint[F, a.Out] = {
     val left = that.map(x => a(Inl[B, A :+: CNil](x)))
     val right = self.map(x => a(Inr[B, A :+: CNil](Inl[A, CNil](x))))
 
@@ -248,106 +249,115 @@ trait Endpoint[A] { self =>
   }
 
   /**
-   * Converts this endpoint to a Finagle service `Request => Future[Response]` that serves JSON.
-   *
-   * Consider using [[Bootstrap]] instead.
-   */
+    * Converts this endpoint to a Finagle service `Request => Future[Response]` that serves JSON.
+    *
+    * Consider using [[io.finch.Bootstrap]] instead.
+    */
   final def toService(implicit
-    tr: ToResponse.Aux[A, Application.Json],
-    tre: ToResponse.Aux[Exception, Application.Json]
-  ): Service[Request, Response] = toServiceAs[Application.Json]
+                      tr: ToResponse.Aux[A, Application.Json],
+                      tre: ToResponse.Aux[Exception, Application.Json]
+                     ): Service[Request, Response] = toServiceAs[Application.Json]
 
   /**
-   * Converts this endpoint to a Finagle service `Request => Future[Response]` that serves custom
-   * content-type `CT`.
-   *
-   * Consider using [[Bootstrap]] instead.
-   */
+    * Converts this endpoint to a Finagle service `Request => Future[Response]` that serves custom
+    * content-type `CT`.
+    *
+    * Consider using [[io.finch.Bootstrap]] instead.
+    */
   final def toServiceAs[CT <: String](implicit
-    tr: ToResponse.Aux[A, CT],
-    tre: ToResponse.Aux[Exception, CT]
-  ): Service[Request, Response] = Bootstrap.serve[CT](this).toService
+                                      tr: ToResponse.Aux[A, CT],
+                                      tre: ToResponse.Aux[Exception, CT]
+                                     ): Service[Request, Response] = Bootstrap.serve[CT](this).toService
 
   /**
-   * Recovers from any exception occurred in this endpoint by creating a new endpoint that will
-   * handle any matching throwable from the underlying future.
-   */
-  final def rescue[B >: A](pf: PartialFunction[Throwable, Future[Output[B]]]): Endpoint[B] =
-    transform(foa => foa.rescue(pf))
+    * Recovers from any exception occurred in this endpoint by creating a new endpoint that will
+    * handle any matching throwable from the underlying future.
+    */
+  final def rescue(pf: PartialFunction[Throwable, F[Output[A]]]): Endpoint[F, A] =
+    transform(foa => foa.handleErrorWith(pf))
 
   /**
-   * Recovers from any exception occurred in this endpoint by creating a new endpoint that will
-   * handle any matching throwable from the underlying future.
-   */
-  final def handle[B >: A](pf: PartialFunction[Throwable, Output[B]]): Endpoint[B] =
-    rescue(pf.andThen(Future.value))
+    * Recovers from any exception occurred in this endpoint by creating a new endpoint that will
+    * handle any matching throwable from the underlying future.
+    */
+  final def handle(pf: PartialFunction[Throwable, Output[A]]): Endpoint[F, A] =
+    rescue(pf.andThen(E.pure))
 
   /**
-   * Validates the result of this endpoint using a `predicate`. The rule is used for error
-   * reporting.
-   *
-   * @param rule text describing the rule being validated
-   * @param predicate returns true if the data is valid
-   *
-   * @return an endpoint that will return the value of this reader if it is valid.
-   *         Otherwise the future fails with an [[Error.NotValid]] error.
-   */
-  final def should(rule: String)(predicate: A => Boolean): Endpoint[A] = mapAsync(a =>
-    if (predicate(a)) Future.value(a)
-    else Future.exception(Error.NotValid(self.item, "should " + rule))
+    * Validates the result of this endpoint using a `predicate`. The rule is used for error
+    * reporting.
+    *
+    * @param rule text describing the rule being validated
+    * @param predicate returns true if the data is valid
+    *
+    * @return an endpoint that will return the value of this reader if it is valid.
+    *         Otherwise the future fails with an [[Error.NotValid]] error.
+    */
+  final def should(rule: String)(predicate: A => Boolean): Endpoint[F, A] = mapAsync(a =>
+    if (predicate(a)) E.pure(a)
+    else E.raiseError(Error.NotValid(self.item, "should " + rule))
   )
 
   /**
-   * Validates the result of this endpoint using a `predicate`. The rule is used for error reporting.
-   *
-   * @param rule text describing the rule being validated
-   * @param predicate returns false if the data is valid
-   *
-   * @return an endpoint that will return the value of this reader if it is valid.
-   *         Otherwise the future fails with a [[Error.NotValid]] error.
-   */
-  final def shouldNot(rule: String)(predicate: A => Boolean): Endpoint[A] =
+    * Validates the result of this endpoint using a `predicate`. The rule is used for error reporting.
+    *
+    * @param rule text describing the rule being validated
+    * @param predicate returns false if the data is valid
+    *
+    * @return an endpoint that will return the value of this reader if it is valid.
+    *         Otherwise the future fails with a [[Error.NotValid]] error.
+    */
+  final def shouldNot(rule: String)(predicate: A => Boolean): Endpoint[F, A] =
     should(s"not $rule.")(x => !predicate(x))
 
   /**
-   * Validates the result of this endpoint using a predefined `rule`. This method allows for rules
-   * to be reused across multiple endpoints.
-   *
-   * @param rule the predefined [[ValidationRule]] that will return true if the data is
-   *             valid
-   *
-   * @return an endpoint that will return the value of this reader if it is valid.
-   *         Otherwise the future fails with an [[Error.NotValid]] error.
-   */
-  final def should(rule: ValidationRule[A]): Endpoint[A] = should(rule.description)(rule.apply)
+    * Validates the result of this endpoint using a predefined `rule`. This method allows for rules
+    * to be reused across multiple endpoints.
+    *
+    * @param rule the predefined [[ValidationRule]] that will return true if the data is
+    *             valid
+    *
+    * @return an endpoint that will return the value of this reader if it is valid.
+    *         Otherwise the future fails with an [[Error.NotValid]] error.
+    */
+  final def should(rule: ValidationRule[A]): Endpoint[F, A] = should(rule.description)(rule.apply)
 
   /**
-   * Validates the result of this endpoint using a predefined `rule`. This method allows for rules
-   * to be reused across multiple endpoints.
-   *
-   * @param rule the predefined [[ValidationRule]] that will return false if the data is
-   *             valid
-   *
-   * @return an endpoint that will return the value of this reader if it is valid.
-   *         Otherwise the future fails with a [[Error.NotValid]] error.
-   */
-  final def shouldNot(rule: ValidationRule[A]): Endpoint[A] = shouldNot(rule.description)(rule.apply)
+    * Validates the result of this endpoint using a predefined `rule`. This method allows for rules
+    * to be reused across multiple endpoints.
+    *
+    * @param rule the predefined [[ValidationRule]] that will return false if the data is
+    *             valid
+    *
+    * @return an endpoint that will return the value of this reader if it is valid.
+    *         Otherwise the future fails with a [[Error.NotValid]] error.
+    */
+  final def shouldNot(rule: ValidationRule[A]): Endpoint[F, A] = shouldNot(rule.description)(rule.apply)
 
   /**
     * Lifts this endpoint into one that always succeeds, with [[Try]] representing both success and
     * failure cases.
     */
-  final def liftToTry: Endpoint[Try[A]] =
-    new Endpoint[Try[A]] with (Try[Output[A]] => Output[Try[A]]) {
-      final def apply(toa: Try[Output[A]]): Output[Try[A]] = toa match {
-        case Return(oo) => oo.map(Return.apply)
-        case t @ Throw(_) => Output.payload(t.cast[A])
+  final def liftToTry: Endpoint[F, Try[A]] = attempt.map({
+    case Right(r) => Return(r)
+    case Left(t) => Throw(t)
+  })
+
+  /**
+    * Lifts this endpoint into one that always succeeds, with [[Either[Throwable, A]] representing both success and
+    * failure cases.
+    */
+  final def attempt: Endpoint[F, Either[Throwable, A]] =
+    new Endpoint[F, Either[Throwable, A]] with (Either[Throwable, Output[A]] => Output[Either[Throwable, A]]) {
+      final def apply(toa: Either[Throwable, Output[A]]): Output[Either[Throwable, A]] = toa match {
+        case Right(oo) => oo.map(Right.apply)
+        case Left(t) => Output.payload(Left(t))
       }
 
-      final def apply(input: Input): Endpoint.Result[Try[A]] = self(input) match {
+      final def apply(input: Input): EndpointResult[F, Either[Throwable, A]] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
-          EndpointResult.Matched(rem, trc, out.liftToTry.map(this))
-        case skipped: EndpointResult.NotMatched => skipped
+          EndpointResult.Matched(rem, trc, out.attempt.map(this))
+        case skipped: EndpointResult.NotMatched[F] => skipped
       }
 
       override def item = self.item
@@ -355,10 +365,10 @@ trait Endpoint[A] { self =>
     }
 
   /**
-   * Overrides the `toString` method on this endpoint.
-   */
-  final def withToString(ts: => String): Endpoint[A] = new Endpoint[A] {
-    final def apply(input: Input): Endpoint.Result[A] = self(input)
+    * Overrides the `toString` method on this endpoint.
+    */
+  final def withToString(ts: => String): Endpoint[F, A] = new Endpoint[F, A] {
+    final def apply(input: Input): EndpointResult[F, A] = self(input)
     final override def toString: String = ts
   }
 }
@@ -368,21 +378,21 @@ trait Endpoint[A] { self =>
  */
 object Endpoint {
 
-  type Result[A] = EndpointResult[A]
+  type Result[F[_], A] = EndpointResult[F, A]
 
   /**
    * Creates an empty [[Endpoint]] (an endpoint that never matches) for a given type.
    */
-  def empty[A]: Endpoint[A] = new Endpoint[A] {
-    final def apply(input: Input): Result[A] = EndpointResult.NotMatched
+  def empty[F[_] : Effect, A]: Endpoint[F, A] = new Endpoint[F, A] {
+    final def apply(input: Input): Result[F, A] = EndpointResult.NotMatched
   }
 
   /**
    * Creates an [[Endpoint]] that always matches and returns a given value (evaluated eagerly).
    */
-  def const[A](a: A): Endpoint[A] = new Endpoint[A] {
-    final def apply(input: Input): Result[A] =
-      EndpointResult.Matched(input, Trace.empty, Rerunnable.const(Output.payload(a)))
+  def const[F[_] : Effect, A](a: A): Endpoint[F, A] = new Endpoint[F, A] {
+    final def apply(input: Input): Result[F, A] =
+      EndpointResult.Matched(input, Trace.empty, Effect[F].pure(Output.payload(a)))
   }
 
   /**
@@ -397,50 +407,50 @@ object Endpoint {
    *   val nextInt: Endpoint[Int] = Endpoint.lift(scala.util.random.nextInt)
    * }}}
    */
-  def lift[A](a: => A): Endpoint[A] = new Endpoint[A] {
-    final def apply(input: Input): Result[A] =
-      EndpointResult.Matched(input, Trace.empty, Rerunnable(Output.payload(a)))
+  def lift[F[_] : Effect, A](a: => A): Endpoint[F, A] = new Endpoint[F, A] {
+    final def apply(input: Input): Result[F, A] =
+      EndpointResult.Matched(input, Trace.empty, Effect[F].delay(Output.payload(a)))
   }
 
   /**
-   * Creates an [[Endpoint]] that always matches and returns a given `Future` (evaluated lazily).
+   * Creates an [[Endpoint]] that always matches and returns a given `F` (evaluated lazily).
    */
-  def liftAsync[A](fa: => Future[A]): Endpoint[A] = new Endpoint[A] {
-    final def apply(input: Input): Result[A] =
-      EndpointResult.Matched(input, Trace.empty, Rerunnable.fromFuture(fa).map(a => Output.payload(a)))
+  def liftAsync[F[_] : Effect, A](fa: => F[A]): Endpoint[F, A] = new Endpoint[F, A] {
+    final def apply(input: Input): Result[F, A] =
+      EndpointResult.Matched(input, Trace.empty, Effect[F].suspend(fa).map(a => Output.payload(a)))
   }
 
   /**
    * Creates an [[Endpoint]] that always matches and returns a given `Output` (evaluated lazily).
    */
-  def liftOutput[A](oa: => Output[A]): Endpoint[A] = new Endpoint[A] {
-    final def apply(input: Input): Result[A] =
-      EndpointResult.Matched(input, Trace.empty, Rerunnable(oa))
+  def liftOutput[F[_] : Effect, A](oa: => Output[A]): Endpoint[F, A] = new Endpoint[F, A] {
+    final def apply(input: Input): Result[F, A] =
+      EndpointResult.Matched(input, Trace.empty, Effect[F].delay(oa))
   }
 
   /**
-   * Creates an [[Endpoint]] that always matches and returns a given `Future[Output]`
+   * Creates an [[Endpoint]] that always matches and returns a given `F[Output]`
    * (evaluated lazily).
    */
-  def liftOutputAsync[A](foa: => Future[Output[A]]): Endpoint[A] = new Endpoint[A] {
-    final def apply(input: Input): Result[A] =
-      EndpointResult.Matched(input, Trace.empty, Rerunnable.fromFuture(foa))
+  def liftOutputAsync[F[_] : Effect, A](foa: => F[Output[A]]): Endpoint[F, A] = new Endpoint[F, A] {
+    final def apply(input: Input): Result[F, A] =
+      EndpointResult.Matched(input, Trace.empty, Effect[F].suspend(foa))
   }
 
-  final implicit class ValueEndpointOps[B](val self: Endpoint[B]) extends AnyVal {
+  final implicit class ValueEndpointOps[F[_], B](val self: Endpoint[F, B]) extends AnyVal {
     /**
      * Converts this endpoint to one that returns any type with `B :: HNil` as its representation.
      */
-    def as[A](implicit gen: Generic.Aux[A, B :: HNil]): Endpoint[A] =
+    def as[A](implicit gen: Generic.Aux[A, B :: HNil]): Endpoint[F, A] =
       self.map(value => gen.from(value :: HNil))
   }
 
-  final implicit class HListEndpointOps[L <: HList](val self: Endpoint[L]) extends AnyVal {
+  final implicit class HListEndpointOps[F[_], L <: HList](val self: Endpoint[F, L]) extends AnyVal {
     /**
      * Converts this endpoint to one that returns any type with this [[shapeless.HList]] as its
      * representation.
      */
-    def as[A](implicit gen: Generic.Aux[A, L]): Endpoint[A] = self.map(gen.from)
+    def as[A](implicit gen: Generic.Aux[A, L]): Endpoint[F, A] = self.map(gen.from)
 
     /**
      * Converts this endpoint to one that returns a tuple with the same types as this
@@ -449,42 +459,48 @@ object Endpoint {
      * Note that this will fail at compile time if this this [[shapeless.HList]] contains more than
      * 22 elements.
      */
-    def asTuple(implicit t: Tupler[L]): Endpoint[t.Out] = self.map(t(_))
+    def asTuple(implicit t: Tupler[L]): Endpoint[F, t.Out] = self.map(t(_))
   }
 
   /**
    * Implicit conversion that adds convenience methods to endpoint for optional values.
    */
-  implicit class OptionEndpointOps[A](val self: Endpoint[Option[A]]) extends AnyVal {
+  implicit class OptionEndpointOps[F[_], A](val self: Endpoint[F, Option[A]]) extends AnyVal {
     /**
      * If endpoint is empty it will return provided default value.
      */
-    def withDefault[B >: A](default: => B): Endpoint[B] = self.map(_.getOrElse(default))
+    def withDefault[B >: A](default: => B): Endpoint[F, B] = self.map(_.getOrElse(default))
 
     /**
      * If endpoint is empty it will return provided alternative.
      */
-    def orElse[B >: A](alternative: => Option[B]): Endpoint[Option[B]] =
+    def orElse[B >: A](alternative: => Option[B]): Endpoint[F, Option[B]] =
       self.map(_.orElse(alternative))
   }
 
-  implicit val endpointInstance: Alternative[Endpoint] = new Alternative[Endpoint] {
-    final override def ap[A, B](ff: Endpoint[A => B])(fa: Endpoint[A]): Endpoint[B] =
-      ff.productWith(fa)((f, a) => f(a))
+  implicit def endpointInstances[F[_] : Effect]: Alternative[({type T[B] = Endpoint[F, B]})#T] = {
+    new Alternative[({type T[B] = Endpoint[F, B]})#T] {
 
-    final override def map[A, B](fa: Endpoint[A])(f: A => B): Endpoint[B] =
-      fa.map(f)
+      final override def ap[A, B](ff: Endpoint[F, A => B])(fa: Endpoint[F, A]): Endpoint[F, B] =
+        ff.productWith(fa)((f, a) => f(a))
 
-    final override def product[A, B](fa: Endpoint[A], fb: Endpoint[B]): Endpoint[(A, B)] =
-      fa.product(fb)
+      final override def product[A, B](fa: Endpoint[F, A], fb: Endpoint[F, B]): Endpoint[F, (A, B)] =
+        fa.product(fb)
 
-    final override def pure[A](x: A): Endpoint[A] =
-      Endpoint.const(x)
+      final override def combineK[A](x: Endpoint[F, A], y: Endpoint[F, A]): Endpoint[F, A] =
+        x.coproduct(y)
 
-    final override def empty[A]: Endpoint[A] =
-      Endpoint.empty[A]
+      final override def pure[A](x: A): Endpoint[F, A] =
+        Endpoint.const[F, A](x)
 
-    final override def combineK[A](x: Endpoint[A], y: Endpoint[A]): Endpoint[A] =
-      x.coproduct(y)
+      final override def empty[A]: Endpoint[F, A] =
+        Endpoint.empty[F, A]
+
+      final override def map[A, B](fa: Endpoint[F, A])(f: A => B): Endpoint[F, B] =
+        fa.map(f)
+
+
+    }
   }
+
 }

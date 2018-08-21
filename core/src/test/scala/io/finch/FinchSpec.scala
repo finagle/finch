@@ -5,12 +5,12 @@ import java.util.UUID
 
 import cats.Eq
 import cats.data.NonEmptyList
+import cats.effect.Effect
 import cats.instances.AllInstances
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http._
 import com.twitter.io.Buf
-import com.twitter.util.{Future, Try}
-import io.catbird.util.Rerunnable
+import com.twitter.util._
 import org.scalacheck.{Arbitrary, Cogen, Gen}
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers
@@ -219,12 +219,12 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
       (r.method.toString, r.version.toString, r.path, Buf.ByteArray.Owned.extract(r.content))
     }
 
-  implicit def arbitraryEndpoint[A](implicit A: Arbitrary[A]): Arbitrary[Endpoint[A]] = Arbitrary(
+  implicit def arbitraryEndpoint[F[_] : Effect, A](implicit A: Arbitrary[A]): Arbitrary[Endpoint[F, A]] = Arbitrary(
     Gen.oneOf(
-      Gen.const(Endpoint.empty[A]),
-      A.arbitrary.map(a => Endpoint.const(a)),
+      Gen.const(Endpoint.empty[F, A]),
+      A.arbitrary.map(a => Endpoint.const[F, A](a)),
       Arbitrary.arbitrary[Throwable].map(e =>
-        Endpoint.liftOutputAsync(Future.exception[Output[A]](e))
+        Endpoint.liftOutputAsync(Effect[F].raiseError[Output[A]](e))
       ),
       /**
        * Note that we don't provide instances of arbitrary endpoints wrapping
@@ -232,9 +232,9 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
        * respect.
        */
       Arbitrary.arbitrary[Input => A].map { f =>
-        new Endpoint[A] {
-          final def apply(input: Input): Endpoint.Result[A] =
-            EndpointResult.Matched(input, Trace.empty, Rerunnable(Output.payload(f(input))))
+        new Endpoint[F, A] {
+          final def apply(input: Input): Endpoint.Result[F, A] =
+            EndpointResult.Matched(input, Trace.empty, Effect[F].delay(Output.payload(f(input))))
         }
       }
     )
@@ -246,10 +246,10 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
    * We attempt to verify that two endpoints are the same by applying them to a
    * fixed number of randomly generated inputs.
    */
-  implicit def eqEndpoint[A: Eq]: Eq[Endpoint[A]] = new Eq[Endpoint[A]] {
+  implicit def eqEndpoint[F[_] : Effect, A: Eq]: Eq[Endpoint[F, A]] = new Eq[Endpoint[F, A]] {
     private[this] def count: Int = 16
 
-    private[this] def await(result: Endpoint.Result[A]): Option[(Input, Try[Output[A]])] = for {
+    private[this] def await(result: Endpoint.Result[F, A]): Option[(Input, Try[Output[A]])] = for {
       r <- result.remainder
       o <- result.awaitOutput()
     } yield (r, o)
@@ -258,7 +258,7 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
       Arbitrary.arbitrary[Input].sample
     ).flatten
 
-    override def eqv(x: Endpoint[A], y: Endpoint[A]): Boolean = inputs.take(count).forall { input =>
+    override def eqv(x: Endpoint[F, A], y: Endpoint[F, A]): Boolean = inputs.take(count).forall { input =>
       val resultX = await(x(input))
       val resultY = await(y(input))
 

@@ -9,9 +9,10 @@ import com.twitter.finagle.stats.Counter
 import com.twitter.server.TwitterServer
 import com.twitter.util.Await
 import io.circe.generic.auto._
-import io.finch._
+import io.finch.Application
 import io.finch.circe._
-import io.finch.syntax._
+import io.finch.rerunnable._
+import io.finch.rerunnable.syntax._
 
 /**
  * A simple Finch application implementing the backend for the TodoMVC project.

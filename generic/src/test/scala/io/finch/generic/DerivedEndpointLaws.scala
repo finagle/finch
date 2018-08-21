@@ -1,15 +1,17 @@
-package io.finch
+package io.finch.generic
 
 import cats.Eq
+import cats.effect.Effect
 import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
+import io.finch._
 
-trait DerivedEndpointLaws[A] extends Laws with MissingInstances with AllInstances {
+abstract class DerivedEndpointLaws[F[_] : Effect, A] extends Laws with MissingInstances with AllInstances {
 
-  def endpoint: Endpoint[A]
+  def endpoint: Endpoint[F, A]
   def toParams: A => Seq[(String, String)]
 
   def roundTrip(a: A): IsEq[A] = {
@@ -26,11 +28,11 @@ trait DerivedEndpointLaws[A] extends Laws with MissingInstances with AllInstance
 }
 
 object DerivedEndpointLaws {
-  def apply[A](
-    e: Endpoint[A],
+  def apply[F[_] : Effect, A](
+    e: Endpoint[F, A],
     tp: A => Seq[(String, String)]
-  ): DerivedEndpointLaws[A] = new DerivedEndpointLaws[A] {
-    val endpoint: Endpoint[A] = e
+  ): DerivedEndpointLaws[F, A] = new DerivedEndpointLaws[F, A] {
+    val endpoint: Endpoint[F, A] = e
     val toParams = tp
   }
 }

@@ -8,8 +8,10 @@ import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.Http
 import com.twitter.io.Buf
 import com.twitter.util.{Await, Try}
-import io.finch._
-import io.finch.syntax._
+import io.catbird.util.Rerunnable
+import io.finch.Text
+import io.finch.rerunnable._
+import io.finch.rerunnable.syntax._
 
 /**
 * A simple Finch application featuring very basic, `Buf`-based streaming support.
@@ -51,7 +53,7 @@ object Main {
   //
   // For example, if input stream is `1, 2, 3` then output response would be `6`.
   def totalSum: Endpoint[Long] = post("totalSum" :: asyncBody) { as: AsyncStream[Buf] =>
-    as.foldLeft(0L)((acc, b) => acc + bufToLong(b)).map(Ok)
+    Rerunnable.fromFuture(as.foldLeft(0L)((acc, b) => acc + bufToLong(b))).map(Ok)
   }
 
   // This endpoint takes a simple request with an integer number N and returns a

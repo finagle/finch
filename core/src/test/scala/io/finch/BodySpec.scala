@@ -4,6 +4,7 @@ import com.twitter.finagle.http.Request
 import com.twitter.io.Buf
 import com.twitter.util.{Return, Throw, Try}
 import io.finch.data.Foo
+import io.finch.tried._
 import java.nio.charset.Charset
 import shapeless.{:+:, CNil}
 
@@ -62,6 +63,7 @@ class BodySpec extends FinchSpec {
   }
 
   it should "never evaluate until run" in {
+    import io.finch.rerunnable._
     check { f: Foo =>
       val i = Input.post("/").withBody[Text.Plain](f)
 

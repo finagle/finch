@@ -5,6 +5,7 @@ import com.twitter.io.Buf
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
+import io.finch.rerunnable._
 import java.nio.charset.StandardCharsets
 import java.util.UUID
 import org.scalacheck.{Arbitrary, Gen}

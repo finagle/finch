@@ -1,8 +1,7 @@
 package io.finch
 
-import cats.Eq
+import cats.{Eq, Monad}
 import com.twitter.finagle.http.{Cookie, Response, Status}
-import com.twitter.util.Future
 import java.nio.charset.{Charset, StandardCharsets}
 
 /**
@@ -47,17 +46,17 @@ sealed trait Output[+A] { self =>
     case e: Output.Empty => e
   }
 
-  final def traverse[B](fn: A => Future[B]): Future[Output[B]] = this match {
-    case p: Output.Payload[A] => fn(p.value).map(b => p.withValue(b))
-    case f: Output.Failure => Future.value(f)
-    case e: Output.Empty => Future.value(e)
+  final def traverse[F[_], B](fn: A => F[B])(implicit M: Monad[F]): F[Output[B]] = this match {
+    case p: Output.Payload[A] => M.map(fn(p.value))(b => p.withValue(b))
+    case f: Output.Failure => M.pure(f)
+    case e: Output.Empty => M.pure(e)
   }
 
-  final def traverseFlatten[B](fn: A => Future[Output[B]]): Future[Output[B]] = this match {
+  final def traverseFlatten[F[_], B](fn: A => F[Output[B]])(implicit M: Monad[F]): F[Output[B]] = this match {
     case p: Output.Payload[A] =>
-      fn(p.value).map(ob => ob.withHeaders(self.headers).withCookies(self.cookies))
-    case f: Output.Failure => Future.value(f)
-    case e: Output.Empty => Future.value(e)
+      M.map(fn(p.value))(ob => ob.withHeaders(self.headers).withCookies(self.cookies))
+    case f: Output.Failure => M.pure(f)
+    case e: Output.Empty => M.pure(e)
   }
 
   /**
@@ -198,6 +197,13 @@ object Output {
     def toResponse[CT](implicit
       tr: ToResponse.Aux[A, CT],
       tre: ToResponse.Aux[Exception, CT]
+    ): Response = {
+      convertToResponse(tr.apply, tre.apply)
+    }
+
+    private[finch] def convertToResponse(
+      tr: (A, Charset) => Response,
+      tre: (Exception, Charset) => Response
     ): Response = {
       val rep = o match {
         case p: Output.Payload[A] => tr(p.value, p.charset.getOrElse(StandardCharsets.UTF_8))

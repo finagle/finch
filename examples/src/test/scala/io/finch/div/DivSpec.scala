@@ -2,6 +2,7 @@ package io.finch.div
 
 import com.twitter.finagle.http.Status
 import io.finch.Input
+import io.finch.rerunnable._
 import org.scalatest.{FlatSpec, Matchers}
 
 class DivSpec extends FlatSpec with Matchers {

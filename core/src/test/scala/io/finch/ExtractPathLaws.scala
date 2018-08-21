@@ -1,15 +1,16 @@
 package io.finch
 
+import cats.effect.Effect
 import cats.instances.AllInstances
 import io.netty.handler.codec.http.QueryStringEncoder
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 import scala.reflect.ClassTag
 
-trait ExtractPathLaws[A]  extends Laws with MissingInstances with AllInstances {
+abstract class ExtractPathLaws[F[_] : Effect, A]  extends Laws with MissingInstances with AllInstances {
   def decode: DecodePath[A]
-  def one: Endpoint[A]
-  def tail: Endpoint[Seq[A]]
+  def one: Endpoint[F, A]
+  def tail: Endpoint[F, Seq[A]]
 
   def all(implicit A: Arbitrary[Input]): RuleSet = new DefaultRuleSet(
     name = "all",
@@ -33,9 +34,10 @@ trait ExtractPathLaws[A]  extends Laws with MissingInstances with AllInstances {
 }
 
 object ExtractPathLaws {
-  def apply[A: DecodePath: ClassTag]: ExtractPathLaws[A] = new ExtractPathLaws[A] {
-    def tail: Endpoint[Seq[A]] = paths[A]
-    def one: Endpoint[A] = path[A]
-    def decode: DecodePath[A] = DecodePath[A]
-  }
+  def apply[F[_] : Effect, A: DecodePath: ClassTag]: ExtractPathLaws[F, A] =
+    new ExtractPathLaws[F, A] {
+      def tail: Endpoint[F, Seq[A]] = io.finch.endpoint.paths[F, A]
+      def one: Endpoint[F, A] = io.finch.endpoint.path[F, A]
+      def decode: DecodePath[A] = DecodePath[A]
+    }
 }
