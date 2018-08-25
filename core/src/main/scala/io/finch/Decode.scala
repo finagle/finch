@@ -53,13 +53,13 @@ object Decode {
    * value.
    */
   trait Dispatchable[A, CT] {
-    def apply(ct: Option[String], b: Buf, cs: Charset): Try[A]
+    def apply(ct: String, b: Buf, cs: Charset): Try[A]
   }
 
   object Dispatchable {
 
     implicit def cnilToDispatchable[A]: Dispatchable[A, CNil] = new Dispatchable[A, CNil] {
-      def apply(ct: Option[String], b: Buf, cs: Charset): Try[A] =
+      def apply(ct: String, b: Buf, cs: Charset): Try[A] =
         Throw(Decode.UnsupportedMediaTypeException)
     }
 
@@ -68,8 +68,8 @@ object Decode {
       witness: Witness.Aux[CTH],
       tail: Dispatchable[A, CTT]
     ): Dispatchable[A, CTH :+: CTT] = new Dispatchable[A, CTH :+: CTT] {
-      def apply(ct: Option[String], b: Buf, cs: Charset): Try[A] =
-        if (ct.exists(_.equalsIgnoreCase(witness.value))) decode(b, cs)
+      def apply(ct: String, b: Buf, cs: Charset): Try[A] =
+        if (ct.equalsIgnoreCase(witness.value)) decode(b, cs)
         else tail(ct, b, cs)
     }
 

@@ -22,4 +22,14 @@ class HttpMessageSpec extends FinchSpec {
 
     assert(Request().charsetOrUtf8 == StandardCharsets.UTF_8)
   }
+
+  it should "mediaTypeOrEmpty" in {
+    check { cs: Option[Charset] =>
+      val req = Request()
+      req.contentType = "application/json"
+      cs.foreach(c => req.charset = c.displayName())
+
+      req.mediaTypeOrEmpty === "application/json"
+    }
+  }
 }

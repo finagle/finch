@@ -27,18 +27,18 @@ class TodoSpec extends FlatSpec with Matchers with Checkers {
   implicit def arbitraryTodoWithoutId: Arbitrary[TodoWithoutId] = Arbitrary(genTodoWithoutId)
 
   it should "create a todo" in {
-    check { (todoWithoutId: TodoWithoutId) =>
+    check { todoWithoutId: TodoWithoutId =>
       val input = Input.post("/todos")
         .withBody[Application.Json](todoWithoutId, Some(StandardCharsets.UTF_8))
 
       val res = postTodo(input)
-      res.awaitOutputUnsafe().map(_.status) === Some(Status.Created)
-      res.awaitValueUnsafe().isDefined === true
-      val Some(todo) = res.awaitValueUnsafe()
-      todo.completed === todoWithoutId.completed
-      todo.title === todoWithoutId.title
-      todo.order === todoWithoutId.order
-      Todo.get(todo.id).isDefined === true
+      val Some(todo) = res.awaitOutputUnsafe()
+
+      todo.status === Status.Created &&
+      todo.value.completed === todoWithoutId.completed &&
+      todo.value.title === todoWithoutId.title &&
+      todo.value.order === todoWithoutId.order &&
+      Todo.get(todo.value.id).isDefined
     }
   }
 
