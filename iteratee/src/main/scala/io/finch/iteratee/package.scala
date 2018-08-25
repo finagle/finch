@@ -1,6 +1,6 @@
 package io.finch
 
-import cats.effect.{Effect, IO}
+import cats.effect.Effect
 import com.twitter.finagle.http.Response
 import com.twitter.io._
 import com.twitter.util.Future
@@ -102,9 +102,7 @@ trait LowPriorityInstances {
       val stream = {
         enum.ensure(Effect[F].suspend(futureToEffect(writer.close()))).map(e.apply(_, cs)).into(iteratee(writer))
       }
-      Effect[F].runAsync(stream) {
-        _ => IO.pure(())
-      }.unsafeRunSync()
+      Effect[F].toIO(stream).unsafeRunAsyncAndForget()
       response
     })
   }

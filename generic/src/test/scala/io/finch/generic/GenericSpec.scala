@@ -2,7 +2,7 @@ package io.finch.generic
 
 import cats.kernel.Eq
 import com.twitter.util.Try
-import io.finch._
+import io.finch.FinchSpec
 import io.finch.tried._
 import org.scalacheck.Arbitrary
 
@@ -12,7 +12,7 @@ class GenericSpec extends FinchSpec {
 
   case class Foo(a: String, b: Int)
 
-  val e: Endpoint[Try, Foo] = deriveEndpoint[Try, Foo].fromParams
+  val e: Endpoint[Foo] = deriveEndpoint[Try, Foo].fromParams
 
   implicit val eq: Eq[Foo] = Eq.fromUniversalEquals
 

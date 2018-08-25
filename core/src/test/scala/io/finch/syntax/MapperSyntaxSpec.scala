@@ -5,16 +5,13 @@ import cats.effect.Effect
 import cats.syntax.functor._
 import com.twitter.finagle.http.Response
 import io.finch._
-import io.finch.endpoint.effect.EffectEndpoints
 import org.scalacheck.Arbitrary
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
-abstract class MapperSyntaxSpec[F[_] : Effect](endpoints: EffectEndpoints[F] with Outputs,
-                                      endpointMappers: EndpointMappers[F]
-                                      ) extends FinchSpec with GeneratorDrivenPropertyChecks {
+abstract class MapperSyntaxSpec[F[_]](endpoints: Finch[F]) extends FinchSpec
+  with GeneratorDrivenPropertyChecks {
 
   import endpoints._
-  import endpointMappers._
 
   implicit val arbResponse: Arbitrary[Response] = Arbitrary(genOutput[String].map(_.toResponse[Text.Plain]))
 
@@ -81,14 +78,14 @@ abstract class MapperSyntaxSpec[F[_] : Effect](endpoints: EffectEndpoints[F] wit
     }
   }
 
-  private def checkValue[A : Arbitrary](f: A => Endpoint[F, A]): Unit = {
+  private def checkValue[A : Arbitrary](f: A => Endpoint[A]): Unit = {
     forAll((input: A) => {
       val e = f(input)
       e(Input.get("/")).awaitValueUnsafe() shouldBe Some(input)
     })
   }
 
-  private def checkFunction(e: Endpoint[F, _]): Unit = {
+  private def checkFunction(e: Endpoint[_]): Unit = {
     forAll((input: Int) => {
       e(Input.get(s"/$input")).awaitValueUnsafe() match {
         case Some(r: Response) => r.contentString shouldBe input.toString
@@ -98,7 +95,7 @@ abstract class MapperSyntaxSpec[F[_] : Effect](endpoints: EffectEndpoints[F] wit
     })
   }
 
-  private def checkFunction2(e: Endpoint[F, _]): Unit = {
+  private def checkFunction2(e: Endpoint[_]): Unit = {
     forAll((x: Int, y: Int) => {
       e(Input.get(s"/$x/$y")).awaitValueUnsafe() match {
         case Some(r: Response) => r.contentString shouldBe s"$x$y"

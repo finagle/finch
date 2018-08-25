@@ -1,6 +1,6 @@
 package io.finch
 
-import cats.{Eq, Monad}
+import cats.{Applicative, Eq}
 import com.twitter.finagle.http.{Cookie, Response, Status}
 import java.nio.charset.{Charset, StandardCharsets}
 
@@ -46,17 +46,17 @@ sealed trait Output[+A] { self =>
     case e: Output.Empty => e
   }
 
-  final def traverse[F[_], B](fn: A => F[B])(implicit M: Monad[F]): F[Output[B]] = this match {
-    case p: Output.Payload[A] => M.map(fn(p.value))(b => p.withValue(b))
-    case f: Output.Failure => M.pure(f)
-    case e: Output.Empty => M.pure(e)
+  final def traverse[F[_], B](fn: A => F[B])(implicit F: Applicative[F]): F[Output[B]] = this match {
+    case p: Output.Payload[A] => F.map(fn(p.value))(b => p.withValue(b))
+    case f: Output.Failure => F.pure(f)
+    case e: Output.Empty => F.pure(e)
   }
 
-  final def traverseFlatten[F[_], B](fn: A => F[Output[B]])(implicit M: Monad[F]): F[Output[B]] = this match {
+  final def traverseFlatten[F[_], B](fn: A => F[Output[B]])(implicit F: Applicative[F]): F[Output[B]] = this match {
     case p: Output.Payload[A] =>
-      M.map(fn(p.value))(ob => ob.withHeaders(self.headers).withCookies(self.cookies))
-    case f: Output.Failure => M.pure(f)
-    case e: Output.Empty => M.pure(e)
+      F.map(fn(p.value))(ob => ob.withHeaders(self.headers).withCookies(self.cookies))
+    case f: Output.Failure => F.pure(f)
+    case e: Output.Empty => F.pure(e)
   }
 
   /**

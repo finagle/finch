@@ -9,7 +9,6 @@ import com.twitter.io.Buf
 import com.twitter.util.Try
 import io.finch.data.Foo
 import io.finch.tried._
-import io.finch.tried.syntax._
 
 class MultipartSpec extends FinchSpec {
 

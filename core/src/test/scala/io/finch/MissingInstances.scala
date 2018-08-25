@@ -1,10 +1,8 @@
 package io.finch
 
 import cats.Eq
-import cats.effect.{Effect, IO}
 import com.twitter.io.Buf
 import com.twitter.util.{Return, Throw, Try}
-import io.catbird.util.twitterTryInstance
 
 /**
  * Type class instances for non-Finch types.

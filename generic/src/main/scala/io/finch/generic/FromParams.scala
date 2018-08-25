@@ -19,7 +19,7 @@ trait FromParams[F[_], L <: HList] {
 object FromParams {
 
   implicit def hnilFromParams[F[_] : Effect]: FromParams[F, HNil] = new FromParams[F, HNil] {
-    def endpoint: Endpoint[F, HNil] = Endpoint.const[F, HNil](HNil)
+    def endpoint: Endpoint[F, HNil] = Endpoint[F].const(HNil)
   }
 
   implicit def hconsFromParams[F[_] : Effect, HK <: Symbol, HV, T <: HList](implicit

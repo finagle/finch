@@ -19,5 +19,5 @@ import io.finch.rerunnable._
  *   c = t * n * 1.5
  */
 object Finch extends Wrk {
-  serve(Endpoint.lift[Rerunnable, Finch.Payload](Payload("Hello, World!")).toServiceAs[Application.Json])
+  serve(Endpoint[Rerunnable].lift[Finch.Payload](Payload("Hello, World!")).toServiceAs[Application.Json])
 }

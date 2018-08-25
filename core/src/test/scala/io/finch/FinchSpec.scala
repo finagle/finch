@@ -221,10 +221,10 @@ trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
 
   implicit def arbitraryEndpoint[F[_] : Effect, A](implicit A: Arbitrary[A]): Arbitrary[Endpoint[F, A]] = Arbitrary(
     Gen.oneOf(
-      Gen.const(Endpoint.empty[F, A]),
-      A.arbitrary.map(a => Endpoint.const[F, A](a)),
+      Gen.const(Endpoint[F].empty[A]),
+      A.arbitrary.map(a => Endpoint[F].const(a)),
       Arbitrary.arbitrary[Throwable].map(e =>
-        Endpoint.liftOutputAsync(Effect[F].raiseError[Output[A]](e))
+        Endpoint[F].liftOutputAsync(Effect[F].raiseError[Output[A]](e))
       ),
       /**
        * Note that we don't provide instances of arbitrary endpoints wrapping

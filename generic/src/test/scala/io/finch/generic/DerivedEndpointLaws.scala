@@ -5,9 +5,9 @@ import cats.effect.Effect
 import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
+import io.finch._
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
-import io.finch._
 
 abstract class DerivedEndpointLaws[F[_] : Effect, A] extends Laws with MissingInstances with AllInstances {
 

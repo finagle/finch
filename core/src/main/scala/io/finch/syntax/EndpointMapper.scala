@@ -1,10 +1,9 @@
 package io.finch.syntax
 
-import cats.effect.Effect
 import com.twitter.finagle.http.Method
 import io.finch._
 
-class EndpointMapper[F[_] : Effect, A](m: Method, e: Endpoint[F, A]) extends Endpoint[F, A] { self =>
+class EndpointMapper[F[_], A](m: Method, e: Endpoint[F, A]) extends Endpoint[F, A] { self =>
 
   /**
     * Maps this endpoint to either `A => Output[B]` or `A => Future[Output[B]]`.

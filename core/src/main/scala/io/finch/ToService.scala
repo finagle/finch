@@ -1,7 +1,6 @@
 package io.finch
 
 import cats.effect.{Effect, IO}
-import cats.syntax.all._
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Method, Request, Response, Status, Version}
 import com.twitter.util.{Future, Promise}
@@ -121,15 +120,16 @@ object ToService {
             val accept =
               if (opts.negotiateContentType) req.accept.map(a => Accept.fromString(a)) else Nil
 
-            val promise = Promise[Output[A]]
-            val io = effect.runAsync(out) {
+            val promise = Promise[Response]
+            effect.toIO(out).unsafeRunAsync {
               case Left(t) => IO.pure(promise.setException(t))
-              case Right(value) => IO.pure(promise.setValue(value))
+              case Right(value) => IO.pure {
+                  promise.setValue(
+                    conformHttp(value.convertToResponse(ntrA(accept).apply, ntrE(accept).apply), req.version, opts)
+                  )
+                }
             }
-            io.unsafeRunSync()
-            promise.map(oa =>
-              conformHttp(oa.convertToResponse(ntrA(accept).apply, ntrE(accept).apply), req.version, opts)
-            )
+            promise
 
           case EndpointResult.NotMatched.MethodNotAllowed(allowed) =>
             tsT(es.tail, opts, ctx.copy(wouldAllow = ctx.wouldAllow ++ allowed))(req)

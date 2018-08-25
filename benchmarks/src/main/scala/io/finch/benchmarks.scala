@@ -105,9 +105,12 @@ class ExtractPathBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class ProductBenchmark extends FinchBenchmark {
-  val both: Endpoint[Rerunnable, (Int, String)] = Endpoint.const(42).product(Endpoint.const("foo"))
-  val left: Endpoint[Rerunnable, (Int, String)] = Endpoint.const(42).product(Endpoint.empty)
-  val right: Endpoint[Rerunnable, (Int, String)] = Endpoint.empty[Rerunnable, Int].product(Endpoint.const("foo"))
+  val both: Endpoint[Rerunnable, (Int, String)] =
+    Endpoint[Rerunnable].const(42).product(Endpoint[Rerunnable].const("foo"))
+  val left: Endpoint[Rerunnable, (Int, String)] =
+    Endpoint[Rerunnable].const(42).product(Endpoint[Rerunnable].empty)
+  val right: Endpoint[Rerunnable, (Int, String)] =
+    Endpoint[Rerunnable].empty[Int].product(Endpoint[Rerunnable].const("foo"))
 
   @Benchmark
   def bothMatched: Option[(Int, String)] = both(getRoot).awaitValueUnsafe()
@@ -121,9 +124,12 @@ class ProductBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class CoproductBenchmark extends FinchBenchmark {
-  val both: Endpoint[Rerunnable, String] = Endpoint.const("foo").coproduct(Endpoint.const("bar"))
-  val left: Endpoint[Rerunnable, String] = Endpoint.const("foo").coproduct(Endpoint.empty)
-  val right: Endpoint[Rerunnable, String] = Endpoint.empty[Rerunnable, String].coproduct(Endpoint.const("bar"))
+  val both: Endpoint[Rerunnable, String] =
+    Endpoint[Rerunnable].const("foo").coproduct(Endpoint[Rerunnable].const("bar"))
+  val left: Endpoint[Rerunnable, String] =
+    Endpoint[Rerunnable].const("foo").coproduct(Endpoint[Rerunnable].empty)
+  val right: Endpoint[Rerunnable, String] =
+    Endpoint[Rerunnable].empty.coproduct(Endpoint[Rerunnable].const("bar"))
 
   @Benchmark
   def bothMatched: Option[String] = both(getRoot).awaitValueUnsafe()
@@ -137,7 +143,7 @@ class CoproductBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class MapBenchmark extends FinchBenchmark {
-  val ten: Endpoint[Rerunnable, Int] = Endpoint.const(10)
+  val ten: Endpoint[Rerunnable, Int] = Endpoint[Rerunnable].const(10)
   val mapTen: Endpoint[Rerunnable, Int] = ten.map(a => a + 20)
   val mapTenAsync: Endpoint[Rerunnable, Int] = ten.mapAsync(a => Rerunnable.const(a + 20))
   val mapTenOutput: Endpoint[Rerunnable, Int] = ten.mapOutput(a => Ok(a + 10))
@@ -185,7 +191,7 @@ abstract class BootstrapBenchmark[CT](init: Bootstrap[HNil, HNil])(implicit
   protected def issueRequest(): Request = Request()
 
   private val foo: Service[Request, Response] = init
-    .serve[CT](Endpoint.const(List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString))))
+    .serve[CT](Endpoint[Rerunnable].const(List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString))))
     .toService
 
   @Benchmark

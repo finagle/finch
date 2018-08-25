@@ -1,8 +1,9 @@
 package io.finch
 
-import cats.effect.{Effect, IO}
+import cats.effect.{Effect}
 import com.twitter.finagle.http.Method
 import com.twitter.util._
+import scala.concurrent.duration.{Duration => ScalaDuration}
 
 /**
  * A result returned from an [[Endpoint]]. This models `Option[(Input, Future[Output])]` and
@@ -48,15 +49,11 @@ sealed abstract class EndpointResult[F[_], +A] {
 
   def awaitOutput(d: Duration = Duration.Top)(implicit e: Effect[F]): Option[Try[Output[A]]] = this match {
     case EndpointResult.Matched(_, _, out) =>
-      val promise = Promise[Try[Output[A]]]
-      val io = Effect[F].runAsync(out) {
-        case Right(r) =>
-          IO.pure(promise.setValue(Return(r)))
-        case Left(t) =>
-          IO.pure(promise.setValue(Throw(t)))
-      }
-      io.unsafeRunSync()
-      Some(Await.result(promise, d))
+      val (t, unit) = d.inTimeUnit
+      Some(Try(e.toIO(out).unsafeRunTimed(ScalaDuration(t, unit)) match {
+        case Some(a) => a
+        case _ => throw new TimeoutException(s"Output wasn't returned in time: $d")
+      }))
     case _ => None
   }
 
