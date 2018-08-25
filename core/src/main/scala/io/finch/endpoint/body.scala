@@ -13,7 +13,7 @@ import scala.reflect.ClassTag
 private abstract class FullBody[A] extends Endpoint[A] {
 
   protected def missing: Future[Output[A]]
-  protected def present(contentType: Option[String], content: Buf, cs: Charset): Future[Output[A]]
+  protected def present(contentType: String, content: Buf, cs: Charset): Future[Output[A]]
 
   final def apply(input: Input): Endpoint.Result[A] =
     if (input.request.isChunked) EndpointResult.NotMatched
@@ -21,7 +21,11 @@ private abstract class FullBody[A] extends Endpoint[A] {
       val output = Task.async {
         val contentLength = input.request.contentLengthOrNull
         if (contentLength == null || contentLength == "0") missing
-        else present(input.request.contentType, input.request.content, input.request.charsetOrUtf8)
+        else present(
+          input.request.mediaTypeOrEmpty,
+          input.request.content,
+          input.request.charsetOrUtf8
+        )
       }
 
       EndpointResult.Matched(input, Trace.empty, output)
@@ -63,7 +67,7 @@ private abstract class Body[A, B, CT](ad: Decode.Dispatchable[A, CT], ct: ClassT
     case Throw(t) => Throw(Error.NotParsed(items.BodyItem, ct, t))
   }
 
-  protected def present(contentType: Option[String], content: Buf, cs: Charset): Future[Output[B]] =
+  protected def present(contentType: String, content: Buf, cs: Charset): Future[Output[B]] =
     Future.const(ad(contentType, content, cs).transform(this))
 
   final override def toString: String = "body"
@@ -72,14 +76,14 @@ private abstract class Body[A, B, CT](ad: Decode.Dispatchable[A, CT], ct: ClassT
 private abstract class BinaryBody[A]
     extends FullBody[A] with FullBody.PreparedBody[Array[Byte], A] {
 
-  protected def present(contentType: Option[String], content: Buf, cs: Charset): Future[Output[A]] =
+  protected def present(contentType: String, content: Buf, cs: Charset): Future[Output[A]] =
     Future.value(Output.payload(prepare(content.asByteArray)))
 
   final override def toString: String = "binaryBody"
 }
 
 private abstract class StringBody[A] extends FullBody[A] with FullBody.PreparedBody[String, A] {
-  protected def present(contentType: Option[String], content: Buf, cs: Charset): Future[Output[A]] =
+  protected def present(contentType: String, content: Buf, cs: Charset): Future[Output[A]] =
     Future.value(Output.payload(prepare(content.asString(cs))))
 
   final override def toString: String = "stringBody"

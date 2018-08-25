@@ -62,6 +62,17 @@ package object internal {
     // Returns message's content length or null.
     def contentLengthOrNull: String = self.headerMap.getOrNull(Fields.ContentLength)
 
+    // Returns message's media type or empty string.
+    def mediaTypeOrEmpty: String = {
+      val ct = self.headerMap.getOrNull(Fields.ContentType)
+      if (ct == null) ""
+      else {
+        val semi = ct.indexOf(';')
+        if (semi == -1) ct
+        else ct.substring(0, semi)
+      }
+    }
+
     // Returns message's charset or UTF-8 if it's not defined.
     def charsetOrUtf8: Charset = {
 
