@@ -3,15 +3,15 @@ package io.finch.streaming
 import java.util.concurrent.atomic.AtomicLong
 
 import cats.Show
+import cats.effect.IO
 import cats.instances.long._
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.Http
 import com.twitter.io.Buf
 import com.twitter.util.{Await, Try}
-import io.catbird.util.Rerunnable
 import io.finch.Text
-import io.finch.rerunnable._
-import io.finch.rerunnable.syntax._
+import io.finch.catsEffect._
+import io.finch.catsEffect.syntax._
 
 /**
 * A simple Finch application featuring very basic, `Buf`-based streaming support.
@@ -53,7 +53,11 @@ object Main {
   //
   // For example, if input stream is `1, 2, 3` then output response would be `6`.
   def totalSum: Endpoint[Long] = post("totalSum" :: asyncBody) { as: AsyncStream[Buf] =>
-    Rerunnable.fromFuture(as.foldLeft(0L)((acc, b) => acc + bufToLong(b))).map(Ok)
+    IO.async[Long]((cb) => {
+      as.foldLeft(0L)((acc, b) => acc + bufToLong(b))
+        .onSuccess(i => cb(Right(i)))
+        .onFailure(t => cb(Left(t)))
+    }).map(Ok)
   }
 
   // This endpoint takes a simple request with an integer number N and returns a

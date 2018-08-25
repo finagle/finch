@@ -63,7 +63,7 @@ class BodySpec extends FinchSpec {
   }
 
   it should "never evaluate until run" in {
-    import io.finch.rerunnable._
+    import io.finch.catsEffect._
     check { f: Foo =>
       val i = Input.post("/").withBody[Text.Plain](f)
 

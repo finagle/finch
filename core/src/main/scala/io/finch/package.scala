@@ -1,7 +1,6 @@
 package io
 
-import io.catbird.util.Rerunnable
-import io.catbird.util.effect.rerunnableEffectInstance
+import cats.effect.IO
 
 /**
  * This is a root package of the Finch library, which provides an immutable layer of functions and
@@ -9,7 +8,7 @@ import io.catbird.util.effect.rerunnableEffectInstance
  */
 package object finch {
 
-  object rerunnable extends Finch[Rerunnable]
+  object catsEffect extends Finch[IO]
 
   object items {
     sealed abstract class RequestItem(val kind: String, val nameOption:Option[String] = None) {

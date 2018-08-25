@@ -1,10 +1,10 @@
 package io.finch.wrk
 
-import io.catbird.util.Rerunnable
+import cats.effect.IO
 import io.circe.generic.auto._
 import io.finch._
+import io.finch.catsEffect._
 import io.finch.circe._
-import io.finch.rerunnable._
 
 /**
  * How to benchmark this:
@@ -19,5 +19,5 @@ import io.finch.rerunnable._
  *   c = t * n * 1.5
  */
 object Finch extends Wrk {
-  serve(Endpoint[Rerunnable].lift[Finch.Payload](Payload("Hello, World!")).toServiceAs[Application.Json])
+  serve(Endpoint[IO].lift[Finch.Payload](Payload("Hello, World!")).toServiceAs[Application.Json])
 }

@@ -1,14 +1,14 @@
 package io.finch
 
+import cats.effect.IO
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.io.Buf
 import com.twitter.util.{Await, Try}
-import io.catbird.util.Rerunnable
 import io.circe.generic.auto._
+import io.finch.catsEffect._
 import io.finch.circe._
 import io.finch.data.Foo
-import io.finch.rerunnable._
 import java.nio.charset.{Charset, StandardCharsets}
 import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
 import org.openjdk.jmh.annotations._
@@ -42,8 +42,8 @@ class InputBenchmark extends FinchBenchmark {
 @State(Scope.Benchmark)
 class BodyBenchmark extends FinchBenchmark {
 
-  val fooOptionAsText: Endpoint[Rerunnable, Option[Foo]] = bodyOption[Foo, Text.Plain]
-  val fooAsText: Endpoint[Rerunnable, Foo] = body[Foo, Text.Plain]
+  val fooOptionAsText: Endpoint[IO, Option[Foo]] = bodyOption[Foo, Text.Plain]
+  val fooAsText: Endpoint[IO, Foo] = body[Foo, Text.Plain]
 
   @Benchmark
   def fooOption: Option[Option[Foo]] = fooOptionAsText(postPayload).awaitValueUnsafe()
@@ -67,7 +67,7 @@ class BodyBenchmark extends FinchBenchmark {
 @State(Scope.Benchmark)
 class MatchPathBenchmark extends FinchBenchmark {
 
-  val foo: Endpoint[Rerunnable, HNil] = "foo"
+  val foo: Endpoint[IO, HNil] = "foo"
 
   @Benchmark
   def stringSome: Option[HNil] = foo(getFooBarBaz).awaitValueUnsafe()
@@ -105,12 +105,12 @@ class ExtractPathBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class ProductBenchmark extends FinchBenchmark {
-  val both: Endpoint[Rerunnable, (Int, String)] =
-    Endpoint[Rerunnable].const(42).product(Endpoint[Rerunnable].const("foo"))
-  val left: Endpoint[Rerunnable, (Int, String)] =
-    Endpoint[Rerunnable].const(42).product(Endpoint[Rerunnable].empty)
-  val right: Endpoint[Rerunnable, (Int, String)] =
-    Endpoint[Rerunnable].empty[Int].product(Endpoint[Rerunnable].const("foo"))
+  val both: Endpoint[IO, (Int, String)] =
+    Endpoint[IO].const(42).product(Endpoint[IO].const("foo"))
+  val left: Endpoint[IO, (Int, String)] =
+    Endpoint[IO].const(42).product(Endpoint[IO].empty)
+  val right: Endpoint[IO, (Int, String)] =
+    Endpoint[IO].empty[Int].product(Endpoint[IO].const("foo"))
 
   @Benchmark
   def bothMatched: Option[(Int, String)] = both(getRoot).awaitValueUnsafe()
@@ -124,12 +124,12 @@ class ProductBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class CoproductBenchmark extends FinchBenchmark {
-  val both: Endpoint[Rerunnable, String] =
-    Endpoint[Rerunnable].const("foo").coproduct(Endpoint[Rerunnable].const("bar"))
-  val left: Endpoint[Rerunnable, String] =
-    Endpoint[Rerunnable].const("foo").coproduct(Endpoint[Rerunnable].empty)
-  val right: Endpoint[Rerunnable, String] =
-    Endpoint[Rerunnable].empty.coproduct(Endpoint[Rerunnable].const("bar"))
+  val both: Endpoint[IO, String] =
+    Endpoint[IO].const("foo").coproduct(Endpoint[IO].const("bar"))
+  val left: Endpoint[IO, String] =
+    Endpoint[IO].const("foo").coproduct(Endpoint[IO].empty)
+  val right: Endpoint[IO, String] =
+    Endpoint[IO].empty.coproduct(Endpoint[IO].const("bar"))
 
   @Benchmark
   def bothMatched: Option[String] = both(getRoot).awaitValueUnsafe()
@@ -143,11 +143,11 @@ class CoproductBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class MapBenchmark extends FinchBenchmark {
-  val ten: Endpoint[Rerunnable, Int] = Endpoint[Rerunnable].const(10)
-  val mapTen: Endpoint[Rerunnable, Int] = ten.map(a => a + 20)
-  val mapTenAsync: Endpoint[Rerunnable, Int] = ten.mapAsync(a => Rerunnable.const(a + 20))
-  val mapTenOutput: Endpoint[Rerunnable, Int] = ten.mapOutput(a => Ok(a + 10))
-  val mapTenOutputAsync: Endpoint[Rerunnable, Int] = ten.mapOutputAsync(a => Rerunnable.const(Ok(a + 10)))
+  val ten: Endpoint[IO, Int] = Endpoint[IO].const(10)
+  val mapTen: Endpoint[IO, Int] = ten.map(a => a + 20)
+  val mapTenAsync: Endpoint[IO, Int] = ten.mapAsync(a => IO.pure(a + 20))
+  val mapTenOutput: Endpoint[IO, Int] = ten.mapOutput(a => Ok(a + 10))
+  val mapTenOutputAsync: Endpoint[IO, Int] = ten.mapOutputAsync(a => IO.pure(Ok(a + 10)))
 
   @Benchmark
   def map: Option[Int] = mapTen(getRoot).awaitValueUnsafe()
@@ -185,13 +185,13 @@ class JsonBenchmark extends FinchBenchmark {
 @BenchmarkMode(Array(Mode.Throughput))
 @OutputTimeUnit(TimeUnit.SECONDS)
 abstract class BootstrapBenchmark[CT](init: Bootstrap[HNil, HNil])(implicit
-  tsf: ToService[Endpoint[Rerunnable, List[Foo]] :: HNil, CT :: HNil]
+  tsf: ToService[Endpoint[IO, List[Foo]] :: HNil, CT :: HNil]
 ) extends FinchBenchmark {
 
   protected def issueRequest(): Request = Request()
 
   private val foo: Service[Request, Response] = init
-    .serve[CT](Endpoint[Rerunnable].const(List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString))))
+    .serve[CT](Endpoint[IO].const(List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString))))
     .toService
 
   @Benchmark

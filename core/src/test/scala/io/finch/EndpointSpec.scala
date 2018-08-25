@@ -3,12 +3,12 @@ package io.finch
 import java.util.UUID
 
 import cats.data.NonEmptyList
+import cats.effect.IO
 import cats.laws.discipline.AlternativeTests
 import cats.laws.discipline.SemigroupalTests.Isomorphisms
 import com.twitter.conversions.time._
 import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.util.{Return, Throw, Try}
-import io.catbird.util.Rerunnable
 import io.finch.data.Foo
 import io.finch.tried._
 import io.finch.tried.syntax._
@@ -242,8 +242,8 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "maps lazily to values" in {
-    import io.finch.rerunnable._
-    import io.finch.rerunnable.syntax._
+    import io.finch.catsEffect._
+    import io.finch.catsEffect.syntax._
 
     val i = Input(emptyRequest, Seq.empty)
     var c = 0
@@ -254,13 +254,13 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "not evaluate Futures until matched" in {
-    import io.finch.rerunnable._
+    import io.finch.catsEffect._
 
     val i = Input(emptyRequest, Seq("a", "10"))
     var flag = false
 
     val endpointWithFailedFuture = "a".mapAsync { nil =>
-      Rerunnable { flag = true; nil }
+      IO { flag = true; nil }
     }
 
     val e = ("a" :: 10) :+: endpointWithFailedFuture

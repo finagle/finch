@@ -1,13 +1,13 @@
 package io.finch.iteratee
 
+import cats.effect.IO
 import com.twitter.finagle.Http
 import com.twitter.util.Await
-import io.catbird.util._
 import io.circe.generic.auto._
 import io.finch.Application
+import io.finch.catsEffect._
+import io.finch.catsEffect.syntax._
 import io.finch.circe._
-import io.finch.rerunnable._
-import io.finch.rerunnable.syntax._
 import io.iteratee.{Enumerator, Iteratee}
 import scala.util.Random
 
@@ -41,17 +41,17 @@ object Main {
 
   private val stream: Stream[Int] = Stream.continually(Random.nextInt())
 
-  val sumJson: Endpoint[Result] = post("sumJson" :: enumeratorJsonBody[Rerunnable, Number]) {
-    (enum: Enumerator[Rerunnable, Number]) =>
-      enum.into(Iteratee.fold[Rerunnable, Number, Result](Result(0))(_ add _)).map(Ok)
+  val sumJson: Endpoint[Result] = post("sumJson" :: enumeratorJsonBody[IO, Number]) {
+    (enum: Enumerator[IO, Number]) =>
+      enum.into(Iteratee.fold[IO, Number, Result](Result(0))(_ add _)).map(Ok)
   }
 
-  val streamJson: Endpoint[Enumerator[Rerunnable, Number]] = get("streamJson") {
-    Ok(Enumerator.enumStream[Rerunnable, Int](stream).map(Number.apply))
+  val streamJson: Endpoint[Enumerator[IO, Number]] = get("streamJson") {
+    Ok(Enumerator.enumStream[IO, Int](stream).map(Number.apply))
   }
 
-  val isPrime: Endpoint[Enumerator[Rerunnable, IsPrime]] =
-    post("streamPrime" :: enumeratorJsonBody[Rerunnable, Number]) { (enum: Enumerator[Rerunnable, Number]) =>
+  val isPrime: Endpoint[Enumerator[IO, IsPrime]] =
+    post("streamPrime" :: enumeratorJsonBody[IO, Number]) { (enum: Enumerator[IO, Number]) =>
       Ok(enum.map(_.isPrime))
     }
 
