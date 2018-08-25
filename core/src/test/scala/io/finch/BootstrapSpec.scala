@@ -2,6 +2,7 @@ package io.finch
 
 import com.twitter.finagle.http.{Method, Request, Status}
 import com.twitter.util.{Await, Future}
+import io.finch.data.Foo
 import io.finch.internal.currentTime
 import java.time.{ZonedDateTime, ZoneOffset}
 import java.time.format.DateTimeFormatter
@@ -56,6 +57,17 @@ class BootstrapSpec extends FinchSpec {
     val rep = Await.result(s(dd))
     rep.status shouldBe Status.MethodNotAllowed
     rep.allow shouldBe Some("POST,GET,PUT")
+  }
+
+  it should "respond 415 if media type is not supported" in {
+    val b = body[Foo, Text.Plain]
+    val s = Bootstrap.configure(enableUnsupportedMediaType = true)
+      .serve[Text.Plain](b)
+      .toService
+
+    val i = Input.post("/").withBody[Application.Csv](Foo("bar"))
+
+    Await.result(s(i.request)).status shouldBe Status.UnsupportedMediaType
   }
 
   it should "match the request version" in {

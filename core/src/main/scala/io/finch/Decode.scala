@@ -1,8 +1,9 @@
 package io.finch
 
 import com.twitter.io.Buf
-import com.twitter.util.Try
+import com.twitter.util.{Throw, Try}
 import java.nio.charset.Charset
+import scala.util.control.NoStackTrace
 import shapeless.{:+:, CNil, Coproduct, Witness}
 
 /**
@@ -16,6 +17,12 @@ trait Decode[A] {
 }
 
 object Decode {
+
+  /**
+   * Indicates that a payload can not be decoded with a given [[Decode]] instance (or a coproduct
+   * of instances).
+   */
+  object UnsupportedMediaTypeException extends Exception with NoStackTrace
 
   type Aux[A, CT <: String] = Decode[A] { type ContentType = CT }
 
@@ -42,37 +49,33 @@ object Decode {
   @inline def apply[A, CT <: String](implicit d: Aux[A, CT]): Aux[A, CT] = d
 
   /**
-    * Abstraction over [[Decode]] to select correct decoder according to Content-Type of a request
-    */
+   * Abstracting over [[Decode]] to select a correct decoder according to the `Content-Type` header
+   * value.
+   */
   trait Dispatchable[A, CT] {
-    def apply(contentType: Option[String], b: Buf, cs: Charset): Try[A]
+    def apply(ct: Option[String], b: Buf, cs: Charset): Try[A]
   }
 
   object Dispatchable {
 
-    def instance[A, CT](fn: (Option[String], Buf, Charset) => Try[A]):  Dispatchable[A, CT] = new Dispatchable[A, CT] {
-      def apply(contentType: Option[String], b: Buf, cs: Charset): Try[A] = fn(contentType, b, cs)
+    implicit def cnilToDispatchable[A]: Dispatchable[A, CNil] = new Dispatchable[A, CNil] {
+      def apply(ct: Option[String], b: Buf, cs: Charset): Try[A] =
+        Throw(Decode.UnsupportedMediaTypeException)
     }
 
-    implicit def mkCnil[A, CTH <: String](implicit decode: Decode.Aux[A, CTH]): Dispatchable[A, CTH :+: CNil] =
-      instance((_, b, cs) => decode(b, cs))
-
-    implicit def mkCons[A, CTH <: String, CTT <: Coproduct](implicit
+    implicit def coproductToDispatchable[A, CTH <: String, CTT <: Coproduct](implicit
       decode: Decode.Aux[A, CTH],
       witness: Witness.Aux[CTH],
       tail: Dispatchable[A, CTT]
-    ): Dispatchable[A, CTH :+: CTT] = instance((contentType, b, cs) => {
-      if (contentType.exists(ct => ct.equalsIgnoreCase(witness.value))) {
-        decode(b, cs)
-      } else {
-        tail(contentType, b, cs)
-      }
-    })
+    ): Dispatchable[A, CTH :+: CTT] = new Dispatchable[A, CTH :+: CTT] {
+      def apply(ct: Option[String], b: Buf, cs: Charset): Try[A] =
+        if (ct.exists(_.equalsIgnoreCase(witness.value))) decode(b, cs)
+        else tail(ct, b, cs)
+    }
 
-    implicit def mkSingle[A, CT <: String](implicit
-      decode: Decode.Aux[A, CT]
-    ): Dispatchable[A, CT] = instance((_, b, cs) => decode(b, cs))
-
+    implicit def singleToDispatchable[A, CT <: String](implicit
+      decode: Decode.Aux[A, CT],
+      witness: Witness.Aux[CT]
+    ): Dispatchable[A, CT] = coproductToDispatchable[A, CT, CNil].asInstanceOf[Dispatchable[A, CT]]
   }
-
 }

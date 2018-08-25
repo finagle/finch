@@ -81,31 +81,12 @@ class BodySpec extends FinchSpec {
     }
   }
 
-  it should "select last decoder in the coproduct if request doesn't contain Content-Type" in {
-    check { f: Foo =>
-      val i = Input.post("/").withBody[Application.Csv](f)
-      val input = i.copy(request = {
-        val req = i.request
-        req.headerMap.remove("Content-Type")
-        req
-      })
-      val endpoint = body[Foo, Text.Plain :+: Application.Csv :+: CNil]
+  it should "resolve into NotParsed(Decode.UMTE) if Content-Type does not match" in {
+    val i = Input.post("/").withBody[Application.Xml](Buf.Utf8("foo"))
+    val b = body[Foo, Text.Plain :+: Application.Csv :+: CNil]
+    val t =  b(i).awaitOutput().get.throwable
 
-      endpoint(input).awaitValueUnsafe() === Some(f)
-    }
-  }
-
-  it should "select last decoder in the coproduct if request doesn't contain supported Content-Type" in {
-    check { f: Foo =>
-      val i = Input.post("/").withBody[Application.Csv](f)
-      val input = i.copy(request = {
-        val req = i.request
-        req.headerMap.set("Content-Type", "foobar")
-        req
-      })
-      val endpoint = body[Foo, Text.Plain :+: Application.Csv :+: CNil]
-
-      endpoint(input).awaitValueUnsafe() === Some(f)
-    }
+    t shouldBe an[Error.NotParsed]
+    t.getCause shouldBe Decode.UnsupportedMediaTypeException
   }
 }
