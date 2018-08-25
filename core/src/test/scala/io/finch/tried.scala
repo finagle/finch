@@ -8,8 +8,8 @@ class TryEffect extends Effect[Try] {
   def runAsync[A](fa: Try[A])(cb: Either[Throwable, A] => IO[Unit]): SyncIO[Unit] =
     SyncIO {
       fa match {
-        case Return(a) => cb(Right(a))
-        case Throw(t) => cb(Left(t))
+        case Return(a) => cb(Right(a)).unsafeRunSync()
+        case Throw(t) => cb(Left(t)).unsafeRunSync()
       }
     }
 
