@@ -10,8 +10,7 @@ import org.scalacheck.{Arbitrary, Gen}
 case class Foo(s: String)
 
 object Foo {
-  implicit val showFoo: Show[Foo] =
-    Show.show(_.s)
+  implicit val showFoo: Show[Foo] = Show.show(_.s)
 
   implicit val eqFoo: Eq[Foo] = Eq.fromUniversalEquals
 
