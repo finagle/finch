@@ -1,5 +1,6 @@
 package io.finch
 
+import cats.arrow.FunctionK
 import com.twitter.util.{Future, Promise}
 import scala.concurrent.{ExecutionContext, Future => ScalaFuture}
 import scala.util.{Failure, Success, Try}
@@ -8,6 +9,10 @@ import scala.util.{Failure, Success, Try}
  * Enables Sinatra-like syntax extensions for endpoints.
  */
 package object syntax extends EndpointMappers {
+
+  type ToTwitterFuture[F[_]] = FunctionK[F, Future]
+
+  implicit val id: ToTwitterFuture[Future] = FunctionK.id[Future]
 
   /**
    * Enables Scala Futures support for Finch syntax.

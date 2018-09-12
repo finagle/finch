@@ -108,8 +108,8 @@ private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConv
 object Mapper extends HighPriorityMapperConversions {
   implicit def mapperFromFutureOutputHFunction[A, B, F, FOB, H[_]](f: F)(implicit
     ftp: FnToProduct.Aux[F, A => FOB],
-    ttf: ToTwitterFuture[H],
-    ev: FOB <:< H[Output[B]]
+    ev: FOB <:< H[Output[B]],
+    ttf: ToTwitterFuture[H]
   ): Mapper.Aux[A, B] = instance(_.mapOutputAsync(value => ttf(ev(ftp(f)(value)))))
 
   implicit def mapperFromFutureResponseHFunction[A, F, FR, H[_]](f: F)(implicit
