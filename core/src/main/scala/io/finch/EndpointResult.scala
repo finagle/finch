@@ -1,6 +1,6 @@
 package io.finch
 
-import cats.effect.{Effect}
+import cats.effect.Effect
 import com.twitter.finagle.http.Method
 import com.twitter.util._
 import scala.concurrent.duration.{Duration => ScalaDuration}

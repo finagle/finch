@@ -121,14 +121,16 @@ object ToService {
               if (opts.negotiateContentType) req.accept.map(a => Accept.fromString(a)) else Nil
 
             val promise = Promise[Response]
-            effect.toIO(out).unsafeRunAsync {
-              case Left(t) => IO.pure(promise.setException(t))
-              case Right(value) => IO.pure {
-                  promise.setValue(
-                    conformHttp(value.convertToResponse(ntrA(accept).apply, ntrE(accept).apply), req.version, opts)
-                  )
-                }
-            }
+
+            effect.runAsync(out) {
+              case Left(t) => IO(promise.setException(t))
+              case Right(v) => IO {
+                promise.setValue(
+                  conformHttp(v.convertToResponse(ntrA(accept).apply, ntrE(accept).apply), req.version, opts)
+                )
+              }
+            }.unsafeRunSync()
+
             promise
 
           case EndpointResult.NotMatched.MethodNotAllowed(allowed) =>

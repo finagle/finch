@@ -1,7 +1,6 @@
 package io.finch
 
 import com.twitter.finagle.http.{Method, Request, Status}
-import com.twitter.util.{Await, Future}
 import com.twitter.util.{Await, Throw, Try}
 import io.finch.data.Foo
 import io.finch.internal.currentTime
