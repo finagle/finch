@@ -52,7 +52,7 @@ class EnumerateEndpointSpec extends FinchSpec with GeneratorDrivenPropertyChecks
     enumeratorJsonBody[Buf].toString shouldBe "enumeratorJsonBody"
   }
 
-  private def write(data: List[Buf], writer: Writer with Closable): Future[Unit] = {
+  private def write(data: List[Buf], writer: Writer[Buf] with Closable): Future[Unit] = {
     data match {
       case Nil => writer.close()
       case head :: tail => writer.write(head).foreach(_ => write(tail, writer))
