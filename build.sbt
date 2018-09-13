@@ -8,14 +8,14 @@ lazy val buildSettings = Seq(
 )
 
 lazy val arrowsVersion = "0.1.22"
-lazy val twitterVersion = "18.8.0"
+lazy val twitterVersion = "18.9.0"
 lazy val circeVersion = "0.9.3"
-lazy val circeIterateeVersion = "0.9.0"
+lazy val circeIterateeVersion = "0.10.0"
 lazy val shapelessVersion = "2.3.3"
-lazy val catsVersion = "1.1.0"
+lazy val catsVersion = "1.4.0"
 lazy val sprayVersion = "1.3.4"
 lazy val argonautVersion = "6.2.2"
-lazy val iterateeVersion = "0.17.0"
+lazy val iterateeVersion = "0.18.0"
 lazy val refinedVersion = "0.9.2"
 
 lazy val compilerOptions = Seq(
