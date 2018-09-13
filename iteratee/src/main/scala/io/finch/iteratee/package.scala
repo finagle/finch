@@ -19,8 +19,8 @@ package object iteratee extends IterateeInstances {
 
   import syntax._
 
-  private[finch] def enumeratorFromReader(reader: Reader): Enumerator[Future, Buf] = {
-    def rec(reader: Reader): Enumerator[Future, Buf] = {
+  private[finch] def enumeratorFromReader(reader: Reader[Buf]): Enumerator[Future, Buf] = {
+    def rec(reader: Reader[Buf]): Enumerator[Future, Buf] = {
       reader.read(Int.MaxValue).intoEnumerator.flatMap {
         case None => empty[Buf]
         case Some(buf) => enumOne(buf).append(rec(reader))
@@ -81,7 +81,7 @@ trait LowPriorityInstances extends FutureModule {
     withCustomIteratee(writer => foreachM((buf: Buf) => writer.write(buf)))
   }
 
-  protected def withCustomIteratee[A, CT <: String](iteratee: Writer => Iteratee[Future, Buf, Unit])(implicit
+  protected def withCustomIteratee[A, CT <: String](iteratee: Writer[Buf] => Iteratee[Future, Buf, Unit])(implicit
     e: Encode.Aux[A, CT],
     w: Witness.Aux[CT]
   ): ToResponse.Aux[Enumerator[Future, A], CT] = {
