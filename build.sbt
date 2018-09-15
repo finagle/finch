@@ -12,7 +12,6 @@ lazy val circeVersion = "0.9.3"
 lazy val circeIterateeVersion = "0.10.0"
 lazy val shapelessVersion = "2.3.3"
 lazy val catsVersion = "1.4.0"
-lazy val sprayVersion = "1.3.4"
 lazy val argonautVersion = "6.2.2"
 lazy val iterateeVersion = "0.18.0"
 lazy val refinedVersion = "0.9.2"
@@ -179,11 +178,10 @@ lazy val finch = project.in(file("."))
       """.stripMargin
   )
   .settings(libraryDependencies ++= Seq(
-    "io.circe" %% "circe-generic" % circeVersion,
-    "io.spray" %%  "spray-json" % sprayVersion
+    "io.circe" %% "circe-generic" % circeVersion
   ))
   .aggregate(
-    core, iteratee, generic, argonaut, circe, sprayjson, benchmarks, test, jsonTest, examples, sse, refined
+    core, iteratee, generic, argonaut, circe, benchmarks, test, jsonTest, examples, sse, refined
   )
   .dependsOn(core, iteratee, generic, circe)
 
@@ -247,12 +245,6 @@ lazy val circe = project
     )
   )
   .dependsOn(core, iteratee, jsonTest % "test")
-
-lazy val sprayjson = project
-  .settings(moduleName := "finch-sprayjson")
-  .settings(allSettings)
-  .settings(libraryDependencies += "io.spray" %%  "spray-json" % sprayVersion)
-  .dependsOn(core, jsonTest % "test")
 
 lazy val sse = project
   .settings(moduleName := "finch-sse")
