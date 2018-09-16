@@ -1,6 +1,6 @@
 package io.finch
 
-import cats.effect.{Effect, IO}
+import cats.effect.{ConcurrentEffect, Effect, IO}
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Method, Request, Response, Status, Version}
 import com.twitter.util.{Future, Promise}
@@ -122,7 +122,15 @@ object ToService {
 
             val promise = Promise[Response]
 
-            effect.runAsync(out) {
+            (effect match {
+              case concurrent: ConcurrentEffect[F] =>
+                (concurrent.runCancelable(out) _).andThen(io => io.map(cancelToken =>
+                  promise.setInterruptHandler {
+                    case _ => concurrent.toIO(cancelToken).unsafeRunAsyncAndForget()
+                  }
+                ))
+              case e => e.runAsync(out) _
+            }) {
               case Left(t) => IO(promise.setException(t))
               case Right(v) => IO {
                 promise.setValue(

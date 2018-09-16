@@ -2,7 +2,6 @@ package io.finch
 
 import cats.effect.{Effect, ExitCase, IO, SyncIO}
 import com.twitter.util.{Return, Throw, Try}
-import io.catbird.util.twitterTryInstance
 
 class TryEffect extends Effect[Try] {
   def runAsync[A](fa: Try[A])(cb: Either[Throwable, A] => IO[Unit]): SyncIO[Unit] =
@@ -18,15 +17,21 @@ class TryEffect extends Effect[Try] {
 
   def suspend[A](thunk: => Try[A]): Try[A] = thunk
 
-  def flatMap[A, B](fa: Try[A])(f: A => Try[B]): Try[B] = twitterTryInstance.flatMap(fa)(f)
+  def flatMap[A, B](fa: Try[A])(f: A => Try[B]): Try[B] = fa.flatMap(f)
 
-  def tailRecM[A, B](a: A)(f: A => Try[Either[A, B]]): Try[B] = twitterTryInstance.tailRecM(a)(f)
+  def tailRecM[A, B](a: A)(f: A => Try[Either[A, B]]): Try[B] = f(a) match {
+    case t: Throw[_] => t.asInstanceOf[Try[B]]
+    case Return(Left(a1)) => tailRecM(a1)(f)
+    case Return(Right(b)) => Return(b)
+  }
 
-  def raiseError[A](e: Throwable): Try[A] = twitterTryInstance.raiseError(e)
+  def raiseError[A](e: Throwable): Try[A] = Throw[A](e)
 
-  def handleErrorWith[A](fa: Try[A])(f: Throwable => Try[A]): Try[A] = twitterTryInstance.handleErrorWith(fa)(f)
+  def handleErrorWith[A](fa: Try[A])(f: Throwable => Try[A]): Try[A] = fa.rescue {
+    case t => f(t)
+  }
 
-  def pure[A](x: A): Try[A] = twitterTryInstance.pure(x)
+  def pure[A](x: A): Try[A] = Try(x)
 
   def asyncF[A](k: (Either[Throwable, A] => Unit) => Try[Unit]): Try[A] = {
     var t: Try[A] = null
@@ -44,4 +49,4 @@ class TryEffect extends Effect[Try] {
   }
 }
 
-object tried extends Finch[Try]()(new TryEffect)
+object tried extends Module[Try]()(new TryEffect)

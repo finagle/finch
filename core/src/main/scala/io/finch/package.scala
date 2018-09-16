@@ -8,7 +8,7 @@ import cats.effect.IO
  */
 package object finch {
 
-  object catsEffect extends Finch[IO]
+  object catsEffect extends Module[IO]
 
   object items {
     sealed abstract class RequestItem(val kind: String, val nameOption:Option[String] = None) {

@@ -4,7 +4,7 @@ import cats.effect.Effect
 import io.finch.endpoint.effect.EffectEndpoints
 import io.finch.syntax.effect.EffectEndpointMappers
 
-abstract class Finch[F[_]](implicit val E: Effect[F])extends EffectEndpoints[F]
+abstract class Module[F[_]](implicit val E: Effect[F])extends EffectEndpoints[F]
   with Outputs
   with ValidationRules
   with EffectInstances[F] {

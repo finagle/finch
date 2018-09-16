@@ -19,5 +19,5 @@ import io.finch.circe._
  *   c = t * n * 1.5
  */
 object Finch extends Wrk {
-  serve(Endpoint[IO].lift[Finch.Payload](Payload("Hello, World!")).toServiceAs[Application.Json])
+  serve(Endpoint[IO].lift(Payload("Hello, World!")).toServiceAs[Application.Json])
 }
