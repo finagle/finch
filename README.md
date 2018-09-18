@@ -42,21 +42,9 @@ Installation
 ------------
 Every Finch module is published at Maven Central. Use the following _sbt_ snippet ...
 
-* for the _stable_ release:
-
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "[finch-module]" % "0.22.0"
-)
-```
-
-* for the `SNAPSHOT` version:
-
-```scala
-resolvers += Resolver.sonatypeRepo("snapshots")
-
-libraryDependencies ++= Seq(
-  "com.github.finagle" %% "[finch-module]" % "0.23.0-SNAPSHOT" changing()
+  "com.github.finagle" %% "[finch-module]" % "[version]"
 )
 ```
 
