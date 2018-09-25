@@ -1,5 +1,6 @@
 package io.finch
 
+import cats.Id
 import cats.effect.Effect
 import com.twitter.finagle.http.Method
 import com.twitter.util._
@@ -81,11 +82,11 @@ object EndpointResult {
     def isMatched: Boolean = false
   }
 
-  object NotMatched extends NotMatched[Pure] {
+  object NotMatched extends NotMatched[Id] {
     final case class MethodNotAllowed[F[_]](allowed: List[Method]) extends NotMatched[F]
   }
 
-  implicit def covaryEndpointResult[F[_], A](result: EndpointResult[Pure, A]): EndpointResult[F, A] =
+  implicit def covaryEndpointResult[F[_], A](result: EndpointResult[Id, A]): EndpointResult[F, A] =
     result.asInstanceOf[EndpointResult[F, A]]
 }
 

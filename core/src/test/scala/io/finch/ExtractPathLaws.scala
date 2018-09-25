@@ -36,8 +36,8 @@ abstract class ExtractPathLaws[F[_] : Effect, A]  extends Laws with MissingInsta
 object ExtractPathLaws {
   def apply[F[_] : Effect, A: DecodePath: ClassTag]: ExtractPathLaws[F, A] =
     new ExtractPathLaws[F, A] {
-      def tail: Endpoint[F, Seq[A]] = io.finch.endpoint.paths[F, A]
-      def one: Endpoint[F, A] = io.finch.endpoint.path[F, A]
+      def tail: Endpoint[F, Seq[A]] = Endpoint[F].paths[A]
+      def one: Endpoint[F, A] = Endpoint[F].path[A]
       def decode: DecodePath[A] = DecodePath[A]
     }
 }

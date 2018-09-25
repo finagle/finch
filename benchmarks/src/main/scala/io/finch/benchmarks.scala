@@ -52,16 +52,16 @@ class BodyBenchmark extends FinchBenchmark {
   def foo: Option[Foo] = fooAsText(postPayload).awaitValueUnsafe()
 
   @Benchmark
-  def stringOption: Option[Option[String]] = stringBodyOption(postPayload).awaitValueUnsafe()
+  def stringOption: Option[Option[String]] = stringBodyOption.apply(postPayload).awaitValueUnsafe()
 
   @Benchmark
-  def string: Option[String] = stringBody(postPayload).awaitValueUnsafe()
+  def string: Option[String] = stringBody.apply(postPayload).awaitValueUnsafe()
 
   @Benchmark
-  def byteArrayOption: Option[Option[Array[Byte]]] = binaryBodyOption(postPayload).awaitValueUnsafe()
+  def byteArrayOption: Option[Option[Array[Byte]]] = binaryBodyOption.apply(postPayload).awaitValueUnsafe()
 
   @Benchmark
-  def byteArray: Option[Array[Byte]] = binaryBody(postPayload).awaitValueUnsafe()
+  def byteArray: Option[Array[Byte]] = binaryBody.apply(postPayload).awaitValueUnsafe()
 }
 
 @State(Scope.Benchmark)

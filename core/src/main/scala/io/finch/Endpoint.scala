@@ -8,6 +8,7 @@ import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.util.{Return, Throw, Try}
 import io.finch.internal._
+import io.finch.syntax.EndpointMappers
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.hlist.Tupler
@@ -397,7 +398,7 @@ object Endpoint {
 
   def apply[F[_]]: EndpointBuilder[F] = new EndpointBuilder[F]
 
-  class EndpointBuilder[F[_]] {
+  class EndpointBuilder[F[_]] extends EndpointMappers[F] with Endpoints[F] {
 
     /**
       * Creates an empty [[Endpoint]] (an endpoint that never matches) for a given type.

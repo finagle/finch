@@ -3,7 +3,6 @@ package io.finch.generic
 import cats.data.NonEmptyList
 import cats.effect.Effect
 import io.finch._
-import io.finch.endpoint._
 import scala.reflect.ClassTag
 import shapeless._
 import shapeless.labelled._
@@ -39,27 +38,27 @@ private[generic] object Extractor extends Poly1 {
     dh: DecodeEntity[V],
     ct: ClassTag[V]
   ): Case.Aux[String, Endpoint[F, Option[V]]] = at[String] { key =>
-    paramOption[F, V](key)
+    Endpoint[F].paramOption[V](key)
   }
 
   implicit def seqExtractor[F[_] : Effect, V](implicit
     dh: DecodeEntity[V],
     ct: ClassTag[V]
   ): Case.Aux[String, Endpoint[F, Seq[V]]] = at[String] { key =>
-    params[F, V](key)
+    Endpoint[F].params[V](key)
   }
 
   implicit def nelExtractor[F[_] : Effect, V](implicit
     dh: DecodeEntity[V],
     ct: ClassTag[V]
   ): Case.Aux[String, Endpoint[F, NonEmptyList[V]]] = at[String] { key =>
-    paramsNel[F, V](key)
+    Endpoint[F].paramsNel[V](key)
   }
 
   implicit def extractor[F[_] : Effect, V](implicit
     dh: DecodeEntity[V],
     ct: ClassTag[V]
   ): Case.Aux[String, Endpoint[F, V]] = at[String] { key =>
-    param[F, V](key)
+    Endpoint[F].param[V](key)
   }
 }

@@ -52,17 +52,17 @@ private[finch] class Paths[F[_] : Effect] {
 
 }
 
-private[finch] trait PathsEndpoints {
+trait PathsEndpoints[F[_]] {
 
-  implicit def stringToPath[F[_] : Effect](s: String): Endpoint[F, HNil] = path(s)
-  implicit def intToPath[F[_] : Effect](i: Int): Endpoint[F, HNil] = path(i.toString)
-  implicit def booleanToPath[F[_] : Effect](b: Boolean): Endpoint[F, HNil] = path(b.toString)
+  implicit def stringToPath(s: String)(implicit effect: Effect[F]): Endpoint[F, HNil] = path(s)
+  implicit def intToPath(i: Int)(implicit effect: Effect[F]): Endpoint[F, HNil] = path(i.toString)
+  implicit def booleanToPath(b: Boolean)(implicit effect: Effect[F]): Endpoint[F, HNil] = path(b.toString)
 
   /**
     * A matching [[Endpoint]] that reads a value of type `A` (using the implicit
     * [[DecodePath]] instances defined for `A`) from the current path segment.
     */
-  def path[F[_] : Effect, A: DecodePath: ClassTag]: Endpoint[F, A] = {
+  def path[A: DecodePath: ClassTag](implicit effect: Effect[F]): Endpoint[F, A] = {
     val ps = new Paths[F]
     new ps.ExtractPath[A]
   }
@@ -71,7 +71,7 @@ private[finch] trait PathsEndpoints {
     * A matching [[Endpoint]] that reads a tail value `A` (using the implicit
     * [[DecodePath]] instances defined for `A`) from the entire path.
     */
-  def paths[F[_] : Effect, A: DecodePath: ClassTag]: Endpoint[F, Seq[A]] = {
+  def paths[A: DecodePath: ClassTag](implicit effect: Effect[F]): Endpoint[F, Seq[A]] = {
     val ps = new Paths[F]
     new ps.ExtractPaths[A]
   }
@@ -79,7 +79,7 @@ private[finch] trait PathsEndpoints {
   /**
     * An [[Endpoint]] that matches a given string.
     */
-  def path[F[_] : Effect](s: String): Endpoint[F, HNil] = {
+  def path(s: String)(implicit effect: Effect[F]): Endpoint[F, HNil] = {
     val ps = new Paths[F]
     new ps.MatchPath(s)
   }

@@ -82,7 +82,7 @@ class EndpointSpec extends FinchSpec {
   it should "match one patch segment" in {
     check { i: Input =>
       val v = i.route.headOption
-        .flatMap(s => path(s)(i).remainder)
+        .flatMap(s => path(s).apply(i).remainder)
 
       v.isEmpty|| v === Some(i.withRoute(i.route.tail))
     }
@@ -90,7 +90,7 @@ class EndpointSpec extends FinchSpec {
 
   it should "always match the entire input with *" in {
     check { i: Input =>
-      *(i).remainder === Some(i.copy(route = Nil))
+      *.apply(i).remainder === Some(i.copy(route = Nil))
     }
   }
 
@@ -117,7 +117,7 @@ class EndpointSpec extends FinchSpec {
 
   it should "always match the identity instance" in {
     check { i: Input =>
-      /(i).remainder === Some(i)
+      /.apply(i).remainder === Some(i)
     }
   }
 

@@ -110,15 +110,16 @@ private[finch] class ParamAndParams[F[_] : Effect] {
 
 }
 
-private[finch] trait ParamAndParamsEndpoints {
+trait ParamAndParamsEndpoints[F[_]] {
 
   /**
     * An evaluating [[Endpoint]] that reads an optional query-string param `name` from the request
     * into an `Option`.
     */
-  def paramOption[F[_] : Effect, A](name: String)(implicit
-                                   d: DecodeEntity[A],
-                                   tag: ClassTag[A]
+  def paramOption[A](name: String)(implicit
+    effect: Effect[F],
+    d: DecodeEntity[A],
+    tag: ClassTag[A]
   ): Endpoint[F, Option[A]] = {
     val ps = new ParamAndParams[F]
     new ps.Param[Option, A](name, d, tag) with ps.Param.Optional[A]
@@ -129,7 +130,7 @@ private[finch] trait ParamAndParamsEndpoints {
     * request or raises an [[Error.NotPresent]] exception when the param is missing; an
     * [[Error.NotValid]] exception is the param is empty.
     */
-  def param[F[_] : Effect, A](name: String)(implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[F, A] = {
+  def param[A](name: String)(implicit effect: Effect[F], d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[F, A] = {
     val ps = new ParamAndParams[F]
     new ps.Param[Id, A](name, d, tag) with ps.Param.Required[A]
   }
@@ -138,7 +139,7 @@ private[finch] trait ParamAndParamsEndpoints {
     * An evaluating [[Endpoint]] that reads an optional (in a meaning that a resulting
     * `Seq` may be empty) multi-value query-string param `name` from the request into a `Seq`.
     */
-  def params[F[_] : Effect, A](name: String)(implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[F, Seq[A]] = {
+  def params[A](name: String)(implicit effect: Effect[F], d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[F, Seq[A]] = {
     val ps = new ParamAndParams[F]
     new ps.Params[Seq, A](name, d, tag) with ps.Params.AllowEmpty[A]
   }
@@ -148,9 +149,10 @@ private[finch] trait ParamAndParamsEndpoints {
     * from the request into a `NonEmptyList` or raises a [[Error.NotPresent]] exception
     * when the params are missing or empty.
     */
-  def paramsNel[F[_] : Effect, A](name: String)(implicit
-                                 d: DecodeEntity[A],
-                                 tag: ClassTag[A]
+  def paramsNel[A](name: String)(implicit
+    effect: Effect[F],
+    d: DecodeEntity[A],
+    tag: ClassTag[A]
   ): Endpoint[F, NonEmptyList[A]] = {
     val ps = new ParamAndParams[F]
     new ps.Params[NonEmptyList, A](name, d, tag) with ps.Params.NonEmpty[A]

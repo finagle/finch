@@ -192,14 +192,16 @@ private[finch] class FileUploadsAndAttributes[F[_] : Effect] {
   }
 }
 
-private[finch] trait FileUploadsAndAttributesEndpoints {
+trait FileUploadsAndAttributesEndpoints[F[_]] {
 
 
   /**
     * An evaluating [[Endpoint]] that reads an optional file upload from a `multipart/form-data`
     * request into an `Option`.
     */
-  def multipartFileUploadOption[F[_] : Effect](name: String): Endpoint[F, Option[FinagleMultipart.FileUpload]] = {
+  def multipartFileUploadOption(name: String)(implicit
+    effect: Effect[F]
+  ): Endpoint[F, Option[FinagleMultipart.FileUpload]] = {
     val fa = new FileUploadsAndAttributes[F]
     new fa.FileUpload[Option](name) with fa.FileUpload.Optional
   }
@@ -208,7 +210,9 @@ private[finch] trait FileUploadsAndAttributesEndpoints {
     * An evaluating [[Endpoint]] that reads a required file upload from a `multipart/form-data`
     * request.
     */
-  def multipartFileUpload[F[_] : Effect](name: String): Endpoint[F, FinagleMultipart.FileUpload] = {
+  def multipartFileUpload(name: String)(implicit
+    effect: Effect[F]
+  ): Endpoint[F, FinagleMultipart.FileUpload] = {
     val fa = new FileUploadsAndAttributes[F]
     new fa.FileUpload[Id](name) with fa.FileUpload.Required
   }
@@ -217,7 +221,9 @@ private[finch] trait FileUploadsAndAttributesEndpoints {
     * An evaluating [[Endpoint]] that optionally reads multiple file uploads from a
     * `multipart/form-data` request.
     */
-  def multipartFileUploads[F[_] : Effect](name: String): Endpoint[F, Seq[FinagleMultipart.FileUpload]] = {
+  def multipartFileUploads(name: String)(implicit
+    effect: Effect[F]
+  ): Endpoint[F, Seq[FinagleMultipart.FileUpload]] = {
     val fa = new FileUploadsAndAttributes[F]
     new fa.FileUpload[Seq](name) with fa.FileUpload.AllowEmpty
   }
@@ -226,7 +232,9 @@ private[finch] trait FileUploadsAndAttributesEndpoints {
     * An evaluating [[Endpoint]] that requires multiple file uploads from a `multipart/form-data`
     * request.
     */
-  def multipartFileUploadsNel[F[_] : Effect](name: String): Endpoint[F, NonEmptyList[FinagleMultipart.FileUpload]] = {
+  def multipartFileUploadsNel(name: String)(implicit
+    effect: Effect[F]
+  ): Endpoint[F, NonEmptyList[FinagleMultipart.FileUpload]] = {
     val fa = new FileUploadsAndAttributes[F]
     new fa.FileUpload[NonEmptyList](name) with fa.FileUpload.NonEmpty
   }
@@ -235,9 +243,10 @@ private[finch] trait FileUploadsAndAttributesEndpoints {
     * An evaluating [[Endpoint]] that reads a required attribute from a `multipart/form-data`
     * request.
     */
-  def multipartAttribute[F[_] : Effect, A](name: String)(implicit
-                                          d: DecodeEntity[A],
-                                          tag: ClassTag[A]
+  def multipartAttribute[A](name: String)(implicit
+    effect: Effect[F],
+    d: DecodeEntity[A],
+    tag: ClassTag[A]
   ): Endpoint[F, A] = {
     val fa = new FileUploadsAndAttributes[F]
     new fa.Attribute[Id, A](name, d, tag)
@@ -249,9 +258,10 @@ private[finch] trait FileUploadsAndAttributesEndpoints {
     * An evaluating [[Endpoint]] that reads an optional attribute from a `multipart/form-data`
     * request.
     */
-  def multipartAttributeOption[F[_] : Effect, A](name: String)(implicit
-                                                d: DecodeEntity[A],
-                                                tag: ClassTag[A]
+  def multipartAttributeOption[A](name: String)(implicit
+    effect: Effect[F],
+    d: DecodeEntity[A],
+    tag: ClassTag[A]
   ): Endpoint[F, Option[A]] = {
     val fa = new FileUploadsAndAttributes[F]
     new fa.Attribute[Option, A](name, d, tag)
@@ -263,9 +273,10 @@ private[finch] trait FileUploadsAndAttributesEndpoints {
     * An evaluating [[Endpoint]] that reads a required attribute from a `multipart/form-data`
     * request.
     */
-  def multipartAttributes[F[_] : Effect, A](name: String)(implicit
-                                           d: DecodeEntity[A],
-                                           tag: ClassTag[A]
+  def multipartAttributes[A](name: String)(implicit
+    effect: Effect[F],
+    d: DecodeEntity[A],
+    tag: ClassTag[A]
   ): Endpoint[F, Seq[A]] = {
     val fa = new FileUploadsAndAttributes[F]
     new fa.Attribute[Seq, A](name, d, tag)
@@ -277,9 +288,10 @@ private[finch] trait FileUploadsAndAttributesEndpoints {
     * An evaluating [[Endpoint]] that reads a required attribute from a `multipart/form-data`
     * request.
     */
-  def multipartAttributesNel[F[_] : Effect, A](name: String)(implicit
-                                              d: DecodeEntity[A],
-                                              t: ClassTag[A]
+  def multipartAttributesNel[A](name: String)(implicit
+    effect: Effect[F],
+    d: DecodeEntity[A],
+    t: ClassTag[A]
   ): Endpoint[F, NonEmptyList[A]] = {
     val fa = new FileUploadsAndAttributes[F]
     new fa.Attribute[NonEmptyList, A](name, d, t)

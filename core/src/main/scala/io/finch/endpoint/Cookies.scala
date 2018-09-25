@@ -47,13 +47,13 @@ private[finch] class Cookies[F[_] : Effect] {
 
 }
 
-private[finch] trait CookieEndpoints {
+trait CookieEndpoints[F[_]] {
 
   /**
     * An evaluating [[Endpoint]] that reads an optional HTTP cookie from the request into an
     * `Option`.
     */
-  def cookieOption[F[_] : Effect](name: String): Endpoint[F, Option[FinagleCookie]] = {
+  def cookieOption(name: String)(implicit effect: Effect[F]): Endpoint[F, Option[FinagleCookie]] = {
     val cookies = new Cookies[F]
     new cookies.Cookie[Option[FinagleCookie]](name) with cookies.Cookie.Optional
   }
@@ -62,7 +62,7 @@ private[finch] trait CookieEndpoints {
     * An evaluating [[Endpoint]] that reads a required cookie from the request or raises an
     * [[Error.NotPresent]] exception when the cookie is missing.
     */
-  def cookie[F[_] : Effect](name: String): Endpoint[F, FinagleCookie] = {
+  def cookie(name: String)(implicit effect: Effect[F]): Endpoint[F, FinagleCookie] = {
     val cookies = new Cookies[F]
     new cookies.Cookie[FinagleCookie](name) with cookies.Cookie.Required
   }

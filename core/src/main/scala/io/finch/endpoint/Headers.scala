@@ -60,13 +60,13 @@ private[finch] class Headers[F[_] : Effect] {
 
 }
 
-trait HeaderEndpoints {
+trait HeaderEndpoints[F[_]] {
 
   /**
     * An evaluating [[Endpoint]] that reads a required HTTP header `name` from the request or raises
     * an [[Error.NotPresent]] exception when the header is missing.
     */
-  def header[F[_] : Effect, A](name: String)(implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[F, A] = {
+  def header[A](name: String)(implicit effect: Effect[F], d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[F, A] = {
     val h = new Headers[F]
     new h.Header[Id, A](name, d, tag) with h.Header.Required[A]
   }
@@ -75,9 +75,10 @@ trait HeaderEndpoints {
     * An evaluating [[Endpoint]] that reads an optional HTTP header `name` from the request into an
     * `Option`.
     */
-  def headerOption[F[_] : Effect, A](name: String)(implicit
-                                    d: DecodeEntity[A],
-                                    tag: ClassTag[A]
+  def headerOption[A](name: String)(implicit
+    effect: Effect[F],
+    d: DecodeEntity[A],
+    tag: ClassTag[A]
   ): Endpoint[F, Option[A]] = {
     val h = new Headers[F]
     new h.Header[Option, A](name, d, tag) with h.Header.Optional[A]

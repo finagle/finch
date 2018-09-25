@@ -58,8 +58,8 @@ class MultipartSpec extends FinchSpec {
   it should "file upload (single)" in {
     check { b: Buf =>
       val i = withFileUpload("foo", b)
-      val fu = multipartFileUpload("foo")(i).awaitValueUnsafe()
-      val fuo = multipartFileUploadOption("foo")(i).awaitValueUnsafe().flatten
+      val fu = multipartFileUpload("foo").apply(i).awaitValueUnsafe()
+      val fuo = multipartFileUploadOption("foo").apply(i).awaitValueUnsafe().flatten
 
       fu.map(_.asInstanceOf[Multipart.InMemoryFileUpload].content) === Some(b) &&
       fuo.map(_.asInstanceOf[Multipart.InMemoryFileUpload].content) === Some(b)

@@ -58,8 +58,8 @@ class BodySpec extends FinchSpec {
     val i = Input.post("/").withHeaders("Content-Length" -> "0")
 
     bodyOption[Foo, Text.Plain].apply(i).awaitValueUnsafe().flatten shouldBe None
-    stringBodyOption(i).awaitValueUnsafe().flatten shouldBe None
-    binaryBodyOption(i).awaitValueUnsafe().flatten shouldBe None
+    stringBodyOption.apply(i).awaitValueUnsafe().flatten shouldBe None
+    binaryBodyOption.apply(i).awaitValueUnsafe().flatten shouldBe None
   }
 
   it should "never evaluate until run" in {
