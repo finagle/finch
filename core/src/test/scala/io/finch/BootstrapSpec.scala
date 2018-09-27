@@ -5,7 +5,6 @@ import com.twitter.util.{Await, Throw, Try}
 import io.finch.data.Foo
 import io.finch.internal.currentTime
 import io.finch.tried._
-import io.finch.tried.syntax._
 import java.time.{ZonedDateTime, ZoneOffset}
 import java.time.format.DateTimeFormatter
 import shapeless.HNil

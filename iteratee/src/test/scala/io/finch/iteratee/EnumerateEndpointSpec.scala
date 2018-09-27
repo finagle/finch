@@ -5,7 +5,6 @@ import com.twitter.finagle.http.Request
 import com.twitter.io.{Buf, Writer}
 import com.twitter.util._
 import io.finch.{Application, EndpointResult, FinchSpec, Input}
-import io.finch.catsEffect.E
 import io.finch.internal._
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 

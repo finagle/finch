@@ -2,7 +2,6 @@ package io.finch.streaming
 
 import com.twitter.util.Await
 import io.finch.Input
-import io.finch.catsEffect._
 import org.scalatest.{FlatSpec, Matchers}
 
 class StreamingSpec extends FlatSpec with Matchers {

@@ -11,7 +11,6 @@ import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.util.{Return, Throw, Try}
 import io.finch.data.Foo
 import io.finch.tried._
-import io.finch.tried.syntax._
 import shapeless._
 
 class EndpointSpec extends FinchSpec {
@@ -243,7 +242,6 @@ class EndpointSpec extends FinchSpec {
 
   it should "maps lazily to values" in {
     import io.finch.catsEffect._
-    import io.finch.catsEffect.syntax._
 
     val i = Input(emptyRequest, Seq.empty)
     var c = 0

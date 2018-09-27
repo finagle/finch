@@ -11,7 +11,6 @@ import com.twitter.io.Buf
 import com.twitter.util.{Await, Try}
 import io.finch.Text
 import io.finch.catsEffect._
-import io.finch.catsEffect.syntax._
 
 /**
 * A simple Finch application featuring very basic, `Buf`-based streaming support.

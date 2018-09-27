@@ -6,7 +6,6 @@ import com.twitter.finagle.http.{Fields, Request, Response, Status}
 import com.twitter.io.Buf
 import com.twitter.util.Await
 import io.finch.catsEffect._
-import io.finch.catsEffect.syntax._
 import io.finch.data.Foo
 import shapeless._
 

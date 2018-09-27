@@ -6,7 +6,6 @@ import com.twitter.util.Await
 import io.circe.generic.auto._
 import io.finch.Application
 import io.finch.catsEffect._
-import io.finch.catsEffect.syntax._
 import io.finch.circe._
 import io.iteratee.{Enumerator, Iteratee}
 import scala.util.Random

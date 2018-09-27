@@ -1,15 +1,12 @@
 package io.finch
 
-import cats.effect.Effect
 import io.finch.syntax.EndpointMappers
 
-abstract class Module[F[_]](implicit val E: Effect[F]) extends Endpoints[F]
+trait Module[F[_]] extends Endpoints[F]
+  with EndpointMappers[F]
   with Outputs
-  with ValidationRules
-  with EffectInstances[F] {
+  with ValidationRules {
 
   type Endpoint[A] = io.finch.Endpoint[F, A]
-
-  object syntax extends EndpointMappers[F]
 
 }

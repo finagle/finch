@@ -49,4 +49,8 @@ class TryEffect extends Effect[Try] {
   }
 }
 
-object tried extends Module[Try]()(new TryEffect)
+object tried extends Module[Try] {
+
+  implicit val tryEffect: Effect[Try] = new TryEffect
+
+}

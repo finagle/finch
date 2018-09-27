@@ -8,7 +8,7 @@ import io.finch._
 import org.scalacheck.Arbitrary
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
-abstract class MapperSyntaxSpec[F[_]](endpoints: Module[F]) extends FinchSpec
+abstract class MapperSyntaxSpec[F[_] : Effect](endpoints: Module[F]) extends FinchSpec
   with GeneratorDrivenPropertyChecks {
 
   import endpoints._

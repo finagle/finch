@@ -4,7 +4,6 @@ import com.twitter.finagle.http.Status
 import com.twitter.io.Buf
 import io.circe.generic.auto._
 import io.finch._
-import io.finch.catsEffect._
 import io.finch.circe._
 import java.nio.charset.StandardCharsets
 import java.util.UUID

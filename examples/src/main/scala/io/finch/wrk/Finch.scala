@@ -3,7 +3,6 @@ package io.finch.wrk
 import cats.effect.IO
 import io.circe.generic.auto._
 import io.finch._
-import io.finch.catsEffect._
 import io.finch.circe._
 
 /**
