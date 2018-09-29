@@ -1,9 +1,9 @@
 package io.finch.generic
 
-import scala.reflect.ClassTag
-
 import cats.data.NonEmptyList
+import cats.effect.Effect
 import io.finch._
+import scala.reflect.ClassTag
 import shapeless._
 import shapeless.labelled._
 import shapeless.poly._
@@ -11,22 +11,22 @@ import shapeless.poly._
 /**
  * A type class empowering a generic derivation of [[Endpoint]]s from query string params.
  */
-trait FromParams[L <: HList] {
-  def endpoint: Endpoint[L]
+trait FromParams[F[_], L <: HList] {
+  def endpoint: Endpoint[F, L]
 }
 
 object FromParams {
 
-  implicit val hnilFromParams: FromParams[HNil] = new FromParams[HNil] {
-    def endpoint: Endpoint[HNil] = Endpoint.const(HNil)
+  implicit def hnilFromParams[F[_] : Effect]: FromParams[F, HNil] = new FromParams[F, HNil] {
+    def endpoint: Endpoint[F, HNil] = Endpoint[F].const(HNil)
   }
 
-  implicit def hconsFromParams[HK <: Symbol, HV, T <: HList](implicit
+  implicit def hconsFromParams[F[_] : Effect, HK <: Symbol, HV, T <: HList](implicit
     key: Witness.Aux[HK],
-    fpt: FromParams[T],
-    hс: Case1.Aux[Extractor.type, String, Endpoint[HV]]
-  ): FromParams[FieldType[HK, HV] :: T] = new FromParams[FieldType[HK, HV] :: T] {
-    def endpoint: Endpoint[FieldType[HK, HV] :: T] = {
+    fpt: FromParams[F, T],
+    hс: Case1.Aux[Extractor.type, String, Endpoint[F, HV]]
+  ): FromParams[F, FieldType[HK, HV] :: T] = new FromParams[F, FieldType[HK, HV] :: T] {
+    def endpoint: Endpoint[F, FieldType[HK, HV] :: T] = {
       hс(key.value.name).map(field[HK](_)) :: fpt.endpoint
     }
   }
@@ -34,31 +34,31 @@ object FromParams {
 
 private[generic] object Extractor extends Poly1 {
 
-  implicit def optionalExtractor[V](implicit
+  implicit def optionalExtractor[F[_] : Effect, V](implicit
     dh: DecodeEntity[V],
     ct: ClassTag[V]
-  ): Case.Aux[String, Endpoint[Option[V]]] = at[String] { key =>
-    paramOption[V](key)
+  ): Case.Aux[String, Endpoint[F, Option[V]]] = at[String] { key =>
+    Endpoint[F].paramOption[V](key)
   }
 
-  implicit def seqExtractor[V](implicit
+  implicit def seqExtractor[F[_] : Effect, V](implicit
     dh: DecodeEntity[V],
     ct: ClassTag[V]
-  ): Case.Aux[String, Endpoint[Seq[V]]] = at[String] { key =>
-    params[V](key)
+  ): Case.Aux[String, Endpoint[F, Seq[V]]] = at[String] { key =>
+    Endpoint[F].params[V](key)
   }
 
-  implicit def nelExtractor[V](implicit
+  implicit def nelExtractor[F[_] : Effect, V](implicit
     dh: DecodeEntity[V],
     ct: ClassTag[V]
-  ): Case.Aux[String, Endpoint[NonEmptyList[V]]] = at[String] { key =>
-    paramsNel[V](key)
+  ): Case.Aux[String, Endpoint[F, NonEmptyList[V]]] = at[String] { key =>
+    Endpoint[F].paramsNel[V](key)
   }
 
-  implicit def extractor[V](implicit
+  implicit def extractor[F[_] : Effect, V](implicit
     dh: DecodeEntity[V],
     ct: ClassTag[V]
-  ): Case.Aux[String, Endpoint[V]] = at[String] { key =>
-    param[V](key)
+  ): Case.Aux[String, Endpoint[F, V]] = at[String] { key =>
+    Endpoint[F].param[V](key)
   }
 }

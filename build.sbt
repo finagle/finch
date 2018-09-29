@@ -15,6 +15,7 @@ lazy val catsVersion = "1.4.0"
 lazy val argonautVersion = "6.2.2"
 lazy val iterateeVersion = "0.18.0"
 lazy val refinedVersion = "0.9.2"
+lazy val catsEffectVersion = "1.0.0"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -44,7 +45,7 @@ val baseSettings = Seq(
     "org.typelevel" %% "cats-core" % catsVersion,
     "com.twitter" %% "finagle-http" % twitterVersion,
     scalaOrganization.value % "scala-reflect" % scalaVersion.value,
-    "io.catbird" %% "catbird-util" % twitterVersion
+    "org.typelevel" %% "cats-effect" % catsEffectVersion
   ) ++ testDependencies.map(_ % "test"),
   resolvers ++= Seq(
     Resolver.sonatypeRepo("releases"),

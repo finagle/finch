@@ -1,75 +1,79 @@
 package io.finch.syntax
 
 import cats.Monad
+import cats.effect.Effect
 import cats.syntax.functor._
 import com.twitter.finagle.http.Response
 import io.finch._
-import io.finch.{FinchSpec, Text}
 import org.scalacheck.Arbitrary
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
-trait MapperSyntaxSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
+abstract class MapperSyntaxSpec[F[_] : Effect](endpoints: Module[F]) extends FinchSpec
+  with GeneratorDrivenPropertyChecks {
+
+  import endpoints._
 
   implicit val arbResponse: Arbitrary[Response] = Arbitrary(genOutput[String].map(_.toResponse[Text.Plain]))
 
-  def endpointMapper[F[_]](implicit ttf: ToTwitterFuture[F], monad: Monad[F]): Unit = {
-    valueBehaviour(ttf, monad)
-    function1behaviour(ttf, monad)
-    function2behaviour(ttf, monad)
+  def endpointMapper(): Unit = {
+    valueBehaviour()
+    function1behaviour()
+    function2behaviour()
   }
 
-  private def valueBehaviour[F[_]](implicit ttf: ToTwitterFuture[F], monad: Monad[F]): Unit = {
+  private def valueBehaviour(): Unit = {
     it should "map Output value to endpoint" in {
-      checkValue((i: String) => get(/) { Ok(i) })
+      checkValue((i: String) => Endpoint[F].get(/) { Ok(i) })
     }
 
     it should "map Response value to endpoint" in {
-      checkValue((i: Response) => get(/) { i })
+      checkValue((i: Response) => Endpoint[F].get(/) { i })
     }
 
     it should "map F[Output[A]] value to endpoint" in {
-      checkValue((i: String) => get(/) { Monad[F].pure(Ok(i)) })
+      checkValue((i: String) => Endpoint[F].get(/) { Effect[F].pure(Ok(i)) })
     }
 
     it should "map F[Response] value to endpoint" in {
-      checkValue((i: Response) => get(/) { Monad[F].pure(Ok(i).toResponse[Text.Plain]) })
+      checkValue((i: Response) => Endpoint[F].get(/) { Effect[F].pure(Ok(i).toResponse[Text.Plain]) })
     }
 
   }
 
-  private def function1behaviour[F[_]](implicit ttf: ToTwitterFuture[F], monad: Monad[F]): Unit = {
+  private def function1behaviour(): Unit = {
     it should "map A => Output function to endpoint" in {
-      checkFunction(get(path[Int]) { i: Int => Ok(i) })
+      checkFunction(Endpoint[F].get(path[Int]) { i: Int => Ok(i) })
     }
 
     it should "map A => Response function to endpoint" in {
-      checkFunction(get(path[Int]) { i: Int => Ok(i).toResponse[Text.Plain] })
+      checkFunction(Endpoint[F].get(path[Int]) { i: Int => Ok(i).toResponse[Text.Plain] })
     }
 
     it should "map A => F[Output[A]] function to endpoint" in {
-      checkFunction(get(path[Int]) { i: Int => Monad[F].pure(i).map(Ok) })
+      checkFunction(Endpoint[F].get(path[Int]) { i: Int => Effect[F].pure(i).map(Ok) })
     }
 
+    implicitly[Effect[F]]
     it should "map A => F[Response] function to endpoint" in {
-      checkFunction(get(path[Int]) { i: Int => Monad[F].pure(i).map(Ok(_).toResponse[Text.Plain]) })
+      checkFunction(Endpoint[F].get(path[Int]) { i: Int => Effect[F].pure(i).map(Ok(_).toResponse[Text.Plain]) })
     }
   }
 
-  private def function2behaviour[F[_]](implicit ttf: ToTwitterFuture[F], monad: Monad[F]): Unit = {
+  private def function2behaviour(): Unit = {
     it should "map (A, B) => Output function to endpoint" in {
-      checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) => Ok(s"$x$y") })
+      checkFunction2(Endpoint[F].get(path[Int] :: path[Int]) { (x: Int, y: Int) => Ok(s"$x$y") })
     }
 
     it should "map (A, B) => Response function to endpoint" in {
-      checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) => Ok(s"$x$y").toResponse[Text.Plain] })
+      checkFunction2(Endpoint[F].get(path[Int] :: path[Int]) { (x: Int, y: Int) => Ok(s"$x$y").toResponse[Text.Plain] })
     }
 
     it should "map (A, B) => F[Output[String]] function to endpoint" in {
-      checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) => Monad[F].pure(Ok(s"$x$y")) })
+      checkFunction2(Endpoint[F].get(path[Int] :: path[Int]) { (x: Int, y: Int) => Effect[F].pure(Ok(s"$x$y")) })
     }
 
     it should "map (A, B) => F[Response] function to endpoint" in {
-      checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
+      checkFunction2(Endpoint[F].get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
         Monad[F].pure(Ok(s"$x$y").toResponse[Text.Plain]) })
     }
   }

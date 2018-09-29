@@ -1,14 +1,12 @@
 package io.finch
 
-import cats.Eval
+import cats.effect.Effect
 import com.twitter.finagle.http.Response
 import com.twitter.io._
 import com.twitter.util.Future
-import io.catbird.util._
 import io.finch.internal._
 import io.finch.items.RequestItem
 import io.iteratee.{Enumerator, Iteratee}
-import io.iteratee.twitter.FutureModule
 import shapeless.Witness
 
 /**
@@ -16,80 +14,95 @@ import shapeless.Witness
   */
 package object iteratee extends IterateeInstances {
 
-  import syntax._
 
-  private[finch] def enumeratorFromReader(reader: Reader[Buf]): Enumerator[Future, Buf] = {
-    def rec(reader: Reader[Buf]): Enumerator[Future, Buf] = {
-      reader.read(Int.MaxValue).intoEnumerator.flatMap {
-        case None => empty[Buf]
-        case Some(buf) => enumOne(buf).append(rec(reader))
+  private[finch] def enumeratorFromReader[F[_] : Effect](reader: Reader[Buf]): Enumerator[F, Buf] = {
+    def rec(reader: Reader[Buf]): Enumerator[F, Buf] = {
+      Enumerator.liftM[F, Option[Buf]] {
+        futureToEffect(reader.read(Int.MaxValue))
+      }.flatMap {
+        case None => Enumerator.empty[F, Buf]
+        case Some(buf) => Enumerator.enumOne[F, Buf](buf).append(rec(reader))
       }
     }
-    rec(reader).ensureEval(Eval.later(Future.value(reader.discard())))
+    rec(reader).ensure(Effect[F].delay(reader.discard()))
   }
 
   /**
     * An evaluating [[Endpoint]] that reads a required chunked streaming binary body, interpreted as
     * an `Enumerator[Future, A]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
     */
-  def enumeratorBody[A, CT <: String](implicit decode: Enumerate.Aux[A, CT]): Endpoint[Enumerator[Future, A]] = {
-    new Endpoint[Enumerator[Future, A]] {
-      final def apply(input: Input): Endpoint.Result[Enumerator[Future, A]] = {
+  def enumeratorBody[F[_] : Effect, A, CT <: String](implicit
+    decode: Enumerate.Aux[F, A, CT]
+  ): Endpoint[F, Enumerator[F, A]] = new Endpoint[F, Enumerator[F, A]] {
+      final def apply(input: Input): Endpoint.Result[F, Enumerator[F, A]] = {
         if (!input.request.isChunked) EndpointResult.NotMatched
         else {
           val req = input.request
           EndpointResult.Matched(
             input,
             Trace.empty,
-            Rerunnable(Output.payload(decode(enumeratorFromReader(req.reader), req.charsetOrUtf8)))
+            Effect[F].pure(Output.payload(decode(enumeratorFromReader(req.reader), req.charsetOrUtf8)))
           )
         }
       }
 
       final override def item: RequestItem = items.BodyItem
       final override def toString: String = "enumeratorBody"
-    }
   }
 
   /**
     * An evaluating [[Endpoint]] that reads a required chunked streaming JSON body, interpreted as
     * an `Enumerator[Future, A]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
     */
-  def enumeratorJsonBody[A](implicit ad: Enumerate.Aux[A, Application.Json]): Endpoint[Enumerator[Future, A]] =
-    enumeratorBody[A, Application.Json].withToString("enumeratorJsonBody")
+  def enumeratorJsonBody[F[_] : Effect, A](implicit
+    ad: Enumerate.Aux[F, A, Application.Json]
+  ): Endpoint[F, Enumerator[F, A]] = enumeratorBody[F, A, Application.Json].withToString("enumeratorJsonBody")
 
 }
 
 trait IterateeInstances extends LowPriorityInstances {
 
-  implicit def enumeratorToJsonResponse[A](implicit
+  implicit def enumeratorToJsonResponse[F[_] : Effect, A](implicit
     e: Encode.Aux[A, Application.Json],
     w: Witness.Aux[Application.Json]
-  ): ToResponse.Aux[Enumerator[Future, A], Application.Json] = {
-    withCustomIteratee[A, Application.Json](writer =>
-      foreachM((buf: Buf) => writer.write(buf.concat(ToResponse.NewLine)))
+  ): ToResponse.Aux[Enumerator[F, A], Application.Json] = {
+    withCustomIteratee[F, A, Application.Json](writer =>
+      Iteratee.foreachM[F, Buf]((buf: Buf) => futureToEffect(writer.write(buf.concat(ToResponse.NewLine))))
     )
   }
 }
 
-trait LowPriorityInstances extends FutureModule {
-  implicit def enumeratorToResponse[A, CT <: String](implicit
-    e: Encode.Aux[A, CT],
-    w: Witness.Aux[CT]
-  ): ToResponse.Aux[Enumerator[Future, A], CT] = {
-    withCustomIteratee(writer => foreachM((buf: Buf) => writer.write(buf)))
+trait LowPriorityInstances {
+
+  protected def futureToEffect[F[_] : Effect, A](future: => Future[A]): F[A] = {
+    Effect[F].async[A](cb => {
+      future
+        .onFailure(t => cb(Left(t)))
+        .onSuccess(b => cb(Right(b)))
+    })
   }
 
-  protected def withCustomIteratee[A, CT <: String](iteratee: Writer[Buf] => Iteratee[Future, Buf, Unit])(implicit
+  implicit def enumeratorToResponse[F[_] : Effect, A, CT <: String](implicit
     e: Encode.Aux[A, CT],
     w: Witness.Aux[CT]
-  ): ToResponse.Aux[Enumerator[Future, A], CT] = {
-    ToResponse.instance[Enumerator[Future, A], CT]((enum, cs) => {
+  ): ToResponse.Aux[Enumerator[F, A], CT] = {
+    withCustomIteratee(writer => Iteratee.foreachM[F, Buf]((buf: Buf) => futureToEffect(writer.write(buf))))
+  }
+
+  protected def withCustomIteratee[F[_] : Effect, A, CT <: String]
+  (iteratee: Writer[Buf] => Iteratee[F, Buf, Unit])(implicit
+    e: Encode.Aux[A, CT],
+    w: Witness.Aux[CT]
+  ): ToResponse.Aux[Enumerator[F, A], CT] = {
+    ToResponse.instance[Enumerator[F, A], CT]((enum, cs) => {
       val response = Response()
       response.setChunked(true)
       response.contentType = w.value
       val writer = response.writer
-      enum.ensureEval(Eval.later(writer.close())).map(e.apply(_, cs)).into(iteratee(writer))
+      val stream = {
+        enum.ensure(Effect[F].suspend(futureToEffect(writer.close()))).map(e.apply(_, cs)).into(iteratee(writer))
+      }
+      Effect[F].toIO(stream).unsafeRunAsyncAndForget()
       response
     })
   }

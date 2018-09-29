@@ -1,8 +1,10 @@
 package io.finch
 
+import cats.Id
+import cats.effect.Effect
 import com.twitter.finagle.http.Method
-import com.twitter.util.{Await, Duration, Future, Try}
-import io.catbird.util.Rerunnable
+import com.twitter.util._
+import scala.concurrent.duration.{Duration => ScalaDuration}
 
 /**
  * A result returned from an [[Endpoint]]. This models `Option[(Input, Future[Output])]` and
@@ -16,11 +18,8 @@ import io.catbird.util.Rerunnable
  *  - `EndpointResult.NotMatched` (very generic result usually indicating 404)
  *  - `EndpointResult.NotMatched.MethodNotAllowed` (indicates 405)
  *
- * API methods exposed on this type are mostly introduced for testing.
- *
- * This class also provides various of `awaitX` methods useful for testing and experimenting.
  */
-sealed abstract class EndpointResult[+A] {
+sealed abstract class EndpointResult[F[_], +A] {
 
   /**
    * Whether the [[Endpoint]] is matched on a given [[Input]].
@@ -39,17 +38,6 @@ sealed abstract class EndpointResult[+A] {
   }
 
   /**
-   * Runs and returns the [[Output]] (wrapped with future) after an [[Endpoint]] is matched.
-   *
-   * @return `Some(output)` if this endpoint was matched on a given input,
-   *         `None` otherwise.
-   */
-  final def output: Option[Future[Output[A]]] = this match {
-    case EndpointResult.Matched(_, _, out) => Some(out.run)
-    case _ => None
-  }
-
-  /**
    * Returns the [[Trace]] if an [[Endpoint]] is matched.
    *
    * @return `Some(trace)` if this endpoint is matched on a given input,
@@ -60,69 +48,45 @@ sealed abstract class EndpointResult[+A] {
     case _ => None
   }
 
-  /**
-   * Awaits for an [[Output]] wrapped with [[Try]] (indicating if the [[com.twitter.util.Future]]
-   * is failed).
-   *
-   * @note This method is blocking. Never use it in production.
-   *
-   * @return `Some(output)` if this endpoint was matched on a given input, `None` otherwise.
-   */
-  final def awaitOutput(d: Duration = Duration.Top): Option[Try[Output[A]]] = this match {
-    case EndpointResult.Matched(_, _, out) => Some(Await.result(out.liftToTry.run, d))
+  def awaitOutput(d: Duration = Duration.Top)(implicit e: Effect[F]): Option[Try[Output[A]]] = this match {
+    case EndpointResult.Matched(_, _, out) =>
+      val (t, unit) = d.inTimeUnit
+      Some(Try(e.toIO(out).unsafeRunTimed(ScalaDuration(t, unit)) match {
+        case Some(a) => a
+        case _ => throw new TimeoutException(s"Output wasn't returned in time: $d")
+      }))
     case _ => None
   }
 
-  /**
-   * Awaits an [[Output]] of the [[Endpoint]] result or throws an exception if an underlying
-   * [[com.twitter.util.Future]] is failed.
-   *
-   * @note This method is blocking. Never use it in production.
-   *
-   * @return `Some(output)` if this endpoint was matched on a given input, `None` otherwise.
-   */
-  final def awaitOutputUnsafe(d: Duration = Duration.Top): Option[Output[A]] =
+  def awaitOutputUnsafe(d: Duration = Duration.Top)(implicit e: Effect[F]): Option[Output[A]] =
     awaitOutput(d).map(toa => toa.get)
 
-  /**
-   * Awaits a value from the [[Output]] wrapped with [[Try]] (indicating if either the
-   * [[com.twitter.util.Future]] is failed or [[Output]] wasn't a payload).
-   *
-   * @note This method is blocking. Never use it in production.
-   *
-   * @return `Some(value)` if this endpoint was matched on a given input, `None` otherwise.
-   */
-  final def awaitValue(d: Duration = Duration.Top): Option[Try[A]] =
+  def awaitValue(d: Duration = Duration.Top)(implicit e: Effect[F]): Option[Try[A]] =
     awaitOutput(d).map(toa => toa.flatMap(oa => Try(oa.value)))
 
-  /**
-   * Awaits a value from the [[Output]] or throws an exception if either an underlying
-   * [[com.twitter.util.Future]] is failed or [[Output]] wasn't a payload.
-   *
-   * @note @note This method is blocking. Never use it in production.
-   *
-   * @return `Some(value)` if this endpoint was matched on a given input,
-   *         `None` otherwise.
-   */
-  final def awaitValueUnsafe(d: Duration = Duration.Top): Option[A] =
+  def awaitValueUnsafe(d: Duration = Duration.Top)(implicit e: Effect[F]): Option[A] =
     awaitOutputUnsafe(d).map(oa => oa.value)
 }
 
 object EndpointResult {
 
-  final case class Matched[A](
+  final case class Matched[F[_], A](
     rem: Input,
     trc: Trace,
-    out: Rerunnable[Output[A]]
-  ) extends EndpointResult[A] {
+    out: F[Output[A]]
+  ) extends EndpointResult[F, A] {
     def isMatched: Boolean = true
   }
 
-  abstract class NotMatched extends EndpointResult[Nothing] {
+  abstract class NotMatched[F[_]] extends EndpointResult[F, Nothing] {
     def isMatched: Boolean = false
   }
 
-  object NotMatched extends NotMatched {
-    final case class MethodNotAllowed(allowed: List[Method]) extends NotMatched
+  object NotMatched extends NotMatched[Id] {
+    final case class MethodNotAllowed[F[_]](allowed: List[Method]) extends NotMatched[F]
   }
+
+  implicit def covaryEndpointResult[F[_], A](result: EndpointResult[Id, A]): EndpointResult[F, A] =
+    result.asInstanceOf[EndpointResult[F, A]]
 }
+

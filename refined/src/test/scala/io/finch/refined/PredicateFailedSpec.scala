@@ -5,7 +5,7 @@ import eu.timepit.refined.api.Refined
 import eu.timepit.refined.numeric._
 import io.finch._
 import io.finch.FinchSpec
-import io.finch.syntax._
+import io.finch.tried._
 
 class PredicateFailedSpec extends FinchSpec {
 

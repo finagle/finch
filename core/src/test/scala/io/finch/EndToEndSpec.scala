@@ -1,11 +1,12 @@
 package io.finch
 
+import cats.effect.IO
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Fields, Request, Response, Status}
 import com.twitter.io.Buf
 import com.twitter.util.Await
+import io.finch.catsEffect._
 import io.finch.data.Foo
-import io.finch.syntax._
 import shapeless._
 
 class EndToEndSpec extends FinchSpec {
@@ -61,7 +62,7 @@ class EndToEndSpec extends FinchSpec {
   }
 
   it should "convert value Endpoints into Services" in {
-    val e: Endpoint[String] = get("foo") { Created("bar") }
+    val e: Endpoint[IO, String] = get("foo") { Created("bar") }
     val s: Service[Request, Response] = e.toServiceAs[Text.Plain]
 
     val rep = Await.result(s(Request("/foo")))
