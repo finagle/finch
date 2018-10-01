@@ -2,6 +2,7 @@ package io.finch.todo
 
 import java.util.UUID
 
+import cats.effect.IO
 import com.twitter.app.Flag
 import com.twitter.finagle.{Http, Service}
 import com.twitter.finagle.http.{Request, Response}
@@ -9,8 +10,7 @@ import com.twitter.finagle.stats.Counter
 import com.twitter.server.TwitterServer
 import com.twitter.util.Await
 import io.circe.generic.auto._
-import io.finch.Application
-import io.finch.catsEffect._
+import io.finch._
 import io.finch.circe._
 
 /**
@@ -32,24 +32,24 @@ import io.finch.circe._
  *   $ http DELETE :8081/todos
  * }}}
  */
-object Main extends TwitterServer {
+object Main extends TwitterServer with Endpoint.Module[IO] {
 
   val port: Flag[Int] = flag("port", 8081, "TCP port for HTTP server")
 
   val todos: Counter = statsReceiver.counter("todos")
 
-  def postedTodo: Endpoint[Todo] = jsonBody[UUID => Todo].map(_(UUID.randomUUID()))
+  def postedTodo: Endpoint[IO, Todo] = jsonBody[UUID => Todo].map(_(UUID.randomUUID()))
 
-  def postTodo: Endpoint[Todo] = post("todos" :: postedTodo) { t: Todo =>
+  def postTodo: Endpoint[IO, Todo] = post("todos" :: postedTodo) { t: Todo =>
     todos.incr()
     Todo.save(t)
 
     Created(t)
   }
 
-  def patchedTodo: Endpoint[Todo => Todo] = jsonBody[Todo => Todo]
+  def patchedTodo: Endpoint[IO, Todo => Todo] = jsonBody[Todo => Todo]
 
-  def patchTodo: Endpoint[Todo] =
+  def patchTodo: Endpoint[IO, Todo] =
     patch("todos" :: path[UUID] :: patchedTodo) { (id: UUID, pt: Todo => Todo) =>
       Todo.get(id) match {
         case Some(currentTodo) =>
@@ -62,18 +62,18 @@ object Main extends TwitterServer {
       }
     }
 
-  def getTodos: Endpoint[List[Todo]] = get("todos") {
+  def getTodos: Endpoint[IO, List[Todo]] = get("todos") {
     Ok(Todo.list())
   }
 
-  def deleteTodo: Endpoint[Todo] = delete("todos" :: path[UUID]) { id: UUID =>
+  def deleteTodo: Endpoint[IO, Todo] = delete("todos" :: path[UUID]) { id: UUID =>
     Todo.get(id) match {
       case Some(t) => Todo.delete(id); Ok(t)
       case None => throw TodoNotFound(id)
     }
   }
 
-  def deleteTodos: Endpoint[List[Todo]] = delete("todos") {
+  def deleteTodos: Endpoint[IO, List[Todo]] = delete("todos") {
     val all: List[Todo] = Todo.list()
     all.foreach(t => Todo.delete(t.id))
 

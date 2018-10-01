@@ -5,7 +5,7 @@ import java.util.UUID
 
 import cats.Eq
 import cats.data.NonEmptyList
-import cats.effect.Effect
+import cats.effect.{Effect, IO}
 import cats.instances.AllInstances
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http._
@@ -18,8 +18,12 @@ import org.typelevel.discipline.Laws
 import scala.reflect.ClassTag
 import shapeless.Witness
 
-trait FinchSpec extends FlatSpec with Matchers with Checkers with AllInstances
-  with MissingInstances {
+trait FinchSpec extends FlatSpec
+  with Matchers
+  with Checkers
+  with AllInstances
+  with MissingInstances
+  with Endpoint.Module[IO] {
 
   def checkAll(name: String, ruleSet: Laws#RuleSet): Unit = {
     for ((id, prop) <- ruleSet.all.properties)

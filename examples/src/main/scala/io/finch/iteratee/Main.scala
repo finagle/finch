@@ -4,8 +4,7 @@ import cats.effect.IO
 import com.twitter.finagle.Http
 import com.twitter.util.Await
 import io.circe.generic.auto._
-import io.finch.Application
-import io.finch.catsEffect._
+import io.finch._
 import io.finch.circe._
 import io.iteratee.{Enumerator, Iteratee}
 import scala.util.Random
@@ -36,40 +35,37 @@ import scala.util.Random
   *   $ curl -X POST --header "Transfer-Encoding: chunked" -d '{"i": 40} {"i": 42}' localhost:8081/streamPrime
   * }}}
   */
-object Main {
+object Main extends Endpoint.Module[IO] {
+
+  final case class Result(result: Int) {
+    def add(n: Number): Result = copy(result = result + n.i)
+  }
+
+  final case class Number(i: Int) {
+    def isPrime: IsPrime = IsPrime(!(2 +: (3 to Math.sqrt(i.toDouble).toInt by 2) exists (i % _ == 0)))
+  }
+
+  final case class IsPrime(isPrime: Boolean)
 
   private val stream: Stream[Int] = Stream.continually(Random.nextInt())
 
-  val sumJson: Endpoint[Result] = post("sumJson" :: enumeratorJsonBody[IO, Number]) {
-    (enum: Enumerator[IO, Number]) =>
+  val sumJson: Endpoint[IO, Result] = post("sumJson" :: enumeratorJsonBody[IO, Number]) {
+    enum: Enumerator[IO, Number] =>
       enum.into(Iteratee.fold[IO, Number, Result](Result(0))(_ add _)).map(Ok)
   }
 
-  val streamJson: Endpoint[Enumerator[IO, Number]] = get("streamJson") {
+  val streamJson: Endpoint[IO, Enumerator[IO, Number]] = get("streamJson") {
     Ok(Enumerator.enumStream[IO, Int](stream).map(Number.apply))
   }
 
-  val isPrime: Endpoint[Enumerator[IO, IsPrime]] =
-    post("streamPrime" :: enumeratorJsonBody[IO, Number]) { (enum: Enumerator[IO, Number]) =>
+  val isPrime: Endpoint[IO, Enumerator[IO, IsPrime]] =
+    post("streamPrime" :: enumeratorJsonBody[IO, Number]) { enum: Enumerator[IO, Number] =>
       Ok(enum.map(_.isPrime))
     }
 
-  def main(args: Array[String]): Unit =
-    Await.result(Http.server
+  def main(args: Array[String]): Unit = Await.result(
+    Http.server
       .withStreaming(enabled = true)
       .serve(":8081", (sumJson :+: streamJson :+: isPrime).toServiceAs[Application.Json])
     )
-
 }
-
-case class Result(result: Int) {
-  def add(n: Number): Result = copy(result = result + n.i)
-}
-
-case class Number(i: Int) {
-
-  def isPrime: IsPrime = IsPrime(!(2 +: (3 to Math.sqrt(i.toDouble).toInt by 2) exists (i % _ == 0)))
-
-}
-
-case class IsPrime(isPrime: Boolean)

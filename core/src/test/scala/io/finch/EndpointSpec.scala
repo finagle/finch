@@ -8,22 +8,24 @@ import cats.laws.discipline.AlternativeTests
 import cats.laws.discipline.SemigroupalTests.Isomorphisms
 import com.twitter.conversions.time._
 import com.twitter.finagle.http.{Cookie, Method, Request}
-import com.twitter.util.{Return, Throw, Try}
+import com.twitter.util.{Return, Throw}
 import io.finch.data.Foo
-import io.finch.tried._
 import shapeless._
 
 class EndpointSpec extends FinchSpec {
-  type EndpointTry[A] = Endpoint[Try, A]
-  implicit val isomorphisms: Isomorphisms[EndpointTry] =
-    Isomorphisms.invariant[EndpointTry](Endpoint.endpointInstances)
-  checkAll("Endpoint[String]", AlternativeTests[EndpointTry].applicative[String, String, String])
 
-  checkAll("ExtractPath[String]", ExtractPathLaws[Try, String].all)
-  checkAll("ExtractPath[Int]", ExtractPathLaws[Try, Int].all)
-  checkAll("ExtractPath[Long]", ExtractPathLaws[Try, Long].all)
-  checkAll("ExtractPath[UUID]", ExtractPathLaws[Try, UUID].all)
-  checkAll("ExtractPath[Boolean]", ExtractPathLaws[Try, Boolean].all)
+  type EndpointIO[A] = Endpoint[IO, A]
+
+  implicit val isomorphisms: Isomorphisms[EndpointIO] =
+    Isomorphisms.invariant[EndpointIO](Endpoint.endpointInstances)
+
+  checkAll("Endpoint[String]", AlternativeTests[EndpointIO].applicative[String, String, String])
+
+  checkAll("ExtractPath[String]", ExtractPathLaws[IO, String].all)
+  checkAll("ExtractPath[Int]", ExtractPathLaws[IO, Int].all)
+  checkAll("ExtractPath[Long]", ExtractPathLaws[IO, Long].all)
+  checkAll("ExtractPath[UUID]", ExtractPathLaws[IO, UUID].all)
+  checkAll("ExtractPath[Boolean]", ExtractPathLaws[IO, Boolean].all)
 
   behavior of "Endpoint"
 
@@ -37,7 +39,7 @@ class EndpointSpec extends FinchSpec {
 
   it should "support transform" in {
     check { i: Input =>
-      val fn = (fs: Try[Output[String]]) => fs.map(_.map(_ * 2))
+      val fn = (fs: IO[Output[String]]) => fs.map(_.map(_ * 2))
       path[String].transform(fn).apply(i).awaitValueUnsafe() === i.route.headOption.map(_ * 2)
     }
   }
@@ -53,7 +55,7 @@ class EndpointSpec extends FinchSpec {
       val expected = i.route.headOption.map(s => Ok(s.length))
 
       path[String].map(s => s.length).apply(i).awaitOutputUnsafe() === expected &&
-      path[String].mapAsync(s => Return(s.length)).apply(i).awaitOutputUnsafe() === expected
+      path[String].mapAsync(s => IO.pure(s.length)).apply(i).awaitOutputUnsafe() === expected
     }
   }
 
@@ -64,16 +66,16 @@ class EndpointSpec extends FinchSpec {
         .withCookie(new Cookie("C", "D"))
 
     check { i: Input =>
-      path[String].mapOutputAsync(s => Return(expected(s.length))).apply(i).awaitOutputUnsafe() ===
+      path[String].mapOutputAsync(s => IO.pure(expected(s.length))).apply(i).awaitOutputUnsafe() ===
         i.route.headOption.map(s => expected(s.length))
     }
 
     check { i: Input =>
       val e = i.route.dropRight(1)
         .map(s => path(s))
-        .foldLeft[Endpoint[Try, HNil]](/)((acc, ee) => acc :: ee)
+        .foldLeft[Endpoint[IO, HNil]](zero)((acc, ee) => acc :: ee)
 
-      val v = (e :: path[String]).mapOutputAsync(s => Return(expected(s.length))).apply(i)
+      val v = (e :: path[String]).mapOutputAsync(s => IO.pure(expected(s.length))).apply(i)
       v.awaitOutputUnsafe() === i.route.lastOption.map(s => expected(s.length))
     }
   }
@@ -89,16 +91,16 @@ class EndpointSpec extends FinchSpec {
 
   it should "always match the entire input with *" in {
     check { i: Input =>
-      *.apply(i).remainder === Some(i.copy(route = Nil))
+      pathAny.apply(i).remainder === Some(i.copy(route = Nil))
     }
   }
 
   it should "match the HTTP method" in {
     def matchMethod(
         m: Method,
-        f: Endpoint[Try, HNil] => Endpoint[Try, HNil]): Input => Boolean = { i: Input =>
+        f: Endpoint[IO, HNil] => Endpoint[IO, HNil]): Input => Boolean = { i: Input =>
 
-      val v = f(/)(i)
+      val v = f(zero)(i)
       (i.request.method === m && v.remainder === Some(i)) ||
       (i.request.method != m && v.remainder === None)
     }
@@ -110,31 +112,30 @@ class EndpointSpec extends FinchSpec {
     check(matchMethod(Method.Patch, patch))
     check(matchMethod(Method.Head, head))
     check(matchMethod(Method.Options, options))
-    check(matchMethod(Method.Connect, connect))
     check(matchMethod(Method.Delete, delete))
   }
 
   it should "always match the identity instance" in {
     check { i: Input =>
-      /.apply(i).remainder === Some(i)
+      zero.apply(i).remainder === Some(i)
     }
   }
 
   it should "match the entire input" in {
     check { i: Input =>
-      val e = i.route.map(s => path(s)).foldLeft[Endpoint[Try, HNil]](/)((acc, e) => acc :: e)
+      val e = i.route.map(s => path(s)).foldLeft[Endpoint[IO, HNil]](zero)((acc, e) => acc :: e)
       e(i).remainder === Some(i.copy(route = Nil))
     }
   }
 
   it should "not match the entire input if one of the underlying endpoints is failed" in {
     check { (i: Input, s: String) =>
-      (* :: s).apply(i).remainder === None
+      (pathAny :: s).apply(i).remainder === None
     }
   }
 
   it should "match the input if one of the endpoints succeed" in {
-    def matchOneOfTwo(f: String => Endpoint[Try, HNil]): Input => Boolean = { i: Input =>
+    def matchOneOfTwo(f: String => Endpoint[IO, HNil]): Input => Boolean = { i: Input =>
       val v = i.route.headOption.map(f).flatMap(e => e(i).remainder)
       v.isEmpty || v === Some(i.withRoute(i.route.tail))
     }
@@ -154,7 +155,7 @@ class EndpointSpec extends FinchSpec {
 
     def methodMatcher(
         m: Method,
-        f: Endpoint[Try, HNil] => Endpoint[Try, HNil]
+        f: Endpoint[IO, HNil] => Endpoint[IO, HNil]
       ): String => Boolean = { s: String => f(s).toString === m.toString.toUpperCase + " /" + s }
 
     check(methodMatcher(Method.Get, get))
@@ -164,17 +165,16 @@ class EndpointSpec extends FinchSpec {
     check(methodMatcher(Method.Patch, patch))
     check(methodMatcher(Method.Head, head))
     check(methodMatcher(Method.Options, options))
-    check(methodMatcher(Method.Connect, connect))
     check(methodMatcher(Method.Delete, delete))
 
     check { (s: String, i: Int) => path(s).map(_ => i).toString === s }
     check { (s: String, t: String) => (path(s) :+: path(t)).toString === s"($s :+: $t)" }
     check { (s: String, t: String) => (path(s) :: path(t)).toString === s"$s :: $t" }
-    check { s: String => path(s).product[String](*.map(_ => "foo")).toString === s }
-    check { (s: String, t: String) => path(s).mapAsync(_ => Return(t)).toString === s }
+    check { s: String => path(s).product[String](pathAny.map(_ => "foo")).toString === s }
+    check { (s: String, t: String) => path(s).mapAsync(_ => IO.pure(t)).toString === s }
 
-    *.toString shouldBe "*"
-    /.toString shouldBe ""
+    zero.toString shouldBe ""
+    pathAny.toString shouldBe "*"
     path[Int].toString shouldBe ":int"
     path[String].toString shouldBe ":string"
     path[Long].toString shouldBe ":long"
@@ -193,14 +193,14 @@ class EndpointSpec extends FinchSpec {
 
   it should "always respond with the same output if it's a constant Endpoint" in {
     check { s: String =>
-      Endpoint[Try].const(s).apply(Input.get("/")).awaitValueUnsafe() === Some(s) &&
-      Endpoint[Try].lift(s).apply(Input.get("/")).awaitValueUnsafe() === Some(s) &&
-      Endpoint[Try].liftAsync(Return(s)).apply(Input.get("/")).awaitValueUnsafe() === Some(s)
+      const(s).apply(Input.get("/")).awaitValueUnsafe() === Some(s) &&
+      lift(s).apply(Input.get("/")).awaitValueUnsafe() === Some(s) &&
+      liftAsync(IO.pure(s)).apply(Input.get("/")).awaitValueUnsafe() === Some(s)
     }
 
     check { o: Output[String] =>
-      Endpoint[Try].liftOutput(o).apply(Input.get("/")).awaitOutputUnsafe() === Some(o) &&
-      Endpoint[Try].liftOutputAsync(Return(o)).apply(Input.get("/")).awaitOutputUnsafe() === Some(o)
+      liftOutput(o).apply(Input.get("/")).awaitOutputUnsafe() === Some(o) &&
+      liftOutputAsync(IO.pure(o)).apply(Input.get("/")).awaitOutputUnsafe() === Some(o)
     }
   }
 
@@ -217,7 +217,7 @@ class EndpointSpec extends FinchSpec {
 
   it should "rescue the exception occurred in it" in {
     check { (i: Input, s: String, e: Exception) =>
-      val result = Endpoint[Try].liftAsync[String](Throw(e)).handle {
+      val result = liftAsync[String](IO.raiseError(e)).handle {
         case _ => Created(s)
       }.apply(i).awaitOutput()
       result === Some(Return(Created(s)))
@@ -241,19 +241,15 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "maps lazily to values" in {
-    import io.finch.catsEffect._
-
     val i = Input(emptyRequest, Seq.empty)
     var c = 0
-    val e = get(*) { c = c + 1; Ok(c) }
+    val e = get(pathAny) { c = c + 1; Ok(c) }
 
     e(i).awaitValueUnsafe() shouldBe Some(1)
     e(i).awaitValueUnsafe() shouldBe Some(2)
   }
 
   it should "not evaluate Futures until matched" in {
-    import io.finch.catsEffect._
-
     val i = Input(emptyRequest, Seq("a", "10"))
     var flag = false
 
@@ -261,7 +257,7 @@ class EndpointSpec extends FinchSpec {
       IO { flag = true; nil }
     }
 
-    val e = ("a" :: 10) :+: endpointWithFailedFuture
+    val e = ("a" :: "10") :+: endpointWithFailedFuture
     e(i).isMatched shouldBe true
     flag shouldBe false
   }
@@ -270,8 +266,8 @@ class EndpointSpec extends FinchSpec {
     val a = Input(emptyRequest, Seq("a", "10"))
     val b = Input(emptyRequest, Seq("a"))
 
-    val e1 = "a".coproduct("b").coproduct("a" :: 10)
-    val e2 = ("a" :: 10).coproduct("b").coproduct("a")
+    val e1 = "a".coproduct("b").coproduct("a" :: "10")
+    val e2 = ("a" :: "10").coproduct("b").coproduct("a")
 
     e1(a).remainder shouldBe Some(a.withRoute(a.route.drop(2)))
     e1(b).remainder shouldBe Some(b.withRoute(b.route.drop(2)))
@@ -284,8 +280,8 @@ class EndpointSpec extends FinchSpec {
       val aa = a.fold[Exception](identity, identity)
       val bb = b.fold[Exception](identity, identity)
 
-      val left = Endpoint[Try].liftAsync[Unit](Throw(aa))
-      val right = Endpoint[Try].liftAsync[Unit](Throw(bb))
+      val left = liftAsync[Unit](IO.raiseError(aa))
+      val right = liftAsync[Unit](IO.raiseError(bb))
 
       val lr = left.product(right)
       val rl = right.product(left)
@@ -304,9 +300,9 @@ class EndpointSpec extends FinchSpec {
 
   it should "fail-fast with the first non-error observed" in {
     check { (a: Error, b: Errors, e: Exception) =>
-      val aa = Endpoint[Try].liftAsync[Unit](Throw(a))
-      val bb = Endpoint[Try].liftAsync[Unit](Throw(b))
-      val ee = Endpoint[Try].liftAsync[Unit](Throw(e))
+      val aa = liftAsync[Unit](IO.raiseError(a))
+      val bb = liftAsync[Unit](IO.raiseError(b))
+      val ee = liftAsync[Unit](IO.raiseError(e))
 
       val aaee = aa.product(ee)
       val eeaa = ee.product(aa)
@@ -331,7 +327,7 @@ class EndpointSpec extends FinchSpec {
 
     val put = ab(Input.put("/foo"))
     put.isMatched shouldBe false
-    put.asInstanceOf[EndpointResult.NotMatched.MethodNotAllowed[Try]].allowed.toSet shouldBe {
+    put.asInstanceOf[EndpointResult.NotMatched.MethodNotAllowed[IO]].allowed.toSet shouldBe {
       Set(Method.Post, Method.Get)
     }
   }
@@ -342,14 +338,14 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "liftToTry" in {
-    check { e: Endpoint[Try, Unit] =>
+    check { e: Endpoint[IO, Unit] =>
       val i = Input.get("/")
       e(i).awaitValue() === e.liftToTry.apply(i).awaitValueUnsafe()
     }
   }
 
   it should "collect errors on Endpoint[Seq[String]] failure" in {
-    val endpoint: Endpoint[Try, Seq[UUID]] = params[UUID]("testEndpoint")
+    val endpoint = params[UUID]("testEndpoint")
     an[Errors] shouldBe thrownBy (
       endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe()
     )
@@ -362,7 +358,7 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "collect errors on Endpoint[NonEmptyList[String]] failure" in {
-    val endpoint: Endpoint[Try, NonEmptyList[UUID]] = paramsNel[UUID]("testEndpoint")
+    val endpoint = paramsNel[UUID]("testEndpoint")
     an[Errors] shouldBe thrownBy (
       endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe(10.seconds)
     )

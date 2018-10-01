@@ -1,14 +1,9 @@
-package io.finch.syntax
+package io.finch.endpoint
 
-import com.twitter.finagle.http.Method
+import com.twitter.finagle.http.{Method => FinagleMethod}
 import io.finch._
 
-class EndpointMapper[F[_], A](m: Method, e: Endpoint[F, A]) extends Endpoint[F, A] { self =>
-
-  /**
-    * Maps this endpoint to either `A => Output[B]` or `A => Future[Output[B]]`.
-    */
-  final def apply(mapper: Mapper[F, A]): Endpoint[F, mapper.Out] = mapper(self)
+private[finch] class Method[F[_], A](m: FinagleMethod, e: Endpoint[F, A]) extends Endpoint.Mappable[F, A] { self =>
 
   final def apply(input: Input): EndpointResult[F, A] =
     if (input.request.method == m) e(input)

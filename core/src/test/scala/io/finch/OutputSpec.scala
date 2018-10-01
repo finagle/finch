@@ -3,7 +3,6 @@ package io.finch
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.Status
 import com.twitter.io.Buf
-import io.finch.tried._
 import java.nio.charset.{Charset, StandardCharsets}
 import scala.util.{Failure, Success, Try}
 

@@ -1,14 +1,24 @@
 package io.finch
 
-import cats.{Alternative, Applicative, ApplicativeError, Monad, MonadError}
+import cats.{Alternative, Applicative, ApplicativeError, Id, Monad, MonadError}
 import cats.data.NonEmptyList
 import cats.effect.{Effect, Sync}
 import cats.syntax.all._
+import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Request, Response}
+import com.twitter.finagle.http.{
+  Cookie => FinagleCookie,
+  Method => FinagleMethod,
+  Request,
+  Response
+}
+import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart}
+import com.twitter.io.Buf
 import com.twitter.util.{Return, Throw, Try}
+import io.finch.endpoint._
 import io.finch.internal._
-import io.finch.syntax.EndpointMappers
+import io.finch.items.RequestItem
+import scala.reflect.ClassTag
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.hlist.Tupler
@@ -26,7 +36,7 @@ import shapeless.ops.hlist.Tupler
  * An `Endpoint` transformation (`map`, `mapAsync`, etc.) encodes the business logic, while the
  * rest of Finch ecosystem takes care about both serialization and deserialization.
  *
- * A typical way to transform (or map) the `Endpoint` is to use [[io.finch.syntax.Mapper]]:
+ * A typical way to transform (or map) the `Endpoint` is to use [[internal.Mapper]]:
  *
  * {{{
  *   import io.finch._
@@ -394,77 +404,36 @@ trait Endpoint[F[_], A] { self =>
  */
 object Endpoint {
 
+  /**
+   * Enables a very simple syntax allowing to "map" endpoints to arbitrary functions. The types are
+   * resolved at compile time and no reflection is used.
+   *
+   * For example:
+   *
+   * {{{
+   *   import io.finch._
+   *   import io.cats.effect.IO
+   *
+   *   object Mapping extends Endpoint.Module[IO] {
+   *     def hello = get("hello" :: path[String]) { s: String =>
+   *       Ok(s)
+   *     }
+   *   }
+   * }}}
+   */
+  trait Mappable[F[_], A] extends Endpoint[F, A] { self =>
+    final def apply(mapper: Mapper[F, A]): Endpoint[F, mapper.Out] = mapper(self)
+  }
+
+  /**
+   * An alias for [[EndpointResult]].
+   */
   type Result[F[_], A] = EndpointResult[F, A]
 
-  def apply[F[_]]: EndpointBuilder[F] = new EndpointBuilder[F]
-
-  class EndpointBuilder[F[_]] extends EndpointMappers[F] with Endpoints[F] {
-
-    /**
-      * Creates an empty [[Endpoint]] (an endpoint that never matches) for a given type.
-      */
-    def empty[A]: Endpoint[F, A] = new Endpoint[F, A] {
-      final def apply(input: Input): Result[F, A] = EndpointResult.NotMatched
-    }
-
-    /**
-      * Creates an [[Endpoint]] that always matches and returns a given value (evaluated eagerly).
-      */
-    def const[A](a: A)(implicit F: Applicative[F]): Endpoint[F, A] = new Endpoint[F, A] {
-      final def apply(input: Input): Result[F, A] =
-        EndpointResult.Matched(input, Trace.empty, F.pure(Output.payload(a)))
-    }
-
-    /**
-      * Creates an [[Endpoint]] that always matches and returns a given value (evaluated lazily).
-      *
-      * This might be useful for wrapping functions returning arbitrary value within [[Endpoint]]
-      * context.
-      *
-      * Example: the following endpoint will recompute a random integer on each request.
-      *
-      * {{{
-      *   val nextInt: Endpoint[Int] = Endpoint.lift(scala.util.random.nextInt)
-      * }}}
-      */
-    def lift[A](a: => A)(implicit F: Sync[F]): Endpoint[F, A] = new Endpoint[F, A] {
-      final def apply(input: Input): Result[F, A] =
-        EndpointResult.Matched(input, Trace.empty, F.delay(Output.payload(a)))
-    }
-
-    /**
-      * Creates an [[Endpoint]] that always matches and returns a given `F` (evaluated lazily).
-      */
-    def liftAsync[A](fa: => F[A])(implicit F: Sync[F]): Endpoint[F, A] = new Endpoint[F, A] {
-      final def apply(input: Input): Result[F, A] =
-        EndpointResult.Matched(input, Trace.empty, F.suspend(fa).map(a => Output.payload(a)))
-    }
-
-    /**
-      * Creates an [[Endpoint]] that always matches and returns a given `Output` (evaluated lazily).
-      */
-    def liftOutput[A](oa: => Output[A])(implicit F: Sync[F]): Endpoint[F, A] = new Endpoint[F, A] {
-      final def apply(input: Input): Result[F, A] =
-        EndpointResult.Matched(input, Trace.empty, F.delay(oa))
-    }
-
-    /**
-      * Creates an [[Endpoint]] that always matches and returns a given `F[Output]`
-      * (evaluated lazily).
-      */
-    def liftOutputAsync[A](foa: => F[Output[A]])(implicit F: Sync[F]): Endpoint[F, A] = new Endpoint[F, A] {
-      final def apply(input: Input): Result[F, A] =
-        EndpointResult.Matched(input, Trace.empty, F.suspend(foa))
-    }
-  }
-
-  final implicit class ValueEndpointOps[F[_], B](val self: Endpoint[F, B]) extends AnyVal {
-    /**
-     * Converts this endpoint to one that returns any type with `B :: HNil` as its representation.
-     */
-    def as[A](implicit gen: Generic.Aux[A, B :: HNil], F: Monad[F]): Endpoint[F, A] =
-      self.map(value => gen.from(value :: HNil))
-  }
+  /**
+   * An alias for [[EndpointModule]].
+   */
+  type Module[F[_]] = EndpointModule[F]
 
   final implicit class HListEndpointOps[F[_], L <: HList](val self: Endpoint[F, L]) extends AnyVal {
     /**
@@ -486,7 +455,7 @@ object Endpoint {
   /**
    * Implicit conversion that adds convenience methods to endpoint for optional values.
    */
-  implicit class OptionEndpointOps[F[_], A](val self: Endpoint[F, Option[A]]) extends AnyVal {
+  final implicit class OptionEndpointOps[F[_], A](val self: Endpoint[F, Option[A]]) extends AnyVal {
     /**
      * If endpoint is empty it will return provided default value.
      */
@@ -498,6 +467,14 @@ object Endpoint {
      */
     def orElse[B >: A](alternative: => Option[B])(implicit F: Monad[F]): Endpoint[F, Option[B]] =
       self.map(_.orElse(alternative))
+  }
+
+  final implicit class ValueEndpointOps[F[_], B](val self: Endpoint[F, B]) extends AnyVal {
+    /**
+     * Converts this endpoint to one that returns any type with `B :: HNil` as its representation.
+     */
+    def as[A](implicit gen: Generic.Aux[A, B :: HNil], F: Monad[F]): Endpoint[F, A] =
+      self.map(value => gen.from(value :: HNil))
   }
 
   implicit def endpointInstances[F[_] : Effect]: Alternative[({type T[B] = Endpoint[F, B]})#T] = {
@@ -513,16 +490,409 @@ object Endpoint {
         x.coproduct(y)
 
       final override def pure[A](x: A): Endpoint[F, A] =
-        Endpoint[F].const[A](x)
+        Endpoint.const[F, A](x)
 
       final override def empty[A]: Endpoint[F, A] =
-        Endpoint[F].empty[A]
+        Endpoint.empty[F, A]
 
       final override def map[A, B](fa: Endpoint[F, A])(f: A => B): Endpoint[F, B] =
         fa.map(f)
-
-
     }
   }
 
+  /**
+   * Instantiates an [[EndpointModule]] for a given effect type `F`. This is enables better type
+   * inference when constucting endpoint instances.
+   *
+   * For example, `lift` infer the resulting endpoint based on the argument type (string):
+   *
+   * {{{
+   *   import io.finch._, cats.effect.IO
+   *   val e = Endpoint[IO].lift("foo") // Endpoint[IO, String]
+   * }}}
+   */
+  def apply[F[_]]: EndpointModule[F] = EndpointModule[F]
+
+  /**
+   * Creates an empty [[Endpoint]] (an endpoint that never matches) for a given type.
+   */
+  def empty[F[_], A]: Endpoint[F, A] =
+    new Endpoint[F, A] {
+      final def apply(input: Input): Result[F, A] = EndpointResult.NotMatched
+    }
+
+  /**
+   * An [[Endpoint]] that, when composed with other endpoints, doesn't change anything.
+   */
+  def zero[F[_]](implicit F: Applicative[F]): Endpoint[F, HNil] =
+    new Endpoint[F, HNil] {
+      final def apply(input: Input): Result[F, HNil] =
+        EndpointResult.Matched(input, Trace.empty, F.pure(Output.payload(HNil)))
+
+      final override def toString: String = ""
+    }
+
+  /**
+   * Creates an [[Endpoint]] that always matches and returns a given value (evaluated eagerly).
+   */
+  def const[F[_], A](a: A)(implicit F: Applicative[F]): Endpoint[F, A] =
+    new Endpoint[F, A] {
+      final def apply(input: Input): Result[F, A] =
+        EndpointResult.Matched(input, Trace.empty, F.pure(Output.payload(a)))
+    }
+
+  /**
+   * Creates an [[Endpoint]] that always matches and returns a given value (evaluated lazily).
+   *
+   * This might be useful for wrapping functions returning arbitrary value within [[Endpoint]]
+   * context.
+   *
+   * Example: the following endpoint will recompute a random integer on each request.
+   *
+   * {{{
+   *   val nextInt: Endpoint[Int] = Endpoint.lift(scala.util.random.nextInt)
+   * }}}
+   */
+  def lift[F[_], A](a: => A)(implicit F: Sync[F]): Endpoint[F, A] =
+    new Endpoint[F, A] {
+      final def apply(input: Input): Result[F, A] =
+        EndpointResult.Matched(input, Trace.empty, F.delay(Output.payload(a)))
+    }
+
+  /**
+   * Creates an [[Endpoint]] that always matches and returns a given `F` (evaluated lazily).
+   */
+  def liftAsync[F[_], A](fa: => F[A])(implicit F: Sync[F]): Endpoint[F, A] =
+    new Endpoint[F, A] {
+      final def apply(input: Input): Result[F, A] =
+        EndpointResult.Matched(input, Trace.empty, F.suspend(fa).map(a => Output.payload(a)))
+    }
+
+  /**
+   * Creates an [[Endpoint]] that always matches and returns a given `Output` (evaluated lazily).
+   */
+  def liftOutput[F[_], A](oa: => Output[A])(implicit F: Sync[F]): Endpoint[F, A] =
+    new Endpoint[F, A] {
+      final def apply(input: Input): Result[F, A] =
+        EndpointResult.Matched(input, Trace.empty, F.delay(oa))
+    }
+
+  /**
+   * Creates an [[Endpoint]] that always matches and returns a given `F[Output]`
+   * (evaluated lazily).
+   */
+  def liftOutputAsync[F[_], A](foa: => F[Output[A]])(implicit F: Sync[F]): Endpoint[F, A] =
+    new Endpoint[F, A] {
+      final def apply(input: Input): Result[F, A] =
+        EndpointResult.Matched(input, Trace.empty, F.suspend(foa))
+    }
+
+  /**
+   * A root [[Endpoint]] that always matches and extracts the current request.
+   */
+  def root[F[_]](implicit F: Effect[F]): Endpoint[F, Request] =
+    new Endpoint[F, Request] {
+      final def apply(input: Input): Result[F, Request] =
+        EndpointResult.Matched(input, Trace.empty, F.delay(Output.payload(input.request)))
+
+      final override def toString: String = "root"
+    }
+
+  /**
+   * An [[Endpoint]] that always matches any path.
+   */
+  def pathAny[F[_]](implicit F: Applicative[F]): Endpoint[F, HNil] =
+    new Endpoint[F, HNil] {
+      final def apply(input: Input): Result[F, HNil] =
+        EndpointResult.Matched(input.withRoute(Nil), Trace.empty, F.pure(Output.payload(HNil)))
+
+      final override def toString: String = "*"
+    }
+
+  /**
+   * A matching [[Endpoint]] that reads a value of type `A` (using the implicit
+   * [[DecodePath]] instances defined for `A`) from the current path segment.
+   */
+  def path[F[_]: Effect, A: DecodePath: ClassTag]: Endpoint[F, A] =
+    new ExtractPath[F, A]
+
+  /**
+   * A matching [[Endpoint]] that reads a tail value `A` (using the implicit
+   * [[DecodePath]] instances defined for `A`) from the entire path.
+   */
+  def paths[F[_]: Effect, A: DecodePath: ClassTag]: Endpoint[F, Seq[A]] =
+    new ExtractPaths[F, A]
+
+  /**
+   * An [[Endpoint]] that matches a given string.
+   */
+  def path[F[_]: Effect](s: String): Endpoint[F, HNil] =
+    new MatchPath[F](s)
+
+  /**
+   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
+   * resulting [[Endpoint]] succeeds on the request only if its method is `GET` and the underlying
+   * endpoint succeeds on it.
+   */
+  def get[F[_], A](e: Endpoint[F, A]): Mappable[F, A] =
+    new Method[F, A](FinagleMethod.Get, e)
+
+  /**
+   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
+   * resulting [[Endpoint]] succeeds on the request only if its method is `POST` and the underlying
+   * endpoint succeeds on it.
+   */
+  def post[F[_], A](e: Endpoint[F, A]): Mappable[F, A] =
+    new Method[F, A](FinagleMethod.Post, e)
+
+  /**
+   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
+   * resulting [[Endpoint]] succeeds on the request only if its method is `PATCH` and the underlying
+   * endpoint succeeds on it.
+   */
+  def patch[F[_], A](e: Endpoint[F, A]): Mappable[F, A] =
+    new Method[F, A](FinagleMethod.Patch, e)
+
+  /**
+   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
+   * resulting [[Endpoint]] succeeds on the request only if its method is `DELETE` and the
+   * underlying endpoint succeeds on it.
+   */
+  def delete[F[_], A](e: Endpoint[F, A]): Mappable[F, A] =
+    new Method[F, A](FinagleMethod.Delete, e)
+
+  /**
+   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
+   * resulting [[Endpoint]] succeeds on the request only if its method is `HEAD` and the underlying
+   * endpoint succeeds on it.
+   */
+  def head[F[_], A](e: Endpoint[F, A]): Mappable[F, A] =
+    new Method[F, A](FinagleMethod.Head, e)
+
+  /**
+   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
+   * resulting [[Endpoint]] succeeds on the request only if its method is `OPTIONS` and the
+   * underlying endpoint succeeds on it.
+   */
+  def options[F[_], A](e: Endpoint[F, A]): Mappable[F, A] =
+    new Method[F, A](FinagleMethod.Options, e)
+
+  /**
+   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
+   * resulting [[Endpoint]] succeeds on the request only if its method is `PUT` and the underlying
+   * endpoint succeeds on it.
+   */
+  def put[F[_], A](e: Endpoint[F, A]): Mappable[F, A] =
+    new Method[F, A](FinagleMethod.Put, e)
+
+  /**
+   * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The
+   * resulting [[Endpoint]] succeeds on the request only if its method is `TRACE` and the underlying
+   * router endpoint on it.
+   */
+  def trace[F[_], A](e: Endpoint[F, A]): Mappable[F, A] =
+    new Method[F, A](FinagleMethod.Trace, e)
+
+  /**
+   * An evaluating [[Endpoint]] that reads a required HTTP header `name` from the request or raises
+   * an [[Error.NotPresent]] exception when the header is missing.
+   */
+  def header[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, A] =
+    new Header[F, Id, A](name) with Header.Required[F, A]
+
+  /**
+   * An evaluating [[Endpoint]] that reads an optional HTTP header `name` from the request into an
+   * `Option`.
+   */
+  def headerOption[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, Option[A]] =
+    new Header[F, Option, A](name) with Header.Optional[F, A]
+
+  /**
+   * An evaluating [[Endpoint]] that reads a binary request body, interpreted as a `Array[Byte]`,
+   * into an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
+   */
+  def binaryBodyOption[F[_]: Effect]: Endpoint[F, Option[Array[Byte]]] =
+    new BinaryBody[F, Option[Array[Byte]]] with FullBody.Optional[F, Array[Byte]]
+
+  /**
+   * An evaluating [[Endpoint]] that reads a required binary request body, interpreted as an
+   * `Array[Byte]`, or throws a [[Error.NotPresent]] exception. The returned [[Endpoint]] only
+   * matches non-chunked (non-streamed) requests.
+   */
+  def binaryBody[F[_]: Effect]: Endpoint[F, Array[Byte]] =
+    new BinaryBody[F, Array[Byte]] with FullBody.Required[F, Array[Byte]]
+
+  /**
+   * An evaluating [[Endpoint]] that reads an optional request body, interpreted as a `String`, into
+   * an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
+   */
+  def stringBodyOption[F[_]: Effect]: Endpoint[F, Option[String]] =
+    new StringBody[F, Option[String]] with FullBody.Optional[F, String]
+
+  /**
+   * An evaluating [[Endpoint]] that reads the required request body, interpreted as a `String`, or
+   * throws an [[Error.NotPresent]] exception. The returned [[Endpoint]] only matches non-chunked
+   * (non-streamed) requests.
+   */
+  def stringBody[F[_]: Effect]: Endpoint[F, String] =
+    new StringBody[F, String] with FullBody.Required[F, String]
+
+  /**
+   * An [[Endpoint]] that reads an optional request body represented as `CT` (`ContentType`) and
+   * interpreted as `A`, into an `Option`. The returned [[Endpoint]] only matches non-chunked
+   * (non-streamed) requests.
+   */
+  def bodyOption[F[_]: Effect, A: ClassTag, CT](implicit D: Decode.Dispatchable[A, CT]): Endpoint[F, Option[A]] =
+    new Body[F, A, Option[A], CT] with FullBody.Optional[F, A]
+
+  /**
+   * An [[Endpoint]] that reads the required request body represented as `CT` (`ContentType`) and
+   * interpreted as `A`, or throws an [[Error.NotPresent]] exception. The returned [[Endpoint]]
+   * only matches non-chunked (non-streamed) requests.
+   */
+  def body[F[_]: Effect, A: ClassTag, CT](implicit d: Decode.Dispatchable[A, CT]): Endpoint[F, A] =
+    new Body[F, A, A, CT] with FullBody.Required[F, A]
+
+  /**
+   * Alias for `body[F, A, Application.Json]`.
+   */
+  def jsonBody[F[_]: Effect, A: Decode.Json: ClassTag]: Endpoint[F, A] =
+    body[F, A, Application.Json]
+
+  /**
+   * Alias for `bodyOption[F, A, Application.Json]`.
+   */
+  def jsonBodyOption[F[_]: Effect, A: Decode.Json: ClassTag]: Endpoint[F, Option[A]] =
+    bodyOption[F, A, Application.Json]
+
+  /**
+   * Alias for `body[F, A, Text.Plain]`
+   */
+  def textBody[F[_]: Effect, A: Decode.Text: ClassTag]: Endpoint[F, A] =
+    body[F, A, Text.Plain]
+
+  /**
+   * Alias for `bodyOption[A, Text.Plain]`
+   */
+  def textBodyOption[F[_]: Effect, A: Decode.Text: ClassTag]: Endpoint[F, Option[A]] =
+    bodyOption[F, A, Text.Plain]
+
+  /**
+   * An evaluating [[Endpoint]] that reads a required chunked streaming binary body, interpreted as
+   * an `AsyncStream[Buf]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
+   */
+  def asyncBody[F[_]](implicit F: Effect[F]): Endpoint[F, AsyncStream[Buf]] =
+    new Endpoint[F, AsyncStream[Buf]] {
+      final def apply(input: Input): EndpointResult[F, AsyncStream[Buf]] =
+        if (!input.request.isChunked) EndpointResult.NotMatched
+        else
+          EndpointResult.Matched(
+            input,
+            Trace.empty,
+            F.delay(Output.payload(AsyncStream.fromReader(input.request.reader)))
+          )
+
+      final override def item: RequestItem = items.BodyItem
+      final override def toString: String = "asyncBody"
+    }
+
+  /**
+   * An evaluating [[Endpoint]] that reads an optional HTTP cookie from the request into an
+   * `Option`.
+   */
+  def cookieOption[F[_]: Effect](name: String): Endpoint[F, Option[FinagleCookie]] =
+    new Cookie[F, Option[FinagleCookie]](name) with Cookie.Optional[F]
+
+  /**
+   * An evaluating [[Endpoint]] that reads a required cookie from the request or raises an
+   * [[Error.NotPresent]] exception when the cookie is missing.
+   */
+  def cookie[F[_]: Effect](name: String): Endpoint[F, FinagleCookie] =
+    new Cookie[F, FinagleCookie](name) with Cookie.Required[F]
+
+  /**
+   * An evaluating [[Endpoint]] that reads an optional query-string param `name` from the request
+   * into an `Option`.
+   */
+  def paramOption[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, Option[A]] =
+    new Param[F, Option, A](name) with Param.Optional[F, A]
+
+  /**
+   * An evaluating [[Endpoint]] that reads a required query-string param `name` from the
+   * request or raises an [[Error.NotPresent]] exception when the param is missing; an
+   * [[Error.NotValid]] exception is the param is empty.
+   */
+  def param[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, A] =
+    new Param[F, Id, A](name) with Param.Required[F, A]
+
+  /**
+   * An evaluating [[Endpoint]] that reads an optional (in a meaning that a resulting
+   * `Seq` may be empty) multi-value query-string param `name` from the request into a `Seq`.
+   */
+  def params[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, Seq[A]] =
+    new Params[F, Seq, A](name) with Params.AllowEmpty[F, A]
+
+  /**
+   * An evaluating [[Endpoint]] that reads a required multi-value query-string param `name`
+   * from the request into a `NonEmptyList` or raises a [[Error.NotPresent]] exception
+   * when the params are missing or empty.
+   */
+  def paramsNel[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, NonEmptyList[A]] =
+    new Params[F, NonEmptyList, A](name) with Params.NonEmpty[F, A]
+
+  /**
+   * An evaluating [[Endpoint]] that reads an optional file upload from a `multipart/form-data`
+   * request into an `Option`.
+   */
+  def multipartFileUploadOption[F[_]: Effect](name: String): Endpoint[F, Option[FinagleMultipart.FileUpload]] =
+    new FileUpload[F, Option](name) with FileUpload.Optional[F]
+
+  /**
+   * An evaluating [[Endpoint]] that reads a required file upload from a `multipart/form-data`
+   * request.
+   */
+  def multipartFileUpload[F[_]: Effect](name: String): Endpoint[F, FinagleMultipart.FileUpload] =
+    new FileUpload[F, Id](name) with FileUpload.Required[F]
+
+  /**
+   * An evaluating [[Endpoint]] that optionally reads multiple file uploads from a
+   * `multipart/form-data` request.
+   */
+  def multipartFileUploads[F[_]: Effect](name: String): Endpoint[F, Seq[FinagleMultipart.FileUpload]] =
+    new FileUpload[F, Seq](name) with FileUpload.AllowEmpty[F]
+
+  /**
+   * An evaluating [[Endpoint]] that requires multiple file uploads from a `multipart/form-data`
+   * request.
+   */
+  def multipartFileUploadsNel[F[_]: Effect](name: String): Endpoint[F, NonEmptyList[FinagleMultipart.FileUpload]] =
+    new FileUpload[F, NonEmptyList](name) with FileUpload.NonEmpty[F]
+
+  /**
+   * An evaluating [[Endpoint]] that reads a required attribute from a `multipart/form-data`
+   * request.
+   */
+  def multipartAttribute[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, A] =
+    new Attribute[F, Id, A](name) with Attribute.Required[F, A] with Attribute.SingleError[F, Id, A]
+
+  /**
+   * An evaluating [[Endpoint]] that reads an optional attribute from a `multipart/form-data`
+   * request.
+   */
+  def multipartAttributeOption[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, Option[A]] =
+    new Attribute[F, Option, A](name) with Attribute.Optional[F, A] with Attribute.SingleError[F, Option, A]
+
+  /**
+   * An evaluating [[Endpoint]] that reads a required attribute from a `multipart/form-data`
+   * request.
+   */
+  def multipartAttributes[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, Seq[A]] =
+    new Attribute[F, Seq, A](name) with Attribute.AllowEmpty[F, A] with Attribute.MultipleErrors[F, Seq, A]
+
+  /**
+   * An evaluating [[Endpoint]] that reads a required attribute from a `multipart/form-data`
+   * request.
+   */
+  def multipartAttributesNel[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, NonEmptyList[A]] =
+    new Attribute[F, NonEmptyList, A](name) with Attribute.NonEmpty[F, A] with Attribute.MultipleErrors[F, NonEmptyList, A]
 }

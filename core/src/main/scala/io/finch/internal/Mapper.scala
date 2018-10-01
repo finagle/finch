@@ -1,4 +1,4 @@
-package io.finch.syntax
+package io.finch.internal
 
 import cats.Monad
 import cats.syntax.functor._

@@ -14,8 +14,10 @@ class EnumerateEndpointSpec extends FinchSpec with GeneratorDrivenPropertyChecks
     enum.map(_.asString(cs))
   })
 
-  "enumeratorBody" should "enumerate input stream" in {
-    forAll { (data: List[Buf]) =>
+  behavior of "Enumerate"
+
+  it should "enumerate input stream" in {
+    forAll { data: List[Buf] =>
       val req = Request()
       req.setChunked(chunked = true)
       write(data, req.writer)
@@ -25,20 +27,19 @@ class EnumerateEndpointSpec extends FinchSpec with GeneratorDrivenPropertyChecks
 
       enumerator.toVector.unsafeRunSync() should contain theSameElementsAs data
     }
-
   }
 
-  "enumeratorBody.toString" should "be correct" in {
+  it should "have a correct toString" in {
     enumeratorBody[IO, Buf, Application.OctetStream].toString shouldBe "enumeratorBody"
   }
 
-  "enumeratorBody" should "skip matching if request is not chunked" in {
+  it should "skip matching if request is not chunked" in {
     enumeratorBody[IO, Buf, Application.OctetStream].apply(Input.fromRequest(Request())) shouldBe
       EndpointResult.NotMatched
   }
 
-  "enumeratorJsonBody" should "enumerate input stream if required Enumerate instance is presented" in {
-    forAll { (data: List[String]) =>
+  it should "enumerate input stream if required Enumerate instance is presented" in {
+    forAll { data: List[String] =>
       val req = Request()
       req.setChunked(chunked = true)
       write(data.map(Buf.Utf8.apply), req.writer)
@@ -49,7 +50,7 @@ class EnumerateEndpointSpec extends FinchSpec with GeneratorDrivenPropertyChecks
     }
   }
 
-  "enumeratorJsonBody.toString" should "be correct" in {
+  it should "be have correct toString in enumeratorJsonBody" in {
     enumeratorJsonBody[IO, Buf].toString shouldBe "enumeratorJsonBody"
   }
 

@@ -6,7 +6,6 @@ import com.twitter.finagle.http.{Request, Response}
 import com.twitter.io.Buf
 import com.twitter.util.{Await, Try}
 import io.circe.generic.auto._
-import io.finch.catsEffect._
 import io.finch.circe._
 import io.finch.data.Foo
 import java.nio.charset.{Charset, StandardCharsets}
@@ -19,7 +18,7 @@ import shapeless._
 @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(2)
-abstract class FinchBenchmark {
+abstract class FinchBenchmark extends Endpoint.Module[IO] {
   val postPayload: Input = Input.post("/").withBody[Text.Plain](Buf.Utf8("x" * 1024))
   val getRoot: Input = Input.get("/")
   val getFooBarBaz: Input = Input.get("/foo/bar/baz")

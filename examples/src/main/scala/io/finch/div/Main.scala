@@ -1,10 +1,10 @@
 package io.finch.div
 
+import cats.effect.IO
 import cats.instances.int._
 import com.twitter.finagle.Http
 import com.twitter.util.Await
-import io.finch.Text
-import io.finch.catsEffect._
+import io.finch._
 
 /**
  * A tiny Finch application that serves a single endpoint `POST /:a/b:` that divides `a` by `b`.
@@ -22,11 +22,11 @@ import io.finch.catsEffect._
  *   $ http POST :8081/10/0
  * }}}
  */
-object Main extends App {
+object Main extends App with Endpoint.Module[IO] {
 
   // We can serve Ints as plain/text responses since there is cats.Show[Int]
   // available via the cats.instances.int._ import.
-  def div: Endpoint[Int] = post(path[Int] :: path[Int]) { (a: Int, b: Int) =>
+  def div: Endpoint[IO, Int] = post(path[Int] :: path[Int]) { (a: Int, b: Int) =>
     Ok(a / b)
   } handle {
     case e: ArithmeticException => BadRequest(e)

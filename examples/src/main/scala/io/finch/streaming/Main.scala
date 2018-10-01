@@ -9,8 +9,7 @@ import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.Http
 import com.twitter.io.Buf
 import com.twitter.util.{Await, Try}
-import io.finch.Text
-import io.finch.catsEffect._
+import io.finch._
 
 /**
 * A simple Finch application featuring very basic, `Buf`-based streaming support.
@@ -41,7 +40,7 @@ import io.finch.catsEffect._
 *   $ http --stream GET :8081/examples/3
 * }}}
 */
-object Main {
+object Main extends Endpoint.Module[IO] {
 
   // we decode a long value from a Buf
   private[this] def bufToLong(buf: Buf): Long =
@@ -51,12 +50,13 @@ object Main {
   // returns a simple response with a total sum.
   //
   // For example, if input stream is `1, 2, 3` then output response would be `6`.
-  def totalSum: Endpoint[Long] = post("totalSum" :: asyncBody) { as: AsyncStream[Buf] =>
-    IO.async[Long]((cb) => {
-      as.foldLeft(0L)((acc, b) => acc + bufToLong(b))
+  def totalSum: Endpoint[IO, Long] = post("totalSum" :: asyncBody) { as: AsyncStream[Buf] =>
+    IO.async[Long](cb =>
+      as
+        .foldLeft(0L)((acc, b) => acc + bufToLong(b))
         .onSuccess(i => cb(Right(i)))
         .onFailure(t => cb(Left(t)))
-    }).map(Ok)
+    ).map(Ok)
   }
 
   // This endpoint takes a simple request with an integer number N and returns a
@@ -64,7 +64,7 @@ object Main {
   //
   // For example, if an input value is `3` then output stream would be
   // `1 (1), 3 (1 + 2), 5 (1 + 2 + 3)`.
-  def sumTo: Endpoint[AsyncStream[Long]] = post("sumTo" :: path[Long]) { to: Long =>
+  def sumTo: Endpoint[IO, AsyncStream[Long]] = post("sumTo" :: path[Long]) { to: Long =>
     def loop(n: Long, s: Long): AsyncStream[Long] =
       if (n > to) AsyncStream.empty[Long]
       else (n + s) +:: loop(n + 1, n + s)
@@ -77,7 +77,7 @@ object Main {
   // to each number (chunk) a sum that has been collected so far.
   //
   // For example, if input stream is `1, 2, 3` then output stream would be `1, 3, 6`.
-  def sumSoFar: Endpoint[AsyncStream[Long]] =
+  def sumSoFar: Endpoint[IO, AsyncStream[Long]] =
     post("sumSoFar" :: asyncBody) { as: AsyncStream[Buf] =>
       Ok(as.map(b => sum.addAndGet(bufToLong(b))))
     }
@@ -88,12 +88,12 @@ object Main {
     implicit val show: Show[Example] = Show.fromToString
   }
   // This endpoint will stream back a given number of `Example` objects in plain/text.
-  def examples: Endpoint[AsyncStream[Example]] = get("examples" :: path[Int]) { num: Int =>
+  def examples: Endpoint[IO, AsyncStream[Example]] = get("examples" :: path[Int]) { num: Int =>
     Ok(AsyncStream.fromSeq(List.tabulate(num)(i => Example(i))))
   }
 
-  def main(args: Array[String]): Unit =
-    Await.result(Http.server
+  def main(args: Array[String]): Unit = Await.result(
+    Http.server
       .withStreaming(enabled = true)
       .serve(":8081", (sumSoFar :+: sumTo :+: totalSum :+: examples).toServiceAs[Text.Plain])
   )
