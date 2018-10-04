@@ -18,7 +18,7 @@ object ExampleCaseClass {
   implicit val eq: Eq[ExampleCaseClass] = Eq.fromUniversalEquals
 
   implicit val encoder: Encoder[ExampleCaseClass] =
-    Encoder.forProduct3[String, Int, Boolean, ExampleCaseClass]("a", "b", "c")(e => (e.a, e.b, e.c))
+    Encoder.forProduct3[ExampleCaseClass, String, Int, Boolean]("a", "b", "c")(e => (e.a, e.b, e.c))
 
   implicit val decoder: Decoder[ExampleCaseClass] =
     Decoder.forProduct3("a", "b", "c")(ExampleCaseClass.apply)

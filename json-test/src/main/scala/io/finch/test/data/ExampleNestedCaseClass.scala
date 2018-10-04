@@ -22,7 +22,7 @@ object ExampleNestedCaseClass {
   implicit val eq: Eq[ExampleNestedCaseClass] = Eq.fromUniversalEquals
 
   implicit val encoder: Encoder[ExampleNestedCaseClass] =
-    Encoder.forProduct5[String, Double, Long, List[Int], ExampleCaseClass, ExampleNestedCaseClass](
+    Encoder.forProduct5[ExampleNestedCaseClass, String, Double, Long, List[Int], ExampleCaseClass](
       "string", "double", "long", "ints", "example"
     )(e => (e.string, e.double, e.long, e.ints, e.example))
 
