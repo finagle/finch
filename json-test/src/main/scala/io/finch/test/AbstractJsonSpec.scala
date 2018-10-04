@@ -34,7 +34,7 @@ abstract class AbstractJsonSpec extends FlatSpec with Matchers with Checkers wit
 
   implicit def eqException: Eq[Exception] = Eq.instance((a, b) => a.getMessage == b.getMessage)
 
-  implicit def decodeException: Decoder[Exception] = Decoder.forProduct1[String, Exception]("message")(s =>
+  implicit def decodeException: Decoder[Exception] = Decoder.forProduct1[Exception, String]("message")(s =>
     new Exception(s)
   )
 
