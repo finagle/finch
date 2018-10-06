@@ -317,8 +317,6 @@ lazy val benchmarks = project
       "-XX:+CMSClassUnloadingEnabled",
       "-XX:ReservedCodeCacheSize=128m",
       "-XX:MaxPermSize=1024m",
-      "-Xss8M",
-      "-Xms512M",
       "-XX:SurvivorRatio=128",
       "-XX:MaxTenuringThreshold=0",
       "-Xss8M",
