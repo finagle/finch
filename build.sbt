@@ -60,7 +60,9 @@ val baseSettings = Seq(
   scalacOptions in (Compile, console) ~= {
     _.filterNot(Set("-Ywarn-unused-import"))
   },
-  scalacOptions in (Compile, console) += "-Yrepl-class-based"
+  scalacOptions in (Compile, console) += "-Yrepl-class-based",
+  fork in Test := true,
+  javaOptions in ThisBuild ++= Seq("-Xss2048K")
 )
 
 lazy val publishSettings = Seq(
