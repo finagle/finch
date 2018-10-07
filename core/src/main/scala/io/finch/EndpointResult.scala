@@ -1,12 +1,10 @@
 package io.finch
 
-import java.util.concurrent.TimeUnit
-
 import cats.Id
 import cats.effect.Effect
 import com.twitter.finagle.http.Method
 import com.twitter.util._
-import scala.concurrent.duration.{Duration => ScalaDuration}
+import scala.concurrent.duration.Duration
 
 /**
  * A result returned from an [[Endpoint]]. This models `Option[(Input, Future[Output])]` and
@@ -22,8 +20,6 @@ import scala.concurrent.duration.{Duration => ScalaDuration}
  *
  */
 sealed abstract class EndpointResult[F[_], +A] {
-
-  val Top = ScalaDuration(Long.MaxValue, TimeUnit.NANOSECONDS)
 
   /**
    * Whether the [[Endpoint]] is matched on a given [[Input]].
@@ -52,7 +48,7 @@ sealed abstract class EndpointResult[F[_], +A] {
     case _ => None
   }
 
-  def awaitOutput(d: ScalaDuration = Top)(implicit e: Effect[F]): Option[Try[Output[A]]] = this match {
+  def awaitOutput(d: Duration = Duration.Inf)(implicit e: Effect[F]): Option[Try[Output[A]]] = this match {
     case EndpointResult.Matched(_, _, out) =>
       Some(Try(e.toIO(out).unsafeRunTimed(d) match {
         case Some(a) => a
@@ -61,13 +57,13 @@ sealed abstract class EndpointResult[F[_], +A] {
     case _ => None
   }
 
-  def awaitOutputUnsafe(d: ScalaDuration = Top)(implicit e: Effect[F]): Option[Output[A]] =
+  def awaitOutputUnsafe(d: Duration = Duration.Inf)(implicit e: Effect[F]): Option[Output[A]] =
     awaitOutput(d).map(toa => toa.get)
 
-  def awaitValue(d: ScalaDuration = Top)(implicit e: Effect[F]): Option[Try[A]] =
+  def awaitValue(d: Duration = Duration.Inf)(implicit e: Effect[F]): Option[Try[A]] =
     awaitOutput(d).map(toa => toa.flatMap(oa => Try(oa.value)))
 
-  def awaitValueUnsafe(d: ScalaDuration = Top)(implicit e: Effect[F]): Option[A] =
+  def awaitValueUnsafe(d: Duration = Duration.Inf)(implicit e: Effect[F]): Option[A] =
     awaitOutputUnsafe(d).map(oa => oa.value)
 }
 
