@@ -7,12 +7,11 @@ import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.laws.discipline.AlternativeTests
 import cats.laws.discipline.SemigroupalTests.Isomorphisms
-import com.twitter.conversions.time._
 import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.util.{Return, Throw}
 import io.finch.data.Foo
-import shapeless._
 import scala.concurrent.duration.Duration
+import shapeless._
 
 class EndpointSpec extends FinchSpec {
 
