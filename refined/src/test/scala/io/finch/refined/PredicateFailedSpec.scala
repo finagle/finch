@@ -5,7 +5,6 @@ import eu.timepit.refined.api.Refined
 import eu.timepit.refined.numeric._
 import io.finch._
 import io.finch.FinchSpec
-import io.finch.tried._
 
 class PredicateFailedSpec extends FinchSpec {
 
@@ -18,7 +17,5 @@ class PredicateFailedSpec extends FinchSpec {
     val Some(Throw(result)) = endpoint(Input.get("/?int=-1")).awaitValue()
 
     result.getCause shouldBe a[PredicateFailed]
-
   }
-
 }

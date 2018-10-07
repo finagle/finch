@@ -9,12 +9,12 @@
     <check level="error" class="org.scalastyle.file.FileTabChecker" enabled="true"></check>
     <check level="error" class="org.scalastyle.file.FileLengthChecker" enabled="true">
         <parameters>
-            <parameter name="maxFileLength"><![CDATA[800]]></parameter>
+            <parameter name="maxFileLength"><![CDATA[1000]]></parameter>
         </parameters>
     </check>
     <check level="error" class="org.scalastyle.file.FileLineLengthChecker" enabled="true">
         <parameters>
-            <parameter name="maxLineLength"><![CDATA[120]]></parameter>
+            <parameter name="maxLineLength"><![CDATA[160]]></parameter>
         </parameters>
     </check>
     <check level="error" class="org.scalastyle.file.WhitespaceEndOfLineChecker" enabled="true"></check>

@@ -10,19 +10,21 @@ import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
 class ToResponseSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
 
-  "enumeratorToResponse" should "correctly encode Enumerator to Response" in {
-    forAll { (data: List[Buf]) =>
+  behavior of "enumeratorToResponse"
+
+  it should "correctly encode Enumerator to Response" in {
+    forAll { data: List[Buf] =>
       enumeratorFromReader[IO](response[Buf, Text.Plain](data).reader).toVector.unsafeRunSync() should {
         contain theSameElementsAs data
       }
     }
   }
 
-  "enumeratorToJsonResponse" should "insert new lines after each chunk" in {
-    forAll { (data: List[Buf]) =>
-        enumeratorFromReader[IO](response[Buf, Application.Json](data).reader).toVector.unsafeRunSync() should {
-          contain theSameElementsAs data.map(_.concat(ToResponse.NewLine))
-        }
+  it should "insert new lines after each chunk" in {
+    forAll { data: List[Buf] =>
+      enumeratorFromReader[IO](response[Buf, Application.Json](data).reader).toVector.unsafeRunSync() should {
+        contain theSameElementsAs data.map(_.concat(ToResponse.NewLine))
+      }
     }
   }
 

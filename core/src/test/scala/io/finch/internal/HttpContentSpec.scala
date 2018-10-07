@@ -5,7 +5,10 @@ import io.finch.FinchSpec
 import java.nio.charset.Charset
 
 class HttpContentSpec extends FinchSpec {
-  "HttContent" should "asByteArrayWithBeginAndEnd" in {
+
+  behavior of "HttpContet"
+
+  it should "asByteArrayWithBeginAndEnd" in {
     check { b: Buf =>
       val (array, begin, end) = b.asByteArrayWithBeginAndEnd
       Buf.ByteArray.Owned.extract(b) === array.slice(begin, end)

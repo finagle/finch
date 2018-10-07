@@ -3,12 +3,11 @@ package io.finch
 import java.util.UUID
 
 import cats.Show
+import cats.effect.IO
 import com.twitter.finagle.http.{FileElement, RequestBuilder, SimpleElement}
 import com.twitter.finagle.http.exp.Multipart
 import com.twitter.io.Buf
-import com.twitter.util.Try
 import io.finch.data.Foo
-import io.finch.tried._
 
 class MultipartSpec extends FinchSpec {
 
@@ -34,25 +33,25 @@ class MultipartSpec extends FinchSpec {
   }
 
   checkAll("Attribute[String]",
-    EntityEndpointLaws[Try, String](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+    EntityEndpointLaws[IO, String](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
   checkAll("Attribute[Int]",
-    EntityEndpointLaws[Try, Int](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+    EntityEndpointLaws[IO, Int](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
   checkAll("Attribute[Long]",
-    EntityEndpointLaws[Try, Long](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+    EntityEndpointLaws[IO, Long](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
   checkAll("Attribute[Boolean]",
-    EntityEndpointLaws[Try, Boolean](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+    EntityEndpointLaws[IO, Boolean](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
   checkAll("Attribute[Float]",
-    EntityEndpointLaws[Try, Float](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+    EntityEndpointLaws[IO, Float](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
   checkAll("Attribute[Double]",
-    EntityEndpointLaws[Try, Double](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+    EntityEndpointLaws[IO, Double](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
   checkAll("Attribute[UUID]",
-    EntityEndpointLaws[Try, UUID](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+    EntityEndpointLaws[IO, UUID](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
   checkAll("Attribute[Foo]",
-    EntityEndpointLaws[Try, Foo](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+    EntityEndpointLaws[IO, Foo](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
 
   checkAll(
     "EvaluatingAttribute[String]",
-    EvaluatingEndpointLaws[Try, String](implicit de => multipartAttribute("foo")).all
+    EvaluatingEndpointLaws[IO, String](implicit de => multipartAttribute("foo")).all
   )
 
   it should "file upload (single)" in {

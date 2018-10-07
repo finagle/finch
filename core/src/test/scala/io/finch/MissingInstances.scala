@@ -15,5 +15,4 @@ trait MissingInstances {
   }
 
   implicit def eqBuf: Eq[Buf] = Eq.fromUniversalEquals
-
 }
