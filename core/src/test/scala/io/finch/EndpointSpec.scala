@@ -1,6 +1,7 @@
 package io.finch
 
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 import cats.data.NonEmptyList
 import cats.effect.IO
@@ -11,6 +12,7 @@ import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.util.{Return, Throw}
 import io.finch.data.Foo
 import shapeless._
+import scala.concurrent.duration.Duration
 
 class EndpointSpec extends FinchSpec {
 
@@ -360,7 +362,7 @@ class EndpointSpec extends FinchSpec {
   it should "collect errors on Endpoint[NonEmptyList[String]] failure" in {
     val endpoint = paramsNel[UUID]("testEndpoint")
     an[Errors] shouldBe thrownBy (
-      endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe(10.seconds)
+      endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe(Duration(10, TimeUnit.SECONDS))
     )
   }
 }
