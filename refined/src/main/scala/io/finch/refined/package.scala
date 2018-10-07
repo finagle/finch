@@ -1,6 +1,5 @@
 package io.finch
 
-import com.twitter.util.{Return, Throw}
 import eu.timepit.refined.api.{RefType, Validate}
 
 package object refined {
@@ -17,8 +16,8 @@ package object refined {
     rt: RefType[F]
   ): DecodeEntity[F[A, B]] =
     DecodeEntity.instance(s => ad(s).flatMap(e => rt.refine[B](e) match {
-      case Left(error) => Throw(PredicateFailed(error))
-      case Right(ref) => Return(ref)
+      case Left(error) => Left(PredicateFailed(error))
+      case Right(ref) => Right(ref)
     }))
 
 }

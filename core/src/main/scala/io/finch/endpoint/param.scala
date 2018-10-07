@@ -3,7 +3,6 @@ package io.finch.endpoint
 import cats.Id
 import cats.data.NonEmptyList
 import cats.effect.Effect
-import com.twitter.util.{Return, Throw, Try}
 import io.finch._
 import scala.reflect.ClassTag
 
@@ -11,23 +10,23 @@ private[finch] abstract class Param[F[_], G[_], A](name: String)(implicit
   d: DecodeEntity[A],
   tag: ClassTag[A],
   protected val F: Effect[F]
-) extends Endpoint[F, G[A]] with (Try[A] => Try[Output[G[A]]]) { self =>
+) extends Endpoint[F, G[A]] with (Either[Throwable, A] => Either[Throwable, Output[G[A]]]) { self =>
 
   protected def missing(name: String): F[Output[G[A]]]
   protected def present(value: A): G[A]
 
-  final def apply(ta: Try[A]): Try[Output[G[A]]] = ta match {
-    case Return(r) => Return(Output.payload(present(r)))
-    case Throw(e) => Throw(Error.NotParsed(items.ParamItem(name), tag, e))
+  final def apply(ta: Either[Throwable, A]): Either[Throwable, Output[G[A]]] = ta match {
+    case Right(r) => Right(Output.payload(present(r)))
+    case Left(e) => Left(Error.NotParsed(items.ParamItem(name), tag, e))
   }
 
   final def apply(input: Input): EndpointResult[F, G[A]] = {
     val output: F[Output[G[A]]] = F.suspend {
       input.request.params.get(name) match {
         case None => missing(name)
-        case Some(value) => d(value).transform(self) match {
-          case Return(r) => F.pure(r)
-          case Throw(t) => F.raiseError(t)
+        case Some(value) => self(d(value)) match {
+          case Right(r) => F.pure(r)
+          case Left(t) => F.raiseError(t)
         }
       }
     }
@@ -68,11 +67,11 @@ private[finch] abstract class Params[F[_], G[_], A](name: String)(implicit
         case value if value.isEmpty => missing(name)
         case value =>
           val decoded = value.map(d.apply).toList
-          val errors = decoded.collect { case Throw(t) => t }
+          val errors = decoded.collect { case Left(t) => t }
 
           NonEmptyList.fromList(errors) match {
             case None =>
-              F.pure(Output.payload(present(decoded.map(_.get()))))
+              F.pure(Output.payload(present(decoded.map(_.right.get))))
             case Some(es) =>
               F.raiseError(Errors(es.map(t => Error.NotParsed(items.ParamItem(name), tag, t))))
           }

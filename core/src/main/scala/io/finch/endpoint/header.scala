@@ -2,7 +2,6 @@ package io.finch.endpoint
 
 import cats.Id
 import cats.effect.Effect
-import com.twitter.util.{Return, Throw, Try}
 import io.finch._
 import io.finch.items._
 import scala.reflect.ClassTag
@@ -11,23 +10,23 @@ private[finch] abstract class Header[F[_], G[_], A](name: String)(implicit
   d: DecodeEntity[A],
   tag: ClassTag[A],
   protected val F: Effect[F]
-) extends Endpoint[F, G[A]] with (Try[A] => Try[Output[G[A]]]) { self =>
+) extends Endpoint[F, G[A]] with (Either[Throwable, A] => Either[Throwable, Output[G[A]]]) { self =>
 
   protected def missing(name: String): F[Output[G[A]]]
   protected def present(value: A): G[A]
 
-  final def apply(ta: Try[A]): Try[Output[G[A]]] = ta match {
-    case Return(a) => Return(Output.payload(present(a)))
-    case Throw(e) => Throw(Error.NotParsed(items.HeaderItem(name), tag, e))
+  final def apply(ta: Either[Throwable, A]): Either[Throwable, Output[G[A]]] = ta match {
+    case Right(a) => Right(Output.payload(present(a)))
+    case Left(e) => Left(Error.NotParsed(items.HeaderItem(name), tag, e))
   }
 
   final def apply(input: Input): EndpointResult[F, G[A]] = {
     val output: F[Output[G[A]]] = F.suspend {
       input.request.headerMap.getOrNull(name) match {
         case null => missing(name)
-        case value => d(value).transform(self) match {
-          case Return(r) => F.pure(r)
-          case Throw(t) => F.raiseError(t)
+        case value => apply(d(value)) match {
+          case Right(z) => F.pure(z)
+          case Left(e) => F.raiseError(e)
         }
       }
     }

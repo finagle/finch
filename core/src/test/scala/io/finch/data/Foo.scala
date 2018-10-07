@@ -2,7 +2,6 @@ package io.finch.data
 
 import cats.{Eq, Show}
 import com.twitter.io.Buf
-import com.twitter.util.Return
 import io.finch.{Application, Decode, Encode}
 import io.finch.internal.HttpContent
 import org.scalacheck.{Arbitrary, Gen}
@@ -15,11 +14,11 @@ object Foo {
   implicit val eqFoo: Eq[Foo] = Eq.fromUniversalEquals
 
   implicit val decodeTextFoo: Decode.Text[Foo] =
-    Decode.text((b, cs) => Return(Foo(b.asString(cs))))
+    Decode.text((b, cs) => Right(Foo(b.asString(cs))))
 
   implicit val decodeCsvFoo: Decode.Aux[Foo, Application.Csv] =
     Decode.instance((b, cs) =>
-      Return(Foo(b.asString(cs).split("\n").last))
+      Right(Foo(b.asString(cs).split("\n").last))
     )
 
   implicit val encodeCsvFoo: Encode.Aux[Foo, Application.Csv] =

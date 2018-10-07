@@ -2,7 +2,7 @@ package io.finch
 
 import com.twitter.finagle.http.Request
 import com.twitter.io.Buf
-import com.twitter.util.{Return, Throw, Try}
+import com.twitter.util.{Return, Throw}
 import io.finch.data.Foo
 import java.nio.charset.Charset
 import shapeless.{:+:, CNil}
@@ -14,7 +14,7 @@ class BodySpec extends FinchSpec {
 
     @volatile private var e = false
 
-    def apply(b: Buf, cs: Charset): Try[A] = {
+    def apply(b: Buf, cs: Charset): Either[Throwable, A] = {
       e = true
       d(b, cs)
     }

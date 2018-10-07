@@ -2,7 +2,6 @@ package io.finch
 
 import cats.effect.Effect
 import cats.instances.AllInstances
-import com.twitter.util.Try
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
@@ -28,7 +27,7 @@ object EvaluatingEndpointLaws {
 
   private class EvalDecodeEntity[A](d: DecodeEntity[A]) extends DecodeEntity[A] {
     @volatile private var e = false
-    def apply(s: String): Try[A] = {
+    def apply(s: String): Either[Throwable, A] = {
       e = true
       d(s)
     }

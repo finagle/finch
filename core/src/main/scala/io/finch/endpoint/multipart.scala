@@ -6,7 +6,6 @@ import cats.effect.Effect
 import com.twitter.finagle.http.Request
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart, MultipartDecoder}
 import com.twitter.finagle.http.exp.Multipart.{FileUpload => FinagleFileUpload}
-import com.twitter.util.Throw
 import io.finch._
 import io.finch.items._
 import scala.reflect.ClassTag
@@ -38,10 +37,10 @@ private[finch] abstract class Attribute[F[_]: Effect, G[_], A](val name: String)
           case None => missing(name)
           case Some(values) =>
             val decoded = values.map(d.apply)
-            val errors = decoded.collect { case Throw(t) => t }
+            val errors = decoded.collect { case Left(t) => t }
 
             NonEmptyList.fromList(errors) match {
-              case None => present(decoded.map(_.get()))
+              case None => present(decoded.map(_.right.get))
               case Some(es) => unparsed(es, tag)
             }
         }

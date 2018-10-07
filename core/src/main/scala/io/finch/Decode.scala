@@ -1,7 +1,6 @@
 package io.finch
 
 import com.twitter.io.Buf
-import com.twitter.util.{Throw, Try}
 import java.nio.charset.Charset
 import scala.util.control.NoStackTrace
 import shapeless.{:+:, CNil, Coproduct, Witness}
@@ -13,7 +12,7 @@ import shapeless.{:+:, CNil, Coproduct, Witness}
 trait Decode[A] {
   type ContentType <: String
 
-  def apply(b: Buf, cs: Charset): Try[A]
+  def apply(b: Buf, cs: Charset): Either[Throwable, A]
 }
 
 object Decode {
@@ -32,15 +31,15 @@ object Decode {
   /**
    * Creates an instance for a given type.
    */
-  def instance[A, CT <: String](fn: (Buf, Charset) => Try[A]): Aux[A, CT] = new Decode[A] {
+  def instance[A, CT <: String](fn: (Buf, Charset) => Either[Throwable, A]): Aux[A, CT] = new Decode[A] {
     type ContentType = CT
-    def apply(b: Buf, cs: Charset): Try[A] = fn(b, cs)
+    def apply(b: Buf, cs: Charset): Either[Throwable, A] = fn(b, cs)
   }
 
-  def json[A](fn: (Buf, Charset) => Try[A]): Json[A] =
+  def json[A](fn: (Buf, Charset) => Either[Throwable, A]): Json[A] =
     instance[A, Application.Json](fn)
 
-  def text[A](fn: (Buf, Charset) => Try[A]): Text[A] =
+  def text[A](fn: (Buf, Charset) => Either[Throwable, A]): Text[A] =
     instance[A, Text.Plain](fn)
 
   /**
@@ -53,14 +52,14 @@ object Decode {
    * value.
    */
   trait Dispatchable[A, CT] {
-    def apply(ct: String, b: Buf, cs: Charset): Try[A]
+    def apply(ct: String, b: Buf, cs: Charset): Either[Throwable, A]
   }
 
   object Dispatchable {
 
     implicit def cnilToDispatchable[A]: Dispatchable[A, CNil] = new Dispatchable[A, CNil] {
-      def apply(ct: String, b: Buf, cs: Charset): Try[A] =
-        Throw(Decode.UnsupportedMediaTypeException)
+      def apply(ct: String, b: Buf, cs: Charset): Either[Throwable, A] =
+        Left(Decode.UnsupportedMediaTypeException)
     }
 
     implicit def coproductToDispatchable[A, CTH <: String, CTT <: Coproduct](implicit
@@ -68,7 +67,7 @@ object Decode {
       witness: Witness.Aux[CTH],
       tail: Dispatchable[A, CTT]
     ): Dispatchable[A, CTH :+: CTT] = new Dispatchable[A, CTH :+: CTT] {
-      def apply(ct: String, b: Buf, cs: Charset): Try[A] =
+      def apply(ct: String, b: Buf, cs: Charset): Either[Throwable, A] =
         if (ct.equalsIgnoreCase(witness.value)) decode(b, cs)
         else tail(ct, b, cs)
     }
