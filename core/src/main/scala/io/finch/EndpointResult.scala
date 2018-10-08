@@ -4,7 +4,7 @@ import cats.Id
 import cats.effect.Effect
 import com.twitter.finagle.http.Method
 import com.twitter.util._
-import scala.concurrent.duration.{Duration => ScalaDuration}
+import scala.concurrent.duration.Duration
 
 /**
  * A result returned from an [[Endpoint]]. This models `Option[(Input, Future[Output])]` and
@@ -48,23 +48,22 @@ sealed abstract class EndpointResult[F[_], +A] {
     case _ => None
   }
 
-  def awaitOutput(d: Duration = Duration.Top)(implicit e: Effect[F]): Option[Try[Output[A]]] = this match {
+  def awaitOutput(d: Duration = Duration.Inf)(implicit e: Effect[F]): Option[Try[Output[A]]] = this match {
     case EndpointResult.Matched(_, _, out) =>
-      val (t, unit) = d.inTimeUnit
-      Some(Try(e.toIO(out).unsafeRunTimed(ScalaDuration(t, unit)) match {
+      Some(Try(e.toIO(out).unsafeRunTimed(d) match {
         case Some(a) => a
         case _ => throw new TimeoutException(s"Output wasn't returned in time: $d")
       }))
     case _ => None
   }
 
-  def awaitOutputUnsafe(d: Duration = Duration.Top)(implicit e: Effect[F]): Option[Output[A]] =
+  def awaitOutputUnsafe(d: Duration = Duration.Inf)(implicit e: Effect[F]): Option[Output[A]] =
     awaitOutput(d).map(toa => toa.get)
 
-  def awaitValue(d: Duration = Duration.Top)(implicit e: Effect[F]): Option[Try[A]] =
+  def awaitValue(d: Duration = Duration.Inf)(implicit e: Effect[F]): Option[Try[A]] =
     awaitOutput(d).map(toa => toa.flatMap(oa => Try(oa.value)))
 
-  def awaitValueUnsafe(d: Duration = Duration.Top)(implicit e: Effect[F]): Option[A] =
+  def awaitValueUnsafe(d: Duration = Duration.Inf)(implicit e: Effect[F]): Option[A] =
     awaitOutputUnsafe(d).map(oa => oa.value)
 }
 
@@ -89,4 +88,3 @@ object EndpointResult {
   implicit def covaryEndpointResult[F[_], A](result: EndpointResult[Id, A]): EndpointResult[F, A] =
     result.asInstanceOf[EndpointResult[F, A]]
 }
-
