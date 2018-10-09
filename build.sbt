@@ -77,7 +77,7 @@ def updateVersionInFile(selectVersion: sbtrelease.Versions => String): ReleaseSt
     )
     val pattern = """"com.github.finagle" %% "finch-.*" % "(.*)"""".r
 
-    filesToUpdate.foreach{ fileName =>
+    filesToUpdate.foreach { fileName =>
       val content = Source.fromFile(fileName).getLines.mkString("\n")
       val newContent =
         pattern.replaceAllIn(content,
