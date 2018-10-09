@@ -14,8 +14,8 @@ if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]]; then
         eval "$(ssh-agent -s)"
         chmod 600 local.deploy_key.pem
         ssh-add local.deploy_key.pem
-        git config --global user.name "${CI_DEPLOY_USERNAME}"
-        git config --global user.email "${CI_DEPLOY_EMAIL}"
+        git config --global user.name "Finch CI"
+        git config --global user.email "ci@kostyukov.net"
         git remote set-url origin git@github.com:finagle/finch.git
         git checkout master || git checkout -b master
         git reset --hard origin/master
