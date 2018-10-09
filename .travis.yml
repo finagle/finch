@@ -1,18 +1,21 @@
 language: scala
 sudo: false
 scala:
-  - 2.11.12
-  - 2.12.6
+- 2.11.12
+- 2.12.6
 jdk:
-  - oraclejdk8
+- oraclejdk8
 before_cache:
-  - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
-  - find $HOME/.sbt -name "*.lock" -delete
+- find $HOME/.ivy2 -name "ivydata-*.properties" -delete
+- find $HOME/.sbt -name "*.lock" -delete
 cache:
   directories:
-    - $HOME/.ivy2/cache
-    - $HOME/.sbt/boot/
+  - "$HOME/.ivy2/cache"
+  - "$HOME/.sbt/boot/"
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION validate
+- sbt ++$TRAVIS_SCALA_VERSION validate
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+- bash <(curl -s https://codecov.io/bash)
+env:
+  global:
+    secure: llQnDN9mZTL03lIqF8V2Z247C31H5pMJscZufTaKh5yFeTOhT0rJVBPjIfei25g6oc7kEPIYOf4YgKEUfokDvXnjfIZoJmb4YQJCctwZ6itFK4g49myJfXFIts1GUSBwbT4KmiHtFIzN/zNRAYrX3Tn3BC5T4X99ugGnHMGkBss=
