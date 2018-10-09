@@ -54,17 +54,12 @@ private[finch] abstract class Body[F[_], A, B, CT](implicit
   dd: Decode.Dispatchable[A, CT],
   ct: ClassTag[A],
   protected val F: Effect[F]
-) extends FullBody[F, B] with FullBody.PreparedBody[F, A, B] with (Either[Throwable, A] => Either[Throwable, Output[B]]) {
-
-  final def apply(ta: Either[Throwable, A]): Either[Throwable, Output[B]] = ta match {
-    case Right(r) => Right(Output.payload(prepare(r)))
-    case Left(t) => Left(Error.NotParsed(items.BodyItem, ct, t))
-  }
+) extends FullBody[F, B] with FullBody.PreparedBody[F, A, B] {
 
   protected def present(contentType: String, content: Buf, cs: Charset): F[Output[B]] =
-    apply(dd(contentType, content, cs)) match {
-      case Right(r) => F.pure(r)
-      case Left(t) => F.raiseError(t)
+    dd(contentType, content, cs) match {
+      case Right(s) => F.pure(Output.payload(prepare(s)))
+      case Left(e) => F.raiseError(Error.NotParsed(items.BodyItem, ct, e))
     }
 
   final override def toString: String = "body"

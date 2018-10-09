@@ -2,7 +2,6 @@ package io.finch
 
 import java.util.UUID
 
-import scala.util.Try
 import shapeless._
 
 /**
@@ -26,26 +25,35 @@ object DecodeEntity extends HighPriorityDecode {
 
 trait HighPriorityDecode extends LowPriorityDecode {
 
-  implicit val decodeInt: DecodeEntity[Int] = instance(s => Try(s.toInt).toEither)
+  implicit val decodeInt: DecodeEntity[Int] = instance(s => toEither(s)(_.toInt))
 
-  implicit val decodeLong: DecodeEntity[Long] = instance(s => Try(s.toLong).toEither)
+  implicit val decodeLong: DecodeEntity[Long] = instance(s => toEither(s)(_.toLong))
 
-  implicit val decodeFloat: DecodeEntity[Float] = instance(s => Try(s.toFloat).toEither)
+  implicit val decodeFloat: DecodeEntity[Float] = instance(s => toEither(s)(_.toFloat))
 
-  implicit val decodeDouble: DecodeEntity[Double] = instance(s => Try(s.toDouble).toEither)
+  implicit val decodeDouble: DecodeEntity[Double] = instance(s => toEither(s)(_.toDouble))
 
-  implicit val decodeBoolean: DecodeEntity[Boolean] = instance(s => Try(s.toBoolean).toEither)
+  implicit val decodeBoolean: DecodeEntity[Boolean] = instance(s => toEither(s)(_.toBoolean))
 
   implicit val decodeUUID: DecodeEntity[UUID] = instance(s =>
     if (s.length != 36) Left(new IllegalArgumentException(s"Too long for UUID: ${s.length}"))
-    else Try(UUID.fromString(s)).toEither
+    else toEither(s)(UUID.fromString)
   )
+
+  private def toEither[A](s: String)(fn: String => A): Either[Throwable, A] = {
+    try {
+      Right(fn.apply(s))
+    } catch {
+      case e: Throwable =>
+        Left(e)
+    }
+  }
 }
 
 trait LowPriorityDecode {
 
   /**
-    * Creates an [[DecodeEntity]] instance from a given function `String => Try[A]`.
+    * Creates an [[DecodeEntity]] instance from a given function `String => Either[Throwable, A]`.
     */
   def instance[A](fn: String => Either[Throwable, A]): DecodeEntity[A] = new DecodeEntity[A] {
     def apply(s: String): Either[Throwable, A] = fn(s)

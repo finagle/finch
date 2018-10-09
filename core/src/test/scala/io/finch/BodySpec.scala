@@ -2,7 +2,6 @@ package io.finch
 
 import com.twitter.finagle.http.Request
 import com.twitter.io.Buf
-import com.twitter.util.{Return, Throw}
 import io.finch.data.Foo
 import java.nio.charset.Charset
 import shapeless.{:+:, CNil}
@@ -26,11 +25,11 @@ class BodySpec extends FinchSpec {
 
   it should "respond with NotFound when it's required" in {
     body[Foo, Text.Plain].apply(Input.get("/")).awaitValue() shouldBe
-      Some(Throw(Error.NotPresent(items.BodyItem)))
+      Some(Left(Error.NotPresent(items.BodyItem)))
   }
 
   it should "respond with None when it's optional" in {
-    bodyOption[Foo, Text.Plain].apply(Input.get("/")).awaitValue() shouldBe Some(Return(None))
+    bodyOption[Foo, Text.Plain].apply(Input.get("/")).awaitValue() shouldBe Some(Right(None))
   }
 
   it should "not match on streaming requests" in {

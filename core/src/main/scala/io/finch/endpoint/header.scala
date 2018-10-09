@@ -10,7 +10,7 @@ private[finch] abstract class Header[F[_], G[_], A](name: String)(implicit
   d: DecodeEntity[A],
   tag: ClassTag[A],
   protected val F: Effect[F]
-) extends Endpoint[F, G[A]] with (Either[Throwable, A] => Either[Throwable, Output[G[A]]]) { self =>
+) extends Endpoint[F, G[A]] { self =>
 
   protected def missing(name: String): F[Output[G[A]]]
   protected def present(value: A): G[A]
@@ -24,9 +24,9 @@ private[finch] abstract class Header[F[_], G[_], A](name: String)(implicit
     val output: F[Output[G[A]]] = F.suspend {
       input.request.headerMap.getOrNull(name) match {
         case null => missing(name)
-        case value => apply(d(value)) match {
-          case Right(z) => F.pure(z)
-          case Left(e) => F.raiseError(e)
+        case value => d(value) match {
+          case Right(s) => F.pure(Output.payload(present(s)))
+          case Left(e) => F.raiseError(Error.NotParsed(items.HeaderItem(name), tag, e))
         }
       }
     }
