@@ -1,5 +1,8 @@
 language: scala
-sudo: false
+branches:
+  except:
+  - release
+sudo: true
 scala:
 - 2.11.12
 - 2.12.6
@@ -13,7 +16,8 @@ cache:
   - "$HOME/.ivy2/cache"
   - "$HOME/.sbt/boot/"
 script:
-- sbt ++$TRAVIS_SCALA_VERSION validate
+  - sbt ++$TRAVIS_SCALA_VERSION validate
+# - "./build/build.sh"
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 env:
