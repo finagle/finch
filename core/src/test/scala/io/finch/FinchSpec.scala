@@ -253,7 +253,7 @@ trait FinchSpec extends FlatSpec
   implicit def eqEndpoint[F[_] : Effect, A: Eq]: Eq[Endpoint[F, A]] = new Eq[Endpoint[F, A]] {
     private[this] def count: Int = 16
 
-    private[this] def await(result: Endpoint.Result[F, A]): Option[(Input, Try[Output[A]])] = for {
+    private[this] def await(result: Endpoint.Result[F, A]): Option[(Input, Either[Throwable, Output[A]])] = for {
       r <- result.remainder
       o <- result.awaitOutput()
     } yield (r, o)
@@ -266,7 +266,7 @@ trait FinchSpec extends FlatSpec
       val resultX = await(x(input))
       val resultY = await(y(input))
 
-      Eq[Option[(Input, Try[Output[A]])]].eqv(resultX, resultY)
+      Eq[Option[(Input, Either[Throwable, Output[A]])]].eqv(resultX, resultY)
     }
   }
 

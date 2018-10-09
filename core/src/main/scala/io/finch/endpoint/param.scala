@@ -10,23 +10,18 @@ private[finch] abstract class Param[F[_], G[_], A](name: String)(implicit
   d: DecodeEntity[A],
   tag: ClassTag[A],
   protected val F: Effect[F]
-) extends Endpoint[F, G[A]] with (Either[Throwable, A] => Either[Throwable, Output[G[A]]]) { self =>
+) extends Endpoint[F, G[A]] { self =>
 
   protected def missing(name: String): F[Output[G[A]]]
   protected def present(value: A): G[A]
-
-  final def apply(ta: Either[Throwable, A]): Either[Throwable, Output[G[A]]] = ta match {
-    case Right(r) => Right(Output.payload(present(r)))
-    case Left(e) => Left(Error.NotParsed(items.ParamItem(name), tag, e))
-  }
 
   final def apply(input: Input): EndpointResult[F, G[A]] = {
     val output: F[Output[G[A]]] = F.suspend {
       input.request.params.get(name) match {
         case None => missing(name)
-        case Some(value) => self(d(value)) match {
-          case Right(r) => F.pure(r)
-          case Left(t) => F.raiseError(t)
+        case Some(value) => d(value) match {
+          case Right(s) => F.pure(Output.payload(present(s)))
+          case Left(e) => F.raiseError(Error.NotParsed(items.ParamItem(name), tag, e))
         }
       }
     }

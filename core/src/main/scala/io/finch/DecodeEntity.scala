@@ -25,29 +25,26 @@ object DecodeEntity extends HighPriorityDecode {
 
 trait HighPriorityDecode extends LowPriorityDecode {
 
-  implicit val decodeInt: DecodeEntity[Int] = instance(s => toEither(s)(_.toInt))
+  implicit val decodeInt: DecodeEntity[Int] = instance(s =>
+    try { Right(s.toInt)} catch {case e: Throwable => Left(e)})
 
-  implicit val decodeLong: DecodeEntity[Long] = instance(s => toEither(s)(_.toLong))
+  implicit val decodeLong: DecodeEntity[Long] = instance(s =>
+    try { Right(s.toLong)} catch {case e: Throwable => Left(e)})
 
-  implicit val decodeFloat: DecodeEntity[Float] = instance(s => toEither(s)(_.toFloat))
+  implicit val decodeFloat: DecodeEntity[Float] = instance(s =>
+    try { Right(s.toFloat)} catch {case e: Throwable => Left(e)})
 
-  implicit val decodeDouble: DecodeEntity[Double] = instance(s => toEither(s)(_.toDouble))
+  implicit val decodeDouble: DecodeEntity[Double] = instance(s =>
+    try { Right(s.toDouble)} catch {case e: Throwable => Left(e)})
 
-  implicit val decodeBoolean: DecodeEntity[Boolean] = instance(s => toEither(s)(_.toBoolean))
+  implicit val decodeBoolean: DecodeEntity[Boolean] = instance(s =>
+    try { Right(s.toBoolean)} catch {case e: Throwable => Left(e)})
 
   implicit val decodeUUID: DecodeEntity[UUID] = instance(s =>
     if (s.length != 36) Left(new IllegalArgumentException(s"Too long for UUID: ${s.length}"))
-    else toEither(s)(UUID.fromString)
+    else try { Right(UUID.fromString(s))} catch {case e: Throwable => Left(e)}
   )
 
-  private def toEither[A](s: String)(fn: String => A): Either[Throwable, A] = {
-    try {
-      Right(fn.apply(s))
-    } catch {
-      case e: Throwable =>
-        Left(e)
-    }
-  }
 }
 
 trait LowPriorityDecode {

@@ -291,8 +291,8 @@ class EndpointSpec extends FinchSpec {
         a.fold[Set[Error]](e => Set(e), es => es.errors.toList.toSet) ++
         b.fold[Set[Error]](e => Set(e), es => es.errors.toList.toSet)
 
-      val Some(Throw(first)) = lr(Input.get("/")).awaitValue()
-      val Some(Throw(second)) = rl(Input.get("/")).awaitValue()
+      val Some(Left(first)) = lr(Input.get("/")).awaitValue()
+      val Some(Left(second)) = rl(Input.get("/")).awaitValue()
 
       first.asInstanceOf[Errors].errors.toList.toSet === all &&
       second.asInstanceOf[Errors].errors.toList.toSet === all
