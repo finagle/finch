@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-SBT_CMD="sbt ++${TRAVIS_SCALA_VERSION} validate"
+SBT_CMD="sbt +validate"
 
 if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]]; then
     SBT_CMD+=" +coverageOff +publish"
