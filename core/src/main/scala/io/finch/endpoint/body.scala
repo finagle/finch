@@ -2,7 +2,6 @@ package io.finch.endpoint
 
 import cats.effect.Effect
 import com.twitter.io.Buf
-import com.twitter.util.{Return, Throw, Try}
 import io.finch._
 import io.finch.internal._
 import io.finch.items._
@@ -55,17 +54,12 @@ private[finch] abstract class Body[F[_], A, B, CT](implicit
   dd: Decode.Dispatchable[A, CT],
   ct: ClassTag[A],
   protected val F: Effect[F]
-) extends FullBody[F, B] with FullBody.PreparedBody[F, A, B] with (Try[A] => Try[Output[B]]) {
-
-  final def apply(ta: Try[A]): Try[Output[B]] = ta match {
-    case Return(r) => Return(Output.payload(prepare(r)))
-    case Throw(t) => Throw(Error.NotParsed(items.BodyItem, ct, t))
-  }
+) extends FullBody[F, B] with FullBody.PreparedBody[F, A, B] {
 
   protected def present(contentType: String, content: Buf, cs: Charset): F[Output[B]] =
-    dd(contentType, content, cs).transform(this) match {
-      case Return(r) => F.pure(r)
-      case Throw(t) => F.raiseError(t)
+    dd(contentType, content, cs) match {
+      case Right(s) => F.pure(Output.payload(prepare(s)))
+      case Left(e) => F.raiseError(Error.NotParsed(items.BodyItem, ct, e))
     }
 
   final override def toString: String = "body"

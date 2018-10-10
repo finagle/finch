@@ -4,7 +4,6 @@ import java.nio.charset.StandardCharsets
 
 import cats.MonadError
 import cats.data.Validated
-import com.twitter.util.{Decoder => _, _}
 import io.circe._
 import io.circe.iteratee._
 import io.circe.jawn.{decodeAccumulating, decodeByteBufferAccumulating}
@@ -25,7 +24,7 @@ trait AccumulatingDecoders {
       case _ => decodeAccumulating[A](b.asString(cs))
     }
 
-    attemptJson.fold[Try[A]](nel => Throw(Errors(nel)), Return.apply)
+    attemptJson.fold[Either[Throwable, A]](nel => Left(Errors(nel)), Right.apply)
   }
 
   implicit def enumerateCirce[F[_], A : Decoder](implicit

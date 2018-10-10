@@ -1,7 +1,6 @@
 package io.finch.circe
 
 import cats.MonadError
-import com.twitter.util.{Return, Throw, Try}
 import io.circe.Decoder
 import io.circe.iteratee._
 import io.circe.jawn._
@@ -22,7 +21,7 @@ trait Decoders {
       case _ => decode[A](b.asString(cs))
     }
 
-    attemptJson.fold[Try[A]](Throw.apply, Return.apply)
+    attemptJson.fold[Either[Throwable, A]](Left.apply, Right.apply)
   }
 
   implicit def enumerateCirce[F[_], A : Decoder](implicit

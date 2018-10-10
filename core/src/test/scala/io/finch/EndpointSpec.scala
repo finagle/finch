@@ -8,7 +8,6 @@ import cats.effect.IO
 import cats.laws.discipline.AlternativeTests
 import cats.laws.discipline.SemigroupalTests.Isomorphisms
 import com.twitter.finagle.http.{Cookie, Method, Request}
-import com.twitter.util.{Return, Throw}
 import io.finch.data.Foo
 import scala.concurrent.duration.Duration
 import shapeless._
@@ -221,7 +220,7 @@ class EndpointSpec extends FinchSpec {
       val result = liftAsync[String](IO.raiseError(e)).handle {
         case _ => Created(s)
       }.apply(i).awaitOutput()
-      result === Some(Return(Created(s)))
+      result === Some(Right(Created(s)))
     }
   }
 
@@ -238,7 +237,7 @@ class EndpointSpec extends FinchSpec {
       param("foo"), header("foo"), cookie("foo").map(_.value),
       multipartFileUpload("foo").map(_.fileName), paramsNel("foo").map(_.toList.mkString),
       paramsNel("foor").map(_.toList.mkString), binaryBody.map(new String(_)), stringBody
-    ).foreach { ii => ii(i).awaitValue() shouldBe Some(Throw(Error.NotPresent(ii.item))) }
+    ).foreach { ii => ii(i).awaitValue() shouldBe Some(Left(Error.NotPresent(ii.item))) }
   }
 
   it should "maps lazily to values" in {
@@ -291,8 +290,8 @@ class EndpointSpec extends FinchSpec {
         a.fold[Set[Error]](e => Set(e), es => es.errors.toList.toSet) ++
         b.fold[Set[Error]](e => Set(e), es => es.errors.toList.toSet)
 
-      val Some(Throw(first)) = lr(Input.get("/")).awaitValue()
-      val Some(Throw(second)) = rl(Input.get("/")).awaitValue()
+      val Some(Left(first)) = lr(Input.get("/")).awaitValue()
+      val Some(Left(second)) = rl(Input.get("/")).awaitValue()
 
       first.asInstanceOf[Errors].errors.toList.toSet === all &&
       second.asInstanceOf[Errors].errors.toList.toSet === all
@@ -311,10 +310,10 @@ class EndpointSpec extends FinchSpec {
       val bbee = bb.product(ee)
       val eebb = ee.product(bb)
 
-      aaee(Input.get("/")).awaitValue() === Some(Throw(e)) &&
-      eeaa(Input.get("/")).awaitValue() === Some(Throw(e)) &&
-      bbee(Input.get("/")).awaitValue() === Some(Throw(e)) &&
-      eebb(Input.get("/")).awaitValue() === Some(Throw(e))
+      aaee(Input.get("/")).awaitValue() === Some(Left(e)) &&
+      eeaa(Input.get("/")).awaitValue() === Some(Left(e)) &&
+      bbee(Input.get("/")).awaitValue() === Some(Left(e)) &&
+      eebb(Input.get("/")).awaitValue() === Some(Left(e))
     }
   }
 
@@ -336,13 +335,6 @@ class EndpointSpec extends FinchSpec {
   it should "support the as[A] method on Endpoint[Seq[String]]" in {
     val foos = params[Foo]("testEndpoint")
     foos(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe() shouldBe Some(Seq(Foo("a")))
-  }
-
-  it should "liftToTry" in {
-    check { e: Endpoint[IO, Unit] =>
-      val i = Input.get("/")
-      e(i).awaitValue() === e.liftToTry.apply(i).awaitValueUnsafe()
-    }
   }
 
   it should "collect errors on Endpoint[Seq[String]] failure" in {

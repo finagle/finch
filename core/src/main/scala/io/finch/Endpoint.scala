@@ -14,7 +14,6 @@ import com.twitter.finagle.http.{
 }
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart}
 import com.twitter.io.Buf
-import com.twitter.util.{Return, Throw, Try}
 import io.finch.endpoint._
 import io.finch.internal._
 import io.finch.items.RequestItem
@@ -359,15 +358,6 @@ trait Endpoint[F[_], A] { self =>
     */
   final def shouldNot(rule: ValidationRule[A])(implicit F: MonadError[F, Throwable]): Endpoint[F, A] =
     shouldNot(rule.description)(rule.apply)
-
-  /**
-    * Lifts this endpoint into one that always succeeds, with [[Try]] representing both success and
-    * failure cases.
-    */
-  final def liftToTry(implicit F: MonadError[F, Throwable]): Endpoint[F, Try[A]] = attempt.map({
-    case Right(r) => Return(r)
-    case Left(t) => Throw(t)
-  })
 
   /**
     * Lifts this endpoint into one that always succeeds, with [[Either[Throwable, A]] representing both success and

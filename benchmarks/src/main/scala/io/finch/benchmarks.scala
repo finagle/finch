@@ -4,7 +4,7 @@ import cats.effect.IO
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.io.Buf
-import com.twitter.util.{Await, Try}
+import com.twitter.util.Await
 import io.circe.generic.auto._
 import io.finch.circe._
 import io.finch.data.Foo
@@ -174,7 +174,7 @@ class JsonBenchmark extends FinchBenchmark {
   val buf: Buf = Buf.Utf8(foo.asJson.noSpaces)
 
   @Benchmark
-  def decode: Try[Foo] = decodeFoo(buf, StandardCharsets.UTF_8)
+  def decode: Either[Throwable, Foo] = decodeFoo(buf, StandardCharsets.UTF_8)
 
   @Benchmark
   def encode: Buf = encodeFoo(foo, StandardCharsets.UTF_8)

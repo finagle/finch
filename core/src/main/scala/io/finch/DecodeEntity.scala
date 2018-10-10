@@ -1,7 +1,7 @@
 package io.finch
 
-import com.twitter.util.{Return, Throw, Try}
 import java.util.UUID
+
 import shapeless._
 
 /**
@@ -9,7 +9,7 @@ import shapeless._
  * an arbitrary type `A`.
  */
 trait DecodeEntity[A] {
-  def apply(s: String): Try[A]
+  def apply(s: String): Either[Throwable, A]
 }
 
 object DecodeEntity extends HighPriorityDecode {
@@ -19,35 +19,41 @@ object DecodeEntity extends HighPriorityDecode {
    */
   @inline def apply[A](implicit d: DecodeEntity[A]): DecodeEntity[A] = d
 
-  implicit val decodeString: DecodeEntity[String] = instance(s => Return(s))
+  implicit val decodeString: DecodeEntity[String] = instance(s => Right(s))
 
 }
 
 trait HighPriorityDecode extends LowPriorityDecode {
 
-  implicit val decodeInt: DecodeEntity[Int] = instance(s => Try(s.toInt))
+  implicit val decodeInt: DecodeEntity[Int] = instance(s =>
+    try { Right(s.toInt)} catch {case e: Throwable => Left(e)})
 
-  implicit val decodeLong: DecodeEntity[Long] = instance(s => Try(s.toLong))
+  implicit val decodeLong: DecodeEntity[Long] = instance(s =>
+    try { Right(s.toLong)} catch {case e: Throwable => Left(e)})
 
-  implicit val decodeFloat: DecodeEntity[Float] = instance(s => Try(s.toFloat))
+  implicit val decodeFloat: DecodeEntity[Float] = instance(s =>
+    try { Right(s.toFloat)} catch {case e: Throwable => Left(e)})
 
-  implicit val decodeDouble: DecodeEntity[Double] = instance(s => Try(s.toDouble))
+  implicit val decodeDouble: DecodeEntity[Double] = instance(s =>
+    try { Right(s.toDouble)} catch {case e: Throwable => Left(e)})
 
-  implicit val decodeBoolean: DecodeEntity[Boolean] = instance(s => Try(s.toBoolean))
+  implicit val decodeBoolean: DecodeEntity[Boolean] = instance(s =>
+    try { Right(s.toBoolean)} catch {case e: Throwable => Left(e)})
 
   implicit val decodeUUID: DecodeEntity[UUID] = instance(s =>
-    if (s.length != 36) Throw(new IllegalArgumentException(s"Too long for UUID: ${s.length}"))
-    else Try(UUID.fromString(s))
+    if (s.length != 36) Left(new IllegalArgumentException(s"Too long for UUID: ${s.length}"))
+    else try { Right(UUID.fromString(s))} catch {case e: Throwable => Left(e)}
   )
+
 }
 
 trait LowPriorityDecode {
 
   /**
-    * Creates an [[DecodeEntity]] instance from a given function `String => Try[A]`.
+    * Creates an [[DecodeEntity]] instance from a given function `String => Either[Throwable, A]`.
     */
-  def instance[A](fn: String => Try[A]): DecodeEntity[A] = new DecodeEntity[A] {
-    def apply(s: String): Try[A] = fn(s)
+  def instance[A](fn: String => Either[Throwable, A]): DecodeEntity[A] = new DecodeEntity[A] {
+    def apply(s: String): Either[Throwable, A] = fn(s)
   }
 
   /**
@@ -57,5 +63,5 @@ trait LowPriorityDecode {
     gen: Generic.Aux[A, H],
     ev: (E :: HNil) =:= H,
     de: DecodeEntity[E]
-  ): DecodeEntity[A] = instance(s => de(s).map(b => gen.from(b :: HNil)))
+  ): DecodeEntity[A] = instance(s => de(s).right.map(b => gen.from(b :: HNil)))
 }

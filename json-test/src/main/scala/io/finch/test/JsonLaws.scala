@@ -23,11 +23,11 @@ trait DecodeJsonLaws[A] extends Laws with AllInstances {
 
   def success(a: A, cs: Charset)(implicit e: Encoder[A], d: Decoder[A]): IsEq[A] = {
     val json = e(a).noSpaces
-    decode(Buf.ByteArray.Owned(json.getBytes(cs.name)), cs).get <-> jawn.decode(json).right.get
+    decode(Buf.ByteArray.Owned(json.getBytes(cs.name)), cs).right.get <-> jawn.decode(json).right.get
   }
 
   def failure(s: String, cs: Charset): Boolean =
-    decode(Buf.ByteArray.Owned(s"NOT A JSON$s".getBytes(cs.name)), cs).isThrow
+    decode(Buf.ByteArray.Owned(s"NOT A JSON$s".getBytes(cs.name)), cs).isLeft
 
   def all(implicit
     a: Arbitrary[A],
