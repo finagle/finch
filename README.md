@@ -48,9 +48,18 @@ libraryDependencies ++= Seq(
 )
 ```
 
+Cats Effect and Twitter Futures
+-------------------------------
+
+Starting with 0.25, Finch artifacts are published for both Twitter Futures (`Endpoint[A]`) and
+Cats Effects (`Endpoint[F[_], A]`):
+
+ - Use `finch-*` artifacts for endpoints locked in Twitter Futures (legacy)
+ - Use `finchx-*` artifacts for polymorphic endpoints (recommended)
+
 Hello World!
 ------------
-This "Hello World!" example is built with just `finch-core`.
+This "Hello World!" example is built with just `finchx-core` (polymorphic endpoints):
 
 ```scala
 import io.finch._, cats.effect.IO
