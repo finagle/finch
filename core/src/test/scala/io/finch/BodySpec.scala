@@ -83,11 +83,11 @@ class BodySpec extends FinchSpec {
   it should "resolve into NotParsed(Decode.UMTE) if Content-Type does not match" in {
     val i = Input.post("/").withBody[Application.Xml](Buf.Utf8("foo"))
     val b = body[Foo, Text.Plain :+: Application.Csv :+: CNil]
-    val t =  b(i).awaitOutput().get
+    val t =  b(i).awaitOutput()
 
     t match {
-      case Left(error: Error.NotParsed) =>
-        error.getCause shouldBe Some(Decode.UnsupportedMediaTypeException)
+      case Some(Left(error: Error.NotParsed)) =>
+        error.getCause shouldBe Decode.UnsupportedMediaTypeException
     }
   }
 }

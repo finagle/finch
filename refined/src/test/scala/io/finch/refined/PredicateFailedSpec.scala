@@ -1,6 +1,5 @@
 package io.finch.refined
 
-import com.twitter.util.Throw
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.numeric._
 import io.finch._
@@ -14,7 +13,7 @@ class PredicateFailedSpec extends FinchSpec {
       Ok(i.value)
     }
 
-    val Some(Throw(result)) = endpoint(Input.get("/?int=-1")).awaitValue()
+    val Some(Left(result)) = endpoint(Input.get("/?int=-1")).awaitValue()
 
     result.getCause shouldBe a[PredicateFailed]
   }
