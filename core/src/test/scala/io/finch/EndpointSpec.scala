@@ -220,7 +220,7 @@ class EndpointSpec extends FinchSpec {
       val result = liftAsync[String](IO.raiseError(e)).handle {
         case _ => Created(s)
       }.apply(i).awaitOutput()
-      result === Some(Left(Created(s)))
+      result === Some(Right(Created(s)))
     }
   }
 
@@ -335,13 +335,6 @@ class EndpointSpec extends FinchSpec {
   it should "support the as[A] method on Endpoint[Seq[String]]" in {
     val foos = params[Foo]("testEndpoint")
     foos(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe() shouldBe Some(Seq(Foo("a")))
-  }
-
-  it should "liftToTry" in {
-    check { e: Endpoint[IO, Unit] =>
-      val i = Input.get("/")
-      e(i).awaitValue() === e.liftToTry.apply(i).awaitValueUnsafe()
-    }
   }
 
   it should "collect errors on Endpoint[Seq[String]] failure" in {

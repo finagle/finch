@@ -63,5 +63,5 @@ trait LowPriorityDecode {
     gen: Generic.Aux[A, H],
     ev: (E :: HNil) =:= H,
     de: DecodeEntity[E]
-  ): DecodeEntity[A] = instance(s => de(s).map(b => gen.from(b :: HNil)))
+  ): DecodeEntity[A] = instance(s => de(s).right.map(b => gen.from(b :: HNil)))
 }
