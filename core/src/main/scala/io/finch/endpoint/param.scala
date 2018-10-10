@@ -2,30 +2,27 @@ package io.finch.endpoint
 
 import cats.Id
 import cats.data.NonEmptyList
-import com.twitter.util._
-import io.catbird.util.Rerunnable
+import cats.effect.Effect
 import io.finch._
 import scala.reflect.ClassTag
 
-private abstract class Param[F[_], A](
-  name: String,
+private[finch] abstract class Param[F[_], G[_], A](name: String)(implicit
   d: DecodeEntity[A],
-  tag: ClassTag[A]
-) extends Endpoint[F[A]] with (Try[A] => Try[Output[F[A]]]) { self =>
+  tag: ClassTag[A],
+  protected val F: Effect[F]
+) extends Endpoint[F, G[A]] { self =>
 
-  protected def missing(name: String): Future[Output[F[A]]]
-  protected def present(value: A): F[A]
+  protected def missing(name: String): F[Output[G[A]]]
+  protected def present(value: A): G[A]
 
-  final def apply(ta: Try[A]): Try[Output[F[A]]] = ta match {
-    case Return(r) => Return(Output.payload(present(r)))
-    case Throw(e) => Throw(Error.NotParsed(items.ParamItem(name), tag, e))
-  }
-
-  final def apply(input: Input): Endpoint.Result[F[A]] = {
-    val output = Rerunnable.fromFuture {
+  final def apply(input: Input): EndpointResult[F, G[A]] = {
+    val output: F[Output[G[A]]] = F.suspend {
       input.request.params.get(name) match {
         case None => missing(name)
-        case Some(value) => Future.const(d(value).transform(self))
+        case Some(value) => d(value) match {
+          case Right(s) => F.pure(Output.payload(present(s)))
+          case Left(e) => F.raiseError(Error.NotParsed(items.ParamItem(name), tag, e))
+        }
       }
     }
 
@@ -36,44 +33,42 @@ private abstract class Param[F[_], A](
   final override def toString: String = s"param($name)"
 }
 
-private object Param {
+private[finch] object Param {
 
-  private val noneInstance: Future[Output[Option[Nothing]]] = Future.value(Output.None)
-
-  private def none[A]: Future[Output[Option[A]]] =
-    noneInstance.asInstanceOf[Future[Output[Option[A]]]]
-
-  trait Required[A] { _: Param[Id, A] =>
-    protected def missing(name: String): Future[Output[A]] =
-      Future.exception(Error.NotPresent(items.ParamItem(name)))
+  trait Required[F[_], A] { _: Param[F, Id, A] =>
+    protected def missing(name: String): F[Output[A]] =
+      F.raiseError(Error.NotPresent(items.ParamItem(name)))
     protected def present(a: A): Id[A] = a
   }
 
-  trait Optional[A] { _: Param[Option, A] =>
-    protected def missing(name: String): Future[Output[Option[A]]] = none[A]
+  trait Optional[F[_], A] { _: Param[F, Option, A] =>
+    protected def missing(name: String): F[Output[Option[A]]] = F.pure(Output.None)
     protected def present(a: A): Option[A] = Some(a)
   }
 }
 
-private abstract class Params[F[_], A](name: String, d: DecodeEntity[A], tag: ClassTag[A])
-    extends Endpoint[F[A]] {
+private[finch] abstract class Params[F[_], G[_], A](name: String)(implicit
+  d: DecodeEntity[A],
+  tag: ClassTag[A],
+  protected val F: Effect[F]
+) extends Endpoint[F, G[A]] {
 
-  protected def missing(name: String): Future[Output[F[A]]]
-  protected def present(value: Iterable[A]): F[A]
+  protected def missing(name: String): F[Output[G[A]]]
+  protected def present(value: Iterable[A]): G[A]
 
-  final def apply(input: Input): Endpoint.Result[F[A]] = {
-    val output = Rerunnable.fromFuture {
+  final def apply(input: Input): EndpointResult[F, G[A]] = {
+    val output: F[Output[G[A]]] = F.suspend {
       input.request.params.getAll(name) match {
         case value if value.isEmpty => missing(name)
         case value =>
           val decoded = value.map(d.apply).toList
-          val errors = decoded.collect { case Throw(t) => t }
+          val errors = decoded.collect { case Left(t) => t }
 
           NonEmptyList.fromList(errors) match {
             case None =>
-              Future.value(Output.payload(present(decoded.map(_.get()))))
+              F.pure(Output.payload(present(decoded.map(_.right.get))))
             case Some(es) =>
-              Future.exception(Errors(es.map(t => Error.NotParsed(items.ParamItem(name), tag, t))))
+              F.raiseError(Errors(es.map(t => Error.NotParsed(items.ParamItem(name), tag, t))))
           }
       }
     }
@@ -85,56 +80,17 @@ private abstract class Params[F[_], A](name: String, d: DecodeEntity[A], tag: Cl
   final override def toString: String = s"params($name)"
 }
 
-private object Params {
+private[finch] object Params {
 
-  private val nilInstance: Future[Output[Seq[Nothing]]] =  Future.value(Output.payload(Nil))
-  private def nil[A] = nilInstance.asInstanceOf[Future[Output[Seq[A]]]]
-
-  trait AllowEmpty[A] { _: Params[Seq, A] =>
-    protected def missing(name: String): Future[Output[Seq[A]]] = nil[A]
+  trait AllowEmpty[F[_], A] { _: Params[F, Seq, A] =>
+    protected def missing(name: String): F[Output[Seq[A]]] = F.pure(Output.payload(Nil))
     protected def present(value: Iterable[A]): Seq[A] = value.toSeq
   }
 
-  trait NonEmpty[A] { _: Params[NonEmptyList, A] =>
-    protected def missing(name: String): Future[Output[NonEmptyList[A]]] =
-      Future.exception(Error.NotPresent(items.ParamItem(name)))
+  trait NonEmpty[F[_], A] { _: Params[F, NonEmptyList, A] =>
+    protected def missing(name: String): F[Output[NonEmptyList[A]]] =
+      F.raiseError(Error.NotPresent(items.ParamItem(name)))
     protected def present(value: Iterable[A]): NonEmptyList[A] =
       NonEmptyList.fromListUnsafe(value.toList)
   }
-}
-
-private[finch] trait ParamAndParams {
-  /**
-   * An evaluating [[Endpoint]] that reads an optional query-string param `name` from the request
-   * into an `Option`.
-   */
-  def paramOption[A](name: String)(implicit
-    d: DecodeEntity[A],
-    tag: ClassTag[A]
-  ): Endpoint[Option[A]] = new Param[Option, A](name, d, tag) with Param.Optional[A]
-
-  /**
-   * An evaluating [[Endpoint]] that reads a required query-string param `name` from the
-   * request or raises an [[Error.NotPresent]] exception when the param is missing; an
-   * [[Error.NotValid]] exception is the param is empty.
-   */
-  def param[A](name: String)(implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[A] =
-    new Param[Id, A](name, d, tag) with Param.Required[A]
-
-  /**
-   * An evaluating [[Endpoint]] that reads an optional (in a meaning that a resulting
-   * `Seq` may be empty) multi-value query-string param `name` from the request into a `Seq`.
-   */
-  def params[A](name: String)(implicit d: DecodeEntity[A], tag: ClassTag[A]): Endpoint[Seq[A]] =
-    new Params[Seq, A](name, d, tag) with Params.AllowEmpty[A]
-
-  /**
-   * An evaluating [[Endpoint]] that reads a required multi-value query-string param `name`
-   * from the request into a `NonEmptyList` or raises a [[Error.NotPresent]] exception
-   * when the params are missing or empty.
-   */
-  def paramsNel[A](name: String)(implicit
-    d: DecodeEntity[A],
-    tag: ClassTag[A]
-  ): Endpoint[NonEmptyList[A]] = new Params[NonEmptyList, A](name, d, tag) with Params.NonEmpty[A]
 }

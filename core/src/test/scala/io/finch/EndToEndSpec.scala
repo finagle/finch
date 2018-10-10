@@ -1,11 +1,11 @@
 package io.finch
 
+import cats.effect.IO
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Fields, Request, Response, Status}
 import com.twitter.io.Buf
 import com.twitter.util.Await
 import io.finch.data.Foo
-import io.finch.syntax._
 import shapeless._
 
 class EndToEndSpec extends FinchSpec {
@@ -61,7 +61,7 @@ class EndToEndSpec extends FinchSpec {
   }
 
   it should "convert value Endpoints into Services" in {
-    val e: Endpoint[String] = get("foo") { Created("bar") }
+    val e: Endpoint[IO, String] = get("foo") { Created("bar") }
     val s: Service[Request, Response] = e.toServiceAs[Text.Plain]
 
     val rep = Await.result(s(Request("/foo")))
@@ -70,8 +70,8 @@ class EndToEndSpec extends FinchSpec {
   }
 
   it should "ignore Accept header when negotiation is not enabled" in {
-    check { (req: Request) =>
-      val s = Bootstrap.serve[AllContentTypes](*).toService
+    check { req: Request =>
+      val s = Bootstrap.serve[AllContentTypes](pathAny).toService
       val rep = Await.result(s(req))
 
       rep.contentType === Some("text/event-stream")
@@ -79,8 +79,8 @@ class EndToEndSpec extends FinchSpec {
   }
 
   it should "ignore Accept header when single type is used for serve" in {
-    check { (req: Request) =>
-      val s = Bootstrap.serve[Text.Plain](*).configure(negotiateContentType = true).toService
+    check { req: Request =>
+      val s = Bootstrap.serve[Text.Plain](pathAny).configure(negotiateContentType = true).toService
       val rep = Await.result(s(req))
 
       rep.contentType === Some("text/plain")
@@ -88,8 +88,8 @@ class EndToEndSpec extends FinchSpec {
   }
 
   it should "respect Accept header when coproduct type is used for serve" in {
-    check { (req: Request) =>
-      val s = Bootstrap.serve[AllContentTypes](*).configure(negotiateContentType = true).toService
+    check { req: Request =>
+      val s = Bootstrap.serve[AllContentTypes](pathAny).configure(negotiateContentType = true).toService
       val rep = Await.result(s(req))
 
       rep.contentType === req.accept.headOption
@@ -101,7 +101,7 @@ class EndToEndSpec extends FinchSpec {
       val a = s"${accept.primary}/${accept.sub}"
       req.accept = a +: req.accept
 
-      val s = Bootstrap.serve[AllContentTypes](*).configure(negotiateContentType = true).toService
+      val s = Bootstrap.serve[AllContentTypes](pathAny).configure(negotiateContentType = true).toService
       val rep = Await.result(s(req))
 
       val first = allContentTypes.collectFirst {
@@ -113,9 +113,9 @@ class EndToEndSpec extends FinchSpec {
   }
 
   it should "select last encoder when Accept header is missing/empty" in {
-    check { (req: Request) =>
+    check { req: Request =>
       req.headerMap.remove(Fields.Accept)
-      val s = Bootstrap.serve[AllContentTypes](*).configure(negotiateContentType = true).toService
+      val s = Bootstrap.serve[AllContentTypes](pathAny).configure(negotiateContentType = true).toService
       val rep = Await.result(s(req))
 
       rep.contentType === Some("text/event-stream")
@@ -125,7 +125,7 @@ class EndToEndSpec extends FinchSpec {
   it should "select last encoder when Accept header value doesn't match any existing encoder" in {
     check { (req: Request, accept: Accept) =>
       req.accept = s"${accept.primary}/foo"
-      val s = Bootstrap.serve[AllContentTypes](*).configure(negotiateContentType = true).toService
+      val s = Bootstrap.serve[AllContentTypes](pathAny).configure(negotiateContentType = true).toService
       val rep = Await.result(s(req))
 
       rep.contentType === Some("text/event-stream")

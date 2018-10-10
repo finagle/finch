@@ -2,7 +2,6 @@ package io.finch
 
 import com.twitter.finagle.http.Request
 import com.twitter.io.Buf
-import com.twitter.util.{Return, Throw, Try}
 import io.finch.data.Foo
 import java.nio.charset.Charset
 import shapeless.{:+:, CNil}
@@ -14,7 +13,7 @@ class BodySpec extends FinchSpec {
 
     @volatile private var e = false
 
-    def apply(b: Buf, cs: Charset): Try[A] = {
+    def apply(b: Buf, cs: Charset): Either[Throwable, A] = {
       e = true
       d(b, cs)
     }
@@ -26,11 +25,11 @@ class BodySpec extends FinchSpec {
 
   it should "respond with NotFound when it's required" in {
     body[Foo, Text.Plain].apply(Input.get("/")).awaitValue() shouldBe
-      Some(Throw(Error.NotPresent(items.BodyItem)))
+      Some(Left(Error.NotPresent(items.BodyItem)))
   }
 
   it should "respond with None when it's optional" in {
-    bodyOption[Foo, Text.Plain].apply(Input.get("/")).awaitValue() shouldBe Some(Return(None))
+    bodyOption[Foo, Text.Plain].apply(Input.get("/")).awaitValue() shouldBe Some(Right(None))
   }
 
   it should "not match on streaming requests" in {
@@ -57,8 +56,8 @@ class BodySpec extends FinchSpec {
     val i = Input.post("/").withHeaders("Content-Length" -> "0")
 
     bodyOption[Foo, Text.Plain].apply(i).awaitValueUnsafe().flatten shouldBe None
-    stringBodyOption(i).awaitValueUnsafe().flatten shouldBe None
-    binaryBodyOption(i).awaitValueUnsafe().flatten shouldBe None
+    stringBodyOption.apply(i).awaitValueUnsafe().flatten shouldBe None
+    binaryBodyOption.apply(i).awaitValueUnsafe().flatten shouldBe None
   }
 
   it should "never evaluate until run" in {
@@ -84,9 +83,11 @@ class BodySpec extends FinchSpec {
   it should "resolve into NotParsed(Decode.UMTE) if Content-Type does not match" in {
     val i = Input.post("/").withBody[Application.Xml](Buf.Utf8("foo"))
     val b = body[Foo, Text.Plain :+: Application.Csv :+: CNil]
-    val t =  b(i).awaitOutput().get.throwable
+    val t =  b(i).awaitOutput()
 
-    t shouldBe an[Error.NotParsed]
-    t.getCause shouldBe Decode.UnsupportedMediaTypeException
+    t match {
+      case Some(Left(error: Error.NotParsed)) =>
+        error.getCause shouldBe Decode.UnsupportedMediaTypeException
+    }
   }
 }

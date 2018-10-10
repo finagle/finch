@@ -4,7 +4,6 @@ import java.nio.charset.Charset
 import scala.annotation.implicitNotFound
 
 import com.twitter.io.Buf
-import com.twitter.util.Future
 import io.finch.Application
 import io.iteratee.Enumerator
 
@@ -12,11 +11,11 @@ import io.iteratee.Enumerator
   * Enumerate HTTP streamed payload represented as [[Enumerator]] (encoded with [[Charset]]) into
   * an [[Enumerator]] of arbitrary type `A`.
   */
-trait Enumerate[A] {
+trait Enumerate[F[_], A] {
 
   type ContentType <: String
 
-  def apply(enumerator: Enumerator[Future, Buf], cs: Charset): Enumerator[Future, A]
+  def apply(enumerator: Enumerator[F, Buf], cs: Charset): Enumerator[F, A]
 }
 
 object Enumerate extends EnumerateInstances {
@@ -30,19 +29,19 @@ object Enumerate extends EnumerateInstances {
   * A value of a type with an io.finch.iteratee.Enumerate instance (with the corresponding content-type)
 """
   )
-  type Aux[A, CT <: String] = Enumerate[A] {type ContentType = CT}
+  type Aux[F[_], A, CT <: String] = Enumerate[F, A] {type ContentType = CT}
 
-  type Json[A] = Aux[A, Application.Json]
+  type Json[F[_], A] = Aux[F, A, Application.Json]
 }
 
 trait EnumerateInstances {
-  def instance[A, CT <: String]
-  (f: (Enumerator[Future, Buf], Charset) => Enumerator[Future, A]): Enumerate.Aux[A, CT] = new Enumerate[A] {
+  def instance[F[_], A, CT <: String]
+  (f: (Enumerator[F, Buf], Charset) => Enumerator[F, A]): Enumerate.Aux[F, A, CT] = new Enumerate[F, A] {
     type ContentType = CT
 
-    def apply(enumerator: Enumerator[Future, Buf], cs: Charset): Enumerator[Future, A] = f(enumerator, cs)
+    def apply(enumerator: Enumerator[F, Buf], cs: Charset): Enumerator[F, A] = f(enumerator, cs)
   }
 
-  implicit def buf2bufDecode[CT <: String]: Enumerate.Aux[Buf, CT] =
-    instance[Buf, CT]((enum, _) => enum)
+  implicit def buf2bufDecode[F[_], CT <: String]: Enumerate.Aux[F, Buf, CT] =
+    instance[F, Buf, CT]((enum, _) => enum)
 }

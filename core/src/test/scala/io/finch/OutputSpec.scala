@@ -1,12 +1,10 @@
 package io.finch
 
-import java.nio.charset.{Charset, StandardCharsets}
-import scala.util.{Failure, Try}
-
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.Status
 import com.twitter.io.Buf
-import com.twitter.util.{Await, Future}
+import java.nio.charset.{Charset, StandardCharsets}
+import scala.util.{Failure, Success, Try}
 
 class OutputSpec extends FinchSpec {
 
@@ -147,7 +145,7 @@ class OutputSpec extends FinchSpec {
 
   it should "traverse arbitrary outputs" in {
     check { oa: Output[String] =>
-      Await.result(oa.traverse[String](_ => Future.value(oa.value))) === oa
+      oa.traverse[Try, String](_ => Success(oa.value)) === Success(oa)
     }
   }
 }

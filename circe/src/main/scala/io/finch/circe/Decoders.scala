@@ -1,7 +1,6 @@
 package io.finch.circe
 
-import com.twitter.util.{Future, Return, Throw, Try}
-import io.catbird.util._
+import cats.MonadError
 import io.circe.Decoder
 import io.circe.iteratee._
 import io.circe.jawn._
@@ -22,18 +21,20 @@ trait Decoders {
       case _ => decode[A](b.asString(cs))
     }
 
-    attemptJson.fold[Try[A]](Throw.apply, Return.apply)
+    attemptJson.fold[Either[Throwable, A]](Left.apply, Right.apply)
   }
 
-  implicit def enumerateCirce[A : Decoder]: Enumerate.Json[A] = {
-    Enumerate.instance[A, Application.Json]((enum, cs) => {
+  implicit def enumerateCirce[F[_], A : Decoder](implicit
+    monadError: MonadError[F, Throwable]
+  ): Enumerate.Json[F, A] = {
+    Enumerate.instance[F, A, Application.Json]((enum, cs) => {
       val parsed = cs match {
         case StandardCharsets.UTF_8 =>
-          enum.map(_.asByteArray).through(byteStreamParser[Future])
+          enum.map(_.asByteArray).through(byteStreamParser[F])
         case _ =>
-          enum.map(_.asString(cs)).through(stringStreamParser[Future])
+          enum.map(_.asString(cs)).through(stringStreamParser[F])
       }
-      parsed.through(decoder[Future, A])
+      parsed.through(decoder[F, A])
     })
   }
 

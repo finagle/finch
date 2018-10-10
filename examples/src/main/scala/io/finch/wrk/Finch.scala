@@ -1,5 +1,6 @@
 package io.finch.wrk
 
+import cats.effect.IO
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
@@ -17,5 +18,5 @@ import io.finch.circe._
  *   c = t * n * 1.5
  */
 object Finch extends Wrk {
-  serve(Endpoint.lift(Payload("Hello, World!")).toServiceAs[Application.Json])
+  serve(Endpoint[IO].lift(Payload("Hello, World!")).toServiceAs[Application.Json])
 }

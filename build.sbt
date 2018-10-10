@@ -1,8 +1,9 @@
 import microsites.ExtraMdFileConfig
+import sbtrelease.ReleasePlugin
+import ReleaseTransformations._
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  version := "0.24.0",
   scalaVersion := "2.12.7",
   crossScalaVersions := Seq("2.11.12", "2.12.7")
 )
@@ -15,6 +16,7 @@ lazy val catsVersion = "1.4.0"
 lazy val argonautVersion = "6.2.2"
 lazy val iterateeVersion = "0.18.0"
 lazy val refinedVersion = "0.9.2"
+lazy val catsEffectVersion = "1.0.0"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -44,7 +46,7 @@ val baseSettings = Seq(
     "org.typelevel" %% "cats-core" % catsVersion,
     "com.twitter" %% "finagle-http" % twitterVersion,
     scalaOrganization.value % "scala-reflect" % scalaVersion.value,
-    "io.catbird" %% "catbird-util" % twitterVersion
+    "org.typelevel" %% "cats-effect" % catsEffectVersion
   ) ++ testDependencies.map(_ % "test"),
   resolvers ++= Seq(
     Resolver.sonatypeRepo("releases"),
@@ -64,6 +66,33 @@ val baseSettings = Seq(
   javaOptions in ThisBuild ++= Seq("-Xss2048K")
 )
 
+def updateVersionInFile(selectVersion: sbtrelease.Versions => String): ReleaseStep =
+  ReleaseStep(action = st => {
+    val newVersion = selectVersion(st.get(ReleaseKeys.versions).get)
+    import scala.io.Source
+    import java.io.PrintWriter
+
+    // files containing version to update upon release
+    val filesToUpdate = Seq(
+      "docs/src/main/tut/index.md"
+    )
+    val pattern = """"com.github.finagle" %% "finch-.*" % "(.*)"""".r
+
+    filesToUpdate.foreach { fileName =>
+      val content = Source.fromFile(fileName).getLines.mkString("\n")
+      val newContent =
+        pattern.replaceAllIn(content,
+          m => m.matched.replaceAllLiterally(m.subgroups.head, newVersion))
+      new PrintWriter(fileName) {
+        write(newContent); close()
+      }
+      val vcs = Project.extract(st).get(releaseVcs).get
+      vcs.add(fileName).!
+    }
+
+    st
+  })
+
 lazy val publishSettings = Seq(
   publishMavenStyle := true,
   publishArtifact := true,
@@ -75,6 +104,10 @@ lazy val publishSettings = Seq(
       Some("releases"  at nexus + "service/local/staging/deploy/maven2")
   },
   publishArtifact in Test := false,
+  pgpSecretRing := file("local.secring.gpg"),
+  pgpPublicRing := file("local.pubring.gpg"),
+  releasePublishArtifactsAction := PgpKeys.publishSigned.value,
+  releaseIgnoreUntrackedFiles := true,
   licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
   homepage := Some(url("https://github.com/finagle/finch")),
   autoAPIMappings := true,
@@ -85,6 +118,23 @@ lazy val publishSettings = Seq(
       "scm:git:git@github.com:finagle/finch.git"
     )
   ),
+  releaseProcess := {
+    Seq[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      releaseStepCommandAndRemaining("+clean"),
+      releaseStepCommandAndRemaining("+test"),
+      setReleaseVersion,
+      updateVersionInFile(_._1),
+      commitReleaseVersion,
+      tagRelease,
+      releaseStepCommandAndRemaining("+publishSigned"),
+      setNextVersion,
+      commitNextVersion,
+      releaseStepCommand("sonatypeReleaseAll"),
+      pushChanges
+    )
+  },
   pomExtra :=
     <developers>
       <developer>

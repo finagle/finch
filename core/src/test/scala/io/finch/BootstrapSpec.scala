@@ -1,7 +1,8 @@
 package io.finch
 
+import cats.effect.IO
 import com.twitter.finagle.http.{Method, Request, Status}
-import com.twitter.util.{Await, Future}
+import com.twitter.util.Await
 import io.finch.data.Foo
 import io.finch.internal.currentTime
 import java.time.{ZonedDateTime, ZoneOffset}
@@ -16,7 +17,7 @@ class BootstrapSpec extends FinchSpec {
     check { e: Either[Error, Errors] =>
       val exception = e.fold[Exception](identity, identity)
 
-      val ee = Endpoint.liftAsync[Unit](Future.exception(exception))
+      val ee = Endpoint[IO].liftAsync[Unit](IO.raiseError(exception))
       val rep = Await.result(ee.toServiceAs[Text.Plain].apply(Request()))
       rep.status === Status.BadRequest
     }
@@ -24,7 +25,7 @@ class BootstrapSpec extends FinchSpec {
 
   it should "respond 404 if endpoint is not matched" in {
     check { req: Request =>
-      val s = Endpoint.empty[Unit].toServiceAs[Text.Plain]
+      val s = Endpoint[IO].empty[Unit].toServiceAs[Text.Plain]
       val rep = Await.result(s(req))
 
       rep.status === Status.NotFound
@@ -32,7 +33,6 @@ class BootstrapSpec extends FinchSpec {
   }
 
   it should "respond 405 if method not allowed" in {
-    import io.finch.syntax._
     val a = get("foo") { Ok("get foo") }
     val b = put("foo") { Ok("put foo") }
     val c = post("foo") { Ok("post foo") }
@@ -72,7 +72,7 @@ class BootstrapSpec extends FinchSpec {
 
   it should "match the request version" in {
     check { req: Request =>
-      val s = Endpoint.const(()).toServiceAs[Text.Plain]
+      val s = Endpoint[IO].const(()).toServiceAs[Text.Plain]
       val rep = Await.result(s(req))
 
       rep.version === req.version
@@ -85,7 +85,7 @@ class BootstrapSpec extends FinchSpec {
 
     check { (req: Request, include: Boolean) =>
       val s = Bootstrap.configure(includeDateHeader = include)
-        .serve[Text.Plain](Endpoint.const(()))
+        .serve[Text.Plain](Endpoint[IO].const(()))
         .toService
 
       val rep = Await.result(s(req))
@@ -98,7 +98,7 @@ class BootstrapSpec extends FinchSpec {
   it should "include Server header" in {
     check { (req: Request, include: Boolean) =>
       val s = Bootstrap.configure(includeServerHeader = include)
-        .serve[Text.Plain](Endpoint.const(()))
+        .serve[Text.Plain](Endpoint[IO].const(()))
         .toService
 
       val rep = Await.result(s(req))
@@ -112,7 +112,7 @@ class BootstrapSpec extends FinchSpec {
       val p = req.path.split("/").drop(1)
       val e = p
         .map(s => path(s))
-        .foldLeft(Endpoint.const(HNil : HNil))((p, e) => p :: e)
+        .foldLeft(Endpoint[IO].const(HNil : HNil))((p, e) => p :: e)
         .map(_ => "foo")
       val s = e.toServiceAs[Text.Plain]
 

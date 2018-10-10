@@ -4,8 +4,6 @@ import java.nio.charset.StandardCharsets
 
 import cats.MonadError
 import cats.data.Validated
-import com.twitter.util.{Decoder => _, _}
-import io.catbird.util._
 import io.circe._
 import io.circe.iteratee._
 import io.circe.jawn.{decodeAccumulating, decodeByteBufferAccumulating}
@@ -26,20 +24,20 @@ trait AccumulatingDecoders {
       case _ => decodeAccumulating[A](b.asString(cs))
     }
 
-    attemptJson.fold[Try[A]](nel => Throw(Errors(nel)), Return.apply)
+    attemptJson.fold[Either[Throwable, A]](nel => Left(Errors(nel)), Right.apply)
   }
 
-  implicit def enumerateCirce[A : Decoder]: Enumerate.Json[A] = {
-    Enumerate.instance[A, Application.Json]((enum, cs) => {
+  implicit def enumerateCirce[F[_], A : Decoder](implicit
+    monadError: MonadError[F, Throwable]
+  ): Enumerate.Json[F, A] = Enumerate.instance[F, A, Application.Json]((enum, cs) => {
       val parsed = cs match {
         case StandardCharsets.UTF_8 =>
-          enum.map(_.asByteArray).through(byteStreamParser[Future])
+          enum.map(_.asByteArray).through(byteStreamParser[F])
         case _ =>
-          enum.map(_.asString(cs)).through(stringStreamParser[Future])
+          enum.map(_.asString(cs)).through(stringStreamParser[F])
       }
-      parsed.through(decoderAccumulating[Future, A])
+      parsed.through(decoderAccumulating[F, A])
     })
-  }
 
   private def decoderAccumulating[F[_], A](implicit
     F: MonadError[F, Throwable],

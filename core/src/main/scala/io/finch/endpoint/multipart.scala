@@ -2,22 +2,24 @@ package io.finch.endpoint
 
 import cats.Id
 import cats.data.NonEmptyList
+import cats.effect.Effect
 import com.twitter.finagle.http.Request
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart, MultipartDecoder}
 import com.twitter.finagle.http.exp.Multipart.{FileUpload => FinagleFileUpload}
-import com.twitter.util.{Future, Throw}
-import io.catbird.util.Rerunnable
 import io.finch._
 import io.finch.items._
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 
-private abstract class Attribute[F[_], A](val name: String, d: DecodeEntity[A], tag: ClassTag[A])
-  extends Endpoint[F[A]] {
+private[finch] abstract class Attribute[F[_]: Effect, G[_], A](val name: String)(implicit
+  d: DecodeEntity[A],
+  tag: ClassTag[A]
+) extends Endpoint[F, G[A]] {
 
-  protected def missing(name: String): Future[Output[F[A]]]
-  protected def present(value: NonEmptyList[A]): Future[Output[F[A]]]
-  protected def unparsed(errors: NonEmptyList[Throwable], tag: ClassTag[A]): Future[Output[F[A]]]
+  protected def F: Effect[F] = Effect[F]
+  protected def missing(name: String): F[Output[G[A]]]
+  protected def present(value: NonEmptyList[A]): F[Output[G[A]]]
+  protected def unparsed(errors: NonEmptyList[Throwable], tag: ClassTag[A]): F[Output[G[A]]]
 
   private def all(input: Input): Option[NonEmptyList[String]] = {
     for {
@@ -27,18 +29,18 @@ private abstract class Attribute[F[_], A](val name: String, d: DecodeEntity[A], 
     } yield nel
   }
 
-  final def apply(input: Input): Endpoint.Result[F[A]] = {
+  final def apply(input: Input): EndpointResult[F, G[A]] = {
     if (input.request.isChunked) EndpointResult.NotMatched
     else {
-      val output = Rerunnable.fromFuture {
+      val output = F.suspend {
         all(input) match {
           case None => missing(name)
           case Some(values) =>
             val decoded = values.map(d.apply)
-            val errors = decoded.collect { case Throw(t) => t }
+            val errors = decoded.collect { case Left(t) => t }
 
             NonEmptyList.fromList(errors) match {
-              case None => present(decoded.map(_.get()))
+              case None => present(decoded.map(_.right.get))
               case Some(es) => unparsed(es, tag)
             }
         }
@@ -51,66 +53,57 @@ private abstract class Attribute[F[_], A](val name: String, d: DecodeEntity[A], 
   final override def item: items.RequestItem = items.ParamItem(name)
 }
 
-private object Attribute {
+private[finch] object Attribute {
 
-  private val noneInstance: Future[Output[Option[Nothing]]] = Future.value(Output.None)
-  private def none[A] = noneInstance.asInstanceOf[Future[Output[Option[A]]]]
-
-  private val nilInstance: Future[Output[Seq[Nothing]]] =  Future.value(Output.payload(Nil))
-  private def nil[A] = nilInstance.asInstanceOf[Future[Output[Seq[A]]]]
-
-  trait SingleError[F[_], A] { _: Attribute[F, A] =>
-    protected def unparsed(
-      errors: NonEmptyList[Throwable],
-      tag: ClassTag[A]
-    ): Future[Output[F[A]]] =
-      Future.exception(Error.NotParsed(items.ParamItem(name), tag, errors.head))
+  trait SingleError[F[_], G[_], A] { _: Attribute[F, G, A] =>
+    protected def unparsed(errors: NonEmptyList[Throwable], tag: ClassTag[A]): F[Output[G[A]]] =
+      F.raiseError(Error.NotParsed(items.ParamItem(name), tag, errors.head))
 
     final override def toString: String = s"attribute($name)"
   }
 
-  trait MultipleErrors[F[_], A] { _: Attribute[F, A] =>
-    protected def unparsed(
-      errors: NonEmptyList[Throwable],
-      tag: ClassTag[A]
-    ): Future[Output[F[A]]] =
-      Future.exception(Errors(errors.map(t => Error.NotParsed(items.ParamItem(name), tag, t))))
+  trait MultipleErrors[F[_], G[_], A] { _: Attribute[F, G, A] =>
+    protected def unparsed(errors: NonEmptyList[Throwable], tag: ClassTag[A]): F[Output[G[A]]] =
+      F.raiseError(Errors(errors.map(t => Error.NotParsed(items.ParamItem(name), tag, t))))
 
     final override def toString: String = s"attributes($name)"
   }
 
-  trait Required[A] { _: Attribute[Id, A] =>
-    protected def missing(name: String): Future[Output[A]] =
-      Future.exception(Error.NotPresent(items.ParamItem(name)))
-    protected def present(value: NonEmptyList[A]): Future[Output[A]] =
-      Future.value(Output.payload(value.head))
+  trait Required[F[_], A] { _: Attribute[F, Id, A] =>
+    protected def missing(name: String): F[Output[A]] =
+      F.raiseError(Error.NotPresent(items.ParamItem(name)))
+    protected def present(value: NonEmptyList[A]): F[Output[A]] =
+      F.pure(Output.payload(value.head))
   }
 
-  trait Optional[A] { _: Attribute[Option, A] =>
-    protected def missing(name: String): Future[Output[Option[A]]] = none[A]
-    protected def present(value: NonEmptyList[A]): Future[Output[Option[A]]] =
-      Future.value(Output.payload(Some(value.head)))
+  trait Optional[F[_], A] { _: Attribute[F, Option, A] =>
+    protected def missing(name: String): F[Output[Option[A]]] =
+      F.pure(Output.None)
+    protected def present(value: NonEmptyList[A]): F[Output[Option[A]]] =
+      F.pure(Output.payload(Some(value.head)))
   }
 
-  trait AllowEmpty[A] { _: Attribute[Seq, A] =>
-    protected def missing(name: String): Future[Output[Seq[A]]] = nil[A]
-    protected def present(value: NonEmptyList[A]): Future[Output[Seq[A]]] =
-      Future.value(Output.payload(value.toList))
+  trait AllowEmpty[F[_], A] { _: Attribute[F, Seq, A] =>
+    protected def missing(name: String): F[Output[Seq[A]]] =
+      F.pure(Output.payload(Nil))
+    protected def present(value: NonEmptyList[A]): F[Output[Seq[A]]] =
+      F.pure(Output.payload(value.toList))
   }
 
-  trait NonEmpty[A] { _: Attribute[NonEmptyList, A] =>
-    protected def missing(name: String): Future[Output[NonEmptyList[A]]] =
-      Future.exception(Error.NotPresent(items.ParamItem(name)))
-    protected def present(value: NonEmptyList[A]): Future[Output[NonEmptyList[A]]] =
-      Future.value(Output.payload(value))
+  trait NonEmpty[F[_], A] { _: Attribute[F, NonEmptyList, A] =>
+    protected def missing(name: String): F[Output[NonEmptyList[A]]] =
+      F.raiseError(Error.NotPresent(items.ParamItem(name)))
+    protected def present(value: NonEmptyList[A]): F[Output[NonEmptyList[A]]] =
+      F.pure(Output.payload(value))
   }
 }
 
-private abstract class FileUpload[F[_]](name: String)
-    extends Endpoint[F[FinagleMultipart.FileUpload]] {
+private[finch] abstract class FileUpload[F[_]: Effect, G[_]](name: String)
+  extends Endpoint[F, G[FinagleMultipart.FileUpload]] {
 
-  protected def missing(name: String): Future[Output[F[FinagleFileUpload]]]
-  protected def present(a: NonEmptyList[FinagleFileUpload]): Future[Output[F[FinagleFileUpload]]]
+  protected def F: Effect[F] = Effect[F]
+  protected def missing(name: String): F[Output[G[FinagleFileUpload]]]
+  protected def present(a: NonEmptyList[FinagleFileUpload]): F[Output[G[FinagleFileUpload]]]
 
   private final def all(input: Input): Option[NonEmptyList[FinagleFileUpload]] =
     for {
@@ -119,10 +112,10 @@ private abstract class FileUpload[F[_]](name: String)
       nel <- NonEmptyList.fromList(all.toList)
     } yield nel
 
-  final def apply(input: Input): Endpoint.Result[F[FinagleFileUpload]] =
+  final def apply(input: Input): EndpointResult[F, G[FinagleFileUpload]] =
     if (input.request.isChunked) EndpointResult.NotMatched
     else {
-      val output = Rerunnable.fromFuture {
+      val output = Effect[F].suspend {
         all(input) match {
           case Some(nel) => present(nel)
           case None => missing(name)
@@ -137,46 +130,38 @@ private abstract class FileUpload[F[_]](name: String)
 }
 
 
-private object FileUpload {
-  private val noneInstance: Future[Output[Option[Nothing]]] = Future.value(Output.None)
-  private def none[A] = noneInstance.asInstanceOf[Future[Output[Option[A]]]]
+private[finch] object FileUpload {
 
-  private val nilInstance: Future[Output[Seq[Nothing]]] =  Future.value(Output.payload(Nil))
-  private def nil[A] = nilInstance.asInstanceOf[Future[Output[Seq[A]]]]
-
-  trait Required { _: FileUpload[Id] =>
-    protected def missing(name: String): Future[Output[FinagleFileUpload]] =
-      Future.exception(Error.NotPresent(items.ParamItem(name)))
-    protected def present(a: NonEmptyList[FinagleFileUpload]): Future[Output[FinagleFileUpload]] =
-      Future.value(Output.payload(a.head))
+  trait Required[F[_]] { _: FileUpload[F, Id] =>
+    protected def missing(name: String): F[Output[FinagleFileUpload]] =
+      F.raiseError(Error.NotPresent(items.ParamItem(name)))
+    protected def present(a: NonEmptyList[FinagleFileUpload]): F[Output[FinagleFileUpload]] =
+      F.pure(Output.payload(a.head))
   }
 
-  trait Optional { _: FileUpload[Option] =>
-    protected def missing(name: String): Future[Output[Option[FinagleFileUpload]]] =
-      none[FinagleFileUpload]
-    protected def present(
-      a: NonEmptyList[FinagleFileUpload]
-    ): Future[Output[Option[FinagleFileUpload]]] = Future.value(Output.payload(Some(a.head)))
+  trait Optional[F[_]] { _: FileUpload[F, Option] =>
+    protected def missing(name: String): F[Output[Option[FinagleFileUpload]]] =
+      F.pure(Output.payload(None))
+    protected def present(a: NonEmptyList[FinagleFileUpload]): F[Output[Option[FinagleFileUpload]]] =
+      F.pure(Output.payload(Some(a.head)))
   }
 
-  trait AllowEmpty { _: FileUpload[Seq] =>
-    protected def missing(name: String): Future[Output[Seq[FinagleFileUpload]]] =
-      nil[FinagleFileUpload]
-    protected def present(
-      fa: NonEmptyList[FinagleFileUpload]
-    ): Future[Output[Seq[FinagleFileUpload]]] = Future.value(Output.payload(fa.toList))
+  trait AllowEmpty[F[_]] { _: FileUpload[F, Seq] =>
+    protected def missing(name: String): F[Output[Seq[FinagleFileUpload]]] =
+      F.pure(Output.payload(Nil))
+    protected def present(fa: NonEmptyList[FinagleFileUpload]): F[Output[Seq[FinagleFileUpload]]] =
+      F.pure(Output.payload(fa.toList))
   }
 
-  trait NonEmpty { _: FileUpload[NonEmptyList] =>
-    protected def missing(name: String): Future[Output[NonEmptyList[FinagleFileUpload]]] =
-      Future.exception(Error.NotPresent(items.ParamItem(name)))
-    protected def present(
-      fa: NonEmptyList[FinagleFileUpload]
-    ): Future[Output[NonEmptyList[FinagleFileUpload]]] = Future.value(Output.payload(fa))
+  trait NonEmpty[F[_]] { _: FileUpload[F, NonEmptyList] =>
+    protected def missing(name: String): F[Output[NonEmptyList[FinagleFileUpload]]] =
+      F.raiseError(Error.NotPresent(items.ParamItem(name)))
+    protected def present(fa: NonEmptyList[FinagleFileUpload]): F[Output[NonEmptyList[FinagleFileUpload]]] =
+      F.pure(Output.payload(fa))
   }
 }
 
-private object Multipart {
+private[finch] object Multipart {
   private val field = Request.Schema.newField[Option[FinagleMultipart]](null)
 
   def decodeNow(req: Request): Option[FinagleMultipart] =
@@ -189,83 +174,4 @@ private object Multipart {
       value
     case value => value // was already decoded for this request
   }
-}
-
-private[finch] trait FileUploadsAndAttributes {
-
-  /**
-   * An evaluating [[Endpoint]] that reads an optional file upload from a `multipart/form-data`
-   * request into an `Option`.
-   */
-  def multipartFileUploadOption(name: String): Endpoint[Option[FinagleMultipart.FileUpload]] =
-    new FileUpload[Option](name) with FileUpload.Optional
-
-  /**
-   * An evaluating [[Endpoint]] that reads a required file upload from a `multipart/form-data`
-   * request.
-   */
-  def multipartFileUpload(name: String): Endpoint[FinagleMultipart.FileUpload] =
-    new FileUpload[Id](name) with FileUpload.Required
-
-  /**
-   * An evaluating [[Endpoint]] that optionally reads multiple file uploads from a
-   * `multipart/form-data` request.
-   */
-  def multipartFileUploads(name: String): Endpoint[Seq[FinagleMultipart.FileUpload]] =
-    new FileUpload[Seq](name) with FileUpload.AllowEmpty
-
-  /**
-   * An evaluating [[Endpoint]] that requires multiple file uploads from a `multipart/form-data`
-   * request.
-   */
-  def multipartFileUploadsNel(name: String): Endpoint[NonEmptyList[FinagleMultipart.FileUpload]] =
-    new FileUpload[NonEmptyList](name) with FileUpload.NonEmpty
-
-  /**
-    * An evaluating [[Endpoint]] that reads a required attribute from a `multipart/form-data`
-    * request.
-    */
-  def multipartAttribute[A](name: String)(implicit
-    d: DecodeEntity[A],
-    tag: ClassTag[A]
-  ): Endpoint[A] =
-    new Attribute[Id, A](name, d, tag)
-      with Attribute.Required[A]
-      with Attribute.SingleError[Id, A]
-
-  /**
-    * An evaluating [[Endpoint]] that reads an optional attribute from a `multipart/form-data`
-    * request.
-    */
-  def multipartAttributeOption[A](name: String)(implicit
-    d: DecodeEntity[A],
-    tag: ClassTag[A]
-  ): Endpoint[Option[A]] =
-    new Attribute[Option, A](name, d, tag)
-      with Attribute.Optional[A]
-      with Attribute.SingleError[Option, A]
-
-  /**
-    * An evaluating [[Endpoint]] that reads a required attribute from a `multipart/form-data`
-    * request.
-    */
-  def multipartAttributes[A](name: String)(implicit
-    d: DecodeEntity[A],
-    tag: ClassTag[A]
-  ): Endpoint[Seq[A]] =
-    new Attribute[Seq, A](name, d, tag)
-      with Attribute.AllowEmpty[A]
-      with Attribute.MultipleErrors[Seq, A]
-
-  /**
-    * An evaluating [[Endpoint]] that reads a required attribute from a `multipart/form-data`
-    * request.
-    */
-  def multipartAttributesNel[A](name: String)(implicit
-    d: DecodeEntity[A],
-    t: ClassTag[A]
-  ): Endpoint[NonEmptyList[A]] =
-    new Attribute[NonEmptyList, A](name, d, t)
-      with Attribute.NonEmpty[A]
-      with Attribute.MultipleErrors[NonEmptyList, A]
 }

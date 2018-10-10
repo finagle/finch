@@ -1,8 +1,9 @@
 package io.finch
 
+import cats.effect.{ConcurrentEffect, Effect, IO}
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Method, Request, Response, Status, Version}
-import com.twitter.util.Future
+import com.twitter.util.{Future, Promise}
 import io.finch.internal.currentTime
 import scala.annotation.implicitNotFound
 import shapeless._
@@ -97,12 +98,13 @@ object ToService {
       }
   }
 
-  implicit def hlistTS[A, EH <: Endpoint[A], ET <: HList, CTH, CTT <: HList](implicit
+  implicit def hlistTS[F[_], A, EH <: Endpoint[F, A], ET <: HList, CTH, CTT <: HList](implicit
     ntrA: ToResponse.Negotiable[A, CTH],
     ntrE: ToResponse.Negotiable[Exception, CTH],
+    effect: Effect[F],
     tsT: ToService[ET, CTT]
-  ): ToService[Endpoint[A] :: ET, CTH :: CTT] = new ToService[Endpoint[A] :: ET, CTH :: CTT] {
-    def apply(es: Endpoint[A] :: ET, opts: Options, ctx: Context): Service[Request, Response] =
+  ): ToService[Endpoint[F, A] :: ET, CTH :: CTT] = new ToService[Endpoint[F, A] :: ET, CTH :: CTT] {
+    def apply(es: Endpoint[F, A] :: ET, opts: Options, ctx: Context): Service[Request, Response] =
       new Service[Request, Response] {
         private[this] val handler =
           if (opts.enableUnsupportedMediaType) respond415.orElse(respond400)
@@ -118,11 +120,26 @@ object ToService {
             val accept =
               if (opts.negotiateContentType) req.accept.map(a => Accept.fromString(a)) else Nil
 
-            val response = out.map(oa =>
-              conformHttp(oa.toResponse(ntrA(accept), ntrE(accept)), req.version, opts)
-            )
+            val promise = Promise[Response]
 
-            response.run
+            (effect match {
+              case concurrent: ConcurrentEffect[F] =>
+                (concurrent.runCancelable(out) _).andThen(io => io.map(cancelToken =>
+                  promise.setInterruptHandler {
+                    case _ => concurrent.toIO(cancelToken).unsafeRunAsyncAndForget()
+                  }
+                ))
+              case e => e.runAsync(out) _
+            }) {
+              case Left(t) => IO(promise.setException(t))
+              case Right(v) => IO {
+                promise.setValue(
+                  conformHttp(v.convertToResponse(ntrA(accept).apply, ntrE(accept).apply), req.version, opts)
+                )
+              }
+            }.unsafeRunSync()
+
+            promise
 
           case EndpointResult.NotMatched.MethodNotAllowed(allowed) =>
             tsT(es.tail, opts, ctx.copy(wouldAllow = ctx.wouldAllow ++ allowed))(req)

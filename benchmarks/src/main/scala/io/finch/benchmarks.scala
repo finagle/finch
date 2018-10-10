@@ -1,9 +1,10 @@
 package io.finch
 
+import cats.effect.IO
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.io.Buf
-import com.twitter.util.{Await, Future, Try}
+import com.twitter.util.Await
 import io.circe.generic.auto._
 import io.finch.circe._
 import io.finch.data.Foo
@@ -17,7 +18,7 @@ import shapeless._
 @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(2)
-abstract class FinchBenchmark {
+abstract class FinchBenchmark extends Endpoint.Module[IO] {
   val postPayload: Input = Input.post("/").withBody[Text.Plain](Buf.Utf8("x" * 1024))
   val getRoot: Input = Input.get("/")
   val getFooBarBaz: Input = Input.get("/foo/bar/baz")
@@ -40,8 +41,8 @@ class InputBenchmark extends FinchBenchmark {
 @State(Scope.Benchmark)
 class BodyBenchmark extends FinchBenchmark {
 
-  val fooOptionAsText: Endpoint[Option[Foo]] = bodyOption[Foo, Text.Plain]
-  val fooAsText: Endpoint[Foo] = body[Foo, Text.Plain]
+  val fooOptionAsText: Endpoint[IO, Option[Foo]] = bodyOption[Foo, Text.Plain]
+  val fooAsText: Endpoint[IO, Foo] = body[Foo, Text.Plain]
 
   @Benchmark
   def fooOption: Option[Option[Foo]] = fooOptionAsText(postPayload).awaitValueUnsafe()
@@ -50,22 +51,22 @@ class BodyBenchmark extends FinchBenchmark {
   def foo: Option[Foo] = fooAsText(postPayload).awaitValueUnsafe()
 
   @Benchmark
-  def stringOption: Option[Option[String]] = stringBodyOption(postPayload).awaitValueUnsafe()
+  def stringOption: Option[Option[String]] = stringBodyOption.apply(postPayload).awaitValueUnsafe()
 
   @Benchmark
-  def string: Option[String] = stringBody(postPayload).awaitValueUnsafe()
+  def string: Option[String] = stringBody.apply(postPayload).awaitValueUnsafe()
 
   @Benchmark
-  def byteArrayOption: Option[Option[Array[Byte]]] = binaryBodyOption(postPayload).awaitValueUnsafe()
+  def byteArrayOption: Option[Option[Array[Byte]]] = binaryBodyOption.apply(postPayload).awaitValueUnsafe()
 
   @Benchmark
-  def byteArray: Option[Array[Byte]] = binaryBody(postPayload).awaitValueUnsafe()
+  def byteArray: Option[Array[Byte]] = binaryBody.apply(postPayload).awaitValueUnsafe()
 }
 
 @State(Scope.Benchmark)
 class MatchPathBenchmark extends FinchBenchmark {
 
-  val foo: Endpoint[HNil] = "foo"
+  val foo: Endpoint[IO, HNil] = "foo"
 
   @Benchmark
   def stringSome: Option[HNil] = foo(getFooBarBaz).awaitValueUnsafe()
@@ -103,9 +104,12 @@ class ExtractPathBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class ProductBenchmark extends FinchBenchmark {
-  val both: Endpoint[(Int, String)] = Endpoint.const(42).product(Endpoint.const("foo"))
-  val left: Endpoint[(Int, String)] = Endpoint.const(42).product(Endpoint.empty[String])
-  val right: Endpoint[(Int, String)] = Endpoint.empty[Int].product(Endpoint.const("foo"))
+  val both: Endpoint[IO, (Int, String)] =
+    Endpoint[IO].const(42).product(Endpoint[IO].const("foo"))
+  val left: Endpoint[IO, (Int, String)] =
+    Endpoint[IO].const(42).product(Endpoint[IO].empty)
+  val right: Endpoint[IO, (Int, String)] =
+    Endpoint[IO].empty[Int].product(Endpoint[IO].const("foo"))
 
   @Benchmark
   def bothMatched: Option[(Int, String)] = both(getRoot).awaitValueUnsafe()
@@ -119,9 +123,12 @@ class ProductBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class CoproductBenchmark extends FinchBenchmark {
-  val both: Endpoint[String] = Endpoint.const("foo").coproduct(Endpoint.const("bar"))
-  val left: Endpoint[String] = Endpoint.const("foo").coproduct(Endpoint.empty[String])
-  val right: Endpoint[String] = Endpoint.empty[String].coproduct(Endpoint.const("bar"))
+  val both: Endpoint[IO, String] =
+    Endpoint[IO].const("foo").coproduct(Endpoint[IO].const("bar"))
+  val left: Endpoint[IO, String] =
+    Endpoint[IO].const("foo").coproduct(Endpoint[IO].empty)
+  val right: Endpoint[IO, String] =
+    Endpoint[IO].empty.coproduct(Endpoint[IO].const("bar"))
 
   @Benchmark
   def bothMatched: Option[String] = both(getRoot).awaitValueUnsafe()
@@ -135,11 +142,11 @@ class CoproductBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class MapBenchmark extends FinchBenchmark {
-  val ten: Endpoint[Int] = Endpoint.const(10)
-  val mapTen: Endpoint[Int] = ten.map(a => a + 20)
-  val mapTenAsync: Endpoint[Int] = ten.mapAsync(a => Future.value(a + 20))
-  val mapTenOutput: Endpoint[Int] = ten.mapOutput(a => Ok(a + 10))
-  val mapTenOutputAsync: Endpoint[Int] = ten.mapOutputAsync(a => Future.value(Ok(a + 10)))
+  val ten: Endpoint[IO, Int] = Endpoint[IO].const(10)
+  val mapTen: Endpoint[IO, Int] = ten.map(a => a + 20)
+  val mapTenAsync: Endpoint[IO, Int] = ten.mapAsync(a => IO.pure(a + 20))
+  val mapTenOutput: Endpoint[IO, Int] = ten.mapOutput(a => Ok(a + 10))
+  val mapTenOutputAsync: Endpoint[IO, Int] = ten.mapOutputAsync(a => IO.pure(Ok(a + 10)))
 
   @Benchmark
   def map: Option[Int] = mapTen(getRoot).awaitValueUnsafe()
@@ -167,7 +174,7 @@ class JsonBenchmark extends FinchBenchmark {
   val buf: Buf = Buf.Utf8(foo.asJson.noSpaces)
 
   @Benchmark
-  def decode: Try[Foo] = decodeFoo(buf, StandardCharsets.UTF_8)
+  def decode: Either[Throwable, Foo] = decodeFoo(buf, StandardCharsets.UTF_8)
 
   @Benchmark
   def encode: Buf = encodeFoo(foo, StandardCharsets.UTF_8)
@@ -177,13 +184,13 @@ class JsonBenchmark extends FinchBenchmark {
 @BenchmarkMode(Array(Mode.Throughput))
 @OutputTimeUnit(TimeUnit.SECONDS)
 abstract class BootstrapBenchmark[CT](init: Bootstrap[HNil, HNil])(implicit
-  tsf: ToService[Endpoint[List[Foo]] :: HNil, CT :: HNil]
+  tsf: ToService[Endpoint[IO, List[Foo]] :: HNil, CT :: HNil]
 ) extends FinchBenchmark {
 
   protected def issueRequest(): Request = Request()
 
   private val foo: Service[Request, Response] = init
-    .serve[CT](Endpoint.const(List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString))))
+    .serve[CT](Endpoint[IO].const(List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString))))
     .toService
 
   @Benchmark

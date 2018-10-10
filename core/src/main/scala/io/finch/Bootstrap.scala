@@ -47,8 +47,8 @@ class Bootstrap[ES <: HList, CTS <: HList](
     val enableUnsupportedMediaType: Boolean = false) { self =>
 
   class Serve[CT] {
-    def apply[E](e: Endpoint[E]): Bootstrap[Endpoint[E] :: ES, CT :: CTS] =
-      new Bootstrap[Endpoint[E] :: ES, CT :: CTS](
+    def apply[F[_], E](e: Endpoint[F, E]): Bootstrap[Endpoint[F, E] :: ES, CT :: CTS] =
+      new Bootstrap[Endpoint[F, E] :: ES, CT :: CTS](
         e :: self.endpoints,
         includeDateHeader,
         includeServerHeader,

@@ -2,7 +2,7 @@ package io.finch.test
 
 import java.nio.charset.Charset
 
-import cats.Eq
+import cats.{Comonad, Eq, MonadError}
 import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
@@ -14,7 +14,7 @@ import io.circe.jawn
 import io.finch._
 import io.finch.internal.HttpContent
 import io.finch.iteratee.Enumerate
-import io.iteratee.twitter.FutureModule
+import io.iteratee.Enumerator
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
@@ -23,11 +23,11 @@ trait DecodeJsonLaws[A] extends Laws with AllInstances {
 
   def success(a: A, cs: Charset)(implicit e: Encoder[A], d: Decoder[A]): IsEq[A] = {
     val json = e(a).noSpaces
-    decode(Buf.ByteArray.Owned(json.getBytes(cs.name)), cs).get <-> jawn.decode(json).right.get
+    decode(Buf.ByteArray.Owned(json.getBytes(cs.name)), cs).right.get <-> jawn.decode(json).right.get
   }
 
   def failure(s: String, cs: Charset): Boolean =
-    decode(Buf.ByteArray.Owned(s"NOT A JSON$s".getBytes(cs.name)), cs).isThrow
+    decode(Buf.ByteArray.Owned(s"NOT A JSON$s".getBytes(cs.name)), cs).isLeft
 
   def all(implicit
     a: Arbitrary[A],
@@ -43,23 +43,23 @@ trait DecodeJsonLaws[A] extends Laws with AllInstances {
   )
 }
 
-trait EnumerateJsonLaws[A] extends Laws with AllInstances with FutureModule {
+abstract class EnumerateJsonLaws[F[_], A](implicit
+                                          monadError: MonadError[F, Throwable],
+                                          comonad: Comonad[F]) extends Laws with AllInstances {
 
-  private implicit val monad = F
-
-  def enumerate: Enumerate.Json[A]
+  def enumerate: Enumerate.Json[F, A]
 
   def success(a: List[A], cs: Charset)(implicit e: Encoder[A], d: Decoder[A]): IsEq[Vector[A]] = {
-    val json = enumList(a).map(a => e(a).noSpaces).intersperse("\n")
+    val json = Enumerator.enumList[F, A](a).map(a => e(a).noSpaces).intersperse("\n")
     val enum = json.map(str => Buf.ByteArray.Owned(str.getBytes(cs.name)))
-    val toCompare = json.through(stringStreamParser[Future]).through(decoder[Future, A])
-    Await.result(enumerate(enum, cs).toVector) <-> Await.result(toCompare.toVector)
+    val toCompare = json.through(stringStreamParser[F]).through(decoder[F, A])
+    comonad.extract(enumerate(enum, cs).toVector) <-> comonad.extract(toCompare.toVector)
   }
 
   def failure(s: String, cs: Charset): Boolean = {
-    val enum = enumOne(Buf.ByteArray.Owned(s"NOT A JSON$s".getBytes(cs.name)))
+    val enum = Enumerator.enumOne[F, Buf](Buf.ByteArray.Owned(s"NOT A JSON$s".getBytes(cs.name)))
     Try(
-      Await.result(enumerate(enum, cs).toVector)
+      comonad.extract(enumerate(enum, cs).toVector)
     ).isThrow
   }
 
@@ -102,8 +102,11 @@ object JsonLaws {
       val decode: Decode.Json[A] = implicitly[Decode.Json[A]]
     }
 
-  def enumerating[A : Enumerate.Json]: EnumerateJsonLaws[A] =
-    new EnumerateJsonLaws[A] {
-      val enumerate: Enumerate.Json[A] = implicitly[Enumerate.Json[A]]
+  def enumerating[F[_] : Comonad, A](implicit
+    enum: Enumerate.Json[F, A],
+    monadError: MonadError[F, Throwable]
+  ): EnumerateJsonLaws[F, A] =
+    new EnumerateJsonLaws[F, A] {
+      val enumerate: Enumerate.Json[F, A] = enum
     }
 }

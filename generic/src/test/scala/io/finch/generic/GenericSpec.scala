@@ -1,7 +1,8 @@
 package io.finch.generic
 
+import cats.effect.IO
 import cats.kernel.Eq
-import io.finch._
+import io.finch.FinchSpec
 import org.scalacheck.Arbitrary
 
 class GenericSpec extends FinchSpec {
@@ -10,7 +11,7 @@ class GenericSpec extends FinchSpec {
 
   case class Foo(a: String, b: Int)
 
-  val e: Endpoint[Foo] = deriveEndpoint[Foo].fromParams
+  val e = deriveEndpoint[IO, Foo].fromParams
 
   implicit val eq: Eq[Foo] = Eq.fromUniversalEquals
 
@@ -24,5 +25,5 @@ class GenericSpec extends FinchSpec {
     ("b" -> foo.b.toString)
   )
 
-  checkAll("DerivedEndpoint[Foo]", DerivedEndpointLaws[Foo](e, f).evaluating)
+  checkAll("DerivedEndpoint[Foo]", DerivedEndpointLaws[IO, Foo](e, f).evaluating)
 }

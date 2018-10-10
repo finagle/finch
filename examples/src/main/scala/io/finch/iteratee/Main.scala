@@ -1,15 +1,13 @@
 package io.finch.iteratee
 
-import scala.util.Random
-
+import cats.effect.IO
 import com.twitter.finagle.Http
-import com.twitter.util.{Await, Future}
-import io.catbird.util._
+import com.twitter.util.Await
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
-import io.finch.syntax._
 import io.iteratee.{Enumerator, Iteratee}
+import scala.util.Random
 
 /**
   * A Finch application featuring iteratee-based streaming support.
@@ -37,38 +35,37 @@ import io.iteratee.{Enumerator, Iteratee}
   *   $ curl -X POST --header "Transfer-Encoding: chunked" -d '{"i": 40} {"i": 42}' localhost:8081/streamPrime
   * }}}
   */
-object Main {
+object Main extends Endpoint.Module[IO] {
 
-  private val stream: Stream[Int] = Stream(Random.nextInt()).flatMap(_ => stream)
-
-  val sumJson: Endpoint[Result] = post("sumJson" :: enumeratorJsonBody[Number]) { (enum: Enumerator[Future, Number]) =>
-    enum.into(Iteratee.fold[Future, Number, Result](Result(0))(_ add _)).map(Ok)
+  final case class Result(result: Int) {
+    def add(n: Number): Result = copy(result = result + n.i)
   }
 
-  val streamJson: Endpoint[Enumerator[Future, Number]] = get("streamJson") {
-    Ok(Enumerator.enumStream[Future, Int](stream).map(Number.apply))
+  final case class Number(i: Int) {
+    def isPrime: IsPrime = IsPrime(!(2 +: (3 to Math.sqrt(i.toDouble).toInt by 2) exists (i % _ == 0)))
   }
 
-  val isPrime: Endpoint[Enumerator[Future, IsPrime]] = post("streamPrime" :: enumeratorJsonBody[Number]) {
-    (enum: Enumerator[Future, Number]) => Ok(enum.map(_.isPrime))
+  final case class IsPrime(isPrime: Boolean)
+
+  private val stream: Stream[Int] = Stream.continually(Random.nextInt())
+
+  val sumJson: Endpoint[IO, Result] = post("sumJson" :: enumeratorJsonBody[IO, Number]) {
+    enum: Enumerator[IO, Number] =>
+      enum.into(Iteratee.fold[IO, Number, Result](Result(0))(_ add _)).map(Ok)
   }
 
-  def main(args: Array[String]): Unit =
-    Await.result(Http.server
+  val streamJson: Endpoint[IO, Enumerator[IO, Number]] = get("streamJson") {
+    Ok(Enumerator.enumStream[IO, Int](stream).map(Number.apply))
+  }
+
+  val isPrime: Endpoint[IO, Enumerator[IO, IsPrime]] =
+    post("streamPrime" :: enumeratorJsonBody[IO, Number]) { enum: Enumerator[IO, Number] =>
+      Ok(enum.map(_.isPrime))
+    }
+
+  def main(args: Array[String]): Unit = Await.result(
+    Http.server
       .withStreaming(enabled = true)
       .serve(":8081", (sumJson :+: streamJson :+: isPrime).toServiceAs[Application.Json])
     )
-
 }
-
-case class Result(result: Int) {
-  def add(n: Number): Result = copy(result = result + n.i)
-}
-
-case class Number(i: Int) {
-
-  def isPrime: IsPrime = IsPrime(!(2 +: (3 to Math.sqrt(i.toDouble).toInt by 2) exists (i % _ == 0)))
-
-}
-
-case class IsPrime(isPrime: Boolean)

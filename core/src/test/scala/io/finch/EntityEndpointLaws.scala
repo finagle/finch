@@ -1,6 +1,7 @@
 package io.finch
 
 import cats.Eq
+import cats.effect.Effect
 import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
@@ -8,11 +9,11 @@ import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 import scala.reflect.ClassTag
 
-trait EntityEndpointLaws[A] extends Laws with MissingInstances with AllInstances {
+abstract class EntityEndpointLaws[F[_] : Effect, A] extends Laws with MissingInstances with AllInstances {
 
   def decoder: DecodeEntity[A]
   def classTag: ClassTag[A]
-  def endpoint: Endpoint[Option[A]]
+  def endpoint: Endpoint[F, Option[A]]
   def serialize: A => Input
 
   def roundTrip(a: A): IsEq[Option[A]] = {
@@ -30,12 +31,12 @@ trait EntityEndpointLaws[A] extends Laws with MissingInstances with AllInstances
 }
 
 object EntityEndpointLaws {
-  def apply[A: DecodeEntity: ClassTag](
-    e: Endpoint[Option[A]]
-  )(f: A => Input): EntityEndpointLaws[A] = new EntityEndpointLaws[A] {
+  def apply[F[_] : Effect, A: DecodeEntity: ClassTag](
+    e: Endpoint[F, Option[A]]
+  )(f: A => Input): EntityEndpointLaws[F, A] = new EntityEndpointLaws[F, A] {
     val decoder: DecodeEntity[A] = DecodeEntity[A]
     val classTag: ClassTag[A] = implicitly[ClassTag[A]]
-    val endpoint: Endpoint[Option[A]] = e
+    val endpoint: Endpoint[F, Option[A]] = e
     val serialize: A => Input = f
   }
 }

@@ -11,7 +11,9 @@ class HttpMessageSpec extends FinchSpec {
     case None => StandardCharsets.UTF_8
   }
 
-  "HttpMessage" should "charsetOrUtf8" in {
+  behavior of "HttpMesage"
+
+  it should "charsetOrUtf8" in {
     check { cs: Charset =>
       val req = Request()
       req.contentType = "application/json"
