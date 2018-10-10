@@ -69,8 +69,11 @@ sealed abstract class EndpointResult[F[_], +A] {
       }
     }}
 
-  def awaitValue(d: Duration = Duration.Inf)(implicit e: Effect[F]): Option[Either[Throwable, A]] =
-    awaitOutput(d).map(toa => toa.flatMap(oa => Right(oa.value)))
+  def awaitValue(d: Duration = Duration.Inf)(implicit e: Effect[F]): Option[Either[Throwable, A]]=
+    awaitOutput(d) map {
+      case Right(oa) => Right(oa.value)
+      case Left(ob) => Left(ob)
+    }
 
   def awaitValueUnsafe(d: Duration = Duration.Inf)(implicit e: Effect[F]): Option[A] =
     awaitOutputUnsafe(d).map(oa => oa.value)
