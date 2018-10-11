@@ -238,11 +238,11 @@ lazy val finch = project.in(file("."))
   .dependsOn(core, iteratee, generic, circe)
 
 lazy val core = project
-  .settings(moduleName := "finch-core")
+  .settings(moduleName := "finchx-core")
   .settings(allSettings)
 
 lazy val iteratee = project
-  .settings(moduleName := "finch-iteratee")
+  .settings(moduleName := "finchx-iteratee")
   .settings(allSettings)
   .settings(
     libraryDependencies ++= Seq(
@@ -253,19 +253,19 @@ lazy val iteratee = project
   .dependsOn(core % "compile->compile;test->test")
 
 lazy val generic = project
-  .settings(moduleName := "finch-generic")
+  .settings(moduleName := "finchx-generic")
   .settings(allSettings)
   .dependsOn(core % "compile->compile;test->test")
 
 lazy val test = project
-  .settings(moduleName := "finch-test")
+  .settings(moduleName := "finchx-test")
   .settings(allSettings)
   .settings(coverageExcludedPackages := "io\\.finch\\.test\\..*")
   .settings(libraryDependencies ++= testDependencies)
   .dependsOn(core)
 
 lazy val jsonTest = project.in(file("json-test"))
-  .settings(moduleName := "finch-json-test")
+  .settings(moduleName := "finchx-json-test")
   .settings(allSettings)
   .settings(coverageExcludedPackages := "io\\.finch\\.test\\..*")
   .settings(
@@ -278,7 +278,7 @@ lazy val jsonTest = project.in(file("json-test"))
   .dependsOn(core, iteratee)
 
 lazy val argonaut = project
-  .settings(moduleName := "finch-argonaut")
+  .settings(moduleName := "finchx-argonaut")
   .settings(allSettings)
   .settings(libraryDependencies ++= Seq(
     "io.argonaut" %% "argonaut" % argonautVersion
@@ -286,7 +286,7 @@ lazy val argonaut = project
   .dependsOn(core, jsonTest % "test")
 
 lazy val circe = project
-  .settings(moduleName := "finch-circe")
+  .settings(moduleName := "finchx-circe")
   .settings(allSettings)
   .settings(
     libraryDependencies ++= Seq(
@@ -299,12 +299,12 @@ lazy val circe = project
   .dependsOn(core, iteratee, jsonTest % "test")
 
 lazy val sse = project
-  .settings(moduleName := "finch-sse")
+  .settings(moduleName := "finchx-sse")
   .settings(allSettings)
   .dependsOn(core)
 
 lazy val refined = project
-  .settings(moduleName := "finch-refined")
+  .settings(moduleName := "finchx-refined")
   .settings(allSettings)
   .settings(
     libraryDependencies ++= Seq(
@@ -316,7 +316,7 @@ lazy val refined = project
   .dependsOn(core % "test->test;compile->compile")
 
 lazy val docs = project
-  .settings(moduleName := "finch-docs")
+  .settings(moduleName := "finchx-docs")
   .settings(docSettings)
   .settings(noPublish)
   .settings(
@@ -331,7 +331,7 @@ lazy val docs = project
   .dependsOn(core, circe, sse, argonaut, iteratee, refined)
 
 lazy val examples = project
-  .settings(moduleName := "finch-examples")
+  .settings(moduleName := "finchx-examples")
   .settings(allSettings)
   .settings(noPublish)
   .settings(resolvers += "TM" at "http://maven.twttr.com")
@@ -353,7 +353,7 @@ lazy val examples = project
   .dependsOn(core, circe, iteratee)
 
 lazy val benchmarks = project
-  .settings(moduleName := "finch-benchmarks")
+  .settings(moduleName := "finchx-benchmarks")
   .enablePlugins(JmhPlugin)
   .settings(allSettings)
   .settings(noPublish)
