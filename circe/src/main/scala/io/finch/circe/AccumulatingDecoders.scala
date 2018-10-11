@@ -27,9 +27,11 @@ trait AccumulatingDecoders {
     attemptJson.fold[Either[Throwable, A]](nel => Left(Errors(nel)), Right.apply)
   }
 
-  implicit def enumerateCirce[F[_], A : Decoder](implicit
-    monadError: MonadError[F, Throwable]
-  ): Enumerate.Json[F, A] = Enumerate.instance[F, A, Application.Json]((enum, cs) => {
+  implicit def enumerateCirce[F[_], A: Decoder](
+      implicit
+      monadError: MonadError[F, Throwable]
+    ): Enumerate.Json[F, A] =
+    Enumerate.instance[F, A, Application.Json]((enum, cs) => {
       val parsed = cs match {
         case StandardCharsets.UTF_8 =>
           enum.map(_.asByteArray).through(byteStreamParser[F])
@@ -39,14 +41,17 @@ trait AccumulatingDecoders {
       parsed.through(decoderAccumulating[F, A])
     })
 
-  private def decoderAccumulating[F[_], A](implicit
-    F: MonadError[F, Throwable],
+  private def decoderAccumulating[F[_], A](
+      implicit
+      F: MonadError[F, Throwable],
       decode: Decoder[A]
-  ): Enumeratee[F, Json, A] = Enumeratee.flatMap(json =>
-    decode.accumulating(json.hcursor) match {
-      case Validated.Invalid(errors) => Enumerator.liftM(F.raiseError(Errors(errors)))
-      case Validated.Valid(a) => Enumerator.enumOne(a)
-    }
-  )
+    ): Enumeratee[F, Json, A] =
+    Enumeratee.flatMap(
+      json =>
+        decode.accumulating(json.hcursor) match {
+          case Validated.Invalid(errors) => Enumerator.liftM(F.raiseError(Errors(errors)))
+          case Validated.Valid(a)        => Enumerator.enumOne(a)
+        }
+    )
 
 }

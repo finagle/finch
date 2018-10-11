@@ -14,24 +14,24 @@ import io.finch._
 import io.finch.circe._
 
 /**
- * A simple Finch application implementing the backend for the TodoMVC project.
- *
- * Use the following sbt command to run the application.
- *
- * {{{
- *   $ sbt 'examples/runMain io.finch.todo.Main'
- * }}}
- *
- * Use the following HTTPie commands to test endpoints.
- *
- * {{{
- *   $ http POST :8081/todos title=foo order:=0 completed:=false
- *   $ http PATCH :8081/todos/<UUID> completed:=true
- *   $ http :8081/todos
- *   $ http DELETE :8081/todos/<UUID>
- *   $ http DELETE :8081/todos
- * }}}
- */
+  * A simple Finch application implementing the backend for the TodoMVC project.
+  *
+  * Use the following sbt command to run the application.
+  *
+  * {{{
+  *   $ sbt 'examples/runMain io.finch.todo.Main'
+  * }}}
+  *
+  * Use the following HTTPie commands to test endpoints.
+  *
+  * {{{
+  *   $ http POST :8081/todos title=foo order:=0 completed:=false
+  *   $ http PATCH :8081/todos/<UUID> completed:=true
+  *   $ http :8081/todos
+  *   $ http DELETE :8081/todos/<UUID>
+  *   $ http DELETE :8081/todos
+  * }}}
+  */
 object Main extends TwitterServer with Endpoint.Module[IO] {
 
   val port: Flag[Int] = flag("port", 8081, "TCP port for HTTP server")
@@ -69,7 +69,7 @@ object Main extends TwitterServer with Endpoint.Module[IO] {
   def deleteTodo: Endpoint[IO, Todo] = delete("todos" :: path[UUID]) { id: UUID =>
     Todo.get(id) match {
       case Some(t) => Todo.delete(id); Ok(t)
-      case None => throw TodoNotFound(id)
+      case None    => throw TodoNotFound(id)
     }
   }
 
@@ -83,8 +83,9 @@ object Main extends TwitterServer with Endpoint.Module[IO] {
   val api: Service[Request, Response] = (
     getTodos :+: postTodo :+: deleteTodo :+: deleteTodos :+: patchTodo
   ).handle({
-    case e: TodoNotFound => NotFound(e)
-  }).toServiceAs[Application.Json]
+      case e: TodoNotFound => NotFound(e)
+    })
+    .toServiceAs[Application.Json]
 
   def main(): Unit = {
     println("Serving the Todo application") //scalastyle:ignore

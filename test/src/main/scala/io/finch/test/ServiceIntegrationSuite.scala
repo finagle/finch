@@ -6,20 +6,20 @@ import com.twitter.util.Await
 import org.scalatest.{fixture, Outcome}
 
 /**
- * Extends [[ServiceSuite]] to support integration testing for services.
- */
+  * Extends [[ServiceSuite]] to support integration testing for services.
+  */
 trait ServiceIntegrationSuite extends ServiceSuite { self: fixture.TestSuite =>
 
   /**
-   * Override in implementing classes if a different port is desired for
-   * integration tests.
-   */
+    * Override in implementing classes if a different port is desired for
+    * integration tests.
+    */
   def port: Int = 8080
 
   /**
-   * Provide a fixture containing a client that calls our locally-served
-   * service.
-   */
+    * Provide a fixture containing a client that calls our locally-served
+    * service.
+    */
   override def withFixture(test: OneArgTest): Outcome = {
     val service: Service[Request, Response] = createService()
     val server: ListeningServer = Http.serve(s":$port", service)

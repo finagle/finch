@@ -8,7 +8,7 @@ import io.finch.items._
 import java.nio.charset.Charset
 import scala.reflect.ClassTag
 
-private[finch] abstract class FullBody[F[_], A] extends Endpoint[F, A] {
+abstract private[finch] class FullBody[F[_], A] extends Endpoint[F, A] {
 
   protected def F: Effect[F]
   protected def missing: F[Output[A]]
@@ -20,11 +20,12 @@ private[finch] abstract class FullBody[F[_], A] extends Endpoint[F, A] {
       val output = F.suspend {
         val contentLength = input.request.contentLengthOrNull
         if (contentLength == null || contentLength == "0") missing
-        else present(
-          input.request.mediaTypeOrEmpty,
-          input.request.content,
-          input.request.charsetOrUtf8
-        )
+        else
+          present(
+            input.request.mediaTypeOrEmpty,
+            input.request.content,
+            input.request.charsetOrUtf8
+          )
       }
 
       EndpointResult.Matched(input, Trace.empty, output)
@@ -50,23 +51,24 @@ private[finch] object FullBody {
   }
 }
 
-private[finch] abstract class Body[F[_], A, B, CT](implicit
-  dd: Decode.Dispatchable[A, CT],
-  ct: ClassTag[A],
-  protected val F: Effect[F]
-) extends FullBody[F, B] with FullBody.PreparedBody[F, A, B] {
+abstract private[finch] class Body[F[_], A, B, CT](
+    implicit
+    dd: Decode.Dispatchable[A, CT],
+    ct: ClassTag[A],
+    protected val F: Effect[F])
+    extends FullBody[F, B]
+    with FullBody.PreparedBody[F, A, B] {
 
   protected def present(contentType: String, content: Buf, cs: Charset): F[Output[B]] =
     dd(contentType, content, cs) match {
       case Right(s) => F.pure(Output.payload(prepare(s)))
-      case Left(e) => F.raiseError(Error.NotParsed(items.BodyItem, ct, e))
+      case Left(e)  => F.raiseError(Error.NotParsed(items.BodyItem, ct, e))
     }
 
   final override def toString: String = "body"
 }
 
-private[finch] abstract class BinaryBody[F[_], A](implicit protected val F: Effect[F])
-  extends FullBody[F, A] with FullBody.PreparedBody[F, Array[Byte], A] {
+abstract private[finch] class BinaryBody[F[_], A](implicit protected val F: Effect[F]) extends FullBody[F, A] with FullBody.PreparedBody[F, Array[Byte], A] {
 
   protected def present(contentType: String, content: Buf, cs: Charset): F[Output[A]] =
     F.pure(Output.payload(prepare(content.asByteArray)))
@@ -74,9 +76,7 @@ private[finch] abstract class BinaryBody[F[_], A](implicit protected val F: Effe
   final override def toString: String = "binaryBody"
 }
 
-private[finch] abstract class StringBody[F[_], A](implicit protected val F: Effect[F])
-  extends FullBody[F, A]
-  with FullBody.PreparedBody[F, String, A] {
+abstract private[finch] class StringBody[F[_], A](implicit protected val F: Effect[F]) extends FullBody[F, A] with FullBody.PreparedBody[F, String, A] {
 
   protected def present(contentType: String, content: Buf, cs: Charset): F[Output[A]] =
     F.pure(Output.payload(prepare(content.asString(cs))))

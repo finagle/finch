@@ -4,10 +4,10 @@ import java.time.{Instant, ZoneId}
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-
 object currentTime {
   private val formatter: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz")
+    DateTimeFormatter
+      .ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz")
       .withLocale(Locale.ENGLISH)
       .withZone(ZoneId.of("GMT"))
 

@@ -49,9 +49,8 @@ object Main extends Endpoint.Module[IO] {
 
   private val stream: Stream[Int] = Stream.continually(Random.nextInt())
 
-  val sumJson: Endpoint[IO, Result] = post("sumJson" :: enumeratorJsonBody[IO, Number]) {
-    enum: Enumerator[IO, Number] =>
-      enum.into(Iteratee.fold[IO, Number, Result](Result(0))(_ add _)).map(Ok)
+  val sumJson: Endpoint[IO, Result] = post("sumJson" :: enumeratorJsonBody[IO, Number]) { enum: Enumerator[IO, Number] =>
+    enum.into(Iteratee.fold[IO, Number, Result](Result(0))(_ add _)).map(Ok)
   }
 
   val streamJson: Endpoint[IO, Enumerator[IO, Number]] = get("streamJson") {
@@ -67,5 +66,5 @@ object Main extends Endpoint.Module[IO] {
     Http.server
       .withStreaming(enabled = true)
       .serve(":8081", (sumJson :+: streamJson :+: isPrime).toServiceAs[Application.Json])
-    )
+  )
 }

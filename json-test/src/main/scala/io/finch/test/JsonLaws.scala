@@ -29,23 +29,31 @@ trait DecodeJsonLaws[A] extends Laws with AllInstances {
   def failure(s: String, cs: Charset): Boolean =
     decode(Buf.ByteArray.Owned(s"NOT A JSON$s".getBytes(cs.name)), cs).isLeft
 
-  def all(implicit
-    a: Arbitrary[A],
-    cs: Arbitrary[Charset],
-    e: Encoder[A],
-    d: Decoder[A],
-    eq: Eq[A]
-  ): RuleSet = new DefaultRuleSet(
+  def all(
+      implicit
+      a: Arbitrary[A],
+      cs: Arbitrary[Charset],
+      e: Encoder[A],
+      d: Decoder[A],
+      eq: Eq[A]
+    ): RuleSet = new DefaultRuleSet(
     name = "decode",
     parent = None,
-    "success" -> Prop.forAll { (a: A, cs: Charset) => success(a, cs) },
-    "failure" -> Prop.forAll { (s: String, cs: Charset) => failure(s, cs) }
+    "success" -> Prop.forAll { (a: A, cs: Charset) =>
+      success(a, cs)
+    },
+    "failure" -> Prop.forAll { (s: String, cs: Charset) =>
+      failure(s, cs)
+    }
   )
 }
 
-abstract class EnumerateJsonLaws[F[_], A](implicit
-                                          monadError: MonadError[F, Throwable],
-                                          comonad: Comonad[F]) extends Laws with AllInstances {
+abstract class EnumerateJsonLaws[F[_], A](
+    implicit
+    monadError: MonadError[F, Throwable],
+    comonad: Comonad[F])
+    extends Laws
+    with AllInstances {
 
   def enumerate: Enumerate.Json[F, A]
 
@@ -63,17 +71,22 @@ abstract class EnumerateJsonLaws[F[_], A](implicit
     ).isThrow
   }
 
-  def all(implicit
-          a: Arbitrary[A],
-          cs: Arbitrary[Charset],
-          e: Encoder[A],
-          d: Decoder[A],
-          eq: Eq[A]
-         ): RuleSet = new DefaultRuleSet(
+  def all(
+      implicit
+      a: Arbitrary[A],
+      cs: Arbitrary[Charset],
+      e: Encoder[A],
+      d: Decoder[A],
+      eq: Eq[A]
+    ): RuleSet = new DefaultRuleSet(
     name = "enumerate",
     parent = None,
-    "success" -> Prop.forAll { (a: List[A], cs: Charset) => success(a, cs) },
-    "failure" -> Prop.forAll { (s: String, cs: Charset) => failure(s, cs) }
+    "success" -> Prop.forAll { (a: List[A], cs: Charset) =>
+      success(a, cs)
+    },
+    "failure" -> Prop.forAll { (s: String, cs: Charset) =>
+      failure(s, cs)
+    }
   )
 
 }
@@ -92,6 +105,7 @@ trait EncodeJsonLaws[A] extends Laws with AllInstances {
 }
 
 object JsonLaws {
+
   def encoding[A: Encode.Json]: EncodeJsonLaws[A] =
     new EncodeJsonLaws[A] {
       val encode: Encode.Json[A] = implicitly[Encode.Json[A]]
@@ -102,10 +116,11 @@ object JsonLaws {
       val decode: Decode.Json[A] = implicitly[Decode.Json[A]]
     }
 
-  def enumerating[F[_] : Comonad, A](implicit
-    enum: Enumerate.Json[F, A],
-    monadError: MonadError[F, Throwable]
-  ): EnumerateJsonLaws[F, A] =
+  def enumerating[F[_]: Comonad, A](
+      implicit
+      enum: Enumerate.Json[F, A],
+      monadError: MonadError[F, Throwable]
+    ): EnumerateJsonLaws[F, A] =
     new EnumerateJsonLaws[F, A] {
       val enumerate: Enumerate.Json[F, A] = enum
     }

@@ -9,19 +9,18 @@ import scala.annotation.implicitNotFound
 import shapeless._
 
 /**
- * Wraps a given list of [[Endpoint]]s and their content-types with a Finagle [[Service]].
- *
- * Guarantees to:
- *
- * - handle Finch's own errors (i.e., [[Error]] and [[Error]]) as 400s
- * - copy requests's HTTP version onto a response
- * - respond with 404 when an endpoint is not matched
- * - respond with 405 when an endpoint is not matched because method wasn't allowed (serve back an `Allow` header)
- * - include the date header on each response (unless disabled)
- * - include the server header on each response (unless disabled)
- */
-@implicitNotFound(
-"""An Endpoint you're trying to convert into a Finagle service is missing one or more encoders.
+  * Wraps a given list of [[Endpoint]]s and their content-types with a Finagle [[Service]].
+  *
+  * Guarantees to:
+  *
+  * - handle Finch's own errors (i.e., [[Error]] and [[Error]]) as 400s
+  * - copy requests's HTTP version onto a response
+  * - respond with 404 when an endpoint is not matched
+  * - respond with 405 when an endpoint is not matched because method wasn't allowed (serve back an `Allow` header)
+  * - include the date header on each response (unless disabled)
+  * - include the server header on each response (unless disabled)
+  */
+@implicitNotFound("""An Endpoint you're trying to convert into a Finagle service is missing one or more encoders.
 
   Make sure each endpoint in ${ES}, ${CTS} is one of the following:
 
@@ -30,8 +29,7 @@ import shapeless._
   * A coproduct made up of some combination of the above
 
   See https://github.com/finagle/finch/blob/master/docs/src/main/tut/cookbook.md#fixing-the-toservice-compile-error
-"""
-)
+""")
 trait ToService[ES <: HList, CTS <: HList] {
   def apply(endpoints: ES, options: ToService.Options, context: ToService.Context): Service[Request, Response]
 }
@@ -39,25 +37,24 @@ trait ToService[ES <: HList, CTS <: HList] {
 object ToService {
 
   /**
-   * HTTP options propagated from [[Bootstrap]].
-   */
+    * HTTP options propagated from [[Bootstrap]].
+    */
   final case class Options(
-    includeDateHeader: Boolean,
-    includeServerHeader: Boolean,
-    negotiateContentType: Boolean,
-    enableMethodNotAllowed: Boolean,
-    enableUnsupportedMediaType: Boolean
-  )
+      includeDateHeader: Boolean,
+      includeServerHeader: Boolean,
+      negotiateContentType: Boolean,
+      enableMethodNotAllowed: Boolean,
+      enableUnsupportedMediaType: Boolean)
 
   /**
-   * HTTP context propagated between endpoints.
-   *
-   * - `wouldAllow`: when non-empty, indicates that the incoming method wasn't allowed/matched
-   */
+    * HTTP context propagated between endpoints.
+    *
+    * - `wouldAllow`: when non-empty, indicates that the incoming method wasn't allowed/matched
+    */
   final case class Context(wouldAllow: List[Method] = Nil)
 
   private val respond400: PartialFunction[Throwable, Output[Nothing]] = {
-    case e: io.finch.Error => Output.failure(e, Status.BadRequest)
+    case e: io.finch.Error   => Output.failure(e, Status.BadRequest)
     case es: io.finch.Errors => Output.failure(es, Status.BadRequest)
   }
 
@@ -81,8 +78,10 @@ object ToService {
   }
 
   implicit val hnilTS: ToService[HNil, HNil] = new ToService[HNil, HNil] {
+
     def apply(es: HNil, opts: Options, ctx: Context): Service[Request, Response] =
       new Service[Request, Response] {
+
         def apply(req: Request): Future[Response] = {
           val rep = Response()
 
@@ -98,12 +97,14 @@ object ToService {
       }
   }
 
-  implicit def hlistTS[F[_], A, EH <: Endpoint[F, A], ET <: HList, CTH, CTT <: HList](implicit
-    ntrA: ToResponse.Negotiable[A, CTH],
-    ntrE: ToResponse.Negotiable[Exception, CTH],
-    effect: Effect[F],
-    tsT: ToService[ET, CTT]
-  ): ToService[Endpoint[F, A] :: ET, CTH :: CTT] = new ToService[Endpoint[F, A] :: ET, CTH :: CTT] {
+  implicit def hlistTS[F[_], A, EH <: Endpoint[F, A], ET <: HList, CTH, CTT <: HList](
+      implicit
+      ntrA: ToResponse.Negotiable[A, CTH],
+      ntrE: ToResponse.Negotiable[Exception, CTH],
+      effect: Effect[F],
+      tsT: ToService[ET, CTT]
+    ): ToService[Endpoint[F, A] :: ET, CTH :: CTT] = new ToService[Endpoint[F, A] :: ET, CTH :: CTT] {
+
     def apply(es: Endpoint[F, A] :: ET, opts: Options, ctx: Context): Service[Request, Response] =
       new Service[Request, Response] {
         private[this] val handler =
@@ -114,7 +115,6 @@ object ToService {
 
         def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
           case EndpointResult.Matched(rem, trc, out) if rem.route.isEmpty =>
-
             Trace.captureIfNeeded(trc)
 
             val accept =
@@ -124,19 +124,24 @@ object ToService {
 
             (effect match {
               case concurrent: ConcurrentEffect[F] =>
-                (concurrent.runCancelable(out) _).andThen(io => io.map(cancelToken =>
-                  promise.setInterruptHandler {
-                    case _ => concurrent.toIO(cancelToken).unsafeRunAsyncAndForget()
-                  }
-                ))
+                (concurrent.runCancelable(out) _).andThen(
+                  io =>
+                    io.map(
+                      cancelToken =>
+                        promise.setInterruptHandler {
+                          case _ => concurrent.toIO(cancelToken).unsafeRunAsyncAndForget()
+                        }
+                    )
+                )
               case e => e.runAsync(out) _
             }) {
               case Left(t) => IO(promise.setException(t))
-              case Right(v) => IO {
-                promise.setValue(
-                  conformHttp(v.convertToResponse(ntrA(accept).apply, ntrE(accept).apply), req.version, opts)
-                )
-              }
+              case Right(v) =>
+                IO {
+                  promise.setValue(
+                    conformHttp(v.convertToResponse(ntrA(accept).apply, ntrE(accept).apply), req.version, opts)
+                  )
+                }
             }.unsafeRunSync()
 
             promise
@@ -147,7 +152,7 @@ object ToService {
           case _ =>
             tsT(es.tail, opts, ctx)(req)
         }
-    }
+      }
   }
 
 }

@@ -77,6 +77,7 @@ class MatchPathBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class ExtractPathBenchmark extends FinchBenchmark {
+
   @Benchmark
   def stringSome: Option[String] = path[String].apply(getFooBarBaz).awaitValueUnsafe()
 
@@ -104,10 +105,13 @@ class ExtractPathBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class ProductBenchmark extends FinchBenchmark {
+
   val both: Endpoint[IO, (Int, String)] =
     Endpoint[IO].const(42).product(Endpoint[IO].const("foo"))
+
   val left: Endpoint[IO, (Int, String)] =
     Endpoint[IO].const(42).product(Endpoint[IO].empty)
+
   val right: Endpoint[IO, (Int, String)] =
     Endpoint[IO].empty[Int].product(Endpoint[IO].const("foo"))
 
@@ -123,10 +127,13 @@ class ProductBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class CoproductBenchmark extends FinchBenchmark {
+
   val both: Endpoint[IO, String] =
     Endpoint[IO].const("foo").coproduct(Endpoint[IO].const("bar"))
+
   val left: Endpoint[IO, String] =
     Endpoint[IO].const("foo").coproduct(Endpoint[IO].empty)
+
   val right: Endpoint[IO, String] =
     Endpoint[IO].empty.coproduct(Endpoint[IO].const("bar"))
 
@@ -183,9 +190,11 @@ class JsonBenchmark extends FinchBenchmark {
 @State(Scope.Benchmark)
 @BenchmarkMode(Array(Mode.Throughput))
 @OutputTimeUnit(TimeUnit.SECONDS)
-abstract class BootstrapBenchmark[CT](init: Bootstrap[HNil, HNil])(implicit
-  tsf: ToService[Endpoint[IO, List[Foo]] :: HNil, CT :: HNil]
-) extends FinchBenchmark {
+abstract class BootstrapBenchmark[CT](
+    init: Bootstrap[HNil, HNil]
+  )(implicit
+    tsf: ToService[Endpoint[IO, List[Foo]] :: HNil, CT :: HNil])
+    extends FinchBenchmark {
 
   protected def issueRequest(): Request = Request()
 
@@ -199,16 +208,14 @@ abstract class BootstrapBenchmark[CT](init: Bootstrap[HNil, HNil])(implicit
 
 class JsonBootstrapBenchmark extends BootstrapBenchmark[Application.Json](Bootstrap)
 
-class JsonNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Application.Json](
-    Bootstrap.configure(negotiateContentType = true))
+class JsonNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Application.Json](Bootstrap.configure(negotiateContentType = true))
 
 class TextBootstrapBenchmark extends BootstrapBenchmark[Text.Plain](Bootstrap)
 
-class TextNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Text.Plain](
-    Bootstrap.configure(negotiateContentType = true))
+class TextNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Text.Plain](Bootstrap.configure(negotiateContentType = true))
 
-class JsonAndTextNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Application.Json :+: Text.Plain :+: CNil](
-    Bootstrap.configure(negotiateContentType = true)) {
+class JsonAndTextNegotiatedBootstrapBenchmark
+    extends BootstrapBenchmark[Application.Json :+: Text.Plain :+: CNil](Bootstrap.configure(negotiateContentType = true)) {
 
   private val acceptValues: Array[String] = Array("application/json", "text/plain")
 
@@ -249,6 +256,6 @@ class HttpMessageBenchmark extends FinchBenchmark {
   @Benchmark
   def slowCharset: Charset = req.charset match {
     case Some(cs) => Charset.forName(cs)
-    case None => StandardCharsets.UTF_8
+    case None     => StandardCharsets.UTF_8
   }
 }

@@ -12,34 +12,34 @@ import com.twitter.util.{Await, Try}
 import io.finch._
 
 /**
-* A simple Finch application featuring very basic, `Buf`-based streaming support.
-*
-* There are three endpoints in this example:
-*
-*  1. `totalSum` - streaming request
-*  2. `sumTo` - streaming response
-*  3. `sumSoFar` - end-to-end (request - response) streaming
-*  4. `examples` - streaming response of examples objects
-*
-* Use the following sbt command to run the application.
-*
-* {{{
-*   $ sbt 'examples/runMain io.finch.streaming.Main'
-* }}}
-*
-* Use the following HTTPie/curl commands to test endpoints.
-*
-* {{{
-*   $ curl -X POST --header "Transfer-Encoding: chunked" -d 4 localhost:8081/totalSum
-*
-*   $ http --stream POST :8081/sumTo/3
-*
-*   $ curl -X POST --header "Transfer-Encoding: chunked" -d 4 localhost:8081/sumSoFar
-*   $ curl -X POST --header "Transfer-Encoding: chunked" -d 3 localhost:8081/sumSoFar
-*
-*   $ http --stream GET :8081/examples/3
-* }}}
-*/
+  * A simple Finch application featuring very basic, `Buf`-based streaming support.
+  *
+  * There are three endpoints in this example:
+  *
+  *  1. `totalSum` - streaming request
+  *  2. `sumTo` - streaming response
+  *  3. `sumSoFar` - end-to-end (request - response) streaming
+  *  4. `examples` - streaming response of examples objects
+  *
+  * Use the following sbt command to run the application.
+  *
+  * {{{
+  *   $ sbt 'examples/runMain io.finch.streaming.Main'
+  * }}}
+  *
+  * Use the following HTTPie/curl commands to test endpoints.
+  *
+  * {{{
+  *   $ curl -X POST --header "Transfer-Encoding: chunked" -d 4 localhost:8081/totalSum
+  *
+  *   $ http --stream POST :8081/sumTo/3
+  *
+  *   $ curl -X POST --header "Transfer-Encoding: chunked" -d 4 localhost:8081/sumSoFar
+  *   $ curl -X POST --header "Transfer-Encoding: chunked" -d 3 localhost:8081/sumSoFar
+  *
+  *   $ http --stream GET :8081/examples/3
+  * }}}
+  */
 object Main extends Endpoint.Module[IO] {
 
   // we decode a long value from a Buf
@@ -51,12 +51,13 @@ object Main extends Endpoint.Module[IO] {
   //
   // For example, if input stream is `1, 2, 3` then output response would be `6`.
   def totalSum: Endpoint[IO, Long] = post("totalSum" :: asyncBody) { as: AsyncStream[Buf] =>
-    IO.async[Long](cb =>
-      as
-        .foldLeft(0L)((acc, b) => acc + bufToLong(b))
-        .onSuccess(i => cb(Right(i)))
-        .onFailure(t => cb(Left(t)))
-    ).map(Ok)
+    IO.async[Long](
+        cb =>
+          as.foldLeft(0L)((acc, b) => acc + bufToLong(b))
+            .onSuccess(i => cb(Right(i)))
+            .onFailure(t => cb(Left(t)))
+      )
+      .map(Ok)
   }
 
   // This endpoint takes a simple request with an integer number N and returns a
@@ -73,6 +74,7 @@ object Main extends Endpoint.Module[IO] {
   }
 
   val sum: AtomicLong = new AtomicLong(0)
+
   // This endpoint takes a streaming request (a stream of numbers) and responds
   // to each number (chunk) a sum that has been collected so far.
   //
@@ -84,9 +86,11 @@ object Main extends Endpoint.Module[IO] {
 
   // An example domain type.
   case class Example(x: Int)
+
   object Example {
     implicit val show: Show[Example] = Show.fromToString
   }
+
   // This endpoint will stream back a given number of `Example` objects in plain/text.
   def examples: Endpoint[IO, AsyncStream[Example]] = get("examples" :: path[Int]) { num: Int =>
     Ok(AsyncStream.fromSeq(List.tabulate(num)(i => Example(i))))

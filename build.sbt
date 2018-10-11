@@ -20,7 +20,8 @@ lazy val catsEffectVersion = "1.0.0"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
-  "-encoding", "UTF-8",
+  "-encoding",
+  "UTF-8",
   "-feature",
   "-language:existentials",
   "-language:higherKinds",
@@ -55,7 +56,7 @@ val baseSettings = Seq(
   scalacOptions ++= compilerOptions ++ (
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, p)) if p >= 11 => Seq("-Ywarn-unused-import")
-      case _ => Nil
+      case _                       => Nil
     }
   ),
   scalacOptions in (Compile, console) ~= {
@@ -81,8 +82,7 @@ def updateVersionInFile(selectVersion: sbtrelease.Versions => String): ReleaseSt
     filesToUpdate.foreach { fileName =>
       val content = Source.fromFile(fileName).getLines.mkString("\n")
       val newContent =
-        pattern.replaceAllIn(content,
-          m => m.matched.replaceAllLiterally(m.subgroups.head, newVersion))
+        pattern.replaceAllIn(content, m => m.matched.replaceAllLiterally(m.subgroups.head, newVersion))
       new PrintWriter(fileName) {
         write(newContent); close()
       }
@@ -101,7 +101,7 @@ lazy val publishSettings = Seq(
     if (isSnapshot.value)
       Some("snapshots" at nexus + "content/repositories/snapshots")
     else
-      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+      Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
   publishArtifact in Test := false,
   pgpSecretRing := file("local.secring.gpg"),
@@ -187,16 +187,21 @@ lazy val docSettings = allSettings ++ Seq(
     "gray" -> "#7D7E7D",
     "gray-light" -> "#E5E6E5",
     "gray-lighter" -> "#F4F3F4",
-    "white-color" -> "#FFFFFF"),
+    "white-color" -> "#FFFFFF"
+  ),
   addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), micrositeDocumentationUrl),
   ghpagesNoJekyll := false,
   scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
     "-groups",
     "-implicits",
-    "-skip-packages", "scalaz",
-    "-doc-source-url", scmInfo.value.get.browseUrl + "/tree/master€{FILE_PATH}.scala",
-    "-sourcepath", baseDirectory.in(LocalRootProject).value.getAbsolutePath,
-    "-doc-root-content", (resourceDirectory.in(Compile).value / "rootdoc.txt").getAbsolutePath
+    "-skip-packages",
+    "scalaz",
+    "-doc-source-url",
+    scmInfo.value.get.browseUrl + "/tree/master€{FILE_PATH}.scala",
+    "-sourcepath",
+    baseDirectory.in(LocalRootProject).value.getAbsolutePath,
+    "-doc-root-content",
+    (resourceDirectory.in(Compile).value / "rootdoc.txt").getAbsolutePath
   ),
   scalacOptions ~= {
     _.filterNot(Set("-Yno-predef", "-Xlint", "-Ywarn-unused-import"))
@@ -207,7 +212,8 @@ lazy val docSettings = allSettings ++ Seq(
   siteSubdirName in ScalaUnidoc := "docs"
 )
 
-lazy val finch = project.in(file("."))
+lazy val finch = project
+  .in(file("."))
   .settings(moduleName := "finch")
   .settings(allSettings)
   .settings(noPublish)
@@ -229,11 +235,23 @@ lazy val finch = project.in(file("."))
         |import shapeless._
       """.stripMargin
   )
-  .settings(libraryDependencies ++= Seq(
-    "io.circe" %% "circe-generic" % circeVersion
-  ))
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.circe" %% "circe-generic" % circeVersion
+    )
+  )
   .aggregate(
-    core, iteratee, generic, argonaut, circe, benchmarks, test, jsonTest, examples, sse, refined
+    core,
+    iteratee,
+    generic,
+    argonaut,
+    circe,
+    benchmarks,
+    test,
+    jsonTest,
+    examples,
+    sse,
+    refined
   )
   .dependsOn(core, iteratee, generic, circe)
 
@@ -264,7 +282,8 @@ lazy val test = project
   .settings(libraryDependencies ++= testDependencies)
   .dependsOn(core)
 
-lazy val jsonTest = project.in(file("json-test"))
+lazy val jsonTest = project
+  .in(file("json-test"))
   .settings(moduleName := "finchx-json-test")
   .settings(allSettings)
   .settings(coverageExcludedPackages := "io\\.finch\\.test\\..*")
@@ -280,9 +299,11 @@ lazy val jsonTest = project.in(file("json-test"))
 lazy val argonaut = project
   .settings(moduleName := "finchx-argonaut")
   .settings(allSettings)
-  .settings(libraryDependencies ++= Seq(
-    "io.argonaut" %% "argonaut" % argonautVersion
-  ))
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.argonaut" %% "argonaut" % argonautVersion
+    )
+  )
   .dependsOn(core, jsonTest % "test")
 
 lazy val circe = project
@@ -335,14 +356,16 @@ lazy val examples = project
   .settings(allSettings)
   .settings(noPublish)
   .settings(resolvers += "TM" at "http://maven.twttr.com")
-  .settings(coverageExcludedPackages :=
-    """
+  .settings(
+    coverageExcludedPackages :=
+      """
       |io\.finch\.div\..*;
       |io\.finch\.todo\..*;
       |io\.finch\.streaming\..*;
       |io\.finch\.wrk\..*;
       |io\.finch\.sse\..*;
-    """.stripMargin)
+    """.stripMargin
+  )
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-generic" % circeVersion,
@@ -381,6 +404,8 @@ lazy val benchmarks = project
 
 val validateCommands = List(
   "clean",
+  "scalafmtCheck",
+  "scalafmtSbtCheck",
   "scalastyle",
   "test:scalastyle",
   "compile",

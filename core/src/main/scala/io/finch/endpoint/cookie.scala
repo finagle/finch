@@ -4,9 +4,11 @@ import cats.effect.Effect
 import com.twitter.finagle.http.{Cookie => FinagleCookie}
 import io.finch._
 
-private[finch] abstract class Cookie[F[_], A](name: String)(implicit
-  protected val F: Effect[F]
-) extends Endpoint[F, A] {
+abstract private[finch] class Cookie[F[_], A](
+    name: String
+  )(implicit
+    protected val F: Effect[F])
+    extends Endpoint[F, A] {
 
   protected def missing(name: String): F[Output[A]]
   protected def present(value: FinagleCookie): F[Output[A]]
@@ -14,7 +16,7 @@ private[finch] abstract class Cookie[F[_], A](name: String)(implicit
   def apply(input: Input): EndpointResult[F, A] = {
     val output = F.suspend {
       input.request.cookies.get(name) match {
-        case None => missing(name)
+        case None        => missing(name)
         case Some(value) => present(value)
       }
     }

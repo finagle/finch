@@ -16,5 +16,5 @@ abstract class Wrk extends App {
       .withStatsReceiver(NullStatsReceiver)
       .withTracer(NullTracer)
       .serve(":8081", s)
-    )
+  )
 }

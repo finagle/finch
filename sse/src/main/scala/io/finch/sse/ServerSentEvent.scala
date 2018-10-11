@@ -6,27 +6,24 @@ import com.twitter.io.Buf
 import io.finch._
 import java.nio.charset.Charset
 
-case class ServerSentEvent[A](
-  data: A,
-  id: Option[String] = None,
-  event: Option[String] = None,
-  retry: Option[Long] = None
-)
+case class ServerSentEvent[A](data: A, id: Option[String] = None, event: Option[String] = None, retry: Option[Long] = None)
 
 object ServerSentEvent {
 
   private[this] def text(s: String, cs: Charset): Buf = Buf.ByteArray.Owned(s.getBytes(cs.name))
 
-  implicit def sseAsyncToResponse[A](implicit
-     e: Encode.Aux[A, Text.EventStream]
-  ): ToResponse.Aux[AsyncStream[A], Text.EventStream] =
+  implicit def sseAsyncToResponse[A](
+      implicit
+      e: Encode.Aux[A, Text.EventStream]
+    ): ToResponse.Aux[AsyncStream[A], Text.EventStream] =
     ToResponse.asyncResponseBuilder((a, cs) => e(a, cs).concat(ToResponse.NewLine))
 
-  implicit def encodeEventStream[A](implicit s: Show[A]): Encode.Aux[ServerSentEvent[A], Text.EventStream] = {
+  implicit def encodeEventStream[A](implicit s: Show[A]): Encode.Aux[ServerSentEvent[A], Text.EventStream] =
     Encode.instance[ServerSentEvent[A], Text.EventStream]({ (event: ServerSentEvent[A], c: Charset) =>
-      encodeEvent[A](event, c, { (a: A, cs: Charset) => text(s.show(a), cs) })
+      encodeEvent[A](event, c, { (a: A, cs: Charset) =>
+        text(s.show(a), cs)
+      })
     })
-  }
 
   private[sse] def encodeEvent[A](sse: ServerSentEvent[A], cs: Charset, e: (A, Charset) => Buf): Buf = {
     val dataBuf = text("data:", cs).concat(e(sse.data, cs)).concat(text("\n", cs))
