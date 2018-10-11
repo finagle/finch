@@ -75,7 +75,7 @@ trait Endpoint[F[_], A] { self =>
   /**
     * Runs this endpoint.
     */
-  def apply(input: Input): EndpointResult[F, A]
+  def apply(input: Input): Endpoint.Result[F, A]
 
   /**
     * Maps this endpoint to the given function `A => B`.
@@ -91,7 +91,7 @@ trait Endpoint[F[_], A] { self =>
 
       final def apply(oa: Output[A]): F[Output[B]] = oa.traverse(fn)
 
-      final def apply(input: Input): EndpointResult[F, B] = self(input) match {
+      final def apply(input: Input): Endpoint.Result[F, B] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
           EndpointResult.Matched[F, B](rem, trc, out.flatMap(this))
         case skipped: EndpointResult.NotMatched[F] => skipped
@@ -114,7 +114,7 @@ trait Endpoint[F[_], A] { self =>
     new Endpoint[F, B] with (Output[A] => F[Output[B]]) {
       final def apply(oa: Output[A]): F[Output[B]] = oa.traverseFlatten(fn)
 
-      final def apply(input: Input): EndpointResult[F, B] = self(input) match {
+      final def apply(input: Input): Endpoint.Result[F, B] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
           EndpointResult.Matched(rem, trc, out.flatMap(this))
         case skipped: EndpointResult.NotMatched[F] => skipped
@@ -141,7 +141,7 @@ trait Endpoint[F[_], A] { self =>
     */
   final def transform[B](fn: F[Output[A]] => F[Output[B]]): Endpoint[F, B] =
     new Endpoint[F, B] {
-      final def apply(input: Input): EndpointResult[F, B] = self(input) match {
+      final def apply(input: Input): Endpoint.Result[F, B] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
           EndpointResult.Matched(rem, trc, fn(out))
         case skipped: EndpointResult.NotMatched[F] => skipped
@@ -187,7 +187,7 @@ trait Endpoint[F[_], A] { self =>
         case (_, Left(b)) => F.raiseError(b)
       }
 
-      final def apply(input: Input): EndpointResult[F, O] = self(input) match {
+      final def apply(input: Input): Endpoint.Result[F, O] = self(input) match {
         case a @ EndpointResult.Matched(_, _, _) => other(a.rem) match {
           case b @ EndpointResult.Matched(_, _, _) =>
             EndpointResult.Matched(
@@ -215,7 +215,7 @@ trait Endpoint[F[_], A] { self =>
 
       final def apply(b: B, a: A): pa.Out = pa(b, a)
 
-      final def apply(input: Input): EndpointResult[F, pa.Out] = inner(input)
+      final def apply(input: Input): Endpoint.Result[F, pa.Out] = inner(input)
 
       override def item = items.MultipleItems
       final override def toString: String = s"${other.toString} :: ${self.toString}"
@@ -232,7 +232,7 @@ trait Endpoint[F[_], A] { self =>
     *   is picked
     */
   final def coproduct[B >: A](other: Endpoint[F, B]): Endpoint[F, B] = new Endpoint[F, B] {
-    final def apply(input: Input): EndpointResult[F, B] = self(input) match {
+    final def apply(input: Input): Endpoint.Result[F, B] = self(input) match {
       case a @ EndpointResult.Matched(_, _, _) => other(input) match {
         case b @ EndpointResult.Matched(_, _, _) =>
           if (a.rem.route.length <= b.rem.route.length) a else b
@@ -370,7 +370,7 @@ trait Endpoint[F[_], A] { self =>
         case Left(t) => Output.payload(Left(t))
       }
 
-      final def apply(input: Input): EndpointResult[F, Either[Throwable, A]] = self(input) match {
+      final def apply(input: Input): Endpoint.Result[F, Either[Throwable, A]] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
           EndpointResult.Matched(rem, trc, out.attempt.map(this))
         case skipped: EndpointResult.NotMatched[F] => skipped
@@ -384,7 +384,7 @@ trait Endpoint[F[_], A] { self =>
     * Overrides the `toString` method on this endpoint.
     */
   final def withToString(ts: => String): Endpoint[F, A] = new Endpoint[F, A] {
-    final def apply(input: Input): EndpointResult[F, A] = self(input)
+    final def apply(input: Input): Endpoint.Result[F, A] = self(input)
     final override def toString: String = ts
   }
 }
@@ -508,7 +508,7 @@ object Endpoint {
    */
   def empty[F[_], A]: Endpoint[F, A] =
     new Endpoint[F, A] {
-      final def apply(input: Input): Result[F, A] = EndpointResult.NotMatched
+      final def apply(input: Input): Result[F, A] = EndpointResult.NotMatched[F]
     }
 
   /**
@@ -774,7 +774,7 @@ object Endpoint {
   def asyncBody[F[_]](implicit F: Effect[F]): Endpoint[F, AsyncStream[Buf]] =
     new Endpoint[F, AsyncStream[Buf]] {
       final def apply(input: Input): EndpointResult[F, AsyncStream[Buf]] =
-        if (!input.request.isChunked) EndpointResult.NotMatched
+        if (!input.request.isChunked) EndpointResult.NotMatched[F]
         else
           EndpointResult.Matched(
             input,

@@ -35,7 +35,7 @@ package object iteratee extends IterateeInstances {
     decode: Enumerate.Aux[F, A, CT]
   ): Endpoint[F, Enumerator[F, A]] = new Endpoint[F, Enumerator[F, A]] {
       final def apply(input: Input): Endpoint.Result[F, Enumerator[F, A]] = {
-        if (!input.request.isChunked) EndpointResult.NotMatched
+        if (!input.request.isChunked) EndpointResult.NotMatched[F]
         else {
           val req = input.request
           EndpointResult.Matched(

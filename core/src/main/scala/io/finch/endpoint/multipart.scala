@@ -30,7 +30,7 @@ private[finch] abstract class Attribute[F[_]: Effect, G[_], A](val name: String)
   }
 
   final def apply(input: Input): EndpointResult[F, G[A]] = {
-    if (input.request.isChunked) EndpointResult.NotMatched
+    if (input.request.isChunked) EndpointResult.NotMatched[F]
     else {
       val output = F.suspend {
         all(input) match {
@@ -113,7 +113,7 @@ private[finch] abstract class FileUpload[F[_]: Effect, G[_]](name: String)
     } yield nel
 
   final def apply(input: Input): EndpointResult[F, G[FinagleFileUpload]] =
-    if (input.request.isChunked) EndpointResult.NotMatched
+    if (input.request.isChunked) EndpointResult.NotMatched[F]
     else {
       val output = Effect[F].suspend {
         all(input) match {
