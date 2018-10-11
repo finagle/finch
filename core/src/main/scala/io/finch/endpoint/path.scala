@@ -16,7 +16,7 @@ private[finch] class MatchPath[F[_]](s: String)(implicit
         Trace.segment(s),
         F.pure(Output.payload(HNil))
       )
-    case _ => EndpointResult.NotMatched
+    case _ => EndpointResult.NotMatched[F]
   }
 
   final override def toString: String = s
@@ -35,9 +35,9 @@ private[finch] class ExtractPath[F[_], A](implicit
           Trace.segment(toString),
           F.pure(Output.payload(a))
         )
-      case _ => EndpointResult.NotMatched
+      case _ => EndpointResult.NotMatched[F]
     }
-    case _ => EndpointResult.NotMatched
+    case _ => EndpointResult.NotMatched[F]
   }
 
   final override lazy val toString: String = s":${ct.runtimeClass.getSimpleName.toLowerCase}"

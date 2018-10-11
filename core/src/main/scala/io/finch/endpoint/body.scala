@@ -15,7 +15,7 @@ private[finch] abstract class FullBody[F[_], A] extends Endpoint[F, A] {
   protected def present(contentType: String, content: Buf, cs: Charset): F[Output[A]]
 
   final def apply(input: Input): EndpointResult[F, A] =
-    if (input.request.isChunked) EndpointResult.NotMatched
+    if (input.request.isChunked) EndpointResult.NotMatched[F]
     else {
       val output = F.suspend {
         val contentLength = input.request.contentLengthOrNull

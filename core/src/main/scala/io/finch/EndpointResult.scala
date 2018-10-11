@@ -62,15 +62,13 @@ sealed abstract class EndpointResult[F[_], +A] {
   }
 
   def awaitOutputUnsafe(d: Duration = Duration.Inf)(implicit e: Effect[F]): Option[Output[A]] =
-    awaitOutput(d).map{toa => {
-      toa match {
-        case Right(r) => r
-        case Left(ex) => throw ex
-      }
-    }}
+    awaitOutput(d).map {
+      case Right(r) => r
+      case Left(ex) => throw ex
+    }
 
   def awaitValue(d: Duration = Duration.Inf)(implicit e: Effect[F]): Option[Either[Throwable, A]]=
-    awaitOutput(d) map {
+    awaitOutput(d).map {
       case Right(oa) => Right(oa.value)
       case Left(ob) => Left(ob)
     }
@@ -95,8 +93,7 @@ object EndpointResult {
 
   object NotMatched extends NotMatched[Id] {
     final case class MethodNotAllowed[F[_]](allowed: List[Method]) extends NotMatched[F]
-  }
 
-  implicit def covaryEndpointResult[F[_], A](result: EndpointResult[Id, A]): EndpointResult[F, A] =
-    result.asInstanceOf[EndpointResult[F, A]]
+    def apply[F[_]]: NotMatched[F] = NotMatched.asInstanceOf[NotMatched[F]]
+  }
 }
