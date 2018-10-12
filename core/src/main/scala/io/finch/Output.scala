@@ -126,9 +126,14 @@ object Output {
   final def unit(status: Status): Output[Unit] = empty(status)
 
   /**
-   * An [[Output]] with `None` as payload.
+   * An [[Output]] with `None` as a payload.
    */
   val None: Output[Option[Nothing]] = Output.payload(Option.empty[Nothing])
+
+  /**
+   * An [[Output]] with [[shapeless.HNil]] as a payload.
+   */
+  val HNil: Output[shapeless.HNil] = Output.payload(shapeless.HNil)
 
   /**
    * A successful [[Output]] that captures a payload `value`.
