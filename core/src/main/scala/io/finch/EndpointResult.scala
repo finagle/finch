@@ -48,10 +48,10 @@ sealed abstract class EndpointResult[F[_], +A] {
     case _ => None
   }
 
-  def awaitOutput(d: Duration = Duration.Inf)(implicit e: Effect[F]): Option[Either[Throwable, Output[A]]] = this match {
+  def awaitOutput(d: Duration = Duration.Inf)(implicit F: Effect[F]): Option[Either[Throwable, Output[A]]] = this match {
     case EndpointResult.Matched(_, _, out) =>
       try {
-        e.toIO(out).unsafeRunTimed(d) match {
+        F.toIO(out).unsafeRunTimed(d) match {
           case Some(a) => Some(Right(a))
           case _ => Some(Left(new TimeoutException(s"Output wasn't returned in time: $d")))
         }
@@ -61,19 +61,19 @@ sealed abstract class EndpointResult[F[_], +A] {
     case _ => None
   }
 
-  def awaitOutputUnsafe(d: Duration = Duration.Inf)(implicit e: Effect[F]): Option[Output[A]] =
+  def awaitOutputUnsafe(d: Duration = Duration.Inf)(implicit F: Effect[F]): Option[Output[A]] =
     awaitOutput(d).map {
       case Right(r) => r
       case Left(ex) => throw ex
     }
 
-  def awaitValue(d: Duration = Duration.Inf)(implicit e: Effect[F]): Option[Either[Throwable, A]]=
+  def awaitValue(d: Duration = Duration.Inf)(implicit F: Effect[F]): Option[Either[Throwable, A]]=
     awaitOutput(d).map {
       case Right(oa) => Right(oa.value)
       case Left(ob) => Left(ob)
     }
 
-  def awaitValueUnsafe(d: Duration = Duration.Inf)(implicit e: Effect[F]): Option[A] =
+  def awaitValueUnsafe(d: Duration = Duration.Inf)(implicit F: Effect[F]): Option[A] =
     awaitOutputUnsafe(d).map(oa => oa.value)
 }
 

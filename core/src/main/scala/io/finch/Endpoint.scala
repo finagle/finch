@@ -517,7 +517,7 @@ object Endpoint {
   def zero[F[_]](implicit F: Applicative[F]): Endpoint[F, HNil] =
     new Endpoint[F, HNil] {
       final def apply(input: Input): Result[F, HNil] =
-        EndpointResult.Matched(input, Trace.empty, F.pure(Output.payload(HNil)))
+        EndpointResult.Matched(input, Trace.empty, F.pure(Output.HNil))
 
       final override def toString: String = ""
     }
@@ -594,7 +594,7 @@ object Endpoint {
   def pathAny[F[_]](implicit F: Applicative[F]): Endpoint[F, HNil] =
     new Endpoint[F, HNil] {
       final def apply(input: Input): Result[F, HNil] =
-        EndpointResult.Matched(input.withRoute(Nil), Trace.empty, F.pure(Output.payload(HNil)))
+        EndpointResult.Matched(input.withRoute(Nil), Trace.empty, F.pure(Output.HNil))
 
       final override def toString: String = "*"
     }

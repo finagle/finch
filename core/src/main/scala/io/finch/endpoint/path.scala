@@ -14,7 +14,7 @@ private[finch] class MatchPath[F[_]](s: String)(implicit
       EndpointResult.Matched(
         input.withRoute(rest),
         Trace.segment(s),
-        F.pure(Output.payload(HNil))
+        F.pure(Output.HNil)
       )
     case _ => EndpointResult.NotMatched[F]
   }
