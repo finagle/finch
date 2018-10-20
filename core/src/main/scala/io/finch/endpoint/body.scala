@@ -1,7 +1,7 @@
 package io.finch.endpoint
 
 import com.twitter.concurrent.AsyncStream
-import com.twitter.io.Buf
+import com.twitter.io.{Buf, Reader}
 import com.twitter.util.{Future, Return, Throw, Try}
 import io.catbird.util.Rerunnable
 import io.finch._
@@ -169,7 +169,7 @@ private[finch] trait Bodies {
         EndpointResult.Matched(
           input,
           Trace.empty,
-          Rerunnable(Output.payload(AsyncStream.fromReader(input.request.reader)))
+          Rerunnable(Output.payload(Reader.toAsyncStream(input.request.reader)))
         )
 
     final override def item: RequestItem = items.BodyItem
