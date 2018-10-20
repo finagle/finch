@@ -1,9 +1,8 @@
 package io.finch.circe.test
 
-import com.twitter.util.Try
-import io.catbird.util._
 import io.circe.generic.auto._
 import io.finch.test.AbstractJsonSpec
+import scala.util.Try
 
 class CirceSpec extends AbstractJsonSpec {
   import io.finch.circe._

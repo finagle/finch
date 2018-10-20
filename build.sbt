@@ -8,7 +8,7 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.11.12", "2.12.7")
 )
 
-lazy val twitterVersion = "18.9.0"
+lazy val twitterVersion = "18.10.0"
 lazy val circeVersion = "0.10.0"
 lazy val circeIterateeVersion = "0.11.0"
 lazy val shapelessVersion = "2.3.3"
@@ -246,8 +246,7 @@ lazy val iteratee = project
   .settings(allSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "io.iteratee" %% "iteratee-core" % iterateeVersion,
-      "io.iteratee" %% "iteratee-twitter" % twitterVersion
+      "io.iteratee" %% "iteratee-core" % iterateeVersion
     )
   )
   .dependsOn(core % "compile->compile;test->test")
