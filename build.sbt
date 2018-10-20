@@ -118,6 +118,7 @@ lazy val publishSettings = Seq(
       "scm:git:git@github.com:finagle/finch.git"
     )
   ),
+  releaseVersionBump := sbtrelease.Version.Bump.Minor,
   releaseProcess := {
     Seq[ReleaseStep](
       checkSnapshotDependencies,
