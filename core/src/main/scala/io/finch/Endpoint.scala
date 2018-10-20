@@ -13,7 +13,7 @@ import com.twitter.finagle.http.{
   Response
 }
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart}
-import com.twitter.io.Buf
+import com.twitter.io.{Buf, Reader}
 import io.finch.endpoint._
 import io.finch.internal._
 import io.finch.items.RequestItem
@@ -779,7 +779,7 @@ object Endpoint {
           EndpointResult.Matched(
             input,
             Trace.empty,
-            F.delay(Output.payload(AsyncStream.fromReader(input.request.reader)))
+            F.delay(Output.payload(Reader.toAsyncStream(input.request.reader)))
           )
 
       final override def item: RequestItem = items.BodyItem
