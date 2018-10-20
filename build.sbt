@@ -9,6 +9,8 @@ lazy val buildSettings = Seq(
 )
 
 lazy val twitterVersion = "18.10.0"
+lazy val catbirdVersion = "18.9.1"
+//lazy val catbirdVersion = "18.10.0"
 lazy val circeVersion = "0.10.0"
 lazy val circeIterateeVersion = "0.11.0"
 lazy val shapelessVersion = "2.3.3"
@@ -246,7 +248,8 @@ lazy val iteratee = project
   .settings(allSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "io.iteratee" %% "iteratee-core" % iterateeVersion
+      "io.iteratee" %% "iteratee-core" % iterateeVersion,
+      "io.catbird" %% "catbird-finagle" % catbirdVersion
     )
   )
   .dependsOn(core % "compile->compile;test->test")
