@@ -1,6 +1,5 @@
-import microsites.ExtraMdFileConfig
-import sbtrelease.ReleasePlugin
 import ReleaseTransformations._
+import microsites.ExtraMdFileConfig
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
