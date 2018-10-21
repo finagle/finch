@@ -1,6 +1,5 @@
-import microsites.ExtraMdFileConfig
-import sbtrelease.ReleasePlugin
 import ReleaseTransformations._
+import microsites.ExtraMdFileConfig
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
@@ -118,6 +117,7 @@ lazy val publishSettings = Seq(
       "scm:git:git@github.com:finagle/finch.git"
     )
   ),
+  releaseVersionBump := sbtrelease.Version.Bump.Minor,
   releaseProcess := {
     Seq[ReleaseStep](
       checkSnapshotDependencies,
