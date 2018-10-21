@@ -75,6 +75,9 @@ lazy val publishSettings = Seq(
       Some("releases"  at nexus + "service/local/staging/deploy/maven2")
   },
   publishArtifact in Test := false,
+  pgpSecretRing := file("local.secring.gpg"),
+  pgpPublicRing := file("local.pubring.gpg"),
+  releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
   homepage := Some(url("https://github.com/finagle/finch")),
   autoAPIMappings := true,
