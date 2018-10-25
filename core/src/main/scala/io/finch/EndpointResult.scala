@@ -24,7 +24,10 @@ sealed abstract class EndpointResult[F[_], +A] {
   /**
    * Whether the [[Endpoint]] is matched on a given [[Input]].
    */
-  def isMatched: Boolean
+  final def isMatched: Boolean = this match {
+    case EndpointResult.Matched(_, _, _) => true
+    case _ => false
+  }
 
   /**
    * Returns the remainder of the [[Input]] after an [[Endpoint]] is matched.
@@ -83,13 +86,9 @@ object EndpointResult {
     rem: Input,
     trc: Trace,
     out: F[Output[A]]
-  ) extends EndpointResult[F, A] {
-    def isMatched: Boolean = true
-  }
+  ) extends EndpointResult[F, A]
 
-  abstract class NotMatched[F[_]] extends EndpointResult[F, Nothing] {
-    def isMatched: Boolean = false
-  }
+  abstract class NotMatched[F[_]] extends EndpointResult[F, Nothing]
 
   object NotMatched extends NotMatched[Id] {
     final case class MethodNotAllowed[F[_]](allowed: List[Method]) extends NotMatched[F]
