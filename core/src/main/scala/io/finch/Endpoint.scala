@@ -518,8 +518,6 @@ object Endpoint {
     new Endpoint[F, HNil] {
       final def apply(input: Input): Result[F, HNil] =
         EndpointResult.Matched(input, Trace.empty, F.pure(Output.HNil))
-
-      final override def toString: String = ""
     }
 
   /**
@@ -597,6 +595,20 @@ object Endpoint {
         EndpointResult.Matched(input.withRoute(Nil), Trace.empty, F.pure(Output.HNil))
 
       final override def toString: String = "*"
+    }
+
+  /**
+   *
+   * An [[Endpoint]] that matches an empty path.
+   */
+  def pathEmpty[F[_]](implicit F: Applicative[F]): Endpoint[F, HNil] =
+    new Endpoint[F, HNil] {
+      final def apply(input: Input): Result[F, HNil] =
+        if (input.route.isEmpty)
+          EndpointResult.Matched(input, Trace.empty, F.pure(Output.HNil))
+        else EndpointResult.NotMatched[F]
+
+      final override def toString: String = ""
     }
 
   /**

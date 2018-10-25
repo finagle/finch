@@ -108,6 +108,12 @@ trait EndpointModule[F[_]] {
     Endpoint.pathAny[F]
 
   /**
+   * An alias for [[Endpoint.pathEmpty]].
+   */
+  def pathEmpty(implicit F: Applicative[F]): Endpoint[F, HNil] =
+    Endpoint.pathEmpty[F]
+
+  /**
    * An alias for [[Endpoint.path]].
    */
   def path[A: DecodePath: ClassTag](implicit F: Effect[F]): Endpoint[F, A] =

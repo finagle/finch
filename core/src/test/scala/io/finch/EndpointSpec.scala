@@ -95,6 +95,13 @@ class EndpointSpec extends FinchSpec {
     }
   }
 
+  it should "match empty path" in {
+    check { i: Input =>
+      (i.route.isEmpty && pathEmpty.apply(i).isMatched) ||
+      (!i.route.isEmpty && !pathEmpty.apply(i).isMatched)
+    }
+  }
+
   it should "match the HTTP method" in {
     def matchMethod(
         m: Method,
@@ -173,7 +180,7 @@ class EndpointSpec extends FinchSpec {
     check { s: String => path(s).product[String](pathAny.map(_ => "foo")).toString === s }
     check { (s: String, t: String) => path(s).mapAsync(_ => IO.pure(t)).toString === s }
 
-    zero.toString shouldBe ""
+    pathEmpty.toString shouldBe ""
     pathAny.toString shouldBe "*"
     path[Int].toString shouldBe ":int"
     path[String].toString shouldBe ":string"
