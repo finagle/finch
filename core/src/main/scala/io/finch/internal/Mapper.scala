@@ -47,7 +47,7 @@ private[finch] trait LowPriorityMapperConversions {
       f.onComplete {
         case Success(s) => cb(Right(s))
         case Failure(t) => cb(Left(t))
-      }(dummieExecutionContext)
+      }(DummyExecutionContext)
     }
   }
 
@@ -78,6 +78,7 @@ private[finch] trait LowPriorityMapperConversions {
   /**
     * @group LowPriorityMapper
     */
+  @deprecated("com.twitter.util.Future use is deprecated in Endpoints. Consider to use cats-effect compatible effect", "0.25.0")
   implicit def mapperFromFutureOutputFunction[A, B, F[_] : Effect](f: A => TwitterFuture[Output[B]]): Mapper.Aux[F, A, B] =
     instance(_.mapOutputAsync(a =>
       twitterFutureToEffect(f(a))
@@ -86,12 +87,14 @@ private[finch] trait LowPriorityMapperConversions {
   /**
     * @group LowPriorityMapper
     */
+  @deprecated("com.twitter.util.Future use is deprecated in Endpoints. Consider to use cats-effect compatible effect", "0.25.0")
   implicit def mapperFromFutureResponseFunction[A, F[_] : Effect](f: A => TwitterFuture[Response]): Mapper.Aux[F, A, Response] =
     instance(_.mapOutputAsync(f.andThen(fr => twitterFutureToEffect(fr).map(r => Output.payload(r, r.status)))))
 
   /**
     * @group LowPriorityMapper
     */
+  @deprecated("scala.concurrent.Future use is deprecated in Endpoints. Consider to use cats-effect compatible effect", "0.25.0")
   implicit def mapperFromScFutureOutputFunction[A, B, F[_] : Effect](f: A => ScalaFuture[Output[B]]): Mapper.Aux[F, A, B] =
     instance(_.mapOutputAsync(a =>
       scalaFutureToEffect(f(a))
@@ -100,6 +103,7 @@ private[finch] trait LowPriorityMapperConversions {
   /**
     * @group LowPriorityMapper
     */
+  @deprecated("scala.concurrent.Future use is deprecated in Endpoints. Consider to use cats-effect compatible effect", "0.25.0")
   implicit def mapperFromScFutureResponseFunction[A, F[_] : Effect](f: A => ScalaFuture[Response]): Mapper.Aux[F, A, Response] =
     instance(_.mapOutputAsync(f.andThen(fr => scalaFutureToEffect(fr).map(r => Output.payload(r, r.status)))))
 }
@@ -153,24 +157,28 @@ private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConv
   /**
     * @group HighPriorityMapper
     */
+  @deprecated("com.twitter.util.Future use is deprecated in Endpoints. Consider to use cats-effect compatible effect", "0.25.0")
   implicit def mapperFromFutureOutputValue[F[_] : Effect, A](o: => TwitterFuture[Output[A]]): Mapper.Aux[F, HNil, A] =
     instance(_.mapOutputAsync(_ => twitterFutureToEffect(o)))
 
   /**
     * @group HighPriorityMapper
     */
+  @deprecated("com.twitter.util.Future use is deprecated in Endpoints. Consider to use cats-effect compatible effect", "0.25.0")
   implicit def mapperFromFutureResponseValue[F[_] : Effect](fr: => TwitterFuture[Response]): Mapper.Aux[F, HNil, Response] =
     instance(_.mapOutputAsync(_ => twitterFutureToEffect(fr).map(r => Output.payload(r, r.status))))
 
   /**
     * @group HighPriorityMapper
     */
+  @deprecated("scala.concurrent.Future use is deprecated in Endpoints. Consider to use cats-effect compatible effect", "0.25.0")
   implicit def mapperFromScFutureOutputValue[F[_] : Effect, A](o: => ScalaFuture[Output[A]]): Mapper.Aux[F, HNil, A] =
     instance(_.mapOutputAsync(_ => scalaFutureToEffect(o)))
 
   /**
     * @group HighPriorityMapper
     */
+  @deprecated("scala.concurrent.Future use is deprecated in Endpoints. Consider to use cats-effect compatible effect", "0.25.0")
   implicit def mapperFromScFutureResponseValue[F[_] : Effect](fr: => ScalaFuture[Response]): Mapper.Aux[F, HNil, Response] =
     instance(_.mapOutputAsync(_ => scalaFutureToEffect(fr).map(r => Output.payload(r, r.status))))
 }
@@ -189,11 +197,13 @@ object Mapper extends HighPriorityMapperConversions {
     fr.map(r => Output.payload(r, r.status))
   })
 
+  @deprecated("com.twitter.util.Future use is deprecated in Endpoints. Consider to use cats-effect compatible effect", "0.25.0")
   implicit def mapperFromFutureOutputHFunction[F[_] : Effect, A, B, FN, FOB](f: FN)(implicit
     ftp: FnToProduct.Aux[FN, A => FOB],
     ev: FOB <:< TwitterFuture[Output[B]]
   ): Mapper.Aux[F, A, B] = instance(_.mapOutputAsync(value => twitterFutureToEffect(ev(ftp(f)(value)))))
 
+  @deprecated("com.twitter.util.Future use is deprecated in Endpoints. Consider to use cats-effect compatible effect", "0.25.0")
   implicit def mapperFromFutureResponseHFunction[F[_] : Effect, A, FN, FR](f: FN)(implicit
     ftp: FnToProduct.Aux[FN, A => FR],
     ev: FR <:< TwitterFuture[Response]
@@ -202,14 +212,16 @@ object Mapper extends HighPriorityMapperConversions {
     fr.map(r => Output.payload(r, r.status))
   })
 
+  @deprecated("scala.concurrent.Future use is deprecated in Endpoints. Consider to use cats-effect compatible effect", "0.25.0")
   implicit def mapperFromScFutureOutputHFunction[F[_] : Effect, A, B, FN, FOB](f: FN)(implicit
-                                                                                    ftp: FnToProduct.Aux[FN, A => FOB],
-                                                                                    ev: FOB <:< ScalaFuture[Output[B]]
+    ftp: FnToProduct.Aux[FN, A => FOB],
+    ev: FOB <:< ScalaFuture[Output[B]]
   ): Mapper.Aux[F, A, B] = instance(_.mapOutputAsync(value => scalaFutureToEffect(ev(ftp(f)(value)))))
 
+  @deprecated("scala.concurrent.Future use is deprecated in Endpoints. Consider to use cats-effect compatible effect", "0.25.0")
   implicit def mapperFromScFutureResponseHFunction[F[_] : Effect, A, FN, FR](f: FN)(implicit
-                                                                                  ftp: FnToProduct.Aux[FN, A => FR],
-                                                                                  ev: FR <:< ScalaFuture[Response]
+    ftp: FnToProduct.Aux[FN, A => FR],
+    ev: FR <:< ScalaFuture[Response]
   ): Mapper.Aux[F, A, Response] = instance(_.mapOutputAsync { value =>
     val fr = scalaFutureToEffect(ev(ftp(f)(value)))
     fr.map(r => Output.payload(r, r.status))
