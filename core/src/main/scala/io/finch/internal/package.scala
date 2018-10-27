@@ -5,6 +5,7 @@ import com.twitter.io.Buf
 import java.nio.ByteBuffer
 import java.nio.charset.{Charset, StandardCharsets}
 import scala.annotation.tailrec
+import scala.concurrent.ExecutionContext
 
 /**
  * This package contains an internal-use only type-classes and utilities that power Finch's API.
@@ -120,5 +121,10 @@ package object internal {
       val (array, begin, end) = asByteArrayWithBeginAndEnd
       new String(array, begin, end - begin, cs.name)
     }
+  }
+
+  private[internal] val dummieExecutionContext: ExecutionContext = new ExecutionContext {
+    def execute(runnable: Runnable): Unit = runnable.run()
+    def reportFailure(cause: Throwable): Unit = throw new NotImplementedError()
   }
 }
