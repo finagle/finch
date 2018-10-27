@@ -2,11 +2,11 @@ package io.finch.test
 
 import java.nio.charset.{Charset, StandardCharsets}
 
-import cats.{Comonad, Eq, MonadError}
+import cats.{Comonad, Eq, Functor}
 import cats.instances.AllInstances
 import io.circe.Decoder
 import io.finch.{Decode, Encode}
-import io.finch.iteratee.Enumerate
+import io.finch.streaming.StreamDecoder
 import io.finch.test.data._
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.{FlatSpec, Matchers}
@@ -49,10 +49,13 @@ abstract class AbstractJsonSpec extends FlatSpec with Matchers with Checkers wit
     loop("List[ExampleNestedCaseClass]", JsonLaws.decoding[List[ExampleNestedCaseClass]].all, library)
   }
 
-  def checkEnumerateJson[F[_] : Comonad](library: String)(implicit
-    en: Enumerate.Json[F, ExampleNestedCaseClass],
-    monadError: MonadError[F, Throwable]
-  ): Unit = {
-    loop("ExampleNestedCaseClass", JsonLaws.enumerating[F, ExampleNestedCaseClass].all, library)
+  def checkStreamJson[S[_[_], _], F[_] : Comonad](library: String)(
+   fromList: List[ExampleNestedCaseClass] => S[F, ExampleNestedCaseClass],
+   toList: S[F, ExampleNestedCaseClass] => List[ExampleNestedCaseClass]
+  )(implicit en: StreamDecoder.Json[S, F, ExampleNestedCaseClass], functor: Functor[S[F, ?]]): Unit = {
+    loop(
+      "ExampleNestedCaseClass",
+      JsonLaws.streaming[S, F, ExampleNestedCaseClass](fromList, toList).all, library
+    )
   }
 }

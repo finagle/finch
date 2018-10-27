@@ -17,6 +17,7 @@ import com.twitter.io.{Buf, Reader}
 import io.finch.endpoint._
 import io.finch.internal._
 import io.finch.items.RequestItem
+import io.finch.streaming.{StreamDecoder, StreamFromReader}
 import java.io.{File, FileInputStream, InputStream}
 import scala.reflect.ClassTag
 import shapeless._
@@ -892,6 +893,39 @@ object Endpoint {
       final override def item: RequestItem = items.BodyItem
       final override def toString: String = "asyncBody"
     }
+
+  /**
+    * An evaluating [[Endpoint]] that reads a required chunked streaming binary body, interpreted as
+    * an `S[F, A]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
+    */
+  def streamBody[F[_], S[_[_], _], A, CT <: String](implicit
+    streamDecoder: StreamDecoder.Aux[S, F, A, CT],
+    fromReader: StreamFromReader[S, F],
+    F: Effect[F]
+  ): Endpoint[F, S[F, A]] = {
+    new Endpoint[F, S[F, A]] {
+      final def apply(input: Input): Endpoint.Result[F, S[F, A]] = {
+        if (!input.request.isChunked) EndpointResult.NotMatched[F]
+        else {
+          val req = input.request
+          EndpointResult.Matched(
+            input,
+            Trace.empty,
+            F.pure[Output[S[F, A]]](Output.payload(streamDecoder(fromReader(req.reader), req.charsetOrUtf8)))
+          )
+        }
+      }
+
+      final override def item: RequestItem = items.BodyItem
+      final override def toString: String = "streamBody"
+    }
+  }
+
+  def streamJsonBody[F[_], S[_[_], _], A](implicit
+    streamDecoder: StreamDecoder.Aux[S, F, A, Application.Json],
+    fromReader: StreamFromReader[S, F],
+    F: Effect[F]
+  ): Endpoint[F, S[F, A]] = streamBody[F, S, A, Application.Json].withToString("streamJsonBody")
 
   /**
    * An evaluating [[Endpoint]] that reads an optional HTTP cookie from the request into an

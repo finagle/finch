@@ -14,7 +14,7 @@ class ToResponseSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
 
   it should "correctly encode Enumerator to Response" in {
     forAll { data: List[Buf] =>
-      enumeratorFromReader[IO](response[Buf, Text.Plain](data).reader).toVector.unsafeRunSync() should {
+      enumeratorFromReader[IO].apply(response[Buf, Text.Plain](data).reader).toVector.unsafeRunSync() should {
         contain theSameElementsAs data
       }
     }
@@ -22,7 +22,7 @@ class ToResponseSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
 
   it should "insert new lines after each chunk" in {
     forAll { data: List[Buf] =>
-      enumeratorFromReader[IO](response[Buf, Application.Json](data).reader).toVector.unsafeRunSync() should {
+      enumeratorFromReader[IO].apply(response[Buf, Application.Json](data).reader).toVector.unsafeRunSync() should {
         contain theSameElementsAs data.map(_.concat(ToResponse.NewLine))
       }
     }
