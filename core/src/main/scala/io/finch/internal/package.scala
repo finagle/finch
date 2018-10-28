@@ -121,4 +121,5 @@ package object internal {
       new String(array, begin, end - begin, cs.name)
     }
   }
+
 }
