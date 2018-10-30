@@ -4,11 +4,13 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 import cats.data.NonEmptyList
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import cats.laws.discipline.AlternativeTests
 import cats.laws.discipline.SemigroupalTests.Isomorphisms
 import com.twitter.finagle.http.{Cookie, Method, Request}
+import com.twitter.io.Buf
 import io.finch.data.Foo
+import java.io.{ByteArrayInputStream, InputStream}
 import scala.concurrent.duration.Duration
 import shapeless._
 
@@ -362,5 +364,22 @@ class EndpointSpec extends FinchSpec {
     an[Errors] shouldBe thrownBy (
       endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe(Duration(10, TimeUnit.SECONDS))
     )
+  }
+
+  it should "fromInputStream" in {
+    val bytes = Array[Byte](1, 2, 3, 4, 5)
+    val bis = Resource.fromAutoCloseable[IO, InputStream](IO.delay(new ByteArrayInputStream(bytes)))
+
+    val is = fromInputStream(bis)
+
+    is(Input.get("/")).awaitValueUnsafe() shouldBe Some(Buf.ByteArray.Owned(bytes))
+  }
+
+  it should "classpathAsset" in {
+    val r = classpathAsset("/test.txt")
+
+    r(Input.get("/foo")).awaitOutputUnsafe() shouldBe None
+    r(Input.post("/")).awaitOutputUnsafe() shouldBe None
+    r(Input.get("/test.txt")).awaitValueUnsafe() shouldBe Some(Buf.Utf8("foo bar baz\n"))
   }
 }

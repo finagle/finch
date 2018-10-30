@@ -2,7 +2,7 @@ package io.finch
 
 import cats.{Alternative, Applicative, ApplicativeError, Id, Monad, MonadError}
 import cats.data.NonEmptyList
-import cats.effect.{Effect, Sync}
+import cats.effect.{ContextShift, Effect, Resource, Sync}
 import cats.syntax.all._
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.Service
@@ -17,6 +17,7 @@ import com.twitter.io.{Buf, Reader}
 import io.finch.endpoint._
 import io.finch.internal._
 import io.finch.items.RequestItem
+import java.io.{File, FileInputStream, InputStream}
 import scala.reflect.ClassTag
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
@@ -574,6 +575,109 @@ object Endpoint {
       final def apply(input: Input): Result[F, A] =
         EndpointResult.Matched(input, Trace.empty, F.suspend(foa))
     }
+
+  /**
+   * Creates an [[Endpoint]] from a given [[InputStream]]. Uses [[Resource]] for safer resource
+   * management and [[ContextShift]] for offloading blocking work from a worker pool.
+   *
+   * @see [[fromFile]]
+   */
+  def fromInputStream[F[_]](stream: Resource[F, InputStream])(
+    implicit F: Effect[F], S: ContextShift[F]
+  ): Endpoint[F, Buf] =
+    new Endpoint[F, Buf] {
+      private def readLoop(left: Buf, stream: InputStream): F[Buf] = F.suspend {
+        val buffer = new Array[Byte](1024)
+        val n = stream.read(buffer)
+        if (n == -1) F.pure(left)
+        else readLoop(left.concat(Buf.ByteArray.Owned(buffer, 0, n)), stream)
+      }
+
+      final def apply(input: Input): Result[F, Buf] = {
+        val output = stream.use(s =>
+          S.shift.flatMap(_ => readLoop(Buf.Empty, s)).map(buf => Output.payload(buf))
+        )
+
+        EndpointResult.Matched(input.withRoute(Nil), Trace.empty, output)
+      }
+    }
+
+  /**
+   * Creates an [[Endpoint]] from a given [[File]]. Uses [[Resource]] for safer resource
+   * management and [[ContextShift]] for offloading blocking work from a worker pool.
+   *
+   * @see [[fromInputStream]]
+   */
+  def fromFile[F[_]](file: File)(
+    implicit F: Effect[F], S: ContextShift[F]
+  ): Endpoint[F, Buf] =
+    fromInputStream[F](
+      Resource.fromAutoCloseable(F.delay(new FileInputStream(file)))
+    )
+
+  /**
+   * Creates an [[Endpoint]] that serves an asset (static content) from a Java classpath resource,
+   * located at `path`, as a static content. The returned endpoint will only match `GET` requests
+   * with path identical to asset's.
+   *
+   * This could be especially useful in local development, when throughput and latency matter less
+   * than quick iterations. These means, however, are not recommended for production usage. Web
+   * servers (Nginx, Apache) will do much better job serving static files.
+   *
+   * Example project structure:
+   *
+   * {{{
+   *   ├── scala
+   *   │   └── Main.scala
+   *   └── resources
+   *       ├── index.html
+   *       └── script.js
+   * }}}
+   *
+   * Example bootstrap:
+   *
+   * {{{
+   *   Bootstrap
+   *     ...
+   *     .serve[Text.Html](Endpoint[IO].classpathAsset("/index.html"))
+   *     .serve[Application.Javascript](Endpoint[IO].classpathAsset("/script.js"))
+   *     ...
+   * }}}
+   *
+   * @see https://docs.oracle.com/javase/8/docs/technotes/guides/lang/resources.html
+   */
+  def classpathAsset[F[_]](path: String)(implicit
+    F: Effect[F],
+    S: ContextShift[F]
+  ): Endpoint[F, Buf] =
+    new Asset[F](
+      path,
+      fromInputStream[F](Resource.fromAutoCloseable(F.delay(getClass.getResourceAsStream(path))))
+    )
+
+  /**
+   * Creates an [[Endpoint]] that serves an asset (static content) from a filesystem, located at
+   * `path`, as a static content. The returned endpoint will only match `GET` requests with path
+   * identical to asset's.
+   *
+   * Example bootstrap:
+   *
+   * {{{
+   *   Bootstrap
+   *     ...
+   *     .serve[Text.Html](Endpoint[IO].filesystemAsset("index.html"))
+   *     .serve[Application.Javascript](Endpoint[IO].filesystemAsset("script.js"))
+   *     ...
+   * }}}
+   */
+  def filesystemAsset[F[_]](path: String)(implicit
+    F: Effect[F],
+    S: ContextShift[F]
+  ): Endpoint[F, Buf] =
+    new Asset[F](
+      path,
+      fromFile[F](new File(path))
+    )
 
   /**
    * A root [[Endpoint]] that always matches and extracts the current request.
