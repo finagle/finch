@@ -31,9 +31,6 @@ sealed abstract class EndpointResult[F[_], +A] {
 
   /**
    * Returns the remainder of the [[Input]] after an [[Endpoint]] is matched.
-   *
-   * @return `Some(remainder)` if this endpoint was matched on a given input,
-   *         `None` otherwise.
    */
   final def remainder: Option[Input] = this match {
     case EndpointResult.Matched(rem, _, _) => Some(rem)
@@ -42,9 +39,6 @@ sealed abstract class EndpointResult[F[_], +A] {
 
   /**
    * Returns the [[Trace]] if an [[Endpoint]] is matched.
-   *
-   * @return `Some(trace)` if this endpoint is matched on a given input,
-   *          `None` otherwise.
    */
   final def trace: Option[Trace] = this match {
     case EndpointResult.Matched(_, trc, _) => Some(trc)
@@ -94,5 +88,16 @@ object EndpointResult {
     final case class MethodNotAllowed[F[_]](allowed: List[Method]) extends NotMatched[F]
 
     def apply[F[_]]: NotMatched[F] = NotMatched.asInstanceOf[NotMatched[F]]
+  }
+
+  implicit class EndpointResultOps[F[_], A](val self: EndpointResult[F, A]) extends AnyVal {
+
+    /**
+     * Returns the [[Output]] if an [[Endpoint]] is matched.
+     */
+    final def output: Option[F[Output[A]]] = self match {
+      case EndpointResult.Matched(_, _, out) => Some(out)
+      case _ => None
+    }
   }
 }

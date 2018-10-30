@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script type="text/javascript" src="main.js"></script>
+  <style type="text/css">
+        body {
+            background-color: #f0ffff;
+        }
+
+        .app {
+          margin: auto;
+          width: 50%;
+          padding: 10px;
+        }
+
+        .form {
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+
+            padding-top: 5px;
+        }
+        .header {
+            height: 71px;
+            padding: 5px;
+        }
+        .todos {
+            top: 81px;
+            left: 10px;
+            right: 5px;
+            padding: 10px;
+            bottom: 70px;
+            overflow-y: scroll;
+            border: 1px solid black;
+
+            background-color: lightyellow;
+        }
+
+        .form label {
+            display: block;
+            color: #f7861f;
+        }
+
+        .form input {
+            height: 30px;
+        }
+        .form input[type=text] {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .form input[type=button] {
+            float: right;
+            width: 50px;
+
+            /*border: 1px solid #d3d3d3;*/
+            border: 0;
+            border-radius: 4px;
+            background-color: #5e79cb;
+            color: white;
+            transition: background-color 500ms;
+        }
+        .form input[type=button]:hover {
+            background-color: #679af5;
+        }
+        .form .input-container {
+            margin-right: 60px;
+        }
+    </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <h1>Todo List</h1>
+
+    </div>
+    <ul class="todos" id="todos">
+    </ul>
+
+    <div class="form">
+      <input type="button" id="addButton" value="Add">
+      <div class="input-container">
+        <input type="text" id="todoInput">
+      </div>
+    </div>
+  </div>
+</body>
+</html>
