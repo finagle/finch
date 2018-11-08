@@ -203,13 +203,6 @@ object Output {
       tr: ToResponse.Aux[A, CT],
       tre: ToResponse.Aux[Exception, CT]
     ): Response = {
-      convertToResponse(tr.apply, tre.apply)
-    }
-
-    private[finch] def convertToResponse(
-      tr: (A, Charset) => Response,
-      tre: (Exception, Charset) => Response
-    ): Response = {
       val rep = o match {
         case p: Output.Payload[A] => tr(p.value, p.charset.getOrElse(StandardCharsets.UTF_8))
         case f: Output.Failure => tre(f.cause, f.charset.getOrElse(StandardCharsets.UTF_8))
