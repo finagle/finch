@@ -73,6 +73,16 @@ object Main extends App with Endpoint.Module[IO] {
 
 See [examples](examples/src/main/scala/io/finch) sub-project for more complete examples.
 
+Quickstart
+----------
+
+Use [finch.g8][finch.g8] template to quickly bootstrap a minimal Finch project:
+
+ - `sbt new finch/finch.g8`
+ - `cd helloworld`
+ - `sbt run`
+ - `curl http://localhost:8081/hello`
+
 Performance
 -----------
 
@@ -179,6 +189,7 @@ limitations under the License.
 [finch-bench]: https://github.com/finagle/finch/blob/master/examples/src/main/scala/io/finch/wrk/Finch.scala
 [finagle-bench]: https://github.com/finagle/finch/blob/master/examples/src/main/scala/io/finch/wrk/Finagle.scala
 [finagle-oauth2]: https://github.com/finagle/finagle-oauth2
+[finch.g8]: https://github.com/finch/finch.g8
 [tempower]: https://www.techempower.com/benchmarks/#section=data-r12&hw=peak&test=json&l=6bk
 [finch-is-fast]: http://vkostyukov.net/posts/how-fast-is-finch/
 [finch-jackson]: https://github.com/finch/finch-jackson
