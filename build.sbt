@@ -380,8 +380,9 @@ lazy val benchmarks = project
 
 val validateCommands = List(
   "clean",
-  "scalastyle",
-  "test:scalastyle",
+  "scalafmtCheck",
+  "test:scalafmtCheck",
+  "scalafmtSbtCheck",
   "compile",
   "test:compile",
   "coverage",
