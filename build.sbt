@@ -399,6 +399,8 @@ val validateCommands = List(
   "scalafmtCheck",
   "test:scalafmtCheck",
   "scalafmtSbtCheck",
+  "scalastyle",
+  "test:scalastyle",
   "compile",
   "test:compile",
   "coverage",
