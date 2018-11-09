@@ -27,13 +27,14 @@ sealed trait Trace {
 
     this match {
       case Trace.Empty => that
-      case a @ Trace.Segment(_, _) => that match {
-        case Trace.Empty => a
-        case _ =>
-          val result = Trace.Segment(a.path, Trace.Empty)
-          loop(a.next, result)
-          result
-      }
+      case a @ Trace.Segment(_, _) =>
+        that match {
+          case Trace.Empty => a
+          case _ =>
+            val result = Trace.Segment(a.path, Trace.Empty)
+            loop(a.next, result)
+            result
+        }
     }
   }
 
@@ -43,7 +44,7 @@ sealed trait Trace {
   final def toList: List[String] = {
     @tailrec
     def loop(from: Trace, to: ListBuffer[String]): List[String] = from match {
-      case Trace.Empty => to.toList
+      case Trace.Empty               => to.toList
       case Trace.Segment(path, next) => loop(next, to += path)
     }
 
@@ -82,11 +83,11 @@ object Trace {
    */
   def captured: Trace = captureLocal() match {
     case Some(c) => c.trace
-    case None => empty
+    case None    => empty
   }
 
   private[finch] def captureIfNeeded(trace: Trace): Unit = captureLocal() match {
     case Some(c) => c.trace = trace
-    case None => // do nothing
+    case None    => // do nothing
   }
 }

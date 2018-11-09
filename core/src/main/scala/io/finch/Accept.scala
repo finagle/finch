@@ -45,12 +45,13 @@ object Accept {
     implicit def fromWitness[CT <: String](implicit w: Witness.Aux[CT]): Matcher[CT] = {
       val slashIndex = w.value.indexOf(47)
       if (slashIndex == 0 || slashIndex == w.value.length) Empty.asInstanceOf[Matcher[CT]]
-      else new Matcher[CT] {
-        private val primary: String = w.value.substring(0, slashIndex).trim.toLowerCase(Locale.ENGLISH)
-        private val sub: String = w.value.substring(slashIndex + 1, w.value.length).trim.toLowerCase(Locale.ENGLISH)
-        def apply(a: Accept): Boolean =
-          (a.primary == "*" && a.sub == "*") || (a.primary == primary && (a.sub == sub || a.sub == "*"))
-      }
+      else
+        new Matcher[CT] {
+          private val primary: String = w.value.substring(0, slashIndex).trim.toLowerCase(Locale.ENGLISH)
+          private val sub: String = w.value.substring(slashIndex + 1, w.value.length).trim.toLowerCase(Locale.ENGLISH)
+          def apply(a: Accept): Boolean =
+            (a.primary == "*" && a.sub == "*") || (a.primary == primary && (a.sub == sub || a.sub == "*"))
+        }
     }
   }
 
@@ -64,9 +65,10 @@ object Accept {
     val length = if (semIndex < 0) s.length else semIndex
 
     if (slashIndex < 0 || slashIndex >= length) Empty
-    else new Accept {
-      val primary: String = s.substring(0, slashIndex).trim.toLowerCase(Locale.ENGLISH)
-      val sub: String = s.substring(slashIndex + 1, length).trim.toLowerCase(Locale.ENGLISH)
-    }
+    else
+      new Accept {
+        val primary: String = s.substring(0, slashIndex).trim.toLowerCase(Locale.ENGLISH)
+        val sub: String = s.substring(slashIndex + 1, length).trim.toLowerCase(Locale.ENGLISH)
+      }
   }
 }

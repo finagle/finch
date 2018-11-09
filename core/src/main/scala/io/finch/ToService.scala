@@ -1,9 +1,9 @@
 package io.finch
 
-import cats.effect.{ConcurrentEffect, Effect, IO}
+import cats.effect.{ ConcurrentEffect, Effect, IO }
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Method, Request, Response, Status, Version}
-import com.twitter.util.{Future, Promise}
+import com.twitter.finagle.http.{ Method, Request, Response, Status, Version }
+import com.twitter.util.{ Future, Promise }
 import io.finch.internal.currentTime
 import scala.annotation.implicitNotFound
 import shapeless._
@@ -21,7 +21,7 @@ import shapeless._
  * - include the server header on each response (unless disabled)
  */
 @implicitNotFound(
-"""An Endpoint you're trying to convert into a Finagle service is missing one or more encoders.
+  """An Endpoint you're trying to convert into a Finagle service is missing one or more encoders.
 
   Make sure each endpoint in ${ES}, ${CTS} is one of the following:
 
@@ -57,7 +57,7 @@ object ToService {
   final case class Context(wouldAllow: List[Method] = Nil)
 
   private val respond400: PartialFunction[Throwable, Output[Nothing]] = {
-    case e: io.finch.Error => Output.failure(e, Status.BadRequest)
+    case e: io.finch.Error   => Output.failure(e, Status.BadRequest)
     case es: io.finch.Errors => Output.failure(es, Status.BadRequest)
   }
 
@@ -98,7 +98,8 @@ object ToService {
       }
   }
 
-  implicit def hlistTS[F[_], A, EH <: Endpoint[F, A], ET <: HList, CTH, CTT <: HList](implicit
+  implicit def hlistTS[F[_], A, EH <: Endpoint[F, A], ET <: HList, CTH, CTT <: HList](
+    implicit
     ntrA: ToResponse.Negotiable[A, CTH],
     ntrE: ToResponse.Negotiable[Exception, CTH],
     effect: Effect[F],
@@ -114,7 +115,6 @@ object ToService {
 
         def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
           case EndpointResult.Matched(rem, trc, out) if rem.route.isEmpty =>
-
             Trace.captureIfNeeded(trc)
 
             val accept =
@@ -124,19 +124,24 @@ object ToService {
 
             (effect match {
               case concurrent: ConcurrentEffect[F] =>
-                (concurrent.runCancelable(out) _).andThen(io => io.map(cancelToken =>
-                  rep.setInterruptHandler {
-                    case _ => concurrent.toIO(cancelToken).unsafeRunAsyncAndForget()
-                  }
-                ))
+                (concurrent.runCancelable(out) _).andThen(
+                  io =>
+                    io.map(
+                      cancelToken =>
+                        rep.setInterruptHandler {
+                          case _ => concurrent.toIO(cancelToken).unsafeRunAsyncAndForget()
+                        }
+                    )
+                )
               case e => e.runAsync(out) _
             }) {
               case Left(t) => IO(rep.setException(t))
-              case Right(v) => IO {
-                rep.setValue(
-                  conformHttp(v.toResponse(ntrA(accept), ntrE(accept)), req.version, opts)
-                )
-              }
+              case Right(v) =>
+                IO {
+                  rep.setValue(
+                    conformHttp(v.toResponse(ntrA(accept), ntrE(accept)), req.version, opts)
+                  )
+                }
             }.unsafeRunSync()
 
             rep
@@ -147,7 +152,7 @@ object ToService {
           case _ =>
             tsT(es.tail, opts, ctx)(req)
         }
-    }
+      }
   }
 
 }

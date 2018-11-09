@@ -4,7 +4,7 @@ import com.twitter.finagle.http.Request
 import com.twitter.io.Buf
 import io.finch.data.Foo
 import java.nio.charset.Charset
-import shapeless.{:+:, CNil}
+import shapeless.{ :+:, CNil }
 
 class BodySpec extends FinchSpec {
 
@@ -83,7 +83,7 @@ class BodySpec extends FinchSpec {
   it should "resolve into NotParsed(Decode.UMTE) if Content-Type does not match" in {
     val i = Input.post("/").withBody[Application.Xml](Buf.Utf8("foo"))
     val b = body[Foo, Text.Plain :+: Application.Csv :+: CNil]
-    val t =  b(i).awaitOutput()
+    val t = b(i).awaitOutput()
 
     t match {
       case Some(Left(error: Error.NotParsed)) =>

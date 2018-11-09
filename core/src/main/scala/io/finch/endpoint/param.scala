@@ -6,7 +6,8 @@ import cats.effect.Effect
 import io.finch._
 import scala.reflect.ClassTag
 
-private[finch] abstract class Param[F[_], G[_], A](name: String)(implicit
+private[finch] abstract class Param[F[_], G[_], A](name: String)(
+  implicit
   d: DecodeEntity[A],
   tag: ClassTag[A],
   protected val F: Effect[F]
@@ -19,10 +20,11 @@ private[finch] abstract class Param[F[_], G[_], A](name: String)(implicit
     val output: F[Output[G[A]]] = F.suspend {
       input.request.params.get(name) match {
         case None => missing(name)
-        case Some(value) => d(value) match {
-          case Right(s) => F.pure(Output.payload(present(s)))
-          case Left(e) => F.raiseError(Error.NotParsed(items.ParamItem(name), tag, e))
-        }
+        case Some(value) =>
+          d(value) match {
+            case Right(s) => F.pure(Output.payload(present(s)))
+            case Left(e)  => F.raiseError(Error.NotParsed(items.ParamItem(name), tag, e))
+          }
       }
     }
 
@@ -47,7 +49,8 @@ private[finch] object Param {
   }
 }
 
-private[finch] abstract class Params[F[_], G[_], A](name: String)(implicit
+private[finch] abstract class Params[F[_], G[_], A](name: String)(
+  implicit
   d: DecodeEntity[A],
   tag: ClassTag[A],
   protected val F: Effect[F]

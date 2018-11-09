@@ -26,7 +26,7 @@ sealed abstract class EndpointResult[F[_], +A] {
    */
   final def isMatched: Boolean = this match {
     case EndpointResult.Matched(_, _, _) => true
-    case _ => false
+    case _                               => false
   }
 
   /**
@@ -37,7 +37,7 @@ sealed abstract class EndpointResult[F[_], +A] {
    */
   final def remainder: Option[Input] = this match {
     case EndpointResult.Matched(rem, _, _) => Some(rem)
-    case _ => None
+    case _                                 => None
   }
 
   /**
@@ -48,21 +48,22 @@ sealed abstract class EndpointResult[F[_], +A] {
    */
   final def trace: Option[Trace] = this match {
     case EndpointResult.Matched(_, trc, _) => Some(trc)
-    case _ => None
+    case _                                 => None
   }
 
-  def awaitOutput(d: Duration = Duration.Inf)(implicit F: Effect[F]): Option[Either[Throwable, Output[A]]] = this match {
-    case EndpointResult.Matched(_, _, out) =>
-      try {
-        F.toIO(out).unsafeRunTimed(d) match {
-          case Some(a) => Some(Right(a))
-          case _ => Some(Left(new TimeoutException(s"Output wasn't returned in time: $d")))
+  def awaitOutput(d: Duration = Duration.Inf)(implicit F: Effect[F]): Option[Either[Throwable, Output[A]]] =
+    this match {
+      case EndpointResult.Matched(_, _, out) =>
+        try {
+          F.toIO(out).unsafeRunTimed(d) match {
+            case Some(a) => Some(Right(a))
+            case _       => Some(Left(new TimeoutException(s"Output wasn't returned in time: $d")))
+          }
+        } catch {
+          case e: Throwable => Some(Left(e))
         }
-      } catch {
-        case e: Throwable => Some(Left(e))
-      }
-    case _ => None
-  }
+      case _ => None
+    }
 
   def awaitOutputUnsafe(d: Duration = Duration.Inf)(implicit F: Effect[F]): Option[Output[A]] =
     awaitOutput(d).map {
@@ -70,10 +71,10 @@ sealed abstract class EndpointResult[F[_], +A] {
       case Left(ex) => throw ex
     }
 
-  def awaitValue(d: Duration = Duration.Inf)(implicit F: Effect[F]): Option[Either[Throwable, A]]=
+  def awaitValue(d: Duration = Duration.Inf)(implicit F: Effect[F]): Option[Either[Throwable, A]] =
     awaitOutput(d).map {
       case Right(oa) => Right(oa.value)
-      case Left(ob) => Left(ob)
+      case Left(ob)  => Left(ob)
     }
 
   def awaitValueUnsafe(d: Duration = Duration.Inf)(implicit F: Effect[F]): Option[A] =

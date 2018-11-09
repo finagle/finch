@@ -1,7 +1,7 @@
 package io.finch.data
 
 import com.twitter.io.Buf
-import io.finch.{Decode, DecodeEntity, Encode}
+import io.finch.{ Decode, DecodeEntity, Encode }
 import io.finch.internal.HttpContent
 
 case class Foo(s: String)

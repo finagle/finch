@@ -1,9 +1,9 @@
 package io.finch
 
-import com.twitter.finagle.http.{Fields, Message}
+import com.twitter.finagle.http.{ Fields, Message }
 import com.twitter.io.Buf
 import java.nio.ByteBuffer
-import java.nio.charset.{Charset, StandardCharsets}
+import java.nio.charset.{ Charset, StandardCharsets }
 import scala.annotation.tailrec
 
 /**
@@ -29,9 +29,9 @@ package object internal {
      * Converts this string to the optional boolean value.
      */
     final def tooBoolean: Option[Boolean] = s match {
-      case "true" => someTrue
+      case "true"  => someTrue
       case "false" => someFalse
-      case _ => None
+      case _       => None
     }
 
     /**

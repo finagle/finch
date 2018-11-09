@@ -1,7 +1,7 @@
 package io.finch
 
 import com.twitter.concurrent.AsyncStream
-import com.twitter.finagle.http.{Response, Status, Version}
+import com.twitter.finagle.http.{ Response, Status, Version }
 import com.twitter.io.Buf
 import java.nio.charset.Charset
 import scala.annotation.implicitNotFound
@@ -18,7 +18,7 @@ trait ToResponse[A] {
 
 trait LowPriorityToResponseInstances {
   @implicitNotFound(
-"""An Endpoint you're trying to convert into a Finagle service is missing one or more encoders.
+    """An Endpoint you're trying to convert into a Finagle service is missing one or more encoders.
 
   Make sure ${A} is one of the following:
 
@@ -36,7 +36,8 @@ trait LowPriorityToResponseInstances {
     def apply(a: A, cs: Charset): Response = fn(a, cs)
   }
 
-  protected[finch] def asyncResponseBuilder[A, CT <: String](writer: (A, Charset) => Buf)(implicit
+  protected[finch] def asyncResponseBuilder[A, CT <: String](writer: (A, Charset) => Buf)(
+    implicit
     w: Witness.Aux[CT]
   ): Aux[AsyncStream[A], CT] = instance { (as, cs) =>
     val rep = Response()
@@ -52,12 +53,14 @@ trait LowPriorityToResponseInstances {
 
   private[finch] val NewLine: Buf = Buf.Utf8("\n")
 
-  implicit def jsonAsyncStreamToResponse[A](implicit
+  implicit def jsonAsyncStreamToResponse[A](
+    implicit
     e: Encode.Json[A]
   ): Aux[AsyncStream[A], Application.Json] =
     asyncResponseBuilder[A, Application.Json]((a, cs) => e(a, cs).concat(NewLine))
 
-  implicit def textAsyncStreamToResponse[A](implicit
+  implicit def textAsyncStreamToResponse[A](
+    implicit
     e: Encode.Text[A]
   ): Aux[AsyncStream[A], Text.Plain] =
     asyncResponseBuilder[A, Text.Plain]((a, cs) => e(a, cs).concat(NewLine))
@@ -65,13 +68,15 @@ trait LowPriorityToResponseInstances {
 
 trait HighPriorityToResponseInstances extends LowPriorityToResponseInstances {
 
-  implicit def asyncBufToResponse[CT <: String](implicit
+  implicit def asyncBufToResponse[CT <: String](
+    implicit
     w: Witness.Aux[CT]
   ): Aux[AsyncStream[Buf], CT] = asyncResponseBuilder[Buf, CT]((a, _) => a)
 
   implicit def responseToResponse[CT <: String]: Aux[Response, CT] = instance((r, _) => r)
 
-  implicit def valueToResponse[A, CT <: String](implicit
+  implicit def valueToResponse[A, CT <: String](
+    implicit
     e: Encode.Aux[A, CT],
     w: Witness.Aux[CT]
   ): Aux[A, CT] = instance { (a, cs) =>
@@ -100,7 +105,8 @@ object ToResponse extends HighPriorityToResponseInstances {
 
   object Negotiable {
 
-    implicit def coproductToNegotiable[A, CTH <: String, CTT <: Coproduct](implicit
+    implicit def coproductToNegotiable[A, CTH <: String, CTT <: Coproduct](
+      implicit
       h: ToResponse.Aux[A, CTH],
       t: Negotiable[A, CTT],
       a: Accept.Matcher[CTH]
@@ -110,14 +116,16 @@ object ToResponse extends HighPriorityToResponseInstances {
         else t(accept).asInstanceOf[ToResponse.Aux[A, CTH :+: CTT]]
     }
 
-    implicit def cnilToNegotiable[A, CTH <: String](implicit
+    implicit def cnilToNegotiable[A, CTH <: String](
+      implicit
       tr: ToResponse.Aux[A, CTH]
     ): Negotiable[A, CTH :+: CNil] = new Negotiable[A, CTH :+: CNil] {
       def apply(accept: Seq[Accept]): ToResponse.Aux[A, CTH :+: CNil] =
         tr.asInstanceOf[ToResponse.Aux[A, CTH :+: CNil]]
     }
 
-    implicit def singleToNegotiable[A, CT <: String](implicit
+    implicit def singleToNegotiable[A, CT <: String](
+      implicit
       tr: ToResponse.Aux[A, CT]
     ): Negotiable[A, CT] = new Negotiable[A, CT] {
       def apply(accept: Seq[Accept]): ToResponse.Aux[A, CT] = tr
@@ -139,7 +147,8 @@ object ToResponse extends HighPriorityToResponseInstances {
       instance((_, _) => Response(Version.Http10, Status.NotFound))
 
     implicit def cconsToResponse[L, R <: Coproduct, CT <: String](
-      implicit trL: ToResponse.Aux[L, CT], fcR: Aux[R, CT]
+      implicit trL: ToResponse.Aux[L, CT],
+      fcR: Aux[R, CT]
     ): Aux[L :+: R, CT] = instance {
       case (Inl(h), cs) => trL(h, cs)
       case (Inr(t), cs) => fcR(t, cs)

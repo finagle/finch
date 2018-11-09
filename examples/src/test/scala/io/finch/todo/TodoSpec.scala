@@ -7,8 +7,8 @@ import io.finch._
 import io.finch.circe._
 import java.nio.charset.StandardCharsets
 import java.util.UUID
-import org.scalacheck.{Arbitrary, Gen}
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalacheck.{ Arbitrary, Gen }
+import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.prop.Checkers
 
 class TodoSpec extends FlatSpec with Matchers with Checkers {
@@ -28,8 +28,7 @@ class TodoSpec extends FlatSpec with Matchers with Checkers {
 
   it should "create a todo" in {
     check { todoWithoutId: TodoWithoutId =>
-      val input = Input.post("/todos")
-        .withBody[Application.Json](todoWithoutId, Some(StandardCharsets.UTF_8))
+      val input = Input.post("/todos").withBody[Application.Json](todoWithoutId, Some(StandardCharsets.UTF_8))
 
       val res = postTodo(input)
       val Some(todo) = res.awaitOutputUnsafe()
@@ -46,7 +45,8 @@ class TodoSpec extends FlatSpec with Matchers with Checkers {
 
   it should "modify an existing todo if its id has been found" in {
     val todo = createTodo()
-    val input = Input.patch(s"/todos/${todo.id}")
+    val input = Input
+      .patch(s"/todos/${todo.id}")
       .withBody[Application.Json](Buf.Utf8("{\"completed\": true}"), Some(StandardCharsets.UTF_8))
 
     patchTodo(input).awaitValueUnsafe() shouldBe Some(todo.copy(completed = true))
@@ -56,7 +56,8 @@ class TodoSpec extends FlatSpec with Matchers with Checkers {
     val id = UUID.randomUUID()
     Todo.get(id) shouldBe None
 
-    val input = Input.patch(s"/todos/$id")
+    val input = Input
+      .patch(s"/todos/$id")
       .withBody[Application.Json](Buf.Utf8("{\"completed\": true}"), Some(StandardCharsets.UTF_8))
 
     a[TodoNotFound] shouldBe thrownBy(patchTodo(input).awaitValueUnsafe())
@@ -64,7 +65,8 @@ class TodoSpec extends FlatSpec with Matchers with Checkers {
 
   it should "give back the same todo with non-related json" in {
     val todo = createTodo()
-    val input = Input.patch(s"/todos/${todo.id}")
+    val input = Input
+      .patch(s"/todos/${todo.id}")
       .withBody[Application.Json](Buf.Utf8("{\"bla\": true}"), Some(StandardCharsets.UTF_8))
 
     patchTodo(input).awaitValueUnsafe() shouldBe Some(todo)

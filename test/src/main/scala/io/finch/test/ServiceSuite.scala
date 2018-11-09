@@ -1,9 +1,9 @@
 package io.finch.test
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Request, Response}
-import com.twitter.util.{Await, Duration}
-import org.scalatest.{fixture, Outcome}
+import com.twitter.finagle.http.{ Request, Response }
+import com.twitter.util.{ Await, Duration }
+import org.scalatest.{ fixture, Outcome }
 
 /**
  * A convenience class that is designed to make it easier to test HTTP services

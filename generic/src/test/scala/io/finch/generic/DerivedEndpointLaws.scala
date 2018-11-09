@@ -6,10 +6,10 @@ import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
 import io.finch._
-import org.scalacheck.{Arbitrary, Prop}
+import org.scalacheck.{ Arbitrary, Prop }
 import org.typelevel.discipline.Laws
 
-abstract class DerivedEndpointLaws[F[_] : Effect, A] extends Laws with MissingInstances with AllInstances {
+abstract class DerivedEndpointLaws[F[_]: Effect, A] extends Laws with MissingInstances with AllInstances {
 
   def endpoint: Endpoint[F, A]
   def toParams: A => Seq[(String, String)]
@@ -23,12 +23,14 @@ abstract class DerivedEndpointLaws[F[_] : Effect, A] extends Laws with MissingIn
     new DefaultRuleSet(
       name = "evaluating",
       parent = None,
-      "roundTrip" -> Prop.forAll { (a: A) => roundTrip(a) }
+      "roundTrip" -> Prop.forAll { (a: A) =>
+        roundTrip(a)
+      }
     )
 }
 
 object DerivedEndpointLaws {
-  def apply[F[_] : Effect, A](
+  def apply[F[_]: Effect, A](
     e: Endpoint[F, A],
     tp: A => Seq[(String, String)]
   ): DerivedEndpointLaws[F, A] = new DerivedEndpointLaws[F, A] {

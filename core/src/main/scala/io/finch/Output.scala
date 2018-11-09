@@ -1,8 +1,8 @@
 package io.finch
 
-import cats.{Applicative, Eq}
-import com.twitter.finagle.http.{Cookie, Response, Status}
-import java.nio.charset.{Charset, StandardCharsets}
+import cats.{ Applicative, Eq }
+import com.twitter.finagle.http.{ Cookie, Response, Status }
+import java.nio.charset.{ Charset, StandardCharsets }
 
 /**
  * An output of [[Endpoint]].
@@ -36,27 +36,27 @@ sealed trait Output[+A] { self =>
 
   final def map[B](fn: A => B): Output[B] = this match {
     case p: Output.Payload[A] => p.withValue(fn(p.value))
-    case f: Output.Failure => f
-    case e: Output.Empty => e
+    case f: Output.Failure    => f
+    case e: Output.Empty      => e
   }
 
   final def flatMap[B](fn: A => Output[B]): Output[B] = this match {
     case p: Output.Payload[A] => fn(p.value).withCookies(p.cookies).withHeaders(p.headers)
-    case f: Output.Failure => f
-    case e: Output.Empty => e
+    case f: Output.Failure    => f
+    case e: Output.Empty      => e
   }
 
   final def traverse[F[_], B](fn: A => F[B])(implicit F: Applicative[F]): F[Output[B]] = this match {
     case p: Output.Payload[A] => F.map(fn(p.value))(b => p.withValue(b))
-    case f: Output.Failure => F.pure(f)
-    case e: Output.Empty => F.pure(e)
+    case f: Output.Failure    => F.pure(f)
+    case e: Output.Empty      => F.pure(e)
   }
 
   final def traverseFlatten[F[_], B](fn: A => F[Output[B]])(implicit F: Applicative[F]): F[Output[B]] = this match {
     case p: Output.Payload[A] =>
       F.map(fn(p.value))(ob => ob.withHeaders(self.headers).withCookies(self.cookies))
     case f: Output.Failure => F.pure(f)
-    case e: Output.Empty => F.pure(e)
+    case e: Output.Empty   => F.pure(e)
   }
 
   /**
@@ -95,10 +95,12 @@ sealed trait Output[+A] { self =>
    */
   final def withCookie(cookie: Cookie): Output[A] = withCookies(Seq(cookie))
 
-  protected def copy(status: Status = self.status,
+  protected def copy(
+    status: Status = self.status,
     charset: Option[Charset] = self.charset,
     headers: Map[String, String] = self.headers,
-    cookies: Seq[Cookie] = self.cookies): Output[A]
+    cookies: Seq[Cookie] = self.cookies
+  ): Output[A]
 }
 
 object Output {
@@ -139,19 +141,21 @@ object Output {
    * A successful [[Output]] that captures a payload `value`.
    */
   private[finch] final case class Payload[A](
-      value: A,
-      status: Status = Status.Ok,
-      charset: Option[Charset] = Option.empty,
-      headers: Map[String, String] = Map.empty[String, String],
-      cookies: Seq[Cookie] = Seq.empty[Cookie]) extends  Output[A] { self =>
+    value: A,
+    status: Status = Status.Ok,
+    charset: Option[Charset] = Option.empty,
+    headers: Map[String, String] = Map.empty[String, String],
+    cookies: Seq[Cookie] = Seq.empty[Cookie]
+  ) extends Output[A] { self =>
 
     def withValue[B](value: B): Payload[B] = Payload(value, status, charset, headers, cookies)
 
     protected def copy(
-        status: Status,
-        charset: Option[Charset],
-        headers: Map[String, String],
-        cookies: Seq[Cookie]): Output[A] = Payload(value, status, charset, headers, cookies)
+      status: Status,
+      charset: Option[Charset],
+      headers: Map[String, String],
+      cookies: Seq[Cookie]
+    ): Output[A] = Payload(value, status, charset, headers, cookies)
   }
 
   /**
@@ -159,37 +163,41 @@ object Output {
    * or an empty response.
    */
   private[finch] final case class Failure(
-      cause: Exception,
-      status: Status = Status.BadRequest,
-      charset: Option[Charset] = Option.empty,
-      headers: Map[String, String] = Map.empty[String, String],
-      cookies: Seq[Cookie] = Seq.empty[Cookie]) extends Output[Nothing] {
+    cause: Exception,
+    status: Status = Status.BadRequest,
+    charset: Option[Charset] = Option.empty,
+    headers: Map[String, String] = Map.empty[String, String],
+    cookies: Seq[Cookie] = Seq.empty[Cookie]
+  ) extends Output[Nothing] {
 
     def value: Nothing = throw cause
 
     protected def copy(
-        status: Status,
-        charset: Option[Charset],
-        headers: Map[String, String],
-        cookies: Seq[Cookie]): Output[Nothing] = Failure(cause, status, charset, headers, cookies)
+      status: Status,
+      charset: Option[Charset],
+      headers: Map[String, String],
+      cookies: Seq[Cookie]
+    ): Output[Nothing] = Failure(cause, status, charset, headers, cookies)
   }
 
   /**
    * An empty [[Output]] that does not capture any payload.
    */
   private[finch] final case class Empty(
-      status: Status,
-      charset: Option[Charset] = Option.empty,
-      headers: Map[String, String] = Map.empty[String, String],
-      cookies: Seq[Cookie] = Seq.empty[Cookie]) extends Output[Nothing] {
+    status: Status,
+    charset: Option[Charset] = Option.empty,
+    headers: Map[String, String] = Map.empty[String, String],
+    cookies: Seq[Cookie] = Seq.empty[Cookie]
+  ) extends Output[Nothing] {
 
     def value: Nothing = throw new IllegalStateException("empty output")
 
     protected def copy(
-        status: Status,
-        charset: Option[Charset],
-        headers: Map[String, String],
-        cookies: Seq[Cookie]): Output[Nothing] = Empty(status, charset, headers, cookies)
+      status: Status,
+      charset: Option[Charset],
+      headers: Map[String, String],
+      cookies: Seq[Cookie]
+    ): Output[Nothing] = Empty(status, charset, headers, cookies)
   }
 
   implicit def outputEq[A]: Eq[Output[A]] = Eq.fromUniversalEquals
@@ -199,14 +207,15 @@ object Output {
     /**
      * Converts this [[Output]] to the HTTP response of the given `version`.
      */
-    def toResponse[CT](implicit
+    def toResponse[CT](
+      implicit
       tr: ToResponse.Aux[A, CT],
       tre: ToResponse.Aux[Exception, CT]
     ): Response = {
       val rep = o match {
         case p: Output.Payload[A] => tr(p.value, p.charset.getOrElse(StandardCharsets.UTF_8))
-        case f: Output.Failure => tre(f.cause, f.charset.getOrElse(StandardCharsets.UTF_8))
-        case e: Output.Empty => Response()
+        case f: Output.Failure    => tre(f.cause, f.charset.getOrElse(StandardCharsets.UTF_8))
+        case e: Output.Empty      => Response()
       }
 
       rep.status = o.status

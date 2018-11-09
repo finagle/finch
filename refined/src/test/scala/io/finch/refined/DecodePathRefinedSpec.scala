@@ -5,7 +5,7 @@ import eu.timepit.refined.cats._
 import eu.timepit.refined.collection.NonEmpty
 import eu.timepit.refined.numeric.Positive
 import eu.timepit.refined.scalacheck.all._
-import io.finch.{DecodePathLaws, FinchSpec}
+import io.finch.{ DecodePathLaws, FinchSpec }
 
 class DecodePathRefinedSpec extends FinchSpec {
 

@@ -2,15 +2,13 @@ package io.finch
 
 import cats.effect.IO
 import com.twitter.finagle.http.Response
-import com.twitter.util.{Future => TwitterFuture}
+import com.twitter.util.{ Future => TwitterFuture }
 import org.scalacheck.Arbitrary
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import scala.concurrent.{Future => ScalaFuture}
+import scala.concurrent.{ Future => ScalaFuture }
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class MethodSpec
-  extends FinchSpec
-  with GeneratorDrivenPropertyChecks {
+class MethodSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
 
   behavior of "method"
 
@@ -29,11 +27,11 @@ class MethodSpec
   }
 
   it should "map TwitterFuture[Output[A]] value to endpoint" in {
-    checkValue((i: String) => get(zero) { TwitterFuture.value(Ok(i)) } )
+    checkValue((i: String) => get(zero) { TwitterFuture.value(Ok(i)) })
   }
 
   it should "map ScalaFuture[Output[A]] value to endpoint" in {
-    checkValue((i: String) => get(zero) { ScalaFuture.successful(Ok(i)) } )
+    checkValue((i: String) => get(zero) { ScalaFuture.successful(Ok(i)) })
   }
 
   it should "map F[Response] value to endpoint" in {
@@ -49,73 +47,102 @@ class MethodSpec
   }
 
   it should "map A => Output function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => Ok(i) })
+    checkFunction(get(path[Int]) { i: Int =>
+      Ok(i)
+    })
   }
 
   it should "map A => Response function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => Ok(i).toResponse[Text.Plain] })
+    checkFunction(get(path[Int]) { i: Int =>
+      Ok(i).toResponse[Text.Plain]
+    })
   }
 
   it should "map A => F[Output[A]] function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => IO.pure(i).map(Ok) })
+    checkFunction(get(path[Int]) { i: Int =>
+      IO.pure(i).map(Ok)
+    })
   }
 
   it should "map A => TwitterFuture[Output[A]] function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => TwitterFuture.value(i).map(Ok) })
+    checkFunction(get(path[Int]) { i: Int =>
+      TwitterFuture.value(i).map(Ok)
+    })
   }
 
   it should "map A => ScalaFuture[Output[A]] function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => ScalaFuture.successful(i).map(Ok) })
+    checkFunction(get(path[Int]) { i: Int =>
+      ScalaFuture.successful(i).map(Ok)
+    })
   }
 
   it should "map A => F[Response] function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => IO.pure(i).map(Ok(_).toResponse[Text.Plain]) })
+    checkFunction(get(path[Int]) { i: Int =>
+      IO.pure(i).map(Ok(_).toResponse[Text.Plain])
+    })
   }
 
   it should "map A => TwitterFuture[Response] function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => TwitterFuture.value(i).map(Ok(_).toResponse[Text.Plain]) })
+    checkFunction(get(path[Int]) { i: Int =>
+      TwitterFuture.value(i).map(Ok(_).toResponse[Text.Plain])
+    })
   }
 
   it should "map A => ScalaFuture[Response] function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => ScalaFuture.successful(i).map(Ok(_).toResponse[Text.Plain]) })
+    checkFunction(get(path[Int]) { i: Int =>
+      ScalaFuture.successful(i).map(Ok(_).toResponse[Text.Plain])
+    })
   }
 
   it should "map (A, B) => Output function to endpoint" in {
-    checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) => Ok(s"$x$y") })
+    checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
+      Ok(s"$x$y")
+    })
   }
 
   it should "map (A, B) => Response function to endpoint" in {
-    checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) => Ok(s"$x$y").toResponse[Text.Plain] })
+    checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
+      Ok(s"$x$y").toResponse[Text.Plain]
+    })
   }
 
   it should "map (A, B) => F[Output[String]] function to endpoint" in {
-    checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) => IO.pure(Ok(s"$x$y")) })
+    checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
+      IO.pure(Ok(s"$x$y"))
+    })
   }
 
   it should "map (A, B) => TwitterFuture[Output[String]] function to endpoint" in {
-    checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) => TwitterFuture.value(Ok(s"$x$y")) })
+    checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
+      TwitterFuture.value(Ok(s"$x$y"))
+    })
   }
 
   it should "map (A, B) => ScalaFuture[Output[String]] function to endpoint" in {
-    checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) => ScalaFuture.successful(Ok(s"$x$y")) })
+    checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
+      ScalaFuture.successful(Ok(s"$x$y"))
+    })
   }
 
   it should "map (A, B) => F[Response] function to endpoint" in {
     checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
-      IO.pure(Ok(s"$x$y").toResponse[Text.Plain]) })
+      IO.pure(Ok(s"$x$y").toResponse[Text.Plain])
+    })
   }
 
   it should "map (A, B) => TwitterFuture[Response] function to endpoint" in {
     checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
-      TwitterFuture.value(Ok(s"$x$y").toResponse[Text.Plain]) })
+      TwitterFuture.value(Ok(s"$x$y").toResponse[Text.Plain])
+    })
   }
 
   it should "map (A, B) => ScalaFuture[Response] function to endpoint" in {
     checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
-      ScalaFuture.successful(Ok(s"$x$y").toResponse[Text.Plain]) })
+      ScalaFuture.successful(Ok(s"$x$y").toResponse[Text.Plain])
+    })
   }
 
-  private def checkValue[A : Arbitrary](f: A => Endpoint[IO, A]): Unit = {
+  private def checkValue[A: Arbitrary](f: A => Endpoint[IO, A]): Unit = {
     forAll((input: A) => {
       val e = f(input)
       e(Input.get("/")).awaitValueUnsafe() shouldBe Some(input)
@@ -126,8 +153,8 @@ class MethodSpec
     forAll((input: Int) => {
       e(Input.get(s"/$input")).awaitValueUnsafe() match {
         case Some(r: Response) => r.contentString shouldBe input.toString
-        case Some(a: Int) => a shouldBe input
-        case _ => ()
+        case Some(a: Int)      => a shouldBe input
+        case _                 => ()
       }
     })
   }
@@ -136,8 +163,8 @@ class MethodSpec
     forAll((x: Int, y: Int) => {
       e(Input.get(s"/$x/$y")).awaitValueUnsafe() match {
         case Some(r: Response) => r.contentString shouldBe s"$x$y"
-        case Some(a: String) => a shouldBe s"$x$y"
-        case _ => ()
+        case Some(a: String)   => a shouldBe s"$x$y"
+        case _                 => ()
       }
     })
   }

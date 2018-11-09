@@ -1,19 +1,14 @@
 package io.finch
 
-import cats.{Alternative, Applicative, ApplicativeError, Id, Monad, MonadError}
+import cats.{ Alternative, Applicative, ApplicativeError, Id, Monad, MonadError }
 import cats.data.NonEmptyList
-import cats.effect.{Effect, Sync}
+import cats.effect.{ Effect, Sync }
 import cats.syntax.all._
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{
-  Cookie => FinagleCookie,
-  Method => FinagleMethod,
-  Request,
-  Response
-}
-import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart}
-import com.twitter.io.{Buf, Reader}
+import com.twitter.finagle.http.{ Cookie => FinagleCookie, Method => FinagleMethod, Request, Response }
+import com.twitter.finagle.http.exp.{ Multipart => FinagleMultipart }
+import com.twitter.io.{ Buf, Reader }
 import io.finch.endpoint._
 import io.finch.internal._
 import io.finch.items.RequestItem
@@ -166,37 +161,39 @@ trait Endpoint[F[_], A] { self =>
     * Returns a product of this and `other` endpoint. The resulting endpoint returns a value of
     * resulting type for product function.
     */
-  final def productWith[B, O](other: Endpoint[F, B])(p: (A, B) => O)(implicit
+  final def productWith[B, O](other: Endpoint[F, B])(p: (A, B) => O)(
+    implicit
     F: MonadError[F, Throwable]
   ): Endpoint[F, O] =
     new Endpoint[F, O] with (((Either[Throwable, Output[A]], Either[Throwable, Output[B]])) => F[Output[O]]) {
       private[this] final def collect(a: Throwable, b: Throwable): Throwable = (a, b) match {
-        case (aa: Error, bb: Error) => Errors(NonEmptyList.of(aa, bb))
-        case (aa: Error, Errors(bs)) => Errors(aa :: bs)
-        case (Errors(as), bb: Error) => Errors(bb :: as)
+        case (aa: Error, bb: Error)   => Errors(NonEmptyList.of(aa, bb))
+        case (aa: Error, Errors(bs))  => Errors(aa :: bs)
+        case (Errors(as), bb: Error)  => Errors(bb :: as)
         case (Errors(as), Errors(bs)) => Errors(as.concatNel(bs))
-        case (_: Error, _) => b // we fail-fast with first non-Error observed
-        case (_: Errors, _) => b // we fail-fast with first non-Error observed
-        case _ => a
+        case (_: Error, _)            => b // we fail-fast with first non-Error observed
+        case (_: Errors, _)           => b // we fail-fast with first non-Error observed
+        case _                        => a
       }
 
       final def apply(both: (Either[Throwable, Output[A]], Either[Throwable, Output[B]])): F[Output[O]] = both match {
         case (Right(oa), Right(ob)) => F.pure(oa.flatMap(a => ob.map(b => p(a, b))))
-        case (Left(a), Left(b)) => F.raiseError(collect(a, b))
-        case (Left(a), _) => F.raiseError(a)
-        case (_, Left(b)) => F.raiseError(b)
+        case (Left(a), Left(b))     => F.raiseError(collect(a, b))
+        case (Left(a), _)           => F.raiseError(a)
+        case (_, Left(b))           => F.raiseError(b)
       }
 
       final def apply(input: Input): Endpoint.Result[F, O] = self(input) match {
-        case a @ EndpointResult.Matched(_, _, _) => other(a.rem) match {
-          case b @ EndpointResult.Matched(_, _, _) =>
-            EndpointResult.Matched(
-              b.rem,
-              a.trc.concat(b.trc),
-              a.out.attempt.product(b.out.attempt).flatMap(this)
-            )
-          case skipped: EndpointResult.NotMatched[F] => skipped
-        }
+        case a @ EndpointResult.Matched(_, _, _) =>
+          other(a.rem) match {
+            case b @ EndpointResult.Matched(_, _, _) =>
+              EndpointResult.Matched(
+                b.rem,
+                a.trc.concat(b.trc),
+                a.out.attempt.product(b.out.attempt).flatMap(this)
+              )
+            case skipped: EndpointResult.NotMatched[F] => skipped
+          }
         case skipped: EndpointResult.NotMatched[F] => skipped
       }
 
@@ -207,19 +204,20 @@ trait Endpoint[F[_], A] { self =>
   /**
     * Composes this endpoint with the given [[Endpoint]].
     */
-  final def ::[B](other: Endpoint[F, B])(implicit
+  final def ::[B](other: Endpoint[F, B])(
+    implicit
     pa: PairAdjoin[B, A],
     F: MonadError[F, Throwable]
   ): Endpoint[F, pa.Out] = new Endpoint[F, pa.Out] with ((B, A) => pa.Out) {
-      private[this] val inner = other.productWith(self)(this)
+    private[this] val inner = other.productWith(self)(this)
 
-      final def apply(b: B, a: A): pa.Out = pa(b, a)
+    final def apply(b: B, a: A): pa.Out = pa(b, a)
 
-      final def apply(input: Input): Endpoint.Result[F, pa.Out] = inner(input)
+    final def apply(input: Input): Endpoint.Result[F, pa.Out] = inner(input)
 
-      override def item = items.MultipleItems
-      final override def toString: String = s"${other.toString} :: ${self.toString}"
-    }
+    override def item = items.MultipleItems
+    final override def toString: String = s"${other.toString} :: ${self.toString}"
+  }
 
   /**
     * Sequentially composes this endpoint with the given `other` endpoint. The resulting endpoint
@@ -233,20 +231,23 @@ trait Endpoint[F[_], A] { self =>
     */
   final def coproduct[B >: A](other: Endpoint[F, B]): Endpoint[F, B] = new Endpoint[F, B] {
     final def apply(input: Input): Endpoint.Result[F, B] = self(input) match {
-      case a @ EndpointResult.Matched(_, _, _) => other(input) match {
-        case b @ EndpointResult.Matched(_, _, _) =>
-          if (a.rem.route.length <= b.rem.route.length) a else b
-        case _ => a
-      }
-      case a => other(input) match {
-        case EndpointResult.NotMatched.MethodNotAllowed(bb) => a match {
-          case EndpointResult.NotMatched.MethodNotAllowed(aa) =>
-            EndpointResult.NotMatched.MethodNotAllowed(aa ++ bb)
-          case b => b
+      case a @ EndpointResult.Matched(_, _, _) =>
+        other(input) match {
+          case b @ EndpointResult.Matched(_, _, _) =>
+            if (a.rem.route.length <= b.rem.route.length) a else b
+          case _ => a
         }
-        case _: EndpointResult.NotMatched[F] => a
-        case b => b
-      }
+      case a =>
+        other(input) match {
+          case EndpointResult.NotMatched.MethodNotAllowed(bb) =>
+            a match {
+              case EndpointResult.NotMatched.MethodNotAllowed(aa) =>
+                EndpointResult.NotMatched.MethodNotAllowed(aa ++ bb)
+              case b => b
+            }
+          case _: EndpointResult.NotMatched[F] => a
+          case b                               => b
+        }
     }
 
     override def item = items.MultipleItems
@@ -256,7 +257,8 @@ trait Endpoint[F[_], A] { self =>
   /**
     * Composes this endpoint with another in such a way that coproducts are flattened.
     */
-  final def :+:[B](that: Endpoint[F, B])(implicit
+  final def :+:[B](that: Endpoint[F, B])(
+    implicit
     a: Adjoin[B :+: A :+: CNil],
     F: MonadError[F, Throwable]
   ): Endpoint[F, a.Out] = {
@@ -271,7 +273,8 @@ trait Endpoint[F[_], A] { self =>
     *
     * Consider using [[io.finch.Bootstrap]] instead.
     */
-  final def toService(implicit
+  final def toService(
+    implicit
     tr: ToResponse.Aux[A, Application.Json],
     tre: ToResponse.Aux[Exception, Application.Json],
     F: Effect[F]
@@ -283,7 +286,8 @@ trait Endpoint[F[_], A] { self =>
     *
     * Consider using [[io.finch.Bootstrap]] instead.
     */
-  final def toServiceAs[CT <: String](implicit
+  final def toServiceAs[CT <: String](
+    implicit
     tr: ToResponse.Aux[A, CT],
     tre: ToResponse.Aux[Exception, CT],
     F: Effect[F]
@@ -293,7 +297,8 @@ trait Endpoint[F[_], A] { self =>
     * Recovers from any exception occurred in this endpoint by creating a new endpoint that will
     * handle any matching throwable from the underlying future.
     */
-  final def rescue(pf: PartialFunction[Throwable, F[Output[A]]])(implicit
+  final def rescue(pf: PartialFunction[Throwable, F[Output[A]]])(
+    implicit
     F: ApplicativeError[F, Throwable]
   ): Endpoint[F, A] = transform(foa => foa.handleErrorWith(pf))
 
@@ -301,7 +306,8 @@ trait Endpoint[F[_], A] { self =>
     * Recovers from any exception occurred in this endpoint by creating a new endpoint that will
     * handle any matching throwable from the underlying future.
     */
-  final def handle(pf: PartialFunction[Throwable, Output[A]])(implicit
+  final def handle(pf: PartialFunction[Throwable, Output[A]])(
+    implicit
     F: ApplicativeError[F, Throwable]
   ): Endpoint[F, A] = rescue(pf.andThen(F.pure))
 
@@ -316,9 +322,10 @@ trait Endpoint[F[_], A] { self =>
     *         Otherwise the future fails with an [[Error.NotValid]] error.
     */
   final def should(rule: String)(predicate: A => Boolean)(implicit F: MonadError[F, Throwable]): Endpoint[F, A] =
-    mapAsync(a =>
-      if (predicate(a)) F.pure(a)
-      else F.raiseError(Error.NotValid(self.item, "should " + rule))
+    mapAsync(
+      a =>
+        if (predicate(a)) F.pure(a)
+        else F.raiseError(Error.NotValid(self.item, "should " + rule))
     )
 
   /**
@@ -367,7 +374,7 @@ trait Endpoint[F[_], A] { self =>
     new Endpoint[F, Either[Throwable, A]] with (Either[Throwable, Output[A]] => Output[Either[Throwable, A]]) {
       final def apply(toa: Either[Throwable, Output[A]]): Output[Either[Throwable, A]] = toa match {
         case Right(oo) => oo.map(Right.apply)
-        case Left(t) => Output.payload(Left(t))
+        case Left(t)   => Output.payload(Left(t))
       }
 
       final def apply(input: Input): Endpoint.Result[F, Either[Throwable, A]] = self(input) match {
@@ -426,6 +433,7 @@ object Endpoint {
   type Module[F[_]] = EndpointModule[F]
 
   final implicit class HListEndpointOps[F[_], L <: HList](val self: Endpoint[F, L]) extends AnyVal {
+
     /**
      * Converts this endpoint to one that returns any type with this [[shapeless.HList]] as its
      * representation.
@@ -446,6 +454,7 @@ object Endpoint {
    * Implicit conversion that adds convenience methods to endpoint for optional values.
    */
   final implicit class OptionEndpointOps[F[_], A](val self: Endpoint[F, Option[A]]) extends AnyVal {
+
     /**
      * If endpoint is empty it will return provided default value.
      */
@@ -460,6 +469,7 @@ object Endpoint {
   }
 
   final implicit class ValueEndpointOps[F[_], B](val self: Endpoint[F, B]) extends AnyVal {
+
     /**
      * Converts this endpoint to one that returns any type with `B :: HNil` as its representation.
      */
@@ -467,8 +477,8 @@ object Endpoint {
       self.map(value => gen.from(value :: HNil))
   }
 
-  implicit def endpointInstances[F[_] : Effect]: Alternative[({type T[B] = Endpoint[F, B]})#T] = {
-    new Alternative[({type T[B] = Endpoint[F, B]})#T] {
+  implicit def endpointInstances[F[_]: Effect]: Alternative[({ type T[B] = Endpoint[F, B] })#T] = {
+    new Alternative[({ type T[B] = Endpoint[F, B] })#T] {
 
       final override def ap[A, B](ff: Endpoint[F, A => B])(fa: Endpoint[F, A]): Endpoint[F, B] =
         ff.productWith(fa)((f, a) => f(a))
@@ -896,5 +906,6 @@ object Endpoint {
    * request.
    */
   def multipartAttributesNel[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, NonEmptyList[A]] =
-    new Attribute[F, NonEmptyList, A](name) with Attribute.NonEmpty[F, A] with Attribute.MultipleErrors[F, NonEmptyList, A]
+    new Attribute[F, NonEmptyList, A](name) with Attribute.NonEmpty[F, A]
+    with Attribute.MultipleErrors[F, NonEmptyList, A]
 }

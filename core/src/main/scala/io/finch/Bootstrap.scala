@@ -1,7 +1,7 @@
 package io.finch
 
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Request, Response}
+import com.twitter.finagle.http.{ Request, Response }
 import shapeless._
 
 /**
@@ -39,12 +39,13 @@ import shapeless._
  * @see https://tools.ietf.org/html/rfc7231#section-6.5.13
  */
 class Bootstrap[ES <: HList, CTS <: HList](
-    val endpoints: ES,
-    val includeDateHeader: Boolean = true,
-    val includeServerHeader: Boolean = true,
-    val negotiateContentType: Boolean = false,
-    val enableMethodNotAllowed: Boolean = false,
-    val enableUnsupportedMediaType: Boolean = false) { self =>
+  val endpoints: ES,
+  val includeDateHeader: Boolean = true,
+  val includeServerHeader: Boolean = true,
+  val negotiateContentType: Boolean = false,
+  val enableMethodNotAllowed: Boolean = false,
+  val enableUnsupportedMediaType: Boolean = false
+) { self =>
 
   class Serve[CT] {
     def apply[F[_], E](e: Endpoint[F, E]): Bootstrap[Endpoint[F, E] :: ES, CT :: CTS] =
@@ -56,7 +57,7 @@ class Bootstrap[ES <: HList, CTS <: HList](
         enableMethodNotAllowed,
         enableUnsupportedMediaType
       )
-    }
+  }
 
   def configure(
     includeDateHeader: Boolean = self.includeDateHeader,
@@ -92,11 +93,12 @@ class Bootstrap[ES <: HList, CTS <: HList](
   final override def toString: String = s"Bootstrap($endpoints)"
 }
 
-object Bootstrap extends Bootstrap[HNil, HNil](
-  endpoints = HNil,
-  includeDateHeader = true,
-  includeServerHeader = true,
-  negotiateContentType = false,
-  enableMethodNotAllowed = false,
-  enableUnsupportedMediaType = false
-)
+object Bootstrap
+    extends Bootstrap[HNil, HNil](
+      endpoints = HNil,
+      includeDateHeader = true,
+      includeServerHeader = true,
+      negotiateContentType = false,
+      enableMethodNotAllowed = false,
+      enableUnsupportedMediaType = false
+    )

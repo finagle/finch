@@ -4,8 +4,8 @@ import java.util.UUID
 
 import cats.effect.IO
 import com.twitter.app.Flag
-import com.twitter.finagle.{Http, Service}
-import com.twitter.finagle.http.{Request, Response}
+import com.twitter.finagle.{ Http, Service }
+import com.twitter.finagle.http.{ Request, Response }
 import com.twitter.finagle.stats.Counter
 import com.twitter.server.TwitterServer
 import com.twitter.util.Await
@@ -69,7 +69,7 @@ object Main extends TwitterServer with Endpoint.Module[IO] {
   def deleteTodo: Endpoint[IO, Todo] = delete("todos" :: path[UUID]) { id: UUID =>
     Todo.get(id) match {
       case Some(t) => Todo.delete(id); Ok(t)
-      case None => throw TodoNotFound(id)
+      case None    => throw TodoNotFound(id)
     }
   }
 
@@ -83,15 +83,14 @@ object Main extends TwitterServer with Endpoint.Module[IO] {
   val api: Service[Request, Response] = (
     getTodos :+: postTodo :+: deleteTodo :+: deleteTodos :+: patchTodo
   ).handle({
-    case e: TodoNotFound => NotFound(e)
-  }).toServiceAs[Application.Json]
+      case e: TodoNotFound => NotFound(e)
+    })
+    .toServiceAs[Application.Json]
 
   def main(): Unit = {
     println("Serving the Todo application") //scalastyle:ignore
 
-    val server = Http.server
-      .withStatsReceiver(statsReceiver)
-      .serve(s":${port()}", api)
+    val server = Http.server.withStatsReceiver(statsReceiver).serve(s":${port()}", api)
 
     onExit { server.close() }
 

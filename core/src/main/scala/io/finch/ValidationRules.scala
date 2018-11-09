@@ -1,6 +1,7 @@
 package io.finch
 
 trait ValidationRules {
+
   /**
    * A [[ValidationRule]] that makes sure the numeric value is greater than given `n`.
    */

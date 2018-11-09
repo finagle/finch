@@ -11,7 +11,7 @@ package object finch extends Outputs with ValidationRules {
   object catsEffect extends EndpointModule[IO]
 
   object items {
-    sealed abstract class RequestItem(val kind: String, val nameOption:Option[String] = None) {
+    sealed abstract class RequestItem(val kind: String, val nameOption: Option[String] = None) {
       val description = kind + nameOption.fold("")(" '" + _ + "'")
     }
     final case class ParamItem(name: String) extends RequestItem("param", Some(name))

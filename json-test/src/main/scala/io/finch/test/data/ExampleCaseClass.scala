@@ -1,8 +1,8 @@
 package io.finch.test.data
 
 import cats.Eq
-import io.circe.{Decoder, Encoder}
-import org.scalacheck.{Arbitrary, Gen}
+import io.circe.{ Decoder, Encoder }
+import org.scalacheck.{ Arbitrary, Gen }
 
 case class ExampleCaseClass(a: String, b: Int, c: Boolean)
 

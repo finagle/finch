@@ -1,7 +1,7 @@
 package io.finch
 
 import com.twitter.concurrent.AsyncStream
-import com.twitter.io.{Buf, Reader}
+import com.twitter.io.{ Buf, Reader }
 import com.twitter.util.Await
 import java.nio.charset.StandardCharsets
 

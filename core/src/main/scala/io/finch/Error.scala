@@ -1,6 +1,6 @@
 package io.finch
 
-import cats.{Eq, Show}
+import cats.{ Eq, Show }
 import cats.data.NonEmptyList
 import cats.instances.string._
 import cats.syntax.eq._
@@ -32,7 +32,7 @@ sealed abstract class Error extends Exception with NoStackTrace
 case class Errors(errors: NonEmptyList[Error]) extends Exception with NoStackTrace {
   override def getMessage: String =
     "One or more errors reading request:" +
-      errors.map(_.getMessage).toList.mkString(EOL + "  ", EOL + "  ","")
+      errors.map(_.getMessage).toList.mkString(EOL + "  ", EOL + "  ", "")
 }
 
 object Error {
@@ -72,13 +72,12 @@ object Error {
    * @param targetType the type the item should be converted into
    * @param cause the cause of the parsing error
    */
-  final case class NotParsed(item: RequestItem, targetType: ClassTag[_], cause: Throwable)
-    extends Error {
+  final case class NotParsed(item: RequestItem, targetType: ClassTag[_], cause: Throwable) extends Error {
 
     override def getMessage: String = {
       // Note: https://issues.scala-lang.org/browse/SI-2034
       val className = targetType.runtimeClass.getName
-      val simpleName = className.substring(className.lastIndexOf(".")+1)
+      val simpleName = className.substring(className.lastIndexOf(".") + 1)
 
       s"${item.description} cannot be converted to ${simpleName}: ${cause.getMessage}."
     }

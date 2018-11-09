@@ -15,7 +15,7 @@ trait Decoders {
     Decode.json { (b, cs) =>
       Parse.parse(b.asString(cs)).flatMap(_.as[A].result.leftMap(_._1)) match {
         case Right(result) => Right(result)
-        case Left(error) => Left(new Exception(error))
+        case Left(error)   => Left(new Exception(error))
       }
-  }
+    }
 }

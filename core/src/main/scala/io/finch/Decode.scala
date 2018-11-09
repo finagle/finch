@@ -3,7 +3,7 @@ package io.finch
 import com.twitter.io.Buf
 import java.nio.charset.Charset
 import scala.util.control.NoStackTrace
-import shapeless.{:+:, CNil, Coproduct, Witness}
+import shapeless.{ :+:, CNil, Coproduct, Witness }
 
 /**
  * Decodes an HTTP payload represented as [[Buf]] (encoded with [[Charset]]) into
@@ -62,7 +62,8 @@ object Decode {
         Left(Decode.UnsupportedMediaTypeException)
     }
 
-    implicit def coproductToDispatchable[A, CTH <: String, CTT <: Coproduct](implicit
+    implicit def coproductToDispatchable[A, CTH <: String, CTT <: Coproduct](
+      implicit
       decode: Decode.Aux[A, CTH],
       witness: Witness.Aux[CTH],
       tail: Dispatchable[A, CTT]
@@ -72,7 +73,8 @@ object Decode {
         else tail(ct, b, cs)
     }
 
-    implicit def singleToDispatchable[A, CT <: String](implicit
+    implicit def singleToDispatchable[A, CT <: String](
+      implicit
       decode: Decode.Aux[A, CT],
       witness: Witness.Aux[CT]
     ): Dispatchable[A, CT] = coproductToDispatchable[A, CT, CNil].asInstanceOf[Dispatchable[A, CT]]

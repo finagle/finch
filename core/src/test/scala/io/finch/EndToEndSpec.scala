@@ -2,7 +2,7 @@ package io.finch
 
 import cats.effect.IO
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Fields, Request, Response, Status}
+import com.twitter.finagle.http.{ Fields, Request, Response, Status }
 import com.twitter.io.Buf
 import com.twitter.util.Await
 import io.finch.data.Foo
@@ -37,10 +37,14 @@ class EndToEndSpec extends FinchSpec {
       Encode.text((_, cs) => Buf.ByteArray.Owned("ERR!".getBytes(cs.name)))
 
     val service: Service[Request, Response] = (
-      get("foo" :: path[String]) { s: String => Ok(Foo(s)) } :+:
-      get("bar") { Created("bar") } :+:
-      get("baz") { BadRequest(new IllegalArgumentException("foo")): Output[Unit] } :+:
-      get("qux" :: param[Foo]("foo")) { f: Foo => Created(f) }
+      get("foo" :: path[String]) { s: String =>
+        Ok(Foo(s))
+      } :+:
+        get("bar") { Created("bar") } :+:
+        get("baz") { BadRequest(new IllegalArgumentException("foo")): Output[Unit] } :+:
+        get("qux" :: param[Foo]("foo")) { f: Foo =>
+          Created(f)
+        }
     ).toServiceAs[Text.Plain]
 
     val rep1 = Await.result(service(Request("/foo/bar")))

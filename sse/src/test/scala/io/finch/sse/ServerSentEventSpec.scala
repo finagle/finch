@@ -4,11 +4,11 @@ import cats.Show
 import com.twitter.concurrent.AsyncStream
 import com.twitter.io.Buf
 import io.finch.internal.HttpContent
-import java.nio.charset.{Charset, StandardCharsets}
-import org.scalacheck.{Arbitrary, Gen}
+import java.nio.charset.{ Charset, StandardCharsets }
+import org.scalacheck.{ Arbitrary, Gen }
 import org.scalacheck.Gen.Choose
 import org.scalacheck.Prop.BooleanOperators
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.prop.Checkers
 
 class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
@@ -20,14 +20,18 @@ class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
   import ServerSentEvent._
 
   def genCharset: Gen[Charset] = Gen.oneOf(
-    StandardCharsets.ISO_8859_1, StandardCharsets.US_ASCII, StandardCharsets.UTF_8,
-    StandardCharsets.UTF_16, StandardCharsets.UTF_16BE, StandardCharsets.UTF_16LE
+    StandardCharsets.ISO_8859_1,
+    StandardCharsets.US_ASCII,
+    StandardCharsets.UTF_8,
+    StandardCharsets.UTF_16,
+    StandardCharsets.UTF_16BE,
+    StandardCharsets.UTF_16LE
   )
 
   implicit def arbitraryCharset: Arbitrary[Charset] = Arbitrary(genCharset)
 
   def dataOnlySse: Gen[ServerSentEvent[String]] = for {
-    data  <- Gen.alphaStr
+    data <- Gen.alphaStr
   } yield ServerSentEvent(data)
 
   def sseWithId: Gen[ServerSentEvent[String]] = for {
@@ -48,7 +52,6 @@ class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
   def streamDataOnlyGenerator: Gen[AsyncStream[ServerSentEvent[String]]] = for {
     strs <- Gen.nonEmptyListOf(dataOnlySse)
   } yield AsyncStream.fromSeq(strs)
-
 
   implicit def arbitrarySse: Arbitrary[AsyncStream[ServerSentEvent[String]]] =
     Arbitrary(streamDataOnlyGenerator)
@@ -72,9 +75,14 @@ class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
       (event.event.isDefined && event.id.isEmpty && event.retry.isEmpty) ==> {
         val encoded = encoder(event, cs)
         val actualText = encoded.asString(cs)
-        val expectedParts = Buf(Vector(
-          text("data:", cs), text(event.data, cs), text("\n", cs), text(s"event:${event.event.get}\n", cs)
-        ))
+        val expectedParts = Buf(
+          Vector(
+            text("data:", cs),
+            text(event.data, cs),
+            text("\n", cs),
+            text(s"event:${event.event.get}\n", cs)
+          )
+        )
         actualText === expectedParts.asString(cs)
       }
     }
@@ -87,9 +95,14 @@ class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
       (event.event.isEmpty && event.id.isDefined && event.retry.isEmpty) ==> {
         val encoded = encoder(event, cs)
         val actualText = encoded.asString(cs)
-        val expectedParts = Buf(Vector(
-          text("data:", cs), text(event.data, cs), text("\n", cs), text(s"id:${event.id.get}\n", cs)
-        ))
+        val expectedParts = Buf(
+          Vector(
+            text("data:", cs),
+            text(event.data, cs),
+            text("\n", cs),
+            text(s"id:${event.id.get}\n", cs)
+          )
+        )
         actualText === expectedParts.asString(cs)
       }
     }
@@ -102,9 +115,14 @@ class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
       (event.event.isEmpty && event.id.isEmpty && event.retry.isDefined) ==> {
         val encoded = encoder(event, cs)
         val actualText = encoded.asString(cs)
-        val expectedParts = Buf(Vector(
-          text("data:", cs), text(event.data, cs), text("\n", cs), text(s"retry:${event.retry.get}\n", cs)
-        ))
+        val expectedParts = Buf(
+          Vector(
+            text("data:", cs),
+            text(event.data, cs),
+            text("\n", cs),
+            text(s"retry:${event.retry.get}\n", cs)
+          )
+        )
         actualText === expectedParts.asString(cs)
       }
     }

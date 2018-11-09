@@ -6,7 +6,7 @@ import com.twitter.util.Await
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
-import io.iteratee.{Enumerator, Iteratee}
+import io.iteratee.{ Enumerator, Iteratee }
 import scala.util.Random
 
 /**
@@ -67,5 +67,5 @@ object Main extends Endpoint.Module[IO] {
     Http.server
       .withStreaming(enabled = true)
       .serve(":8081", (sumJson :+: streamJson :+: isPrime).toServiceAs[Application.Json])
-    )
+  )
 }

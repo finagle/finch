@@ -2,9 +2,9 @@ package io.finch.iteratee
 
 import cats.effect.IO
 import com.twitter.finagle.http.Request
-import com.twitter.io.{Buf, Writer}
+import com.twitter.io.{ Buf, Writer }
 import com.twitter.util._
-import io.finch.{Application, EndpointResult, FinchSpec, Input}
+import io.finch.{ Application, EndpointResult, FinchSpec, Input }
 import io.finch.internal._
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
@@ -56,7 +56,7 @@ class EnumerateEndpointSpec extends FinchSpec with GeneratorDrivenPropertyChecks
 
   private def write(data: List[Buf], writer: Writer[Buf] with Closable): Future[Unit] = {
     data match {
-      case Nil => writer.close()
+      case Nil          => writer.close()
       case head :: tail => writer.write(head).foreach(_ => write(tail, writer))
     }
   }

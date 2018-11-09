@@ -1,29 +1,30 @@
 package io.finch
 
-import java.nio.charset.{Charset, StandardCharsets}
+import java.nio.charset.{ Charset, StandardCharsets }
 import java.util.UUID
 
 import cats.Eq
 import cats.data.NonEmptyList
-import cats.effect.{Effect, IO}
+import cats.effect.{ Effect, IO }
 import cats.instances.AllInstances
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http._
 import com.twitter.io.Buf
 import com.twitter.util._
-import org.scalacheck.{Arbitrary, Cogen, Gen}
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalacheck.{ Arbitrary, Cogen, Gen }
+import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.prop.Checkers
 import org.typelevel.discipline.Laws
 import scala.reflect.ClassTag
 import shapeless.Witness
 
-trait FinchSpec extends FlatSpec
-  with Matchers
-  with Checkers
-  with AllInstances
-  with MissingInstances
-  with Endpoint.Module[IO] {
+trait FinchSpec
+    extends FlatSpec
+    with Matchers
+    with Checkers
+    with AllInstances
+    with MissingInstances
+    with Endpoint.Module[IO] {
 
   def checkAll(name: String, ruleSet: Laws#RuleSet): Unit = {
     for ((id, prop) <- ruleSet.all.properties)
@@ -51,8 +52,11 @@ trait FinchSpec extends FlatSpec
   def genRequestItem: Gen[items.RequestItem] = for {
     s <- genNonEmptyString
     i <- Gen.oneOf(
-      items.BodyItem, items.ParamItem(s), items.HeaderItem(s),
-      items.MultipleItems, items.CookieItem(s)
+      items.BodyItem,
+      items.ParamItem(s),
+      items.HeaderItem(s),
+      items.MultipleItems,
+      items.CookieItem(s)
     )
   } yield i
 
@@ -83,13 +87,11 @@ trait FinchSpec extends FlatSpec
     value <- genNonEmptyString
   } yield (key, value)
 
-  def genHeaders: Gen[Headers] = Gen.mapOf(genNonEmptyTuple).map(m =>
-    Headers(m.map(kv => kv._1.toLowerCase -> kv._2.toLowerCase))
-  )
+  def genHeaders: Gen[Headers] =
+    Gen.mapOf(genNonEmptyTuple).map(m => Headers(m.map(kv => kv._1.toLowerCase -> kv._2.toLowerCase)))
 
-  def genParams: Gen[Params] = Gen.mapOf(genNonEmptyTuple).map(m =>
-    Params(m.map(kv => kv._1.toLowerCase -> kv._2.toLowerCase))
-  )
+  def genParams: Gen[Params] =
+    Gen.mapOf(genNonEmptyTuple).map(m => Params(m.map(kv => kv._1.toLowerCase -> kv._2.toLowerCase)))
 
   def genCookies: Gen[Cookies] =
     Gen.listOf(genNonEmptyTuple.map(t => new Cookie(t._1, t._2))).map(Cookies.apply)
@@ -98,27 +100,71 @@ trait FinchSpec extends FlatSpec
     Gen.option(genNonEmptyString).map(OptionalNonEmptyString.apply)
 
   def genStatus: Gen[Status] = Gen.oneOf(
-    Status.Continue, Status.SwitchingProtocols, Status.Processing, Status.Ok, Status.Created,
-    Status.Accepted, Status.NonAuthoritativeInformation, Status.NoContent, Status.ResetContent,
-    Status.PartialContent, Status.MultiStatus, Status.MultipleChoices, Status.MovedPermanently,
-    Status.Found, Status.SeeOther, Status.NotModified, Status.UseProxy, Status.TemporaryRedirect,
-    Status.BadRequest, Status.Unauthorized, Status.PaymentRequired, Status.Forbidden,
-    Status.NotFound, Status.MethodNotAllowed, Status.NotAcceptable,
-    Status.ProxyAuthenticationRequired, Status.RequestTimeout, Status.Conflict, Status.Gone,
-    Status.LengthRequired, Status.PreconditionFailed, Status.RequestEntityTooLarge,
-    Status.RequestURITooLong, Status.UnsupportedMediaType, Status.RequestedRangeNotSatisfiable,
-    Status.ExpectationFailed, Status.EnhanceYourCalm, Status.UnprocessableEntity, Status.Locked,
-    Status.FailedDependency, Status.UnorderedCollection, Status.UpgradeRequired,
-    Status.PreconditionRequired, Status.TooManyRequests, Status.RequestHeaderFieldsTooLarge,
-    Status.ClientClosedRequest, Status.InternalServerError, Status.NotImplemented,
-    Status.BadGateway, Status.ServiceUnavailable, Status.GatewayTimeout,
-    Status.HttpVersionNotSupported, Status.VariantAlsoNegotiates, Status.InsufficientStorage,
-    Status.NotExtended, Status.NetworkAuthenticationRequired
+    Status.Continue,
+    Status.SwitchingProtocols,
+    Status.Processing,
+    Status.Ok,
+    Status.Created,
+    Status.Accepted,
+    Status.NonAuthoritativeInformation,
+    Status.NoContent,
+    Status.ResetContent,
+    Status.PartialContent,
+    Status.MultiStatus,
+    Status.MultipleChoices,
+    Status.MovedPermanently,
+    Status.Found,
+    Status.SeeOther,
+    Status.NotModified,
+    Status.UseProxy,
+    Status.TemporaryRedirect,
+    Status.BadRequest,
+    Status.Unauthorized,
+    Status.PaymentRequired,
+    Status.Forbidden,
+    Status.NotFound,
+    Status.MethodNotAllowed,
+    Status.NotAcceptable,
+    Status.ProxyAuthenticationRequired,
+    Status.RequestTimeout,
+    Status.Conflict,
+    Status.Gone,
+    Status.LengthRequired,
+    Status.PreconditionFailed,
+    Status.RequestEntityTooLarge,
+    Status.RequestURITooLong,
+    Status.UnsupportedMediaType,
+    Status.RequestedRangeNotSatisfiable,
+    Status.ExpectationFailed,
+    Status.EnhanceYourCalm,
+    Status.UnprocessableEntity,
+    Status.Locked,
+    Status.FailedDependency,
+    Status.UnorderedCollection,
+    Status.UpgradeRequired,
+    Status.PreconditionRequired,
+    Status.TooManyRequests,
+    Status.RequestHeaderFieldsTooLarge,
+    Status.ClientClosedRequest,
+    Status.InternalServerError,
+    Status.NotImplemented,
+    Status.BadGateway,
+    Status.ServiceUnavailable,
+    Status.GatewayTimeout,
+    Status.HttpVersionNotSupported,
+    Status.VariantAlsoNegotiates,
+    Status.InsufficientStorage,
+    Status.NotExtended,
+    Status.NetworkAuthenticationRequired
   )
 
   def genCharset: Gen[Charset] = Gen.oneOf(
-    StandardCharsets.ISO_8859_1, StandardCharsets.US_ASCII, StandardCharsets.UTF_8,
-    StandardCharsets.UTF_16, StandardCharsets.UTF_16BE, StandardCharsets.UTF_16LE
+    StandardCharsets.ISO_8859_1,
+    StandardCharsets.US_ASCII,
+    StandardCharsets.UTF_8,
+    StandardCharsets.UTF_16,
+    StandardCharsets.UTF_16BE,
+    StandardCharsets.UTF_16LE
   )
 
   def genOutputMeta: Gen[(Status, Option[Charset], Map[String, String], Seq[Cookie])] =
@@ -147,42 +193,56 @@ trait FinchSpec extends FlatSpec
   )
 
   def genOutput[A: Arbitrary]: Gen[Output[A]] = Gen.oneOf(
-    genPayloadOutput[A], genFailureOutput, genEmptyOutput
+    genPayloadOutput[A],
+    genFailureOutput,
+    genEmptyOutput
   )
 
   def genAccept: Gen[Accept] = {
     def witness[T <: String](implicit w: Witness.Aux[T]): String = w.value
-    Gen.oneOf(
-      witness[Application.Json],
-      witness[Application.AtomXml],
-      witness[Application.Csv],
-      witness[Application.Javascript],
-      witness[Application.OctetStream],
-      witness[Application.RssXml],
-      witness[Application.AtomXml],
-      witness[Application.WwwFormUrlencoded],
-      witness[Application.Xml],
-      witness[Text.Plain],
-      witness[Text.Html],
-      witness[Text.EventStream]
-    ).map(s => Accept.fromString(s))
+    Gen
+      .oneOf(
+        witness[Application.Json],
+        witness[Application.AtomXml],
+        witness[Application.Csv],
+        witness[Application.Javascript],
+        witness[Application.OctetStream],
+        witness[Application.RssXml],
+        witness[Application.AtomXml],
+        witness[Application.WwwFormUrlencoded],
+        witness[Application.Xml],
+        witness[Text.Plain],
+        witness[Text.Html],
+        witness[Text.EventStream]
+      )
+      .map(s => Accept.fromString(s))
   }
 
   def genMethod: Gen[Method] = Gen.oneOf(
-    Method.Get, Method.Connect, Method.Delete, Method.Head,
-    Method.Options, Method.Patch, Method.Post, Method.Put, Method.Trace
+    Method.Get,
+    Method.Connect,
+    Method.Delete,
+    Method.Head,
+    Method.Options,
+    Method.Patch,
+    Method.Post,
+    Method.Put,
+    Method.Trace
   )
 
   def genVersion: Gen[Version] = Gen.oneOf(Version.Http10, Version.Http11)
 
   def genPath: Gen[Path] = for {
     n <- Gen.choose(0, 20)
-    ss <- Gen.listOfN(n, Gen.oneOf(
-      Gen.alphaStr.suchThat(_.nonEmpty),
-      Gen.uuid.map(_.toString),
-      Gen.posNum[Long].map(_.toString),
-      Gen.oneOf(true, false).map(_.toString)
-    ))
+    ss <- Gen.listOfN(
+      n,
+      Gen.oneOf(
+        Gen.alphaStr.suchThat(_.nonEmpty),
+        Gen.uuid.map(_.toString),
+        Gen.posNum[Long].map(_.toString),
+        Gen.oneOf(true, false).map(_.toString)
+      )
+    )
   } yield Path("/" + ss.mkString("/"))
 
   def genBuf: Gen[Buf] = for {
@@ -194,9 +254,7 @@ trait FinchSpec extends FlatSpec
 
   def genTrace: Gen[Trace] = Gen.oneOf(
     Gen.const(Trace.empty),
-    Gen.nonEmptyListOf(Gen.alphaStr).map(l =>
-      l.foldLeft(Trace.empty)((t, s) => t.concat(Trace.segment(s)))
-    )
+    Gen.nonEmptyListOf(Gen.alphaStr).map(l => l.foldLeft(Trace.empty)((t, s) => t.concat(Trace.segment(s))))
   )
 
   implicit def arbitraryRequest: Arbitrary[Request] = Arbitrary(
@@ -223,13 +281,11 @@ trait FinchSpec extends FlatSpec
       (r.method.toString, r.version.toString, r.path, Buf.ByteArray.Owned.extract(r.content))
     }
 
-  implicit def arbitraryEndpoint[F[_] : Effect, A](implicit A: Arbitrary[A]): Arbitrary[Endpoint[F, A]] = Arbitrary(
+  implicit def arbitraryEndpoint[F[_]: Effect, A](implicit A: Arbitrary[A]): Arbitrary[Endpoint[F, A]] = Arbitrary(
     Gen.oneOf(
       Gen.const(Endpoint[F].empty[A]),
       A.arbitrary.map(a => Endpoint[F].const(a)),
-      Arbitrary.arbitrary[Throwable].map(e =>
-        Endpoint[F].liftOutputAsync(Effect[F].raiseError[Output[A]](e))
-      ),
+      Arbitrary.arbitrary[Throwable].map(e => Endpoint[F].liftOutputAsync(Effect[F].raiseError[Output[A]](e))),
       /**
        * Note that we don't provide instances of arbitrary endpoints wrapping
        * `Input => Output[A]` since `Endpoint` isn't actually lawful in this
@@ -250,7 +306,7 @@ trait FinchSpec extends FlatSpec
    * We attempt to verify that two endpoints are the same by applying them to a
    * fixed number of randomly generated inputs.
    */
-  implicit def eqEndpoint[F[_] : Effect, A: Eq]: Eq[Endpoint[F, A]] = new Eq[Endpoint[F, A]] {
+  implicit def eqEndpoint[F[_]: Effect, A: Eq]: Eq[Endpoint[F, A]] = new Eq[Endpoint[F, A]] {
     private[this] def count: Int = 16
 
     private[this] def await(result: Endpoint.Result[F, A]): Option[(Input, Either[Throwable, Output[A]])] = for {
@@ -258,9 +314,11 @@ trait FinchSpec extends FlatSpec
       o <- result.awaitOutput()
     } yield (r, o)
 
-    private[this] def inputs: Stream[Input] = Stream.continually(
-      Arbitrary.arbitrary[Input].sample
-    ).flatten
+    private[this] def inputs: Stream[Input] = Stream
+      .continually(
+        Arbitrary.arbitrary[Input].sample
+      )
+      .flatten
 
     override def eqv(x: Endpoint[F, A], y: Endpoint[F, A]): Boolean = inputs.take(count).forall { input =>
       val resultX = await(x(input))

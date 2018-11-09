@@ -2,14 +2,14 @@ package io.finch
 
 import cats.effect.IO
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Request, Response}
+import com.twitter.finagle.http.{ Request, Response }
 import com.twitter.io.Buf
 import com.twitter.util.Await
 import io.circe.generic.auto._
 import io.finch.circe._
 import io.finch.data.Foo
-import java.nio.charset.{Charset, StandardCharsets}
-import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
+import java.nio.charset.{ Charset, StandardCharsets }
+import java.util.concurrent.{ ThreadLocalRandom, TimeUnit }
 import org.openjdk.jmh.annotations._
 import shapeless._
 
@@ -183,15 +183,15 @@ class JsonBenchmark extends FinchBenchmark {
 @State(Scope.Benchmark)
 @BenchmarkMode(Array(Mode.Throughput))
 @OutputTimeUnit(TimeUnit.SECONDS)
-abstract class BootstrapBenchmark[CT](init: Bootstrap[HNil, HNil])(implicit
+abstract class BootstrapBenchmark[CT](init: Bootstrap[HNil, HNil])(
+  implicit
   tsf: ToService[Endpoint[IO, List[Foo]] :: HNil, CT :: HNil]
 ) extends FinchBenchmark {
 
   protected def issueRequest(): Request = Request()
 
-  private val foo: Service[Request, Response] = init
-    .serve[CT](Endpoint[IO].const(List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString))))
-    .toService
+  private val foo: Service[Request, Response] =
+    init.serve[CT](Endpoint[IO].const(List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString)))).toService
 
   @Benchmark
   def foos: Response = Await.result(foo(issueRequest()))
@@ -199,16 +199,18 @@ abstract class BootstrapBenchmark[CT](init: Bootstrap[HNil, HNil])(implicit
 
 class JsonBootstrapBenchmark extends BootstrapBenchmark[Application.Json](Bootstrap)
 
-class JsonNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Application.Json](
-    Bootstrap.configure(negotiateContentType = true))
+class JsonNegotiatedBootstrapBenchmark
+    extends BootstrapBenchmark[Application.Json](Bootstrap.configure(negotiateContentType = true))
 
 class TextBootstrapBenchmark extends BootstrapBenchmark[Text.Plain](Bootstrap)
 
-class TextNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Text.Plain](
-    Bootstrap.configure(negotiateContentType = true))
+class TextNegotiatedBootstrapBenchmark
+    extends BootstrapBenchmark[Text.Plain](Bootstrap.configure(negotiateContentType = true))
 
-class JsonAndTextNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Application.Json :+: Text.Plain :+: CNil](
-    Bootstrap.configure(negotiateContentType = true)) {
+class JsonAndTextNegotiatedBootstrapBenchmark
+    extends BootstrapBenchmark[Application.Json :+: Text.Plain :+: CNil](
+      Bootstrap.configure(negotiateContentType = true)
+    ) {
 
   private val acceptValues: Array[String] = Array("application/json", "text/plain")
 
@@ -249,6 +251,6 @@ class HttpMessageBenchmark extends FinchBenchmark {
   @Benchmark
   def slowCharset: Charset = req.charset match {
     case Some(cs) => Charset.forName(cs)
-    case None => StandardCharsets.UTF_8
+    case None     => StandardCharsets.UTF_8
   }
 }

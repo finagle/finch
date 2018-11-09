@@ -1,11 +1,11 @@
 package io.finch
 
 import cats.effect.IO
-import com.twitter.finagle.http.{Method, Request, Status}
+import com.twitter.finagle.http.{ Method, Request, Status }
 import com.twitter.util.Await
 import io.finch.data.Foo
 import io.finch.internal.currentTime
-import java.time.{ZonedDateTime, ZoneOffset}
+import java.time.{ ZonedDateTime, ZoneOffset }
 import java.time.format.DateTimeFormatter
 import shapeless.HNil
 
@@ -37,11 +37,7 @@ class BootstrapSpec extends FinchSpec {
     val b = put("foo") { Ok("put foo") }
     val c = post("foo") { Ok("post foo") }
 
-    val s = Bootstrap
-      .configure(enableMethodNotAllowed = true)
-      .serve[Text.Plain](a :+: b)
-      .serve[Text.Plain](c)
-      .toService
+    val s = Bootstrap.configure(enableMethodNotAllowed = true).serve[Text.Plain](a :+: b).serve[Text.Plain](c).toService
 
     val aa = Request(Method.Get, "/foo")
     val bb = Request(Method.Put, "/foo")
@@ -61,9 +57,7 @@ class BootstrapSpec extends FinchSpec {
 
   it should "respond 415 if media type is not supported" in {
     val b = body[Foo, Text.Plain]
-    val s = Bootstrap.configure(enableUnsupportedMediaType = true)
-      .serve[Text.Plain](b)
-      .toService
+    val s = Bootstrap.configure(enableUnsupportedMediaType = true).serve[Text.Plain](b).toService
 
     val i = Input.post("/").withBody[Application.Csv](Foo("bar"))
 
@@ -84,9 +78,7 @@ class BootstrapSpec extends FinchSpec {
     def parseDate(s: String): Long = ZonedDateTime.parse(s, formatter).toEpochSecond
 
     check { (req: Request, include: Boolean) =>
-      val s = Bootstrap.configure(includeDateHeader = include)
-        .serve[Text.Plain](Endpoint[IO].const(()))
-        .toService
+      val s = Bootstrap.configure(includeDateHeader = include).serve[Text.Plain](Endpoint[IO].const(())).toService
 
       val rep = Await.result(s(req))
       val now = parseDate(currentTime())
@@ -97,9 +89,7 @@ class BootstrapSpec extends FinchSpec {
 
   it should "include Server header" in {
     check { (req: Request, include: Boolean) =>
-      val s = Bootstrap.configure(includeServerHeader = include)
-        .serve[Text.Plain](Endpoint[IO].const(()))
-        .toService
+      val s = Bootstrap.configure(includeServerHeader = include).serve[Text.Plain](Endpoint[IO].const(())).toService
 
       val rep = Await.result(s(req))
 
@@ -110,10 +100,7 @@ class BootstrapSpec extends FinchSpec {
   it should "capture trace when needed" in {
     check { req: Request =>
       val p = req.path.split("/").drop(1)
-      val e = p
-        .map(s => path(s))
-        .foldLeft(Endpoint[IO].const(HNil : HNil))((p, e) => p :: e)
-        .map(_ => "foo")
+      val e = p.map(s => path(s)).foldLeft(Endpoint[IO].const(HNil: HNil))((p, e) => p :: e).map(_ => "foo")
       val s = e.toServiceAs[Text.Plain]
 
       val captured = Await.result(Trace.capture(s(req).map(_ => Trace.captured)))

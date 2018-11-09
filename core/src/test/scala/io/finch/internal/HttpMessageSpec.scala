@@ -2,13 +2,13 @@ package io.finch.internal
 
 import com.twitter.finagle.http.Request
 import io.finch.FinchSpec
-import java.nio.charset.{Charset, StandardCharsets}
+import java.nio.charset.{ Charset, StandardCharsets }
 
 class HttpMessageSpec extends FinchSpec {
 
   def slowCharset(req: Request): Charset = req.charset match {
     case Some(cs) => Charset.forName(cs)
-    case None => StandardCharsets.UTF_8
+    case None     => StandardCharsets.UTF_8
   }
 
   behavior of "HttpMesage"

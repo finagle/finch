@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets
 
 import cats.effect.IO
 import com.twitter.io.Buf
-import io.finch.{Application, FinchSpec, Text, ToResponse}
+import io.finch.{ Application, FinchSpec, Text, ToResponse }
 import io.iteratee.Enumerator
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 

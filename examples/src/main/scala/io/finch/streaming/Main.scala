@@ -8,7 +8,7 @@ import cats.instances.long._
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.Http
 import com.twitter.io.Buf
-import com.twitter.util.{Await, Try}
+import com.twitter.util.{ Await, Try }
 import io.finch._
 
 /**
@@ -51,12 +51,10 @@ object Main extends Endpoint.Module[IO] {
   //
   // For example, if input stream is `1, 2, 3` then output response would be `6`.
   def totalSum: Endpoint[IO, Long] = post("totalSum" :: asyncBody) { as: AsyncStream[Buf] =>
-    IO.async[Long](cb =>
-      as
-        .foldLeft(0L)((acc, b) => acc + bufToLong(b))
-        .onSuccess(i => cb(Right(i)))
-        .onFailure(t => cb(Left(t)))
-    ).map(Ok)
+    IO.async[Long](
+        cb => as.foldLeft(0L)((acc, b) => acc + bufToLong(b)).onSuccess(i => cb(Right(i))).onFailure(t => cb(Left(t)))
+      )
+      .map(Ok)
   }
 
   // This endpoint takes a simple request with an integer number N and returns a

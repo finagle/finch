@@ -17,14 +17,17 @@ object ServerSentEvent {
 
   private[this] def text(s: String, cs: Charset): Buf = Buf.ByteArray.Owned(s.getBytes(cs.name))
 
-  implicit def sseAsyncToResponse[A](implicit
-     e: Encode.Aux[A, Text.EventStream]
+  implicit def sseAsyncToResponse[A](
+    implicit
+    e: Encode.Aux[A, Text.EventStream]
   ): ToResponse.Aux[AsyncStream[A], Text.EventStream] =
     ToResponse.asyncResponseBuilder((a, cs) => e(a, cs).concat(ToResponse.NewLine))
 
   implicit def encodeEventStream[A](implicit s: Show[A]): Encode.Aux[ServerSentEvent[A], Text.EventStream] = {
     Encode.instance[ServerSentEvent[A], Text.EventStream]({ (event: ServerSentEvent[A], c: Charset) =>
-      encodeEvent[A](event, c, { (a: A, cs: Charset) => text(s.show(a), cs) })
+      encodeEvent[A](event, c, { (a: A, cs: Charset) =>
+        text(s.show(a), cs)
+      })
     })
   }
 

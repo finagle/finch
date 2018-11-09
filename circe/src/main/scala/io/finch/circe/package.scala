@@ -1,7 +1,7 @@
 package io.finch
 
 import com.twitter.io.Buf
-import io.circe.{Json, Printer}
+import io.circe.{ Json, Printer }
 import java.nio.charset.Charset
 
 package object circe extends Encoders with Decoders {

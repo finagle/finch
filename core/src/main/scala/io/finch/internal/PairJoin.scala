@@ -1,6 +1,6 @@
 package io.finch.internal
 
-import shapeless.{::, DepFn2, HNil}
+import shapeless.{ ::, DepFn2, HNil }
 import shapeless.ops.adjoin.Adjoin
 
 /**
@@ -17,7 +17,8 @@ private[finch] trait LowPriorityPairAdjoin {
   /**
    * @group LowPriorityPair
    */
-  implicit def pairAdjoin[A, B, Out0](implicit
+  implicit def pairAdjoin[A, B, Out0](
+    implicit
     adjoin: Adjoin.Aux[A :: B :: HNil, Out0]
   ): Aux[A, B, Out0] =
     new PairAdjoin[A, B] {
@@ -28,7 +29,8 @@ private[finch] trait LowPriorityPairAdjoin {
 }
 
 object PairAdjoin extends LowPriorityPairAdjoin {
-  implicit def singletonPairAdjoin[A, B, C](implicit
+  implicit def singletonPairAdjoin[A, B, C](
+    implicit
     adjoin: Adjoin.Aux[A :: B :: HNil, C :: HNil]
   ): Aux[A, B, C] = new PairAdjoin[A, B] {
     type Out = C

@@ -4,7 +4,7 @@ import java.util.UUID
 
 import cats.Show
 import cats.effect.IO
-import com.twitter.finagle.http.{FileElement, RequestBuilder, SimpleElement}
+import com.twitter.finagle.http.{ FileElement, RequestBuilder, SimpleElement }
 import com.twitter.finagle.http.exp.Multipart
 import com.twitter.io.Buf
 import io.finch.data.Foo
@@ -14,40 +14,55 @@ class MultipartSpec extends FinchSpec {
   behavior of "multipart*"
 
   def withFileUpload(name: String, value: Buf): Input =
-    Input.fromRequest(RequestBuilder()
-      .url("http://example.com")
-      .add(FileElement(name, value, Some("image/gif"), Some("dealwithit.gif")))
-      .buildFormPost(multipart = true)
+    Input.fromRequest(
+      RequestBuilder()
+        .url("http://example.com")
+        .add(FileElement(name, value, Some("image/gif"), Some("dealwithit.gif")))
+        .buildFormPost(multipart = true)
     )
 
-  def withAttribute[A : Show](first: (String, A), rest: (String, A)*): Input = {
-    val req = RequestBuilder()
-      .url("http://example.com")
-      .add(SimpleElement(first._1, Show[A].show(first._2)))
+  def withAttribute[A: Show](first: (String, A), rest: (String, A)*): Input = {
+    val req = RequestBuilder().url("http://example.com").add(SimpleElement(first._1, Show[A].show(first._2)))
 
     Input.fromRequest(
-      rest.foldLeft(req)((builder, attr) =>
-        builder.add(SimpleElement(attr._1, Show[A].show(attr._2)))
-      ).buildFormPost(multipart = true)
+      rest
+        .foldLeft(req)((builder, attr) => builder.add(SimpleElement(attr._1, Show[A].show(attr._2))))
+        .buildFormPost(multipart = true)
     )
   }
 
-  checkAll("Attribute[String]",
-    EntityEndpointLaws[IO, String](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[Int]",
-    EntityEndpointLaws[IO, Int](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[Long]",
-    EntityEndpointLaws[IO, Long](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[Boolean]",
-    EntityEndpointLaws[IO, Boolean](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[Float]",
-    EntityEndpointLaws[IO, Float](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[Double]",
-    EntityEndpointLaws[IO, Double](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[UUID]",
-    EntityEndpointLaws[IO, UUID](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[Foo]",
-    EntityEndpointLaws[IO, Foo](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+  checkAll(
+    "Attribute[String]",
+    EntityEndpointLaws[IO, String](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating
+  )
+  checkAll(
+    "Attribute[Int]",
+    EntityEndpointLaws[IO, Int](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating
+  )
+  checkAll(
+    "Attribute[Long]",
+    EntityEndpointLaws[IO, Long](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating
+  )
+  checkAll(
+    "Attribute[Boolean]",
+    EntityEndpointLaws[IO, Boolean](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating
+  )
+  checkAll(
+    "Attribute[Float]",
+    EntityEndpointLaws[IO, Float](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating
+  )
+  checkAll(
+    "Attribute[Double]",
+    EntityEndpointLaws[IO, Double](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating
+  )
+  checkAll(
+    "Attribute[UUID]",
+    EntityEndpointLaws[IO, UUID](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating
+  )
+  checkAll(
+    "Attribute[Foo]",
+    EntityEndpointLaws[IO, Foo](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating
+  )
 
   checkAll(
     "EvaluatingAttribute[String]",

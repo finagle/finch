@@ -2,9 +2,9 @@ package io.finch
 
 import cats.Applicative
 import cats.data.NonEmptyList
-import cats.effect.{Effect, Sync}
+import cats.effect.{ Effect, Sync }
 import com.twitter.concurrent.AsyncStream
-import com.twitter.finagle.http.{Cookie, Request}
+import com.twitter.finagle.http.{ Cookie, Request }
 import com.twitter.finagle.http.exp.Multipart
 import com.twitter.io.Buf
 import scala.reflect.ClassTag
@@ -341,7 +341,9 @@ trait EndpointModule[F[_]] {
   /**
    * An alias for [[Endpoint.multipartAttributesNel]].
    */
-  def multipartAttributesNel[A: DecodeEntity: ClassTag](name: String)(implicit F: Effect[F]): Endpoint[F, NonEmptyList[A]] =
+  def multipartAttributesNel[A: DecodeEntity: ClassTag](
+    name: String
+  )(implicit F: Effect[F]): Endpoint[F, NonEmptyList[A]] =
     Endpoint.multipartAttributesNel[F, A](name)
 }
 

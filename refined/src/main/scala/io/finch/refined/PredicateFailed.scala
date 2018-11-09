@@ -4,6 +4,6 @@ import scala.util.control.NoStackTrace
 
 case class PredicateFailed(error: String) extends Exception with NoStackTrace {
 
-    override def getMessage: String = error
+  override def getMessage: String = error
 
 }

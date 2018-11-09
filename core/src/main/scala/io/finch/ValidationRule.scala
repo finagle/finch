@@ -36,7 +36,9 @@ trait ValidationRule[A] { self =>
     * @return a new rule that only validates if both the combined rules validate
     */
   def and(that: ValidationRule[A]): ValidationRule[A] =
-    ValidationRule(s"${self.description} and ${that.description}") { value => self(value) && that(value) }
+    ValidationRule(s"${self.description} and ${that.description}") { value =>
+      self(value) && that(value)
+    }
 
   /**
     * Combines this rule with another rule such that the new rule validates if any one of the
@@ -47,8 +49,8 @@ trait ValidationRule[A] { self =>
     * @return a new rule that validates if any of the combined rules validates
     */
   def or(that: ValidationRule[A]): ValidationRule[A] =
-    ValidationRule(s"${self.description} or ${that.description}") {
-      value => self(value) || that(value)
+    ValidationRule(s"${self.description} or ${that.description}") { value =>
+      self(value) || that(value)
     }
 }
 
@@ -56,6 +58,7 @@ trait ValidationRule[A] { self =>
  * Allows the creation of reusable validation rules for [[Endpoint]]s.
  */
 object ValidationRule {
+
   /**
    * Implicit conversion that allows the same [[ValidationRule]] to be used for required
    * and optional values. If the optional value is non-empty, it gets validated (and validation may
@@ -69,7 +72,7 @@ object ValidationRule {
   implicit def toOptionalRule[A](rule: ValidationRule[A]): ValidationRule[Option[A]] = {
     ValidationRule(rule.description) {
       case Some(value) => rule(value)
-      case None => true
+      case None        => true
     }
   }
 

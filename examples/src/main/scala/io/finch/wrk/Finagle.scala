@@ -3,7 +3,7 @@ package io.finch.wrk
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Request, Response, Status}
+import com.twitter.finagle.http.{ Request, Response, Status }
 import com.twitter.io.Buf
 import com.twitter.util.Future
 import io.finch.internal._

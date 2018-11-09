@@ -2,10 +2,10 @@ package io.finch
 
 import cats.effect.Effect
 import cats.instances.AllInstances
-import org.scalacheck.{Arbitrary, Prop}
+import org.scalacheck.{ Arbitrary, Prop }
 import org.typelevel.discipline.Laws
 
-abstract class EvaluatingEndpointLaws[F[_] : Effect, A] extends Laws with MissingInstances with AllInstances {
+abstract class EvaluatingEndpointLaws[F[_]: Effect, A] extends Laws with MissingInstances with AllInstances {
 
   def decode: DecodeEntity[A]
   def endpoint(d: DecodeEntity[A]): Endpoint[F, A]
@@ -19,7 +19,9 @@ abstract class EvaluatingEndpointLaws[F[_] : Effect, A] extends Laws with Missin
   def all(implicit a: Arbitrary[Input]): RuleSet = new DefaultRuleSet(
     name = "all",
     parent = None,
-    "doNotEvaluateOnMatch" -> Prop.forAll { (i: Input) => doNotEvaluateOnMatch(i) }
+    "doNotEvaluateOnMatch" -> Prop.forAll { (i: Input) =>
+      doNotEvaluateOnMatch(i)
+    }
   )
 }
 
@@ -35,7 +37,7 @@ object EvaluatingEndpointLaws {
     def evaluated: Boolean = e
   }
 
-  def apply[F[_] : Effect, A: DecodeEntity](e: DecodeEntity[A] => Endpoint[F, A]): EvaluatingEndpointLaws[F, A] =
+  def apply[F[_]: Effect, A: DecodeEntity](e: DecodeEntity[A] => Endpoint[F, A]): EvaluatingEndpointLaws[F, A] =
     new EvaluatingEndpointLaws[F, A] {
       val decode: DecodeEntity[A] = DecodeEntity[A]
       def endpoint(d: DecodeEntity[A]): Endpoint[F, A] = e(d)
