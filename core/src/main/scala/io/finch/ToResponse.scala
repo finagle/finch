@@ -45,7 +45,7 @@ trait LowPriorityToResponseInstances {
     val writable = rep.writer
 
     as.foreachF(chunk => writable.write(writer(chunk, cs))).ensure(writable.close())
-    rep.contentType = w.value
+    rep.headerMap.setUnsafe("Content-Type", w.value)
 
     rep
   }
@@ -80,7 +80,7 @@ trait HighPriorityToResponseInstances extends LowPriorityToResponseInstances {
 
     if (!buf.isEmpty) {
       rep.content = buf
-      rep.contentType = w.value
+      rep.headerMap.setUnsafe("Content-Type", w.value)
     }
 
     rep

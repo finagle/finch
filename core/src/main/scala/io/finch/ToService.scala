@@ -70,11 +70,11 @@ object ToService {
     rep.version = version
 
     if (options.includeDateHeader) {
-      rep.date = currentTime()
+      rep.headerMap.setUnsafe("Date", currentTime())
     }
 
     if (options.includeServerHeader) {
-      rep.server = "Finch"
+      rep.headerMap.setUnsafe("Server", "Finch")
     }
 
     rep
@@ -120,26 +120,26 @@ object ToService {
             val accept =
               if (opts.negotiateContentType) req.accept.map(a => Accept.fromString(a)) else Nil
 
-            val promise = Promise[Response]
+            val rep = new Promise[Response]
 
             (effect match {
               case concurrent: ConcurrentEffect[F] =>
                 (concurrent.runCancelable(out) _).andThen(io => io.map(cancelToken =>
-                  promise.setInterruptHandler {
+                  rep.setInterruptHandler {
                     case _ => concurrent.toIO(cancelToken).unsafeRunAsyncAndForget()
                   }
                 ))
               case e => e.runAsync(out) _
             }) {
-              case Left(t) => IO(promise.setException(t))
+              case Left(t) => IO(rep.setException(t))
               case Right(v) => IO {
-                promise.setValue(
-                  conformHttp(v.convertToResponse(ntrA(accept).apply, ntrE(accept).apply), req.version, opts)
+                rep.setValue(
+                  conformHttp(v.toResponse(ntrA(accept), ntrE(accept)), req.version, opts)
                 )
               }
             }.unsafeRunSync()
 
-            promise
+            rep
 
           case EndpointResult.NotMatched.MethodNotAllowed(allowed) =>
             tsT(es.tail, opts, ctx.copy(wouldAllow = ctx.wouldAllow ++ allowed))(req)
