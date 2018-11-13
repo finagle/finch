@@ -42,6 +42,6 @@ package object endpoint {
         )
     }
 
-    final override def toString: String = path
+    final override def toString: String = s"GET /$path"
   }
 }
