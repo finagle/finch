@@ -584,23 +584,7 @@ object Endpoint {
    */
   def fromInputStream[F[_]](stream: Resource[F, InputStream])(
     implicit F: Effect[F], S: ContextShift[F]
-  ): Endpoint[F, Buf] =
-    new Endpoint[F, Buf] {
-      private def readLoop(left: Buf, stream: InputStream): F[Buf] = F.suspend {
-        val buffer = new Array[Byte](1024)
-        val n = stream.read(buffer)
-        if (n == -1) F.pure(left)
-        else readLoop(left.concat(Buf.ByteArray.Owned(buffer, 0, n)), stream)
-      }
-
-      final def apply(input: Input): Result[F, Buf] = {
-        val output = stream.use(s =>
-          S.shift.flatMap(_ => readLoop(Buf.Empty, s)).map(buf => Output.payload(buf))
-        )
-
-        EndpointResult.Matched(input, Trace.empty, output)
-      }
-    }
+  ): Endpoint[F, Buf] = new FromInputStream[F](stream)
 
   /**
    * Creates an [[Endpoint]] from a given [[File]]. Uses [[Resource]] for safer resource
@@ -649,11 +633,13 @@ object Endpoint {
   def classpathAsset[F[_]](path: String)(implicit
     F: Effect[F],
     S: ContextShift[F]
-  ): Endpoint[F, Buf] =
-    new Asset[F](
-      path,
+  ): Endpoint[F, Buf] = {
+    val asset = new Asset[F](path)
+    val stream =
       fromInputStream[F](Resource.fromAutoCloseable(F.delay(getClass.getResourceAsStream(path))))
-    )
+
+    asset :: stream
+  }
 
   /**
    * Creates an [[Endpoint]] that serves an asset (static content) from a filesystem, located at
@@ -673,11 +659,12 @@ object Endpoint {
   def filesystemAsset[F[_]](path: String)(implicit
     F: Effect[F],
     S: ContextShift[F]
-  ): Endpoint[F, Buf] =
-    new Asset[F](
-      path,
-      fromFile[F](new File(path))
-    )
+  ): Endpoint[F, Buf] = {
+    val asset = new Asset[F](path)
+    val file = fromFile[F](new File(path))
+
+    asset :: file
+  }
 
   /**
    * A root [[Endpoint]] that always matches and extracts the current request.
