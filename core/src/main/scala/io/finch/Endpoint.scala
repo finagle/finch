@@ -598,7 +598,7 @@ object Endpoint {
           S.shift.flatMap(_ => readLoop(Buf.Empty, s)).map(buf => Output.payload(buf))
         )
 
-        EndpointResult.Matched(input.withRoute(Nil), Trace.empty, output)
+        EndpointResult.Matched(input, Trace.empty, output)
       }
     }
 
@@ -696,7 +696,11 @@ object Endpoint {
   def pathAny[F[_]](implicit F: Applicative[F]): Endpoint[F, HNil] =
     new Endpoint[F, HNil] {
       final def apply(input: Input): Result[F, HNil] =
-        EndpointResult.Matched(input.withRoute(Nil), Trace.empty, F.pure(Output.HNil))
+        EndpointResult.Matched(
+          input.withRoute(Nil),
+          Trace.fromRoute(input.route),
+          F.pure(Output.HNil)
+        )
 
       final override def toString: String = "*"
     }
