@@ -5,6 +5,7 @@ import com.twitter.io.Buf
 import java.nio.ByteBuffer
 import java.nio.charset.{Charset, StandardCharsets}
 import scala.annotation.tailrec
+import scala.collection.mutable.ListBuffer
 
 /**
  * This package contains an internal-use only type-classes and utilities that power Finch's API.
@@ -122,4 +123,32 @@ package object internal {
     }
   }
 
+  implicit class HttpPath(val self: String) extends AnyVal {
+    // Cheap and quick HTTP path parsing.
+    def route: List[String] = {
+      if (self.length == 0) Nil
+      else if (self.length == 1 && self.charAt(0) == '/') Nil
+      else {
+        val result = new ListBuffer[String]
+        var i, j = 0
+
+        while (j < self.length) {
+          if (self.charAt(j) == '/') {
+            if (j > i) {
+              result += self.substring(i, j)
+            }
+            i = j + 1
+          }
+
+          j += 1
+        }
+
+        if (j > i) {
+          result += self.substring(i, j)
+        }
+
+        result.toList
+      }
+    }
+  }
 }

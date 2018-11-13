@@ -592,7 +592,11 @@ object Endpoint {
   def pathAny[F[_]](implicit F: Applicative[F]): Endpoint[F, HNil] =
     new Endpoint[F, HNil] {
       final def apply(input: Input): Result[F, HNil] =
-        EndpointResult.Matched(input.withRoute(Nil), Trace.empty, F.pure(Output.HNil))
+        EndpointResult.Matched(
+          input.withRoute(Nil),
+          Trace.fromRoute(input.route),
+          F.pure(Output.HNil)
+        )
 
       final override def toString: String = "*"
     }
@@ -626,10 +630,10 @@ object Endpoint {
     new ExtractPaths[F, A]
 
   /**
-   * An [[Endpoint]] that matches a given string.
+   * An [[Endpoint]] that matches a given path.
    */
   def path[F[_]: Effect](s: String): Endpoint[F, HNil] =
-    new MatchPath[F](s)
+    new MatchPath[F](s.route)
 
   /**
    * A combinator that wraps the given [[Endpoint]] with additional check of the HTTP method. The

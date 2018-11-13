@@ -37,7 +37,7 @@ trait FinchSpec extends FlatSpec
   case class Headers(m: Map[String, String])
   case class Params(p: Map[String, String])
   case class Cookies(c: Seq[Cookie])
-  case class Path(p: String)
+  case class Path(p: String, segments: List[String])
 
   case class OptionalNonEmptyString(o: Option[String])
 
@@ -183,7 +183,7 @@ trait FinchSpec extends FlatSpec
       Gen.posNum[Long].map(_.toString),
       Gen.oneOf(true, false).map(_.toString)
     ))
-  } yield Path("/" + ss.mkString("/"))
+  } yield Path("/" + ss.mkString("/"), ss)
 
   def genBuf: Gen[Buf] = for {
     size <- Gen.choose(1, 100)

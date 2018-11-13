@@ -11,7 +11,7 @@ class HttpMessageSpec extends FinchSpec {
     case None => StandardCharsets.UTF_8
   }
 
-  behavior of "HttpMesage"
+  behavior of "HttpMessage"
 
   it should "charsetOrUtf8" in {
     check { cs: Charset =>

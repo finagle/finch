@@ -3,23 +3,37 @@ package io.finch.endpoint
 import cats.effect.Effect
 import io.finch._
 import io.netty.handler.codec.http.QueryStringDecoder
+import scala.annotation.tailrec
 import scala.reflect.ClassTag
 import shapeless.HNil
 
-private[finch] class MatchPath[F[_]](s: String)(implicit
+private[finch] class MatchPath[F[_]](s: Seq[String])(implicit
   F: Effect[F]
 ) extends Endpoint[F, HNil] {
-  final def apply(input: Input): EndpointResult[F, HNil] = input.route match {
-    case `s` +: rest =>
-      EndpointResult.Matched(
-        input.withRoute(rest),
-        Trace.segment(s),
-        F.pure(Output.HNil)
-      )
-    case _ => EndpointResult.NotMatched[F]
+
+  final def apply(input: Input): Endpoint.Result[F, HNil] = {
+    @tailrec
+    def loop(actual: Seq[String], expected: Seq[String]): Endpoint.Result[F, HNil] =
+      expected match {
+        case se +: re =>
+          actual match {
+            case sa +: ra if se == sa =>
+              loop(ra, re)
+            case _ =>
+              EndpointResult.NotMatched[F]
+          }
+        case _ =>
+          EndpointResult.Matched(
+            input.withRoute(actual),
+            Trace.fromRoute(s),
+            F.pure(Output.HNil)
+          )
+      }
+
+    loop(input.route, s)
   }
 
-  final override def toString: String = s
+  final override def toString: String = s.mkString(" :: ")
 }
 
 private[finch] class ExtractPath[F[_], A](implicit
@@ -27,7 +41,7 @@ private[finch] class ExtractPath[F[_], A](implicit
   ct: ClassTag[A],
   F: Effect[F]
 ) extends Endpoint[F, A] {
-  final def apply(input: Input): EndpointResult[F, A] = input.route match {
+  final def apply(input: Input): Endpoint.Result[F, A] = input.route match {
     case s +: rest => d(QueryStringDecoder.decodeComponent(s)) match {
       case Some(a) =>
         EndpointResult.Matched(
@@ -48,7 +62,7 @@ private[finch] class ExtractPaths[F[_], A](implicit
   ct: ClassTag[A],
   F: Effect[F]
 ) extends Endpoint[F, Seq[A]] {
-  final def apply(input: Input): EndpointResult[F, Seq[A]] = EndpointResult.Matched(
+  final def apply(input: Input): Endpoint.Result[F, Seq[A]] = EndpointResult.Matched(
     input.copy(route = Nil),
     Trace.segment(toString),
     F.pure(Output.payload(input.route.flatMap(p => d(QueryStringDecoder.decodeComponent(p)).toSeq)))
