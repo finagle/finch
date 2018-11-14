@@ -10,7 +10,7 @@ import scala.reflect.ClassTag
 abstract class ExtractPathLaws[F[_] : Effect, A]  extends Laws with MissingInstances with AllInstances {
   def decode: DecodePath[A]
   def one: Endpoint[F, A]
-  def tail: Endpoint[F, Seq[A]]
+  def tail: Endpoint[F, List[A]]
 
   def all(implicit A: Arbitrary[Input]): RuleSet = new DefaultRuleSet(
     name = "all",
@@ -36,7 +36,7 @@ abstract class ExtractPathLaws[F[_] : Effect, A]  extends Laws with MissingInsta
 object ExtractPathLaws {
   def apply[F[_] : Effect, A: DecodePath: ClassTag]: ExtractPathLaws[F, A] =
     new ExtractPathLaws[F, A] {
-      def tail: Endpoint[F, Seq[A]] = Endpoint[F].paths[A]
+      def tail: Endpoint[F, List[A]] = Endpoint[F].paths[A]
       def one: Endpoint[F, A] = Endpoint[F].path[A]
       def decode: DecodePath[A] = DecodePath[A]
     }
