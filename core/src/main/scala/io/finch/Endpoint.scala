@@ -717,7 +717,7 @@ object Endpoint {
    * A matching [[Endpoint]] that reads a tail value `A` (using the implicit
    * [[DecodePath]] instances defined for `A`) from the entire path.
    */
-  def paths[F[_]: Effect, A: DecodePath: ClassTag]: Endpoint[F, Seq[A]] =
+  def paths[F[_]: Effect, A: DecodePath: ClassTag]: Endpoint[F, List[A]] =
     new ExtractPaths[F, A]
 
   /**
@@ -926,8 +926,8 @@ object Endpoint {
    * An evaluating [[Endpoint]] that reads an optional (in a meaning that a resulting
    * `Seq` may be empty) multi-value query-string param `name` from the request into a `Seq`.
    */
-  def params[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, Seq[A]] =
-    new Params[F, Seq, A](name) with Params.AllowEmpty[F, A]
+  def params[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, List[A]] =
+    new Params[F, List, A](name) with Params.AllowEmpty[F, A]
 
   /**
    * An evaluating [[Endpoint]] that reads a required multi-value query-string param `name`
@@ -955,8 +955,8 @@ object Endpoint {
    * An evaluating [[Endpoint]] that optionally reads multiple file uploads from a
    * `multipart/form-data` request.
    */
-  def multipartFileUploads[F[_]: Effect](name: String): Endpoint[F, Seq[FinagleMultipart.FileUpload]] =
-    new FileUpload[F, Seq](name) with FileUpload.AllowEmpty[F]
+  def multipartFileUploads[F[_]: Effect](name: String): Endpoint[F, List[FinagleMultipart.FileUpload]] =
+    new FileUpload[F, List](name) with FileUpload.AllowEmpty[F]
 
   /**
    * An evaluating [[Endpoint]] that requires multiple file uploads from a `multipart/form-data`
@@ -983,8 +983,8 @@ object Endpoint {
    * An evaluating [[Endpoint]] that reads a required attribute from a `multipart/form-data`
    * request.
    */
-  def multipartAttributes[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, Seq[A]] =
-    new Attribute[F, Seq, A](name) with Attribute.AllowEmpty[F, A] with Attribute.MultipleErrors[F, Seq, A]
+  def multipartAttributes[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, List[A]] =
+    new Attribute[F, List, A](name) with Attribute.AllowEmpty[F, A] with Attribute.MultipleErrors[F, List, A]
 
   /**
    * An evaluating [[Endpoint]] that reads a required attribute from a `multipart/form-data`

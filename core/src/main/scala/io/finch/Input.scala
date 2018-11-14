@@ -16,12 +16,12 @@ import shapeless.Witness
  * - Finagle's [[Request]] needed for evaluating (e.g., `body`, `param`)
  * - Finch's route (represented as `Seq[String]`) needed for matching (e.g., `path`)
  */
-final case class Input(request: Request, route: Seq[String]) {
+final case class Input(request: Request, route: List[String]) {
 
   /**
    * Returns the new `Input` wrapping a given `route`.
    */
-  def withRoute(route: Seq[String]): Input = Input(request, route)
+  def withRoute(route: List[String]): Input = Input(request, route)
 
   /**
    * Returns the new `Input` wrapping a given payload. This requires the content-type as a first

@@ -63,7 +63,7 @@ object Trace {
   def empty: Trace = Empty
   def segment(s: String): Trace = Segment(s, empty)
 
-  def fromRoute(r: Seq[String]): Trace = {
+  def fromRoute(r: List[String]): Trace = {
     var result = empty
     var current: Segment = null
 

@@ -151,7 +151,7 @@ trait EndpointModule[F[_]] {
   /**
    * An alias for [[Endpoint.paths]].
    */
-  def paths[A: DecodePath: ClassTag](implicit F: Effect[F]): Endpoint[F, Seq[A]] =
+  def paths[A: DecodePath: ClassTag](implicit F: Effect[F]): Endpoint[F, List[A]] =
     Endpoint.paths[F, A]
 
   /**
@@ -316,7 +316,7 @@ trait EndpointModule[F[_]] {
   /**
    * An alias for [[Endpoint.params]].
    */
-  def params[A: DecodeEntity: ClassTag](name: String)(implicit F: Effect[F]): Endpoint[F, Seq[A]] =
+  def params[A: DecodeEntity: ClassTag](name: String)(implicit F: Effect[F]): Endpoint[F, List[A]] =
     Endpoint.params[F, A](name)
 
   /**
@@ -340,7 +340,7 @@ trait EndpointModule[F[_]] {
   /**
    * An alias for [[Endpoint.multipartFileUploads]].
    */
-  def multipartFileUploads(name: String)(implicit F: Effect[F]): Endpoint[F, Seq[Multipart.FileUpload]] =
+  def multipartFileUploads(name: String)(implicit F: Effect[F]): Endpoint[F, List[Multipart.FileUpload]] =
     Endpoint.multipartFileUploads[F](name)
 
   /**
@@ -364,7 +364,7 @@ trait EndpointModule[F[_]] {
   /**
    * An alias for [[Endpoint.multipartAttributes]].
    */
-  def multipartAttributes[A: DecodeEntity: ClassTag](name: String)(implicit F: Effect[F]): Endpoint[F, Seq[A]] =
+  def multipartAttributes[A: DecodeEntity: ClassTag](name: String)(implicit F: Effect[F]): Endpoint[F, List[A]] =
     Endpoint.multipartAttributes[F, A](name)
 
   /**

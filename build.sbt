@@ -1,6 +1,9 @@
 import ReleaseTransformations._
 import microsites.ExtraMdFileConfig
 
+addCompilerPlugin("org.scalameta"  % "semanticdb-scalac" % "4.0.0" cross CrossVersion.full)
+
+
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   scalaVersion := "2.12.7",
@@ -29,7 +32,8 @@ lazy val compilerOptions = Seq(
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
   "-Xfuture",
-  "-Xlint"
+  "-Xlint",
+  "-Yrangepos"
 )
 
 val testDependencies = Seq(
@@ -62,7 +66,8 @@ val baseSettings = Seq(
   },
   scalacOptions in (Compile, console) += "-Yrepl-class-based",
   fork in Test := true,
-  javaOptions in ThisBuild ++= Seq("-Xss2048K")
+  javaOptions in ThisBuild ++= Seq("-Xss2048K"),
+  addCompilerPlugin(scalafixSemanticdb)
 )
 
 def updateVersionInFile(selectVersion: sbtrelease.Versions => String): ReleaseStep =
