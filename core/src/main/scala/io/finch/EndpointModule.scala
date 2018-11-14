@@ -2,11 +2,12 @@ package io.finch
 
 import cats.Applicative
 import cats.data.NonEmptyList
-import cats.effect.{Effect, Sync}
+import cats.effect.{ContextShift, Effect, Resource, Sync}
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.{Cookie, Request}
 import com.twitter.finagle.http.exp.Multipart
 import com.twitter.io.Buf
+import java.io.{File, InputStream}
 import scala.reflect.ClassTag
 import shapeless.HNil
 
@@ -94,6 +95,34 @@ trait EndpointModule[F[_]] {
    */
   def liftOutputAsync[A](foa: => F[Output[A]])(implicit F: Sync[F]): Endpoint[F, A] =
     Endpoint.liftOutputAsync[F, A](foa)
+
+  /**
+   * An alias for [[Endpoint.fromInputStream]].
+   */
+  def fromInputStream(stream: Resource[F, InputStream])(
+    implicit F: Effect[F], S: ContextShift[F]
+  ): Endpoint[F, Buf] =
+    Endpoint.fromInputStream[F](stream)
+
+  /**
+   * An alias for [[Endpoint.fromFile]].
+   */
+  def fromFile(file: File)(
+    implicit F: Effect[F], S: ContextShift[F]
+  ): Endpoint[F, Buf] =
+    Endpoint.fromFile[F](file)
+
+  /**
+   * An alias for [[Endpoint.classpathAsset]].
+   */
+  def classpathAsset(path: String)(implicit F: Effect[F], S: ContextShift[F]): Endpoint[F, Buf] =
+    Endpoint.classpathAsset[F](path)
+
+  /**
+   * An alias for [[Endpoint.classpathAsset]].
+   */
+  def filesystemAsset(path: String)(implicit F: Effect[F], S: ContextShift[F]): Endpoint[F, Buf] =
+    Endpoint.filesystemAsset[F](path)
 
   /**
    * An alias for [[Endpoint.root]].

@@ -63,6 +63,29 @@ object Trace {
   def empty: Trace = Empty
   def segment(s: String): Trace = Segment(s, empty)
 
+  def fromRoute(r: Seq[String]): Trace = {
+    var result = empty
+    var current: Segment = null
+
+    def prepend(segment: Segment): Unit = {
+      if (result == empty) {
+        result = segment
+        current = segment
+      } else {
+        current.next = segment
+        current = segment
+      }
+    }
+
+    var rs = r
+    while (rs.nonEmpty) {
+      prepend(Segment(rs.head, empty))
+      rs = rs.tail
+    }
+
+    result
+  }
+
   /**
    * Within a given context `fn`, capture the [[Trace]] instance under `Trace.captured` for each
    * matched endpoint.

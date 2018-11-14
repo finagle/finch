@@ -16,4 +16,10 @@ class TraceSpec extends FinchSpec {
       a.concat(b).toList === (a.toList ++ b.toList)
     }
   }
+
+  it should "create fromRoute" in {
+    check { l: List[String] =>
+      Trace.fromRoute(l).toList === l
+    }
+  }
 }

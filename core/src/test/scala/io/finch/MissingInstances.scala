@@ -1,7 +1,9 @@
 package io.finch
 
 import cats.Eq
+import cats.effect.{ContextShift, IO}
 import com.twitter.io.Buf
+import scala.concurrent.ExecutionContext
 
 /**
  * Type class instances for non-Finch types.
@@ -14,4 +16,6 @@ trait MissingInstances {
   }
 
   implicit def eqBuf: Eq[Buf] = Eq.fromUniversalEquals
+
+  implicit val shift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 }
