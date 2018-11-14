@@ -1,108 +1,94 @@
 package io.finch.todo
 
+import cats.effect.IO
+import cats.effect.concurrent.Ref
 import com.twitter.finagle.http.Status
-import com.twitter.io.Buf
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
-import java.nio.charset.StandardCharsets
-import java.util.UUID
+import io.finch.internal.DummyExecutionContext
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers
 
 class TodoSpec extends FlatSpec with Matchers with Checkers {
-  import Main._
 
-  behavior of "the postTodo endpoint"
+  behavior of "Todo App"
 
-  case class TodoWithoutId(title: String, completed: Boolean, order: Int)
+  case class TodoCompleted(completed: Boolean)
 
-  def genTodoWithoutId: Gen[TodoWithoutId] = for {
-    t <- Gen.alphaStr
-    c <- Gen.oneOf(true, false)
-    o <- Gen.choose(Int.MinValue, Int.MaxValue)
-  } yield TodoWithoutId(t, c, o)
+  case class TodoTitle(title: String) {
+    def withId(id: Int): Todo = Todo(id, title, completed = false)
+  }
 
-  implicit def arbitraryTodoWithoutId: Arbitrary[TodoWithoutId] = Arbitrary(genTodoWithoutId)
+  case class AppState(id: Int, store: Map[Int, Todo])
 
-  it should "create a todo" in {
-    check { todoWithoutId: TodoWithoutId =>
-      val input = Input.post("/todos")
-        .withBody[Application.Json](todoWithoutId, Some(StandardCharsets.UTF_8))
+  case class TestApp(
+    id: Ref[IO, Int],
+    store: Ref[IO, Map[Int, Todo]]
+  ) extends App(id, store)(IO.contextShift(DummyExecutionContext)) {
+    def state: IO[AppState] = for {
+      i <- id.get
+      s <- store.get
+    } yield AppState(i, s)
+  }
 
-      val res = postTodo(input)
-      val Some(todo) = res.awaitOutputUnsafe()
+  def genTodoWithoutId: Gen[TodoTitle] =
+    Gen.alphaStr.map(s => TodoTitle(s))
 
-      todo.status === Status.Created &&
-      todo.value.completed === todoWithoutId.completed &&
-      todo.value.title === todoWithoutId.title &&
-      todo.value.order === todoWithoutId.order &&
-      Todo.get(todo.value.id).isDefined
+  def genTestApp: Gen[TestApp] =
+    Gen.listOf(genTodoWithoutId).map { todos =>
+      val id = todos.length
+      val store = todos.zipWithIndex.map { case (t, i) => i -> t.withId(i) }
+
+      TestApp(Ref.unsafe[IO, Int](id), Ref.unsafe[IO, Map[Int, Todo]](store.toMap))
+    }
+
+  implicit def arbitraryTodoWithoutId: Arbitrary[TodoTitle] = Arbitrary(genTodoWithoutId)
+  implicit def arbitraryApp: Arbitrary[TestApp] = Arbitrary(genTestApp)
+  implicit def arbitraryTodoCompleted: Arbitrary[TodoCompleted] =
+    Arbitrary(Arbitrary.arbBool.arbitrary.map(TodoCompleted))
+
+  it should "post a todo" in {
+    check { (app: TestApp, todo: TodoTitle) =>
+      val input = Input
+        .post("/todos")
+        .withBody[Application.Json](todo)
+
+      val shouldBeTrue = for {
+        prev <- app.state
+        posted <- app.postTodo(input).output.get
+        next <- app.state
+      } yield {
+        prev.id + 1 == next.id &&
+        prev.store + (prev.id -> posted.value) == next.store &&
+        posted.value == todo.withId(prev.id)
+      }
+
+      shouldBeTrue.unsafeRunSync()
     }
   }
 
-  behavior of "the patchTodo endpoint"
+  it should "patch a todo" in {
+    check { (app: TestApp, todo: TodoCompleted) =>
+      def input(id: Int): Input = Input
+        .patch(s"/todos/$id")
+        .withBody[Application.Json](todo)
 
-  it should "modify an existing todo if its id has been found" in {
-    val todo = createTodo()
-    val input = Input.patch(s"/todos/${todo.id}")
-      .withBody[Application.Json](Buf.Utf8("{\"completed\": true}"), Some(StandardCharsets.UTF_8))
+      val shouldBeTrue = for {
+        prev <- app.state
+        patched <- app.patchTodo(input(prev.id - 1)).output.get
+        next <- app.state
+      } yield {
+        (prev.id == 0 && patched.status == Status.NotFound && prev == next) ||
+        (
+          next.id == prev.id && patched.value.id == prev.id - 1 &&
+          patched.value.completed == todo.completed &&
+          prev.store + ((prev.id - 1) -> patched.value) == next.store
+        )
+      }
 
-    patchTodo(input).awaitValueUnsafe() shouldBe Some(todo.copy(completed = true))
-    Todo.get(todo.id) shouldBe Some(todo.copy(completed = true))
-  }
-  it should "throw an exception if the uuid hasn't been found" in {
-    val id = UUID.randomUUID()
-    Todo.get(id) shouldBe None
-
-    val input = Input.patch(s"/todos/$id")
-      .withBody[Application.Json](Buf.Utf8("{\"completed\": true}"), Some(StandardCharsets.UTF_8))
-
-    a[TodoNotFound] shouldBe thrownBy(patchTodo(input).awaitValueUnsafe())
-  }
-
-  it should "give back the same todo with non-related json" in {
-    val todo = createTodo()
-    val input = Input.patch(s"/todos/${todo.id}")
-      .withBody[Application.Json](Buf.Utf8("{\"bla\": true}"), Some(StandardCharsets.UTF_8))
-
-    patchTodo(input).awaitValueUnsafe() shouldBe Some(todo)
-    Todo.get(todo.id) shouldBe Some(todo)
-  }
-
-  behavior of "the getTodos endpoint"
-
-  it should "retrieve all available todos" in {
-    getTodos(Input.get("/todos")).awaitValueUnsafe() shouldBe Some(Todo.list())
-  }
-
-  behavior of "the deleteTodo endpoint"
-
-  it should "delete the specified todo" in {
-    val todo = createTodo()
-
-    deleteTodo(Input.delete(s"/todos/${todo.id}")).awaitValueUnsafe() shouldBe Some(todo)
-    Todo.get(todo.id) shouldBe None
-  }
-
-  it should "throw an exception if the uuid hasn't been found" in {
-    val id = UUID.randomUUID()
-    Todo.get(id) shouldBe None
-    a[TodoNotFound] shouldBe thrownBy(deleteTodo(Input.delete(s"/todos/$id")).awaitValueUnsafe())
-  }
-
-  behavior of "the deleteTodos endpoint"
-
-  it should "delete all todos" in {
-    val todos = Todo.list()
-    deleteTodos(Input.delete("/todos")).awaitValueUnsafe() shouldBe Some(todos)
-    todos.foreach(t => Todo.get(t.id) shouldBe None)
-  }
-
-  private def createTodo(): Todo = {
-    val todo = Todo(UUID.randomUUID(), "foo", completed = false, 0)
-    Todo.save(todo)
-    todo
+      shouldBeTrue.unsafeRunSync()
+    }
   }
 }
