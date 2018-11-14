@@ -18,7 +18,7 @@ package object iteratee extends IterateeInstances {
   private[finch] def enumeratorFromReader[F[_] : Effect](reader: Reader[Buf]): Enumerator[F, Buf] = {
     def rec(reader: Reader[Buf]): Enumerator[F, Buf] = {
       Enumerator.liftM[F, Option[Buf]] {
-        futureToEffect(reader.read(Int.MaxValue))
+        futureToEffect(reader.read())
       }.flatMap {
         case None => Enumerator.empty[F, Buf]
         case Some(buf) => Enumerator.enumOne[F, Buf](buf).append(rec(reader))
