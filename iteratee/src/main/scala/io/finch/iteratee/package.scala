@@ -20,7 +20,7 @@ package object iteratee extends IterateeInstances {
 
   private[finch] def enumeratorFromReader(reader: Reader[Buf]): Enumerator[Future, Buf] = {
     def rec(reader: Reader[Buf]): Enumerator[Future, Buf] = {
-      reader.read(Int.MaxValue).intoEnumerator.flatMap {
+      reader.read().intoEnumerator.flatMap {
         case None => empty[Buf]
         case Some(buf) => enumOne(buf).append(rec(reader))
       }
