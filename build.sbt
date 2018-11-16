@@ -7,14 +7,14 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.11.12", "2.12.7")
 )
 
-lazy val twitterVersion = "18.10.0"
-lazy val circeVersion = "0.10.0"
+lazy val twitterVersion = "18.11.0"
+lazy val circeVersion = "0.10.1"
 lazy val circeIterateeVersion = "0.11.0"
 lazy val shapelessVersion = "2.3.3"
 lazy val catsVersion = "1.4.0"
 lazy val argonautVersion = "6.2.2"
 lazy val iterateeVersion = "0.18.0"
-lazy val refinedVersion = "0.9.2"
+lazy val refinedVersion = "0.9.3"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -32,10 +32,10 @@ lazy val compilerOptions = Seq(
 )
 
 val testDependencies = Seq(
-  "org.scalacheck" %% "scalacheck" % "1.13.5",
+  "org.scalacheck" %% "scalacheck" % "1.14.0",
   "org.scalatest" %% "scalatest" % "3.0.5",
   "org.typelevel" %% "cats-laws" % catsVersion,
-  "org.typelevel" %% "discipline" % "0.9.0"
+  "org.typelevel" %% "discipline" % "0.10.0"
 )
 
 val baseSettings = Seq(
