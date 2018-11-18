@@ -1,7 +1,9 @@
 package io.finch
 
+import cats.effect.Effect
 import com.twitter.finagle.http.{Fields, Message}
 import com.twitter.io.Buf
+import com.twitter.util.Future
 import java.nio.ByteBuffer
 import java.nio.charset.{Charset, StandardCharsets}
 import scala.annotation.tailrec
@@ -120,6 +122,14 @@ package object internal {
       val (array, begin, end) = asByteArrayWithBeginAndEnd
       new String(array, begin, end - begin, cs.name)
     }
+  }
+
+  def futureToEffect[F[_] : Effect, A](future: => Future[A]): F[A] = {
+    Effect[F].async[A](cb => {
+      future
+        .onFailure(t => cb(Left(t)))
+        .onSuccess(b => cb(Right(b)))
+    })
   }
 
 }

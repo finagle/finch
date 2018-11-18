@@ -12,7 +12,7 @@ import io.circe.{Decoder, Encoder}
 import io.circe.jawn
 import io.finch._
 import io.finch.internal.HttpContent
-import io.finch.streaming.StreamDecoder
+import io.finch.streaming.StreamDecode
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
@@ -45,7 +45,7 @@ abstract class StreamJsonLaws[S[_[_], _], F[_], A](implicit
   F: Functor[S[F, ?]]
 ) extends Laws with AllInstances {
 
-  def streamDecoder: StreamDecoder.Json[S, F, A]
+  def streamDecoder: StreamDecode.Json[S, F, A]
 
   def fromList: List[A] => S[F, A]
 
@@ -107,12 +107,12 @@ object JsonLaws {
     streamFromList: List[A] => S[F, A],
     streamToList: S[F, A] => List[A]
   )(implicit
-    decoder: StreamDecoder.Json[S, F, A],
+    decoder: StreamDecode.Json[S, F, A],
     functor: Functor[S[F, ?]]
   ): StreamJsonLaws[S, F, A] =
     new StreamJsonLaws[S, F, A] {
       val toList: S[F, A] => List[A] = streamToList
       val fromList: List[A] => S[F, A] = streamFromList
-      val streamDecoder: StreamDecoder.Json[S, F, A] = decoder
+      val streamDecoder: StreamDecode.Json[S, F, A] = decoder
     }
 }

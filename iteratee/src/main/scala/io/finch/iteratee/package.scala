@@ -3,7 +3,7 @@ package io.finch
 import cats.effect.Effect
 import com.twitter.finagle.http.Response
 import com.twitter.io._
-import com.twitter.util.Future
+import io.finch.internal.futureToEffect
 import io.finch.streaming.StreamFromReader
 import io.iteratee.{Enumerator, Iteratee}
 import shapeless.Witness
@@ -43,14 +43,6 @@ trait IterateeInstances {
     w: Witness.Aux[CT]
   ): ToResponse.Aux[Enumerator[F, A], CT] = {
     mkToResponse[F, A, CT](delimiter = None)
-  }
-
-  protected def futureToEffect[F[_] : Effect, A](future: => Future[A]): F[A] = {
-    Effect[F].async[A](cb => {
-      future
-        .onFailure(t => cb(Left(t)))
-        .onSuccess(b => cb(Right(b)))
-    })
   }
 
   protected def mkToResponse[F[_] : Effect, A, CT <: String](delimiter: Option[Buf])(implicit
