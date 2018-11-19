@@ -49,7 +49,7 @@ abstract class AbstractJsonSpec extends FlatSpec with Matchers with Checkers wit
     loop("List[ExampleNestedCaseClass]", JsonLaws.decoding[List[ExampleNestedCaseClass]].all, library)
   }
 
-  def checkStreamJson[S[_[_], _], F[_] : Comonad](library: String)(
+  def checkStreamJson[S[_[_], _], F[_]](library: String)(
    fromList: List[ExampleNestedCaseClass] => S[F, ExampleNestedCaseClass],
    toList: S[F, ExampleNestedCaseClass] => List[ExampleNestedCaseClass]
   )(implicit en: StreamDecode.Json[S, F, ExampleNestedCaseClass], functor: Functor[S[F, ?]]): Unit = {

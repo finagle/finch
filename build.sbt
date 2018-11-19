@@ -10,6 +10,7 @@ lazy val buildSettings = Seq(
 lazy val twitterVersion = "18.12.0"
 lazy val circeVersion = "0.11.0"
 lazy val circeIterateeVersion = "0.12.0"
+lazy val circeFs2Version = "0.10.0"
 lazy val shapelessVersion = "2.3.3"
 lazy val catsVersion = "1.5.0"
 lazy val argonautVersion = "6.2.2"
@@ -303,6 +304,7 @@ lazy val circe = project
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-iteratee" % circeIterateeVersion,
+      "io.circe" %% "circe-fs2" % circeFs2Version,
       "io.circe" %% "circe-jawn" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion % "test"
     )

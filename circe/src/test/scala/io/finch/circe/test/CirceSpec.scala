@@ -1,20 +1,25 @@
 package io.finch.circe.test
 
-import io.circe.generic.auto._
+import cats.effect.IO
+import fs2.Stream
 import io.finch.test.AbstractJsonSpec
+import io.finch.test.data.ExampleNestedCaseClass
 import io.iteratee.Enumerator
-import scala.util.Try
 
 class CirceSpec extends AbstractJsonSpec {
   import io.finch.circe._
   checkJson("circe")
-  checkStreamJson[Enumerator, Try]("circe")(Enumerator.enumList, _.toVector.get.toList)
+  checkStreamJson[Enumerator, IO]("circe-iteratee")(Enumerator.enumList, _.toVector.unsafeRunSync().toList)
+  checkStreamJson[Stream, IO]("circe-fs2")(
+    list => Stream.fromIterator[IO, ExampleNestedCaseClass](list.toIterator),
+    _.compile.toList.unsafeRunSync()
+  )
 }
 
 class CirceAccumulatingSpec extends AbstractJsonSpec {
   import io.finch.circe.accumulating._
   checkJson("circe-accumulating")
-  checkStreamJson[Enumerator, Try]("circe-accumulating")(Enumerator.enumList, _.toVector.get.toList)
+  checkStreamJson[Enumerator, IO]("circe-accumulating")(Enumerator.enumList, _.toVector.unsafeRunSync().toList)
 }
 
 class CirceDropNullKeysSpec extends AbstractJsonSpec {
