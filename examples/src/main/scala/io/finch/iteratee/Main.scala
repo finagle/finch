@@ -47,9 +47,9 @@ object Main extends Endpoint.Module[IO] {
 
   final case class IsPrime(isPrime: Boolean)
 
-  private val stream: Stream[Int] = Stream.continually(Random.nextInt())
-/*
-  val sumJson: Endpoint[IO, Result] = post("sumJson" :: enumeratorJsonBody[IO, Number]) {
+  private def stream: Stream[Int] = Stream.continually(Random.nextInt())
+
+  val sumJson: Endpoint[IO, Result] = post("sumJson" :: streamJsonBody[Enumerator, Number]) {
     enum: Enumerator[IO, Number] =>
       enum.into(Iteratee.fold[IO, Number, Result](Result(0))(_ add _)).map(Ok)
   }
@@ -59,7 +59,7 @@ object Main extends Endpoint.Module[IO] {
   }
 
   val isPrime: Endpoint[IO, Enumerator[IO, IsPrime]] =
-    post("streamPrime" :: enumeratorJsonBody[IO, Number]) { enum: Enumerator[IO, Number] =>
+    post("streamPrime" :: streamJsonBody[Enumerator, Number]) { enum: Enumerator[IO, Number] =>
       Ok(enum.map(_.isPrime))
     }
 
@@ -67,5 +67,5 @@ object Main extends Endpoint.Module[IO] {
     Http.server
       .withStreaming(enabled = true)
       .serve(":8081", (sumJson :+: streamJson :+: isPrime).toServiceAs[Application.Json])
-    )*/
+    )
 }
