@@ -309,7 +309,7 @@ lazy val circe = project
       "io.circe" %% "circe-generic" % circeVersion % "test"
     )
   )
-  .dependsOn(core, iteratee, fs2, jsonTest % "test")
+  .dependsOn(core, jsonTest % "test")
 
 lazy val sse = project
   .settings(moduleName := "finchx-sse")
