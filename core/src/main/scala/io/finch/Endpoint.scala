@@ -427,6 +427,8 @@ object Endpoint {
    */
   type Module[F[_]] = EndpointModule[F]
 
+  type StreamModule[S[_[_], _], F[_]] = EndpointStreamModule[S, F]
+
   final implicit class HListEndpointOps[F[_], L <: HList](val self: Endpoint[F, L]) extends AnyVal {
     /**
      * Converts this endpoint to one that returns any type with this [[shapeless.HList]] as its

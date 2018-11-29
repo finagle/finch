@@ -7,7 +7,6 @@ import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.{Cookie, Request}
 import com.twitter.finagle.http.exp.Multipart
 import com.twitter.io.Buf
-import io.finch.streaming.{StreamDecode, StreamFromReader}
 import java.io.{File, InputStream}
 import scala.reflect.ClassTag
 import shapeless.HNil
@@ -289,22 +288,6 @@ trait EndpointModule[F[_]] {
    */
   def asyncBody(implicit F: Effect[F]): Endpoint[F, AsyncStream[Buf]] =
     Endpoint.asyncBody[F]
-
-  /**
-    * An alias for [[Endpoint.streamBody]]
-    */
-  def streamBody[S[_[_],_], A, CT <: String](implicit
-                                             decoder: StreamDecode.Aux[S, F, A, CT],
-                                             fromReader: StreamFromReader[S, F],
-                                             F: Effect[F]
-  ): Endpoint[F, S[F, A]] = Endpoint.streamBody[F, S, A, CT]
-
-  def streamJsonBody[S[_[_],_], A](implicit
-                                   decoder: StreamDecode.Aux[S, F, A, Application.Json],
-                                   fromReader: StreamFromReader[S, F],
-                                   F: Effect[F]
-  ): Endpoint[F, S[F, A]] =
-    Endpoint.streamJsonBody[F, S, A]
 
   /**
    * An alias for [[Endpoint.cookieOption]].
