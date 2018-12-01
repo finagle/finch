@@ -118,6 +118,43 @@ class MethodSpec
       ScalaFuture.successful(Ok(s"$x$y").toResponse[Text.Plain]) })
   }
 
+  behavior of "Custom Type Program[_]"
+
+  case class Program[A](value: A)
+
+  import cats.~>
+  implicit val conv: Program ~> IO = new (Program ~> IO) {
+    def apply[A](a: Program[A]): IO[A] = IO(a.value)
+  }
+
+  it should "map Program[Output[_]] value to endpoint" in {
+    checkValue((i: String) => get(zero) { Program(Ok(i)) })
+  }
+
+  it should "map A => Program[Output[_]] function to endpoint" in {
+    checkFunction(get(path[Int]) { i: Int => Program(Ok(i)) })
+  }
+
+  it should "map (A, B) => Program[Output[_]] function to endpoint" in {
+    checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
+      Program(Ok(s"$x$y"))
+    })
+  }
+
+  it should "map Program[Response] value to endpoint" in {
+    checkValue((i: Response) => get(zero) { Program(i) })
+  }
+
+  it should "map A => Program[Response] function to endpoint" in {
+    checkFunction(get(path[Int]) { i: Int => Program(Ok(i).toResponse[Text.Plain]) })
+  }
+
+  it should "map (A, B) => Program[Response] function to endpoint" in {
+    checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
+      Program(Ok(s"$x$y").toResponse[Text.Plain])
+    })
+  }
+
   private def checkValue[A : Arbitrary](f: A => Endpoint[IO, A]): Unit = {
     forAll((input: A) => {
       val e = f(input)
