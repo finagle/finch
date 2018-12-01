@@ -145,31 +145,23 @@ private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConv
 object Mapper extends HighPriorityMapperConversions {
 
   implicit def mapperToEffectOutputFunction[A, B, F[_], G[_]: Effect](f: A => F[Output[B]])(
-      implicit cov: F ~> G): Mapper.Aux[G, A, B] = new Mapper[G, A] {
-    type Out = B
-    def apply(e: Endpoint[G, A]): Endpoint[G, B] = e.mapOutputAsync(a => cov.apply(f(a)))
-  }
+    implicit cov: F ~> G): Mapper.Aux[G, A, B] =
+    instance(_.mapOutputAsync(a => cov.apply(f(a))))
 
   implicit def mapperToEffectOutputValue[A, B, F[_], G[_]: Effect](f: => F[Output[B]])(
-      implicit cov: F ~> G): Mapper.Aux[G, A, B] = new Mapper[G, A] {
-    type Out = B
-    def apply(e: Endpoint[G, A]): Endpoint[G, B] = e.mapOutputAsync(a => cov.apply(f))
-  }
+      implicit cov: F ~> G): Mapper.Aux[G, A, B] = instance(_.mapOutputAsync(a => cov.apply(f)))
 
   implicit def mapperFromKindOutputHFunction[F[_]: Effect, G[_], A, B, FN, FOB](f: FN)(
       implicit
       conv: G ~> F,
       ftp: FnToProduct.Aux[FN, A => FOB],
-      ev: FOB <:< G[Output[B]]): Mapper.Aux[F, A, B] = new Mapper[F, A] {
-    type Out = B
-    def apply(e: Endpoint[F, A]): Endpoint[F, B] = e.mapOutputAsync(a => conv.apply(ev(ftp(f)(a))))
-  }
-
+    ev: FOB <:< G[Output[B]]): Mapper.Aux[F, A, B] =
+    instance(_.mapOutputAsync(a => conv.apply(ev(ftp(f)(a)))))
 
   implicit def mapperToEffectResponsFunction[A, F[_], G[_]: Effect](f: A => F[Response])(
     implicit conv: F ~> G): Mapper.Aux[G, A, Response] =
     instance(_.mapOutputAsync(f.andThen(fr => conv(fr).map(r => Output.payload(r, r.status)))))
- 
+
   implicit def mapperToEffectResponseValue[A, F[_], G[_]: Effect](f: => F[Response])(
     implicit conv: F ~> G): Mapper.Aux[G, A, Response] =
     instance(_.mapOutputAsync(_=>conv(f).map(r => Output.payload(r, r.status))))
