@@ -7,7 +7,8 @@ import org.scalacheck.Arbitrary
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import scala.concurrent.{Future => ScalaFuture}
 import scala.concurrent.ExecutionContext.Implicits.global
-import io.finch.instances.io._
+import io.finch.instances.twitterFuture._
+import io.finch.instances.scalaFuture._
 
 class MethodSpec
   extends FinchSpec
