@@ -1,6 +1,6 @@
 package io.finch.internal
 
-import cats.Monad
+import cats.{~>, Monad}
 import cats.effect.Effect
 import cats.syntax.functor._
 import com.twitter.finagle.http.Response
@@ -79,15 +79,6 @@ private[finch] trait LowPriorityMapperConversions {
     * @group LowPriorityMapper
     */
   @deprecated("com.twitter.util.Future use is deprecated in Endpoints. Consider to use cats-effect compatible effect", "0.25.0")
-  implicit def mapperFromFutureOutputFunction[A, B, F[_] : Effect](f: A => TwitterFuture[Output[B]]): Mapper.Aux[F, A, B] =
-    instance(_.mapOutputAsync(a =>
-      twitterFutureToEffect(f(a))
-    ))
-
-  /**
-    * @group LowPriorityMapper
-    */
-  @deprecated("com.twitter.util.Future use is deprecated in Endpoints. Consider to use cats-effect compatible effect", "0.25.0")
   implicit def mapperFromFutureResponseFunction[A, F[_] : Effect](f: A => TwitterFuture[Response]): Mapper.Aux[F, A, Response] =
     instance(_.mapOutputAsync(f.andThen(fr => twitterFutureToEffect(fr).map(r => Output.payload(r, r.status)))))
 
@@ -109,7 +100,6 @@ private[finch] trait LowPriorityMapperConversions {
 }
 
 private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConversions {
-
   /**
     * @group HighPriorityMapper
     */
@@ -158,13 +148,6 @@ private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConv
     * @group HighPriorityMapper
     */
   @deprecated("com.twitter.util.Future use is deprecated in Endpoints. Consider to use cats-effect compatible effect", "0.25.0")
-  implicit def mapperFromFutureOutputValue[F[_] : Effect, A](o: => TwitterFuture[Output[A]]): Mapper.Aux[F, HNil, A] =
-    instance(_.mapOutputAsync(_ => twitterFutureToEffect(o)))
-
-  /**
-    * @group HighPriorityMapper
-    */
-  @deprecated("com.twitter.util.Future use is deprecated in Endpoints. Consider to use cats-effect compatible effect", "0.25.0")
   implicit def mapperFromFutureResponseValue[F[_] : Effect](fr: => TwitterFuture[Response]): Mapper.Aux[F, HNil, Response] =
     instance(_.mapOutputAsync(_ => twitterFutureToEffect(fr).map(r => Output.payload(r, r.status))))
 
@@ -184,6 +167,28 @@ private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConv
 }
 
 object Mapper extends HighPriorityMapperConversions {
+
+  implicit def mapperToEffectOutputFunction[A, B, F[_], G[_]: Effect](f: A => F[Output[B]])(
+      implicit cov: F ~> G): Mapper.Aux[G, A, B] = new Mapper[G, A] {
+    type Out = B
+    def apply(e: Endpoint[G, A]): Endpoint[G, B] = e.mapOutputAsync(a => cov.apply(f(a)))
+  }
+
+  implicit def mapperToEffectOutputValue[A, B, F[_], G[_]: Effect](f: => F[Output[B]])(
+      implicit cov: F ~> G): Mapper.Aux[G, A, B] = new Mapper[G, A] {
+    type Out = B
+    def apply(e: Endpoint[G, A]): Endpoint[G, B] = e.mapOutputAsync(a => cov.apply(f))
+  }
+
+  implicit def mapperFromKindOutputHFunction[F[_]: Effect, G[_], A, B, FN, FOB](f: FN)(
+      implicit
+      conv: G ~> F,
+      ftp: FnToProduct.Aux[FN, A => FOB],
+      ev: FOB <:< G[Output[B]]): Mapper.Aux[F, A, B] = new Mapper[F, A] {
+    type Out = B
+    def apply(e: Endpoint[F, A]): Endpoint[F, B] = e.mapOutputAsync(a => conv.apply(ev(ftp(f)(a))))
+  }
+
   implicit def mapperFromEffectOutputHFunction[F[_] : Monad, A, B, FN, FOB](f: FN)(implicit
     ftp: FnToProduct.Aux[FN, A => FOB],
     ev: FOB <:< F[Output[B]]
@@ -196,12 +201,6 @@ object Mapper extends HighPriorityMapperConversions {
     val fr = ev(ftp(f)(value))
     fr.map(r => Output.payload(r, r.status))
   })
-
-  @deprecated("com.twitter.util.Future use is deprecated in Endpoints. Consider to use cats-effect compatible effect", "0.25.0")
-  implicit def mapperFromFutureOutputHFunction[F[_] : Effect, A, B, FN, FOB](f: FN)(implicit
-    ftp: FnToProduct.Aux[FN, A => FOB],
-    ev: FOB <:< TwitterFuture[Output[B]]
-  ): Mapper.Aux[F, A, B] = instance(_.mapOutputAsync(value => twitterFutureToEffect(ev(ftp(f)(value)))))
 
   @deprecated("com.twitter.util.Future use is deprecated in Endpoints. Consider to use cats-effect compatible effect", "0.25.0")
   implicit def mapperFromFutureResponseHFunction[F[_] : Effect, A, FN, FR](f: FN)(implicit

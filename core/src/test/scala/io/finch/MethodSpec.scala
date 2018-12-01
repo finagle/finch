@@ -7,6 +7,7 @@ import org.scalacheck.Arbitrary
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import scala.concurrent.{Future => ScalaFuture}
 import scala.concurrent.ExecutionContext.Implicits.global
+import io.finch.instances.io._
 
 class MethodSpec
   extends FinchSpec
@@ -29,6 +30,7 @@ class MethodSpec
   }
 
   it should "map TwitterFuture[Output[A]] value to endpoint" in {
+
     checkValue((i: String) => get(zero) { TwitterFuture.value(Ok(i)) } )
   }
 
