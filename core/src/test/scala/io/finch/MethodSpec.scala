@@ -3,8 +3,6 @@ package io.finch
 import cats.effect.IO
 import com.twitter.finagle.http.Response
 import com.twitter.util.{Future => TwitterFuture}
-import io.finch.instances.scalaFuture._
-import io.finch.instances.twitterFuture._
 import org.scalacheck.Arbitrary
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import scala.concurrent.{Future => ScalaFuture}
@@ -122,8 +120,7 @@ class MethodSpec
 
   case class Program[A](value: A)
 
-  import cats.~>
-  implicit val conv: Program ~> IO = new (Program ~> IO) {
+  implicit val conv = new ToEffect[Program,IO] {
     def apply[A](a: Program[A]): IO[A] = IO(a.value)
   }
 
