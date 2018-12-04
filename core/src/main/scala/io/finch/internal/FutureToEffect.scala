@@ -1,25 +1,24 @@
-package io.finch.instances
+package io.finch.internal
 
-import cats.effect.IO
+import cats.effect.Effect
 import com.twitter.util.{Future => TwitterFuture, Return, Throw}
 import io.finch.ToEffect
-import io.finch.internal.DummyExecutionContext
 import scala.concurrent.{Future => ScalaFuture}
 import scala.util.{Failure, Success}
 
-trait ToIO {
-  implicit val twFutureToIO: ToEffect[TwitterFuture, IO] = new ToEffect[TwitterFuture, IO] {
-    def apply[A](a: TwitterFuture[A]): IO[A] =
-      IO.async { cb =>
+trait FutureToEffect {
+  implicit def twFutureToEffect[E[_]: Effect]: ToEffect[TwitterFuture, E] = new ToEffect[TwitterFuture, E] {
+    def apply[A](a: TwitterFuture[A]): E[A] =
+      Effect[E].async { cb =>
         a.respond {
           case Return(r) => cb(Right(r))
           case Throw(t) => cb(Left(t))
         }
       }
   }
-  implicit val scFutureToIO: ToEffect[ScalaFuture, IO] = new ToEffect[ScalaFuture, IO] {
-    def apply[A](a: ScalaFuture[A]): IO[A] =
-      IO.async { cb =>
+  implicit def scFutureToIO[E[_]: Effect]: ToEffect[ScalaFuture, E] = new ToEffect[ScalaFuture, E] {
+    def apply[A](a: ScalaFuture[A]): E[A] =
+      Effect[E].async { cb =>
         a.onComplete {
           case Success(s) => cb(Right(s))
           case Failure(t) => cb(Left(t))
