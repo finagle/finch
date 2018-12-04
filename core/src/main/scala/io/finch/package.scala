@@ -10,7 +10,7 @@ package object finch extends Outputs with ValidationRules {
 
   trait ToEffect[F[_], E[_]] extends (F ~> E)
 
-  object ToEffect extends internal.FutureToEffect
+  object ToEffect extends internal.FutureToEffect with internal.IdEffect
 
   object catsEffect extends EndpointModule[IO]
 

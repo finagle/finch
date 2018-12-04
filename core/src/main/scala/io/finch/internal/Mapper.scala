@@ -41,19 +41,6 @@ private[finch] trait LowPriorityMapperConversions {
    */
   implicit def mapperFromResponseFunction[F[_] : Monad, A](f: A => Response): Mapper.Aux[F, A, Response] =
     instance(_.mapOutput(f.andThen(r => Output.payload(r, r.status))))
-
-  /**
-    * @group LowPriorityMapper
-    */
-  implicit def mapperFromEffectOutputFunction[A, B, F[_] : Monad](f: A => F[Output[B]]): Mapper.Aux[F, A, B] =
-    instance(_.mapOutputAsync(f))
-
-  /**
-   * @group LowPriorityMapper
-   */
-  implicit def mapperFromEffectResponseFunction[A, F[_] : Monad](f: A => F[Response]): Mapper.Aux[F, A, Response] =
-    instance(_.mapOutputAsync(f.andThen(fr => fr.map(r => Output.payload(r, r.status)))))
-
 }
 
 private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConversions {
@@ -89,18 +76,6 @@ private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConv
   implicit def mapperFromResponseValue[F[_] : Monad](r: => Response): Mapper.Aux[F, HNil, Response] =
     instance(_.mapOutput(_ => Output.payload(r, r.status)))
 
-  /**
-    * @group HighPriorityMapper
-    */
-  implicit def mapperFromEffectOutputValue[F[_] : Monad, A](o: F[Output[A]]): Mapper.Aux[F, HNil, A] =
-    instance(_.mapOutputAsync(_ => o))
-
-  /**
-   * @group HighPriorityMapper
-   */
-  implicit def mapperFromEffectResponseValue[F[_] : Monad](fr: F[Response]): Mapper.Aux[F, HNil, Response] =
-    instance(_.mapOutputAsync(_ => fr.map(r => Output.payload(r, r.status))))
-
   implicit def mapperFromKindToEffectOutputFunction[A, B, F[_], G[_]: Effect](f: A => F[Output[B]])(
     implicit conv: ToEffect[F, G]): Mapper.Aux[G, A, B] =
     instance(_.mapOutputAsync(a => conv.apply(f(a))))
@@ -132,19 +107,6 @@ object Mapper extends HighPriorityMapperConversions {
     conv: ToEffect[G, F]
   ): Mapper.Aux[F, A, Response] = instance(_.mapOutputAsync { value =>
     val fr = conv(ev(ftp(f)(value)))
-    fr.map(r => Output.payload(r, r.status))
-  })
-
-  implicit def mapperFromEffectOutputHFunction[F[_] : Monad, A, B, FN, FOB](f: FN)(implicit
-    ftp: FnToProduct.Aux[FN, A => FOB],
-    ev: FOB <:< F[Output[B]]
-  ): Mapper.Aux[F, A, B] = instance(_.mapOutputAsync(value => ev(ftp(f)(value))))
-
-  implicit def mapperFromEffectResponseHFunction[F[_] : Monad, A, FN, FR](f: FN)(implicit
-    ftp: FnToProduct.Aux[FN, A => FR],
-    ev: FR <:< F[Response]
-  ): Mapper.Aux[F, A, Response] = instance(_.mapOutputAsync { value =>
-    val fr = ev(ftp(f)(value))
     fr.map(r => Output.payload(r, r.status))
   })
 }
