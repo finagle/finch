@@ -9,6 +9,7 @@ import cats.~>
 package object finch extends Outputs with ValidationRules {
 
   trait ToEffect[F[_], E[_]] extends (F ~> E)
+
   object ToEffect extends instances.ToIO
 
   object catsEffect extends EndpointModule[IO]

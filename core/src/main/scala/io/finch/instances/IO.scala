@@ -1,9 +1,9 @@
-package io.finch
-package instances
+package io.finch.instances
 
 import cats.effect.IO
-import cats.~>
 import com.twitter.util.{Future => TwitterFuture, Return, Throw}
+import io.finch.ToEffect
+import io.finch.internal.DummyExecutionContext
 import scala.concurrent.{Future => ScalaFuture}
 import scala.util.{Failure, Success}
 
@@ -18,7 +18,6 @@ trait ToIO {
       }
   }
   implicit val scFutureToIO: ToEffect[ScalaFuture, IO] = new ToEffect[ScalaFuture, IO] {
-    import internal.DummyExecutionContext
     def apply[A](a: ScalaFuture[A]): IO[A] =
       IO.async { cb =>
         a.onComplete {
