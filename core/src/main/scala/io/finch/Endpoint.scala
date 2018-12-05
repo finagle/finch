@@ -296,7 +296,7 @@ trait Endpoint[F[_], A] { self =>
     */
   final def rescue(pf: PartialFunction[Throwable, F[Output[A]]])(implicit
     F: ApplicativeError[F, Throwable]
-  ): Endpoint[F, A] = transform(foa => foa.handleErrorWith(pf))
+  ): Endpoint[F, A] = transform(foa => foa.recoverWith(pf))
 
   /**
     * Recovers from any exception occurred in this endpoint by creating a new endpoint that will

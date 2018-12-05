@@ -233,6 +233,17 @@ class EndpointSpec extends FinchSpec {
     }
   }
 
+  it should "re-raise the exception if it wasn't handled" in {
+    case object CustomException extends Exception
+
+    check { (i: Input, s: String, e: Exception) =>
+      val result = liftAsync[String](IO.raiseError(e)).handle {
+        case CustomException  => Created(s)
+      }.apply(i).awaitOutput()
+      result === Some(Left(e))
+    }
+  }
+
   it should "not split comma separated param values" in {
     val i = Input.get("/index", "foo" -> "a,b")
     val e = params("foo")

@@ -131,4 +131,13 @@ class EndToEndSpec extends FinchSpec {
       rep.contentType === Some("text/event-stream")
     }
   }
+
+  it should "return the exception occurred in endpoint's effect" in {
+    val endpoint = pathAny.mapAsync { _ =>
+      IO.raiseError[String](new IllegalStateException)
+    }
+    val s = Bootstrap.serve[Text.Plain](endpoint).toService
+    val rep = s(Request())
+    assertThrows[IllegalStateException](Await.result(rep))
+  }
 }
