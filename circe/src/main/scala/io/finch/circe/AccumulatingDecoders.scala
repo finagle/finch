@@ -9,7 +9,7 @@ import io.circe.iteratee._
 import io.circe.jawn.{decodeAccumulating, decodeByteBufferAccumulating}
 import io.finch.{Application, Decode}
 import io.finch.internal.HttpContent
-import io.finch.streaming.StreamDecode
+import io.finch.streaming.DecodeStream
 import io.iteratee.{Enumeratee, Enumerator}
 
 trait AccumulatingDecoders {
@@ -29,7 +29,7 @@ trait AccumulatingDecoders {
 
   implicit def iterateeCirceDecoder[F[_], A : Decoder](implicit
     monadError: MonadError[F, Throwable]
-  ): StreamDecode.Json[Enumerator, F, A] = StreamDecode.instance[Enumerator, F, A, Application.Json]((enum, cs) => {
+  ): DecodeStream.Json[Enumerator, F, A] = DecodeStream.instance[Enumerator, F, A, Application.Json]((enum, cs) => {
       val parsed = cs match {
         case StandardCharsets.UTF_8 =>
           enum.map(_.asByteArray).through(byteStreamParser[F])

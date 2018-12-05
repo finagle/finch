@@ -9,7 +9,7 @@ import io.circe.iteratee
 import io.circe.jawn._
 import io.finch.{Application, Decode}
 import io.finch.internal.HttpContent
-import io.finch.streaming.StreamDecode
+import io.finch.streaming.DecodeStream
 import io.iteratee.Enumerator
 import java.nio.charset.StandardCharsets
 
@@ -30,8 +30,8 @@ trait Decoders {
 
   implicit def enumerateCirce[F[_], A : Decoder](implicit
     monadError: MonadError[F, Throwable]
-  ): StreamDecode.Json[Enumerator, F, A] = {
-    StreamDecode.instance[Enumerator, F, A, Application.Json]((enum, cs) => {
+  ): DecodeStream.Json[Enumerator, F, A] = {
+    DecodeStream.instance[Enumerator, F, A, Application.Json]((enum, cs) => {
       val parsed = cs match {
         case StandardCharsets.UTF_8 =>
           enum.map(_.asByteArray).through(iteratee.byteStreamParser[F])
@@ -44,8 +44,8 @@ trait Decoders {
 
   implicit def fs2Circe[F[_] : Sync, A : Decoder](implicit
     monadError: MonadError[F, Throwable]
-  ): StreamDecode.Json[Stream, F, A] = {
-    StreamDecode.instance[Stream, F, A, Application.Json]((stream, cs) => {
+  ): DecodeStream.Json[Stream, F, A] = {
+    DecodeStream.instance[Stream, F, A, Application.Json]((stream, cs) => {
       val parsed = cs match {
         case StandardCharsets.UTF_8 =>
           stream

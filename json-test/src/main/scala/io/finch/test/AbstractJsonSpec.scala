@@ -6,7 +6,7 @@ import cats.{Comonad, Eq, Functor}
 import cats.instances.AllInstances
 import io.circe.Decoder
 import io.finch.{Decode, Encode}
-import io.finch.streaming.StreamDecode
+import io.finch.streaming.DecodeStream
 import io.finch.test.data._
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.{FlatSpec, Matchers}
@@ -52,7 +52,7 @@ abstract class AbstractJsonSpec extends FlatSpec with Matchers with Checkers wit
   def checkStreamJson[S[_[_], _], F[_]](library: String)(
    fromList: List[ExampleNestedCaseClass] => S[F, ExampleNestedCaseClass],
    toList: S[F, ExampleNestedCaseClass] => List[ExampleNestedCaseClass]
-  )(implicit en: StreamDecode.Json[S, F, ExampleNestedCaseClass], functor: Functor[S[F, ?]]): Unit = {
+  )(implicit en: DecodeStream.Json[S, F, ExampleNestedCaseClass], functor: Functor[S[F, ?]]): Unit = {
     loop(
       "ExampleNestedCaseClass",
       JsonLaws.streaming[S, F, ExampleNestedCaseClass](fromList, toList).all, library

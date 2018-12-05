@@ -9,14 +9,14 @@ import cats.laws._
 import cats.laws.discipline._
 import com.twitter.finagle.http.Request
 import com.twitter.io.Reader
-import io.finch.streaming.{StreamDecode, StreamFromReader}
+import io.finch.streaming.{DecodeStream, StreamFromReader}
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
 abstract class StreamingLaws[S[_[_], _], F[_] : Effect, A : Eq, CT <: String] extends Laws with AllInstances {
 
   implicit def streamReader: StreamFromReader[S, F]
-  implicit def streamDecoder: StreamDecode.Aux[S, F, A, CT]
+  implicit def streamDecoder: DecodeStream.Aux[S, F, A, CT]
 
   def toResponse: ToResponse.Aux[S[F, A], CT]
   def fromList:  List[A] => S[F, A]
@@ -62,10 +62,10 @@ object StreamingLaws {
   )(implicit
     tr: ToResponse.Aux[S[F, A], CT],
     reader: StreamFromReader[S, F],
-    decoder: StreamDecode.Aux[S, F, A, CT]
+    decoder: DecodeStream.Aux[S, F, A, CT]
   ): StreamingLaws[S, F, A, CT] = new StreamingLaws[S, F, A, CT] {
     implicit val streamReader: StreamFromReader[S, F] = reader
-    implicit val streamDecoder: StreamDecode.Aux[S, F, A, CT] = decoder
+    implicit val streamDecoder: DecodeStream.Aux[S, F, A, CT] = decoder
     val toResponse: ToResponse.Aux[S[F, A], CT] = tr
     val fromList: List[A] => S[F, A] = streamFromList
     val toList: S[F, A] => List[A] = listFromStream

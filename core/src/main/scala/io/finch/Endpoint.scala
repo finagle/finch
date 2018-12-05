@@ -17,7 +17,7 @@ import com.twitter.io.{Buf, Reader}
 import io.finch.endpoint._
 import io.finch.internal._
 import io.finch.items.RequestItem
-import io.finch.streaming.{StreamDecode, StreamFromReader}
+import io.finch.streaming.{DecodeStream, StreamFromReader}
 import java.io.{File, FileInputStream, InputStream}
 import scala.reflect.ClassTag
 import shapeless._
@@ -901,7 +901,7 @@ object Endpoint {
     * an `S[F, A]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
     */
   def streamBody[F[_], S[_[_], _], A, CT <: String](implicit
-                                                    streamDecoder: StreamDecode.Aux[S, F, A, CT],
+                                                    streamDecoder: DecodeStream.Aux[S, F, A, CT],
                                                     fromReader: StreamFromReader[S, F],
                                                     F: Effect[F]
   ): Endpoint[F, S[F, A]] = {
@@ -924,7 +924,7 @@ object Endpoint {
   }
 
   def streamJsonBody[F[_], S[_[_], _], A](implicit
-                                          streamDecoder: StreamDecode.Aux[S, F, A, Application.Json],
+                                          streamDecoder: DecodeStream.Aux[S, F, A, Application.Json],
                                           fromReader: StreamFromReader[S, F],
                                           F: Effect[F]
   ): Endpoint[F, S[F, A]] = streamBody[F, S, A, Application.Json].withToString("streamJsonBody")
