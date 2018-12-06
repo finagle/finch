@@ -199,16 +199,10 @@ abstract class BootstrapBenchmark[CT](init: Bootstrap[HNil, HNil])(implicit
 
 class JsonBootstrapBenchmark extends BootstrapBenchmark[Application.Json](Bootstrap)
 
-class JsonNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Application.Json](
-    Bootstrap.configure(negotiateContentType = true))
-
 class TextBootstrapBenchmark extends BootstrapBenchmark[Text.Plain](Bootstrap)
 
-class TextNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Text.Plain](
-    Bootstrap.configure(negotiateContentType = true))
-
 class JsonAndTextNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Application.Json :+: Text.Plain :+: CNil](
-    Bootstrap.configure(negotiateContentType = true)) {
+    Bootstrap) {
 
   private val acceptValues: Array[String] = Array("application/json", "text/plain")
 
