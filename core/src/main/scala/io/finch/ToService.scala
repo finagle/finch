@@ -97,14 +97,14 @@ object ToService {
       }
   }
 
-  type IsCoproduct[C] = OrElse[C <:< Coproduct, DummyImplicit]
+  type IsNegotiable[C] = OrElse[C <:< Coproduct, DummyImplicit]
 
   implicit def hlistTS[F[_], A, EH <: Endpoint[F, A], ET <: HList, CTH, CTT <: HList](implicit
     ntrA: ToResponse.Negotiable[A, CTH],
     ntrE: ToResponse.Negotiable[Exception, CTH],
     effect: Effect[F],
     tsT: ToService[ET, CTT],
-    isCoproduct: IsCoproduct[CTH]
+    isNegotiable: IsNegotiable[CTH]
   ): ToService[Endpoint[F, A] :: ET, CTH :: CTT] = new ToService[Endpoint[F, A] :: ET, CTH :: CTT] {
     def apply(es: Endpoint[F, A] :: ET, opts: Options, ctx: Context): Service[Request, Response] =
       new Service[Request, Response] {
@@ -118,7 +118,7 @@ object ToService {
 
             Trace.captureIfNeeded(trc)
 
-            val negotiateContent = isCoproduct.fold(_ => true, _ => false)
+            val negotiateContent = isNegotiable.fold(_ => true, _ => false)
             val accept = if (negotiateContent) req.accept.map(a => Accept.fromString(a)) else Nil
 
             val rep = new Promise[Response]
