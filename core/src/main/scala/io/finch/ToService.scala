@@ -44,7 +44,6 @@ object ToService {
   final case class Options(
     includeDateHeader: Boolean,
     includeServerHeader: Boolean,
-    negotiateContentType: Boolean,
     enableMethodNotAllowed: Boolean,
     enableUnsupportedMediaType: Boolean
   )
@@ -98,18 +97,21 @@ object ToService {
       }
   }
 
+  type IsNegotiable[C] = OrElse[C <:< Coproduct, DummyImplicit]
+
   implicit def hlistTS[F[_], A, EH <: Endpoint[F, A], ET <: HList, CTH, CTT <: HList](implicit
     ntrA: ToResponse.Negotiable[A, CTH],
     ntrE: ToResponse.Negotiable[Exception, CTH],
     effect: Effect[F],
-    tsT: ToService[ET, CTT]
+    tsT: ToService[ET, CTT],
+    isNegotiable: IsNegotiable[CTH]
   ): ToService[Endpoint[F, A] :: ET, CTH :: CTT] = new ToService[Endpoint[F, A] :: ET, CTH :: CTT] {
     def apply(es: Endpoint[F, A] :: ET, opts: Options, ctx: Context): Service[Request, Response] =
       new Service[Request, Response] {
         private[this] val handler =
-          if (opts.enableUnsupportedMediaType) respond415.orElse(respond400)
-          else respond400
+          if (opts.enableUnsupportedMediaType) respond415.orElse(respond400) else respond400
 
+        private[this] val negotiateContent = isNegotiable.fold(_ => true, _ => false)
         private[this] val underlying = es.head.handle(handler)
 
         def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
@@ -117,8 +119,7 @@ object ToService {
 
             Trace.captureIfNeeded(trc)
 
-            val accept =
-              if (opts.negotiateContentType) req.accept.map(a => Accept.fromString(a)) else Nil
+            val accept = if (negotiateContent) req.accept.map(a => Accept.fromString(a)) else Nil
 
             val rep = new Promise[Response]
 

@@ -24,9 +24,6 @@ import shapeless._
  * - `includeServerHeader` (default: `true`): whether or not to include the Server header into
  *   each response (see RFC2616, section 14.38)
  *
- * - `negotiateContentType` (default: `false`): whether or not to enable server-driven content type
- *   negotiation (see RFC2616, section 12.1)
- *
  * - `enableMethodNotAllowed` (default: `false`): whether or not to enable 405 MethodNotAllowed HTTP
  *   response (see RFC2616, section 10.4.6)
  *
@@ -42,7 +39,6 @@ class Bootstrap[ES <: HList, CTS <: HList](
     val endpoints: ES,
     val includeDateHeader: Boolean = true,
     val includeServerHeader: Boolean = true,
-    val negotiateContentType: Boolean = false,
     val enableMethodNotAllowed: Boolean = false,
     val enableUnsupportedMediaType: Boolean = false) { self =>
 
@@ -52,7 +48,6 @@ class Bootstrap[ES <: HList, CTS <: HList](
         e :: self.endpoints,
         includeDateHeader,
         includeServerHeader,
-        negotiateContentType,
         enableMethodNotAllowed,
         enableUnsupportedMediaType
       )
@@ -61,14 +56,12 @@ class Bootstrap[ES <: HList, CTS <: HList](
   def configure(
     includeDateHeader: Boolean = self.includeDateHeader,
     includeServerHeader: Boolean = self.includeServerHeader,
-    negotiateContentType: Boolean = self.negotiateContentType,
     enableMethodNotAllowed: Boolean = self.enableMethodNotAllowed,
     enableUnsupportedMediaType: Boolean = self.enableUnsupportedMediaType
   ): Bootstrap[ES, CTS] = new Bootstrap[ES, CTS](
     endpoints,
     includeDateHeader,
     includeServerHeader,
-    negotiateContentType,
     enableMethodNotAllowed,
     enableUnsupportedMediaType
   )
@@ -79,7 +72,6 @@ class Bootstrap[ES <: HList, CTS <: HList](
     val opts = ToService.Options(
       includeDateHeader,
       includeServerHeader,
-      negotiateContentType,
       enableMethodNotAllowed,
       enableUnsupportedMediaType
     )
@@ -96,7 +88,6 @@ object Bootstrap extends Bootstrap[HNil, HNil](
   endpoints = HNil,
   includeDateHeader = true,
   includeServerHeader = true,
-  negotiateContentType = false,
   enableMethodNotAllowed = false,
   enableUnsupportedMediaType = false
 )
