@@ -4,7 +4,7 @@ import cats.Monad
 import cats.effect.Effect
 import cats.syntax.functor._
 import com.twitter.finagle.http.Response
-import io.finch.{Endpoint, Output, ToEffect}
+import io.finch.{Endpoint, Output}
 import shapeless.HNil
 import shapeless.ops.function.FnToProduct
 

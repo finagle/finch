@@ -1,16 +1,14 @@
 package io
 
 import cats.effect.IO
-import cats.~>
+
 /**
  * This is a root package of the Finch library, which provides an immutable layer of functions and
  * types atop of Finagle for writing lightweight HTTP services.
   */
 package object finch extends Outputs with ValidationRules {
 
-  trait ToEffect[F[_], E[_]] extends (F ~> E)
-
-  object ToEffect extends internal.FutureToEffect with internal.IdEffect
+  type ToEffect[F[_], E[_]] = internal.ToEffect[F, E]
 
   object catsEffect extends EndpointModule[IO]
 
