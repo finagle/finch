@@ -111,6 +111,7 @@ object ToService {
         private[this] val handler =
           if (opts.enableUnsupportedMediaType) respond415.orElse(respond400) else respond400
 
+        private[this] val negotiateContent = isNegotiable.fold(_ => true, _ => false)
         private[this] val underlying = es.head.handle(handler)
 
         def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
@@ -118,7 +119,6 @@ object ToService {
 
             Trace.captureIfNeeded(trc)
 
-            val negotiateContent = isNegotiable.fold(_ => true, _ => false)
             val accept = if (negotiateContent) req.accept.map(a => Accept.fromString(a)) else Nil
 
             val rep = new Promise[Response]
