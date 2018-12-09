@@ -1,7 +1,6 @@
 import ReleaseTransformations._
 import microsites.ExtraMdFileConfig
 
-
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   scalaVersion := "2.12.7",
@@ -30,8 +29,7 @@ lazy val compilerOptions = Seq(
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
   "-Xfuture",
-  "-Xlint",
-  "-Yrangepos"
+  "-Xlint"
 )
 
 val testDependencies = Seq(
@@ -64,8 +62,7 @@ val baseSettings = Seq(
   },
   scalacOptions in (Compile, console) += "-Yrepl-class-based",
   fork in Test := true,
-  javaOptions in ThisBuild ++= Seq("-Xss2048K"),
-  addCompilerPlugin(scalafixSemanticdb)
+  javaOptions in ThisBuild ++= Seq("-Xss2048K")
 )
 
 def updateVersionInFile(selectVersion: sbtrelease.Versions => String): ReleaseStep =

@@ -119,7 +119,7 @@ object ToService {
 
             Trace.captureIfNeeded(trc)
 
-            val accept = if (negotiateContent) req.accept.map(a => Accept.fromString(a)) else Nil
+            val accept = if (negotiateContent) req.accept.map(a => Accept.fromString(a)).toList else Nil
 
             val rep = new Promise[Response]
 
