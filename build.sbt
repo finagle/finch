@@ -1,8 +1,6 @@
 import ReleaseTransformations._
 import microsites.ExtraMdFileConfig
 
-addCompilerPlugin("org.scalameta"  % "semanticdb-scalac" % "4.0.0" cross CrossVersion.full)
-
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
