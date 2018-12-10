@@ -1,9 +1,10 @@
 package io.finch
 
+import cats.Eval
 import cats.effect.Effect
 import com.twitter.finagle.http.Response
 import com.twitter.io._
-import io.finch.internal.futureToEffect
+import io.finch.internal.evalToEffect
 import io.finch.streaming.StreamFromReader
 import io.iteratee.{Enumerator, Iteratee}
 import shapeless.Witness
@@ -18,7 +19,7 @@ package object iteratee extends IterateeInstances {
     StreamFromReader.instance { reader =>
       def rec(reader: Reader[Buf]): Enumerator[F, Buf] = {
         Enumerator.liftM[F, Option[Buf]] {
-          futureToEffect(reader.read())
+          evalToEffect(Eval.later(reader.read()))
         }.flatMap {
           case None => Enumerator.empty[F, Buf]
           case Some(buf) => Enumerator.enumOne[F, Buf](buf).append(rec(reader))
@@ -54,12 +55,12 @@ trait IterateeInstances {
       response.setChunked(true)
       response.contentType = w.value
       val writer = response.writer
-      val iteratee = Iteratee.foreachM[F, Buf]((buf: Buf) => futureToEffect(writer.write(delimiter match {
+      val iteratee = Iteratee.foreachM[F, Buf]((buf: Buf) => evalToEffect(Eval.later(writer.write(delimiter match {
         case Some(d) => buf.concat(d)
         case _ => buf
-      })))
+      }))))
       val stream = enum
-        .ensure(Effect[F].suspend(futureToEffect(writer.close())))
+        .ensure(evalToEffect(Eval.later(writer.close())))
         .map(e.apply(_, cs))
         .into(iteratee)
       Effect[F].toIO(stream).unsafeRunAsyncAndForget()

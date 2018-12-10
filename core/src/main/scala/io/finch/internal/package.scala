@@ -1,5 +1,6 @@
 package io.finch
 
+import cats.Eval
 import cats.effect.Effect
 import com.twitter.finagle.http.{Fields, Message}
 import com.twitter.io.Buf
@@ -123,7 +124,11 @@ package object internal {
     }
   }
 
-  def futureToEffect[E[_] : Effect, F[_], A](future: => F[A])(implicit le: LiftToEffect[F, E]): E[A] =
-    le.toEffect(future)
+  /**
+    * Convert outlaw effect F[_] into lawful E[_] using cats.Eval.later
+    */
+  def evalToEffect[E[_] : Effect, F[_], A](eval: => Eval[F[A]])(implicit
+    te: io.finch.ToEffect[F, E]
+  ): E[A] = ToEffect.evalEffect[F, E].apply(eval)
 
 }

@@ -1,10 +1,11 @@
 package io.finch
 
 import _root_.fs2.Stream
+import cats.Eval
 import cats.effect.Effect
 import com.twitter.finagle.http.Response
 import com.twitter.io.Buf
-import io.finch.internal.futureToEffect
+import io.finch.internal.evalToEffect
 import io.finch.streaming.StreamFromReader
 import shapeless.Witness
 
@@ -12,7 +13,7 @@ package object fs2 extends StreamInstances {
 
   implicit def streamFromReader[F[_] : Effect]: StreamFromReader[Stream, F] = StreamFromReader.instance { reader =>
     Stream
-      .repeatEval(futureToEffect(reader.read()))
+      .repeatEval(evalToEffect(Eval.later(reader.read())))
       .unNoneTerminate
       .onFinalize(Effect[F].delay(reader.discard()))
   }
@@ -46,11 +47,11 @@ trait StreamInstances {
       val writer = response.writer
       val effect = stream
         .map(e.apply(_, cs))
-        .evalMap(buf => futureToEffect(writer.write(delimiter match {
+        .evalMap(buf => evalToEffect(Eval.later(writer.write(delimiter match {
           case Some(d) => buf.concat(d)
           case _ => buf
-        })))
-        .onFinalize(Effect[F].suspend(futureToEffect(writer.close())))
+        }))))
+        .onFinalize(evalToEffect(Eval.later(writer.close())))
         .compile
         .drain
 
