@@ -40,6 +40,7 @@ Write clean and simple docs in the `docs` folder.
 * PR should generally contain only one commit (use `git commit --amend` and `git --force push` or [squash][4] existing commits into one)
 * PR should not decrease the code coverage more than by 1%
 * PR's commit message should use present tense and be capitalized properly (i.e., `Fix #123: Add tests for Endpoint`)
+* PR should pass `sbt validate`
 
 [0]: https://help.github.com/articles/using-pull-requests/
 [1]: http://twitter.github.io/effectivescala/

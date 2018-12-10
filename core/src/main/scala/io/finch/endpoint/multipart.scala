@@ -83,10 +83,10 @@ private[finch] object Attribute {
       F.pure(Output.payload(Some(value.head)))
   }
 
-  trait AllowEmpty[F[_], A] { _: Attribute[F, Seq, A] =>
-    protected def missing(name: String): F[Output[Seq[A]]] =
+  trait AllowEmpty[F[_], A] { _: Attribute[F, List, A] =>
+    protected def missing(name: String): F[Output[List[A]]] =
       F.pure(Output.payload(Nil))
-    protected def present(value: NonEmptyList[A]): F[Output[Seq[A]]] =
+    protected def present(value: NonEmptyList[A]): F[Output[List[A]]] =
       F.pure(Output.payload(value.toList))
   }
 
@@ -146,10 +146,10 @@ private[finch] object FileUpload {
       F.pure(Output.payload(Some(a.head)))
   }
 
-  trait AllowEmpty[F[_]] { _: FileUpload[F, Seq] =>
-    protected def missing(name: String): F[Output[Seq[FinagleFileUpload]]] =
+  trait AllowEmpty[F[_]] { _: FileUpload[F, List] =>
+    protected def missing(name: String): F[Output[List[FinagleFileUpload]]] =
       F.pure(Output.payload(Nil))
-    protected def present(fa: NonEmptyList[FinagleFileUpload]): F[Output[Seq[FinagleFileUpload]]] =
+    protected def present(fa: NonEmptyList[FinagleFileUpload]): F[Output[List[FinagleFileUpload]]] =
       F.pure(Output.payload(fa.toList))
   }
 

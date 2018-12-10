@@ -44,7 +44,7 @@ private[generic] object Extractor extends Poly1 {
   implicit def seqExtractor[F[_] : Effect, V](implicit
     dh: DecodeEntity[V],
     ct: ClassTag[V]
-  ): Case.Aux[String, Endpoint[F, Seq[V]]] = at[String] { key =>
+  ): Case.Aux[String, Endpoint[F, List[V]]] = at[String] { key =>
     Endpoint[F].params[V](key)
   }
 

@@ -82,9 +82,9 @@ private[finch] abstract class Params[F[_], G[_], A](name: String)(implicit
 
 private[finch] object Params {
 
-  trait AllowEmpty[F[_], A] { _: Params[F, Seq, A] =>
-    protected def missing(name: String): F[Output[Seq[A]]] = F.pure(Output.payload(Nil))
-    protected def present(value: Iterable[A]): Seq[A] = value.toSeq
+  trait AllowEmpty[F[_], A] { _: Params[F, List, A] =>
+    protected def missing(name: String): F[Output[List[A]]] = F.pure(Output.payload(Nil))
+    protected def present(value: Iterable[A]): List[A] = value.toList
   }
 
   trait NonEmpty[F[_], A] { _: Params[F, NonEmptyList, A] =>

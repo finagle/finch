@@ -10,7 +10,7 @@ private[finch] class MatchPath[F[_]](s: String)(implicit
   F: Effect[F]
 ) extends Endpoint[F, HNil] {
   final def apply(input: Input): EndpointResult[F, HNil] = input.route match {
-    case `s` +: rest =>
+    case `s` :: rest =>
       EndpointResult.Matched(
         input.withRoute(rest),
         Trace.segment(s),
@@ -28,7 +28,7 @@ private[finch] class ExtractPath[F[_], A](implicit
   F: Effect[F]
 ) extends Endpoint[F, A] {
   final def apply(input: Input): EndpointResult[F, A] = input.route match {
-    case s +: rest => d(QueryStringDecoder.decodeComponent(s)) match {
+    case s :: rest => d(QueryStringDecoder.decodeComponent(s)) match {
       case Some(a) =>
         EndpointResult.Matched(
           input.withRoute(rest),
@@ -47,11 +47,11 @@ private[finch] class ExtractPaths[F[_], A](implicit
   d: DecodePath[A],
   ct: ClassTag[A],
   F: Effect[F]
-) extends Endpoint[F, Seq[A]] {
-  final def apply(input: Input): EndpointResult[F, Seq[A]] = EndpointResult.Matched(
+) extends Endpoint[F, List[A]] {
+  final def apply(input: Input): EndpointResult[F, List[A]] = EndpointResult.Matched(
     input.copy(route = Nil),
     Trace.segment(toString),
-    F.pure(Output.payload(input.route.flatMap(p => d(QueryStringDecoder.decodeComponent(p)).toSeq)))
+    F.pure(Output.payload(input.route.flatMap(p => d(QueryStringDecoder.decodeComponent(p)).toList)))
   )
 
   final override lazy val toString: String = s":${ct.runtimeClass.getSimpleName.toLowerCase}*"

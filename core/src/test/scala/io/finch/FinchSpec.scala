@@ -121,8 +121,8 @@ trait FinchSpec extends FlatSpec
     StandardCharsets.UTF_16, StandardCharsets.UTF_16BE, StandardCharsets.UTF_16LE
   )
 
-  def genOutputMeta: Gen[(Status, Option[Charset], Map[String, String], Seq[Cookie])] =
-    genStatus.map(s => (s, Option.empty, Map.empty[String, String], Seq.empty[Cookie]))
+  def genOutputMeta: Gen[(Status, Option[Charset], Map[String, String], List[Cookie])] =
+    genStatus.map(s => (s, Option.empty, Map.empty[String, String], List.empty[Cookie]))
 
   def genEmptyOutput: Gen[Output.Empty] = for {
     (st, cs, hs, c) <- genOutputMeta

@@ -95,7 +95,7 @@ object ToResponse extends HighPriorityToResponseInstances {
    * Picks corresponding instance of `ToResponse` according to `Accept` header of a request
    */
   trait Negotiable[A, CT] {
-    def apply(accept: Seq[Accept]): ToResponse.Aux[A, CT]
+    def apply(accept: List[Accept]): ToResponse.Aux[A, CT]
   }
 
   object Negotiable {
@@ -105,7 +105,7 @@ object ToResponse extends HighPriorityToResponseInstances {
       t: Negotiable[A, CTT],
       a: Accept.Matcher[CTH]
     ): Negotiable[A, CTH :+: CTT] = new Negotiable[A, CTH :+: CTT] {
-      def apply(accept: Seq[Accept]): ToResponse.Aux[A, CTH :+: CTT] =
+      def apply(accept: List[Accept]): ToResponse.Aux[A, CTH :+: CTT] =
         if (accept.exists(_.matches[CTH])) h.asInstanceOf[ToResponse.Aux[A, CTH :+: CTT]]
         else t(accept).asInstanceOf[ToResponse.Aux[A, CTH :+: CTT]]
     }
@@ -113,14 +113,14 @@ object ToResponse extends HighPriorityToResponseInstances {
     implicit def cnilToNegotiable[A, CTH <: String](implicit
       tr: ToResponse.Aux[A, CTH]
     ): Negotiable[A, CTH :+: CNil] = new Negotiable[A, CTH :+: CNil] {
-      def apply(accept: Seq[Accept]): ToResponse.Aux[A, CTH :+: CNil] =
+      def apply(accept: List[Accept]): ToResponse.Aux[A, CTH :+: CNil] =
         tr.asInstanceOf[ToResponse.Aux[A, CTH :+: CNil]]
     }
 
     implicit def singleToNegotiable[A, CT <: String](implicit
       tr: ToResponse.Aux[A, CT]
     ): Negotiable[A, CT] = new Negotiable[A, CT] {
-      def apply(accept: Seq[Accept]): ToResponse.Aux[A, CT] = tr
+      def apply(accept: List[Accept]): ToResponse.Aux[A, CT] = tr
     }
   }
 

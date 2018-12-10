@@ -42,7 +42,7 @@ object Main extends Endpoint.Module[IO] {
   }
 
   final case class Number(i: Int) {
-    def isPrime: IsPrime = IsPrime(!(2 +: (3 to Math.sqrt(i.toDouble).toInt by 2) exists (i % _ == 0)))
+    def isPrime: IsPrime = IsPrime(!(2 :: (3 to Math.sqrt(i.toDouble).toInt by 2).toList exists (i % _ == 0)))
   }
 
   final case class IsPrime(isPrime: Boolean)

@@ -22,7 +22,7 @@ sealed trait Output[+A] { self =>
   /**
    * The cookie list of this [[Output]].
    */
-  def cookies: Seq[Cookie]
+  def cookies: List[Cookie]
 
   /**
    * The charset of this [[Output]].
@@ -81,7 +81,7 @@ sealed trait Output[+A] { self =>
   /**
    * Adds given `cookies` to this [[Output]].
    */
-  final def withCookies(cookies: Seq[Cookie]): Output[A] =
+  final def withCookies(cookies: List[Cookie]): Output[A] =
     if (cookies.isEmpty) this
     else copy(cookies = self.cookies ++ cookies)
 
@@ -93,12 +93,12 @@ sealed trait Output[+A] { self =>
   /**
    * Adds a given `cookie` to this [[Output]].
    */
-  final def withCookie(cookie: Cookie): Output[A] = withCookies(Seq(cookie))
+  final def withCookie(cookie: Cookie): Output[A] = withCookies(List(cookie))
 
   protected def copy(status: Status = self.status,
     charset: Option[Charset] = self.charset,
     headers: Map[String, String] = self.headers,
-    cookies: Seq[Cookie] = self.cookies): Output[A]
+    cookies: List[Cookie] = self.cookies): Output[A]
 }
 
 object Output {
@@ -143,7 +143,7 @@ object Output {
       status: Status = Status.Ok,
       charset: Option[Charset] = Option.empty,
       headers: Map[String, String] = Map.empty[String, String],
-      cookies: Seq[Cookie] = Seq.empty[Cookie]) extends  Output[A] { self =>
+      cookies: List[Cookie] = List.empty[Cookie]) extends  Output[A] { self =>
 
     def withValue[B](value: B): Payload[B] = Payload(value, status, charset, headers, cookies)
 
@@ -151,7 +151,7 @@ object Output {
         status: Status,
         charset: Option[Charset],
         headers: Map[String, String],
-        cookies: Seq[Cookie]): Output[A] = Payload(value, status, charset, headers, cookies)
+        cookies: List[Cookie]): Output[A] = Payload(value, status, charset, headers, cookies)
   }
 
   /**
@@ -163,7 +163,7 @@ object Output {
       status: Status = Status.BadRequest,
       charset: Option[Charset] = Option.empty,
       headers: Map[String, String] = Map.empty[String, String],
-      cookies: Seq[Cookie] = Seq.empty[Cookie]) extends Output[Nothing] {
+      cookies: List[Cookie] = List.empty[Cookie]) extends Output[Nothing] {
 
     def value: Nothing = throw cause
 
@@ -171,7 +171,7 @@ object Output {
         status: Status,
         charset: Option[Charset],
         headers: Map[String, String],
-        cookies: Seq[Cookie]): Output[Nothing] = Failure(cause, status, charset, headers, cookies)
+        cookies: List[Cookie]): Output[Nothing] = Failure(cause, status, charset, headers, cookies)
   }
 
   /**
@@ -181,7 +181,7 @@ object Output {
       status: Status,
       charset: Option[Charset] = Option.empty,
       headers: Map[String, String] = Map.empty[String, String],
-      cookies: Seq[Cookie] = Seq.empty[Cookie]) extends Output[Nothing] {
+      cookies: List[Cookie] = List.empty[Cookie]) extends Output[Nothing] {
 
     def value: Nothing = throw new IllegalStateException("empty output")
 
@@ -189,7 +189,7 @@ object Output {
         status: Status,
         charset: Option[Charset],
         headers: Map[String, String],
-        cookies: Seq[Cookie]): Output[Nothing] = Empty(status, charset, headers, cookies)
+        cookies: List[Cookie]): Output[Nothing] = Empty(status, charset, headers, cookies)
   }
 
   implicit def outputEq[A]: Eq[Output[A]] = Eq.fromUniversalEquals
