@@ -45,6 +45,4 @@ object DecodeStream {
     }
   }
 
-  implicit def buf2bufStreamDecoder[S[_[_], _], F[_], CT <: String]: Aux[S, F, Buf, CT] =
-    instance((stream, _) => stream)
 }

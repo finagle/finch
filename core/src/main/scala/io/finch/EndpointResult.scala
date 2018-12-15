@@ -45,6 +45,11 @@ sealed abstract class EndpointResult[F[_], +A] {
     case _ => None
   }
 
+  final def map[B](fn: A => B)(implicit F: Effect[F]): EndpointResult[F, B] = this match {
+    case EndpointResult.Matched(rem, trc, o) => EndpointResult.Matched(rem, trc, F.map(o)(_.map(fn)))
+    case n: EndpointResult.NotMatched[F] => n
+  }
+
   def awaitOutput(d: Duration = Duration.Inf)(implicit F: Effect[F]): Option[Either[Throwable, Output[A]]] = this match {
     case EndpointResult.Matched(_, _, out) =>
       try {

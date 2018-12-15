@@ -8,7 +8,7 @@ import io.finch.streaming.StreamFromReader.AsyncStreamF
 
 class StreamingSpec extends FinchSpec {
 
-  checkAll("AsyncStream.streamBody", StreamingLaws[AsyncStreamF, IO, Buf, Text.Plain](
+  checkAll("AsyncStream.streamBody", StreamingLaws[AsyncStreamF, IO](
     AsyncStream.fromSeq,
     stream => Await.result(stream.toSeq).toList
   ).all)
