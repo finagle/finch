@@ -1,6 +1,6 @@
 package io.finch
 
-import cats.Id
+import cats.{Functor, Id}
 import cats.effect.Effect
 import com.twitter.finagle.http.Method
 import com.twitter.util._
@@ -105,4 +105,9 @@ object EndpointResult {
       case _ => None
     }
   }
+
+  implicit def endpointResultInstances[F[_] : Effect]: Functor[EndpointResult[F, ?]] =
+    new Functor[EndpointResult[F, ?]] {
+      def map[A, B](fa: EndpointResult[F, A])(f: A => B): EndpointResult[F, B] = fa.map(f)
+    }
 }

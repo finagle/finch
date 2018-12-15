@@ -199,6 +199,19 @@ trait FinchSpec extends FlatSpec
     )
   )
 
+  def genEndpointResult[F[_] : Effect, A](implicit a: Arbitrary[A]): Gen[EndpointResult[F, A]] = {
+    val matched = for {
+      out <- genOutput[A]
+      input <- arbitraryInput.arbitrary
+      trc <- genTrace
+    } yield {
+      EndpointResult.Matched(input, trc, Effect[F].delay(out))
+    }
+    val notMatched = Gen.const(EndpointResult.NotMatched[F])
+    val methodNotAllowed = genMethod.map(m => EndpointResult.NotMatched.MethodNotAllowed[F](List(m)))
+    Gen.oneOf(matched, notMatched, methodNotAllowed)
+  }
+
   implicit def arbitraryRequest: Arbitrary[Request] = Arbitrary(
     for {
       m <- genMethod
@@ -267,6 +280,20 @@ trait FinchSpec extends FlatSpec
       val resultY = await(y(input))
 
       Eq[Option[(Input, Either[Throwable, Output[A]])]].eqv(resultX, resultY)
+    }
+  }
+
+  implicit def arbitraryEndpointResult[F[_] : Effect, A](implicit A: Arbitrary[A]): Arbitrary[EndpointResult[F, A]] =
+    Arbitrary(genEndpointResult[F, A])
+
+  implicit def eqEndpointResult[F[_] : Effect, A : Eq]: Eq[EndpointResult[F, A]] = new Eq[EndpointResult[F, A]] {
+    private[this] def await(result: Endpoint.Result[F, A]): Option[(Input, Either[Throwable, Output[A]])] = for {
+      r <- result.remainder
+      o <- result.awaitOutput()
+    } yield (r, o)
+
+    def eqv(x: EndpointResult[F, A], y: EndpointResult[F, A]): Boolean = {
+      Eq[Option[(Input, Either[Throwable, Output[A]])]].eqv(await(x), await(y))
     }
   }
 
