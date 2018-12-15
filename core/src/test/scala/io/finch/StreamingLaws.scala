@@ -26,7 +26,7 @@ abstract class StreamingLaws[S[_[_], _], F[_] : Effect, A : Eq, CT <: String] ex
     val req = Request()
     req.setChunked(true)
 
-    Reader.copy(toResponse(fromList(a), cs).reader, req.writer).before(req.writer.close())
+    Reader.copy(toResponse(fromList(a), cs).reader, req.writer).ensure(req.writer.close())
 
     Endpoint
       .streamBody[F, S, A, CT]

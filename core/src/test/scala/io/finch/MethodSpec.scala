@@ -121,7 +121,7 @@ class MethodSpec
   case class Program[A](value: A)
 
   implicit val conv = new ToEffect[Program,IO] {
-    def apply[A](a: Program[A]): IO[A] = IO(a.value)
+    def apply[A](a: => Program[A]): IO[A] = IO(a.value)
   }
 
   it should "map Program[Output[_]] value to endpoint" in {
