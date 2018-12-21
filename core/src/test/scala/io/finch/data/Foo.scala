@@ -29,6 +29,9 @@ object Foo {
       )
     )
 
+  implicit val encodeJsonFoo: Encode.Json[Foo] =
+    Encode.json((foo, cs) => Buf.ByteArray.Owned(s"""{s:"${foo.s}"""".getBytes(cs)))
+
   implicit val arbitraryFoo: Arbitrary[Foo] =
     Arbitrary(Gen.alphaStr.suchThat(_.nonEmpty).map(Foo.apply))
 }

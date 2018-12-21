@@ -893,8 +893,8 @@ object Endpoint {
     * an `S[F, A]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
     */
   def streamBinaryBody[F[_], S[_[_], _]](implicit
-                                         liftReader: LiftReader[S, F],
-                                         F: Effect[F]
+    liftReader: LiftReader[S, F],
+    F: Effect[F]
   ): Endpoint[F, S[F, Buf]] = {
     new Endpoint[F, S[F, Buf]] {
       final def apply(input: Input): Endpoint.Result[F, S[F, Buf]] = {
@@ -915,9 +915,9 @@ object Endpoint {
   }
 
   def streamJsonBody[F[_], S[_[_], _], A](implicit
-                                          streamDecoder: DecodeStream.Aux[S, F, A, Application.Json],
-                                          liftReader: LiftReader[S, F],
-                                          F: Effect[F]
+    streamDecoder: DecodeStream.Aux[S, F, A, Application.Json],
+    liftReader: LiftReader[S, F],
+    F: Effect[F]
   ): Endpoint[F, S[F, A]] = new Endpoint[F, S[F, A]] {
     final def apply(input: Input): Result[F, S[F, A]] = {
       streamBinaryBody.apply(input).map(streamDecoder(_, input.request.charsetOrUtf8))

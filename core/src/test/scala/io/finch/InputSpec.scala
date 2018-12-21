@@ -3,7 +3,8 @@ package io.finch
 import java.nio.charset.Charset
 
 import com.twitter.finagle.http.Method
-import com.twitter.io.Buf
+import com.twitter.io.{Buf, Pipe, Reader}
+import com.twitter.util.{Await, Future}
 import io.finch.data.Foo
 import io.finch.internal.HttpContent
 
@@ -34,21 +35,42 @@ class InputSpec extends FinchSpec {
     }
   }
 
-  it should "add content through withBody" in {
+  it should "add fully-buffered content through withBody" in {
     check { (i: Input, b: Buf) =>
       i.withBody[Text.Plain](b).request.content === b
     }
   }
 
+  it should "add chunked content throhg withBody" in {
+    type ListStream[F[_], A] = List[A]
+    implicit def listToReader[F[_], CT <: String]: EncodeStream.Aux[ListStream, F, Buf, CT] =
+      new EncodeStream[ListStream, F, Buf] {
+        type ContentType = CT
+
+        def apply(s: ListStream[F, Buf], cs: Charset): Reader[Buf] = {
+          val p = new Pipe[Buf]
+
+          def loop(from: List[Buf]): Future[Unit] = from match {
+            case h :: t => p.write(h).before(loop(t))
+            case _ => p.close()
+          }
+
+          loop(s)
+          p
+        }
+      }
+
+    check { (i: Input, s: List[Buf]) =>
+      val out = i.withBody[Application.OctetStream].apply[ListStream, Future, Buf](s).request.reader
+      s.forall(buf => buf == Await.result(out.read()).get)
+    }
+  }
+
   it should "add content corresponding to a class through withBody[JSON]" in {
-    implicit val encodeFoo: Encode.Json[Foo] = Encode.json(
-      (a, cs) => Buf.ByteArray.Owned(a.s.getBytes(cs.name))
-    )
-
     check { (i: Input, f: Foo, cs: Charset) =>
-      val input = i.withBody[Application.Json](f, Some(cs))
+      val input = i.withBody[Application.Json](f, cs)
 
-      input.request.content.asString(cs) === f.s &&
+      input.request.content.asString(cs) === s"""{s:"${f.s}"""" &&
       input.request.contentType === Some(s"application/json;charset=${cs.displayName.toLowerCase}")
     }
   }
