@@ -3,6 +3,7 @@ package io.finch
 import cats.effect.Effect
 import com.twitter.finagle.http.Response
 import com.twitter.io._
+import com.twitter.util.Future
 import io.finch.internal._
 import io.finch.items.RequestItem
 import io.finch.streaming.{DecodeStream, StreamFromReader}
@@ -39,11 +40,13 @@ package object iteratee extends IterateeInstances {
     final override def toString: String = "enumeratorBody"
   }
 
-  implicit def enumeratorFromReader[F[_] : Effect]: StreamFromReader[Enumerator, F] =
+  implicit def enumeratorFromReader[F[_] : Effect](implicit
+    toEffect: ToEffect[Future, F]
+  ): StreamFromReader[Enumerator, F] =
     StreamFromReader.instance { reader =>
       def rec(reader: Reader[Buf]): Enumerator[F, Buf] = {
         Enumerator.liftM[F, Option[Buf]] {
-          futureToEffect(reader.read())
+          Effect[F].defer(toEffect(reader.read()))
         }.flatMap {
           case None => Enumerator.empty[F, Buf]
           case Some(buf) => Enumerator.enumOne[F, Buf](buf).append(rec(reader))
@@ -65,26 +68,28 @@ trait IterateeInstances {
 
   implicit def enumeratorToResponse[F[_] : Effect, A, CT <: String](implicit
     e: Encode.Aux[A, CT],
-    w: Witness.Aux[CT]
+    w: Witness.Aux[CT],
+    toEffect: ToEffect[Future, F]
   ): ToResponse.Aux[Enumerator[F, A], CT] = {
     mkToResponse[F, A, CT](delimiter = None)
   }
 
   protected def mkToResponse[F[_] : Effect, A, CT <: String](delimiter: Option[Buf])(implicit
     e: Encode.Aux[A, CT],
-    w: Witness.Aux[CT]
+    w: Witness.Aux[CT],
+    toEffect: ToEffect[Future, F]
   ): ToResponse.Aux[Enumerator[F, A], CT] = {
     ToResponse.instance[Enumerator[F, A], CT]((enum, cs) => {
       val response = Response()
       response.setChunked(true)
       response.contentType = w.value
       val writer = response.writer
-      val iteratee = Iteratee.foreachM[F, Buf]((buf: Buf) => futureToEffect(writer.write(delimiter match {
+      val iteratee = Iteratee.foreachM[F, Buf]((buf: Buf) => toEffect(writer.write(delimiter match {
         case Some(d) => buf.concat(d)
         case _ => buf
       })))
       val stream = enum
-        .ensure(futureToEffect(writer.close()))
+        .ensure(Effect[F].defer(toEffect(writer.close())))
         .map(e.apply(_, cs))
         .into(iteratee)
       Effect[F].toIO(stream).unsafeRunAsyncAndForget()

@@ -123,9 +123,4 @@ package object internal {
     }
   }
 
-  /**
-    * Convert outlaw effect F[_] hidden inside of cats.Eval into lawful E[_]
-    */
-  def futureToEffect[E[_] : Effect, F[_], A](f: => F[A])(implicit te: io.finch.ToEffect[F, E]): E[A] = te(f)
-
 }
