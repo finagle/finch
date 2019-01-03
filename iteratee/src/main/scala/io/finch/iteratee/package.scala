@@ -6,7 +6,7 @@ import com.twitter.io._
 import com.twitter.util.Future
 import io.finch.internal._
 import io.finch.items.RequestItem
-import io.finch.streaming.{DecodeStream, StreamFromReader}
+import io.finch.streaming.{DecodeStream, LiftReader}
 import io.iteratee.{Enumerator, Iteratee}
 import shapeless.Witness
 
@@ -31,7 +31,7 @@ package object iteratee extends IterateeInstances {
         EndpointResult.Matched(
           input,
           Trace.empty,
-          Effect[F].pure(Output.payload(decode(enumeratorFromReader.apply(req.reader), req.charsetOrUtf8)))
+          Effect[F].pure(Output.payload(decode(enumeratorLiftReader.apply(req.reader), req.charsetOrUtf8)))
         )
       }
     }
@@ -40,10 +40,10 @@ package object iteratee extends IterateeInstances {
     final override def toString: String = "enumeratorBody"
   }
 
-  implicit def enumeratorFromReader[F[_] : Effect](implicit
+  implicit def enumeratorLiftReader[F[_] : Effect](implicit
     toEffect: ToEffect[Future, F]
-  ): StreamFromReader[Enumerator, F] =
-    StreamFromReader.instance { reader =>
+  ): LiftReader[Enumerator, F] =
+    LiftReader.instance { reader =>
       def rec(reader: Reader[Buf]): Enumerator[F, Buf] = {
         Enumerator.liftM[F, Option[Buf]] {
           Effect[F].defer(toEffect(reader.read()))

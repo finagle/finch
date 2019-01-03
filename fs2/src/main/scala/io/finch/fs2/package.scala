@@ -5,13 +5,13 @@ import cats.effect.Effect
 import com.twitter.finagle.http.Response
 import com.twitter.io.Buf
 import com.twitter.util.Future
-import io.finch.streaming.StreamFromReader
+import io.finch.streaming.LiftReader
 import shapeless.Witness
 
 package object fs2 extends StreamInstances {
 
-  implicit def streamFromReader[F[_] : Effect](implicit toEffect: ToEffect[Future, F]): StreamFromReader[Stream, F] =
-    StreamFromReader.instance { reader =>
+  implicit def streamLiftReader[F[_] : Effect](implicit toEffect: ToEffect[Future, F]): LiftReader[Stream, F] =
+    LiftReader.instance { reader =>
       Stream
         .repeatEval(Effect[F].defer(toEffect(reader.read)))
         .unNoneTerminate

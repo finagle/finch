@@ -8,13 +8,13 @@ import cats.laws._
 import cats.laws.discipline._
 import com.twitter.finagle.http.Request
 import com.twitter.io.{Buf, Reader}
-import io.finch.streaming.StreamFromReader
+import io.finch.streaming.LiftReader
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
 abstract class StreamingLaws[S[_[_], _], F[_] : Effect] extends Laws with AllInstances with MissingInstances {
 
-  implicit def streamReader: StreamFromReader[S, F]
+  implicit def streamReader: LiftReader[S, F]
 
   def toResponse: ToResponse[S[F, Buf]]
   def fromList:  List[Buf] => S[F, Buf]
@@ -59,9 +59,9 @@ object StreamingLaws {
     listFromStream: S[F, Buf] => List[Buf]
   )(implicit
     tr: ToResponse.Aux[S[F, Buf], Text.Plain],
-    reader: StreamFromReader[S, F]
+    reader: LiftReader[S, F]
   ): StreamingLaws[S, F] = new StreamingLaws[S, F] {
-    implicit val streamReader: StreamFromReader[S, F] = reader
+    implicit val streamReader: LiftReader[S, F] = reader
     val toResponse: ToResponse[S[F, Buf]] = tr
     val fromList: List[Buf] => S[F, Buf] = streamFromList
     val toList: S[F, Buf] => List[Buf] = listFromStream

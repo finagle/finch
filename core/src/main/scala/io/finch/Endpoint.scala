@@ -17,7 +17,7 @@ import com.twitter.io.{Buf, Reader}
 import io.finch.endpoint._
 import io.finch.internal._
 import io.finch.items.RequestItem
-import io.finch.streaming.{DecodeStream, StreamFromReader}
+import io.finch.streaming.{DecodeStream, LiftReader}
 import java.io.{File, FileInputStream, InputStream}
 import scala.reflect.ClassTag
 import shapeless._
@@ -899,8 +899,8 @@ object Endpoint {
     * an `S[F, A]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
     */
   def streamBinaryBody[F[_], S[_[_], _]](implicit
-    fromReader: StreamFromReader[S, F],
-    F: Effect[F]
+                                         liftReader: LiftReader[S, F],
+                                         F: Effect[F]
   ): Endpoint[F, S[F, Buf]] = {
     new Endpoint[F, S[F, Buf]] {
       final def apply(input: Input): Endpoint.Result[F, S[F, Buf]] = {
@@ -910,7 +910,7 @@ object Endpoint {
           EndpointResult.Matched(
             input,
             Trace.empty,
-            F.pure[Output[S[F, Buf]]](Output.payload(fromReader(req.reader)))
+            F.pure[Output[S[F, Buf]]](Output.payload(liftReader(req.reader)))
           )
         }
       }
@@ -921,9 +921,9 @@ object Endpoint {
   }
 
   def streamJsonBody[F[_], S[_[_], _], A](implicit
-    streamDecoder: DecodeStream.Aux[S, F, A, Application.Json],
-    fromReader: StreamFromReader[S, F],
-    F: Effect[F]
+                                          streamDecoder: DecodeStream.Aux[S, F, A, Application.Json],
+                                          liftReader: LiftReader[S, F],
+                                          F: Effect[F]
   ): Endpoint[F, S[F, A]] = new Endpoint[F, S[F, A]] {
     final def apply(input: Input): Result[F, S[F, A]] = {
       streamBinaryBody.apply(input).map(streamDecoder(_, input.request.charsetOrUtf8))
