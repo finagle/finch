@@ -3,8 +3,9 @@ package io.finch
 import cats.effect.Effect
 import com.twitter.finagle.http.Response
 import com.twitter.io._
-import io.finch.internal.futureToEffect
-import io.finch.streaming.StreamFromReader
+import io.finch.internal._
+import io.finch.items.RequestItem
+import io.finch.streaming.{DecodeStream, StreamFromReader}
 import io.iteratee.{Enumerator, Iteratee}
 import shapeless.Witness
 
@@ -13,6 +14,30 @@ import shapeless.Witness
   */
 package object iteratee extends IterateeInstances {
 
+
+  /**
+    * An evaluating [[Endpoint]] that reads a required chunked streaming binary body, interpreted as
+    * an `Enumerator[Future, A]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
+    */
+  @deprecated("Use Endpoint.streamJsonBody or Endpoint.streamBinaryBody instead", "0.27.0")
+  def enumeratorBody[F[_] : Effect, A, CT <: String](implicit
+    decode: DecodeStream.Aux[Enumerator, F, A, CT]
+  ): Endpoint[F, Enumerator[F, A]] = new Endpoint[F, Enumerator[F, A]] {
+    final def apply(input: Input): Endpoint.Result[F, Enumerator[F, A]] = {
+      if (!input.request.isChunked) EndpointResult.NotMatched[F]
+      else {
+        val req = input.request
+        EndpointResult.Matched(
+          input,
+          Trace.empty,
+          Effect[F].pure(Output.payload(decode(enumeratorFromReader.apply(req.reader), req.charsetOrUtf8)))
+        )
+      }
+    }
+
+    final override def item: RequestItem = items.BodyItem
+    final override def toString: String = "enumeratorBody"
+  }
 
   implicit def enumeratorFromReader[F[_] : Effect]: StreamFromReader[Enumerator, F] =
     StreamFromReader.instance { reader =>
