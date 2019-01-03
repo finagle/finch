@@ -2,7 +2,7 @@ package io.finch.circe
 
 import cats.MonadError
 import cats.effect.Sync
-import fs2.Stream
+import fs2.{Chunk, Stream}
 import io.circe.Decoder
 import io.circe.fs2
 import io.circe.iteratee
@@ -49,7 +49,7 @@ trait Decoders {
       val parsed = cs match {
         case StandardCharsets.UTF_8 =>
           stream
-            .flatMap(buf => Stream.fromIterator(buf.asByteArray.toIterator))
+            .mapChunks(chunk => chunk.flatMap(buf => Chunk.array(buf.asByteArray)))
             .through(fs2.byteStreamParser[F])
         case _ =>
           stream
