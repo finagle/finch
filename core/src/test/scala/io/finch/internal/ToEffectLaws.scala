@@ -20,20 +20,10 @@ abstract trait ToEffectLaws[F[_], G[_], A] extends Laws with MissingInstances wi
     extract(G.map(T(f))(fn)) <-> extract(T(F.map(f)(fn)))
   }
 
-  def deferred(f: => F[A], fn: A => A): IsEq[Boolean] = {
-    var evaluated = false
-    T(F.map(f)(fn.andThen { a =>
-      evaluated = true
-      a
-    }))
-    evaluated <-> false
-  }
-
   def all(implicit A: Arbitrary[A], E: Eq[A]): RuleSet = new DefaultRuleSet(
     name = "all",
     parent = None,
-    "natural transformation" -> Prop.forAll { a: A => nTransformation(F.pure(a), G.pure(a), identity) },
-    "deferred evaluation" -> Prop.forAll { a: A => deferred(F.pure(a), identity) }
+    "natural transformation" -> Prop.forAll { a: A => nTransformation(F.pure(a), G.pure(a), identity) }
   )
 
 }
