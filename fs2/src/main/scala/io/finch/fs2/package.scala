@@ -5,7 +5,6 @@ import cats.effect.Effect
 import com.twitter.finagle.http.Response
 import com.twitter.io.Buf
 import com.twitter.util.Future
-import io.finch.streaming.LiftReader
 import shapeless.Witness
 
 package object fs2 extends StreamInstances {

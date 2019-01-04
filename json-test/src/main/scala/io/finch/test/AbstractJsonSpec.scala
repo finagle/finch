@@ -5,8 +5,7 @@ import java.nio.charset.{Charset, StandardCharsets}
 import cats.{Comonad, Eq, Functor}
 import cats.instances.AllInstances
 import io.circe.Decoder
-import io.finch.{Decode, Encode}
-import io.finch.streaming.DecodeStream
+import io.finch.{Decode, DecodeStream, Encode}
 import io.finch.test.data._
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.{FlatSpec, Matchers}

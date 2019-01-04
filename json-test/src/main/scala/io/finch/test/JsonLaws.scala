@@ -10,9 +10,8 @@ import com.twitter.io.Buf
 import com.twitter.util._
 import io.circe.{Decoder, Encoder}
 import io.circe.jawn
-import io.finch._
+import io.finch.{DecodeStream, _}
 import io.finch.internal.HttpContent
-import io.finch.streaming.DecodeStream
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 

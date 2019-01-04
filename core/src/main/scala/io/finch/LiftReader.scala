@@ -1,4 +1,4 @@
-package io.finch.streaming
+package io.finch
 
 import com.twitter.io.{Buf, Reader}
 

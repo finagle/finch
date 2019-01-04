@@ -8,7 +8,6 @@ import cats.laws._
 import cats.laws.discipline._
 import com.twitter.finagle.http.Request
 import com.twitter.io.{Buf, Reader}
-import io.finch.streaming.LiftReader
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 

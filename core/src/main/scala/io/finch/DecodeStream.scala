@@ -1,10 +1,9 @@
-package io.finch.streaming
+package io.finch
 
 import java.nio.charset.Charset
+import scala.annotation.implicitNotFound
 
 import com.twitter.io.Buf
-import io.finch.Application
-import scala.annotation.implicitNotFound
 
 /**
   * Stream HTTP streamed payload represented as S[F, Buf] into
@@ -26,7 +25,7 @@ object DecodeStream {
   Make sure ${A} is one of the following:
 
   * A com.twitter.io.Buf
-  * A value of a type with an io.finch.streaming.DecodeStream instance (with the corresponding content-type)
+  * A value of a type with an io.finch.DecodeStream instance (with the corresponding content-type)
 
   Help: If you're looking for JSON stream decoding, consider to use decoder from finch-circe library
 """

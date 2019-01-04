@@ -7,7 +7,6 @@ import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.{Cookie, Request}
 import com.twitter.finagle.http.exp.Multipart
 import com.twitter.io.Buf
-import io.finch.streaming.{DecodeStream, LiftReader}
 import java.io.{File, InputStream}
 import scala.reflect.ClassTag
 import shapeless.HNil

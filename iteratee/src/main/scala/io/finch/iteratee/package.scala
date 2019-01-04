@@ -6,7 +6,6 @@ import com.twitter.io._
 import com.twitter.util.Future
 import io.finch.internal._
 import io.finch.items.RequestItem
-import io.finch.streaming.{DecodeStream, LiftReader}
 import io.iteratee.{Enumerator, Iteratee}
 import shapeless.Witness
 

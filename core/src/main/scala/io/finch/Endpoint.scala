@@ -6,18 +6,12 @@ import cats.effect.{ContextShift, Effect, Resource, Sync}
 import cats.syntax.all._
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{
-  Cookie => FinagleCookie,
-  Method => FinagleMethod,
-  Request,
-  Response
-}
+import com.twitter.finagle.http.{Cookie => FinagleCookie, Method => FinagleMethod, Request, Response}
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart}
 import com.twitter.io.{Buf, Reader}
 import io.finch.endpoint._
 import io.finch.internal._
 import io.finch.items.RequestItem
-import io.finch.streaming.{DecodeStream, LiftReader}
 import java.io.{File, FileInputStream, InputStream}
 import scala.reflect.ClassTag
 import shapeless._
