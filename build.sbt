@@ -10,12 +10,14 @@ lazy val buildSettings = Seq(
 lazy val twitterVersion = "18.12.0"
 lazy val circeVersion = "0.11.0"
 lazy val circeIterateeVersion = "0.12.0"
+lazy val circeFs2Version = "0.11.0"
 lazy val shapelessVersion = "2.3.3"
 lazy val catsVersion = "1.5.0"
 lazy val argonautVersion = "6.2.2"
 lazy val iterateeVersion = "0.18.0"
 lazy val refinedVersion = "0.9.3"
 lazy val catsEffectVersion = "1.1.0"
+lazy val fs2Version =  "1.0.0"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -62,7 +64,8 @@ val baseSettings = Seq(
   },
   scalacOptions in (Compile, console) += "-Yrepl-class-based",
   fork in Test := true,
-  javaOptions in ThisBuild ++= Seq("-Xss2048K")
+  javaOptions in ThisBuild ++= Seq("-Xss2048K"),
+  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.8" cross CrossVersion.binary)
 )
 
 def updateVersionInFile(selectVersion: sbtrelease.Versions => String): ReleaseStep =
@@ -233,7 +236,7 @@ lazy val finch = project.in(file("."))
     "io.circe" %% "circe-generic" % circeVersion
   ))
   .aggregate(
-    core, iteratee, generic, argonaut, circe, benchmarks, test, jsonTest, examples, sse, refined
+    core, fs2, iteratee, generic, argonaut, circe, benchmarks, test, jsonTest, examples, sse, refined
   )
   .dependsOn(core, iteratee, generic, circe)
 
@@ -247,6 +250,16 @@ lazy val iteratee = project
   .settings(
     libraryDependencies ++= Seq(
       "io.iteratee" %% "iteratee-core" % iterateeVersion
+    )
+  )
+  .dependsOn(core % "compile->compile;test->test")
+
+lazy val fs2 = project
+  .settings(moduleName := "finchx-fs2")
+  .settings(allSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      "co.fs2" %% "fs2-core" % fs2Version
     )
   )
   .dependsOn(core % "compile->compile;test->test")
@@ -291,11 +304,12 @@ lazy val circe = project
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % circeVersion,
       "io.circe" %% "circe-iteratee" % circeIterateeVersion,
+      "io.circe" %% "circe-fs2" % circeFs2Version,
       "io.circe" %% "circe-jawn" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion % "test"
     )
   )
-  .dependsOn(core, iteratee, jsonTest % "test")
+  .dependsOn(core, jsonTest % "test")
 
 lazy val sse = project
   .settings(moduleName := "finchx-sse")

@@ -1,12 +1,15 @@
 package io.finch.circe
 
 import cats.MonadError
+import cats.effect.Sync
+import fs2.{Chunk, Stream}
 import io.circe.Decoder
-import io.circe.iteratee._
+import io.circe.fs2
+import io.circe.iteratee
 import io.circe.jawn._
-import io.finch.{Application, Decode}
+import io.finch.{Application, Decode, DecodeStream}
 import io.finch.internal.HttpContent
-import io.finch.iteratee.Enumerate
+import io.iteratee.Enumerator
 import java.nio.charset.StandardCharsets
 
 
@@ -26,15 +29,33 @@ trait Decoders {
 
   implicit def enumerateCirce[F[_], A : Decoder](implicit
     monadError: MonadError[F, Throwable]
-  ): Enumerate.Json[F, A] = {
-    Enumerate.instance[F, A, Application.Json]((enum, cs) => {
+  ): DecodeStream.Json[Enumerator, F, A] = {
+    DecodeStream.instance[Enumerator, F, A, Application.Json]((enum, cs) => {
       val parsed = cs match {
         case StandardCharsets.UTF_8 =>
-          enum.map(_.asByteArray).through(byteStreamParser[F])
+          enum.map(_.asByteArray).through(iteratee.byteStreamParser[F])
         case _ =>
-          enum.map(_.asString(cs)).through(stringStreamParser[F])
+          enum.map(_.asString(cs)).through(iteratee.stringStreamParser[F])
       }
-      parsed.through(decoder[F, A])
+      parsed.through(iteratee.decoder[F, A])
+    })
+  }
+
+  implicit def fs2Circe[F[_] : Sync, A : Decoder](implicit
+    monadError: MonadError[F, Throwable]
+  ): DecodeStream.Json[Stream, F, A] = {
+    DecodeStream.instance[Stream, F, A, Application.Json]((stream, cs) => {
+      val parsed = cs match {
+        case StandardCharsets.UTF_8 =>
+          stream
+            .mapChunks(chunk => chunk.flatMap(buf => Chunk.array(buf.asByteArray)))
+            .through(fs2.byteStreamParser[F])
+        case _ =>
+          stream
+            .map(_.asString(cs))
+            .through(fs2.stringStreamParser[F])
+      }
+      parsed.through(fs2.decoder[F, A])
     })
   }
 

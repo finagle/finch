@@ -35,7 +35,7 @@ import scala.util.Random
   *   $ curl -X POST --header "Transfer-Encoding: chunked" -d '{"i": 40} {"i": 42}' localhost:8081/streamPrime
   * }}}
   */
-object Main extends Endpoint.Module[IO] {
+object Main extends EndpointModule[IO] {
 
   final case class Result(result: Int) {
     def add(n: Number): Result = copy(result = result + n.i)
@@ -47,9 +47,9 @@ object Main extends Endpoint.Module[IO] {
 
   final case class IsPrime(isPrime: Boolean)
 
-  private val stream: Stream[Int] = Stream.continually(Random.nextInt())
+  private def stream: Stream[Int] = Stream.continually(Random.nextInt())
 
-  val sumJson: Endpoint[IO, Result] = post("sumJson" :: enumeratorJsonBody[IO, Number]) {
+  val sumJson: Endpoint[IO, Result] = post("sumJson" :: streamJsonBody[Enumerator, Number]) {
     enum: Enumerator[IO, Number] =>
       enum.into(Iteratee.fold[IO, Number, Result](Result(0))(_ add _)).map(Ok)
   }
@@ -59,7 +59,7 @@ object Main extends Endpoint.Module[IO] {
   }
 
   val isPrime: Endpoint[IO, Enumerator[IO, IsPrime]] =
-    post("streamPrime" :: enumeratorJsonBody[IO, Number]) { enum: Enumerator[IO, Number] =>
+    post("streamPrime" :: streamJsonBody[Enumerator, Number]) { enum: Enumerator[IO, Number] =>
       Ok(enum.map(_.isPrime))
     }
 

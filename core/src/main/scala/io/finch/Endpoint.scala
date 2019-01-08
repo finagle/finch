@@ -6,12 +6,7 @@ import cats.effect.{ContextShift, Effect, Resource, Sync}
 import cats.syntax.all._
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{
-  Cookie => FinagleCookie,
-  Method => FinagleMethod,
-  Request,
-  Response
-}
+import com.twitter.finagle.http.{Cookie => FinagleCookie, Method => FinagleMethod, Request, Response}
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart}
 import com.twitter.io.{Buf, Reader}
 import io.finch.endpoint._
@@ -892,6 +887,45 @@ object Endpoint {
       final override def item: RequestItem = items.BodyItem
       final override def toString: String = "asyncBody"
     }
+
+  /**
+    * An evaluating [[Endpoint]] that reads a required chunked streaming binary body, interpreted as
+    * an `S[F, A]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
+    */
+  def streamBinaryBody[F[_], S[_[_], _]](implicit
+                                         liftReader: LiftReader[S, F],
+                                         F: Effect[F]
+  ): Endpoint[F, S[F, Buf]] = {
+    new Endpoint[F, S[F, Buf]] {
+      final def apply(input: Input): Endpoint.Result[F, S[F, Buf]] = {
+        if (!input.request.isChunked) EndpointResult.NotMatched[F]
+        else {
+          val req = input.request
+          EndpointResult.Matched(
+            input,
+            Trace.empty,
+            F.pure[Output[S[F, Buf]]](Output.payload(liftReader(req.reader)))
+          )
+        }
+      }
+
+      final override def item: RequestItem = items.BodyItem
+      final override def toString: String = "streamBinaryBody"
+    }
+  }
+
+  def streamJsonBody[F[_], S[_[_], _], A](implicit
+                                          streamDecoder: DecodeStream.Aux[S, F, A, Application.Json],
+                                          liftReader: LiftReader[S, F],
+                                          F: Effect[F]
+  ): Endpoint[F, S[F, A]] = new Endpoint[F, S[F, A]] {
+    final def apply(input: Input): Result[F, S[F, A]] = {
+      streamBinaryBody.apply(input).map(streamDecoder(_, input.request.charsetOrUtf8))
+    }
+
+    final override def item: RequestItem = items.BodyItem
+    final override def toString: String = "streamJsonBody"
+  }
 
   /**
    * An evaluating [[Endpoint]] that reads an optional HTTP cookie from the request into an

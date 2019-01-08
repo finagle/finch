@@ -2,19 +2,16 @@ package io.finch.test
 
 import java.nio.charset.Charset
 
-import cats.{Comonad, Eq, MonadError}
+import cats.{Eq, Functor}
 import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
 import com.twitter.io.Buf
 import com.twitter.util._
 import io.circe.{Decoder, Encoder}
-import io.circe.iteratee._
 import io.circe.jawn
-import io.finch._
+import io.finch.{DecodeStream, _}
 import io.finch.internal.HttpContent
-import io.finch.iteratee.Enumerate
-import io.iteratee.Enumerator
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
@@ -43,37 +40,40 @@ trait DecodeJsonLaws[A] extends Laws with AllInstances {
   )
 }
 
-abstract class EnumerateJsonLaws[F[_], A](implicit
-                                          monadError: MonadError[F, Throwable],
-                                          comonad: Comonad[F]) extends Laws with AllInstances {
+abstract class StreamJsonLaws[S[_[_], _], F[_], A](implicit
+  F: Functor[S[F, ?]]
+) extends Laws with AllInstances {
 
-  def enumerate: Enumerate.Json[F, A]
+  def streamDecoder: DecodeStream.Json[S, F, A]
 
-  def success(a: List[A], cs: Charset)(implicit e: Encoder[A], d: Decoder[A]): IsEq[Vector[A]] = {
-    val json = Enumerator.enumList[F, A](a).map(a => e(a).noSpaces).intersperse("\n")
-    val enum = json.map(str => Buf.ByteArray.Owned(str.getBytes(cs.name)))
-    val toCompare = json.through(stringStreamParser[F]).through(decoder[F, A])
-    comonad.extract(enumerate(enum, cs).toVector) <-> comonad.extract(toCompare.toVector)
+  def fromList: List[A] => S[F, A]
+
+  def toList: S[F, A] => List[A]
+
+  def success(a: List[A], cs: Charset)(implicit e: Encoder[A], eq: Eq[A]): IsEq[List[A]] = {
+    val json = F.map(fromList(a))(a => e(a).noSpaces + "\n")
+    val enum = F.map(json)(str => Buf.ByteArray.Owned(str.getBytes(cs.name)))
+    toList(streamDecoder(enum, cs)) <-> a
   }
 
-  def failure(s: String, cs: Charset): Boolean = {
-    val enum = Enumerator.enumOne[F, Buf](Buf.ByteArray.Owned(s"NOT A JSON$s".getBytes(cs.name)))
+  def failure(a: A, cs: Charset)(implicit e: Encoder[A]): Boolean = {
+    val json = F.map(fromList(a :: Nil))(a => e(a).noSpaces+"INVALID_JSON")
+    val enum = F.map(json)(str => Buf.ByteArray.Owned(str.getBytes(cs.name)))
     Try(
-      comonad.extract(enumerate(enum, cs).toVector)
+      toList(streamDecoder(enum, cs))
     ).isThrow
   }
 
   def all(implicit
           a: Arbitrary[A],
           cs: Arbitrary[Charset],
-          e: Encoder[A],
-          d: Decoder[A],
+          encode: Encoder[A],
           eq: Eq[A]
          ): RuleSet = new DefaultRuleSet(
     name = "enumerate",
     parent = None,
     "success" -> Prop.forAll { (a: List[A], cs: Charset) => success(a, cs) },
-    "failure" -> Prop.forAll { (s: String, cs: Charset) => failure(s, cs) }
+    "failure" -> Prop.forAll { (a: A, cs: Charset) =>  failure(a, cs) }
   )
 
 }
@@ -102,11 +102,16 @@ object JsonLaws {
       val decode: Decode.Json[A] = implicitly[Decode.Json[A]]
     }
 
-  def enumerating[F[_] : Comonad, A](implicit
-    enum: Enumerate.Json[F, A],
-    monadError: MonadError[F, Throwable]
-  ): EnumerateJsonLaws[F, A] =
-    new EnumerateJsonLaws[F, A] {
-      val enumerate: Enumerate.Json[F, A] = enum
+  def streaming[S[_[_], _], F[_], A](
+    streamFromList: List[A] => S[F, A],
+    streamToList: S[F, A] => List[A]
+  )(implicit
+    decoder: DecodeStream.Json[S, F, A],
+    functor: Functor[S[F, ?]]
+  ): StreamJsonLaws[S, F, A] =
+    new StreamJsonLaws[S, F, A] {
+      val toList: S[F, A] => List[A] = streamToList
+      val fromList: List[A] => S[F, A] = streamFromList
+      val streamDecoder: DecodeStream.Json[S, F, A] = decoder
     }
 }

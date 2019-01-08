@@ -290,6 +290,23 @@ trait EndpointModule[F[_]] {
     Endpoint.asyncBody[F]
 
   /**
+    * An alias for [[Endpoint.streamBinaryBody]]
+    */
+  def streamBinaryBody[S[_[_], _], A, CT <: String](implicit
+                                                    liftReader: LiftReader[S, F],
+                                                    F: Effect[F]
+  ): Endpoint[F, S[F, Buf]] = Endpoint.streamBinaryBody[F, S]
+
+  /**
+    * An alias for [[Endpoint.streamJsonBody]]
+    */
+  def streamJsonBody[S[_[_], _], A](implicit
+                                    decoder: DecodeStream.Aux[S, F, A, Application.Json],
+                                    liftReader: LiftReader[S, F],
+                                    F: Effect[F]
+  ): Endpoint[F, S[F, A]] = Endpoint.streamJsonBody[F, S, A]
+
+  /**
    * An alias for [[Endpoint.cookieOption]].
    */
   def cookieOption(name: String)(implicit F: Effect[F]): Endpoint[F, Option[Cookie]] =

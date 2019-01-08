@@ -7,9 +7,8 @@ import cats.data.Validated
 import io.circe._
 import io.circe.iteratee._
 import io.circe.jawn.{decodeAccumulating, decodeByteBufferAccumulating}
-import io.finch.{Application, Decode}
+import io.finch.{Application, Decode, DecodeStream}
 import io.finch.internal.HttpContent
-import io.finch.iteratee.Enumerate
 import io.iteratee.{Enumeratee, Enumerator}
 
 trait AccumulatingDecoders {
@@ -27,9 +26,9 @@ trait AccumulatingDecoders {
     attemptJson.fold[Either[Throwable, A]](nel => Left(Errors(nel)), Right.apply)
   }
 
-  implicit def enumerateCirce[F[_], A : Decoder](implicit
+  implicit def iterateeCirceDecoder[F[_], A : Decoder](implicit
     monadError: MonadError[F, Throwable]
-  ): Enumerate.Json[F, A] = Enumerate.instance[F, A, Application.Json]((enum, cs) => {
+  ): DecodeStream.Json[Enumerator, F, A] = DecodeStream.instance[Enumerator, F, A, Application.Json]((enum, cs) => {
       val parsed = cs match {
         case StandardCharsets.UTF_8 =>
           enum.map(_.asByteArray).through(byteStreamParser[F])
