@@ -1,6 +1,5 @@
 package io.finch
 
-import cats.effect.Effect
 import com.twitter.finagle.http.{Fields, Message}
 import com.twitter.io.Buf
 import java.nio.ByteBuffer
