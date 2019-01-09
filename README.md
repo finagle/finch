@@ -22,6 +22,7 @@ Finch uses multi-project structure and contains of the following _modules_:
 * [`finch-argonaut`](argonaut) - [Argonaut][argonaut] + Finch
 * [`finch-circe`](circe) - [Circe][circe] + Finch
 * [`finch-iteratee`](iteratee) - [Iteratee][iteratee] + Finch
+* [`finch-fs2`](fs2) - [FS2][fs] + Finch
 * [`finch-refined`](refined) - [Refined][refined] + Finch
 * [`finch-test`](test) - the test support classes/functions
 * [`finch-sse`](sse) - SSE ([Server Sent Events][server-sent-events]) support in Finch
@@ -197,6 +198,7 @@ limitations under the License.
 [finch-sprayjson]: https://github.com/finch/finch-sprayjson
 [finch-playjson]: https://github.com/finch/finch-playjson
 [finch-oauth2]: https://github.com/finch/finch-ouath2
+[fs2]: https://github.com/functional-streams-for-scala/fs2
 [server-sent-events]: https://en.wikipedia.org/wiki/Server-sent_events
 [vkostyukov]: https://twitter.com/vkostyukov
 [travisbrown]: https://twitter.com/travisbrown
