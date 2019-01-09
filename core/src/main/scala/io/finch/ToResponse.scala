@@ -76,12 +76,24 @@ trait HighPriorityToResponseInstances extends LowPriorityToResponseInstances {
     w: Witness.Aux[CT]
   ): Aux[A, CT] = instance { (a, cs) =>
     val buf = e(a, cs)
-    val rep = Response()
+    val rep = Response(Version.Http11, Status.Ok)
 
     if (!buf.isEmpty) {
       rep.content = buf
       rep.headerMap.setUnsafe("Content-Type", w.value)
     }
+
+    rep
+  }
+
+  implicit def streamToResponse[S[_[_], _], F[_], A, CT <: String](implicit
+    E: EncodeStream.Aux[S, F, A, CT],
+    W: Witness.Aux[CT]
+  ): Aux[S[F, A], CT] = instance { (a, cs) =>
+    val stream = E(a, cs)
+    val rep = Response(Version.Http11, Status.Ok, stream)
+    rep.headerMap.setUnsafe("Content-Type", W.value)
+    rep.headerMap.setUnsafe("Transfer-Encoding", "chunked")
 
     rep
   }

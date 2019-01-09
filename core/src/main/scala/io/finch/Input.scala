@@ -3,7 +3,7 @@ package io.finch
 import cats.Eq
 import com.twitter.finagle.http.{Method, Request}
 import com.twitter.finagle.netty3.ChannelBufferBuf
-import com.twitter.io.Buf
+import com.twitter.io.{Buf, Reader}
 import java.nio.charset.{Charset, StandardCharsets}
 import org.jboss.netty.handler.codec.http.{DefaultHttpRequest, HttpMethod, HttpVersion}
 import org.jboss.netty.handler.codec.http.multipart.{DefaultHttpDataFactory, HttpPostRequestEncoder}
@@ -30,8 +30,21 @@ final case class Input(request: Request, route: List[String]) {
    * ```
    *  import io.finch._, io.circe._
    *
-   *  val text: Input = Input.post("/").withBody[Text.Plain]("Text Body")
-   *  val json: Input = Input.post("/").withBody[Application.Json](Map("json" -> "object"))
+   *  val text = Input.post("/").withBody[Text.Plain]("Text Body")
+   *  val json = Input.post("/").withBody[Application.Json](Map("json" -> "object"))
+   *```
+   *
+   * Also possible to create chunked inputs passing a stream as an argument.
+   *
+   *```
+   *  import io.finch._, io.finch.iteratee._, cats.effect.IO, io.iteratee.Enumerator
+   *  import io.finch.circe._, io.circe.generic.auto._
+   *
+   *  val enumerateText = Enumerator.enumerate[IO, String]("foo", "bar")
+   *  val text = Input.post("/").withBody[Text.Plain](enumerateText)
+   *
+   *  val enumerateJson = Enumerate.enumerate[IO, Map[String, String]](Map("foo" - "bar"))
+   *  val json = Input.post("/").withBody[Application.Json](enumerateJson)
    *```
    */
   def withBody[CT <: String]: Input.Body[CT] = new Input.Body[CT](this)
@@ -75,7 +88,7 @@ final case class Input(request: Request, route: List[String]) {
       )
     } else ChannelBufferBuf.Owned(req.getContent)
 
-    withBody[Application.WwwFormUrlencoded](content, Some(StandardCharsets.UTF_8))
+    withBody[Application.WwwFormUrlencoded](content, StandardCharsets.UTF_8)
   }
 }
 
@@ -84,12 +97,13 @@ final case class Input(request: Request, route: List[String]) {
  */
 object Input {
 
-  private final def copyRequest(from: Request): Request = {
-    val to = Request()
-    to.version = from.version
-    to.method = from.method
+  private final def copyRequest(from: Request): Request =
+    copyRequestWithReader(from, from.reader)
+
+  private final def copyRequestWithReader(from: Request, reader: Reader[Buf]): Request = {
+    val to = Request(from.version, from.method, from.uri, reader)
+    to.setChunked(from.isChunked)
     to.content = from.content
-    to.uri = from.uri
     from.headerMap.foreach { case (k, v) => to.headerMap.put(k, v) }
 
     to
@@ -99,17 +113,39 @@ object Input {
    * A helper class that captures the `Content-Type` of the payload.
    */
   class Body[CT <: String](i: Input) {
-    def apply[A](body: A, charset: Option[Charset] = None)(implicit
-      e: Encode.Aux[A, CT], w: Witness.Aux[CT]
-    ): Input = {
-      val content = e(body, charset.getOrElse(StandardCharsets.UTF_8))
+    def apply[A](body: A)(implicit e: Encode.Aux[A, CT], w: Witness.Aux[CT]): Input =
+      apply[A](body, StandardCharsets.UTF_8)
 
+    def apply[A](body: A, charset: Charset)(implicit
+      e: Encode.Aux[A, CT], W: Witness.Aux[CT]
+    ): Input = {
+      val content = e(body, charset)
       val copied = copyRequest(i.request)
 
+      copied.setChunked(false)
       copied.content = content
-      copied.contentType = w.value
+      copied.contentType = W.value
       copied.contentLength = content.length.toLong
-      charset.foreach(cs => copied.charset = cs.displayName().toLowerCase)
+      copied.charset = charset.displayName().toLowerCase
+
+      Input(copied, i.route)
+    }
+
+    def apply[S[_[_], _], F[_], A](s: S[F, A])(implicit
+      S: EncodeStream.Aux[S, F, A, CT], W: Witness.Aux[CT]
+    ): Input = apply[S, F, A](s, StandardCharsets.UTF_8)
+
+    def apply[S[_[_], _], F[_], A](s: S[F, A], charset: Charset)(implicit
+      S: EncodeStream.Aux[S, F, A, CT],
+      W: Witness.Aux[CT]
+    ): Input = {
+      val content = S(s, charset)
+      val copied = copyRequestWithReader(i.request, content)
+
+      copied.setChunked(true)
+      copied.contentType = W.value
+      copied.headerMap.setUnsafe("Transfer-Encoding", "chunked")
+      copied.charset = charset.displayName().toLowerCase
 
       Input(copied, i.route)
     }

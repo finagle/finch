@@ -1,98 +1,115 @@
 package io.finch
 
 import cats.effect.Effect
-import com.twitter.finagle.http.Response
 import com.twitter.io._
 import com.twitter.util.Future
 import io.finch.internal._
 import io.finch.items.RequestItem
 import io.iteratee.{Enumerator, Iteratee}
-import shapeless.Witness
+import java.nio.charset.Charset
 
-/**
-  * Iteratee module
-  */
 package object iteratee extends IterateeInstances {
-
 
   /**
     * An evaluating [[Endpoint]] that reads a required chunked streaming binary body, interpreted as
     * an `Enumerator[Future, A]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
     */
   @deprecated("Use Endpoint.streamJsonBody or Endpoint.streamBinaryBody instead", "0.27.0")
-  def enumeratorBody[F[_] : Effect, A, CT <: String](implicit
+  def enumeratorBody[F[_], A, CT <: String](implicit
+    F: Effect[F],
+    LR: LiftReader[Enumerator, F],
     decode: DecodeStream.Aux[Enumerator, F, A, CT]
   ): Endpoint[F, Enumerator[F, A]] = new Endpoint[F, Enumerator[F, A]] {
-    final def apply(input: Input): Endpoint.Result[F, Enumerator[F, A]] = {
-      if (!input.request.isChunked) EndpointResult.NotMatched[F]
-      else {
-        val req = input.request
-        EndpointResult.Matched(
-          input,
-          Trace.empty,
-          Effect[F].pure(Output.payload(decode(enumeratorLiftReader.apply(req.reader), req.charsetOrUtf8)))
-        )
-      }
-    }
-
-    final override def item: RequestItem = items.BodyItem
-    final override def toString: String = "enumeratorBody"
-  }
-
-  implicit def enumeratorLiftReader[F[_] : Effect](implicit
-    toEffect: ToEffect[Future, F]
-  ): LiftReader[Enumerator, F] =
-    LiftReader.instance { reader =>
-      def rec(reader: Reader[Buf]): Enumerator[F, Buf] = {
-        Enumerator.liftM[F, Option[Buf]] {
-          Effect[F].defer(toEffect(reader.read()))
-        }.flatMap {
-          case None => Enumerator.empty[F, Buf]
-          case Some(buf) => Enumerator.enumOne[F, Buf](buf).append(rec(reader))
+      final def apply(input: Input): Endpoint.Result[F, Enumerator[F, A]] = {
+        if (!input.request.isChunked) EndpointResult.NotMatched[F]
+        else {
+          val req = input.request
+          EndpointResult.Matched(
+            input,
+            Trace.empty,
+            F.pure(Output.payload(decode(LR(req.reader), req.charsetOrUtf8)))
+          )
         }
       }
-      rec(reader).ensure(Effect[F].delay(reader.discard()))
-    }
 
-  implicit def enumeratorToJsonResponse[F[_] : Effect, A](implicit
-    e: Encode.Aux[A, Application.Json],
-    w: Witness.Aux[Application.Json]
-  ): ToResponse.Aux[Enumerator[F, A], Application.Json] = {
-    mkToResponse[F, A, Application.Json](delimiter = Some(ToResponse.NewLine))
+      final override def item: RequestItem = items.BodyItem
+      final override def toString: String = "enumeratorBody"
   }
 
+  /**
+    * An evaluating [[Endpoint]] that reads a required chunked streaming JSON body, interpreted as
+    * an `Enumerator[Future, A]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
+    */
+  @deprecated("Use Endpoint.streamJsonBody or Endpoint.streamBinaryBody instead", "0.27.0")
+  def enumeratorJsonBody[F[_] : Effect, A](implicit
+    decode: DecodeStream.Aux[Enumerator, F, A, Application.Json]
+  ): Endpoint[F, Enumerator[F, A]] = enumeratorBody[F, A, Application.Json].withToString("enumeratorJsonBody")
 }
 
-trait IterateeInstances {
+trait IterateeInstances extends LowPriorityIterateeInstances {
 
-  implicit def enumeratorToResponse[F[_] : Effect, A, CT <: String](implicit
-    e: Encode.Aux[A, CT],
-    w: Witness.Aux[CT],
-    toEffect: ToEffect[Future, F]
-  ): ToResponse.Aux[Enumerator[F, A], CT] = {
-    mkToResponse[F, A, CT](delimiter = None)
+  implicit def enumeratorLiftReader[F[_]](implicit
+    F: Effect[F],
+    TE: ToEffect[Future, F]
+  ): LiftReader[Enumerator, F] = LiftReader.instance { reader =>
+    def loop(): Enumerator[F, Buf] = {
+      Enumerator.liftM[F, Option[Buf]] {
+        F.defer(TE(reader.read()))
+      }.flatMap {
+        case None => Enumerator.empty[F, Buf]
+        case Some(buf) => Enumerator.enumOne[F, Buf](buf).append(loop())
+      }
+    }
+
+    loop().ensure(F.delay(reader.discard()))
   }
 
-  protected def mkToResponse[F[_] : Effect, A, CT <: String](delimiter: Option[Buf])(implicit
-    e: Encode.Aux[A, CT],
-    w: Witness.Aux[CT],
-    toEffect: ToEffect[Future, F]
-  ): ToResponse.Aux[Enumerator[F, A], CT] = {
-    ToResponse.instance[Enumerator[F, A], CT]((enum, cs) => {
-      val response = Response()
-      response.setChunked(true)
-      response.contentType = w.value
-      val writer = response.writer
-      val iteratee = Iteratee.foreachM[F, Buf]((buf: Buf) => toEffect(writer.write(delimiter match {
-        case Some(d) => buf.concat(d)
-        case _ => buf
-      })))
-      val stream = enum
-        .ensure(Effect[F].defer(toEffect(writer.close())))
-        .map(e.apply(_, cs))
-        .into(iteratee)
-      Effect[F].toIO(stream).unsafeRunAsyncAndForget()
-      response
-    })
+  implicit def encodeJsonEnumerator[F[_]: Effect, A](implicit
+    A: Encode.Json[A]
+  ): EncodeStream.Json[Enumerator, F, A] =
+    new EncodeEnumerator[F, A, Application.Json] {
+      protected def encodeChunk(chunk: A, cs: Charset): Buf = A(chunk, cs)
+      override protected def writeChunk(chunk: Buf, w: Writer[Buf]): Future[Unit] =
+        w.write(chunk.concat(ToResponse.NewLine))
+    }
+
+  implicit def encodeTextEnumerator[F[_]: Effect, A](implicit
+    A: Encode.Text[A]
+  ): EncodeStream.Text[Enumerator, F, A] =
+    new EncodeEnumerator[F, A, Text.Plain] {
+      override protected def encodeChunk(chunk: A, cs: Charset): Buf = A(chunk, cs)
+    }
+}
+
+trait LowPriorityIterateeInstances {
+
+  protected abstract class EncodeEnumerator[F[_], A, CT <: String](implicit
+    F: Effect[F],
+    TE: ToEffect[Future, F]
+  ) extends EncodeStream[Enumerator, F, A] {
+
+    type ContentType = CT
+
+    protected def encodeChunk(chunk: A, cs: Charset): Buf
+    protected def writeChunk(chunk: Buf, w: Writer[Buf]): Future[Unit] = w.write(chunk)
+
+    private def writeIteratee(w: Writer[Buf]): Iteratee[F, Buf, Unit] =
+      Iteratee.foreachM[F, Buf](chunk => TE(writeChunk(chunk, w)))
+
+    def apply(s: Enumerator[F, A], cs: Charset): Reader[Buf] = {
+      val p = new Pipe[Buf]
+      val run = s
+        .ensure(F.suspend(TE(p.close())))
+        .map(chunk => encodeChunk(chunk, cs))
+        .into(writeIteratee(p))
+
+      F.toIO(run).unsafeRunAsyncAndForget()
+      p
+    }
   }
+
+  implicit def encodeBufEnumerator[F[_]: Effect, CT <: String]: EncodeStream.Aux[Enumerator, F, Buf, CT] =
+    new EncodeEnumerator[F, Buf, CT] {
+      protected def encodeChunk(chunk: Buf, cs: Charset): Buf = chunk
+    }
 }
