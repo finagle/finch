@@ -873,6 +873,7 @@ object Endpoint {
    * An evaluating [[Endpoint]] that reads a required chunked streaming binary body, interpreted as
    * an `AsyncStream[Buf]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
    */
+  @deprecated("Use streamBody endpoints (either via fs2 or iteratee) instead", "0.27")
   def asyncBody[F[_]](implicit F: Effect[F]): Endpoint[F, AsyncStream[Buf]] =
     new Endpoint[F, AsyncStream[Buf]] {
       final def apply(input: Input): EndpointResult[F, AsyncStream[Buf]] =
