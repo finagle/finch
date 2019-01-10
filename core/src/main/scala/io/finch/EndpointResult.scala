@@ -1,6 +1,6 @@
 package io.finch
 
-import cats.{Functor, Id}
+import cats.Id
 import cats.effect.Effect
 import com.twitter.finagle.http.Method
 import com.twitter.util._
@@ -43,11 +43,6 @@ sealed abstract class EndpointResult[F[_], +A] {
   final def trace: Option[Trace] = this match {
     case EndpointResult.Matched(_, trc, _) => Some(trc)
     case _ => None
-  }
-
-  final def map[B](fn: A => B)(implicit F: Effect[F]): EndpointResult[F, B] = this match {
-    case EndpointResult.Matched(rem, trc, o) => EndpointResult.Matched(rem, trc, F.map(o)(_.map(fn)))
-    case n: EndpointResult.NotMatched[F] => n
   }
 
   def awaitOutput(d: Duration = Duration.Inf)(implicit F: Effect[F]): Option[Either[Throwable, Output[A]]] = this match {
@@ -105,9 +100,4 @@ object EndpointResult {
       case _ => None
     }
   }
-
-  implicit def endpointResultInstances[F[_] : Effect]: Functor[EndpointResult[F, ?]] =
-    new Functor[EndpointResult[F, ?]] {
-      def map[A, B](fa: EndpointResult[F, A])(f: A => B): EndpointResult[F, B] = fa.map(f)
-    }
 }
