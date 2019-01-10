@@ -889,43 +889,42 @@ object Endpoint {
     }
 
   /**
-    * An evaluating [[Endpoint]] that reads a required chunked streaming binary body, interpreted as
-    * an `S[F, A]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
-    */
-  def streamBinaryBody[F[_], S[_[_], _]](implicit
-    liftReader: LiftReader[S, F],
-    F: Effect[F]
-  ): Endpoint[F, S[F, Buf]] = {
-    new Endpoint[F, S[F, Buf]] {
-      final def apply(input: Input): Endpoint.Result[F, S[F, Buf]] = {
-        if (!input.request.isChunked) EndpointResult.NotMatched[F]
-        else {
-          val req = input.request
-          EndpointResult.Matched(
-            input,
-            Trace.empty,
-            F.pure[Output[S[F, Buf]]](Output.payload(liftReader(req.reader)))
-          )
-        }
-      }
+   *
+   */
+  def binaryBodyStream[F[_]: Effect, S[_[_], _]](implicit
+    LR: LiftReader[S, F]
+  ): Endpoint[F, S[F, Array[Byte]]] = new BinaryBodyStream[F, S]
 
-      final override def item: RequestItem = items.BodyItem
-      final override def toString: String = "streamBinaryBody"
-    }
-  }
+  /**
+   *
+   */
+  def stringBodyStream[F[_]: Effect, S[_[_], _]](implicit
+    LR: LiftReader[S, F]
+  ): Endpoint[F, S[F, String]] = new StringBodyStream[F, S]
 
-  def streamJsonBody[F[_], S[_[_], _], A](implicit
-    streamDecoder: DecodeStream.Aux[S, F, A, Application.Json],
-    liftReader: LiftReader[S, F],
-    F: Effect[F]
-  ): Endpoint[F, S[F, A]] = new Endpoint[F, S[F, A]] {
-    final def apply(input: Input): Result[F, S[F, A]] = {
-      streamBinaryBody.apply(input).map(streamDecoder(_, input.request.charsetOrUtf8))
-    }
+  /**
+   *
+   */
+  def bodyStream[F[_]: Effect, S[_[_], _], A, CT <: String](implicit
+    LR: LiftReader[S, F],
+    A: DecodeStream.Aux[S, F, A, CT]
+  ): Endpoint[F, S[F, A]] = new BodyStream[F, S, A, CT]
 
-    final override def item: RequestItem = items.BodyItem
-    final override def toString: String = "streamJsonBody"
-  }
+  /**
+   *
+   */
+  def jsonBodyStream[F[_]: Effect, S[_[_], _], A](implicit
+    LR: LiftReader[S, F],
+    A: DecodeStream.Aux[S, F, A, Application.Json]
+  ) : Endpoint[F, S[F, A]] = bodyStream[F, S, A, Application.Json]
+
+  /**
+   *
+   */
+  def textBodyStream[F[_]: Effect, S[_[_], _], A](implicit
+    LR: LiftReader[S, F],
+    A: DecodeStream.Aux[S, F, A, Text.Plain]
+  ): Endpoint[F, S[F, A]] = bodyStream[F, S, A, Text.Plain]
 
   /**
    * An evaluating [[Endpoint]] that reads an optional HTTP cookie from the request into an

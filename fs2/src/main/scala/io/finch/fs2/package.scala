@@ -11,12 +11,18 @@ package object fs2 extends StreamInstances {
   implicit def streamLiftReader[F[_]](implicit
     F: Effect[F],
     TE: ToEffect[Future, F]
-  ): LiftReader[Stream, F] = LiftReader.instance { reader =>
-    Stream
-      .repeatEval(F.defer(TE(reader.read)))
-      .unNoneTerminate
-      .onFinalize(F.delay(reader.discard()))
-  }
+  ): LiftReader[Stream, F] =
+    new LiftReader[Stream, F] {
+      final def apply[A](reader: Reader[Buf], process: Buf => A): Stream[F, A] = {
+        Stream
+          .repeatEval(F.suspend(TE(reader.read())))
+          .flatMap {
+            case Some(buf) => Stream.emit[F, A](process(buf))
+            case None => Stream.empty[F, A]
+          }
+          .onFinalize(F.delay(reader.discard()))
+      }
+    }
 
   implicit def encodeJsonFs2Stream[F[_]: Effect, A](implicit
     A: Encode.Json[A]
