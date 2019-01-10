@@ -16,10 +16,8 @@ package object fs2 extends StreamInstances {
       final def apply[A](reader: Reader[Buf], process: Buf => A): Stream[F, A] = {
         Stream
           .repeatEval(F.suspend(TE(reader.read())))
-          .flatMap {
-            case Some(buf) => Stream.emit[F, A](process(buf))
-            case None => Stream.empty[F, A]
-          }
+          .unNoneTerminate
+          .map(process)
           .onFinalize(F.delay(reader.discard()))
       }
     }
