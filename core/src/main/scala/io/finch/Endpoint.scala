@@ -889,21 +889,54 @@ object Endpoint {
     }
 
   /**
+   * An [[Endpoint]] that matches chunked requests and lifts their content into a generic
+   * **binary** stream passed as a type parameter. This method, along with other `bodyStream`
+   * endpoints, are integration points with streaming libraries such as fs2 and iteratee.
    *
+   * {{{
+   *   scala> import io.finch._, io.finch.iteratee._, cats.effect.IO, io.iteratee.Enumerator
+   *
+   *   scala> val bin = Endpoint[IO].binaryBodyStream[Enumerator]
+   *   bin: Endpoint[IO, Enumerator[IO, Array[Byte]]] = binaryBodyStream
+   * }}}
    */
   def binaryBodyStream[F[_]: Effect, S[_[_], _]](implicit
     LR: LiftReader[S, F]
   ): Endpoint[F, S[F, Array[Byte]]] = new BinaryBodyStream[F, S]
 
   /**
+   * An [[Endpoint]] that matches chunked requests and lifts their content into a generic
+   * **string** stream passed as a type parameter. This method, along with other `bodyStream`
+   * endpoints, are integration points with streaming libraries such as fs2 and iteratee.
    *
+   * {{{
+   *   scala> import io.finch._, io.finch.iteratee._, cats.effect.IO, io.iteratee.Enumerator
+   *
+   *   scala> val bin = Endpoint[IO].stringBodyStream[Enumerator]
+   *   bin: Endpoint[IO, Enumerator[IO, String]] = stringBodyStream
+   * }}}
    */
   def stringBodyStream[F[_]: Effect, S[_[_], _]](implicit
     LR: LiftReader[S, F]
   ): Endpoint[F, S[F, String]] = new StringBodyStream[F, S]
 
   /**
+   * An [[Endpoint]] that matches chunked requests and lifts their content into a generic
+   * stream passed as a type parameter. This method, along with other `bodyStream`
+   * endpoints, are integration points with streaming libraries such as fs2 and iteratee.
    *
+   * When, for example, JSON library is import, this endpoint can parse an inbound JSON stream.
+   *
+   * {{{
+   *   scala> import io.finch._, io.finch.iteratee._, cats.effect.IO, io.iteratee.Enumerator
+   *
+   *   scala> import io.finch.circe._, io.circe.generic.auto._
+   *
+   *   scala> case class Foo(s: String)
+
+   *   scala> val json = Endpoint[IO].bodyStream[Enumerator, Foo, Application.Json]
+   *   bin: Endpoint[IO, Enumerator[IO, Foo]] = bodyStream
+   * }}}
    */
   def bodyStream[F[_]: Effect, S[_[_], _], A, CT <: String](implicit
     LR: LiftReader[S, F],
@@ -911,7 +944,7 @@ object Endpoint {
   ): Endpoint[F, S[F, A]] = new BodyStream[F, S, A, CT]
 
   /**
-   *
+   * See [[bodyStream]]. This is just an alias for `bodyStream[?, ?, Application.Json]`.
    */
   def jsonBodyStream[F[_]: Effect, S[_[_], _], A](implicit
     LR: LiftReader[S, F],
@@ -919,7 +952,7 @@ object Endpoint {
   ) : Endpoint[F, S[F, A]] = bodyStream[F, S, A, Application.Json]
 
   /**
-   *
+   * See [[bodyStream]]. This is just an alias for `bodyStream[?, ?, Text.Plain]`.
    */
   def textBodyStream[F[_]: Effect, S[_[_], _], A](implicit
     LR: LiftReader[S, F],

@@ -290,7 +290,7 @@ trait EndpointModule[F[_]] {
     Endpoint.asyncBody[F]
 
   /**
-   *
+   * An alias for [[Endpoint.binaryBodyStream]].
    */
   def binaryBodyStream[S[_[_], _]](implicit
     F: Effect[F],
@@ -298,7 +298,7 @@ trait EndpointModule[F[_]] {
   ): Endpoint[F, S[F, Array[Byte]]] = Endpoint.binaryBodyStream[F, S]
 
   /**
-   *
+   * An alias for [[Endpoint.stringBodyStream]].
    */
   def stringBodyStream[S[_[_], _]](implicit
     F: Effect[F],
@@ -306,7 +306,7 @@ trait EndpointModule[F[_]] {
   ): Endpoint[F, S[F, String]] = Endpoint.stringBodyStream[F, S]
 
   /**
-   *
+   * An alias for [[Endpoint.bodyStream]].
    */
   def bodyStream[S[_[_], _], A, CT <: String](implicit
     F: Effect[F],
@@ -315,7 +315,7 @@ trait EndpointModule[F[_]] {
   ): Endpoint[F, S[F, A]] = Endpoint.bodyStream[F, S, A, CT]
 
   /**
-   *
+   * An alias for [[Endpoint.jsonBodyStream]].
    */
   def jsonBodyStream[S[_[_], _], A](implicit
     F: Effect[F],
@@ -324,7 +324,7 @@ trait EndpointModule[F[_]] {
   ): Endpoint[F, S[F, A]] = Endpoint.jsonBodyStream[F, S, A]
 
   /**
-   *
+   * An alias for [[Endpoint.textBodyStream]].
    */
   def textBodyStream[S[_[_], _], A](implicit
     F: Effect[F],

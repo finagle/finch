@@ -136,4 +136,6 @@ private[finch] final class BodyStream[F[_], S[_[_], _], A, CT <: String](implici
 
   protected def prepare(r: Reader[Buf], cs: Charset): Output[S[F, A]] =
     Output.payload(A(LR(r), cs))
+
+  override def toString: String = "bodyStream"
 }
