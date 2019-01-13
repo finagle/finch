@@ -51,18 +51,21 @@ trait IterateeInstances extends LowPriorityIterateeInstances {
   implicit def enumeratorLiftReader[F[_]](implicit
     F: Effect[F],
     TE: ToEffect[Future, F]
-  ): LiftReader[Enumerator, F] = LiftReader.instance { reader =>
-    def loop(): Enumerator[F, Buf] = {
-      Enumerator.liftM[F, Option[Buf]] {
-        F.defer(TE(reader.read()))
-      }.flatMap {
-        case None => Enumerator.empty[F, Buf]
-        case Some(buf) => Enumerator.enumOne[F, Buf](buf).append(loop())
+  ): LiftReader[Enumerator, F] =
+    new LiftReader[Enumerator, F] {
+      final def apply[A](reader: Reader[Buf], process: Buf => A): Enumerator[F, A] = {
+        def loop(): Enumerator[F, A] = {
+          Enumerator
+            .liftM[F, Option[Buf]](F.suspend(TE(reader.read())))
+            .flatMap {
+              case None => Enumerator.empty[F, A]
+              case Some(buf) => Enumerator.enumOne[F, A](process(buf)).append(loop())
+            }
+        }
+
+        loop().ensure(F.delay(reader.discard()))
       }
     }
-
-    loop().ensure(F.delay(reader.discard()))
-  }
 
   implicit def encodeJsonEnumerator[F[_]: Effect, A](implicit
     A: Encode.Json[A]

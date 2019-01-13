@@ -49,7 +49,7 @@ object Main extends EndpointModule[IO] {
 
   private def stream: Stream[Int] = Stream.continually(Random.nextInt())
 
-  val sumJson: Endpoint[IO, Result] = post("sumJson" :: streamJsonBody[Enumerator, Number]) {
+  val sumJson: Endpoint[IO, Result] = post("sumJson" :: jsonBodyStream[Enumerator, Number]) {
     enum: Enumerator[IO, Number] =>
       enum.into(Iteratee.fold[IO, Number, Result](Result(0))(_ add _)).map(Ok)
   }
@@ -59,7 +59,7 @@ object Main extends EndpointModule[IO] {
   }
 
   val isPrime: Endpoint[IO, Enumerator[IO, IsPrime]] =
-    post("streamPrime" :: streamJsonBody[Enumerator, Number]) { enum: Enumerator[IO, Number] =>
+    post("streamPrime" :: jsonBodyStream[Enumerator, Number]) { enum: Enumerator[IO, Number] =>
       Ok(enum.map(_.isPrime))
     }
 

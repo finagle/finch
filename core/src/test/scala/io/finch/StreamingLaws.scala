@@ -17,7 +17,7 @@ abstract class StreamingLaws[S[_[_], _], F[_] : Effect] extends Laws with AllIns
 
   def toResponse: ToResponse[S[F, Buf]]
   def fromList:  List[Buf] => S[F, Buf]
-  def toList: S[F, Buf] => List[Buf]
+  def toList: S[F, Array[Byte]] => List[Buf]
 
   def roundTrip(a: List[Buf], cs: Charset): IsEq[List[Buf]] = {
     val req = Request()
@@ -26,16 +26,16 @@ abstract class StreamingLaws[S[_[_], _], F[_] : Effect] extends Laws with AllIns
     Reader.copy(toResponse(fromList(a), cs).reader, req.writer).ensure(req.writer.close())
 
     Endpoint
-      .streamBinaryBody[F, S]
+      .binaryBodyStream[F, S]
       .apply(Input.fromRequest(req))
       .awaitValueUnsafe()
       .map(toList)
       .get <-> a
   }
 
-  def onlyChunked: EndpointResult[F, S[F, Buf]] = {
+  def onlyChunked: EndpointResult[F, S[F, Array[Byte]]] = {
     Endpoint
-      .streamBinaryBody[F, S]
+      .binaryBodyStream[F, S]
       .apply(Input.fromRequest(Request()))
   }
 
@@ -55,7 +55,7 @@ object StreamingLaws {
 
   def apply[S[_[_], _], F[_] : Effect](
     streamFromList: List[Buf] => S[F, Buf],
-    listFromStream: S[F, Buf] => List[Buf]
+    listFromStream: S[F, Array[Byte]] => List[Buf]
   )(implicit
     tr: ToResponse.Aux[S[F, Buf], Text.Plain],
     reader: LiftReader[S, F]
@@ -63,7 +63,7 @@ object StreamingLaws {
     implicit val streamReader: LiftReader[S, F] = reader
     val toResponse: ToResponse[S[F, Buf]] = tr
     val fromList: List[Buf] => S[F, Buf] = streamFromList
-    val toList: S[F, Buf] => List[Buf] = listFromStream
+    val toList: S[F, Array[Byte]] => List[Buf] = listFromStream
   }
 
 }
