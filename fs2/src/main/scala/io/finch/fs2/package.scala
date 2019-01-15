@@ -4,6 +4,7 @@ import _root_.fs2.Stream
 import cats.effect.Effect
 import com.twitter.io.{Buf, Pipe, Reader}
 import com.twitter.util.Future
+import io.finch.internal._
 import java.nio.charset.Charset
 
 package object fs2 extends StreamInstances {
@@ -25,18 +26,12 @@ package object fs2 extends StreamInstances {
   implicit def encodeJsonFs2Stream[F[_]: Effect, A](implicit
     A: Encode.Json[A]
   ): EncodeStream.Json[Stream, F, A] =
-    new EncodeFs2Stream[F, A, Application.Json] {
-      protected def encodeChunk(chunk: A, cs: Charset): Buf =
-        A(chunk, cs).concat(Buf.ByteArray.Owned("\n".getBytes(cs)))
-    }
+    new EncodeNewLineDelimitedFs2Stream[F, A, Application.Json]
 
   implicit def encodeSseFs2Stream[F[_]: Effect, A](implicit
     A: Encode.Aux[A, Text.EventStream]
   ): EncodeStream.Aux[Stream, F, A, Text.EventStream] =
-    new EncodeFs2Stream[F, A, Text.EventStream] {
-      protected def encodeChunk(chunk: A, cs: Charset): Buf =
-        A(chunk, cs).concat(Buf.ByteArray.Owned("\n".getBytes(cs)))
-    }
+    new EncodeNewLineDelimitedFs2Stream[F, A, Text.EventStream]
 
   implicit def encodeTextFs2Stream[F[_]: Effect, A](implicit
     A: Encode.Text[A]
@@ -47,6 +42,14 @@ package object fs2 extends StreamInstances {
 }
 
 trait StreamInstances {
+
+  protected final class EncodeNewLineDelimitedFs2Stream[F[_]: Effect, A, CT <: String](implicit
+    A: Encode.Aux[A, CT]
+  ) extends EncodeFs2Stream[F, A, CT] {
+    protected def encodeChunk(chunk: A, cs: Charset): Buf =
+      A(chunk, cs).concat(NewLine)
+  }
+
   protected abstract class EncodeFs2Stream[F[_], A, CT <: String](implicit
     F: Effect[F],
     TE: ToEffect[Future, F]

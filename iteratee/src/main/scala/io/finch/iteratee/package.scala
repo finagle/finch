@@ -70,20 +70,14 @@ trait IterateeInstances extends LowPriorityIterateeInstances {
   implicit def encodeJsonEnumerator[F[_]: Effect, A](implicit
     A: Encode.Json[A]
   ): EncodeStream.Json[Enumerator, F, A] =
-    new EncodeEnumerator[F, A, Application.Json] {
-      protected def encodeChunk(chunk: A, cs: Charset): Buf =
-        A(chunk, cs).concat(Buf.ByteArray.Owned("\n".getBytes(cs)))
-    }
+    new EncodeNewLineDelimitedEnumerator[F, A, Application.Json]
 
   implicit def encodeSseEnumerator[F[_]: Effect, A](implicit
     A: Encode.Aux[A, Text.EventStream]
   ): EncodeStream.Aux[Enumerator, F, A, Text.EventStream] =
-    new EncodeEnumerator[F, A, Text.EventStream] {
-      protected def encodeChunk(chunk: A, cs: Charset): Buf =
-        A(chunk, cs).concat(Buf.ByteArray.Owned("\n".getBytes(cs)))
-    }
+    new EncodeNewLineDelimitedEnumerator[F, A, Text.EventStream]
 
-  implicit def encodeTextEnumerator[F[_]: Effect, A](implicit
+  implicit def encodeTextEnumerator[F[_]: Effect, A: Encode.Text](implicit
     A: Encode.Text[A]
   ): EncodeStream.Text[Enumerator, F, A] =
     new EncodeEnumerator[F, A, Text.Plain] {
@@ -92,6 +86,13 @@ trait IterateeInstances extends LowPriorityIterateeInstances {
 }
 
 trait LowPriorityIterateeInstances {
+
+  protected final class EncodeNewLineDelimitedEnumerator[F[_]: Effect, A, CT <: String](implicit
+    A: Encode.Aux[A, CT]
+  ) extends EncodeEnumerator[F, A, CT] {
+    protected def encodeChunk(chunk: A, cs: Charset): Buf =
+      A(chunk, cs).concat(NewLine)
+  }
 
   protected abstract class EncodeEnumerator[F[_], A, CT <: String](implicit
     F: Effect[F],
