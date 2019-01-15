@@ -1,6 +1,5 @@
 package io.finch
 
-import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.Status
 import com.twitter.io.Buf
 import java.nio.charset.{Charset, StandardCharsets}
@@ -26,15 +25,6 @@ class OutputSpec extends FinchSpec {
       (rep.content.isEmpty && !rep.isChunked) || Some(cs.displayName.toLowerCase) === rep.charset
     }
   }
-
-  it should "propagate charset to chunked response" in {
-    check { (o: Output[AsyncStream[String]], cs: Charset) =>
-      val rep = o.withCharset(cs).toResponse[Text.Plain]
-      (rep.content.isEmpty && !rep.isChunked) || Some(cs.displayName.toLowerCase) === rep.charset
-    }
-  }
-
-
 
   it should "propagate headers to response" in {
     check { (o: Output[String], headers: Headers) =>

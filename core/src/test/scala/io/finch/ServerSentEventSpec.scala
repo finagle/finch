@@ -5,11 +5,11 @@ import com.twitter.concurrent.AsyncStream
 import com.twitter.io.Buf
 import io.finch.internal.HttpContent
 import java.nio.charset.{Charset, StandardCharsets}
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Gen.Choose
 import org.scalacheck.Prop.BooleanOperators
-import org.scalacheck.{Arbitrary, Gen}
-import org.scalatest.prop.Checkers
 import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.prop.Checkers
 
 class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
 
