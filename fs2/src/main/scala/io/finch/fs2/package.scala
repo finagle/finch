@@ -31,6 +31,15 @@ package object fs2 extends StreamInstances {
         w.write(chunk.concat(ToResponse.NewLine))
     }
 
+  implicit def encodeSseFs2Stream[F[_]: Effect, A](implicit
+    A: Encode.Aux[A, Text.EventStream]
+  ): EncodeStream.Aux[Stream, F, A, Text.EventStream] =
+    new EncodeFs2Stream[F, A, Text.EventStream] {
+      protected def encodeChunk(chunk: A, cs: Charset): Buf = A(chunk, cs)
+      override protected def writeChunk(chunk: Buf, w: Writer[Buf]): Future[Unit] =
+        w.write(chunk.concat(ToResponse.NewLine))
+    }
+
   implicit def encodeTextFs2Stream[F[_]: Effect, A](implicit
     A: Encode.Text[A]
   ): EncodeStream.Text[Stream, F, A] =

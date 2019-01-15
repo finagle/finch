@@ -76,6 +76,15 @@ trait IterateeInstances extends LowPriorityIterateeInstances {
         w.write(chunk.concat(ToResponse.NewLine))
     }
 
+  implicit def encodeSseEnumerator[F[_]: Effect, A](implicit
+    A: Encode.Aux[A, Text.EventStream]
+  ): EncodeStream.Aux[Enumerator, F, A, Text.EventStream] =
+    new EncodeEnumerator[F, A, Text.EventStream] {
+      protected def encodeChunk(chunk: A, cs: Charset): Buf = A(chunk, cs)
+      override protected def writeChunk(chunk: Buf, w: Writer[Buf]): Future[Unit] =
+        w.write(chunk.concat(ToResponse.NewLine))
+    }
+
   implicit def encodeTextEnumerator[F[_]: Effect, A](implicit
     A: Encode.Text[A]
   ): EncodeStream.Text[Enumerator, F, A] =
