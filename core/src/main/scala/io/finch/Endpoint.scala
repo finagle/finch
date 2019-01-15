@@ -4,7 +4,6 @@ import cats.{Alternative, Applicative, ApplicativeError, Id, Monad, MonadError}
 import cats.data.NonEmptyList
 import cats.effect.{ContextShift, Effect, Resource, Sync}
 import cats.syntax.all._
-import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Cookie => FinagleCookie, Method => FinagleMethod, Request, Response}
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart}
@@ -868,26 +867,6 @@ object Endpoint {
    */
   def textBodyOption[F[_]: Effect, A: Decode.Text: ClassTag]: Endpoint[F, Option[A]] =
     bodyOption[F, A, Text.Plain]
-
-  /**
-   * An evaluating [[Endpoint]] that reads a required chunked streaming binary body, interpreted as
-   * an `AsyncStream[Buf]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
-   */
-  @deprecated("Use streamBody endpoints (either via fs2 or iteratee) instead", "0.27")
-  def asyncBody[F[_]](implicit F: Effect[F]): Endpoint[F, AsyncStream[Buf]] =
-    new Endpoint[F, AsyncStream[Buf]] {
-      final def apply(input: Input): EndpointResult[F, AsyncStream[Buf]] =
-        if (!input.request.isChunked) EndpointResult.NotMatched[F]
-        else
-          EndpointResult.Matched(
-            input,
-            Trace.empty,
-            F.delay(Output.payload(Reader.toAsyncStream(input.request.reader)))
-          )
-
-      final override def item: RequestItem = items.BodyItem
-      final override def toString: String = "asyncBody"
-    }
 
   /**
    * An [[Endpoint]] that matches chunked requests and lifts their content into a generic

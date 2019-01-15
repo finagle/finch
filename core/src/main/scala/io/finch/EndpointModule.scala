@@ -3,7 +3,6 @@ package io.finch
 import cats.Applicative
 import cats.data.NonEmptyList
 import cats.effect.{ContextShift, Effect, Resource, Sync}
-import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http.{Cookie, Request}
 import com.twitter.finagle.http.exp.Multipart
 import com.twitter.io.Buf
@@ -282,12 +281,6 @@ trait EndpointModule[F[_]] {
    */
   def textBodyOption[A: Decode.Text: ClassTag](implicit F: Effect[F]): Endpoint[F, Option[A]] =
     Endpoint.textBodyOption[F, A]
-
-  /**
-   * An alias for [[Endpoint.asyncBody]].
-   */
-  def asyncBody(implicit F: Effect[F]): Endpoint[F, AsyncStream[Buf]] =
-    Endpoint.asyncBody[F]
 
   /**
    * An alias for [[Endpoint.binaryBodyStream]].

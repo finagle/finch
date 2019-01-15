@@ -352,7 +352,6 @@ lazy val examples = project
     """
       |io\.finch\.div\..*;
       |io\.finch\.todo\..*;
-      |io\.finch\.streaming\..*;
       |io\.finch\.wrk\..*;
       |io\.finch\.sse\..*;
     """.stripMargin)
