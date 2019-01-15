@@ -2,7 +2,7 @@ package io.finch
 
 import _root_.fs2.Stream
 import cats.effect.Effect
-import com.twitter.io.{Buf, Pipe, Reader, Writer}
+import com.twitter.io.{Buf, Pipe, Reader}
 import com.twitter.util.Future
 import java.nio.charset.Charset
 
@@ -26,18 +26,16 @@ package object fs2 extends StreamInstances {
     A: Encode.Json[A]
   ): EncodeStream.Json[Stream, F, A] =
     new EncodeFs2Stream[F, A, Application.Json] {
-      protected def encodeChunk(chunk: A, cs: Charset): Buf = A(chunk, cs)
-      override protected def writeChunk(chunk: Buf, w: Writer[Buf]): Future[Unit] =
-        w.write(chunk.concat(ToResponse.NewLine))
+      protected def encodeChunk(chunk: A, cs: Charset): Buf =
+        A(chunk, cs).concat(Buf.ByteArray.Owned("\n".getBytes(cs)))
     }
 
   implicit def encodeSseFs2Stream[F[_]: Effect, A](implicit
     A: Encode.Aux[A, Text.EventStream]
   ): EncodeStream.Aux[Stream, F, A, Text.EventStream] =
     new EncodeFs2Stream[F, A, Text.EventStream] {
-      protected def encodeChunk(chunk: A, cs: Charset): Buf = A(chunk, cs)
-      override protected def writeChunk(chunk: Buf, w: Writer[Buf]): Future[Unit] =
-        w.write(chunk.concat(ToResponse.NewLine))
+      protected def encodeChunk(chunk: A, cs: Charset): Buf =
+        A(chunk, cs).concat(Buf.ByteArray.Owned("\n".getBytes(cs)))
     }
 
   implicit def encodeTextFs2Stream[F[_]: Effect, A](implicit
@@ -57,13 +55,12 @@ trait StreamInstances {
     type ContentType = CT
 
     protected def encodeChunk(chunk: A, cs: Charset): Buf
-    protected def writeChunk(chunk: Buf, w: Writer[Buf]): Future[Unit] = w.write(chunk)
 
     def apply(s: Stream[F, A], cs: Charset): Reader[Buf] = {
       val p = new Pipe[Buf]
       val run = s
         .map(chunk => encodeChunk(chunk, cs))
-        .evalMap(chunk => TE(writeChunk(chunk, p)))
+        .evalMap(chunk => TE(p.write(chunk)))
         .onFinalize(F.suspend(TE(p.close())))
         .compile
         .drain
