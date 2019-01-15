@@ -20,9 +20,6 @@ package object internal {
   // Missing in StandardCharsets.
   val Utf32: Charset = Charset.forName("UTF-32")
 
-  // `\n` encode in Buf
-  val NewLine: Buf = Buf.ByteArray.Owned(Array(10.toByte))
-
   /**
    * Enriches any string with fast `tooX` conversions.
    */

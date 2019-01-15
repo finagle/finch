@@ -47,7 +47,7 @@ trait StreamInstances {
     A: Encode.Aux[A, CT]
   ) extends EncodeFs2Stream[F, A, CT] {
     protected def encodeChunk(chunk: A, cs: Charset): Buf =
-      A(chunk, cs).concat(NewLine)
+      A(chunk, cs).concat(newLine(cs))
   }
 
   protected abstract class EncodeFs2Stream[F[_], A, CT <: String](implicit
