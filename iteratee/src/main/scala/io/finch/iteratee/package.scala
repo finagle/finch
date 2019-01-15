@@ -77,7 +77,7 @@ trait IterateeInstances extends LowPriorityIterateeInstances {
   ): EncodeStream.Aux[Enumerator, F, A, Text.EventStream] =
     new EncodeNewLineDelimitedEnumerator[F, A, Text.EventStream]
 
-  implicit def encodeTextEnumerator[F[_]: Effect, A: Encode.Text](implicit
+  implicit def encodeTextEnumerator[F[_]: Effect, A](implicit
     A: Encode.Text[A]
   ): EncodeStream.Text[Enumerator, F, A] =
     new EncodeEnumerator[F, A, Text.Plain] {
