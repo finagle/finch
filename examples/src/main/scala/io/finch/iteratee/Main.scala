@@ -1,10 +1,12 @@
 package io.finch.iteratee
 
-import cats.effect.IO
-import com.twitter.finagle.Http
-import com.twitter.util.Await
+import cats.effect.{ExitCode, IO, IOApp, Resource}
+import cats.implicits._
+import com.twitter.finagle.{Http, ListeningServer}
+import com.twitter.util.Future
 import io.circe.generic.auto._
 import io.finch._
+import io.finch.catsEffect._
 import io.finch.circe._
 import io.iteratee.{Enumerator, Iteratee}
 import scala.util.Random
@@ -35,7 +37,7 @@ import scala.util.Random
   *   $ curl -X POST --header "Transfer-Encoding: chunked" -d '{"i": 40} {"i": 42}' localhost:8081/streamPrime
   * }}}
   */
-object Main extends EndpointModule[IO] {
+object Main extends IOApp {
 
   final case class Result(result: Int) {
     def add(n: Number): Result = copy(result = result + n.i)
@@ -63,9 +65,17 @@ object Main extends EndpointModule[IO] {
       Ok(enum.map(_.isPrime))
     }
 
-  def main(args: Array[String]): Unit = Await.result(
+  def serve: IO[ListeningServer] = IO(
     Http.server
       .withStreaming(enabled = true)
       .serve(":8081", (sumJson :+: streamJson :+: isPrime).toServiceAs[Application.Json])
+  )
+
+  def run(args: List[String]): IO[ExitCode] = {
+    val server = Resource.make(serve)(s =>
+      IO.suspend(implicitly[ToEffect[Future, IO]].apply(s.close()))
     )
+
+    server.use(_ => IO.never).as(ExitCode.Success)
+  }
 }

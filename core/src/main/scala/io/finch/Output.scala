@@ -199,27 +199,30 @@ object Output {
     /**
      * Converts this [[Output]] to the HTTP response of the given `version`.
      */
-    def toResponse[CT](implicit
-      tr: ToResponse.Aux[A, CT],
-      tre: ToResponse.Aux[Exception, CT]
-    ): Response = {
-      val rep = o match {
+    def toResponse[F[_], CT](implicit
+      F: Applicative[F],
+      tr: ToResponse.Aux[F, A, CT],
+      tre: ToResponse.Aux[F, Exception, CT]
+    ): F[Response] = {
+      val rep0 = o match {
         case p: Output.Payload[A] => tr(p.value, p.charset.getOrElse(StandardCharsets.UTF_8))
         case f: Output.Failure => tre(f.cause, f.charset.getOrElse(StandardCharsets.UTF_8))
-        case e: Output.Empty => Response()
+        case _: Output.Empty => F.pure(Response())
       }
 
-      rep.status = o.status
+      F.map(rep0) { rep =>
+        rep.status = o.status
 
-      o.headers.foreach { case (k, v) => rep.headerMap.set(k, v) }
-      o.cookies.foreach(rep.cookies.add)
-      o.charset.foreach { c =>
-        if (!rep.content.isEmpty || rep.isChunked) {
-          rep.charset = c.displayName.toLowerCase
+        o.headers.foreach { case (k, v) => rep.headerMap.set(k, v) }
+        o.cookies.foreach(rep.cookies.add)
+        o.charset.foreach { c =>
+          if (!rep.content.isEmpty || rep.isChunked) {
+            rep.charset = c.displayName.toLowerCase
+          }
         }
-      }
 
-      rep
+        rep
+      }
     }
   }
 }

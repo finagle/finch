@@ -1,6 +1,7 @@
 package io.finch
 
 import cats.Eq
+import cats.effect.Effect
 import com.twitter.finagle.http.{Method, Request}
 import com.twitter.finagle.netty3.ChannelBufferBuf
 import com.twitter.io.{Buf, Reader}
@@ -131,15 +132,16 @@ object Input {
       Input(copied, i.route)
     }
 
-    def apply[S[_[_], _], F[_], A](s: S[F, A])(implicit
-      S: EncodeStream.Aux[S, F, A, CT], W: Witness.Aux[CT]
-    ): Input = apply[S, F, A](s, StandardCharsets.UTF_8)
+    def apply[F[_]: Effect, S[_[_], _], A](s: S[F, A])(implicit
+      S: EncodeStream.Aux[F, S, A, CT], W: Witness.Aux[CT]
+    ): Input = apply[F, S, A](s, StandardCharsets.UTF_8)
 
-    def apply[S[_[_], _], F[_], A](s: S[F, A], charset: Charset)(implicit
-      S: EncodeStream.Aux[S, F, A, CT],
+    def apply[F[_], S[_[_], _], A](s: S[F, A], charset: Charset)(implicit
+      F: Effect[F],
+      S: EncodeStream.Aux[F, S, A, CT],
       W: Witness.Aux[CT]
     ): Input = {
-      val content = S(s, charset)
+      val content = F.toIO(S(s, charset)).unsafeRunSync()
       val copied = copyRequestWithReader(i.request, content)
 
       copied.setChunked(true)

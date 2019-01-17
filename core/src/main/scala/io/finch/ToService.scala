@@ -100,9 +100,9 @@ object ToService {
   type IsNegotiable[C] = OrElse[C <:< Coproduct, DummyImplicit]
 
   implicit def hlistTS[F[_], A, EH <: Endpoint[F, A], ET <: HList, CTH, CTT <: HList](implicit
-    ntrA: ToResponse.Negotiable[A, CTH],
-    ntrE: ToResponse.Negotiable[Exception, CTH],
-    effect: Effect[F],
+    ntrA: ToResponse.Negotiable[F, A, CTH],
+    ntrE: ToResponse.Negotiable[F, Exception, CTH],
+    F: Effect[F],
     tsT: ToService[ET, CTT],
     isNegotiable: IsNegotiable[CTH]
   ): ToService[Endpoint[F, A] :: ET, CTH :: CTT] = new ToService[Endpoint[F, A] :: ET, CTH :: CTT] {
@@ -120,26 +120,23 @@ object ToService {
             Trace.captureIfNeeded(trc)
 
             val accept = if (negotiateContent) req.accept.map(a => Accept.fromString(a)).toList else Nil
-
             val rep = new Promise[Response]
+            val repF = F.flatMap(out)(oa => oa.toResponse(F, ntrA(accept), ntrE(accept)))
 
-            (effect match {
+            val run = (F match {
               case concurrent: ConcurrentEffect[F] =>
-                (concurrent.runCancelable(out) _).andThen(io => io.map(cancelToken =>
+                (concurrent.runCancelable(repF) _).andThen(io => io.map(cancelToken =>
                   rep.setInterruptHandler {
                     case _ => concurrent.toIO(cancelToken).unsafeRunAsyncAndForget()
                   }
                 ))
-              case e => e.runAsync(out) _
+              case e => e.runAsync(repF) _
             }) {
               case Left(t) => IO(rep.setException(t))
-              case Right(v) => IO {
-                rep.setValue(
-                  conformHttp(v.toResponse(ntrA(accept), ntrE(accept)), req.version, opts)
-                )
-              }
-            }.unsafeRunSync()
+              case Right(v) => IO(rep.setValue(conformHttp(v, req.version, opts)))
+            }
 
+            run.unsafeRunSync()
             rep
 
           case EndpointResult.NotMatched.MethodNotAllowed(allowed) =>

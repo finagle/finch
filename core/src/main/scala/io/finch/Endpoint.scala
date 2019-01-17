@@ -266,9 +266,9 @@ trait Endpoint[F[_], A] { self =>
     * Consider using [[io.finch.Bootstrap]] instead.
     */
   final def toService(implicit
-    tr: ToResponse.Aux[A, Application.Json],
-    tre: ToResponse.Aux[Exception, Application.Json],
-    F: Effect[F]
+    F: Effect[F],
+    tr: ToResponse.Aux[F, A, Application.Json],
+    tre: ToResponse.Aux[F, Exception, Application.Json]
   ): Service[Request, Response] = toServiceAs[Application.Json]
 
   /**
@@ -278,9 +278,9 @@ trait Endpoint[F[_], A] { self =>
     * Consider using [[io.finch.Bootstrap]] instead.
     */
   final def toServiceAs[CT <: String](implicit
-    tr: ToResponse.Aux[A, CT],
-    tre: ToResponse.Aux[Exception, CT],
-    F: Effect[F]
+    F: Effect[F],
+    tr: ToResponse.Aux[F, A, CT],
+    tre: ToResponse.Aux[F, Exception, CT]
   ): Service[Request, Response] = Bootstrap.serve[CT](this).toService
 
   /**

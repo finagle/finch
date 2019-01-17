@@ -1,5 +1,6 @@
 package io.finch
 
+import cats.Id
 import cats.effect.IO
 import com.twitter.finagle.http.Response
 import com.twitter.util.{Future => TwitterFuture}
@@ -14,7 +15,8 @@ class MethodSpec
 
   behavior of "method"
 
-  implicit val arbResponse: Arbitrary[Response] = Arbitrary(genOutput[String].map(_.toResponse[Text.Plain]))
+  implicit val arbResponse: Arbitrary[Response] =
+    Arbitrary(genOutput[String].map(_.toResponse[Id, Text.Plain]))
 
   it should "map Output value to endpoint" in {
     checkValue((i: String) => get(zero) { Ok(i) })
@@ -38,15 +40,15 @@ class MethodSpec
   }
 
   it should "map F[Response] value to endpoint" in {
-    checkValue((i: Response) => get(zero) { IO.pure(Ok(i).toResponse[Text.Plain]) })
+    checkValue((i: Response) => get(zero) { IO.pure(Ok(i).toResponse[Id, Text.Plain]) })
   }
 
   it should "map TwitterFuture[Response] value to endpoint" in {
-    checkValue((i: Response) => get(zero) { TwitterFuture.value(Ok(i).toResponse[Text.Plain]) })
+    checkValue((i: Response) => get(zero) { TwitterFuture.value(Ok(i).toResponse[Id, Text.Plain]) })
   }
 
   it should "map ScalaFuture[Response] value to endpoint" in {
-    checkValue((i: Response) => get(zero) { ScalaFuture.successful(Ok(i).toResponse[Text.Plain]) })
+    checkValue((i: Response) => get(zero) { ScalaFuture.successful(Ok(i).toResponse[Id, Text.Plain]) })
   }
 
   it should "map A => Output function to endpoint" in {
@@ -54,7 +56,7 @@ class MethodSpec
   }
 
   it should "map A => Response function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => Ok(i).toResponse[Text.Plain] })
+    checkFunction(get(path[Int]) { i: Int => Ok(i).toResponse[Id, Text.Plain] })
   }
 
   it should "map A => F[Output[A]] function to endpoint" in {
@@ -70,15 +72,15 @@ class MethodSpec
   }
 
   it should "map A => F[Response] function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => IO.pure(i).map(Ok(_).toResponse[Text.Plain]) })
+    checkFunction(get(path[Int]) { i: Int => IO.pure(i).map(Ok(_).toResponse[Id, Text.Plain]) })
   }
 
   it should "map A => TwitterFuture[Response] function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => TwitterFuture.value(i).map(Ok(_).toResponse[Text.Plain]) })
+    checkFunction(get(path[Int]) { i: Int => TwitterFuture.value(i).map(Ok(_).toResponse[Id, Text.Plain]) })
   }
 
   it should "map A => ScalaFuture[Response] function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => ScalaFuture.successful(i).map(Ok(_).toResponse[Text.Plain]) })
+    checkFunction(get(path[Int]) { i: Int => ScalaFuture.successful(i).map(Ok(_).toResponse[Id, Text.Plain]) })
   }
 
   it should "map (A, B) => Output function to endpoint" in {
@@ -86,7 +88,7 @@ class MethodSpec
   }
 
   it should "map (A, B) => Response function to endpoint" in {
-    checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) => Ok(s"$x$y").toResponse[Text.Plain] })
+    checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) => Ok(s"$x$y").toResponse[Id, Text.Plain] })
   }
 
   it should "map (A, B) => F[Output[String]] function to endpoint" in {
@@ -103,17 +105,17 @@ class MethodSpec
 
   it should "map (A, B) => F[Response] function to endpoint" in {
     checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
-      IO.pure(Ok(s"$x$y").toResponse[Text.Plain]) })
+      IO.pure(Ok(s"$x$y").toResponse[Id, Text.Plain]) })
   }
 
   it should "map (A, B) => TwitterFuture[Response] function to endpoint" in {
     checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
-      TwitterFuture.value(Ok(s"$x$y").toResponse[Text.Plain]) })
+      TwitterFuture.value(Ok(s"$x$y").toResponse[Id, Text.Plain]) })
   }
 
   it should "map (A, B) => ScalaFuture[Response] function to endpoint" in {
     checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
-      ScalaFuture.successful(Ok(s"$x$y").toResponse[Text.Plain]) })
+      ScalaFuture.successful(Ok(s"$x$y").toResponse[Id, Text.Plain]) })
   }
 
   behavior of "Custom Type Program[_]"
@@ -143,12 +145,12 @@ class MethodSpec
   }
 
   it should "map A => Program[Response] function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => Program(Ok(i).toResponse[Text.Plain]) })
+    checkFunction(get(path[Int]) { i: Int => Program(Ok(i).toResponse[Id, Text.Plain]) })
   }
 
   it should "map (A, B) => Program[Response] function to endpoint" in {
     checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
-      Program(Ok(s"$x$y").toResponse[Text.Plain])
+      Program(Ok(s"$x$y").toResponse[Id, Text.Plain])
     })
   }
 
