@@ -70,11 +70,12 @@ trait IterateeInstances extends LowPriorityIterateeInstances {
   implicit def encodeJsonEnumerator[F[_]: Effect, A](implicit
     A: Encode.Json[A]
   ): EncodeStream.Json[Enumerator, F, A] =
-    new EncodeEnumerator[F, A, Application.Json] {
-      protected def encodeChunk(chunk: A, cs: Charset): Buf = A(chunk, cs)
-      override protected def writeChunk(chunk: Buf, w: Writer[Buf]): Future[Unit] =
-        w.write(chunk.concat(ToResponse.NewLine))
-    }
+    new EncodeNewLineDelimitedEnumerator[F, A, Application.Json]
+
+  implicit def encodeSseEnumerator[F[_]: Effect, A](implicit
+    A: Encode.Aux[A, Text.EventStream]
+  ): EncodeStream.Aux[Enumerator, F, A, Text.EventStream] =
+    new EncodeNewLineDelimitedEnumerator[F, A, Text.EventStream]
 
   implicit def encodeTextEnumerator[F[_]: Effect, A](implicit
     A: Encode.Text[A]
@@ -86,6 +87,13 @@ trait IterateeInstances extends LowPriorityIterateeInstances {
 
 trait LowPriorityIterateeInstances {
 
+  protected final class EncodeNewLineDelimitedEnumerator[F[_]: Effect, A, CT <: String](implicit
+    A: Encode.Aux[A, CT]
+  ) extends EncodeEnumerator[F, A, CT] {
+    protected def encodeChunk(chunk: A, cs: Charset): Buf =
+      A(chunk, cs).concat(newLine(cs))
+  }
+
   protected abstract class EncodeEnumerator[F[_], A, CT <: String](implicit
     F: Effect[F],
     TE: ToEffect[Future, F]
@@ -94,10 +102,9 @@ trait LowPriorityIterateeInstances {
     type ContentType = CT
 
     protected def encodeChunk(chunk: A, cs: Charset): Buf
-    protected def writeChunk(chunk: Buf, w: Writer[Buf]): Future[Unit] = w.write(chunk)
 
     private def writeIteratee(w: Writer[Buf]): Iteratee[F, Buf, Unit] =
-      Iteratee.foreachM[F, Buf](chunk => TE(writeChunk(chunk, w)))
+      Iteratee.foreachM[F, Buf](chunk => TE(w.write(chunk)))
 
     def apply(s: Enumerator[F, A], cs: Charset): Reader[Buf] = {
       val p = new Pipe[Buf]

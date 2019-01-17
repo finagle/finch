@@ -236,7 +236,7 @@ lazy val finch = project.in(file("."))
     "io.circe" %% "circe-generic" % circeVersion
   ))
   .aggregate(
-    core, fs2, iteratee, generic, argonaut, circe, benchmarks, test, jsonTest, examples, sse, refined
+    core, fs2, iteratee, generic, argonaut, circe, benchmarks, test, jsonTest, examples, refined
   )
   .dependsOn(core, iteratee, generic, circe)
 
@@ -311,11 +311,6 @@ lazy val circe = project
   )
   .dependsOn(core, jsonTest % "test")
 
-lazy val sse = project
-  .settings(moduleName := "finchx-sse")
-  .settings(allSettings)
-  .dependsOn(core)
-
 lazy val refined = project
   .settings(moduleName := "finchx-refined")
   .settings(allSettings)
@@ -341,7 +336,7 @@ lazy val docs = project
     )
   )
   .enablePlugins(MicrositesPlugin, ScalaUnidocPlugin)
-  .dependsOn(core, circe, sse, argonaut, iteratee, refined)
+  .dependsOn(core, circe, argonaut, iteratee, refined)
 
 lazy val examples = project
   .settings(moduleName := "finchx-examples")
@@ -353,7 +348,7 @@ lazy val examples = project
       |io\.finch\.div\..*;
       |io\.finch\.todo\..*;
       |io\.finch\.wrk\..*;
-      |io\.finch\.sse\..*;
+      |io\.finch\.iteratee\..*;
     """.stripMargin)
   .settings(
     libraryDependencies ++= Seq(

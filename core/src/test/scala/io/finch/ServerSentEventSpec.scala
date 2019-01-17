@@ -1,4 +1,4 @@
-package io.finch.sse
+package io.finch
 
 import cats.Show
 import com.twitter.concurrent.AsyncStream
