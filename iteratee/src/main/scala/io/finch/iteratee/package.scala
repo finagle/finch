@@ -4,49 +4,10 @@ import cats.effect.Effect
 import com.twitter.io._
 import com.twitter.util.Future
 import io.finch.internal._
-import io.finch.items.RequestItem
 import io.iteratee.{Enumerator, Iteratee}
 import java.nio.charset.Charset
 
 package object iteratee extends IterateeInstances {
-
-  /**
-    * An evaluating [[Endpoint]] that reads a required chunked streaming binary body, interpreted as
-    * an `Enumerator[Future, A]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
-    */
-  @deprecated("Use Endpoint.streamJsonBody or Endpoint.streamBinaryBody instead", "0.27.0")
-  def enumeratorBody[F[_], A, CT <: String](implicit
-    F: Effect[F],
-    LR: LiftReader[Enumerator, F],
-    decode: DecodeStream.Aux[Enumerator, F, A, CT]
-  ): Endpoint[F, Enumerator[F, A]] = new Endpoint[F, Enumerator[F, A]] {
-      final def apply(input: Input): Endpoint.Result[F, Enumerator[F, A]] = {
-        if (!input.request.isChunked) EndpointResult.NotMatched[F]
-        else {
-          val req = input.request
-          EndpointResult.Matched(
-            input,
-            Trace.empty,
-            F.pure(Output.payload(decode(LR(req.reader), req.charsetOrUtf8)))
-          )
-        }
-      }
-
-      final override def item: RequestItem = items.BodyItem
-      final override def toString: String = "enumeratorBody"
-  }
-
-  /**
-    * An evaluating [[Endpoint]] that reads a required chunked streaming JSON body, interpreted as
-    * an `Enumerator[Future, A]`. The returned [[Endpoint]] only matches chunked (streamed) requests.
-    */
-  @deprecated("Use Endpoint.streamJsonBody or Endpoint.streamBinaryBody instead", "0.27.0")
-  def enumeratorJsonBody[F[_] : Effect, A](implicit
-    decode: DecodeStream.Aux[Enumerator, F, A, Application.Json]
-  ): Endpoint[F, Enumerator[F, A]] = enumeratorBody[F, A, Application.Json].withToString("enumeratorJsonBody")
-}
-
-trait IterateeInstances extends LowPriorityIterateeInstances {
 
   implicit def enumeratorLiftReader[F[_]](implicit
     F: Effect[F],
@@ -83,9 +44,10 @@ trait IterateeInstances extends LowPriorityIterateeInstances {
     new EncodeEnumerator[F, A, Text.Plain] {
       override protected def encodeChunk(chunk: A, cs: Charset): Buf = A(chunk, cs)
     }
+
 }
 
-trait LowPriorityIterateeInstances {
+trait IterateeInstances {
 
   protected final class EncodeNewLineDelimitedEnumerator[F[_]: Effect, A, CT <: String](implicit
     A: Encode.Aux[A, CT]
