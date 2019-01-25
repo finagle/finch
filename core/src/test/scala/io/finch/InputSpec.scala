@@ -2,6 +2,7 @@ package io.finch
 
 import java.nio.charset.Charset
 
+import cats.effect.IO
 import com.twitter.finagle.http.Method
 import com.twitter.io.{Buf, Pipe, Reader}
 import com.twitter.util.{Await, Future}
@@ -35,19 +36,19 @@ class InputSpec extends FinchSpec {
     }
   }
 
-  it should "add fully-buffered content through withBody" in {
+  it should "add fully-buffered content via withBody" in {
     check { (i: Input, b: Buf) =>
       i.withBody[Text.Plain](b).request.content === b
     }
   }
 
-  it should "add chunked content throhg withBody" in {
+  it should "add chunked content via withBody" in {
     type ListStream[F[_], A] = List[A]
-    implicit def listToReader[F[_], CT <: String]: EncodeStream.Aux[ListStream, F, Buf, CT] =
-      new EncodeStream[ListStream, F, Buf] {
+    implicit def listToReader[CT <: String]: EncodeStream.Aux[IO, ListStream, Buf, CT] =
+      new EncodeStream[IO, ListStream, Buf] {
         type ContentType = CT
 
-        def apply(s: ListStream[F, Buf], cs: Charset): Reader[Buf] = {
+        def apply(s: ListStream[IO, Buf], cs: Charset): IO[Reader[Buf]] = {
           val p = new Pipe[Buf]
 
           def loop(from: List[Buf]): Future[Unit] = from match {
@@ -56,12 +57,12 @@ class InputSpec extends FinchSpec {
           }
 
           loop(s)
-          p
+          IO.pure(p)
         }
       }
 
     check { (i: Input, s: List[Buf]) =>
-      val out = i.withBody[Application.OctetStream].apply[ListStream, Future, Buf](s).request.reader
+      val out = i.withBody[Application.OctetStream].apply[IO, ListStream, Buf](s).request.reader
       s.forall(buf => buf == Await.result(out.read()).get)
     }
   }

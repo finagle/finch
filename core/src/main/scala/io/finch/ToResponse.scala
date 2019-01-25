@@ -1,5 +1,7 @@
 package io.finch
 
+import cats.{Applicative, Functor}
+import cats.effect.Effect
 import com.twitter.finagle.http.{Response, Status, Version}
 import java.nio.charset.Charset
 import scala.annotation.implicitNotFound
@@ -8,10 +10,10 @@ import shapeless._
 /**
  * Represents a conversion from `A` to [[Response]].
  */
-trait ToResponse[A] {
+trait ToResponse[F[_], A] {
   type ContentType
 
-  def apply(a: A, cs: Charset): Response
+  def apply(a: A, cs: Charset): F[Response]
 }
 
 trait ToResponseInstances {
@@ -28,40 +30,45 @@ trait ToResponseInstances {
   See https://github.com/finagle/finch/blob/master/docs/src/main/tut/cookbook.md#fixing-the-toservice-compile-error
 """
   )
-  type Aux[A, CT] = ToResponse[A] { type ContentType = CT }
+  type Aux[F[_], A, CT] = ToResponse[F, A] { type ContentType = CT }
 
-  def instance[A, CT](fn: (A, Charset) => Response): Aux[A, CT] = new ToResponse[A] {
+  def instance[F[_], A, CT](fn: (A, Charset) => F[Response]): Aux[F, A, CT] = new ToResponse[F, A] {
     type ContentType = CT
-    def apply(a: A, cs: Charset): Response = fn(a, cs)
+    def apply(a: A, cs: Charset): F[Response] = fn(a, cs)
   }
 
-  implicit def responseToResponse[CT <: String]: Aux[Response, CT] = instance((r, _) => r)
+  implicit def responseToResponse[F[_], CT <: String](implicit
+    F: Applicative[F]
+  ): Aux[F, Response, CT] = instance((r, _) => F.pure(r))
 
-  implicit def valueToResponse[A, CT <: String](implicit
-    e: Encode.Aux[A, CT],
-    w: Witness.Aux[CT]
-  ): Aux[A, CT] = instance { (a, cs) =>
-    val buf = e(a, cs)
+  implicit def valueToResponse[F[_], A, CT <: String](implicit
+    F: Applicative[F],
+    A: Encode.Aux[A, CT],
+    CT: Witness.Aux[CT]
+  ): Aux[F, A, CT] = instance { (a, cs) =>
+    val buf = A(a, cs)
     val rep = Response(Version.Http11, Status.Ok)
 
     if (!buf.isEmpty) {
       rep.content = buf
-      rep.headerMap.setUnsafe("Content-Type", w.value)
+      rep.headerMap.setUnsafe("Content-Type", CT.value)
     }
 
-    rep
+    F.pure(rep)
   }
 
-  implicit def streamToResponse[S[_[_], _], F[_], A, CT <: String](implicit
-    E: EncodeStream.Aux[S, F, A, CT],
-    W: Witness.Aux[CT]
-  ): Aux[S[F, A], CT] = instance { (a, cs) =>
-    val stream = E(a, cs)
-    val rep = Response(Version.Http11, Status.Ok, stream)
-    rep.headerMap.setUnsafe("Content-Type", W.value)
-    rep.headerMap.setUnsafe("Transfer-Encoding", "chunked")
+  implicit def streamToResponse[F[_], S[_[_], _], A, CT <: String](implicit
+    F: Functor[F],
+    S: EncodeStream.Aux[F, S, A, CT],
+    CT: Witness.Aux[CT]
+  ): Aux[F, S[F, A], CT] = instance { (a, cs) =>
+    F.map(S(a, cs)) { stream =>
+      val rep = Response(Version.Http11, Status.Ok, stream)
+      rep.headerMap.setUnsafe("Content-Type", CT.value)
+      rep.headerMap.setUnsafe("Transfer-Encoding", "chunked")
 
-    rep
+      rep
+    }
   }
 }
 
@@ -72,59 +79,60 @@ object ToResponse extends ToResponseInstances {
    *
    * Picks corresponding instance of `ToResponse` according to `Accept` header of a request
    */
-  trait Negotiable[A, CT] {
-    def apply(accept: List[Accept]): ToResponse.Aux[A, CT]
+  trait Negotiable[F[_], A, CT] {
+    def apply(accept: List[Accept]): ToResponse.Aux[F, A, CT]
   }
 
   object Negotiable {
 
-    implicit def coproductToNegotiable[A, CTH <: String, CTT <: Coproduct](implicit
-      h: ToResponse.Aux[A, CTH],
-      t: Negotiable[A, CTT],
+    implicit def coproductToNegotiable[F[_], A, CTH <: String, CTT <: Coproduct](implicit
+      h: ToResponse.Aux[F, A, CTH],
+      t: Negotiable[F, A, CTT],
       a: Accept.Matcher[CTH]
-    ): Negotiable[A, CTH :+: CTT] = new Negotiable[A, CTH :+: CTT] {
-      def apply(accept: List[Accept]): ToResponse.Aux[A, CTH :+: CTT] =
-        if (accept.exists(_.matches[CTH])) h.asInstanceOf[ToResponse.Aux[A, CTH :+: CTT]]
-        else t(accept).asInstanceOf[ToResponse.Aux[A, CTH :+: CTT]]
+    ): Negotiable[F, A, CTH :+: CTT] = new Negotiable[F, A, CTH :+: CTT] {
+      def apply(accept: List[Accept]): ToResponse.Aux[F, A, CTH :+: CTT] =
+        if (accept.exists(_.matches[CTH])) h.asInstanceOf[ToResponse.Aux[F, A, CTH :+: CTT]]
+        else t(accept).asInstanceOf[ToResponse.Aux[F, A, CTH :+: CTT]]
     }
 
-    implicit def cnilToNegotiable[A, CTH <: String](implicit
-      tr: ToResponse.Aux[A, CTH]
-    ): Negotiable[A, CTH :+: CNil] = new Negotiable[A, CTH :+: CNil] {
-      def apply(accept: List[Accept]): ToResponse.Aux[A, CTH :+: CNil] =
-        tr.asInstanceOf[ToResponse.Aux[A, CTH :+: CNil]]
+    implicit def cnilToNegotiable[F[_], A, CTH <: String](implicit
+      tr: ToResponse.Aux[F, A, CTH]
+    ): Negotiable[F, A, CTH :+: CNil] = new Negotiable[F, A, CTH :+: CNil] {
+      def apply(accept: List[Accept]): ToResponse.Aux[F, A, CTH :+: CNil] =
+        tr.asInstanceOf[ToResponse.Aux[F, A, CTH :+: CNil]]
     }
 
-    implicit def singleToNegotiable[A, CT <: String](implicit
-      tr: ToResponse.Aux[A, CT]
-    ): Negotiable[A, CT] = new Negotiable[A, CT] {
-      def apply(accept: List[Accept]): ToResponse.Aux[A, CT] = tr
+    implicit def singleToNegotiable[F[_], A, CT <: String](implicit
+      tr: ToResponse.Aux[F, A, CT]
+    ): Negotiable[F, A, CT] = new Negotiable[F, A, CT] {
+      def apply(accept: List[Accept]): ToResponse.Aux[F, A, CT] = tr
     }
   }
 
-  trait FromCoproduct[C <: Coproduct] extends ToResponse[C]
+  trait FromCoproduct[F[_], C <: Coproduct] extends ToResponse[F, C]
 
   object FromCoproduct {
-    type Aux[C <: Coproduct, CT] = FromCoproduct[C] { type ContentType = CT }
+    type Aux[F[_], C <: Coproduct, CT] = FromCoproduct[F, C] { type ContentType = CT }
 
-    def instance[C <: Coproduct, CT <: String](fn: (C, Charset) => Response): Aux[C, CT] =
-      new FromCoproduct[C] {
+    def instance[F[_], C <: Coproduct, CT <: String](fn: (C, Charset) => F[Response]): Aux[F, C, CT] =
+      new FromCoproduct[F, C] {
         type ContentType = CT
-        def apply(c: C, cs: Charset): Response = fn(c, cs)
+        def apply(c: C, cs: Charset): F[Response] = fn(c, cs)
       }
 
-    implicit def cnilToResponse[CT <: String]: Aux[CNil, CT] =
-      instance((_, _) => Response(Version.Http10, Status.NotFound))
+    implicit def cnilToResponse[F[_], CT <: String](implicit
+      F: Applicative[F]
+    ): Aux[F, CNil, CT] = instance((_, _) => F.pure(Response(Version.Http10, Status.NotFound)))
 
-    implicit def cconsToResponse[L, R <: Coproduct, CT <: String](
-      implicit trL: ToResponse.Aux[L, CT], fcR: Aux[R, CT]
-    ): Aux[L :+: R, CT] = instance {
+    implicit def cconsToResponse[F[_], L, R <: Coproduct, CT <: String](
+      implicit trL: ToResponse.Aux[F, L, CT], fcR: Aux[F, R, CT]
+    ): Aux[F, L :+: R, CT] = instance {
       case (Inl(h), cs) => trL(h, cs)
       case (Inr(t), cs) => fcR(t, cs)
     }
   }
 
-  implicit def coproductToResponse[C <: Coproduct, CT <: String](
-    implicit fc: FromCoproduct.Aux[C, CT]
-  ): Aux[C, CT] = fc
+  implicit def coproductToResponse[F[_], C <: Coproduct, CT <: String](
+    implicit fc: FromCoproduct.Aux[F, C, CT]
+  ): Aux[F, C, CT] = fc
 }

@@ -1,5 +1,6 @@
 package io.finch
 
+import cats.Id
 import com.twitter.finagle.http.Status
 import com.twitter.io.Buf
 import java.nio.charset.{Charset, StandardCharsets}
@@ -10,32 +11,32 @@ class OutputSpec extends FinchSpec {
   behavior of "Output"
 
   it should "propagate status to response" in {
-    check { o: Output[String] => o.toResponse[Text.Plain].status == o.status }
+    check { o: Output[String] => o.toResponse[Id, Text.Plain].status == o.status }
   }
 
   it should "propagate overridden status to response" in {
     check { (o: Output[String], s: Status) =>
-      o.withStatus(s).toResponse[Text.Plain].status === s
+      o.withStatus(s).toResponse[Id, Text.Plain].status === s
     }
   }
 
   it should "propagate charset to response" in {
     check { (o: Output[String], cs: Charset) =>
-      val rep = o.withCharset(cs).toResponse[Text.Plain]
+      val rep = o.withCharset(cs).toResponse[Id, Text.Plain]
       (rep.content.isEmpty && !rep.isChunked) || Some(cs.displayName.toLowerCase) === rep.charset
     }
   }
 
   it should "propagate headers to response" in {
     check { (o: Output[String], headers: Headers) =>
-      val rep = headers.m.foldLeft(o)((acc, h) => acc.withHeader(h._1 -> h._2)).toResponse[Text.Plain]
+      val rep = headers.m.foldLeft(o)((acc, h) => acc.withHeader(h._1 -> h._2)).toResponse[Id, Text.Plain]
       headers.m.forall(h => rep.headerMap(h._1) === h._2)
     }
   }
 
   it should "propagate cookies to response" in {
     check { (o: Output[String], cookies: Cookies) =>
-      val rep = cookies.c.foldLeft(o)((acc, c) => acc.withCookie(c)).toResponse[Text.Plain]
+      val rep = cookies.c.foldLeft(o)((acc, c) => acc.withCookie(c)).toResponse[Id, Text.Plain]
       cookies.c.forall(c => rep.cookies(c.name) === c)
     }
   }
@@ -73,27 +74,27 @@ class OutputSpec extends FinchSpec {
 
   it should "propagate cause to response" in {
     check { of: Output.Failure =>
-      (of: Output[Unit]).toResponse[Text.Plain].content ===
+      (of: Output[Unit]).toResponse[Id, Text.Plain].content ===
         Encode[Exception, Text.Plain].apply(of.cause, of.charset.getOrElse(StandardCharsets.UTF_8))
     }
   }
 
   it should "propagate empytiness to response" in {
     check { of: Output.Empty =>
-      (of: Output[Unit]).toResponse[Text.Plain].content === Buf.Empty
+      (of: Output[Unit]).toResponse[Id, Text.Plain].content === Buf.Empty
     }
   }
 
   it should "propagate payload to response" in {
     check { op: Output.Payload[String] =>
-      op.toResponse[Text.Plain].content ===
+      op.toResponse[Id, Text.Plain].content ===
         Encode[String, Text.Plain].apply(op.value, op.charset.getOrElse(StandardCharsets.UTF_8))
     }
   }
 
   it should "create an empty endpoint with given status when calling unit" in {
     check { s: Status =>
-      Output.unit(s).toResponse[Text.Plain].status === s
+      Output.unit(s).toResponse[Id, Text.Plain].status === s
     }
   }
 

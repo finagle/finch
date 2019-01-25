@@ -11,11 +11,12 @@ import com.twitter.io.{Buf, Reader}
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
-abstract class StreamingLaws[S[_[_], _], F[_] : Effect] extends Laws with AllInstances with MissingInstances {
+abstract class StreamingLaws[S[_[_], _], F[_]] extends Laws with AllInstances with MissingInstances {
 
-  implicit def streamReader: LiftReader[S, F]
+  implicit def LR: LiftReader[S, F]
+  implicit def F: Effect[F]
 
-  def toResponse: ToResponse[S[F, Buf]]
+  def toResponse: ToResponse.Aux[F, S[F, Buf], Text.Plain]
   def fromList:  List[Buf] => S[F, Buf]
   def toList: S[F, Array[Byte]] => List[Buf]
 
@@ -23,7 +24,9 @@ abstract class StreamingLaws[S[_[_], _], F[_] : Effect] extends Laws with AllIns
     val req = Request()
     req.setChunked(true)
 
-    Reader.copy(toResponse(fromList(a), cs).reader, req.writer).ensure(req.writer.close())
+    val rep = F.toIO(toResponse(fromList(a), cs)).unsafeRunSync()
+
+    Reader.copy(rep.reader, req.writer).ensure(req.writer.close())
 
     Endpoint
       .binaryBodyStream[F, S]
@@ -53,17 +56,19 @@ abstract class StreamingLaws[S[_[_], _], F[_] : Effect] extends Laws with AllIns
 
 object StreamingLaws {
 
-  def apply[S[_[_], _], F[_] : Effect](
+  def apply[S[_[_], _], F[_]: Effect](
     streamFromList: List[Buf] => S[F, Buf],
     listFromStream: S[F, Array[Byte]] => List[Buf]
   )(implicit
-    tr: ToResponse.Aux[S[F, Buf], Text.Plain],
-    reader: LiftReader[S, F]
+    f: Effect[F],
+    lr: LiftReader[S, F],
+    tr: ToResponse.Aux[F, S[F, Buf], Text.Plain]
   ): StreamingLaws[S, F] = new StreamingLaws[S, F] {
-    implicit val streamReader: LiftReader[S, F] = reader
-    val toResponse: ToResponse[S[F, Buf]] = tr
+    implicit val LR: LiftReader[S, F] = lr
+    implicit val F: Effect[F] = f
+
+    val toResponse: ToResponse.Aux[F, S[F, Buf], Text.Plain] = tr
     val fromList: List[Buf] => S[F, Buf] = streamFromList
     val toList: S[F, Array[Byte]] => List[Buf] = listFromStream
   }
-
 }
