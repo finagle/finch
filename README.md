@@ -36,7 +36,7 @@ reach out if you need published artifacts):
 * [`finch-json4s`][finch-json4s] - [JSON4s][json4s] + Finch
 * [`finch-playjson`][finch-playjson] - [PlayJson][playjson] + Finch
 * [`finch-sprayjson`][finch-sprayjson] - [SprayJson][sprayjson] + Finch
-* [`finch-oauth2`](finch-oath2) - [Finagle OAuth2](finagle-oauth2) + Finch
+* [`finch-oauth2`][finch-oauth2] - [Finagle OAuth2][finagle-oauth2] + Finch
 
 Installation
 ------------
@@ -196,7 +196,7 @@ limitations under the License.
 [finch-json4s]: https://github.com/finch/finch-json4s
 [finch-sprayjson]: https://github.com/finch/finch-sprayjson
 [finch-playjson]: https://github.com/finch/finch-playjson
-[finch-oauth2]: https://github.com/finch/finch-ouath2
+[finch-oauth2]: https://github.com/finch/finch-oauth2
 [fs2]: https://github.com/functional-streams-for-scala/fs2
 [vkostyukov]: https://twitter.com/vkostyukov
 [travisbrown]: https://twitter.com/travisbrown
