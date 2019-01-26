@@ -83,7 +83,7 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
   }
 
   def toService(implicit F: Effect[F], ts: Compile[F, ES, CTS]): Service[Request, Response] =
-    Endpoint.run(compile)
+    compile.toService
 
   final override def toString: String = s"Bootstrap($endpoints)"
 }
