@@ -64,5 +64,4 @@ class App(
     .serve[Text.Html](classpathAsset("/todo/index.html"))
     .serve[Application.Javascript](classpathAsset("/todo/main.js"))
     .toService
-    .toFinagleService
 }

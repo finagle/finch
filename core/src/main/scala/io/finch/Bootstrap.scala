@@ -1,5 +1,8 @@
 package io.finch
 
+import cats.effect.Effect
+import com.twitter.finagle.Service
+import com.twitter.finagle.http.{Request, Response}
 import shapeless._
 
 /**
@@ -66,18 +69,21 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
 
   def serve[CT]: Serve[CT] = new Serve[CT]
 
-  def toService(implicit ts: ToService[F, ES, CTS]): Service[F] = {
-    val opts = ToService.Options(
+  def compile(implicit ts: Compile[F, ES, CTS]): Endpoint.Compiled[F] = {
+    val opts = Compile.Options(
       includeDateHeader,
       includeServerHeader,
       enableMethodNotAllowed,
       enableUnsupportedMediaType
     )
 
-    val ctx = ToService.Context()
+    val ctx = Compile.Context()
 
     ts.apply(endpoints, opts, ctx)
   }
+
+  def toService(implicit F: Effect[F], ts: Compile[F, ES, CTS]): Service[Request, Response] =
+    compile.toService
 
   final override def toString: String = s"Bootstrap($endpoints)"
 }

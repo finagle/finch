@@ -68,7 +68,7 @@ object Main extends IOApp {
   def serve: IO[ListeningServer] = IO(
     Http.server
       .withStreaming(enabled = true)
-      .serve(":8081", (sumJson :+: streamJson :+: isPrime).toServiceAs[Application.Json].toFinagleService)
+      .serve(":8081", (sumJson :+: streamJson :+: isPrime).toServiceAs[Application.Json])
   )
 
   def run(args: List[String]): IO[ExitCode] = {

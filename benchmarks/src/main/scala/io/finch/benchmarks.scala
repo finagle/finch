@@ -184,17 +184,17 @@ class JsonBenchmark extends FinchBenchmark {
 @BenchmarkMode(Array(Mode.Throughput))
 @OutputTimeUnit(TimeUnit.SECONDS)
 abstract class BootstrapBenchmark[CT](init: Bootstrap[IO, HNil, HNil])(implicit
-  tsf: ToService[IO, Endpoint[IO, List[Foo]] :: HNil, CT :: HNil]
+  tsf: Compile[IO, Endpoint[IO, List[Foo]] :: HNil, CT :: HNil]
 ) extends FinchBenchmark {
 
   protected def issueRequest(): Request = Request()
 
-  private val foo: Service[IO] = init
+  private val foo: Service[Request, Response] = init
     .serve[CT](Endpoint[IO].const(List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString))))
     .toService
 
   @Benchmark
-  def foos: Response = Await.result(foo.toFinagleService.apply(issueRequest()))
+  def foos: Response = Await.result(foo.apply(issueRequest()))
 }
 
 class JsonBootstrapBenchmark extends BootstrapBenchmark[Application.Json](Bootstrap[IO])

@@ -1,32 +1,18 @@
 package io.finch
 
 import cats.effect.{ConcurrentEffect, Effect, IO}
-import com.twitter.finagle.{Service => FinagleService}
+import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.util.{Future, Promise}
 
-trait Filter[F[_]] extends ((Request, Service[F]) => F[(Trace, Response)]) {
-  self =>
+/**
+  * A compiled endpoint that is represented as a function of `Request => F[(Trace, Response)]`
+  * with ability to convert it to `com.twitter.finagle.Service`
+  */
+abstract class EndpointCompiled[F[_]] extends (Request => F[(Trace, Response)]) { self =>
 
-  def andThen(s: Service[F]): Service[F] = new Service[F] {
-    def apply(req: Request): F[(Trace, Response)] = {
-      self(req, s)
-    }
-  }
-
-  def andThen(other: Filter[F]): Filter[F] = {
-    new Filter[F] {
-      def apply(req: Request, s: Service[F]): F[(Trace, Response)] = self.andThen(other.andThen(s))(req)
-    }
-  }
-
-}
-
-abstract class Service[F[_]] extends (Request => F[(Trace, Response)]) {
-  self =>
-
-  def toFinagleService(implicit F: Effect[F]): FinagleService[Request, Response] =
-    new FinagleService[Request, Response] {
+  def toService(implicit F: Effect[F]): Service[Request, Response] =
+    new Service[Request, Response] {
       def apply(request: Request): Future[Response] = {
         val repF = self(request)
         val rep = new Promise[Response]

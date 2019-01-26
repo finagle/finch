@@ -32,5 +32,5 @@ object Main extends App with Endpoint.Module[IO] {
     case e: ArithmeticException => BadRequest(e)
   }
 
-  Await.ready(Http.server.serve(":8081", div.toServiceAs[Text.Plain].toFinagleService))
+  Await.ready(Http.server.serve(":8081", div.toServiceAs[Text.Plain]))
 }

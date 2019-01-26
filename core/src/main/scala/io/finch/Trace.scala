@@ -1,5 +1,6 @@
 package io.finch
 
+import com.twitter.util.Local
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 
@@ -56,6 +57,9 @@ object Trace {
   private case object Empty extends Trace
   private final case class Segment(path: String, var next: Trace) extends Trace
 
+  private class Capture(var trace: Trace)
+  private val captureLocal = new Local[Capture]
+
   def empty: Trace = Empty
   def segment(s: String): Trace = Segment(s, empty)
 
@@ -82,4 +86,32 @@ object Trace {
     result
   }
 
+  /**
+   * Within a given context `fn`, capture the [[Trace]] instance under `Trace.captured` for each
+   * matched endpoint.
+   *
+   * Example:
+   *
+   * {{{
+   *   val foo = Endpoint.lift("foo").toService[Text.Plain]
+   *   Trace.capture { foo(Request()).map(_ => Trace.captured) }
+   * }}}
+   */
+  @deprecated("Use Bootstrap.compile together with custom Filter to get an access to Trace", "0.28.0")
+  def capture[A](fn: => A): A = captureLocal.let(new Capture(empty))(fn)
+
+  /**
+   * Retrieve the captured [[Trace]] instance or [[empty]] when run outside of [[Trace.capture]]
+   * context.
+   */
+  @deprecated("Use Bootstrap.compile together with custom Filter to get an access to Trace", "0.28.0")
+  def captured: Trace = captureLocal() match {
+    case Some(c) => c.trace
+    case None => empty
+  }
+
+  private[finch] def captureIfNeeded(trace: Trace): Unit = captureLocal() match {
+    case Some(c) => c.trace = trace
+    case None => // do nothing
+  }
 }
