@@ -1,9 +1,8 @@
 package io.finch
 
-import cats.effect.{ConcurrentEffect, Effect, IO}
-import com.twitter.finagle.Service
+import cats.{Applicative, MonadError}
+import cats.syntax.all._
 import com.twitter.finagle.http.{Method, Request, Response, Status, Version}
-import com.twitter.util.{Future, Promise}
 import io.finch.internal.currentTime
 import scala.annotation.implicitNotFound
 import shapeless._
@@ -32,8 +31,8 @@ import shapeless._
   See https://github.com/finagle/finch/blob/master/docs/src/main/tut/cookbook.md#fixing-the-toservice-compile-error
 """
 )
-trait ToService[ES <: HList, CTS <: HList] {
-  def apply(endpoints: ES, options: ToService.Options, context: ToService.Context): Service[Request, Response]
+trait ToService[F[_], ES <: HList, CTS <: HList] {
+  def apply(endpoints: ES, options: ToService.Options, context: ToService.Context): Service[F]
 }
 
 object ToService {
@@ -79,10 +78,10 @@ object ToService {
     rep
   }
 
-  implicit val hnilTS: ToService[HNil, HNil] = new ToService[HNil, HNil] {
-    def apply(es: HNil, opts: Options, ctx: Context): Service[Request, Response] =
-      new Service[Request, Response] {
-        def apply(req: Request): Future[Response] = {
+  implicit def hnilTS[F[_]](implicit F: Applicative[F]): ToService[F, HNil, HNil] = new ToService[F, HNil, HNil] {
+    def apply(es: HNil, opts: Options, ctx: Context): Service[F] =
+      new Service[F] {
+        def apply(req: Request): F[(Trace, Response)] = {
           val rep = Response()
 
           if (ctx.wouldAllow.nonEmpty && opts.enableMethodNotAllowed) {
@@ -92,7 +91,7 @@ object ToService {
             rep.status = Status.NotFound
           }
 
-          Future.value(conformHttp(rep, req.version, opts))
+          F.pure(Trace.empty -> conformHttp(rep, req.version, opts))
         }
       }
   }
@@ -102,42 +101,23 @@ object ToService {
   implicit def hlistTS[F[_], A, EH <: Endpoint[F, A], ET <: HList, CTH, CTT <: HList](implicit
     ntrA: ToResponse.Negotiable[F, A, CTH],
     ntrE: ToResponse.Negotiable[F, Exception, CTH],
-    F: Effect[F],
-    tsT: ToService[ET, CTT],
+    F: MonadError[F, Throwable],
+    tsT: ToService[F, ET, CTT],
     isNegotiable: IsNegotiable[CTH]
-  ): ToService[Endpoint[F, A] :: ET, CTH :: CTT] = new ToService[Endpoint[F, A] :: ET, CTH :: CTT] {
-    def apply(es: Endpoint[F, A] :: ET, opts: Options, ctx: Context): Service[Request, Response] =
-      new Service[Request, Response] {
+  ): ToService[F, Endpoint[F, A] :: ET, CTH :: CTT] = new ToService[F, Endpoint[F, A] :: ET, CTH :: CTT] {
+    def apply(es: Endpoint[F, A] :: ET, opts: Options, ctx: Context): Service[F] =
+      new Service[F] {
         private[this] val handler =
           if (opts.enableUnsupportedMediaType) respond415.orElse(respond400) else respond400
 
         private[this] val negotiateContent = isNegotiable.fold(_ => true, _ => false)
         private[this] val underlying = es.head.handle(handler)
 
-        def apply(req: Request): Future[Response] = underlying(Input.fromRequest(req)) match {
+        def apply(req: Request): F[(Trace, Response)] = underlying(Input.fromRequest(req)) match {
           case EndpointResult.Matched(rem, trc, out) if rem.route.isEmpty =>
 
-            Trace.captureIfNeeded(trc)
-
             val accept = if (negotiateContent) req.accept.map(a => Accept.fromString(a)).toList else Nil
-            val rep = new Promise[Response]
-            val repF = F.flatMap(out)(oa => oa.toResponse(F, ntrA(accept), ntrE(accept)))
-
-            val run = (F match {
-              case concurrent: ConcurrentEffect[F] =>
-                (concurrent.runCancelable(repF) _).andThen(io => io.map(cancelToken =>
-                  rep.setInterruptHandler {
-                    case _ => concurrent.toIO(cancelToken).unsafeRunAsyncAndForget()
-                  }
-                ))
-              case e => e.runAsync(repF) _
-            }) {
-              case Left(t) => IO(rep.setException(t))
-              case Right(v) => IO(rep.setValue(conformHttp(v, req.version, opts)))
-            }
-
-            run.unsafeRunSync()
-            rep
+            F.flatMap(out)(oa => oa.toResponse(F, ntrA(accept), ntrE(accept)).map(r => trc -> r))
 
           case EndpointResult.NotMatched.MethodNotAllowed(allowed) =>
             tsT(es.tail, opts, ctx.copy(wouldAllow = ctx.wouldAllow ++ allowed))(req)

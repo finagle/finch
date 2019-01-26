@@ -1,7 +1,5 @@
 package io.finch
 
-import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Request, Response}
 import shapeless._
 
 /**
@@ -35,7 +33,7 @@ import shapeless._
  * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
  * @see https://tools.ietf.org/html/rfc7231#section-6.5.13
  */
-class Bootstrap[ES <: HList, CTS <: HList](
+class Bootstrap[F[_], ES <: HList, CTS <: HList](
     val endpoints: ES,
     val includeDateHeader: Boolean = true,
     val includeServerHeader: Boolean = true,
@@ -43,8 +41,8 @@ class Bootstrap[ES <: HList, CTS <: HList](
     val enableUnsupportedMediaType: Boolean = false) { self =>
 
   class Serve[CT] {
-    def apply[F[_], E](e: Endpoint[F, E]): Bootstrap[Endpoint[F, E] :: ES, CT :: CTS] =
-      new Bootstrap[Endpoint[F, E] :: ES, CT :: CTS](
+    def apply[E](e: Endpoint[F, E]): Bootstrap[F, Endpoint[F, E] :: ES, CT :: CTS] =
+      new Bootstrap[F, Endpoint[F, E] :: ES, CT :: CTS](
         e :: self.endpoints,
         includeDateHeader,
         includeServerHeader,
@@ -58,7 +56,7 @@ class Bootstrap[ES <: HList, CTS <: HList](
     includeServerHeader: Boolean = self.includeServerHeader,
     enableMethodNotAllowed: Boolean = self.enableMethodNotAllowed,
     enableUnsupportedMediaType: Boolean = self.enableUnsupportedMediaType
-  ): Bootstrap[ES, CTS] = new Bootstrap[ES, CTS](
+  ): Bootstrap[F, ES, CTS] = new Bootstrap[F, ES, CTS](
     endpoints,
     includeDateHeader,
     includeServerHeader,
@@ -68,7 +66,7 @@ class Bootstrap[ES <: HList, CTS <: HList](
 
   def serve[CT]: Serve[CT] = new Serve[CT]
 
-  def toService(implicit ts: ToService[ES, CTS]): Service[Request, Response] = {
+  def toService(implicit ts: ToService[F, ES, CTS]): Service[F] = {
     val opts = ToService.Options(
       includeDateHeader,
       includeServerHeader,
@@ -78,16 +76,20 @@ class Bootstrap[ES <: HList, CTS <: HList](
 
     val ctx = ToService.Context()
 
-    ts(endpoints, opts, ctx)
+    ts.apply(endpoints, opts, ctx)
   }
 
   final override def toString: String = s"Bootstrap($endpoints)"
 }
 
-object Bootstrap extends Bootstrap[HNil, HNil](
-  endpoints = HNil,
-  includeDateHeader = true,
-  includeServerHeader = true,
-  enableMethodNotAllowed = false,
-  enableUnsupportedMediaType = false
-)
+object Bootstrap {
+
+  def apply[F[_]]: Bootstrap[F, HNil, HNil] =
+    new Bootstrap[F, HNil, HNil](
+      endpoints = HNil,
+      includeDateHeader = true,
+      includeServerHeader = true,
+      enableMethodNotAllowed = false,
+      enableUnsupportedMediaType = false
+    )
+}

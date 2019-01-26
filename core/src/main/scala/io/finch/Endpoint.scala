@@ -4,7 +4,6 @@ import cats.{Alternative, Applicative, ApplicativeError, Id, Monad, MonadError}
 import cats.data.NonEmptyList
 import cats.effect.{ContextShift, Effect, Resource, Sync}
 import cats.syntax.all._
-import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Cookie => FinagleCookie, Method => FinagleMethod, Request, Response}
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart}
 import com.twitter.io.Buf
@@ -269,7 +268,7 @@ trait Endpoint[F[_], A] { self =>
     F: Effect[F],
     tr: ToResponse.Aux[F, A, Application.Json],
     tre: ToResponse.Aux[F, Exception, Application.Json]
-  ): Service[Request, Response] = toServiceAs[Application.Json]
+  ): Service[F] = toServiceAs[Application.Json]
 
   /**
     * Converts this endpoint to a Finagle service `Request => Future[Response]` that serves custom
@@ -281,7 +280,7 @@ trait Endpoint[F[_], A] { self =>
     F: Effect[F],
     tr: ToResponse.Aux[F, A, CT],
     tre: ToResponse.Aux[F, Exception, CT]
-  ): Service[Request, Response] = Bootstrap.serve[CT](this).toService
+  ): Service[F] = Bootstrap[F].serve[CT](this).toService
 
   /**
     * Recovers from any exception occurred in this endpoint by creating a new endpoint that will

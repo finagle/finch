@@ -183,26 +183,26 @@ class JsonBenchmark extends FinchBenchmark {
 @State(Scope.Benchmark)
 @BenchmarkMode(Array(Mode.Throughput))
 @OutputTimeUnit(TimeUnit.SECONDS)
-abstract class BootstrapBenchmark[CT](init: Bootstrap[HNil, HNil])(implicit
-  tsf: ToService[Endpoint[IO, List[Foo]] :: HNil, CT :: HNil]
+abstract class BootstrapBenchmark[CT](init: Bootstrap[IO, HNil, HNil])(implicit
+  tsf: ToService[IO, Endpoint[IO, List[Foo]] :: HNil, CT :: HNil]
 ) extends FinchBenchmark {
 
   protected def issueRequest(): Request = Request()
 
-  private val foo: Service[Request, Response] = init
+  private val foo: Service[IO] = init
     .serve[CT](Endpoint[IO].const(List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString))))
     .toService
 
   @Benchmark
-  def foos: Response = Await.result(foo(issueRequest()))
+  def foos: Response = Await.result(foo.toFinagleService.apply(issueRequest()))
 }
 
-class JsonBootstrapBenchmark extends BootstrapBenchmark[Application.Json](Bootstrap)
+class JsonBootstrapBenchmark extends BootstrapBenchmark[Application.Json](Bootstrap[IO])
 
-class TextBootstrapBenchmark extends BootstrapBenchmark[Text.Plain](Bootstrap)
+class TextBootstrapBenchmark extends BootstrapBenchmark[Text.Plain](Bootstrap[IO])
 
 class JsonAndTextNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Application.Json :+: Text.Plain :+: CNil](
-    Bootstrap) {
+    Bootstrap[IO]) {
 
   private val acceptValues: Array[String] = Array("application/json", "text/plain")
 

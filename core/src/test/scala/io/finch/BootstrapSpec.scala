@@ -2,7 +2,6 @@ package io.finch
 
 import cats.effect.IO
 import com.twitter.finagle.http.{Method, Request, Status}
-import com.twitter.util.Await
 import io.finch.data.Foo
 import io.finch.internal.currentTime
 import java.time.{ZonedDateTime, ZoneOffset}
@@ -18,7 +17,7 @@ class BootstrapSpec extends FinchSpec {
       val exception = e.fold[Exception](identity, identity)
 
       val ee = Endpoint[IO].liftAsync[Unit](IO.raiseError(exception))
-      val rep = Await.result(ee.toServiceAs[Text.Plain].apply(Request()))
+      val (_, rep) = ee.toServiceAs[Text.Plain].apply(Request()).unsafeRunSync()
       rep.status === Status.BadRequest
     }
   }
@@ -26,7 +25,7 @@ class BootstrapSpec extends FinchSpec {
   it should "respond 404 if endpoint is not matched" in {
     check { req: Request =>
       val s = Endpoint[IO].empty[Unit].toServiceAs[Text.Plain]
-      val rep = Await.result(s(req))
+      val (_, rep) = s(req).unsafeRunSync()
 
       rep.status === Status.NotFound
     }
@@ -37,7 +36,7 @@ class BootstrapSpec extends FinchSpec {
     val b = put("foo") { Ok("put foo") }
     val c = post("foo") { Ok("post foo") }
 
-    val s = Bootstrap
+    val s = Bootstrap[IO]
       .configure(enableMethodNotAllowed = true)
       .serve[Text.Plain](a :+: b)
       .serve[Text.Plain](c)
@@ -48,32 +47,32 @@ class BootstrapSpec extends FinchSpec {
     val cc = Request(Method.Post, "/foo")
     val dd = Request(Method.Delete, "/foo")
 
-    Await.result(s(Request(Method.Get, "/bar"))).status shouldBe Status.NotFound
+    s(Request(Method.Get, "/bar")).unsafeRunSync()._2.status shouldBe Status.NotFound
 
-    Await.result(s(aa)).contentString shouldBe "get foo"
-    Await.result(s(bb)).contentString shouldBe "put foo"
-    Await.result(s(cc)).contentString shouldBe "post foo"
+    s(aa).unsafeRunSync()._2.contentString shouldBe "get foo"
+    s(bb).unsafeRunSync()._2.contentString shouldBe "put foo"
+    s(cc).unsafeRunSync()._2.contentString shouldBe "post foo"
 
-    val rep = Await.result(s(dd))
+    val (_, rep) = s(dd).unsafeRunSync()
     rep.status shouldBe Status.MethodNotAllowed
     rep.allow shouldBe Some("POST,GET,PUT")
   }
 
   it should "respond 415 if media type is not supported" in {
     val b = body[Foo, Text.Plain]
-    val s = Bootstrap.configure(enableUnsupportedMediaType = true)
+    val s = Bootstrap[IO].configure(enableUnsupportedMediaType = true)
       .serve[Text.Plain](b)
       .toService
 
     val i = Input.post("/").withBody[Application.Csv](Foo("bar"))
 
-    Await.result(s(i.request)).status shouldBe Status.UnsupportedMediaType
+    s(i.request).unsafeRunSync()._2.status shouldBe Status.UnsupportedMediaType
   }
 
   it should "match the request version" in {
     check { req: Request =>
       val s = Endpoint[IO].const(()).toServiceAs[Text.Plain]
-      val rep = Await.result(s(req))
+      val (_, rep) = s(req).unsafeRunSync()
 
       rep.version === req.version
     }
@@ -84,11 +83,11 @@ class BootstrapSpec extends FinchSpec {
     def parseDate(s: String): Long = ZonedDateTime.parse(s, formatter).toEpochSecond
 
     check { (req: Request, include: Boolean) =>
-      val s = Bootstrap.configure(includeDateHeader = include)
+      val s = Bootstrap[IO].configure(includeDateHeader = include)
         .serve[Text.Plain](Endpoint[IO].const(()))
         .toService
 
-      val rep = Await.result(s(req))
+      val (_, rep) = s(req).unsafeRunSync()
       val now = parseDate(currentTime())
 
       (include && (parseDate(rep.date.get) - now).abs <= 1) || (!include && rep.date.isEmpty)
@@ -97,11 +96,11 @@ class BootstrapSpec extends FinchSpec {
 
   it should "include Server header" in {
     check { (req: Request, include: Boolean) =>
-      val s = Bootstrap.configure(includeServerHeader = include)
+      val s = Bootstrap[IO].configure(includeServerHeader = include)
         .serve[Text.Plain](Endpoint[IO].const(()))
         .toService
 
-      val rep = Await.result(s(req))
+      val (_, rep) = s(req).unsafeRunSync()
 
       (include && rep.server === Some("Finch")) || (!include && rep.server.isEmpty)
     }
@@ -116,8 +115,9 @@ class BootstrapSpec extends FinchSpec {
         .map(_ => "foo")
       val s = e.toServiceAs[Text.Plain]
 
-      val captured = Await.result(Trace.capture(s(req).map(_ => Trace.captured)))
-      captured.toList === p.toList
+      val (trc, _) = s(req).unsafeRunSync()
+
+      trc.toList === p.toList
     }
   }
 }

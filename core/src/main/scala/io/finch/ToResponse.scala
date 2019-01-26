@@ -1,7 +1,6 @@
 package io.finch
 
 import cats.{Applicative, Functor}
-import cats.effect.Effect
 import com.twitter.finagle.http.{Response, Status, Version}
 import java.nio.charset.Charset
 import scala.annotation.implicitNotFound
