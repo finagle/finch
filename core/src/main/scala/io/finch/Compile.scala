@@ -80,20 +80,18 @@ object Compile {
 
   implicit def hnilTS[F[_]](implicit F: Applicative[F]): Compile[F, HNil, HNil] = new Compile[F, HNil, HNil] {
     def apply(es: HNil, opts: Options, ctx: Context): Endpoint.Compiled[F] =
-      new Endpoint.Compiled[F] {
-        def apply(req: Request): F[(Trace, Response)] = {
-          val rep = Response()
+      new Endpoint.Compiled[F]((req: Request) => {
+        val rep = Response()
 
-          if (ctx.wouldAllow.nonEmpty && opts.enableMethodNotAllowed) {
-            rep.status = Status.MethodNotAllowed
-            rep.allow = ctx.wouldAllow
-          } else {
-            rep.status = Status.NotFound
-          }
-
-          F.pure(Trace.empty -> conformHttp(rep, req.version, opts))
+        if (ctx.wouldAllow.nonEmpty && opts.enableMethodNotAllowed) {
+          rep.status = Status.MethodNotAllowed
+          rep.allow = ctx.wouldAllow
+        } else {
+          rep.status = Status.NotFound
         }
-      }
+
+        F.pure(Trace.empty -> conformHttp(rep, req.version, opts))
+      })
   }
 
   type IsNegotiable[C] = OrElse[C <:< Coproduct, DummyImplicit]
@@ -105,15 +103,13 @@ object Compile {
     tsT: Compile[F, ET, CTT],
     isNegotiable: IsNegotiable[CTH]
   ): Compile[F, Endpoint[F, A] :: ET, CTH :: CTT] = new Compile[F, Endpoint[F, A] :: ET, CTH :: CTT] {
-    def apply(es: Endpoint[F, A] :: ET, opts: Options, ctx: Context): Endpoint.Compiled[F] =
-      new Endpoint.Compiled[F] {
-        private[this] val handler =
-          if (opts.enableUnsupportedMediaType) respond415.orElse(respond400) else respond400
+    def apply(es: Endpoint[F, A] :: ET, opts: Options, ctx: Context): Endpoint.Compiled[F] = {
+      val handler = if (opts.enableUnsupportedMediaType) respond415.orElse(respond400) else respond400
+      val negotiateContent = isNegotiable.fold(_ => true, _ => false)
+      val underlying = es.head.handle(handler)
 
-        private[this] val negotiateContent = isNegotiable.fold(_ => true, _ => false)
-        private[this] val underlying = es.head.handle(handler)
-
-        def apply(req: Request): F[(Trace, Response)] = underlying(Input.fromRequest(req)) match {
+      new Endpoint.Compiled[F]((req: Request) => {
+        underlying(Input.fromRequest(req)) match {
           case EndpointResult.Matched(rem, trc, out) if rem.route.isEmpty =>
 
             Trace.captureIfNeeded(trc)
@@ -130,6 +126,7 @@ object Compile {
           case _ =>
             tsT(es.tail, opts, ctx)(req)
         }
+      })
     }
   }
 

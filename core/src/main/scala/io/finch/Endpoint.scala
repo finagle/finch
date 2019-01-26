@@ -1,17 +1,19 @@
 package io.finch
 
 import cats.{Alternative, Applicative, ApplicativeError, Id, Monad, MonadError}
-import cats.data.NonEmptyList
-import cats.effect.{ContextShift, Effect, Resource, Sync}
+import cats.data.{Kleisli, NonEmptyList}
+import cats.effect._
 import cats.syntax.all._
 import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Cookie => FinagleCookie, Method => FinagleMethod, Request, Response}
+import com.twitter.finagle.http.{Request, Response, Cookie => FinagleCookie, Method => FinagleMethod}
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart}
 import com.twitter.io.Buf
 import io.finch.endpoint._
 import io.finch.internal._
 import java.io.{File, FileInputStream, InputStream}
 import scala.reflect.ClassTag
+
+import com.twitter.util.{Future, Promise}
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.hlist.Tupler
@@ -420,9 +422,35 @@ object Endpoint {
   type Module[F[_]] = EndpointModule[F]
 
   /**
-    * An alias for [[EndpointCompiled]]
+    * Representation of function Request => F[(Trace, Response)]
     */
-  type Compiled[F[_]] = EndpointCompiled[F]
+  type Compiled[F[_]] = Kleisli[F, Request, (Trace, Response)]
+
+  /**
+    * Convert `Compiled[F]` into Finagle Service
+    */
+  def run[F[_]](compiled: Compiled[F])(implicit F: Effect[F]): Service[Request, Response] =
+      new Service[Request, Response] {
+        def apply(request: Request): Future[Response] = {
+          val repF = compiled(request)
+          val rep = new Promise[Response]
+          val run = (F match {
+            case concurrent: ConcurrentEffect[F] =>
+              (concurrent.runCancelable(repF) _).andThen(io => io.map(cancelToken =>
+                rep.setInterruptHandler {
+                  case _ => concurrent.toIO(cancelToken).unsafeRunAsyncAndForget()
+                }
+              ))
+            case e => e.runAsync(repF) _
+          }) {
+            case Left(t) => IO(rep.setException(t))
+            case Right((_, v)) => IO(rep.setValue(v))
+          }
+
+          run.unsafeRunSync()
+          rep
+        }
+      }
 
   final implicit class HListEndpointOps[F[_], L <: HList](val self: Endpoint[F, L]) extends AnyVal {
     /**
