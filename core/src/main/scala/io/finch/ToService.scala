@@ -117,7 +117,9 @@ object ToService {
           case EndpointResult.Matched(rem, trc, out) if rem.route.isEmpty =>
 
             val accept = if (negotiateContent) req.accept.map(a => Accept.fromString(a)).toList else Nil
-            F.flatMap(out)(oa => oa.toResponse(F, ntrA(accept), ntrE(accept)).map(r => trc -> r))
+            F
+              .flatMap(out)(oa => oa.toResponse(F, ntrA(accept), ntrE(accept))
+              .map(r => trc -> conformHttp(r, req.version, opts)))
 
           case EndpointResult.NotMatched.MethodNotAllowed(allowed) =>
             tsT(es.tail, opts, ctx.copy(wouldAllow = ctx.wouldAllow ++ allowed))(req)
