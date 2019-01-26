@@ -99,11 +99,11 @@ object Compile {
   type IsNegotiable[C] = OrElse[C <:< Coproduct, DummyImplicit]
 
   implicit def hlistTS[F[_], A, EH <: Endpoint[F, A], ET <: HList, CTH, CTT <: HList](implicit
-                                                                                      ntrA: ToResponse.Negotiable[F, A, CTH],
-                                                                                      ntrE: ToResponse.Negotiable[F, Exception, CTH],
-                                                                                      F: MonadError[F, Throwable],
-                                                                                      tsT: Compile[F, ET, CTT],
-                                                                                      isNegotiable: IsNegotiable[CTH]
+    ntrA: ToResponse.Negotiable[F, A, CTH],
+    ntrE: ToResponse.Negotiable[F, Exception, CTH],
+    F: MonadError[F, Throwable],
+    tsT: Compile[F, ET, CTT],
+    isNegotiable: IsNegotiable[CTH]
   ): Compile[F, Endpoint[F, A] :: ET, CTH :: CTT] = new Compile[F, Endpoint[F, A] :: ET, CTH :: CTT] {
     def apply(es: Endpoint[F, A] :: ET, opts: Options, ctx: Context): Endpoint.Compiled[F] =
       new Endpoint.Compiled[F] {
