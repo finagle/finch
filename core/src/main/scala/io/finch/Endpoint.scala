@@ -284,6 +284,30 @@ trait Endpoint[F[_], A] { self =>
   ): Service[Request, Response] = Bootstrap[F].serve[CT](this).toService
 
   /**
+    * Converts this endpoint to Endpoint.Compiled[F] what is efficiently is Kleisli[F, Request, Response]
+    * where responses are encoded with JSON encoder.
+    *
+    * Consider using [[io.finch.Bootstrap]] instead
+    */
+  final def compile(implicit
+    F: MonadError[F, Throwable],
+    tr: ToResponse.Aux[F, A, Application.Json],
+    tre: ToResponse.Aux[F, Exception, Application.Json]
+  ): Endpoint.Compiled[F] = compileAs[Application.Json]
+
+  /**
+    * Converts this endpoint to Endpoint.Compiled[F] what is efficiently is Kleisli[F, Request, Response]
+    * where responses are encoded with encoder corresponding to `CT` Content-Type.
+    *
+    * Consider using [[io.finch.Bootstrap]] instead
+    */
+  final def compileAs[CT <: String](implicit
+    F: MonadError[F, Throwable],
+    tr: ToResponse.Aux[F, A, CT],
+    tre: ToResponse.Aux[F, Exception, CT]
+  ): Endpoint.Compiled[F] = Bootstrap[F].serve[CT](this).compile
+
+  /**
     * Recovers from any exception occurred in this endpoint by creating a new endpoint that will
     * handle any matching throwable from the underlying future.
     */
