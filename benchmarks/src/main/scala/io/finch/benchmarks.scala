@@ -183,7 +183,7 @@ class JsonBenchmark extends FinchBenchmark {
 @State(Scope.Benchmark)
 @BenchmarkMode(Array(Mode.Throughput))
 @OutputTimeUnit(TimeUnit.SECONDS)
-abstract class BootstrapBenchmark[CT](init: Bootstrap[IO, HNil, HNil])(implicit
+abstract class BootstrapBenchmark[CT](init: Bootstrap[Id, HNil, HNil])(implicit
   tsf: Compile[IO, Endpoint[IO, List[Foo]] :: HNil, CT :: HNil]
 ) extends FinchBenchmark {
 
@@ -197,12 +197,12 @@ abstract class BootstrapBenchmark[CT](init: Bootstrap[IO, HNil, HNil])(implicit
   def foos: Response = Await.result(foo.apply(issueRequest()))
 }
 
-class JsonBootstrapBenchmark extends BootstrapBenchmark[Application.Json](Bootstrap[IO])
+class JsonBootstrapBenchmark extends BootstrapBenchmark[Application.Json](Bootstrap)
 
-class TextBootstrapBenchmark extends BootstrapBenchmark[Text.Plain](Bootstrap[IO])
+class TextBootstrapBenchmark extends BootstrapBenchmark[Text.Plain](Bootstrap)
 
 class JsonAndTextNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Application.Json :+: Text.Plain :+: CNil](
-    Bootstrap[IO]) {
+  Bootstrap) {
 
   private val acceptValues: Array[String] = Array("application/json", "text/plain")
 

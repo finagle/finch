@@ -44,8 +44,8 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
     val enableUnsupportedMediaType: Boolean = false) { self =>
 
   class Serve[CT] {
-    def apply[E](e: Endpoint[F, E]): Bootstrap[F, Endpoint[F, E] :: ES, CT :: CTS] =
-      new Bootstrap[F, Endpoint[F, E] :: ES, CT :: CTS](
+    def apply[FF[_], E](e: Endpoint[FF, E]): Bootstrap[FF, Endpoint[FF, E] :: ES, CT :: CTS] =
+      new Bootstrap[FF, Endpoint[FF, E] :: ES, CT :: CTS](
         e :: self.endpoints,
         includeDateHeader,
         includeServerHeader,
@@ -88,14 +88,10 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
   final override def toString: String = s"Bootstrap($endpoints)"
 }
 
-object Bootstrap {
-
-  def apply[F[_]]: Bootstrap[F, HNil, HNil] =
-    new Bootstrap[F, HNil, HNil](
-      endpoints = HNil,
-      includeDateHeader = true,
-      includeServerHeader = true,
-      enableMethodNotAllowed = false,
-      enableUnsupportedMediaType = false
-    )
-}
+object Bootstrap extends Bootstrap[Id, HNil, HNil](
+  endpoints = HNil,
+  includeDateHeader = true,
+  includeServerHeader = true,
+  enableMethodNotAllowed = false,
+  enableUnsupportedMediaType = false
+)

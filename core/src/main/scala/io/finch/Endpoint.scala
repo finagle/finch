@@ -281,7 +281,7 @@ trait Endpoint[F[_], A] { self =>
     F: Effect[F],
     tr: ToResponse.Aux[F, A, CT],
     tre: ToResponse.Aux[F, Exception, CT]
-  ): Service[Request, Response] = Bootstrap[F].serve[CT](this).toService
+  ): Service[Request, Response] = Bootstrap.serve[CT](this).toService
 
   /**
     * Converts this endpoint to Endpoint.Compiled[F] what is efficiently is Kleisli[F, Request, Response]
@@ -305,7 +305,7 @@ trait Endpoint[F[_], A] { self =>
     F: MonadError[F, Throwable],
     tr: ToResponse.Aux[F, A, CT],
     tre: ToResponse.Aux[F, Exception, CT]
-  ): Endpoint.Compiled[F] = Bootstrap[F].serve[CT](this).compile
+  ): Endpoint.Compiled[F] = Bootstrap.serve[CT](this).compile
 
   /**
     * Recovers from any exception occurred in this endpoint by creating a new endpoint that will

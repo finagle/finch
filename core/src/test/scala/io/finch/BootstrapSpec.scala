@@ -43,7 +43,7 @@ class BootstrapSpec extends FinchSpec {
     val b = put("foo") { Ok("put foo") }
     val c = post("foo") { Ok("post foo") }
 
-    val s = Bootstrap[IO]
+    val s = Bootstrap
       .configure(enableMethodNotAllowed = true)
       .serve[Text.Plain](a :+: b)
       .serve[Text.Plain](c)
@@ -71,7 +71,7 @@ class BootstrapSpec extends FinchSpec {
 
   it should "respond 415 if media type is not supported" in {
     val b = body[Foo, Text.Plain]
-    val s = Bootstrap[IO].configure(enableUnsupportedMediaType = true)
+    val s = Bootstrap.configure(enableUnsupportedMediaType = true)
       .serve[Text.Plain](b)
       .compile
 
@@ -95,7 +95,7 @@ class BootstrapSpec extends FinchSpec {
     def parseDate(s: String): Long = ZonedDateTime.parse(s, formatter).toEpochSecond
 
     check { (req: Request, include: Boolean) =>
-      val s = Bootstrap[IO].configure(includeDateHeader = include)
+      val s = Bootstrap.configure(includeDateHeader = include)
         .serve[Text.Plain](Endpoint[IO].const(()))
         .compile
 
@@ -108,7 +108,7 @@ class BootstrapSpec extends FinchSpec {
 
   it should "include Server header" in {
     check { (req: Request, include: Boolean) =>
-      val s = Bootstrap[IO].configure(includeServerHeader = include)
+      val s = Bootstrap.configure(includeServerHeader = include)
         .serve[Text.Plain](Endpoint[IO].const(()))
         .compile
 
