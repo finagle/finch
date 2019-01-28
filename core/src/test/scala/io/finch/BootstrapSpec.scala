@@ -2,7 +2,6 @@ package io.finch
 
 import cats.effect.IO
 import com.twitter.finagle.http.{Method, Request, Response, Status}
-import com.twitter.util.Await
 import io.finch.data.Foo
 import io.finch.internal.currentTime
 import java.time.{ZonedDateTime, ZoneOffset}
@@ -23,10 +22,17 @@ class BootstrapSpec extends FinchSpec {
     }
   }
 
+  it should "catch custom exceptions in attempt" in {
+    val exception = new IllegalStateException
+    val endpoint = Endpoint[IO].liftAsync[Unit](IO.raiseError(exception))
+    val (_, Left(e)) = endpoint.compileAs[Text.Plain].apply(Request()).unsafeRunSync()
+    e shouldBe exception
+  }
+
   it should "respond 404 if endpoint is not matched" in {
     check { req: Request =>
-      val s = Endpoint[IO].empty[Unit].toServiceAs[Text.Plain]
-      val rep = Await.result(s(req))
+      val s = Endpoint[IO].empty[Unit].compileAs[Text.Plain]
+      val (_, Right(rep)) = s(req).unsafeRunSync()
 
       rep.status === Status.NotFound
     }
