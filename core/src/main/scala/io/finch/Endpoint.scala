@@ -1,7 +1,7 @@
 package io.finch
 
 import cats.{Alternative, Applicative, ApplicativeError, Id, Monad, MonadError}
-import cats.data.{Kleisli, NonEmptyList}
+import cats.data._
 import cats.effect._
 import cats.syntax.all._
 import com.twitter.finagle.Service
@@ -420,9 +420,9 @@ object Endpoint {
   type Module[F[_]] = EndpointModule[F]
 
   /**
-    * Representation of function Request => F[(Trace, Response)]
+    * Representation of function `Request => F[Response]`
     */
-  type Compiled[F[_]] = Kleisli[F, Request, (Trace, Response)]
+  type Compiled[F[_]] = Kleisli[F, Request, (Trace, Either[Throwable, Response])]
 
   final implicit class HListEndpointOps[F[_], L <: HList](val self: Endpoint[F, L]) extends AnyVal {
     /**

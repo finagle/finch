@@ -1,6 +1,7 @@
 package io
 
 import cats.effect.{ConcurrentEffect, Effect, IO}
+import cats.syntax.all._
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.util.{Future, Promise}
@@ -34,7 +35,9 @@ package object finch extends Outputs with ValidationRules {
     def toService(implicit F: Effect[F]): Service[Request, Response] =
       new Service[Request, Response] {
         def apply(request: Request): Future[Response] = {
-          val repF = compiled(request)
+          val repF = compiled(request).flatMap {
+            case (_, either) => F.fromEither(either)
+          }
           val rep = new Promise[Response]
           val run = (F match {
             case concurrent: ConcurrentEffect[F] =>
@@ -46,7 +49,7 @@ package object finch extends Outputs with ValidationRules {
             case e => e.runAsync(repF) _
           }) {
             case Left(t) => IO(rep.setException(t))
-            case Right((_, v)) => IO(rep.setValue(v))
+            case Right(v) => IO(rep.setValue(v))
           }
 
           run.unsafeRunSync()

@@ -90,7 +90,7 @@ object Compile {
           rep.status = Status.NotFound
         }
 
-        F.pure(Trace.empty -> conformHttp(rep, req.version, opts))
+        F.pure(Trace.empty -> Right(conformHttp(rep, req.version, opts)))
       })
   }
 
@@ -118,7 +118,9 @@ object Compile {
 
             F
               .flatMap(out)(oa => oa.toResponse(F, ntrA(accept), ntrE(accept))
-              .map(r => trc -> conformHttp(r, req.version, opts)))
+              .map(r => conformHttp(r, req.version, opts)))
+              .attempt
+              .map(e => trc -> e)
 
           case EndpointResult.NotMatched.MethodNotAllowed(allowed) =>
             tsT(es.tail, opts, ctx.copy(wouldAllow = ctx.wouldAllow ++ allowed))(req)
