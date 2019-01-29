@@ -1,8 +1,8 @@
 package io.finch
 
 import cats.{Alternative, Applicative, ApplicativeError, Id, Monad, MonadError}
-import cats.data.NonEmptyList
-import cats.effect.{ContextShift, Effect, Resource, Sync}
+import cats.data._
+import cats.effect._
 import cats.syntax.all._
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Cookie => FinagleCookie, Method => FinagleMethod, Request, Response}
@@ -284,6 +284,30 @@ trait Endpoint[F[_], A] { self =>
   ): Service[Request, Response] = Bootstrap.serve[CT](this).toService
 
   /**
+    * Converts this endpoint to Endpoint.Compiled[F] what is efficiently is Kleisli[F, Request, Response]
+    * where responses are encoded with JSON encoder.
+    *
+    * Consider using [[io.finch.Bootstrap]] instead
+    */
+  final def compile(implicit
+    F: MonadError[F, Throwable],
+    tr: ToResponse.Aux[F, A, Application.Json],
+    tre: ToResponse.Aux[F, Exception, Application.Json]
+  ): Endpoint.Compiled[F] = compileAs[Application.Json]
+
+  /**
+    * Converts this endpoint to Endpoint.Compiled[F] what is efficiently is Kleisli[F, Request, Response]
+    * where responses are encoded with encoder corresponding to `CT` Content-Type.
+    *
+    * Consider using [[io.finch.Bootstrap]] instead
+    */
+  final def compileAs[CT <: String](implicit
+    F: MonadError[F, Throwable],
+    tr: ToResponse.Aux[F, A, CT],
+    tre: ToResponse.Aux[F, Exception, CT]
+  ): Endpoint.Compiled[F] = Bootstrap.serve[CT](this).compile
+
+  /**
     * Recovers from any exception occurred in this endpoint by creating a new endpoint that will
     * handle any matching throwable from the underlying future.
     */
@@ -419,6 +443,11 @@ object Endpoint {
    */
   type Module[F[_]] = EndpointModule[F]
 
+  /**
+    * Representation of function `Request => F[Response]`
+    */
+  type Compiled[F[_]] = Kleisli[F, Request, (Trace, Either[Throwable, Response])]
+
   final implicit class HListEndpointOps[F[_], L <: HList](val self: Endpoint[F, L]) extends AnyVal {
     /**
      * Converts this endpoint to one that returns any type with this [[shapeless.HList]] as its
@@ -496,6 +525,11 @@ object Endpoint {
    * }}}
    */
   def apply[F[_]]: EndpointModule[F] = EndpointModule[F]
+
+  /**
+    * Convert [[Endpoint.Compiled]] into Finagle Service
+    */
+  def toService[F[_] : Effect](compiled: Endpoint.Compiled[F]): Service[Request, Response] = ToService(compiled)
 
   /**
    * Creates an empty [[Endpoint]] (an endpoint that never matches) for a given type.

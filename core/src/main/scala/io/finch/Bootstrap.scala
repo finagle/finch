@@ -1,5 +1,6 @@
 package io.finch
 
+import cats.effect.Effect
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import shapeless._
@@ -35,7 +36,7 @@ import shapeless._
  * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
  * @see https://tools.ietf.org/html/rfc7231#section-6.5.13
  */
-class Bootstrap[ES <: HList, CTS <: HList](
+class Bootstrap[F[_], ES <: HList, CTS <: HList](
     val endpoints: ES,
     val includeDateHeader: Boolean = true,
     val includeServerHeader: Boolean = true,
@@ -43,8 +44,8 @@ class Bootstrap[ES <: HList, CTS <: HList](
     val enableUnsupportedMediaType: Boolean = false) { self =>
 
   class Serve[CT] {
-    def apply[F[_], E](e: Endpoint[F, E]): Bootstrap[Endpoint[F, E] :: ES, CT :: CTS] =
-      new Bootstrap[Endpoint[F, E] :: ES, CT :: CTS](
+    def apply[FF[_], E](e: Endpoint[FF, E]): Bootstrap[FF, Endpoint[FF, E] :: ES, CT :: CTS] =
+      new Bootstrap[FF, Endpoint[FF, E] :: ES, CT :: CTS](
         e :: self.endpoints,
         includeDateHeader,
         includeServerHeader,
@@ -58,7 +59,7 @@ class Bootstrap[ES <: HList, CTS <: HList](
     includeServerHeader: Boolean = self.includeServerHeader,
     enableMethodNotAllowed: Boolean = self.enableMethodNotAllowed,
     enableUnsupportedMediaType: Boolean = self.enableUnsupportedMediaType
-  ): Bootstrap[ES, CTS] = new Bootstrap[ES, CTS](
+  ): Bootstrap[F, ES, CTS] = new Bootstrap[F, ES, CTS](
     endpoints,
     includeDateHeader,
     includeServerHeader,
@@ -68,23 +69,26 @@ class Bootstrap[ES <: HList, CTS <: HList](
 
   def serve[CT]: Serve[CT] = new Serve[CT]
 
-  def toService(implicit ts: ToService[ES, CTS]): Service[Request, Response] = {
-    val opts = ToService.Options(
+  def compile(implicit ts: Compile[F, ES, CTS]): Endpoint.Compiled[F] = {
+    val opts = Compile.Options(
       includeDateHeader,
       includeServerHeader,
       enableMethodNotAllowed,
       enableUnsupportedMediaType
     )
 
-    val ctx = ToService.Context()
+    val ctx = Compile.Context()
 
-    ts(endpoints, opts, ctx)
+    ts.apply(endpoints, opts, ctx)
   }
+
+  def toService(implicit F: Effect[F], ts: Compile[F, ES, CTS]): Service[Request, Response] =
+    Endpoint.toService(compile)
 
   final override def toString: String = s"Bootstrap($endpoints)"
 }
 
-object Bootstrap extends Bootstrap[HNil, HNil](
+object Bootstrap extends Bootstrap[Id, HNil, HNil](
   endpoints = HNil,
   includeDateHeader = true,
   includeServerHeader = true,
