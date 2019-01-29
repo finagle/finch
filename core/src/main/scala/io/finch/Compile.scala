@@ -80,7 +80,7 @@ object Compile {
 
   implicit def hnilTS[F[_]](implicit F: Applicative[F]): Compile[F, HNil, HNil] = new Compile[F, HNil, HNil] {
     def apply(es: HNil, opts: Options, ctx: Context): Endpoint.Compiled[F] =
-      new Endpoint.Compiled[F]((req: Request) => {
+      Endpoint.Compiled[F] { req: Request =>
         val rep = Response()
 
         if (ctx.wouldAllow.nonEmpty && opts.enableMethodNotAllowed) {
@@ -91,7 +91,7 @@ object Compile {
         }
 
         F.pure(Trace.empty -> Right(conformHttp(rep, req.version, opts)))
-      })
+      }
   }
 
   type IsNegotiable[C] = OrElse[C <:< Coproduct, DummyImplicit]
@@ -108,7 +108,7 @@ object Compile {
       val negotiateContent = isNegotiable.fold(_ => true, _ => false)
       val underlying = es.head.handle(handler)
 
-      new Endpoint.Compiled[F]((req: Request) => {
+      Endpoint.Compiled[F] { req: Request =>
         underlying(Input.fromRequest(req)) match {
           case EndpointResult.Matched(rem, trc, out) if rem.route.isEmpty =>
 
@@ -116,7 +116,7 @@ object Compile {
 
             F
               .flatMap(out)(oa => oa.toResponse(F, ntrA(accept), ntrE(accept))
-              .map(r => conformHttp(r, req.version, opts)))
+                .map(r => conformHttp(r, req.version, opts)))
               .attempt
               .map(e => trc -> e)
 
@@ -126,7 +126,7 @@ object Compile {
           case _ =>
             tsT(es.tail, opts, ctx)(req)
         }
-      })
+      }
     }
   }
 
