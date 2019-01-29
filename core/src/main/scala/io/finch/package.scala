@@ -1,10 +1,6 @@
 package io
 
-import cats.effect.{ConcurrentEffect, Effect, IO}
-import cats.syntax.all._
-import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Request, Response}
-import com.twitter.util.{Future, Promise}
+import cats.effect.IO
 
 /**
  * This is a root package of the Finch library, which provides an immutable layer of functions and
@@ -25,40 +21,6 @@ package object finch extends Outputs with ValidationRules {
     final case class CookieItem(name: String) extends RequestItem("cookie", Some(name))
     case object BodyItem extends RequestItem("body")
     case object MultipleItems extends RequestItem("request")
-  }
-
-  implicit class CompiledOps[F[_]](compiled: Endpoint.Compiled[F]) {
-
-    /**
-      * Convert `Endpoint.Compiled[F]` to Finagle Service
-      */
-    def toService(implicit F: Effect[F]): Service[Request, Response] =
-      new Service[Request, Response] {
-        def apply(request: Request): Future[Response] = {
-          val repF = compiled(request).flatMap {
-            case (trc, either) =>
-              Trace.captureIfNeeded(trc)
-              F.fromEither(either)
-          }
-          val rep = new Promise[Response]
-          val run = (F match {
-            case concurrent: ConcurrentEffect[F] =>
-              (concurrent.runCancelable(repF) _).andThen(io => io.map(cancelToken =>
-                rep.setInterruptHandler {
-                  case _ => concurrent.toIO(cancelToken).unsafeRunAsyncAndForget()
-                }
-              ))
-            case e => e.runAsync(repF) _
-          }) {
-            case Left(t) => IO(rep.setException(t))
-            case Right(v) => IO(rep.setValue(v))
-          }
-
-          run.unsafeRunSync()
-          rep
-        }
-      }
-
   }
 
 }

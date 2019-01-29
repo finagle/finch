@@ -527,6 +527,11 @@ object Endpoint {
   def apply[F[_]]: EndpointModule[F] = EndpointModule[F]
 
   /**
+    * Convert [[Endpoint.Compiled]] into Finagle Service
+    */
+  def toService[F[_] : Effect](compiled: Endpoint.Compiled[F]): Service[Request, Response] = ToService(compiled)
+
+  /**
    * Creates an empty [[Endpoint]] (an endpoint that never matches) for a given type.
    */
   def empty[F[_], A]: Endpoint[F, A] =
