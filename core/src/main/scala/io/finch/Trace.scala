@@ -97,14 +97,12 @@ object Trace {
    *   Trace.capture { foo(Request()).map(_ => Trace.captured) }
    * }}}
    */
-  @deprecated("Use Bootstrap.compile together with Kleisli middleware to get an access to Trace", "0.28.0")
   def capture[A](fn: => A): A = captureLocal.let(new Capture(empty))(fn)
 
   /**
    * Retrieve the captured [[Trace]] instance or [[empty]] when run outside of [[Trace.capture]]
    * context.
    */
-  @deprecated("Use Bootstrap.compile together with Kleisli middleware to get an access to Trace", "0.28.0")
   def captured: Trace = captureLocal() match {
     case Some(c) => c.trace
     case None => empty

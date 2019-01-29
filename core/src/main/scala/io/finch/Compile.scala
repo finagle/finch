@@ -112,8 +112,6 @@ object Compile {
         underlying(Input.fromRequest(req)) match {
           case EndpointResult.Matched(rem, trc, out) if rem.route.isEmpty =>
 
-            Trace.captureIfNeeded(trc)
-
             val accept = if (negotiateContent) req.accept.map(a => Accept.fromString(a)).toList else Nil
 
             F

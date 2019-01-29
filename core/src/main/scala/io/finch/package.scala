@@ -36,7 +36,9 @@ package object finch extends Outputs with ValidationRules {
       new Service[Request, Response] {
         def apply(request: Request): Future[Response] = {
           val repF = compiled(request).flatMap {
-            case (_, either) => F.fromEither(either)
+            case (trc, either) =>
+              Trace.captureIfNeeded(trc)
+              F.fromEither(either)
           }
           val rep = new Promise[Response]
           val run = (F match {
