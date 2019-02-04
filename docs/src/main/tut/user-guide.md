@@ -206,16 +206,12 @@ Finch provides the following instances for reading HTTP params (evaluating endpo
 - `paramsNel("foos")` - multi-value param "foos" that return `cats.data.NonEmptyList` or a failed
   `Future`
 
-In addition to these evaluating endpoints, there is also one matching endpoint `paramExists("foo")`
-that only matches requests with "foo" param.
-
 #### Headers
 
 Instances for reading HTTP headers include both evaluating and matching instances.
 
 - `header("foo")` - required header "foo"
 - `headerOption("foo")` - optional header "foo"
-- `headerExists("foo")` - only matches requests that contain header "foo"
 
 #### Bodies
 
