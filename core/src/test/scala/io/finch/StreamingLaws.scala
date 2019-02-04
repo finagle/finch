@@ -1,7 +1,7 @@
 package io.finch
 
+import cats.Functor
 import java.nio.charset.Charset
-
 import cats.effect.Effect
 import cats.instances.AllInstances
 import cats.laws._
@@ -13,8 +13,10 @@ import org.typelevel.discipline.Laws
 
 abstract class StreamingLaws[S[_[_], _], F[_]] extends Laws with AllInstances with MissingInstances {
 
-  implicit def LR: LiftReader[S, F]
+  implicit def S: LiftReader[F, S]
+  implicit def SS: Functor[S[F, ?]]
   implicit def F: Effect[F]
+
 
   def toResponse: ToResponse.Aux[F, S[F, Buf], Text.Plain]
   def fromList:  List[Buf] => S[F, Buf]
@@ -61,10 +63,12 @@ object StreamingLaws {
     listFromStream: S[F, Array[Byte]] => List[Buf]
   )(implicit
     f: Effect[F],
-    lr: LiftReader[S, F],
+    s: LiftReader[F, S],
+    ss: Functor[S[F, ?]],
     tr: ToResponse.Aux[F, S[F, Buf], Text.Plain]
   ): StreamingLaws[S, F] = new StreamingLaws[S, F] {
-    implicit val LR: LiftReader[S, F] = lr
+    implicit val S: LiftReader[F, S] = s
+    implicit val SS: Functor[S[F, ?]] = ss
     implicit val F: Effect[F] = f
 
     val toResponse: ToResponse.Aux[F, S[F, Buf], Text.Plain] = tr

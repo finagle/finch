@@ -1,6 +1,6 @@
 package io.finch
 
-import cats.{Alternative, Applicative, ApplicativeError, Id, Monad, MonadError}
+import cats.{Alternative, Applicative, ApplicativeError, Functor, Id, Monad, MonadError}
 import cats.data._
 import cats.effect._
 import cats.syntax.all._
@@ -914,7 +914,8 @@ object Endpoint {
    * }}}
    */
   def binaryBodyStream[F[_]: Effect, S[_[_], _]](implicit
-    LR: LiftReader[S, F]
+    S: LiftReader[F, S],
+    SS: Functor[S[F, ?]]
   ): Endpoint[F, S[F, Array[Byte]]] = new BinaryBodyStream[F, S]
 
   /**
@@ -930,7 +931,8 @@ object Endpoint {
    * }}}
    */
   def stringBodyStream[F[_]: Effect, S[_[_], _]](implicit
-    LR: LiftReader[S, F]
+    S: LiftReader[F, S],
+    SS: Functor[S[F, ?]]
   ): Endpoint[F, S[F, String]] = new StringBodyStream[F, S]
 
   /**
@@ -952,24 +954,24 @@ object Endpoint {
    * }}}
    */
   def bodyStream[F[_]: Effect, S[_[_], _], A, CT <: String](implicit
-    LR: LiftReader[S, F],
-    A: DecodeStream.Aux[S, F, A, CT]
+    S: LiftReader[F, S],
+    SS: DecodeStream.Aux[F, S, A, CT]
   ): Endpoint[F, S[F, A]] = new BodyStream[F, S, A, CT]
 
   /**
    * See [[bodyStream]]. This is just an alias for `bodyStream[?, ?, Application.Json]`.
    */
   def jsonBodyStream[F[_]: Effect, S[_[_], _], A](implicit
-    LR: LiftReader[S, F],
-    A: DecodeStream.Aux[S, F, A, Application.Json]
+    S: LiftReader[F, S],
+    SS: DecodeStream.Aux[F, S, A, Application.Json]
   ) : Endpoint[F, S[F, A]] = bodyStream[F, S, A, Application.Json]
 
   /**
    * See [[bodyStream]]. This is just an alias for `bodyStream[?, ?, Text.Plain]`.
    */
   def textBodyStream[F[_]: Effect, S[_[_], _], A](implicit
-    LR: LiftReader[S, F],
-    A: DecodeStream.Aux[S, F, A, Text.Plain]
+    S: LiftReader[F, S],
+    SS: DecodeStream.Aux[F, S, A, Text.Plain]
   ): Endpoint[F, S[F, A]] = bodyStream[F, S, A, Text.Plain]
 
   /**

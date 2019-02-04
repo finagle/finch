@@ -11,15 +11,13 @@ package object fs2 extends StreamInstances {
 
   implicit def streamLiftReader[F[_]](implicit
     F: Effect[F],
-    TE: ToEffect[Future, F]
-  ): LiftReader[Stream, F] =
-    new LiftReader[Stream, F] {
-      final def apply[A](reader: Reader[Buf], process: Buf => A): Stream[F, A] = {
+    FF: ToEffect[Future, F]
+  ): LiftReader[F, Stream] = new LiftReader[F, Stream] {
+      final def apply(r: Reader[Buf]): Stream[F, Buf] = {
         Stream
-          .repeatEval(F.suspend(TE(reader.read())))
+          .repeatEval(F.suspend(FF(r.read())))
           .unNoneTerminate
-          .map(process)
-          .onFinalize(F.delay(reader.discard()))
+          .onFinalize(F.delay(r.discard()))
       }
     }
 

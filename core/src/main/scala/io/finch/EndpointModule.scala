@@ -1,6 +1,6 @@
 package io.finch
 
-import cats.Applicative
+import cats.{Applicative, Functor}
 import cats.data.NonEmptyList
 import cats.effect.{ContextShift, Effect, Resource, Sync}
 import com.twitter.finagle.http.{Cookie, Request}
@@ -287,7 +287,8 @@ trait EndpointModule[F[_]] {
    */
   def binaryBodyStream[S[_[_], _]](implicit
     F: Effect[F],
-    LR: LiftReader[S, F]
+    S: LiftReader[F, S],
+    SS: Functor[S[F, ?]]
   ): Endpoint[F, S[F, Array[Byte]]] = Endpoint.binaryBodyStream[F, S]
 
   /**
@@ -295,7 +296,8 @@ trait EndpointModule[F[_]] {
    */
   def stringBodyStream[S[_[_], _]](implicit
     F: Effect[F],
-    LR: LiftReader[S, F]
+    S: LiftReader[F, S],
+    SS: Functor[S[F, ?]]
   ): Endpoint[F, S[F, String]] = Endpoint.stringBodyStream[F, S]
 
   /**
@@ -303,8 +305,8 @@ trait EndpointModule[F[_]] {
    */
   def bodyStream[S[_[_], _], A, CT <: String](implicit
     F: Effect[F],
-    LR: LiftReader[S, F],
-    A: DecodeStream.Aux[S, F, A, CT]
+    S: LiftReader[F, S],
+    SS: DecodeStream.Aux[F, S, A, CT]
   ): Endpoint[F, S[F, A]] = Endpoint.bodyStream[F, S, A, CT]
 
   /**
@@ -312,8 +314,8 @@ trait EndpointModule[F[_]] {
    */
   def jsonBodyStream[S[_[_], _], A](implicit
     F: Effect[F],
-    LR: LiftReader[S, F],
-    A: DecodeStream.Aux[S, F, A, Application.Json]
+    S: LiftReader[F, S],
+    SS: DecodeStream.Aux[F, S, A, Application.Json]
   ): Endpoint[F, S[F, A]] = Endpoint.jsonBodyStream[F, S, A]
 
   /**
@@ -321,8 +323,8 @@ trait EndpointModule[F[_]] {
    */
   def textBodyStream[S[_[_], _], A](implicit
     F: Effect[F],
-    LR: LiftReader[S, F],
-    A: DecodeStream.Aux[S, F, A, Text.Plain]
+    S: LiftReader[F, S],
+    SS: DecodeStream.Aux[F, S, A, Text.Plain]
   ): Endpoint[F, S[F, A]] = Endpoint.textBodyStream[F, S, A]
 
   /**

@@ -1,5 +1,6 @@
 package io.finch.endpoint
 
+import cats.Functor
 import cats.effect.Effect
 import com.twitter.io.{Buf, Reader}
 import io.finch._
@@ -101,41 +102,43 @@ private[finch] abstract class ChunkedBody[F[_], S[_[_], _], A] extends Endpoint[
 }
 
 private[finch] final class BinaryBodyStream[F[_], S[_[_], _]](implicit
-  LR: LiftReader[S, F],
+  S: LiftReader[F, S],
+  SS: Functor[S[F, ?]],
   protected val F: Effect[F]
 ) extends ChunkedBody[F, S, Array[Byte]] with (Buf => Array[Byte]) {
 
   def apply(buf: Buf): Array[Byte] = buf.asByteArray
 
   protected def prepare(r: Reader[Buf], cs: Charset): Output[S[F, Array[Byte]]] =
-    Output.payload(LR(r, this))
+    Output.payload(SS.map(S(r))(this))
 
   override def toString: String = "binaryBodyStream"
 }
 
 private[finch] final class StringBodyStream[F[_], S[_[_], _]](implicit
-  LR: LiftReader[S, F],
+  S: LiftReader[F, S],
+  SS: Functor[S[F, ?]],
   protected val F: Effect[F]
 ) extends ChunkedBody[F, S, String] with (Buf => String) {
 
   def apply(buf: Buf): String = buf.asString(StandardCharsets.UTF_8)
 
   protected def prepare(r: Reader[Buf], cs: Charset): Output[S[F, String]] = cs match {
-    case StandardCharsets.UTF_8 => Output.payload(LR(r, this))
-    case _ => Output.payload(LR(r, _.asString(cs)))
+    case StandardCharsets.UTF_8 => Output.payload(SS.map(S(r))(this))
+    case _ => Output.payload(SS.map(S(r))(_.asString(cs)))
   }
 
   override def toString: String = "stringBodyStream"
 }
 
 private[finch] final class BodyStream[F[_], S[_[_], _], A, CT <: String](implicit
-  protected val F: Effect[F],
-  LR: LiftReader[S, F],
-  A: DecodeStream.Aux[S, F, A, CT]
+  S: LiftReader[F, S],
+  SS: DecodeStream.Aux[F, S, A, CT],
+  protected val F: Effect[F]
 ) extends ChunkedBody[F, S, A] {
 
   protected def prepare(r: Reader[Buf], cs: Charset): Output[S[F, A]] =
-    Output.payload(A(LR(r), cs))
+    Output.payload(SS(S(r), cs))
 
   override def toString: String = "bodyStream"
 }

@@ -27,9 +27,11 @@ trait Decoders {
   }
 
   implicit def enumerateCirce[F[_], A: Decoder](implicit
-    F: MonadError[F, Throwable]
-  ): DecodeStream.Json[Enumerator, F, A] =
-    DecodeStream.instance[Enumerator, F, A, Application.Json]((enum, cs) => {
+    F: MonadError[F, Throwable],
+    FF: DecodeStream.FromReader[F, Enumerator]
+  ): DecodeStream.Json[F, Enumerator, A] =
+    DecodeStream.instance[F, Enumerator, A, Application.Json]((r, cs) => {
+      val enum = FF(r)
       val parsed = cs match {
         case StandardCharsets.UTF_8 =>
           enum.map(_.asByteArray).through(iteratee.byteStreamParser[F])
@@ -39,8 +41,11 @@ trait Decoders {
       parsed.through(iteratee.decoder[F, A])
     })
 
-  implicit def fs2Circe[F[_]: Sync, A: Decoder]: DecodeStream.Json[Stream, F, A] =
-    DecodeStream.instance[Stream, F, A, Application.Json]((stream, cs) => {
+  implicit def fs2Circe[F[_]: Sync, A: Decoder](implicit
+    FF: DecodeStream.FromReader[F, Stream]
+  ): DecodeStream.Json[F, Stream, A] =
+    DecodeStream.instance[F, Stream, A, Application.Json]((r, cs) => {
+      val stream = FF(r)
       val parsed = cs match {
         case StandardCharsets.UTF_8 =>
           stream
