@@ -1,6 +1,7 @@
 package io.finch.middleware
 
 import cats.effect.IO
+import cats.syntax.apply._
 import com.twitter.finagle.Http
 import com.twitter.finagle.http.{Response, Status}
 import com.twitter.util.{Await, Time}
@@ -18,6 +19,9 @@ import io.finch._
   *   curl -v -H "Authorization: secret" http://localhost:8081/hello
   *   curl -V -H "Authorization: wrong" http://localhost:8081/hello
   * }}}
+  *
+  * !Disclaimer: most likely you would need to use proper libraries for logging, auth, and metrics
+  * instead but their use will be quite similar.
   */
 object Main extends App with Endpoint.Module[IO] {
 
@@ -25,33 +29,36 @@ object Main extends App with Endpoint.Module[IO] {
     Ok("Hello world")
   }
 
-  def auth(compiled: Endpoint.Compiled[IO]): Endpoint.Compiled[IO] = {
+  val auth: Endpoint.Compiled[IO] => Endpoint.Compiled[IO] = compiled => {
     Endpoint.Compiled[IO] {
       case req if req.authorization.contains("secret") => compiled(req)
       case _ => IO.pure(Trace.empty -> Right(Response(Status.Unauthorized)))
     }
   }
 
-  def logging(compiled: Endpoint.Compiled[IO]): Endpoint.Compiled[IO] = {
-    compiled.tapWith((req, res) => {
-      print(s"Request: $req\n")
-      print(s"Response: $res\n")
-      res
+  val logging: Endpoint.Compiled[IO] => Endpoint.Compiled[IO] = compiled => {
+    compiled.tapWithF((req, res) => {
+      IO(print(s"Request: $req\n")) *> IO(print(s"Response: $res\n")) *> IO.pure(res)
     })
   }
 
-  def stats(compiled: Endpoint.Compiled[IO]): Endpoint.Compiled[IO] = {
+  val stats: Endpoint.Compiled[IO] => Endpoint.Compiled[IO] = compiled => {
+    val now = IO(Time.now)
     Endpoint.Compiled[IO] { req =>
-      val start = Time.now
-      compiled.map {
-        case r @ (trace, _) =>
-          print(s"Response time: ${Time.now.diff(start)}. Trace: $trace\n")
-          r
-      }.run(req)
+      for {
+        start <- now
+        traceAndResponse <- compiled(req)
+        (trace, response) = traceAndResponse
+        stop <- now
+        _ <- IO(print(s"Response time: ${stop.diff(start)}. Trace: $trace\n"))
+      } yield {
+        (trace, response)
+      }
     }
   }
 
-  val compiled = stats(logging(auth(Bootstrap.serve[Text.Plain](helloWorld).compile)))
+  val filters = Function.chain(Seq(stats, logging, auth))
+  val compiled = filters(Bootstrap.serve[Text.Plain](helloWorld).compile)
 
   Await.ready(Http.server.serve(":8081", Endpoint.toService(compiled)))
 
