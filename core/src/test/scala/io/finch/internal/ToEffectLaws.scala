@@ -14,7 +14,7 @@ abstract trait ToEffectLaws[F[_], G[_], A] extends Laws with MissingInstances wi
   def G: Applicative[G]
   def extract: G[A] => A
 
-  def T: ToEffect[F, G]
+  def T: ToAsync[F, G]
 
   def nTransformation(f: => F[A], g: G[A], fn: A => A): IsEq[A] = {
     extract(G.map(T(f))(fn)) <-> extract(T(F.map(f)(fn)))
@@ -31,12 +31,12 @@ abstract trait ToEffectLaws[F[_], G[_], A] extends Laws with MissingInstances wi
 object ToEffectLaws {
 
   def apply[F[_] : Applicative, G[_] : Applicative, A](e: G[A] => A)(implicit
-    t: ToEffect[F, G]
+    t: ToAsync[F, G]
   ): ToEffectLaws[F, G, A] =
     new ToEffectLaws[F, G, A] {
       val F: Applicative[F] = implicitly[Applicative[F]]
       val G: Applicative[G] = implicitly[Applicative[G]]
-      val T: ToEffect[F, G] = t
+      val T: ToAsync[F, G] = t
       val extract: G[A] => A = e
     }
 

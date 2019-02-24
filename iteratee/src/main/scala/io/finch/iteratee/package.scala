@@ -1,6 +1,6 @@
 package io.finch
 
-import cats.effect.{Effect, IO}
+import cats.effect.{Async, Effect, IO}
 import com.twitter.io._
 import com.twitter.util.Future
 import io.finch.internal._
@@ -10,8 +10,8 @@ import java.nio.charset.Charset
 package object iteratee extends IterateeInstances {
 
   implicit def enumeratorLiftReader[F[_]](implicit
-    F: Effect[F],
-    TE: ToEffect[Future, F]
+    F: Async[F],
+    TE: ToAsync[Future, F]
   ): LiftReader[Enumerator, F] =
     new LiftReader[Enumerator, F] {
       final def apply[A](reader: Reader[Buf], process: Buf => A): Enumerator[F, A] = {
@@ -30,19 +30,19 @@ package object iteratee extends IterateeInstances {
 
   implicit def encodeJsonEnumerator[F[_]: Effect, A](implicit
     A: Encode.Json[A],
-    TE: ToEffect[Future, F]
+    TE: ToAsync[Future, F]
   ): EncodeStream.Json[F, Enumerator, A] =
     new EncodeNewLineDelimitedEnumerator[F, A, Application.Json]
 
   implicit def encodeSseEnumerator[F[_]: Effect, A](implicit
     A: Encode.Aux[A, Text.EventStream],
-    TE: ToEffect[Future, F]
+    TE: ToAsync[Future, F]
   ): EncodeStream.Aux[F, Enumerator, A, Text.EventStream] =
     new EncodeNewLineDelimitedEnumerator[F, A, Text.EventStream]
 
   implicit def encodeTextEnumerator[F[_]: Effect, A](implicit
     A: Encode.Text[A],
-    TE: ToEffect[Future, F]
+    TE: ToAsync[Future, F]
   ): EncodeStream.Text[F, Enumerator, A] =
     new EncodeEnumerator[F, A, Text.Plain] {
       override protected def encodeChunk(chunk: A, cs: Charset): Buf = A(chunk, cs)
@@ -54,7 +54,7 @@ trait IterateeInstances {
 
   protected final class EncodeNewLineDelimitedEnumerator[F[_]: Effect, A, CT <: String](implicit
     A: Encode.Aux[A, CT],
-    TE: ToEffect[Future, F]
+    TE: ToAsync[Future, F]
   ) extends EncodeEnumerator[F, A, CT] {
     protected def encodeChunk(chunk: A, cs: Charset): Buf =
       A(chunk, cs).concat(newLine(cs))
@@ -62,7 +62,7 @@ trait IterateeInstances {
 
   protected abstract class EncodeEnumerator[F[_], A, CT <: String](implicit
     F: Effect[F],
-    TE: ToEffect[Future, F]
+    TE: ToAsync[Future, F]
   ) extends EncodeStream[F, Enumerator, A] with (Either[Throwable, Unit] => IO[Unit]) {
 
     type ContentType = CT

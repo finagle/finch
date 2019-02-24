@@ -1,13 +1,13 @@
 package io.finch.endpoint
 
-import cats.effect.Effect
+import cats.Applicative
 import io.finch._
 import io.netty.handler.codec.http.QueryStringDecoder
 import scala.reflect.ClassTag
 import shapeless.HNil
 
 private[finch] class MatchPath[F[_]](s: String)(implicit
-  F: Effect[F]
+  F: Applicative[F]
 ) extends Endpoint[F, HNil] {
   final def apply(input: Input): EndpointResult[F, HNil] = input.route match {
     case `s` :: rest =>
@@ -25,7 +25,7 @@ private[finch] class MatchPath[F[_]](s: String)(implicit
 private[finch] class ExtractPath[F[_], A](implicit
   d: DecodePath[A],
   ct: ClassTag[A],
-  F: Effect[F]
+  F: Applicative[F]
 ) extends Endpoint[F, A] {
   final def apply(input: Input): EndpointResult[F, A] = input.route match {
     case s :: rest => d(QueryStringDecoder.decodeComponent(s)) match {
@@ -46,7 +46,7 @@ private[finch] class ExtractPath[F[_], A](implicit
 private[finch] class ExtractPaths[F[_], A](implicit
   d: DecodePath[A],
   ct: ClassTag[A],
-  F: Effect[F]
+  F: Applicative[F]
 ) extends Endpoint[F, List[A]] {
   final def apply(input: Input): EndpointResult[F, List[A]] = EndpointResult.Matched(
     input.copy(route = Nil),

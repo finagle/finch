@@ -1,11 +1,11 @@
 package io.finch.endpoint
 
-import cats.effect.Effect
+import cats.effect.Sync
 import com.twitter.finagle.http.{Cookie => FinagleCookie}
 import io.finch._
 
 private[finch] abstract class Cookie[F[_], A](name: String)(implicit
-  protected val F: Effect[F]
+  protected val F: Sync[F]
 ) extends Endpoint[F, A] {
 
   protected def missing(name: String): F[Output[A]]

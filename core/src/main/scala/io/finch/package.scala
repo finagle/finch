@@ -8,7 +8,7 @@ import cats.effect.IO
   */
 package object finch extends Outputs with ValidationRules {
 
-  type ToEffect[F[_], E[_]] = internal.ToEffect[F, E]
+  type ToAsync[F[_], E[_]] = internal.ToAsync[F, E]
 
   object catsEffect extends EndpointModule[IO]
 

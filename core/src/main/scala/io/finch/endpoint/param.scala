@@ -2,14 +2,14 @@ package io.finch.endpoint
 
 import cats.Id
 import cats.data.NonEmptyList
-import cats.effect.Effect
+import cats.effect.Sync
 import io.finch._
 import scala.reflect.ClassTag
 
 private[finch] abstract class Param[F[_], G[_], A](name: String)(implicit
   d: DecodeEntity[A],
   tag: ClassTag[A],
-  protected val F: Effect[F]
+  protected val F: Sync[F]
 ) extends Endpoint[F, G[A]] { self =>
 
   protected def missing(name: String): F[Output[G[A]]]
@@ -50,7 +50,7 @@ private[finch] object Param {
 private[finch] abstract class Params[F[_], G[_], A](name: String)(implicit
   d: DecodeEntity[A],
   tag: ClassTag[A],
-  protected val F: Effect[F]
+  protected val F: Sync[F]
 ) extends Endpoint[F, G[A]] {
 
   protected def missing(name: String): F[Output[G[A]]]

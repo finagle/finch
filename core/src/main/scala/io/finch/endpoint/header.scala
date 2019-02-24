@@ -1,7 +1,7 @@
 package io.finch.endpoint
 
 import cats.Id
-import cats.effect.Effect
+import cats.effect.Sync
 import io.finch._
 import io.finch.items._
 import scala.reflect.ClassTag
@@ -9,7 +9,7 @@ import scala.reflect.ClassTag
 private[finch] abstract class Header[F[_], G[_], A](name: String)(implicit
   d: DecodeEntity[A],
   tag: ClassTag[A],
-  protected val F: Effect[F]
+  protected val F: Sync[F]
 ) extends Endpoint[F, G[A]] { self =>
 
   protected def missing(name: String): F[Output[G[A]]]

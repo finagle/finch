@@ -1,6 +1,7 @@
 package io.finch
 
-import cats.effect.{ContextShift, Effect, Resource}
+import cats.Applicative
+import cats.effect.{ContextShift, Resource, Sync}
 import cats.syntax.all._
 import com.twitter.finagle.http.{Method => FinagleMethod}
 import com.twitter.io.Buf
@@ -10,7 +11,7 @@ import shapeless.HNil
 package object endpoint {
 
   private[finch] class FromInputStream[F[_]](stream: Resource[F, InputStream])(
-    implicit F: Effect[F], S: ContextShift[F]
+    implicit F: Sync[F], S: ContextShift[F]
   ) extends Endpoint[F, Buf] {
 
     private def readLoop(left: Buf, stream: InputStream): F[Buf] = F.suspend {
@@ -30,7 +31,7 @@ package object endpoint {
       )
   }
 
-  private[finch] class Asset[F[_]](path: String)(implicit F: Effect[F]) extends Endpoint[F, HNil] {
+  private[finch] class Asset[F[_]](path: String)(implicit F: Applicative[F]) extends Endpoint[F, HNil] {
     final def apply(input: Input): Endpoint.Result[F, HNil] = {
       val req = input.request
       if (req.method != FinagleMethod.Get || req.path != path) EndpointResult.NotMatched[F]

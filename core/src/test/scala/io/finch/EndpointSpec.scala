@@ -5,6 +5,8 @@ import java.util.concurrent.TimeUnit
 
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
+import cats.laws._
+import cats.laws.discipline._
 import cats.laws.discipline.AlternativeTests
 import cats.laws.discipline.SemigroupalTests.Isomorphisms
 import com.twitter.finagle.http.{Cookie, Method, Request}
@@ -36,6 +38,13 @@ class EndpointSpec extends FinchSpec {
   it should "support very basic map" in {
     check { i: Input =>
       path[String].map(_ * 2).apply(i).awaitValueUnsafe() === i.route.headOption.map(_ * 2)
+    }
+  }
+
+  it should "correctly run mapF" in {
+    check { e: Endpoint[IO, String] =>
+      val fn: String => Int = _.length
+      e.mapF(_.map(fn)) <-> e.map(fn)
     }
   }
 
