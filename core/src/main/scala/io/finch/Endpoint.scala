@@ -97,7 +97,7 @@ trait Endpoint[F[_], A] { self =>
 
   final def mapF[B](fn: F[A] => F[B])(implicit F: Monad[F]): Endpoint[F, B] =
     new Endpoint[F, B] {
-      def apply(input: Input): Result[F, B] =
+      def apply(input: Input): Endpoint.Result[F, B] =
         self(input) match {
           case EndpointResult.Matched(rem, trc, out) =>
             EndpointResult.Matched[F, B](rem, trc, out.flatMap { o =>
