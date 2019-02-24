@@ -95,6 +95,9 @@ trait Endpoint[F[_], A] { self =>
       final override def toString: String = self.toString
     }
 
+  /**
+    * Maps this endpoint to the given function `F[A] => F[B]`
+    */
   final def mapF[B](fn: F[A] => F[B])(implicit F: Monad[F]): Endpoint[F, B] =
     new Endpoint[F, B] {
       def apply(input: Input): Endpoint.Result[F, B] =
