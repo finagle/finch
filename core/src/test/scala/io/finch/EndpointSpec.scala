@@ -44,7 +44,7 @@ class EndpointSpec extends FinchSpec {
   it should "correctly run mapF" in {
     check { e: Endpoint[IO, String] =>
       val fn: String => Int = _.length
-      e.mapF(_.map(fn)) <-> e.map(fn)
+      e.transformF(_.map(fn)) <-> e.map(fn)
     }
   }
 

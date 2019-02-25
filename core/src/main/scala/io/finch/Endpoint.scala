@@ -96,24 +96,6 @@ trait Endpoint[F[_], A] { self =>
     }
 
   /**
-    * Maps this endpoint to the given function `F[A] => F[B]`
-    */
-  final def mapF[B](fn: F[A] => F[B])(implicit F: Monad[F]): Endpoint[F, B] =
-    new Endpoint[F, B] {
-      def apply(input: Input): Endpoint.Result[F, B] =
-        self(input) match {
-          case EndpointResult.Matched(rem, trc, out) =>
-            EndpointResult.Matched[F, B](rem, trc, out.flatMap { o =>
-              o.traverse(a => fn(F.pure(a)))
-            })
-          case skipped: EndpointResult.NotMatched[F] => skipped
-        }
-
-      final override def item = self.item
-      final override def toString: String = self.toString
-    }
-
-  /**
     * Maps this endpoint to the given function `A => Output[B]`.
     */
   final def mapOutput[B](fn: A => Output[B])(implicit F: Monad[F]): Endpoint[F, B] =
@@ -137,7 +119,7 @@ trait Endpoint[F[_], A] { self =>
     }
 
   /**
-    * Transforms this endpoint to the given function `Future[Output[A]] => Future[Output[B]]`.
+    * Transforms this endpoint to the given function `F[Output[A]] => F[Output[B]]`.
     *
     *
     * Might be useful to perform some extra action on the underlying `Future`. For example, time
@@ -160,6 +142,24 @@ trait Endpoint[F[_], A] { self =>
       }
 
       override def item = self.item
+      final override def toString: String = self.toString
+    }
+
+  /**
+    * Transform this endpoint to the given function `F[A] => F[B]`
+    */
+  final def transformF[B](fn: F[A] => F[B])(implicit F: Monad[F]): Endpoint[F, B] =
+    new Endpoint[F, B] {
+      def apply(input: Input): Endpoint.Result[F, B] =
+        self(input) match {
+          case EndpointResult.Matched(rem, trc, out) =>
+            EndpointResult.Matched[F, B](rem, trc, out.flatMap { o =>
+              o.traverse(a => fn(F.pure(a)))
+            })
+          case skipped: EndpointResult.NotMatched[F] => skipped
+        }
+
+      final override def item = self.item
       final override def toString: String = self.toString
     }
 
