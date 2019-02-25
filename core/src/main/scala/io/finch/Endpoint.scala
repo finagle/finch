@@ -448,6 +448,13 @@ object Endpoint {
     */
   type Compiled[F[_]] = Kleisli[F, Request, (Trace, Either[Throwable, Response])]
 
+  object Compiled {
+
+    def apply[F[_]](run: Request => F[(Trace, Either[Throwable, Response])]): Endpoint.Compiled[F] =
+      new Endpoint.Compiled[F](run)
+
+  }
+
   final implicit class HListEndpointOps[F[_], L <: HList](val self: Endpoint[F, L]) extends AnyVal {
     /**
      * Converts this endpoint to one that returns any type with this [[shapeless.HList]] as its
