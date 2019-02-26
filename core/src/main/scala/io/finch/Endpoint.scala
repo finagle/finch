@@ -119,7 +119,7 @@ trait Endpoint[F[_], A] { self =>
     }
 
   /**
-    * Transforms this endpoint to the given function `Future[Output[A]] => Future[Output[B]]`.
+    * Transforms this endpoint to the given function `F[Output[A]] => F[Output[B]]`.
     *
     *
     * Might be useful to perform some extra action on the underlying `Future`. For example, time
@@ -142,6 +142,24 @@ trait Endpoint[F[_], A] { self =>
       }
 
       override def item = self.item
+      final override def toString: String = self.toString
+    }
+
+  /**
+    * Transform this endpoint to the given function `F[A] => F[B]`
+    */
+  final def transformF[B](fn: F[A] => F[B])(implicit F: Monad[F]): Endpoint[F, B] =
+    new Endpoint[F, B] {
+      def apply(input: Input): Endpoint.Result[F, B] =
+        self(input) match {
+          case EndpointResult.Matched(rem, trc, out) =>
+            EndpointResult.Matched[F, B](rem, trc, out.flatMap { o =>
+              o.traverse(a => fn(F.pure(a)))
+            })
+          case skipped: EndpointResult.NotMatched[F] => skipped
+        }
+
+      final override def item = self.item
       final override def toString: String = self.toString
     }
 
@@ -497,7 +515,7 @@ object Endpoint {
       self.map(value => gen.from(value :: HNil))
   }
 
-  implicit def endpointInstances[F[_] : Effect]: Alternative[({type T[B] = Endpoint[F, B]})#T] = {
+  implicit def endpointInstances[F[_] : Sync]: Alternative[({type T[B] = Endpoint[F, B]})#T] = {
     new Alternative[({type T[B] = Endpoint[F, B]})#T] {
 
       final override def ap[A, B](ff: Endpoint[F, A => B])(fa: Endpoint[F, A]): Endpoint[F, B] =
@@ -617,7 +635,7 @@ object Endpoint {
    * @see [[fromFile]]
    */
   def fromInputStream[F[_]](stream: Resource[F, InputStream])(
-    implicit F: Effect[F], S: ContextShift[F]
+    implicit F: Sync[F], S: ContextShift[F]
   ): Endpoint[F, Buf] = new FromInputStream[F](stream)
 
   /**
@@ -627,7 +645,7 @@ object Endpoint {
    * @see [[fromInputStream]]
    */
   def fromFile[F[_]](file: File)(
-    implicit F: Effect[F], S: ContextShift[F]
+    implicit F: Sync[F], S: ContextShift[F]
   ): Endpoint[F, Buf] =
     fromInputStream[F](
       Resource.fromAutoCloseable(F.delay(new FileInputStream(file)))
@@ -665,7 +683,7 @@ object Endpoint {
    * @see https://docs.oracle.com/javase/8/docs/technotes/guides/lang/resources.html
    */
   def classpathAsset[F[_]](path: String)(implicit
-    F: Effect[F],
+    F: Sync[F],
     S: ContextShift[F]
   ): Endpoint[F, Buf] = {
     val asset = new Asset[F](path)
@@ -691,7 +709,7 @@ object Endpoint {
    * }}}
    */
   def filesystemAsset[F[_]](path: String)(implicit
-    F: Effect[F],
+    F: Sync[F],
     S: ContextShift[F]
   ): Endpoint[F, Buf] = {
     val asset = new Asset[F](path)
@@ -703,7 +721,7 @@ object Endpoint {
   /**
    * A root [[Endpoint]] that always matches and extracts the current request.
    */
-  def root[F[_]](implicit F: Effect[F]): Endpoint[F, Request] =
+  def root[F[_]](implicit F: Sync[F]): Endpoint[F, Request] =
     new Endpoint[F, Request] {
       final def apply(input: Input): Result[F, Request] =
         EndpointResult.Matched(input, Trace.empty, F.delay(Output.payload(input.request)))
@@ -744,20 +762,20 @@ object Endpoint {
    * A matching [[Endpoint]] that reads a value of type `A` (using the implicit
    * [[DecodePath]] instances defined for `A`) from the current path segment.
    */
-  def path[F[_]: Effect, A: DecodePath: ClassTag]: Endpoint[F, A] =
+  def path[F[_]: Sync, A: DecodePath: ClassTag]: Endpoint[F, A] =
     new ExtractPath[F, A]
 
   /**
    * A matching [[Endpoint]] that reads a tail value `A` (using the implicit
    * [[DecodePath]] instances defined for `A`) from the entire path.
    */
-  def paths[F[_]: Effect, A: DecodePath: ClassTag]: Endpoint[F, List[A]] =
+  def paths[F[_]: Sync, A: DecodePath: ClassTag]: Endpoint[F, List[A]] =
     new ExtractPaths[F, A]
 
   /**
    * An [[Endpoint]] that matches a given string.
    */
-  def path[F[_]: Effect](s: String): Endpoint[F, HNil] =
+  def path[F[_]: Sync](s: String): Endpoint[F, HNil] =
     new MatchPath[F](s)
 
   /**
@@ -828,21 +846,21 @@ object Endpoint {
    * An evaluating [[Endpoint]] that reads a required HTTP header `name` from the request or raises
    * an [[Error.NotPresent]] exception when the header is missing.
    */
-  def header[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, A] =
+  def header[F[_]: Sync, A: DecodeEntity: ClassTag](name: String): Endpoint[F, A] =
     new Header[F, Id, A](name) with Header.Required[F, A]
 
   /**
    * An evaluating [[Endpoint]] that reads an optional HTTP header `name` from the request into an
    * `Option`.
    */
-  def headerOption[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, Option[A]] =
+  def headerOption[F[_]: Sync, A: DecodeEntity: ClassTag](name: String): Endpoint[F, Option[A]] =
     new Header[F, Option, A](name) with Header.Optional[F, A]
 
   /**
    * An evaluating [[Endpoint]] that reads a binary request body, interpreted as a `Array[Byte]`,
    * into an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
    */
-  def binaryBodyOption[F[_]: Effect]: Endpoint[F, Option[Array[Byte]]] =
+  def binaryBodyOption[F[_]: Sync]: Endpoint[F, Option[Array[Byte]]] =
     new BinaryBody[F, Option[Array[Byte]]] with FullBody.Optional[F, Array[Byte]]
 
   /**
@@ -850,14 +868,14 @@ object Endpoint {
    * `Array[Byte]`, or throws a [[Error.NotPresent]] exception. The returned [[Endpoint]] only
    * matches non-chunked (non-streamed) requests.
    */
-  def binaryBody[F[_]: Effect]: Endpoint[F, Array[Byte]] =
+  def binaryBody[F[_]: Sync]: Endpoint[F, Array[Byte]] =
     new BinaryBody[F, Array[Byte]] with FullBody.Required[F, Array[Byte]]
 
   /**
    * An evaluating [[Endpoint]] that reads an optional request body, interpreted as a `String`, into
    * an `Option`. The returned [[Endpoint]] only matches non-chunked (non-streamed) requests.
    */
-  def stringBodyOption[F[_]: Effect]: Endpoint[F, Option[String]] =
+  def stringBodyOption[F[_]: Sync]: Endpoint[F, Option[String]] =
     new StringBody[F, Option[String]] with FullBody.Optional[F, String]
 
   /**
@@ -865,7 +883,7 @@ object Endpoint {
    * throws an [[Error.NotPresent]] exception. The returned [[Endpoint]] only matches non-chunked
    * (non-streamed) requests.
    */
-  def stringBody[F[_]: Effect]: Endpoint[F, String] =
+  def stringBody[F[_]: Sync]: Endpoint[F, String] =
     new StringBody[F, String] with FullBody.Required[F, String]
 
   /**
@@ -873,7 +891,7 @@ object Endpoint {
    * interpreted as `A`, into an `Option`. The returned [[Endpoint]] only matches non-chunked
    * (non-streamed) requests.
    */
-  def bodyOption[F[_]: Effect, A: ClassTag, CT](implicit D: Decode.Dispatchable[A, CT]): Endpoint[F, Option[A]] =
+  def bodyOption[F[_]: Sync, A: ClassTag, CT](implicit D: Decode.Dispatchable[A, CT]): Endpoint[F, Option[A]] =
     new Body[F, A, Option[A], CT] with FullBody.Optional[F, A]
 
   /**
@@ -881,31 +899,31 @@ object Endpoint {
    * interpreted as `A`, or throws an [[Error.NotPresent]] exception. The returned [[Endpoint]]
    * only matches non-chunked (non-streamed) requests.
    */
-  def body[F[_]: Effect, A: ClassTag, CT](implicit d: Decode.Dispatchable[A, CT]): Endpoint[F, A] =
+  def body[F[_]: Sync, A: ClassTag, CT](implicit d: Decode.Dispatchable[A, CT]): Endpoint[F, A] =
     new Body[F, A, A, CT] with FullBody.Required[F, A]
 
   /**
    * Alias for `body[F, A, Application.Json]`.
    */
-  def jsonBody[F[_]: Effect, A: Decode.Json: ClassTag]: Endpoint[F, A] =
+  def jsonBody[F[_]: Sync, A: Decode.Json: ClassTag]: Endpoint[F, A] =
     body[F, A, Application.Json]
 
   /**
    * Alias for `bodyOption[F, A, Application.Json]`.
    */
-  def jsonBodyOption[F[_]: Effect, A: Decode.Json: ClassTag]: Endpoint[F, Option[A]] =
+  def jsonBodyOption[F[_]: Sync, A: Decode.Json: ClassTag]: Endpoint[F, Option[A]] =
     bodyOption[F, A, Application.Json]
 
   /**
    * Alias for `body[F, A, Text.Plain]`
    */
-  def textBody[F[_]: Effect, A: Decode.Text: ClassTag]: Endpoint[F, A] =
+  def textBody[F[_]: Sync, A: Decode.Text: ClassTag]: Endpoint[F, A] =
     body[F, A, Text.Plain]
 
   /**
    * Alias for `bodyOption[A, Text.Plain]`
    */
-  def textBodyOption[F[_]: Effect, A: Decode.Text: ClassTag]: Endpoint[F, Option[A]] =
+  def textBodyOption[F[_]: Sync, A: Decode.Text: ClassTag]: Endpoint[F, Option[A]] =
     bodyOption[F, A, Text.Plain]
 
   /**
@@ -920,7 +938,7 @@ object Endpoint {
    *   bin: Endpoint[IO, Enumerator[IO, Array[Byte]]] = binaryBodyStream
    * }}}
    */
-  def binaryBodyStream[F[_]: Effect, S[_[_], _]](implicit
+  def binaryBodyStream[F[_]: Sync, S[_[_], _]](implicit
     LR: LiftReader[S, F]
   ): Endpoint[F, S[F, Array[Byte]]] = new BinaryBodyStream[F, S]
 
@@ -936,7 +954,7 @@ object Endpoint {
    *   bin: Endpoint[IO, Enumerator[IO, String]] = stringBodyStream
    * }}}
    */
-  def stringBodyStream[F[_]: Effect, S[_[_], _]](implicit
+  def stringBodyStream[F[_]: Sync, S[_[_], _]](implicit
     LR: LiftReader[S, F]
   ): Endpoint[F, S[F, String]] = new StringBodyStream[F, S]
 
@@ -958,7 +976,7 @@ object Endpoint {
    *   bin: Endpoint[IO, Enumerator[IO, Foo]] = bodyStream
    * }}}
    */
-  def bodyStream[F[_]: Effect, S[_[_], _], A, CT <: String](implicit
+  def bodyStream[F[_]: Sync, S[_[_], _], A, CT <: String](implicit
     LR: LiftReader[S, F],
     A: DecodeStream.Aux[S, F, A, CT]
   ): Endpoint[F, S[F, A]] = new BodyStream[F, S, A, CT]
@@ -966,7 +984,7 @@ object Endpoint {
   /**
    * See [[bodyStream]]. This is just an alias for `bodyStream[?, ?, Application.Json]`.
    */
-  def jsonBodyStream[F[_]: Effect, S[_[_], _], A](implicit
+  def jsonBodyStream[F[_]: Sync, S[_[_], _], A](implicit
     LR: LiftReader[S, F],
     A: DecodeStream.Aux[S, F, A, Application.Json]
   ) : Endpoint[F, S[F, A]] = bodyStream[F, S, A, Application.Json]
@@ -974,7 +992,7 @@ object Endpoint {
   /**
    * See [[bodyStream]]. This is just an alias for `bodyStream[?, ?, Text.Plain]`.
    */
-  def textBodyStream[F[_]: Effect, S[_[_], _], A](implicit
+  def textBodyStream[F[_]: Sync, S[_[_], _], A](implicit
     LR: LiftReader[S, F],
     A: DecodeStream.Aux[S, F, A, Text.Plain]
   ): Endpoint[F, S[F, A]] = bodyStream[F, S, A, Text.Plain]
@@ -983,21 +1001,21 @@ object Endpoint {
    * An evaluating [[Endpoint]] that reads an optional HTTP cookie from the request into an
    * `Option`.
    */
-  def cookieOption[F[_]: Effect](name: String): Endpoint[F, Option[FinagleCookie]] =
+  def cookieOption[F[_]: Sync](name: String): Endpoint[F, Option[FinagleCookie]] =
     new Cookie[F, Option[FinagleCookie]](name) with Cookie.Optional[F]
 
   /**
    * An evaluating [[Endpoint]] that reads a required cookie from the request or raises an
    * [[Error.NotPresent]] exception when the cookie is missing.
    */
-  def cookie[F[_]: Effect](name: String): Endpoint[F, FinagleCookie] =
+  def cookie[F[_]: Sync](name: String): Endpoint[F, FinagleCookie] =
     new Cookie[F, FinagleCookie](name) with Cookie.Required[F]
 
   /**
    * An evaluating [[Endpoint]] that reads an optional query-string param `name` from the request
    * into an `Option`.
    */
-  def paramOption[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, Option[A]] =
+  def paramOption[F[_]: Sync, A: DecodeEntity: ClassTag](name: String): Endpoint[F, Option[A]] =
     new Param[F, Option, A](name) with Param.Optional[F, A]
 
   /**
@@ -1005,14 +1023,14 @@ object Endpoint {
    * request or raises an [[Error.NotPresent]] exception when the param is missing; an
    * [[Error.NotValid]] exception is the param is empty.
    */
-  def param[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, A] =
+  def param[F[_]: Sync, A: DecodeEntity: ClassTag](name: String): Endpoint[F, A] =
     new Param[F, Id, A](name) with Param.Required[F, A]
 
   /**
    * An evaluating [[Endpoint]] that reads an optional (in a meaning that a resulting
    * `Seq` may be empty) multi-value query-string param `name` from the request into a `Seq`.
    */
-  def params[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, List[A]] =
+  def params[F[_]: Sync, A: DecodeEntity: ClassTag](name: String): Endpoint[F, List[A]] =
     new Params[F, List, A](name) with Params.AllowEmpty[F, A]
 
   /**
@@ -1020,62 +1038,62 @@ object Endpoint {
    * from the request into a `NonEmptyList` or raises a [[Error.NotPresent]] exception
    * when the params are missing or empty.
    */
-  def paramsNel[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, NonEmptyList[A]] =
+  def paramsNel[F[_]: Sync, A: DecodeEntity: ClassTag](name: String): Endpoint[F, NonEmptyList[A]] =
     new Params[F, NonEmptyList, A](name) with Params.NonEmpty[F, A]
 
   /**
    * An evaluating [[Endpoint]] that reads an optional file upload from a `multipart/form-data`
    * request into an `Option`.
    */
-  def multipartFileUploadOption[F[_]: Effect](name: String): Endpoint[F, Option[FinagleMultipart.FileUpload]] =
+  def multipartFileUploadOption[F[_]: Sync](name: String): Endpoint[F, Option[FinagleMultipart.FileUpload]] =
     new FileUpload[F, Option](name) with FileUpload.Optional[F]
 
   /**
    * An evaluating [[Endpoint]] that reads a required file upload from a `multipart/form-data`
    * request.
    */
-  def multipartFileUpload[F[_]: Effect](name: String): Endpoint[F, FinagleMultipart.FileUpload] =
+  def multipartFileUpload[F[_]: Sync](name: String): Endpoint[F, FinagleMultipart.FileUpload] =
     new FileUpload[F, Id](name) with FileUpload.Required[F]
 
   /**
    * An evaluating [[Endpoint]] that optionally reads multiple file uploads from a
    * `multipart/form-data` request.
    */
-  def multipartFileUploads[F[_]: Effect](name: String): Endpoint[F, List[FinagleMultipart.FileUpload]] =
+  def multipartFileUploads[F[_]: Sync](name: String): Endpoint[F, List[FinagleMultipart.FileUpload]] =
     new FileUpload[F, List](name) with FileUpload.AllowEmpty[F]
 
   /**
    * An evaluating [[Endpoint]] that requires multiple file uploads from a `multipart/form-data`
    * request.
    */
-  def multipartFileUploadsNel[F[_]: Effect](name: String): Endpoint[F, NonEmptyList[FinagleMultipart.FileUpload]] =
+  def multipartFileUploadsNel[F[_]: Sync](name: String): Endpoint[F, NonEmptyList[FinagleMultipart.FileUpload]] =
     new FileUpload[F, NonEmptyList](name) with FileUpload.NonEmpty[F]
 
   /**
    * An evaluating [[Endpoint]] that reads a required attribute from a `multipart/form-data`
    * request.
    */
-  def multipartAttribute[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, A] =
+  def multipartAttribute[F[_]: Sync, A: DecodeEntity: ClassTag](name: String): Endpoint[F, A] =
     new Attribute[F, Id, A](name) with Attribute.Required[F, A] with Attribute.SingleError[F, Id, A]
 
   /**
    * An evaluating [[Endpoint]] that reads an optional attribute from a `multipart/form-data`
    * request.
    */
-  def multipartAttributeOption[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, Option[A]] =
+  def multipartAttributeOption[F[_]: Sync, A: DecodeEntity: ClassTag](name: String): Endpoint[F, Option[A]] =
     new Attribute[F, Option, A](name) with Attribute.Optional[F, A] with Attribute.SingleError[F, Option, A]
 
   /**
    * An evaluating [[Endpoint]] that reads a required attribute from a `multipart/form-data`
    * request.
    */
-  def multipartAttributes[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, List[A]] =
+  def multipartAttributes[F[_]: Sync, A: DecodeEntity: ClassTag](name: String): Endpoint[F, List[A]] =
     new Attribute[F, List, A](name) with Attribute.AllowEmpty[F, A] with Attribute.MultipleErrors[F, List, A]
 
   /**
    * An evaluating [[Endpoint]] that reads a required attribute from a `multipart/form-data`
    * request.
    */
-  def multipartAttributesNel[F[_]: Effect, A: DecodeEntity: ClassTag](name: String): Endpoint[F, NonEmptyList[A]] =
+  def multipartAttributesNel[F[_]: Sync, A: DecodeEntity: ClassTag](name: String): Endpoint[F, NonEmptyList[A]] =
     new Attribute[F, NonEmptyList, A](name) with Attribute.NonEmpty[F, A] with Attribute.MultipleErrors[F, NonEmptyList, A]
 }

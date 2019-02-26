@@ -11,7 +11,7 @@ package object fs2 extends StreamInstances {
 
   implicit def streamLiftReader[F[_]](implicit
     F: Effect[F],
-    TE: ToEffect[Future, F]
+    TE: ToAsync[Future, F]
   ): LiftReader[Stream, F] =
     new LiftReader[Stream, F] {
       final def apply[A](reader: Reader[Buf], process: Buf => A): Stream[F, A] = {
@@ -52,7 +52,7 @@ trait StreamInstances {
 
   protected abstract class EncodeFs2Stream[F[_], A, CT <: String](implicit
     F: Effect[F],
-    TE: ToEffect[Future, F]
+    TE: ToAsync[Future, F]
   ) extends EncodeStream[F, Stream, A] with (Either[Throwable, Unit] => IO[Unit]) {
 
     type ContentType = CT

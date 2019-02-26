@@ -2,7 +2,7 @@ package io.finch
 
 import cats.Applicative
 import cats.data.NonEmptyList
-import cats.effect.{ContextShift, Effect, Resource, Sync}
+import cats.effect.{ContextShift, Resource, Sync}
 import com.twitter.finagle.http.{Cookie, Request}
 import com.twitter.finagle.http.exp.Multipart
 import com.twitter.io.Buf
@@ -99,7 +99,7 @@ trait EndpointModule[F[_]] {
    * An alias for [[Endpoint.fromInputStream]].
    */
   def fromInputStream(stream: Resource[F, InputStream])(
-    implicit F: Effect[F], S: ContextShift[F]
+    implicit F: Sync[F], S: ContextShift[F]
   ): Endpoint[F, Buf] =
     Endpoint.fromInputStream[F](stream)
 
@@ -107,26 +107,26 @@ trait EndpointModule[F[_]] {
    * An alias for [[Endpoint.fromFile]].
    */
   def fromFile(file: File)(
-    implicit F: Effect[F], S: ContextShift[F]
+    implicit F: Sync[F], S: ContextShift[F]
   ): Endpoint[F, Buf] =
     Endpoint.fromFile[F](file)
 
   /**
    * An alias for [[Endpoint.classpathAsset]].
    */
-  def classpathAsset(path: String)(implicit F: Effect[F], S: ContextShift[F]): Endpoint[F, Buf] =
+  def classpathAsset(path: String)(implicit F: Sync[F], S: ContextShift[F]): Endpoint[F, Buf] =
     Endpoint.classpathAsset[F](path)
 
   /**
    * An alias for [[Endpoint.classpathAsset]].
    */
-  def filesystemAsset(path: String)(implicit F: Effect[F], S: ContextShift[F]): Endpoint[F, Buf] =
+  def filesystemAsset(path: String)(implicit F: Sync[F], S: ContextShift[F]): Endpoint[F, Buf] =
     Endpoint.filesystemAsset[F](path)
 
   /**
    * An alias for [[Endpoint.root]].
    */
-  def root(implicit F: Effect[F]): Endpoint[F, Request] =
+  def root(implicit F: Sync[F]): Endpoint[F, Request] =
     Endpoint.root[F]
 
   /**
@@ -144,13 +144,13 @@ trait EndpointModule[F[_]] {
   /**
    * An alias for [[Endpoint.path]].
    */
-  def path[A: DecodePath: ClassTag](implicit F: Effect[F]): Endpoint[F, A] =
+  def path[A: DecodePath: ClassTag](implicit F: Sync[F]): Endpoint[F, A] =
     Endpoint.path[F, A]
 
   /**
    * An alias for [[Endpoint.paths]].
    */
-  def paths[A: DecodePath: ClassTag](implicit F: Effect[F]): Endpoint[F, List[A]] =
+  def paths[A: DecodePath: ClassTag](implicit F: Sync[F]): Endpoint[F, List[A]] =
     Endpoint.paths[F, A]
 
   /**
@@ -159,7 +159,7 @@ trait EndpointModule[F[_]] {
    * @note This method is implicit such that an implicit conversion `String => Endpoint[F, HNil]`
    *       works.
    */
-  implicit def path(s: String)(implicit F: Effect[F]): Endpoint[F, HNil] =
+  implicit def path(s: String)(implicit F: Sync[F]): Endpoint[F, HNil] =
     Endpoint.path[F](s)
 
   /**
@@ -213,80 +213,80 @@ trait EndpointModule[F[_]] {
   /**
    * An alias for [[Endpoint.header]].
    */
-  def header[A: DecodeEntity: ClassTag](name: String)(implicit F: Effect[F]): Endpoint[F, A] =
+  def header[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, A] =
     Endpoint.header[F, A](name)
 
   /**
    * An alias for [[Endpoint.headerOption]].
    */
-  def headerOption[A: DecodeEntity: ClassTag](name: String)(implicit F: Effect[F]): Endpoint[F, Option[A]] =
+  def headerOption[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, Option[A]] =
     Endpoint.headerOption[F, A](name)
 
   /**
    * An alias for [[Endpoint.binaryBodyOption]].
    */
-  def binaryBodyOption(implicit F: Effect[F]): Endpoint[F, Option[Array[Byte]]] =
+  def binaryBodyOption(implicit F: Sync[F]): Endpoint[F, Option[Array[Byte]]] =
     Endpoint.binaryBodyOption[F]
 
   /**
    * An alias for [[Endpoint.binaryBody]].
    */
-  def binaryBody(implicit F: Effect[F]): Endpoint[F, Array[Byte]] =
+  def binaryBody(implicit F: Sync[F]): Endpoint[F, Array[Byte]] =
     Endpoint.binaryBody[F]
 
   /**
    * An alias for [[Endpoint.stringBodyOption]].
    */
-  def stringBodyOption(implicit F: Effect[F]): Endpoint[F, Option[String]] =
+  def stringBodyOption(implicit F: Sync[F]): Endpoint[F, Option[String]] =
     Endpoint.stringBodyOption[F]
 
   /**
    * An alias for [[Endpoint.stringBody]].
    */
-  def stringBody(implicit F: Effect[F]): Endpoint[F, String] =
+  def stringBody(implicit F: Sync[F]): Endpoint[F, String] =
     Endpoint.stringBody[F]
 
   /**
    * An alias for [[Endpoint.bodyOption]].
    */
-  def bodyOption[A: ClassTag, CT](implicit F: Effect[F], D: Decode.Dispatchable[A, CT]): Endpoint[F, Option[A]] =
+  def bodyOption[A: ClassTag, CT](implicit F: Sync[F], D: Decode.Dispatchable[A, CT]): Endpoint[F, Option[A]] =
     Endpoint.bodyOption[F, A, CT]
 
   /**
    * An alias for [[Endpoint.body]].
    */
-  def body[A: ClassTag, CT](implicit D: Decode.Dispatchable[A, CT], F: Effect[F]): Endpoint[F, A] =
+  def body[A: ClassTag, CT](implicit D: Decode.Dispatchable[A, CT], F: Sync[F]): Endpoint[F, A] =
     Endpoint.body[F, A, CT]
 
   /**
    * An alias for [[Endpoint.jsonBody]].
    */
-  def jsonBody[A: Decode.Json: ClassTag](implicit F: Effect[F]): Endpoint[F, A] =
+  def jsonBody[A: Decode.Json: ClassTag](implicit F: Sync[F]): Endpoint[F, A] =
     Endpoint.jsonBody[F, A]
 
   /**
    * An alias for [[Endpoint.jsonBodyOption]].
    */
-  def jsonBodyOption[A: Decode.Json: ClassTag](implicit F: Effect[F]): Endpoint[F, Option[A]] =
+  def jsonBodyOption[A: Decode.Json: ClassTag](implicit F: Sync[F]): Endpoint[F, Option[A]] =
     Endpoint.jsonBodyOption[F, A]
 
   /**
    * An alias for [[Endpoint.textBody]].
    */
-  def textBody[A: Decode.Text: ClassTag](implicit F: Effect[F]): Endpoint[F, A] =
+  def textBody[A: Decode.Text: ClassTag](implicit F: Sync[F]): Endpoint[F, A] =
     Endpoint.textBody[F, A]
 
   /**
    * An alias for [[Endpoint.textBodyOption]].
    */
-  def textBodyOption[A: Decode.Text: ClassTag](implicit F: Effect[F]): Endpoint[F, Option[A]] =
+  def textBodyOption[A: Decode.Text: ClassTag](implicit F: Sync[F]): Endpoint[F, Option[A]] =
     Endpoint.textBodyOption[F, A]
 
   /**
    * An alias for [[Endpoint.binaryBodyStream]].
    */
   def binaryBodyStream[S[_[_], _]](implicit
-    F: Effect[F],
+    F: Sync[F],
     LR: LiftReader[S, F]
   ): Endpoint[F, S[F, Array[Byte]]] = Endpoint.binaryBodyStream[F, S]
 
@@ -294,7 +294,7 @@ trait EndpointModule[F[_]] {
    * An alias for [[Endpoint.stringBodyStream]].
    */
   def stringBodyStream[S[_[_], _]](implicit
-    F: Effect[F],
+    F: Sync[F],
     LR: LiftReader[S, F]
   ): Endpoint[F, S[F, String]] = Endpoint.stringBodyStream[F, S]
 
@@ -302,7 +302,7 @@ trait EndpointModule[F[_]] {
    * An alias for [[Endpoint.bodyStream]].
    */
   def bodyStream[S[_[_], _], A, CT <: String](implicit
-    F: Effect[F],
+    F: Sync[F],
     LR: LiftReader[S, F],
     A: DecodeStream.Aux[S, F, A, CT]
   ): Endpoint[F, S[F, A]] = Endpoint.bodyStream[F, S, A, CT]
@@ -311,7 +311,7 @@ trait EndpointModule[F[_]] {
    * An alias for [[Endpoint.jsonBodyStream]].
    */
   def jsonBodyStream[S[_[_], _], A](implicit
-    F: Effect[F],
+    F: Sync[F],
     LR: LiftReader[S, F],
     A: DecodeStream.Aux[S, F, A, Application.Json]
   ): Endpoint[F, S[F, A]] = Endpoint.jsonBodyStream[F, S, A]
@@ -320,7 +320,7 @@ trait EndpointModule[F[_]] {
    * An alias for [[Endpoint.textBodyStream]].
    */
   def textBodyStream[S[_[_], _], A](implicit
-    F: Effect[F],
+    F: Sync[F],
     LR: LiftReader[S, F],
     A: DecodeStream.Aux[S, F, A, Text.Plain]
   ): Endpoint[F, S[F, A]] = Endpoint.textBodyStream[F, S, A]
@@ -328,85 +328,85 @@ trait EndpointModule[F[_]] {
   /**
    * An alias for [[Endpoint.cookieOption]].
    */
-  def cookieOption(name: String)(implicit F: Effect[F]): Endpoint[F, Option[Cookie]] =
+  def cookieOption(name: String)(implicit F: Sync[F]): Endpoint[F, Option[Cookie]] =
     Endpoint.cookieOption[F](name)
 
   /**
    * An alias for [[Endpoint.cookie]].
    */
-  def cookie(name: String)(implicit F: Effect[F]): Endpoint[F, Cookie] =
+  def cookie(name: String)(implicit F: Sync[F]): Endpoint[F, Cookie] =
     Endpoint.cookie[F](name)
 
   /**
    * An alias for [[Endpoint.paramOption]].
    */
-  def paramOption[A: DecodeEntity: ClassTag](name: String)(implicit F: Effect[F]): Endpoint[F, Option[A]] =
+  def paramOption[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, Option[A]] =
     Endpoint.paramOption[F, A](name)
 
   /**
    * An alias for [[Endpoint.param]].
    */
-  def param[A: DecodeEntity: ClassTag](name: String)(implicit F: Effect[F]): Endpoint[F, A] =
+  def param[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, A] =
     Endpoint.param[F, A](name)
 
   /**
    * An alias for [[Endpoint.params]].
    */
-  def params[A: DecodeEntity: ClassTag](name: String)(implicit F: Effect[F]): Endpoint[F, List[A]] =
+  def params[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, List[A]] =
     Endpoint.params[F, A](name)
 
   /**
    * An alias for [[Endpoint.paramsNel]].
    */
-  def paramsNel[A: DecodeEntity: ClassTag](name: String)(implicit F: Effect[F]): Endpoint[F, NonEmptyList[A]] =
+  def paramsNel[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, NonEmptyList[A]] =
     Endpoint.paramsNel[F, A](name)
 
   /**
    * An alias for [[Endpoint.multipartFileUploadOption]].
    */
-  def multipartFileUploadOption(name: String)(implicit F: Effect[F]): Endpoint[F, Option[Multipart.FileUpload]] =
+  def multipartFileUploadOption(name: String)(implicit F: Sync[F]): Endpoint[F, Option[Multipart.FileUpload]] =
     Endpoint.multipartFileUploadOption[F](name)
 
   /**
    * An alias for [[Endpoint.multipartFileUpload]].
    */
-  def multipartFileUpload(name: String)(implicit F: Effect[F]): Endpoint[F, Multipart.FileUpload] =
+  def multipartFileUpload(name: String)(implicit F: Sync[F]): Endpoint[F, Multipart.FileUpload] =
     Endpoint.multipartFileUpload[F](name)
 
   /**
    * An alias for [[Endpoint.multipartFileUploads]].
    */
-  def multipartFileUploads(name: String)(implicit F: Effect[F]): Endpoint[F, List[Multipart.FileUpload]] =
+  def multipartFileUploads(name: String)(implicit F: Sync[F]): Endpoint[F, List[Multipart.FileUpload]] =
     Endpoint.multipartFileUploads[F](name)
 
   /**
    * An alias for [[Endpoint.multipartFileUploadsNel]].
    */
-  def multipartFileUploadsNel(name: String)(implicit F: Effect[F]): Endpoint[F, NonEmptyList[Multipart.FileUpload]] =
+  def multipartFileUploadsNel(name: String)(implicit F: Sync[F]): Endpoint[F, NonEmptyList[Multipart.FileUpload]] =
     Endpoint.multipartFileUploadsNel[F](name)
 
   /**
    * An alias for [[Endpoint.multipartAttribute]].
    */
-  def multipartAttribute[A: DecodeEntity: ClassTag](name: String)(implicit F: Effect[F]): Endpoint[F, A] =
+  def multipartAttribute[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, A] =
     Endpoint.multipartAttribute[F, A](name)
 
   /**
    * An alias for [[Endpoint.multipartAttributeOption]].
    */
-  def multipartAttributeOption[A: DecodeEntity: ClassTag](name: String)(implicit F: Effect[F]): Endpoint[F, Option[A]] =
+  def multipartAttributeOption[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, Option[A]] =
     Endpoint.multipartAttributeOption[F, A](name)
 
   /**
    * An alias for [[Endpoint.multipartAttributes]].
    */
-  def multipartAttributes[A: DecodeEntity: ClassTag](name: String)(implicit F: Effect[F]): Endpoint[F, List[A]] =
+  def multipartAttributes[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, List[A]] =
     Endpoint.multipartAttributes[F, A](name)
 
   /**
    * An alias for [[Endpoint.multipartAttributesNel]].
    */
-  def multipartAttributesNel[A: DecodeEntity: ClassTag](name: String)(implicit F: Effect[F]): Endpoint[F, NonEmptyList[A]] =
+  def multipartAttributesNel[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, NonEmptyList[A]] =
     Endpoint.multipartAttributesNel[F, A](name)
 }
 

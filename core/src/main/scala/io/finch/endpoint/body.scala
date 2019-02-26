@@ -1,6 +1,6 @@
 package io.finch.endpoint
 
-import cats.effect.Effect
+import cats.effect.Sync
 import com.twitter.io.{Buf, Reader}
 import io.finch._
 import io.finch.internal._
@@ -10,7 +10,7 @@ import scala.reflect.ClassTag
 
 private[finch] abstract class FullBody[F[_], A] extends Endpoint[F, A] {
 
-  protected def F: Effect[F]
+  protected def F: Sync[F]
   protected def missing: F[Output[A]]
   protected def present(contentType: String, content: Buf, cs: Charset): F[Output[A]]
 
@@ -53,7 +53,7 @@ private[finch] object FullBody {
 private[finch] abstract class Body[F[_], A, B, CT](implicit
   dd: Decode.Dispatchable[A, CT],
   ct: ClassTag[A],
-  protected val F: Effect[F]
+  protected val F: Sync[F]
 ) extends FullBody[F, B] with FullBody.PreparedBody[F, A, B] {
 
   protected def present(contentType: String, content: Buf, cs: Charset): F[Output[B]] =
@@ -65,7 +65,7 @@ private[finch] abstract class Body[F[_], A, B, CT](implicit
   final override def toString: String = "body"
 }
 
-private[finch] abstract class BinaryBody[F[_], A](implicit protected val F: Effect[F])
+private[finch] abstract class BinaryBody[F[_], A](implicit protected val F: Sync[F])
   extends FullBody[F, A] with FullBody.PreparedBody[F, Array[Byte], A] {
 
   protected def present(contentType: String, content: Buf, cs: Charset): F[Output[A]] =
@@ -74,7 +74,7 @@ private[finch] abstract class BinaryBody[F[_], A](implicit protected val F: Effe
   final override def toString: String = "binaryBody"
 }
 
-private[finch] abstract class StringBody[F[_], A](implicit protected val F: Effect[F])
+private[finch] abstract class StringBody[F[_], A](implicit protected val F: Sync[F])
   extends FullBody[F, A]
   with FullBody.PreparedBody[F, String, A] {
 
@@ -86,7 +86,7 @@ private[finch] abstract class StringBody[F[_], A](implicit protected val F: Effe
 
 private[finch] abstract class ChunkedBody[F[_], S[_[_], _], A] extends Endpoint[F, S[F, A]] {
 
-  protected def F: Effect[F]
+  protected def F: Sync[F]
   protected def prepare(r: Reader[Buf], cs: Charset): Output[S[F, A]]
 
   final def apply(input: Input): EndpointResult[F, S[F, A]] =
@@ -102,7 +102,7 @@ private[finch] abstract class ChunkedBody[F[_], S[_[_], _], A] extends Endpoint[
 
 private[finch] final class BinaryBodyStream[F[_], S[_[_], _]](implicit
   LR: LiftReader[S, F],
-  protected val F: Effect[F]
+  protected val F: Sync[F]
 ) extends ChunkedBody[F, S, Array[Byte]] with (Buf => Array[Byte]) {
 
   def apply(buf: Buf): Array[Byte] = buf.asByteArray
@@ -115,7 +115,7 @@ private[finch] final class BinaryBodyStream[F[_], S[_[_], _]](implicit
 
 private[finch] final class StringBodyStream[F[_], S[_[_], _]](implicit
   LR: LiftReader[S, F],
-  protected val F: Effect[F]
+  protected val F: Sync[F]
 ) extends ChunkedBody[F, S, String] with (Buf => String) {
 
   def apply(buf: Buf): String = buf.asString(StandardCharsets.UTF_8)
@@ -129,7 +129,7 @@ private[finch] final class StringBodyStream[F[_], S[_[_], _]](implicit
 }
 
 private[finch] final class BodyStream[F[_], S[_[_], _], A, CT <: String](implicit
-  protected val F: Effect[F],
+  protected val F: Sync[F],
   LR: LiftReader[S, F],
   A: DecodeStream.Aux[S, F, A, CT]
 ) extends ChunkedBody[F, S, A] {

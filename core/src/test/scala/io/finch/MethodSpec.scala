@@ -122,7 +122,7 @@ class MethodSpec
 
   case class Program[A](value: A)
 
-  implicit val conv = new ToEffect[Program,IO] {
+  implicit val conv = new ToAsync[Program,IO] {
     def apply[A](a: Program[A]): IO[A] = IO(a.value)
   }
 

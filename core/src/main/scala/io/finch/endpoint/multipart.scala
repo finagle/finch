@@ -2,7 +2,7 @@ package io.finch.endpoint
 
 import cats.Id
 import cats.data.NonEmptyList
-import cats.effect.Effect
+import cats.effect.Sync
 import com.twitter.finagle.http.Request
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart, MultipartDecoder}
 import com.twitter.finagle.http.exp.Multipart.{FileUpload => FinagleFileUpload}
@@ -11,12 +11,12 @@ import io.finch.items._
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 
-private[finch] abstract class Attribute[F[_]: Effect, G[_], A](val name: String)(implicit
+private[finch] abstract class Attribute[F[_]: Sync, G[_], A](val name: String)(implicit
   d: DecodeEntity[A],
   tag: ClassTag[A]
 ) extends Endpoint[F, G[A]] {
 
-  protected def F: Effect[F] = Effect[F]
+  protected def F: Sync[F] = Sync[F]
   protected def missing(name: String): F[Output[G[A]]]
   protected def present(value: NonEmptyList[A]): F[Output[G[A]]]
   protected def unparsed(errors: NonEmptyList[Throwable], tag: ClassTag[A]): F[Output[G[A]]]
@@ -98,10 +98,10 @@ private[finch] object Attribute {
   }
 }
 
-private[finch] abstract class FileUpload[F[_]: Effect, G[_]](name: String)
+private[finch] abstract class FileUpload[F[_]: Sync, G[_]](name: String)
   extends Endpoint[F, G[FinagleMultipart.FileUpload]] {
 
-  protected def F: Effect[F] = Effect[F]
+  protected def F: Sync[F] = Sync[F]
   protected def missing(name: String): F[Output[G[FinagleFileUpload]]]
   protected def present(a: NonEmptyList[FinagleFileUpload]): F[Output[G[FinagleFileUpload]]]
 
@@ -115,7 +115,7 @@ private[finch] abstract class FileUpload[F[_]: Effect, G[_]](name: String)
   final def apply(input: Input): EndpointResult[F, G[FinagleFileUpload]] =
     if (input.request.isChunked) EndpointResult.NotMatched[F]
     else {
-      val output = Effect[F].suspend {
+      val output = Sync[F].suspend {
         all(input) match {
           case Some(nel) => present(nel)
           case None => missing(name)
