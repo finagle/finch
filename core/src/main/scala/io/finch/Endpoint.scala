@@ -133,7 +133,7 @@ trait Endpoint[F[_], A] { self =>
     *     e.transform(f => Stat.timeFuture(s)(f))
     * }}}
     */
-  final def transform[B](fn: F[Output[A]] => F[Output[B]]): Endpoint[F, B] =
+  final def transformOutput[B](fn: F[Output[A]] => F[Output[B]]): Endpoint[F, B] =
     new Endpoint[F, B] {
       final def apply(input: Input): Endpoint.Result[F, B] = self(input) match {
         case EndpointResult.Matched(rem, trc, out) =>
@@ -144,6 +144,25 @@ trait Endpoint[F[_], A] { self =>
       override def item = self.item
       final override def toString: String = self.toString
     }
+
+  /**
+   * Transforms this endpoint to the given function `F[Output[A]] => F[Output[B]]`.
+   *
+   *
+   * Might be useful to perform some extra action on the underlying `Future`. For example, time
+   * the latency of the given endpoint.
+   *
+   * {{{
+   *   import io.finch._
+   *   import com.twitter.finagle.stats._
+   *
+   *   def time[A](stat: Stat, e: Endpoint[A]): Endpoint[A] =
+   *     e.transformOutput(f => Stat.timeFuture(s)(f))
+   * }}}
+   */
+  @deprecated("Use .transformOutput instead", "0.28")
+  final def transform[B](fn: F[Output[A]] => F[Output[B]]): Endpoint[F, B] =
+    transformOutput(fn)
 
   /**
     * Transform this endpoint to the given function `F[A] => F[B]`
