@@ -4,9 +4,9 @@ import cats.effect.IO
 import com.twitter.io.Buf
 import io.finch._
 import io.iteratee.Enumerator
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-class IterateeStreamingSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
+class IterateeStreamingSpec extends FinchSpec with ScalaCheckDrivenPropertyChecks {
 
   checkAll("Iteratee.streamBody", StreamingLaws[Enumerator, IO](
     Enumerator.enumList,
