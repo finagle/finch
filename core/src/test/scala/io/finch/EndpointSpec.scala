@@ -4,7 +4,7 @@ import java.util.UUID
 
 import cats.data.NonEmptyList
 import cats.laws.discipline.AlternativeTests
-import com.twitter.conversions.time._
+import com.twitter.conversions.DurationOps._
 import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.util.{Future, Throw}
 import io.finch.data.Foo

@@ -1,8 +1,8 @@
+import ReleaseTransformations._
 import microsites.ExtraMdFileConfig
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  version := "0.28.0",
   scalaVersion := "2.12.7",
   crossScalaVersions := Seq("2.11.12", "2.12.7")
 )
@@ -89,6 +89,17 @@ lazy val publishSettings = Seq(
       "scm:git:git@github.com:finagle/finch.git"
     )
   ),
+  releaseVersionBump := sbtrelease.Version.Bump.Minor,
+  releaseProcess := {
+    Seq[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      releaseStepCommandAndRemaining("+clean"),
+      releaseStepCommandAndRemaining("+test"),
+      releaseStepCommandAndRemaining("+publishSigned"),
+      releaseStepCommand("sonatypeReleaseAll")
+    )
+  },
   pomExtra :=
     <developers>
       <developer>
