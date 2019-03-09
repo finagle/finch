@@ -22,7 +22,7 @@ Finch uses multi-project structure and contains of the following _modules_:
 * [`finch-argonaut`](argonaut) - [Argonaut][argonaut] + Finch
 * [`finch-circe`](circe) - [Circe][circe] + Finch
 * [`finch-iteratee`](iteratee) - [Iteratee][iteratee] + Finch
-* [`finch-fs2`](fs2) - [FS2][fs] + Finch
+* [`finch-fs2`](fs2) - [FS2][fs2] + Finch
 * [`finch-refined`](refined) - [Refined][refined] + Finch
 * [`finch-test`](test) - the test support classes/functions
 
