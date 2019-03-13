@@ -56,7 +56,7 @@ abstract class StreamingLaws[S[_[_], _], F[_]] extends Laws with AllInstances wi
 
 object StreamingLaws {
 
-  def apply[S[_[_], _], F[_]: Effect](
+  def apply[S[_[_], _], F[_]](
     streamFromList: List[Buf] => S[F, Buf],
     listFromStream: S[F, Array[Byte]] => List[Buf]
   )(implicit
