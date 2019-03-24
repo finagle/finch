@@ -4,9 +4,9 @@ import _root_.fs2.Stream
 import cats.effect.{ConcurrentEffect, Effect, IO}
 import com.twitter.io.Buf
 import io.finch._
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-class Fs2StreamingSpec extends FinchSpec with GeneratorDrivenPropertyChecks {
+class Fs2StreamingSpec extends FinchSpec with ScalaCheckDrivenPropertyChecks {
 
   checkEffect[IO]
   checkConcurrentEffect[IO]

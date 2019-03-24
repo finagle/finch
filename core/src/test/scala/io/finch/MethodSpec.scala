@@ -5,13 +5,13 @@ import cats.effect.IO
 import com.twitter.finagle.http.Response
 import com.twitter.util.{Future => TwitterFuture}
 import org.scalacheck.Arbitrary
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import scala.concurrent.{Future => ScalaFuture}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class MethodSpec
   extends FinchSpec
-  with GeneratorDrivenPropertyChecks {
+  with ScalaCheckDrivenPropertyChecks {
 
   behavior of "method"
 
