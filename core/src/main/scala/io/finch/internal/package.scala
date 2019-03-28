@@ -4,7 +4,6 @@ import com.twitter.finagle.http.{Fields, Message}
 import com.twitter.io.Buf
 import java.nio.ByteBuffer
 import java.nio.charset.{Charset, StandardCharsets}
-import scala.annotation.tailrec
 
 /**
  * This package contains an internal-use only type-classes and utilities that power Finch's API.
@@ -69,23 +68,19 @@ package object internal {
 
     // Returns message's charset or UTF-8 if it's not defined.
     def charsetOrUtf8: Charset = {
-
       val contentType = self.headerMap.getOrNull(Fields.ContentType)
 
-      @tailrec
-      def loop(semicolon: Int): Charset =
-        if (semicolon == -1 || semicolon == contentType.length) StandardCharsets.UTF_8
-        else {
-          val next = contentType.indexOf(';', semicolon + 1)
-          if (contentType.startsWith("charset=", semicolon + 1)) {
-            val start = contentType.indexOf('=', semicolon + 1) + 1
-            val end = if (next == -1) contentType.length else next
-            Charset.forName(contentType.substring(start, end))
-          } else loop(next)
-        }
-
       if (contentType == null) StandardCharsets.UTF_8
-      else loop(contentType.indexOf(';'))
+      else {
+        val charsetEq = contentType.indexOf("charset=")
+        if (charsetEq == -1) StandardCharsets.UTF_8
+        else {
+          val from = charsetEq + "charset=".length
+          val semi = contentType.indexOf(';', from)
+          val to = if (semi == -1) contentType.length else semi
+          Charset.forName(contentType.substring(from, to))
+        }
+      }
     }
   }
 
