@@ -35,7 +35,7 @@ val testDependencies = Seq(
   "org.scalacheck" %% "scalacheck" % "1.14.0",
   "org.scalatest" %% "scalatest" % "3.0.7",
   "org.typelevel" %% "cats-laws" % catsVersion,
-  "org.typelevel" %% "discipline" % "0.11.0"
+  "org.typelevel" %% "discipline" % "0.11.1"
 )
 
 val baseSettings = Seq(
