@@ -1,15 +1,14 @@
 package io.finch
 
+import java.nio.charset.{Charset, StandardCharsets}
+
 import cats.Eq
 import cats.effect.Effect
-import com.twitter.finagle.http.{Method, Request}
-import com.twitter.finagle.netty3.ChannelBufferBuf
+import com.twitter.finagle.http.{Method, Request, RequestBuilder}
 import com.twitter.io.{Buf, Reader}
-import java.nio.charset.{Charset, StandardCharsets}
-import org.jboss.netty.handler.codec.http.{DefaultHttpRequest, HttpMethod, HttpVersion}
-import org.jboss.netty.handler.codec.http.multipart.{DefaultHttpDataFactory, HttpPostRequestEncoder}
 import scala.collection.mutable.ListBuffer
 import shapeless.Witness
+
 
 /**
  * An input for [[Endpoint]] that glues two individual pieces together:
@@ -66,30 +65,12 @@ final case class Input(request: Request, route: List[String]) {
    * @note In addition to media type, this will also set charset to UTF-8.
    */
   def withForm(params: (String, String)*): Input = {
-    // TODO: Figure out way to do that w/o Netty.
-    val dataFactory = new DefaultHttpDataFactory(false) // we don't use disk
-    val encoder = new HttpPostRequestEncoder(
-      dataFactory,
-      new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, request.path),
-      false
-    )
+     val postRequest: Request = RequestBuilder()
+       .addFormElement(params: _*)
+       .url("http://localhost")
+       .buildFormPost()
 
-    params.foreach {
-      case (k, v) => encoder.addBodyAttribute(k, v)
-    }
-
-    val req = encoder.finalizeRequest()
-
-    val content = if (req.isChunked) {
-      Buf(
-        Iterator.continually(encoder.nextChunk())
-        .takeWhile(c => !c.isLast)
-        .map(c => ChannelBufferBuf.Owned(c.getContent))
-        .toVector
-      )
-    } else ChannelBufferBuf.Owned(req.getContent)
-
-    withBody[Application.WwwFormUrlencoded](content, StandardCharsets.UTF_8)
+    withBody[Application.WwwFormUrlencoded](postRequest.content, StandardCharsets.UTF_8)
   }
 }
 
