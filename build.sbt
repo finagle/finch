@@ -212,7 +212,7 @@ lazy val iteratee = project
   .settings(
     libraryDependencies ++= Seq(
       "io.iteratee" %% "iteratee-core" % iterateeVersion,
-      "io.iteratee" %% "iteratee-twitter" % twitterVersion
+      "io.iteratee" %% "iteratee-twitter" % "19.3.0"
     )
   )
   .dependsOn(core % "compile->compile;test->test")

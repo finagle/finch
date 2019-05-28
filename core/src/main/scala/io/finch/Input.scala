@@ -3,8 +3,7 @@ package io.finch
 import java.nio.charset.{Charset, StandardCharsets}
 
 import cats.Eq
-import com.twitter.finagle.http.{Method, Request}
-import com.twitter.io.Buf
+import com.twitter.finagle.http.{Method, Request, RequestBuilder}
 import scala.collection.mutable.ListBuffer
 import shapeless.Witness
 
@@ -56,7 +55,7 @@ final case class Input(request: Request, route: Seq[String]) {
        .url("http://localhost")
        .buildFormPost()
 
-    withBody[Application.WwwFormUrlencoded](content, Some(StandardCharsets.UTF_8))
+    withBody[Application.WwwFormUrlencoded](postRequest.content, Some(StandardCharsets.UTF_8))
   }
 }
 

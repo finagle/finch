@@ -7,6 +7,8 @@ import io.catbird.util.Rerunnable
 import java.nio.ByteBuffer
 import java.nio.charset.{Charset, StandardCharsets}
 
+import shapeless.HNil
+
 /**
  * This package contains an internal-use only type-classes and utilities that power Finch's API.
  *
