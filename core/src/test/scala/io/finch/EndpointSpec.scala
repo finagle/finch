@@ -48,10 +48,10 @@ class EndpointSpec extends FinchSpec {
     }
   }
 
-  it should "support transform" in {
+  it should "support transformOutput" in {
     check { i: Input =>
       val fn = (fs: IO[Output[String]]) => fs.map(_.map(_ * 2))
-      path[String].transform(fn).apply(i).awaitValueUnsafe() === i.route.headOption.map(_ * 2)
+      path[String].transformOutput(fn).apply(i).awaitValueUnsafe() === i.route.headOption.map(_ * 2)
     }
   }
 

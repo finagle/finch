@@ -146,28 +146,16 @@ trait Endpoint[F[_], A] { self =>
     }
 
   /**
-   * Transforms this endpoint to the given function `F[Output[A]] => F[Output[B]]`.
-   *
-   *
-   * Might be useful to perform some extra action on the underlying `Future`. For example, time
-   * the latency of the given endpoint.
-   *
-   * {{{
-   *   import io.finch._
-   *   import com.twitter.finagle.stats._
-   *
-   *   def time[A](stat: Stat, e: Endpoint[A]): Endpoint[A] =
-   *     e.transformOutput(f => Stat.timeFuture(s)(f))
-   * }}}
+   * Transform this endpoint to the given function `F[A] => F[B]`
    */
-  @deprecated("Use .transformOutput instead", "0.28")
-  final def transform[B](fn: F[Output[A]] => F[Output[B]]): Endpoint[F, B] =
-    transformOutput(fn)
+  @deprecated("Use .transform instead", "0.29")
+  final def transformF[B](fn: F[A] => F[B])(implicit F: Monad[F]): Endpoint[F, B] =
+    transform(fn)
 
   /**
     * Transform this endpoint to the given function `F[A] => F[B]`
     */
-  final def transformF[B](fn: F[A] => F[B])(implicit F: Monad[F]): Endpoint[F, B] =
+  final def transform[B](fn: F[A] => F[B])(implicit F: Monad[F]): Endpoint[F, B] =
     new Endpoint[F, B] {
       def apply(input: Input): Endpoint.Result[F, B] =
         self(input) match {
@@ -350,7 +338,7 @@ trait Endpoint[F[_], A] { self =>
     */
   final def rescue(pf: PartialFunction[Throwable, F[Output[A]]])(implicit
     F: ApplicativeError[F, Throwable]
-  ): Endpoint[F, A] = transform(foa => foa.recoverWith(pf))
+  ): Endpoint[F, A] = transformOutput(foa => foa.recoverWith(pf))
 
   /**
     * Recovers from any exception occurred in this endpoint by creating a new endpoint that will
