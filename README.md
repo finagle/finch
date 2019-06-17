@@ -124,7 +124,7 @@ Adopters
 * [QuizUp](http://www.quizup.com)
 * [Lookout](http://www.lookout.com)
 * [Project September](http://projectseptember.com/)
-* [Sigma](http://thesigma.com)
+* [Merit](https://merits.com)
 * [D.A.Consortium](http://www.dac.co.jp/english/)
 * [Redbubble](https://redbubble.com/)
 * [Zalando](https://zalando.de)
