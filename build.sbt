@@ -14,7 +14,7 @@ lazy val shapelessVersion = "2.3.3"
 lazy val catsVersion = "1.6.1"
 lazy val argonautVersion = "6.2.3"
 lazy val iterateeVersion = "0.18.0"
-lazy val refinedVersion = "0.9.7"
+lazy val refinedVersion = "0.9.8"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
