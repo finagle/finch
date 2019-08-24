@@ -9,6 +9,7 @@ import io.circe.iteratee
 import io.circe.jawn._
 import io.finch.{Application, Decode, DecodeStream}
 import io.finch.internal.HttpContent
+import io.finch.monix.ObservableF
 import io.iteratee.Enumerator
 import java.nio.charset.StandardCharsets
 
@@ -52,5 +53,20 @@ trait Decoders {
             .through(fs2.stringStreamParser[F])
       }
       parsed.through(fs2.decoder[F, A])
+    })
+
+  implicit def monixCirce[F[_], A: Decoder]: DecodeStream.Json[ObservableF, F, A] =
+    DecodeStream.instance[ObservableF, F, A, Application.Json]((stream, cs) => {
+      val parsed = cs match {
+        case StandardCharsets.UTF_8 =>
+          stream
+            .map(_.asByteArray)
+            .liftByOperator(monix.circe.byteStreamParser)
+        case _ =>
+          stream
+            .map(_.asString(cs))
+            .liftByOperator(monix.circe.stringStreamParser)
+      }
+      monix.circe.decoder(parsed)
     })
 }
