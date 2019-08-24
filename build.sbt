@@ -18,6 +18,7 @@ lazy val iterateeVersion = "0.18.0"
 lazy val refinedVersion = "0.9.7"
 lazy val catsEffectVersion = "1.3.1"
 lazy val fs2Version =  "1.0.4"
+lazy val monixVersion = "3.0.0-RC2"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -236,7 +237,7 @@ lazy val finch = project.in(file("."))
     "io.circe" %% "circe-generic" % circeVersion
   ))
   .aggregate(
-    core, fs2, iteratee, generic, argonaut, circe, benchmarks, test, jsonTest, examples, refined
+    core, fs2, iteratee, monix, generic, argonaut, circe, benchmarks, test, jsonTest, examples, refined
   )
   .dependsOn(core, iteratee, generic, circe)
 
@@ -260,6 +261,16 @@ lazy val fs2 = project
   .settings(
     libraryDependencies ++= Seq(
       "co.fs2" %% "fs2-core" % fs2Version
+    )
+  )
+  .dependsOn(core % "compile->compile;test->test")
+
+lazy val monix = project
+  .settings(moduleName := "finchx-monix")
+  .settings(allSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.monix" %% "monix" % monixVersion
     )
   )
   .dependsOn(core % "compile->compile;test->test")
