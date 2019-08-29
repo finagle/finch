@@ -98,8 +98,8 @@ trait Endpoint[F[_], A] { self =>
   /**
     * Maps this endpoint to the given function `A => Output[B]`.
     */
-  final def mapOutput[B](fn: A => Output[B])(implicit F: Monad[F]): Endpoint[F, B] =
-    mapOutputAsync(fn.andThen(F.pure))
+  final def mapOutput[B](fn: A => Output[B])(implicit F: MonadError[F, Throwable]): Endpoint[F, B] =
+    mapOutputAsync(a => F.catchNonFatal(fn(a)))
 
   /**
     * Maps this endpoint to the given function `A => Future[Output[B]]`.
