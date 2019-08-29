@@ -8,3 +8,5 @@ target/
 .project
 .classpath
 local.*
+sbt
+sbt-launch.jar
