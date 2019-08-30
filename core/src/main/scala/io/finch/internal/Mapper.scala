@@ -1,6 +1,6 @@
 package io.finch.internal
 
-import cats.Monad
+import cats.MonadError
 import cats.effect.Async
 import cats.syntax.functor._
 import com.twitter.finagle.http.Response
@@ -33,21 +33,24 @@ private[finch] trait LowPriorityMapperConversions {
   /**
     * @group LowPriorityMapper
     */
-  implicit def mapperFromOutputFunction[F[_] : Monad, A, B](f: A => Output[B]): Mapper.Aux[F, A, B] =
-    instance(_.mapOutput(f))
+  implicit def mapperFromOutputFunction[F[_], A, B](f: A => Output[B])(implicit
+    F: MonadError[F, Throwable]
+  ): Mapper.Aux[F, A, B] = instance(_.mapOutput(f))
 
   /**
    * @group LowPriorityMapper
    */
-  implicit def mapperFromResponseFunction[F[_] : Monad, A](f: A => Response): Mapper.Aux[F, A, Response] =
-    instance(_.mapOutput(f.andThen(r => Output.payload(r, r.status))))
+  implicit def mapperFromResponseFunction[F[_], A](f: A => Response)(implicit
+    F: MonadError[F, Throwable]
+  ): Mapper.Aux[F, A, Response] = instance(_.mapOutput(f.andThen(r => Output.payload(r, r.status))))
 }
 
 private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConversions {
   /**
     * @group HighPriorityMapper
     */
-  implicit def mapperFromOutputHFunction[F[_] : Monad, A, B, FN, OB](f: FN)(implicit
+  implicit def mapperFromOutputHFunction[F[_], A, B, FN, OB](f: FN)(implicit
+    F: MonadError[F, Throwable],
     ftp: FnToProduct.Aux[FN, A => OB],
     ev: OB <:< Output[B]
   ): Mapper.Aux[F, A, B] = instance(_.mapOutput(value => ev(ftp(f)(value))))
@@ -56,7 +59,8 @@ private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConv
   /**
    * @group HighPriorityMapper
    */
-  implicit def mapperFromResponseHFunction[F[_] : Monad, A, FN, R](f: FN)(implicit
+  implicit def mapperFromResponseHFunction[F[_], A, FN, R](f: FN)(implicit
+    F: MonadError[F, Throwable],
     ftp: FnToProduct.Aux[FN, A => R],
     ev: R <:< Response
   ): Mapper.Aux[F, A, Response] = instance(_.mapOutput { value =>
@@ -67,21 +71,23 @@ private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConv
   /**
    * @group HighPriorityMapper
    */
-  implicit def mapperFromOutputValue[F[_] : Monad, A](o: => Output[A]): Mapper.Aux[F, HNil, A] =
-    instance(_.mapOutput(_ => o))
+  implicit def mapperFromOutputValue[F[_], A](o: => Output[A])(implicit
+    F: MonadError[F, Throwable]
+  ): Mapper.Aux[F, HNil, A] = instance(_.mapOutput(_ => o))
 
   /**
    * @group HighPriorityMapper
    */
-  implicit def mapperFromResponseValue[F[_] : Monad](r: => Response): Mapper.Aux[F, HNil, Response] =
-    instance(_.mapOutput(_ => Output.payload(r, r.status)))
+  implicit def mapperFromResponseValue[F[_]](r: => Response)(implicit
+    F: MonadError[F, Throwable]
+  ): Mapper.Aux[F, HNil, Response] = instance(_.mapOutput(_ => Output.payload(r, r.status)))
 
   implicit def mapperFromKindToEffectOutputFunction[A, B, F[_], G[_]: Async](f: A => F[Output[B]])(
     implicit conv: ToAsync[F, G]): Mapper.Aux[G, A, B] =
     instance(_.mapOutputAsync(a => conv.apply(f(a))))
 
   implicit def mapperFromKindToEffectOutputValue[A, B, F[_], G[_]: Async](f: => F[Output[B]])(
-    implicit conv: ToAsync[F, G]): Mapper.Aux[G, A, B] = instance(_.mapOutputAsync(a => conv.apply(f)))
+    implicit conv: ToAsync[F, G]): Mapper.Aux[G, A, B] = instance(_.mapOutputAsync(_ => conv.apply(f)))
 
   implicit def mapperFromKindToEffectResponsFunction[A, F[_], G[_]: Async](f: A => F[Response])(
     implicit conv: ToAsync[F, G]): Mapper.Aux[G, A, Response] =
