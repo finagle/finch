@@ -402,4 +402,13 @@ class EndpointSpec extends FinchSpec {
     r(Input.post("/")).awaitOutputUnsafe() shouldBe None
     r(Input.get("/test.txt")).awaitValueUnsafe() shouldBe Some(Buf.Utf8("foo bar baz\n"))
   }
+
+  it should "wrap up an exception thrown inside mapOutputs function" in {
+    check { (ep: EndpointIO[Int], p: Output.Payload[Int], e: Exception) => {
+      val mappedEndpoint = ep.mapOutput[Int](_ => throw e)
+      val asFunction = mappedEndpoint.asInstanceOf[Output[Int] => IO[Output[Int]]]
+
+      asFunction.apply(p).attempt.unsafeRunSync() === Left(e)
+    }}
+  }
 }
