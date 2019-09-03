@@ -2,6 +2,7 @@ package io.finch
 
 import cats.{Applicative, Functor}
 import com.twitter.finagle.http.{Response, Status, Version}
+import io.finch.internal._
 import java.nio.charset.Charset
 import scala.annotation.implicitNotFound
 import shapeless._
@@ -12,7 +13,7 @@ import shapeless._
 trait ToResponse[F[_], A] {
   type ContentType
 
-  def apply(a: A, cs: Charset): F[Response]
+  def apply(status: Status, headers: Map[String, String], a: A, cs: Charset): F[Response]
 }
 
 trait ToResponseInstances {
@@ -31,22 +32,25 @@ trait ToResponseInstances {
   )
   type Aux[F[_], A, CT] = ToResponse[F, A] { type ContentType = CT }
 
-  def instance[F[_], A, CT](fn: (A, Charset) => F[Response]): Aux[F, A, CT] = new ToResponse[F, A] {
-    type ContentType = CT
-    def apply(a: A, cs: Charset): F[Response] = fn(a, cs)
-  }
+  def instance[F[_], A, CT](fn: (Status, Map[String, String], A, Charset) => F[Response]): Aux[F, A, CT] =
+    new ToResponse[F, A] {
+      type ContentType = CT
+
+      def apply(status: Status, headers: Map[String, String], a: A, cs: Charset): F[Response] =
+        fn(status, headers, a, cs)
+    }
 
   implicit def responseToResponse[F[_], CT <: String](implicit
     F: Applicative[F]
-  ): Aux[F, Response, CT] = instance((r, _) => F.pure(r))
+  ): Aux[F, Response, CT] = instance((_, _, r, _) => F.pure(r))
 
   implicit def valueToResponse[F[_], A, CT <: String](implicit
     F: Applicative[F],
     A: Encode.Aux[A, CT],
     CT: Witness.Aux[CT]
-  ): Aux[F, A, CT] = instance { (a, cs) =>
+  ): Aux[F, A, CT] = instance { (status, headers, a, cs) =>
     val buf = A(a, cs)
-    val rep = Response(Version.Http11, Status.Ok)
+    val rep = Response(Version.Http11, status).withHeaders(headers)
 
     if (!buf.isEmpty) {
       rep.content = buf
@@ -60,9 +64,9 @@ trait ToResponseInstances {
     F: Functor[F],
     S: EncodeStream.Aux[F, S, A, CT],
     CT: Witness.Aux[CT]
-  ): Aux[F, S[F, A], CT] = instance { (a, cs) =>
+  ): Aux[F, S[F, A], CT] = instance { (status, headers, a, cs) =>
     F.map(S(a, cs)) { stream =>
-      val rep = Response(Version.Http11, Status.Ok, stream)
+      val rep = Response(Version.Http11, status, stream).withHeaders(headers)
       rep.headerMap.setUnsafe("Content-Type", CT.value)
       rep.headerMap.setUnsafe("Transfer-Encoding", "chunked")
 
@@ -94,6 +98,12 @@ object ToResponse extends ToResponseInstances {
         else t(accept).asInstanceOf[ToResponse.Aux[F, A, CTH :+: CTT]]
     }
 
+    implicit def failedNegotiable[F[_], A](implicit F: Applicative[F]): Negotiable[F, A, NotAcceptable406 :+: CNil] =
+      new Negotiable[F, A, NotAcceptable406 :+: CNil] {
+        def apply(accept: List[Accept]): ToResponse.Aux[F, A, NotAcceptable406 :+: CNil] =
+          instance { (_, _, _, _) => F.pure(Response(Version.Http10, Status.NotAcceptable))}
+      }
+
     implicit def cnilToNegotiable[F[_], A, CTH <: String](implicit
       tr: ToResponse.Aux[F, A, CTH]
     ): Negotiable[F, A, CTH :+: CNil] = new Negotiable[F, A, CTH :+: CNil] {
@@ -113,21 +123,23 @@ object ToResponse extends ToResponseInstances {
   object FromCoproduct {
     type Aux[F[_], C <: Coproduct, CT] = FromCoproduct[F, C] { type ContentType = CT }
 
-    def instance[F[_], C <: Coproduct, CT <: String](fn: (C, Charset) => F[Response]): Aux[F, C, CT] =
+    def instance[F[_], C <: Coproduct, CT <: String](fn: (Status, Map[String, String], C, Charset) => F[Response]): Aux[F, C, CT] =
       new FromCoproduct[F, C] {
         type ContentType = CT
-        def apply(c: C, cs: Charset): F[Response] = fn(c, cs)
+        def apply(status: Status, headers: Map[String, String], c: C, cs: Charset): F[Response] = fn(status, headers, c, cs)
       }
 
     implicit def cnilToResponse[F[_], CT <: String](implicit
       F: Applicative[F]
-    ): Aux[F, CNil, CT] = instance((_, _) => F.pure(Response(Version.Http10, Status.NotFound)))
+    ): Aux[F, CNil, CT] = instance((_, headers, _, _) => F.pure {
+      Response(Version.Http10, Status.NotFound).withHeaders(headers)
+    })
 
     implicit def cconsToResponse[F[_], L, R <: Coproduct, CT <: String](
       implicit trL: ToResponse.Aux[F, L, CT], fcR: Aux[F, R, CT]
     ): Aux[F, L :+: R, CT] = instance {
-      case (Inl(h), cs) => trL(h, cs)
-      case (Inr(t), cs) => fcR(t, cs)
+      case (status, headers, Inl(h), cs) => trL(status, headers, h, cs)
+      case (status, headers, Inr(t), cs) => fcR(status, headers, t, cs)
     }
   }
 

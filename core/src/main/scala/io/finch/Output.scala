@@ -2,6 +2,7 @@ package io.finch
 
 import cats.{Applicative, Eq}
 import com.twitter.finagle.http.{Cookie, Response, Status}
+import io.finch.internal._
 import java.nio.charset.{Charset, StandardCharsets}
 
 /**
@@ -205,15 +206,12 @@ object Output {
       tre: ToResponse.Aux[F, Exception, CT]
     ): F[Response] = {
       val rep0 = o match {
-        case p: Output.Payload[A] => tr(p.value, p.charset.getOrElse(StandardCharsets.UTF_8))
-        case f: Output.Failure => tre(f.cause, f.charset.getOrElse(StandardCharsets.UTF_8))
-        case _: Output.Empty => F.pure(Response())
+        case p: Output.Payload[A] => tr(o.status, o.headers, p.value, p.charset.getOrElse(StandardCharsets.UTF_8))
+        case f: Output.Failure => tre(o.status, o.headers, f.cause, f.charset.getOrElse(StandardCharsets.UTF_8))
+        case _: Output.Empty => F.pure(Response(o.status).withHeaders(o.headers))
       }
 
       F.map(rep0) { rep =>
-        rep.status = o.status
-
-        o.headers.foreach { case (k, v) => rep.headerMap.set(k, v) }
         o.cookies.foreach(rep.cookies.add)
         o.charset.foreach { c =>
           if (!rep.content.isEmpty || rep.isChunked) {

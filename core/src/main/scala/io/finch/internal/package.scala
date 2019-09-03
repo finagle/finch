@@ -1,6 +1,6 @@
 package io.finch
 
-import com.twitter.finagle.http.{Fields, Message}
+import com.twitter.finagle.http.{Fields, Message, Response}
 import com.twitter.io.Buf
 import java.nio.ByteBuffer
 import java.nio.charset.{Charset, StandardCharsets}
@@ -117,4 +117,13 @@ package object internal {
     }
   }
 
+  implicit class RichResponse(val response: Response) extends AnyVal {
+    /**
+      * Set headers for given response
+      */
+    def withHeaders(headers: Map[String, String]): Response = {
+      headers.foreach { case (k, v) => response.headerMap.set(k, v) }
+      response
+    }
+  }
 }

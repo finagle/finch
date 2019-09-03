@@ -16,6 +16,11 @@ class EndToEndSpec extends FinchSpec {
     Application.Javascript :+: Application.OctetStream :+: Application.RssXml :+:
     Application.WwwFormUrlencoded :+: Application.Xml :+: Text.Plain :+: Text.Html :+: Text.EventStream :+: CNil
 
+  type AllContentTypes406 = Application.Json :+: Application.AtomXml :+: Application.Csv :+:
+    Application.Javascript :+: Application.OctetStream :+: Application.RssXml :+:
+    Application.WwwFormUrlencoded :+: Application.Xml :+: Text.Plain :+: Text.Html :+: Text.EventStream :+:
+    NotAcceptable406 :+:CNil
+
   private implicit def encodeHNil[CT <: String]: Encode.Aux[HNil, CT] = Encode.instance((_, _) => Buf.Utf8("hnil"))
 
   private val allContentTypes = Seq(
@@ -130,5 +135,15 @@ class EndToEndSpec extends FinchSpec {
     val s = Bootstrap.serve[Text.Plain](endpoint).toService
     val rep = s(Request())
     assertThrows[IllegalStateException](Await.result(rep))
+  }
+
+  it should "fail with 406 on Content-Type negotiation when error is enabled" in {
+    check { (req: Request, accept: Accept) =>
+      req.accept = s"${accept.primary}/foo"
+      val s = Bootstrap.serve[AllContentTypes406](pathAny).toService
+      val rep = Await.result(s(req))
+
+      rep.status === Status.NotAcceptable
+    }
   }
 }

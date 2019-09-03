@@ -6,7 +6,7 @@ import cats.effect.Effect
 import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
-import com.twitter.finagle.http.Request
+import com.twitter.finagle.http.{Request, Status}
 import com.twitter.io.{Buf, Reader}
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
@@ -24,7 +24,7 @@ abstract class StreamingLaws[S[_[_], _], F[_]] extends Laws with AllInstances wi
     val req = Request()
     req.setChunked(true)
 
-    val rep = F.toIO(toResponse(fromList(a), cs)).unsafeRunSync()
+    val rep = F.toIO(toResponse(Status.Ok, Map.empty, fromList(a), cs)).unsafeRunSync()
 
     Reader.copy(rep.reader, req.writer).ensure(req.writer.close())
 
