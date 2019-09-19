@@ -1,6 +1,6 @@
 package io.finch
 
-import cats.{Alternative, Applicative, ApplicativeError, Id, Monad, MonadError}
+import cats.{~>, Alternative, Applicative, ApplicativeError, Id, Monad, MonadError}
 import cats.data._
 import cats.effect._
 import cats.syntax.all._
@@ -164,6 +164,21 @@ trait Endpoint[F[_], A] { self =>
               o.traverse(a => fn(F.pure(a)))
             })
           case skipped: EndpointResult.NotMatched[F] => skipped
+        }
+
+      final override def item = self.item
+      final override def toString: String = self.toString
+    }
+
+  /**
+    * Transform effect of endpoint given natural transformation `F ~> G`
+    */
+  final def mapK[G[_]](nat: F ~> G): Endpoint[G, A] =
+    new Endpoint[G, A] {
+      def apply(input: Input): Endpoint.Result[G, A] =
+        self(input) match {
+          case EndpointResult.Matched(rem, trc, out) => EndpointResult.Matched(rem, trc, nat(out))
+          case skipped: EndpointResult.NotMatched[F] => skipped.asInstanceOf[EndpointResult[G, A]]
         }
 
       final override def item = self.item
