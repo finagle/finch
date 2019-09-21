@@ -17,7 +17,7 @@ lazy val argonautVersion = "6.2.3"
 lazy val iterateeVersion = "0.18.0"
 lazy val refinedVersion = "0.9.9"
 lazy val catsEffectVersion = "1.4.0"
-lazy val fs2Version =  "1.0.5"
+lazy val fs2Version =  "2.0.1"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
