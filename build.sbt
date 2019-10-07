@@ -342,7 +342,7 @@ lazy val examples = project
   .settings(moduleName := "finchx-examples")
   .settings(allSettings)
   .settings(noPublish)
-  .settings(resolvers += "TM" at "http://maven.twttr.com")
+  .settings(resolvers += "TM" at "https://maven.twttr.com")
   .settings(coverageExcludedPackages :=
     """
       |io\.finch\.div\..*;
