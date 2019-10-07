@@ -9,7 +9,7 @@ import io.finch.{Decode, DecodeStream, Encode}
 import io.finch.test.data._
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.{FlatSpec, Matchers}
-import org.scalatest.prop.Checkers
+import org.scalatestplus.scalacheck.Checkers
 import org.typelevel.discipline.Laws
 import scala.util.Try
 
@@ -38,7 +38,7 @@ abstract class AbstractJsonSpec extends FlatSpec with Matchers with Checkers wit
   )
 
   private def loop(name: String, ruleSet: Laws#RuleSet, library: String): Unit =
-    for ((id, prop) <- ruleSet.all.properties) it should (s"$library.$id.$name") in { check(prop) }
+    for ((id, prop) <- ruleSet.all.properties) it should s"$library.$id.$name" in { check(prop) }
 
   def checkJson(library: String)(implicit
     e: Encode.Json[List[ExampleNestedCaseClass]],

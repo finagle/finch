@@ -8,7 +8,7 @@ import com.twitter.io.Buf
 import java.io.InputStream
 import shapeless.HNil
 
-package object endpoint {
+package endpoint {
 
   private[finch] class FromInputStream[F[_]](stream: Resource[F, InputStream])(
     implicit F: Sync[F], S: ContextShift[F]

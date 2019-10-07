@@ -12,7 +12,7 @@ package object circe extends Encoders with Decoders {
   object dropNullValues extends Encoders with Decoders {
     private[this] val printer: Printer = Printer.noSpaces.copy(dropNullValues = true)
     override protected def print(json: Json, cs: Charset): Buf =
-      Buf.ByteBuffer.Owned(printer.prettyByteBuffer(json, cs))
+      Buf.ByteBuffer.Owned(printer.printToByteBuffer(json, cs))
   }
 
   /**
@@ -22,7 +22,7 @@ package object circe extends Encoders with Decoders {
   object predictSize extends Encoders with Decoders {
     private[this] val printer: Printer = Printer.noSpaces.copy(predictSize = true)
     override protected def print(json: Json, cs: Charset): Buf =
-      Buf.ByteBuffer.Owned(printer.prettyByteBuffer(json, cs))
+      Buf.ByteBuffer.Owned(printer.printToByteBuffer(json, cs))
   }
 
   object accumulating extends Encoders with AccumulatingDecoders

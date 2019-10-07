@@ -8,13 +8,13 @@ lazy val buildSettings = Seq(
 )
 
 lazy val twitterVersion = "19.10.0"
-lazy val circeVersion = "0.11.2"
+lazy val circeVersion = "0.12.2"
 lazy val circeIterateeVersion = "0.12.0"
-lazy val circeFs2Version = "0.11.0"
+lazy val circeFs2Version = "0.12.0"
 lazy val shapelessVersion = "2.3.3"
 lazy val catsVersion = "2.0.0"
 lazy val argonautVersion = "6.2.3"
-lazy val iterateeVersion = "0.18.0"
+lazy val iterateeVersion = "0.19.0"
 lazy val refinedVersion = "0.9.10"
 lazy val catsEffectVersion = "2.0.0"
 lazy val fs2Version =  "2.1.0"
@@ -30,13 +30,14 @@ lazy val compilerOptions = Seq(
   "-Yno-adapted-args",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
+  "-Xfatal-warnings",
   "-Xfuture",
   "-Xlint"
 )
 
 val testDependencies = Seq(
   "org.scalacheck" %% "scalacheck" % "1.14.2",
-  "org.scalatest" %% "scalatest" % "3.0.7",
+  "org.scalatest" %% "scalatest" % "3.0.8",
   "org.typelevel" %% "cats-laws" % catsVersion,
   "org.typelevel" %% "discipline" % "0.11.1"
 )
