@@ -17,13 +17,9 @@ trait Decoders {
   /**
    * Maps a Circe's [[Decoder]] to Finch's [[Decode]].
    */
-  implicit def decodeCirce[A: Decoder]: Decode.Json[A] = Decode.json { (b, cs) =>
-    val attemptJson = cs match {
-      case StandardCharsets.UTF_8 => decodeByteBuffer[A](b.asByteBuffer)
-      case _ => decode[A](b.asString(cs))
-    }
-
-    attemptJson.fold[Either[Throwable, A]](Left.apply, Right.apply)
+  implicit def decodeCirce[A: Decoder]: Decode.Json[A] = Decode.json {
+    case (b, StandardCharsets.UTF_8) => decodeByteBuffer[A](b.asByteBuffer)
+    case (b, cs) => decode[A](b.asString(cs))
   }
 
   implicit def enumerateCirce[F[_], A: Decoder](implicit
