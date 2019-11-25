@@ -12,7 +12,7 @@ lazy val circeVersion = "0.11.2"
 lazy val circeIterateeVersion = "0.12.0"
 lazy val circeFs2Version = "0.11.0"
 lazy val shapelessVersion = "2.3.3"
-lazy val catsVersion = "1.6.1"
+lazy val catsVersion = "2.0.0"
 lazy val argonautVersion = "6.2.3"
 lazy val iterateeVersion = "0.18.0"
 lazy val refinedVersion = "0.9.10"
@@ -35,7 +35,7 @@ lazy val compilerOptions = Seq(
 )
 
 val testDependencies = Seq(
-  "org.scalacheck" %% "scalacheck" % "1.14.0",
+  "org.scalacheck" %% "scalacheck" % "1.14.2",
   "org.scalatest" %% "scalatest" % "3.0.7",
   "org.typelevel" %% "cats-laws" % catsVersion,
   "org.typelevel" %% "discipline" % "0.11.1"
