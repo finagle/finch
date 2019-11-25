@@ -7,17 +7,17 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.11.12", "2.12.7")
 )
 
-lazy val twitterVersion = "19.6.0"
-lazy val circeVersion = "0.11.1"
+lazy val twitterVersion = "19.10.0"
+lazy val circeVersion = "0.11.2"
 lazy val circeIterateeVersion = "0.12.0"
 lazy val circeFs2Version = "0.11.0"
 lazy val shapelessVersion = "2.3.3"
-lazy val catsVersion = "1.6.1"
+lazy val catsVersion = "2.0.0"
 lazy val argonautVersion = "6.2.3"
 lazy val iterateeVersion = "0.18.0"
-lazy val refinedVersion = "0.9.7"
-lazy val catsEffectVersion = "1.3.1"
-lazy val fs2Version =  "1.0.4"
+lazy val refinedVersion = "0.9.10"
+lazy val catsEffectVersion = "2.0.0"
+lazy val fs2Version =  "2.1.0"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -35,8 +35,8 @@ lazy val compilerOptions = Seq(
 )
 
 val testDependencies = Seq(
-  "org.scalacheck" %% "scalacheck" % "1.14.0",
-  "org.scalatest" %% "scalatest" % "3.0.8",
+  "org.scalacheck" %% "scalacheck" % "1.14.2",
+  "org.scalatest" %% "scalatest" % "3.0.7",
   "org.typelevel" %% "cats-laws" % catsVersion,
   "org.typelevel" %% "discipline" % "0.11.1"
 )
@@ -65,7 +65,7 @@ val baseSettings = Seq(
   scalacOptions in (Compile, console) += "-Yrepl-class-based",
   fork in Test := true,
   javaOptions in ThisBuild ++= Seq("-Xss2048K"),
-  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.10" cross CrossVersion.binary)
+  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary)
 )
 
 def updateVersionInFile(selectVersion: sbtrelease.Versions => String): ReleaseStep =
@@ -342,7 +342,7 @@ lazy val examples = project
   .settings(moduleName := "finchx-examples")
   .settings(allSettings)
   .settings(noPublish)
-  .settings(resolvers += "TM" at "http://maven.twttr.com")
+  .settings(resolvers += "TM" at "https://maven.twttr.com")
   .settings(coverageExcludedPackages :=
     """
       |io\.finch\.div\..*;

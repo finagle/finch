@@ -8,3 +8,6 @@ target/
 .project
 .classpath
 local.*
+
+.bloop
+.metals

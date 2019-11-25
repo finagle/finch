@@ -3,12 +3,13 @@ package io.finch
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-import cats.data.NonEmptyList
+import cats.data.{NonEmptyList, WriterT}
 import cats.effect.{IO, Resource}
 import cats.laws._
 import cats.laws.discipline._
 import cats.laws.discipline.AlternativeTests
 import cats.laws.discipline.SemigroupalTests.Isomorphisms
+import cats.~>
 import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.io.Buf
 import io.finch.data.Foo
@@ -401,5 +402,27 @@ class EndpointSpec extends FinchSpec {
     r(Input.get("/foo")).awaitOutputUnsafe() shouldBe None
     r(Input.post("/")).awaitOutputUnsafe() shouldBe None
     r(Input.get("/test.txt")).awaitValueUnsafe() shouldBe Some(Buf.Utf8("foo bar baz\n"))
+  }
+
+  it should "wrap up an exception thrown inside mapOutputs function" in {
+    check { (ep: EndpointIO[Int], p: Output.Payload[Int], e: Exception) => {
+      val mappedEndpoint = ep.mapOutput[Int](_ => throw e)
+      val asFunction = mappedEndpoint.asInstanceOf[Output[Int] => IO[Output[Int]]]
+
+      asFunction.apply(p).attempt.unsafeRunSync() === Left(e)
+    }}
+  }
+
+  it should "transform F[_] to G[_] effect" in {
+    type W[A] = WriterT[IO, List[String], A]
+
+    check { (ep: Endpoint[IO, Int], input: Input) => {
+      val nat = new (IO ~> W) {
+        def apply[A](fa: IO[A]): WriterT[IO, List[String], A] = WriterT.liftF(fa)
+      }
+
+      ep.mapK(nat)(input).awaitOutput() === ep(input).awaitOutput()
+    }
+    }
   }
 }
