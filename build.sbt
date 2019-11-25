@@ -8,16 +8,16 @@ lazy val buildSettings = Seq(
 )
 
 lazy val twitterVersion = "19.8.0"
-lazy val circeVersion = "0.11.1"
+lazy val circeVersion = "0.11.2"
 lazy val circeIterateeVersion = "0.12.0"
 lazy val circeFs2Version = "0.11.0"
 lazy val shapelessVersion = "2.3.3"
 lazy val catsVersion = "1.6.1"
 lazy val argonautVersion = "6.2.3"
 lazy val iterateeVersion = "0.18.0"
-lazy val refinedVersion = "0.9.9"
+lazy val refinedVersion = "0.9.10"
 lazy val catsEffectVersion = "1.4.0"
-lazy val fs2Version =  "1.0.5"
+lazy val fs2Version =  "2.1.0"
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -342,7 +342,7 @@ lazy val examples = project
   .settings(moduleName := "finchx-examples")
   .settings(allSettings)
   .settings(noPublish)
-  .settings(resolvers += "TM" at "http://maven.twttr.com")
+  .settings(resolvers += "TM" at "https://maven.twttr.com")
   .settings(coverageExcludedPackages :=
     """
       |io\.finch\.div\..*;
