@@ -7,7 +7,7 @@ import io.finch.internal.HttpContent
 import java.nio.charset.{Charset, StandardCharsets}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Gen.Choose
-import org.scalacheck.Prop.BooleanOperators
+import org.scalacheck.Prop.propBoolean
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.Checkers
 
