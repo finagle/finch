@@ -305,6 +305,19 @@ class EndpointSpec extends FinchSpec {
     e2(b).remainder shouldBe Some(b.withRoute(b.route.drop(2)))
   }
 
+  it should "be greedy in terms of Endpoint.coproduct" in {
+    val a = Input(emptyRequest, List("a", "10"))
+    val b = Input(emptyRequest, List("a"))
+
+    val e1 = Endpoint.coproductAll("a", "b", "a" :: "10")
+    val e2 = Endpoint.coproductAll("a" :: "10", "b", "a")
+
+    e1(a).remainder shouldBe Some(a.withRoute(a.route.drop(2)))
+    e1(b).remainder shouldBe Some(b.withRoute(b.route.drop(2)))
+    e2(a).remainder shouldBe Some(a.withRoute(a.route.drop(2)))
+    e2(b).remainder shouldBe Some(b.withRoute(b.route.drop(2)))
+  }
+
   it should "accumulate errors on its product" in {
     check { (a: Either[Error, Errors], b: Either[Error, Errors]) =>
       val aa = a.fold[Exception](identity, identity)

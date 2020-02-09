@@ -175,7 +175,7 @@ limitations under the License.
 [gitter]: https://gitter.im/finagle/finch
 [finagle]: https://github.com/twitter/finagle
 [circe]: https://github.com/circe/circe
-[jackson]: http://wiki.fasterxml.com/JacksonHome
+[jackson]: https://github.com/FasterXML/jackson
 [argonaut]: http://argonaut.io
 [finagle-oauth2]: https://github.com/finagle/finagle-oauth2
 [json4s]: http://json4s.org
