@@ -4,17 +4,17 @@ import microsites.ExtraMdFileConfig
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   scalaVersion := "2.12.7",
-  crossScalaVersions := Seq("2.11.12", "2.12.7")
+  crossScalaVersions := Seq("2.12.7", "2.13.1")
 )
 
-lazy val twitterVersion = "19.10.0"
-lazy val circeVersion = "0.11.2"
-lazy val circeIterateeVersion = "0.12.0"
-lazy val circeFs2Version = "0.11.0"
+lazy val twitterVersion = "20.1.0"
+lazy val circeVersion = "0.13.0"
+lazy val circeIterateeVersion = "0.13.0-M2"
+lazy val circeFs2Version = "0.13.0-M1"
 lazy val shapelessVersion = "2.3.3"
 lazy val catsVersion = "2.0.0"
 lazy val argonautVersion = "6.2.4"
-lazy val iterateeVersion = "0.18.0"
+lazy val iterateeVersion = "0.19.0"
 lazy val refinedVersion = "0.9.12"
 lazy val catsEffectVersion = "2.0.0"
 lazy val fs2Version =  "2.1.0"
@@ -27,18 +27,16 @@ lazy val compilerOptions = Seq(
   "-language:higherKinds",
   "-language:implicitConversions",
   "-unchecked",
-  "-Yno-adapted-args",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
-  "-Xfuture",
   "-Xlint"
 )
 
 val testDependencies = Seq(
   "org.scalacheck" %% "scalacheck" % "1.14.2",
-  "org.scalatest" %% "scalatest" % "3.0.7",
+  "org.scalatest" %% "scalatest" % "3.1.0",
   "org.typelevel" %% "cats-laws" % catsVersion,
-  "org.typelevel" %% "discipline" % "0.11.1"
+  "org.typelevel" %% "discipline-scalatest" % "1.0.0"
 )
 
 val baseSettings = Seq(
@@ -55,7 +53,7 @@ val baseSettings = Seq(
   ),
   scalacOptions ++= compilerOptions ++ (
     CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, p)) if p >= 11 => Seq("-Ywarn-unused-import")
+      case Some((2, p)) if p == 12 => Seq("-Yno-adapted-args", "-Ywarn-unused-import", "-Xfuture")
       case _ => Nil
     }
   ),
@@ -235,8 +233,9 @@ lazy val finch = project.in(file("."))
   .settings(libraryDependencies ++= Seq(
     "io.circe" %% "circe-generic" % circeVersion
   ))
+  // Bring back examples when Twitter Server is published for Scala 2.13.
   .aggregate(
-    core, fs2, iteratee, generic, argonaut, circe, benchmarks, test, jsonTest, examples, refined
+    core, fs2, iteratee, generic, argonaut, circe, benchmarks, test, jsonTest, /*examples,*/ refined
   )
   .dependsOn(core, iteratee, generic, circe)
 
@@ -323,9 +322,11 @@ lazy val refined = project
   )
   .dependsOn(core % "test->test;compile->compile")
 
+// We need to wait for Twitter Server to be published for 2.13 for `docs` and `examples` to cross build for 2.13
 lazy val docs = project
   .settings(moduleName := "finchx-docs")
   .settings(docSettings)
+  .settings(crossScalaVersions := Seq("2.12.7"))
   .settings(noPublish)
   .settings(
     libraryDependencies ++= Seq(
@@ -341,6 +342,7 @@ lazy val docs = project
 lazy val examples = project
   .settings(moduleName := "finchx-examples")
   .settings(allSettings)
+  .settings(crossScalaVersions := Seq("2.12.7"))
   .settings(noPublish)
   .settings(resolvers += "TM" at "https://maven.twttr.com")
   .settings(coverageExcludedPackages :=

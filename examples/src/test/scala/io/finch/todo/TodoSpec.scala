@@ -9,7 +9,7 @@ import io.finch.circe._
 import io.finch.internal.DummyExecutionContext
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.{FlatSpec, Matchers}
-import org.scalatest.prop.Checkers
+import org.scalatestplus.scalacheck.Checkers
 
 class TodoSpec extends FlatSpec with Matchers with Checkers {
 

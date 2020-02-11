@@ -9,7 +9,7 @@ import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Gen.Choose
 import org.scalacheck.Prop.propBoolean
 import org.scalatest.{FlatSpec, Matchers}
-import org.scalatest.prop.Checkers
+import org.scalatestplus.scalacheck.Checkers
 
 class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
 
