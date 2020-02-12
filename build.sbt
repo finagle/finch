@@ -1,6 +1,8 @@
 import ReleaseTransformations._
 import microsites.ExtraMdFileConfig
 
+parallelExecution := false
+
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   scalaVersion := "2.12.7",
@@ -19,7 +21,7 @@ lazy val refinedVersion = "0.9.12"
 lazy val catsEffectVersion = "2.0.0"
 lazy val fs2Version =  "2.1.0"
 
-lazy val compilerOptions = Seq(
+def compilerOptions(scalaVersion: String) = Seq(
   "-deprecation",
   "-encoding", "UTF-8",
   "-feature",
@@ -30,6 +32,19 @@ lazy val compilerOptions = Seq(
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
   "-Xlint"
+) ++ (CrossVersion.partialVersion(scalaVersion) match {
+  case Some((2, scalaMajor)) if scalaMajor == 12 => scala212CompilerOptions
+  case Some((2, scalaMajor)) if scalaMajor == 13 => scala213CompilerOptions
+})
+
+lazy val scala212CompilerOptions = Seq(
+  "-Yno-adapted-args", 
+  "-Ywarn-unused-import",
+  "-Xfuture"
+)
+
+lazy val scala213CompilerOptions = Seq(
+  "-Wunused:imports"
 )
 
 val testDependencies = Seq(
@@ -51,12 +66,7 @@ val baseSettings = Seq(
     Resolver.sonatypeRepo("releases"),
     Resolver.sonatypeRepo("snapshots")
   ),
-  scalacOptions ++= compilerOptions ++ (
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, p)) if p == 12 => Seq("-Yno-adapted-args", "-Ywarn-unused-import", "-Xfuture")
-      case _ => Nil
-    }
-  ),
+  scalacOptions ++= compilerOptions(scalaVersion.value),
   scalacOptions in (Compile, console) ~= {
     _.filterNot(Set("-Ywarn-unused-import"))
   },
