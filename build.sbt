@@ -243,9 +243,8 @@ lazy val finch = project.in(file("."))
   .settings(libraryDependencies ++= Seq(
     "io.circe" %% "circe-generic" % circeVersion
   ))
-  // Bring back examples when Twitter Server is published for Scala 2.13.
   .aggregate(
-    core, fs2, iteratee, generic, argonaut, circe, benchmarks, test, jsonTest, /*examples,*/ refined
+    core, fs2, iteratee, generic, argonaut, circe, benchmarks, test, jsonTest, examples, refined
   )
   .dependsOn(core, iteratee, generic, circe)
 
@@ -332,11 +331,9 @@ lazy val refined = project
   )
   .dependsOn(core % "test->test;compile->compile")
 
-// We need to wait for Twitter Server to be published for 2.13 for `docs` and `examples` to cross build for 2.13
 lazy val docs = project
   .settings(moduleName := "finchx-docs")
   .settings(docSettings)
-  .settings(crossScalaVersions := Seq("2.12.7"))
   .settings(noPublish)
   .settings(
     libraryDependencies ++= Seq(
@@ -352,7 +349,6 @@ lazy val docs = project
 lazy val examples = project
   .settings(moduleName := "finchx-examples")
   .settings(allSettings)
-  .settings(crossScalaVersions := Seq("2.12.7"))
   .settings(noPublish)
   .settings(resolvers += "TM" at "https://maven.twttr.com")
   .settings(coverageExcludedPackages :=
