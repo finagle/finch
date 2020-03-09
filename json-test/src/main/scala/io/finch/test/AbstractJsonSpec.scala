@@ -9,7 +9,7 @@ import io.finch.{Decode, DecodeStream, Encode}
 import io.finch.test.data._
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.{FlatSpec, Matchers}
-import org.scalatest.prop.Checkers
+import org.scalatestplus.scalacheck.Checkers
 import org.typelevel.discipline.Laws
 import scala.util.Try
 

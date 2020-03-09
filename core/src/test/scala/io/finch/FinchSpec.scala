@@ -13,7 +13,7 @@ import com.twitter.io.Buf
 import com.twitter.util._
 import org.scalacheck.{Arbitrary, Cogen, Gen}
 import org.scalatest.{FlatSpec, Matchers}
-import org.scalatest.prop.Checkers
+import org.scalatestplus.scalacheck.Checkers
 import org.typelevel.discipline.Laws
 import scala.reflect.ClassTag
 import shapeless.Witness

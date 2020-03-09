@@ -7,7 +7,7 @@ import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
 import com.twitter.finagle.http.Request
-import com.twitter.io.{Buf, Reader}
+import com.twitter.io.{Buf, Pipe}
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
@@ -26,7 +26,7 @@ abstract class StreamingLaws[S[_[_], _], F[_]] extends Laws with AllInstances wi
 
     val rep = F.toIO(toResponse(fromList(a), cs)).unsafeRunSync()
 
-    Reader.copy(rep.reader, req.writer).ensure(req.writer.close())
+    Pipe.copy(rep.reader, req.writer).ensure(req.writer.close())
 
     Endpoint
       .binaryBodyStream[F, S]

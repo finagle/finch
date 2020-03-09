@@ -18,7 +18,13 @@ import shapeless.ops.function.FnToProduct
 trait Mapper[F[_], A] {
   type Out
 
-  def apply(e: Endpoint[F, A]): Endpoint[F, Out]
+  /**
+   *
+   * @param e The endpoint to map
+   * @tparam X Hack to stop the compiler from converting this to a SAM
+   * @return An endpoint that returns an `Out`
+   */
+  def apply[X](e: Endpoint[F, A]): Endpoint[F, Out]
 }
 
 private[finch] trait LowPriorityMapperConversions {
@@ -27,7 +33,7 @@ private[finch] trait LowPriorityMapperConversions {
 
   def instance[F[_], A, B](f: Endpoint[F, A] => Endpoint[F, B]): Mapper.Aux[F, A, B] = new Mapper[F, A] {
     type Out = B
-    def apply(e: Endpoint[F, A]): Endpoint[F, B] = f(e)
+    def apply[X](e: Endpoint[F, A]): Endpoint[F, B] = f(e)
   }
 
   /**

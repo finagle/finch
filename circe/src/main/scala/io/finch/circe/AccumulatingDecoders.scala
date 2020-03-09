@@ -42,7 +42,7 @@ trait AccumulatingDecoders {
     F: MonadError[F, Throwable],
       decode: Decoder[A]
   ): Enumeratee[F, Json, A] = Enumeratee.flatMap(json =>
-    decode.accumulating(json.hcursor) match {
+    decode.decodeAccumulating(json.hcursor) match {
       case Validated.Invalid(errors) => Enumerator.liftM(F.raiseError(Errors(errors)))
       case Validated.Valid(a) => Enumerator.enumOne(a)
     }
