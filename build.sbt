@@ -1,8 +1,6 @@
 import ReleaseTransformations._
 import microsites.ExtraMdFileConfig
 
-parallelExecution := false
-
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   scalaVersion := "2.12.7",
