@@ -12,11 +12,11 @@ lazy val circeVersion = "0.13.0"
 lazy val circeIterateeVersion = "0.13.0-M2"
 lazy val circeFs2Version = "0.13.0-M1"
 lazy val shapelessVersion = "2.3.3"
-lazy val catsVersion = "2.0.0"
+lazy val catsVersion = "2.1.1"
 lazy val argonautVersion = "6.2.4"
 lazy val iterateeVersion = "0.19.0"
 lazy val refinedVersion = "0.9.12"
-lazy val catsEffectVersion = "2.0.0"
+lazy val catsEffectVersion = "2.1.1"
 lazy val fs2Version =  "2.1.0"
 
 def compilerOptions(scalaVersion: String) = Seq(
