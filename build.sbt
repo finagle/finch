@@ -4,22 +4,22 @@ import microsites.ExtraMdFileConfig
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
   scalaVersion := "2.12.7",
-  crossScalaVersions := Seq("2.11.12", "2.12.7")
+  crossScalaVersions := Seq("2.12.7", "2.13.1")
 )
 
-lazy val twitterVersion = "19.10.0"
-lazy val circeVersion = "0.11.2"
-lazy val circeIterateeVersion = "0.12.0"
-lazy val circeFs2Version = "0.11.0"
+lazy val twitterVersion = "20.3.0"
+lazy val circeVersion = "0.13.0"
+lazy val circeIterateeVersion = "0.13.0-M2"
+lazy val circeFs2Version = "0.13.0-M1"
 lazy val shapelessVersion = "2.3.3"
 lazy val catsVersion = "2.0.0"
-lazy val argonautVersion = "6.2.3"
-lazy val iterateeVersion = "0.18.0"
-lazy val refinedVersion = "0.9.10"
+lazy val argonautVersion = "6.2.4"
+lazy val iterateeVersion = "0.19.0"
+lazy val refinedVersion = "0.9.12"
 lazy val catsEffectVersion = "2.0.0"
 lazy val fs2Version =  "2.1.0"
 
-lazy val compilerOptions = Seq(
+def compilerOptions(scalaVersion: String) = Seq(
   "-deprecation",
   "-encoding", "UTF-8",
   "-feature",
@@ -27,18 +27,29 @@ lazy val compilerOptions = Seq(
   "-language:higherKinds",
   "-language:implicitConversions",
   "-unchecked",
-  "-Yno-adapted-args",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
-  "-Xfuture",
   "-Xlint"
+) ++ (CrossVersion.partialVersion(scalaVersion) match {
+  case Some((2, scalaMajor)) if scalaMajor == 12 => scala212CompilerOptions
+  case Some((2, scalaMajor)) if scalaMajor == 13 => scala213CompilerOptions
+})
+
+lazy val scala212CompilerOptions = Seq(
+  "-Yno-adapted-args", 
+  "-Ywarn-unused-import",
+  "-Xfuture"
+)
+
+lazy val scala213CompilerOptions = Seq(
+  "-Wunused:imports"
 )
 
 val testDependencies = Seq(
-  "org.scalacheck" %% "scalacheck" % "1.14.3",
-  "org.scalatest" %% "scalatest" % "3.0.7",
+  "org.scalacheck" %% "scalacheck" % "1.14.2",
+  "org.scalatest" %% "scalatest" % "3.1.0",
   "org.typelevel" %% "cats-laws" % catsVersion,
-  "org.typelevel" %% "discipline" % "0.11.1"
+  "org.typelevel" %% "discipline-scalatest" % "1.0.0"
 )
 
 val baseSettings = Seq(
@@ -53,12 +64,7 @@ val baseSettings = Seq(
     Resolver.sonatypeRepo("releases"),
     Resolver.sonatypeRepo("snapshots")
   ),
-  scalacOptions ++= compilerOptions ++ (
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, p)) if p >= 11 => Seq("-Ywarn-unused-import")
-      case _ => Nil
-    }
-  ),
+  scalacOptions ++= compilerOptions(scalaVersion.value),
   scalacOptions in (Compile, console) ~= {
     _.filterNot(Set("-Ywarn-unused-import"))
   },

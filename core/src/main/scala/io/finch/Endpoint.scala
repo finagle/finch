@@ -361,7 +361,7 @@ trait Endpoint[F[_], A] { self =>
     */
   final def handle(pf: PartialFunction[Throwable, Output[A]])(implicit
     F: ApplicativeError[F, Throwable]
-  ): Endpoint[F, A] = rescue(pf.andThen(F.pure))
+  ): Endpoint[F, A] = rescue(pf.andThen(F.pure(_)))
 
   /**
     * Validates the result of this endpoint using a `predicate`. The rule is used for error
@@ -1118,4 +1118,16 @@ object Endpoint {
    */
   def multipartAttributesNel[F[_]: Sync, A: DecodeEntity: ClassTag](name: String): Endpoint[F, NonEmptyList[A]] =
     new Attribute[F, NonEmptyList, A](name) with Attribute.NonEmpty[F, A] with Attribute.MultipleErrors[F, NonEmptyList, A]
+
+  /**
+   * Sequentially composes the given `endpoints` by using [[Endpoint!.coproduct]].
+   *
+   * The resulting endpoint will match if at least one of the provided endpoints matches.
+   * If the sequence of provided endpoints is empty, the empty endpoint is returned, which never matches.
+   *
+   * @see [[Endpoint!.coproduct]] for the exact composition semantics.
+   * @see [[Endpoint.empty]] for the semantics of the empty endpoint.
+   */
+  def coproductAll[F[_], A](endpoints: Endpoint[F, A]*): Endpoint[F, A] =
+    if (endpoints.isEmpty) empty else endpoints.reduce(_ coproduct _)
 }
