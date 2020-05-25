@@ -11,3 +11,4 @@ local.*
 
 .bloop
 .metals
+project/metals.sbt

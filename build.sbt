@@ -181,6 +181,7 @@ lazy val docSettings = allSettings ++ Seq(
   micrositeName := "Finch",
   micrositeDescription := "Scala combinator library for building Finagle HTTP services",
   micrositeAuthor := "Vladimir Kostyukov",
+  micrositeCompilingDocsTool := WithTut,
   micrositeHighlightTheme := "atom-one-light",
   micrositeHomepage := "https://finagle.github.io/finch/",
   micrositeDocumentationUrl := "api",
@@ -342,7 +343,7 @@ lazy val docs = project
     )
   )
   .enablePlugins(MicrositesPlugin, ScalaUnidocPlugin)
-  .dependsOn(core, circe, argonaut, iteratee, refined)
+  .dependsOn(core, circe, argonaut, iteratee, refined, fs2)
 
 lazy val examples = project
   .settings(moduleName := "finchx-examples")
