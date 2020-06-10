@@ -1,6 +1,5 @@
 ---
 layout: docs
-
 ---
 Generally, Finch follows a standard [fork and pull][0] model for contributions via GitHub pull requests. Thus, the
 _contributing process_ looks as follows:

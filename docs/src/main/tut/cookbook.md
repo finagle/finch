@@ -68,15 +68,16 @@ cornerstone idea is to return a `Buf` instance from the endpoint so we could use
 (where it's quite legal to return a `Future[Buf]`).
 
 ```tut:silent
+import cats.effect._
 import io.finch._
-import io.finch.syntax._
-import com.twitter.io.{Reader, Buf}
+import io.finch.catsEffect._
+import com.twitter.io.{Buf, BufReader, Reader}
 import java.io.File
 
-val reader: Reader = Reader.fromFile(new File("/dev/urandom"))
+val reader: Reader[Buf] = Reader.fromFile(new File("/dev/urandom"))
 
-val file: Endpoint[Buf] = get("file") {
-  Reader.readAll(reader).map(Ok)
+val file: Endpoint[IO, Buf] = get("file") {
+  BufReader.readAll(reader).map(Ok)
 }
 ```
 
@@ -88,18 +89,19 @@ It's also possible to _stream_ the file content to the client using [`AsyncStrea
 
 ```tut:silent
 import io.finch._
-import io.finch.syntax._
-import com.twitter.conversions.storage._
+import io.finch.catsEffect._
+import com.twitter.conversions.StorageUnitOps._
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.Http
-import com.twitter.io.{Reader, Buf}
+import com.twitter.io.{Buf, BufReader, Reader}
 
 import java.io.File
 
-val reader: Reader = Reader.fromFile(new File("/dev/urandom"))
+val reader: Reader[Buf] = Reader.fromFile(new File("/dev/urandom"))
 
-val file: Endpoint[AsyncStream[Buf]] = get("stream-of-file") {
-  Ok(AsyncStream.fromReader(reader, chunkSize = 512.kilobytes.inBytes.toInt))
+val file: Endpoint[IO, AsyncStream[Buf]] = get("stream-of-file") {
+  val chunkedReader = BufReader.chunked(reader, chunkSize = 512.kilobytes.inBytes.toInt)
+  Ok(Reader.toAsyncStream(chunkedReader))
 }
 ```
 
@@ -141,7 +143,7 @@ An `Endpoint[Unit]` represents an endpoint that doesn't return any payload in th
 ```tut:silent
 import io.finch._
 
-val empty: Endpoint[Unit] = get("empty" :: path[String]) { s: String =>
+val empty: Endpoint[IO, Unit] = get("empty" :: path[String]) { s: String =>
   NoContent[Unit].withHeader("X-String" -> s)
 }
 ```
@@ -157,13 +159,13 @@ import com.twitter.finagle.http.Status
 case class Foo(s: String)
 
 // This is possible
-val fooOrEmpty: Endpoint[Foo] = get("foo" :: path[String]) { s: String =>
+val fooOrEmpty: Endpoint[IO, Foo] = get("foo" :: path[String]) { s: String =>
   if (s != "") Ok(Foo(s))
   else NoContent
 }
 
 // This is recommended
-val fooOrFailure: Endpoint[Foo] = get("foo" :: path[String]) { s: String =>
+val fooOrFailure: Endpoint[IO, Foo] = get("foo" :: path[String]) { s: String =>
   if (s != "") Ok(Foo(s))
   else BadRequest(new IllegalArgumentException("empty string"))
 }
@@ -179,7 +181,7 @@ output) indicating that there is no payload returned.
 import io.finch._
 import com.twitter.finagle.http.Status
 
-val redirect: Endpoint[Unit] = get("redirect" :: "from") {
+val redirect: Endpoint[IO, Unit] = get("redirect" :: "from") {
   Output.unit(Status.SeeOther).withHeader("Location" -> "/redirect/to")
 }
 ```
@@ -209,9 +211,9 @@ import io.finch._
 
 case class Foo(i: Int, s: String)
 
-val foo: Endpoint[Foo] = (param[Int]("i") :: param("s")).as[Foo]
+val foo: Endpoint[IO, Foo] = (param[Int]("i") :: param("s")).as[Foo]
 
-val getFoo: Endpoint[Foo] = get("foo" :: foo) { f: Foo =>
+val getFoo: Endpoint[IO, Foo] = get("foo" :: foo) { f: Foo =>
   println(s"Got foo: $f")
   Ok(f) // echo it back
 }
@@ -237,7 +239,7 @@ import io.finch._
 
 case class User(id: Int)
 
-val auth: Endpoint[User] = header("User").mapOutput(u =>
+val auth: Endpoint[IO, User] = header("User").mapOutput(u =>
   if (u == "secret user") Ok(User(10))
   else Unauthorized(new Exception(s"User $u is unknown."))
 ).handle {
@@ -245,7 +247,7 @@ val auth: Endpoint[User] = header("User").mapOutput(u =>
   case e: Error.NotPresent => Unauthorized(e)
 }
 
-val getCurrentUser: Endpoint[User] = get("user" :: auth) { u: User =>
+val getCurrentUser: Endpoint[IO, User] = get("user" :: auth) { u: User =>
   println(s"Got user: $u")
   Ok(u) // echo it back
 }
@@ -272,10 +274,10 @@ The previous example's `auth` endpoint can be updated as follows:
 ```tut:silent
 import com.twitter.util.Future
 
-def fetchUserForToken(token: String): Future[Option[User]] = ???
+def fetchUserForToken(token: String): IO[Option[User]] = ???
 
-val auth: Endpoint[User] = header("User").mapOutputAsync(u =>
-  if (u == "secret user") Future.value(Ok(User(10)))
+val auth: Endpoint[IO, User] = header("User").mapOutputAsync(u =>
+  if (u == "secret user") IO.pure(Ok(User(10)))
   else fetchUserForToken(u).map {
     case Some(user) => Ok(user)
     case None => Unauthorized(new Exception(s"Invalid token: $u"))
@@ -302,7 +304,7 @@ import java.time.LocalDateTime
 implicit val e: DecodePath[LocalDateTime] =
   DecodePath.instance(s => Try(LocalDateTime.parse(s)).toOption)
 
-val dateTime: Endpoint[LocalDateTime] = get("time" :: path[LocalDateTime]) { t: LocalDateTime =>
+val dateTime: Endpoint[IO, LocalDateTime] = get("time" :: path[LocalDateTime]) { t: LocalDateTime =>
   println(s"Got time: $t")
   Ok(t) // echo it back
 }
@@ -340,8 +342,10 @@ import com.twitter.finagle.http.filter.Cors
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.Service
 import io.finch._
+import io.finch.catsEffect._
 
-val service: Service[Request, Response] = Endpoint.liftOutput(Ok("Hello, world!")).toServiceAs[Text.Plain]
+val service: Service[Request, Response] = 
+  Endpoint.liftOutput[IO, String](Ok("Hello, world!")).toServiceAs[Text.Plain]
 
 val policy: Cors.Policy = Cors.Policy(
   allowsOrigin = _ => Some("*"),
@@ -416,7 +420,7 @@ Also note that as of [Finch 0.16-M3](https://github.com/finagle/finch/releases/t
 is a Scala Futures syntax support for endpoints.
 
 ```tut:silent
-import io.finch._, io.finch.syntax.scalaFutures._
+import io.finch._, io.finch.catsEffect._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -440,30 +444,22 @@ NOTE: SSE requires `Cache-Control` to be disabled.
 
 ```tut:silent
 import cats.Show
-import com.twitter.concurrent.AsyncStream
-import com.twitter.conversions.time._
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
-import com.twitter.finagle.util.DefaultTimer
-import com.twitter.util.{ Await, Future, Timer}
 import io.finch._
-import io.finch.sse._
+import io.finch.fs2._
+import _root_.fs2.Stream
 import java.util.Date
+import scala.concurrent.duration._
 
 implicit val showDate: Show[Date] = Show.fromToString[Date]
 
-implicit val timer: Timer = DefaultTimer
+implicit val timer: Timer[IO] = IO.timer(scala.concurrent.ExecutionContext.global)
+def streamTime(): Stream[IO, ServerSentEvent[Date]] =
+  Stream.awakeEvery[IO](1.second).map(_ => new Date()).map(ServerSentEvent(_))
 
-def streamTime(): AsyncStream[ServerSentEvent[Date]] =
-  AsyncStream.fromFuture(
-    Future.sleep(1.seconds)
-          .map(_ => new Date())
-          .map(ServerSentEvent(_))
-  ) ++ streamTime()
-
-val time: Endpoint[AsyncStream[ServerSentEvent[Date]]] = get("time") {
-  Ok(streamTime())
-    .withHeader("Cache-Control" -> "no-cache")
+val time: Endpoint[IO, Stream[IO, ServerSentEvent[Date]]] = get("time") {
+  Ok(streamTime()).withHeader("Cache-Control" -> "no-cache")
 }
 
 val service: Service[Request, Response] = time.toServiceAs[Text.EventStream]
@@ -484,7 +480,7 @@ import io.finch._
 import io.finch.circe._
 import io.circe.generic.auto._
 
-val endpoint: Endpoint[Map[String, String]] = get("jsonp") {
+val endpoint: Endpoint[IO, Map[String, String]] = get("jsonp") {
   Ok(Map("foo" -> "bar"))
 }
 
