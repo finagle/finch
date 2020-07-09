@@ -5,7 +5,6 @@ import com.twitter.concurrent.AsyncStream
 import com.twitter.io.Buf
 import io.finch.internal.HttpContent
 import java.nio.charset.{Charset, StandardCharsets}
-
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Gen.Choose
 import org.scalacheck.Prop.propBoolean

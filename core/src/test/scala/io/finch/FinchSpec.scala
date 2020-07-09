@@ -16,7 +16,6 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
 import org.typelevel.discipline.Laws
-
 import scala.reflect.ClassTag
 import shapeless.Witness
 
