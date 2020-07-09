@@ -3,10 +3,11 @@ package io.finch.internal
 import com.twitter.util.Try
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
 
-class TooFastStringSpec extends FlatSpec with Matchers with Checkers {
+class TooFastStringSpec extends AnyFlatSpec with Matchers with Checkers {
 
   "TooFastString" should "parse boolean correctly" in {
     check { b: Boolean =>

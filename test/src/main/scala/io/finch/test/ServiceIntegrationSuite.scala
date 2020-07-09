@@ -3,12 +3,12 @@ package io.finch.test
 import com.twitter.finagle.{Http, ListeningServer, Service}
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.util.Await
-import org.scalatest.{fixture, Outcome}
+import org.scalatest.{FixtureTestSuite, Outcome}
 
 /**
  * Extends [[ServiceSuite]] to support integration testing for services.
  */
-trait ServiceIntegrationSuite extends ServiceSuite { self: fixture.TestSuite =>
+trait ServiceIntegrationSuite extends ServiceSuite { self: FixtureTestSuite =>
 
   /**
    * Override in implementing classes if a different port is desired for
