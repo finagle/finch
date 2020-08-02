@@ -7,7 +7,7 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.12.7", "2.13.1")
 )
 
-lazy val twitterVersion = "20.3.0"
+lazy val twitterVersion = "20.5.0"
 lazy val circeVersion = "0.13.0"
 lazy val circeIterateeVersion = "0.13.0-M2"
 lazy val circeFs2Version = "0.13.0"
@@ -15,9 +15,9 @@ lazy val shapelessVersion = "2.3.3"
 lazy val catsVersion = "2.1.1"
 lazy val argonautVersion = "6.2.4"
 lazy val iterateeVersion = "0.19.0"
-lazy val refinedVersion = "0.9.13"
-lazy val catsEffectVersion = "2.1.1"
-lazy val fs2Version =  "2.1.0"
+lazy val refinedVersion = "0.9.15"
+lazy val catsEffectVersion = "2.1.4"
+lazy val fs2Version =  "2.4.2"
 
 def compilerOptions(scalaVersion: String) = Seq(
   "-deprecation",
@@ -47,7 +47,7 @@ lazy val scala213CompilerOptions = Seq(
 
 val testDependencies = Seq(
   "org.scalacheck" %% "scalacheck" % "1.14.2",
-  "org.scalatest" %% "scalatest" % "3.1.0",
+  "org.scalatest" %% "scalatest" % "3.1.2",
   "org.typelevel" %% "cats-laws" % catsVersion,
   "org.typelevel" %% "discipline-scalatest" % "1.0.0"
 )
@@ -181,6 +181,7 @@ lazy val docSettings = allSettings ++ Seq(
   micrositeName := "Finch",
   micrositeDescription := "Scala combinator library for building Finagle HTTP services",
   micrositeAuthor := "Vladimir Kostyukov",
+  micrositeCompilingDocsTool := WithTut,
   micrositeHighlightTheme := "atom-one-light",
   micrositeHomepage := "https://finagle.github.io/finch/",
   micrositeDocumentationUrl := "api",
@@ -342,7 +343,7 @@ lazy val docs = project
     )
   )
   .enablePlugins(MicrositesPlugin, ScalaUnidocPlugin)
-  .dependsOn(core, circe, argonaut, iteratee, refined)
+  .dependsOn(core, circe, argonaut, iteratee, refined, fs2)
 
 lazy val examples = project
   .settings(moduleName := "finchx-examples")

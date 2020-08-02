@@ -54,18 +54,18 @@ class patchers are usually represented as `Endpoint[A => A]`, which
 
 ```tut:silent
 import java.util.UUID
+import cats.effect.IO
 import io.finch._
 import io.finch.circe._
-import io.finch.syntax._
+import io.finch.catsEffect._
 import io.circe.generic.auto._
-
 
 case class Todo(id: UUID, title: String, completed: Boolean, order: Int)
 object Todo {
   def list():List[Todo] = ???
 }
-val patchedTodo: Endpoint[Todo => Todo] = jsonBody[Todo => Todo]
-val patchTodo: Endpoint[Todo] = patch("todos" :: path[UUID] :: patchedTodo) { (id: UUID, pt: Todo => Todo) =>
+val patchedTodo: Endpoint[IO, Todo => Todo] = jsonBody[Todo => Todo]
+val patchTodo: Endpoint[IO, Todo] = patch("todos" :: path[UUID] :: patchedTodo) { (id: UUID, pt: Todo => Todo) =>
   val oldTodo = ??? // get by id
   val newTodo = pt(oldTodo)
   // store newTodo in the DB
@@ -87,8 +87,8 @@ import io.finch._
 import io.finch.circe._
 import io.circe.generic.auto._
 
-val postedTodo: Endpoint[Todo] = jsonBody[UUID => Todo].map(_(UUID.randomUUID()))
-val postTodo: Endpoint[Todo] = post("todos" :: postedTodo) { t: Todo =>
+val postedTodo: Endpoint[IO, Todo] = jsonBody[UUID => Todo].map(_(UUID.randomUUID()))
+val postTodo: Endpoint[IO, Todo] = post("todos" :: postedTodo) { t: Todo =>
   // store t in the DB
   Ok(t)
 }
@@ -110,10 +110,10 @@ endpoints. Use `FuturePool`s to wrap expensive computations.
 
 ```tut:silent
 import io.finch._
-import io.finch.syntax._
+import io.finch.catsEffect._
 import com.twitter.util.FuturePool
 
-val expensive: Endpoint[BigInt] = get(path[Int]) { i: Int =>
+val expensive: Endpoint[IO, BigInt] = get(path[Int]) { i: Int =>
   FuturePool.unboundedPool {
     Ok(BigInt(i).pow(i))
   }
@@ -170,6 +170,7 @@ One of the easiest things to export is a _counter_ that captures the number of t
 occurred.
 
 ```tut:silent
+import cats.effect.IO
 import io.finch._
 import io.finch.circe._
 import io.circe.generic.auto._
@@ -179,7 +180,7 @@ import com.twitter.finagle.stats.Counter
 
 object Main extends TwitterServer {
   val todos: Counter = statsReceiver.counter("todos")
-  val postTodo: Endpoint[Todo] = post("todos" :: postedTodo) { t: Todo =>
+  val postTodo: Endpoint[IO, Todo] = post("todos" :: postedTodo) { t: Todo =>
     todos.incr()
     // add todo into the DB
     Ok(t)
@@ -200,7 +201,7 @@ import com.twitter.finagle.stats.Stat
 
 object Main extends TwitterServer {
   val getTodosLatency: Stat = statsReceiver.stat("get_todos_latency")
-  val getTodos: Endpoint[List[Todo]] = get("todos") {
+  val getTodos: Endpoint[IO, List[Todo]] = get("todos") {
     Stat.time(getTodosLatency) { Ok(Todo.list()) }
   }
 }
@@ -250,7 +251,7 @@ useful server-side features that might be useful for most of the use cases.
  
  object Main extends TwitterServer {
    
-   val ping: Endpoint[String] = get("ping") { Ok("Pong") }
+   val ping: Endpoint[IO, String] = get("ping") { Ok("Pong") }
    val service: Service[Request, Response] = ping.toServiceAs[Text.Plain]
 
    def main(): Unit = {
