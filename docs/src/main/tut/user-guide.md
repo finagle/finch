@@ -99,11 +99,15 @@ In the following example, the random value is only generated once (when endpoint
 the `p` endpoint, and generated on each request in the `q` endpoint.
 
 ```tut
+import cats.effect.IO
 import io.finch._
+import io.finch.catsEffect._
 
-val p = Endpoint.const(scala.math.random)
+// implicit val cs = IO.contextShift(scala.concurrent.ExecutionContext.global)
 
-val q = Endpoint.lift(scala.math.random)
+val p = Endpoint.const[IO, Double](scala.math.random)
+
+val q = Endpoint.lift[IO, Double](scala.math.random)
 
 p(Input.get("/")).awaitValueUnsafe()
 
@@ -140,7 +144,7 @@ matches the current path segment of a given request against a converted value.
 ```tut
 import io.finch._, shapeless.HNil
 
-val e: Endpoint[HNil] = path("foo")
+val e: Endpoint[IO, HNil] = path("foo")
 
 e(Input.get("/foo")).isMatched
 
@@ -180,7 +184,7 @@ an arbitrary type and enriches it with an additional check/match of the HTTP met
 
 ```tut
 
-import io.finch._, io.finch.syntax._
+import io.finch._, io.finch.catsEffect._
 
 val e = path("foo")
 
@@ -373,9 +377,9 @@ Having an `Output` defined as an ADT allows us to return both payloads and failu
 endpoint depending on the conditional result.
 
 ```tut
-import io.finch._, io.finch.syntax._
+import io.finch._, io.finch.catsEffect._
 
-val divOrFail: Endpoint[Int] = post("div" :: path[Int] :: path[Int]) { (a: Int, b: Int) =>
+val divOrFail: Endpoint[IO, Int] = post("div" :: path[Int] :: path[Int]) { (a: Int, b: Int) =>
   if (b == 0) BadRequest(new ArithmeticException("Can not divide by 0"))
   else Ok(a / b)
 }
@@ -412,7 +416,7 @@ method call (to affect encoding) or `body` endpoint creation (to affect decoding
 ```tut
 import com.twitter.finagle.http.{Request, Response}, com.twitter.finagle.Service, io.finch._
 
-val e = get(/) { Ok("Hello, World!") }
+val e = get(root) { _: Request => Ok("Hello, World!") }
 val s = e.toServiceAs[Text.Plain]
 ```
 
@@ -481,12 +485,12 @@ example shows a decoder for a Joda `DateTime` from a `Long` representing the num
 since the epoch:
 
 ```tut:silent
+import cats.implicits._
 import io.finch._
-import com.twitter.util.Try
 import org.joda.time.DateTime
 
 implicit val dateTimeDecoder: DecodeEntity[DateTime] =
-  DecodeEntity.instance(s => Try(new DateTime(s.toLong)))
+  DecodeEntity.instance(s => Either.catchNonFatal(new DateTime(s.toLong)))
 ```
 
 All you need to implement is a simple function from `String` to `Try[A]`.
@@ -551,10 +555,10 @@ import io.finch.internal._, shapeless._, com.twitter.io.Buf
 //example decoder and encoder for text/plain content-type.
 //Represents Person as a string with semicolon delimeter
 implicit val decodeTextPlainPerson: Decode.Aux[Person, Text.Plain] = Decode.instance((b, cs) => {
-  Try {
+  Either.catchNonFatal({
     val l = b.asString(cs).split(";").toList
     Person(l.head, l.last.toInt)
-  }
+  })
 })
 
 implicit val encodeTextPlainPerson: Encode.Aux[Person, Text.Plain] = Encode.instance((a, cs) => {
@@ -717,11 +721,12 @@ value is non-empty then all validations must succeed for the reader to succeed.
 For validation logic only needed in one place, the most convenient way is to declare it inline:
 
 ```tut:silent:reset
-import io.finch._
+import cats.effect.IO
+import io.finch._, io.finch.catsEffect._
 
 case class User(name: String, age: Int)
 
-val user: Endpoint[User] = (
+val user: Endpoint[IO, User] = (
   param[String]("name") ::
   param[Int]("age").shouldNot("be less than 18") { _ < 18 }
 ).as[User]
@@ -736,7 +741,7 @@ import io.finch._
 val bePositive = ValidationRule[Int]("be positive") { _ > 0 }
 def beLessThan(value: Int) = ValidationRule[Int](s"be less than $value") { _ < value }
 
-val child: Endpoint[User] = (
+val child: Endpoint[IO, User] = (
   param("name") ::
   param[Int]("age").should(bePositive and beLessThan(18))
 ).as[User]
@@ -792,7 +797,7 @@ The following example handles the `ArithmeticException` propagated from `a / b`.
 
 ```tut
 import io.finch._
-import io.finch.syntax._
+import io.finch.catsEffect._
 
 val divOrFail = post("div" :: path[Int] :: path[Int]) { (a: Int, b: Int) =>
   Ok(a / b)
@@ -886,24 +891,23 @@ trait Enumerate[A] {
 Here you can see an example how to work with decoding enumerators:
 
 ```tut
-import io.catbird.util._, io.iteratee.{Enumerator, Iteratee}
+import io.iteratee.{Enumerator, Iteratee}
 import io.circe.generic.auto._
 import io.finch._, io.finch.circe._, io.finch.iteratee._
-import com.twitter.util.Future
 
 case class Foo(bar: Int)
 
 /**
   * Sum stream values together
   */
-val decodingJSON = post("foo" :: enumeratorJsonBody[Foo]) { (enumerator: Enumerator[Future, Foo]) =>
-  val enumeratorOfInts: Enumerator[Future, Int] = enumerator.through(Enumeratee.map[Future, Foo, Int](_.bar))
-  val futureSum: Future[Int] = enumeratorOfInts.into(Iteratee.fold[Future, Int, Int](0)(_ + _))
+val decodingJSON = post("foo" :: jsonBodyStream[Enumerator, Foo]) { (enumerator: Enumerator[IO, Foo]) =>
+  val enumeratorOfInts: Enumerator[IO, Int] = enumerator.through(Enumeratee.map[IO, Foo, Int](_.bar))
+  val futureSum: IO[Int] = enumeratorOfInts.into(Iteratee.fold[IO, Int, Int](0)(_ + _))
   futureSum.map(Ok) //future will be completed when whole stream is folded
 }
 
 // Some async task to store foos.
-val storeFoos: Vector[Foo] => Future[Unit] = _ => Future.Unit
+val storeFoos: Vector[Foo] => IO[Unit] = _ => IO.pure(())
 
 /**
   * Backpressure with HTTP 1.1 could be implemented only in a way of closing a connection.
@@ -912,10 +916,10 @@ val storeFoos: Vector[Foo] => Future[Unit] = _ => Future.Unit
   *
   * In this example connection going to be closed as soon as 10 elements has been stored.
   */
-val backpressureJSON = post("bar" :: enumeratorJsonBody[Foo]) { (enumerator: Enumerator[Future, Foo]) =>
-  val iteratee = Iteratee.take[Future, Foo](10).flatMapM { (fs: Vector[Foo]) => 
+val backpressureJSON = post("bar" :: jsonBodyStream[Enumerator, Foo]) { (enumerator: Enumerator[IO, Foo]) =>
+  val iteratee = Iteratee.take[IO, Foo](10).flatMapM { (fs: Vector[Foo]) => 
     // Processing pipeline will be interrupted in the case of an exception
-    storeFoos(fs).flatMap(_ => Future.exception[Foo](new InterruptedException))
+    storeFoos(fs).flatMap(_ => IO.raiseError(new InterruptedException))
   }
   enumerator.into(iteratee).map(Ok)
 }
@@ -925,8 +929,8 @@ val backpressureJSON = post("bar" :: enumeratorJsonBody[Foo]) { (enumerator: Enu
   * of `io.finch.iteratee.Enumerate` in scope
   */
 val bufEnumerator =
-  post("text" :: enumeratorBody[Buf, Application.OctetStream]) { buf: Enumerator[Future, Buf] =>
-    Ok(Buf.Empty)
+  post("text" :: binaryBodyStream[Enumerator]) { buf: Enumerator[IO, Array[Byte]] =>
+    Ok(new Array[Byte](0))
   }
 ```
 
@@ -939,7 +943,7 @@ import java.net.URL
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.numeric._
 import eu.timepit.refined.string._
-import io.finch._, io.finch.refined._, io.finch.syntax._
+import io.finch._, io.finch.refined._, io.finch.catsEffect._
 
 val e = get("foo" :: param[Int Refined Positive]("int")) { (i: Int Refined Positive) =>
   Ok(i.value)
@@ -959,14 +963,14 @@ Beside decoding of input stream, it's possible to make output stream with enumer
 `Endpoint[Enumerator[Future, A]]`:
 
 ```tut
-import io.catbird.util._, io.iteratee.Enumerator
+import io.iteratee.Enumerator
 import io.circe.generic.auto._
 import io.finch._, io.finch.circe._, io.finch.iteratee._
 
 case class Foo(x: Int)
 
 val streamingEndpoint = get("stream") {
-  Ok(enumList[Foo](List(Foo(1), Foo(2))))
+  Ok(Enumerator.enumList[IO, Foo](List(Foo(1), Foo(2))))
 }
 ```
 
@@ -1039,7 +1043,7 @@ provide users with a means to report per-endpoint telemetry, when matched, endpo
 instance of `io.finch.Trace` object that represents a matched path.
 
 ```tut
-import io.finch._, io.finch.syntax._
+import io.finch._, io.finch.catsEffect._
 
 val foo = get("foo" :: "bar" :: path[String]) { s: String => Ok(s) }
 
@@ -1056,7 +1060,7 @@ A `Trace` instance returned from an endpoint (including coproducts) can be captu
 (presumably, in a Finagle filter) using Twitter Future Locals.
 
 ```tut
-import io.finch._, io.finch.syntax._, com.twitter.finagle.http.Request
+import io.finch._, io.finch.catsEffect._, com.twitter.finagle.http.Request
 
 val foo = get("foo" :: path[String]) { s: String => Ok(s) }
 
