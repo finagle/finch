@@ -1,7 +1,6 @@
 package io.finch.div
 
 import cats.effect.IO
-import cats.instances.int._
 import com.twitter.finagle.Http
 import com.twitter.util.Await
 import io.finch._
