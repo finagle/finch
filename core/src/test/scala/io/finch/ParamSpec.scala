@@ -10,7 +10,7 @@ class ParamSpec extends FinchSpec {
 
   behavior of "param*"
 
-  def withParam[A : Show](k: String)(v: A): Input = Input.get("/", k -> Show[A].show(v))
+  def withParam[A: Show](k: String)(v: A): Input = Input.get("/", k -> Show[A].show(v))
 
   checkAll("Param[String]", EntityEndpointLaws[IO, String](paramOption("x"))(withParam("x")).evaluating)
   checkAll("Param[Int]", EntityEndpointLaws[IO, Int](paramOption("x"))(withParam("x")).evaluating)
@@ -42,14 +42,14 @@ class ParamSpec extends FinchSpec {
 
   it should "collect errors on Endpoint[Seq[String]] failure" in {
     val endpoint = params[UUID]("testEndpoint")
-    an[Errors] shouldBe thrownBy (
+    an[Errors] shouldBe thrownBy(
       endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe()
     )
   }
 
   it should "collect errors on Endpoint[NonEmptyList[String]] failure" in {
     val endpoint = paramsNel[UUID]("testEndpoint")
-    an[Errors] shouldBe thrownBy (
+    an[Errors] shouldBe thrownBy(
       endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe()
     )
   }

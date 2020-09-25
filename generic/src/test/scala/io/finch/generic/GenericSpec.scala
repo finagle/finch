@@ -20,10 +20,11 @@ class GenericSpec extends FinchSpec {
     i <- Arbitrary.arbitrary[Int]
   } yield Foo(s, i))
 
-  val f: Foo => Seq[(String, String)] = foo => Seq(
-    ("a" -> foo.a),
-    ("b" -> foo.b.toString)
-  )
+  val f: Foo => Seq[(String, String)] = foo =>
+    Seq(
+      ("a" -> foo.a),
+      ("b" -> foo.b.toString)
+    )
 
   checkAll("DerivedEndpoint[Foo]", DerivedEndpointLaws[IO, Foo](e, f).evaluating)
 }

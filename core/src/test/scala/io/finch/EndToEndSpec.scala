@@ -16,7 +16,7 @@ class EndToEndSpec extends FinchSpec {
     Application.Javascript :+: Application.OctetStream :+: Application.RssXml :+:
     Application.WwwFormUrlencoded :+: Application.Xml :+: Text.Plain :+: Text.Html :+: Text.EventStream :+: CNil
 
-  private implicit def encodeHNil[CT <: String]: Encode.Aux[HNil, CT] = Encode.instance((_, _) => Buf.Utf8("hnil"))
+  implicit private def encodeHNil[CT <: String]: Encode.Aux[HNil, CT] = Encode.instance((_, _) => Buf.Utf8("hnil"))
 
   private val allContentTypes = Seq(
     "application/json",
@@ -38,9 +38,9 @@ class EndToEndSpec extends FinchSpec {
 
     val service: Service[Request, Response] = (
       get("foo" :: path[String]) { s: String => Ok(Foo(s)) } :+:
-      get("bar") { Created("bar") } :+:
-      get("baz") { BadRequest(new IllegalArgumentException("foo")): Output[Unit] } :+:
-      get("qux" :: param[Foo]("foo")) { f: Foo => Created(f) }
+        get("bar")(Created("bar")) :+:
+        get("baz")(BadRequest(new IllegalArgumentException("foo")): Output[Unit]) :+:
+        get("qux" :: param[Foo]("foo")) { f: Foo => Created(f) }
     ).toServiceAs[Text.Plain]
 
     val rep1 = Await.result(service(Request("/foo/bar")))
@@ -61,7 +61,7 @@ class EndToEndSpec extends FinchSpec {
   }
 
   it should "convert value Endpoints into Services" in {
-    val e: Endpoint[IO, String] = get("foo") { Created("bar") }
+    val e: Endpoint[IO, String] = get("foo")(Created("bar"))
     val s: Service[Request, Response] = e.toServiceAs[Text.Plain]
 
     val rep = Await.result(s(Request("/foo")))

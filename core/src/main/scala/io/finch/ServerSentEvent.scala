@@ -1,14 +1,15 @@
 package io.finch
 
-import cats.Show
-import com.twitter.io.Buf
 import java.nio.charset.Charset
 
+import cats.Show
+import com.twitter.io.Buf
+
 case class ServerSentEvent[A](
-  data: A,
-  id: Option[String] = None,
-  event: Option[String] = None,
-  retry: Option[Long] = None
+    data: A,
+    id: Option[String] = None,
+    event: Option[String] = None,
+    retry: Option[Long] = None
 )
 
 object ServerSentEvent {
@@ -16,7 +17,7 @@ object ServerSentEvent {
   private def text(s: String, cs: Charset) = Buf.ByteArray.Owned(s.getBytes(cs.name))
 
   implicit def encodeEventStream[A](implicit
-    A: Show[A]
+      A: Show[A]
   ): Encode.Aux[ServerSentEvent[A], Text.EventStream] = new Encode[ServerSentEvent[A]] {
 
     type ContentType = Text.EventStream
@@ -31,4 +32,3 @@ object ServerSentEvent {
     }
   }
 }
-

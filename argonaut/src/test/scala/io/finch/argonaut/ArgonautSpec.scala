@@ -1,7 +1,7 @@
 package io.finch.argonaut
 
-import argonaut._
 import argonaut.Argonaut._
+import argonaut._
 import io.finch.test.AbstractJsonSpec
 import io.finch.test.data._
 

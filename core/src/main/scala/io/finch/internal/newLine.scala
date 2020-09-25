@@ -1,7 +1,8 @@
 package io.finch.internal
 
-import com.twitter.io.Buf
 import java.nio.charset.{Charset, StandardCharsets}
+
+import com.twitter.io.Buf
 
 object newLine {
 
@@ -14,13 +15,13 @@ object newLine {
   private val utf32 = fromCharset(Utf32)
 
   final def apply(cs: Charset): Buf = cs match {
-    case StandardCharsets.UTF_8 => ascii
-    case StandardCharsets.US_ASCII => ascii
+    case StandardCharsets.UTF_8      => ascii
+    case StandardCharsets.US_ASCII   => ascii
     case StandardCharsets.ISO_8859_1 => ascii
-    case StandardCharsets.UTF_16 => utf16
-    case StandardCharsets.UTF_16BE => utf16be
-    case StandardCharsets.UTF_16LE => utf16le
-    case Utf32 => utf32
-    case _ => fromCharset(cs)
+    case StandardCharsets.UTF_16     => utf16
+    case StandardCharsets.UTF_16BE   => utf16be
+    case StandardCharsets.UTF_16LE   => utf16le
+    case Utf32                       => utf32
+    case _                           => fromCharset(cs)
   }
 }

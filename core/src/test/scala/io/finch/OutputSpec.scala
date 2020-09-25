@@ -1,10 +1,12 @@
 package io.finch
 
+import java.nio.charset.{Charset, StandardCharsets}
+
+import scala.util.{Failure, Success, Try}
+
 import cats.Id
 import com.twitter.finagle.http.Status
 import com.twitter.io.Buf
-import java.nio.charset.{Charset, StandardCharsets}
-import scala.util.{Failure, Success, Try}
 
 class OutputSpec extends FinchSpec {
 
@@ -102,7 +104,7 @@ class OutputSpec extends FinchSpec {
     check { e: Output.Empty =>
       Try(e.value) match {
         case Failure(f) => f.getMessage === "empty output"
-        case _ => false
+        case _          => false
       }
     }
   }
@@ -111,7 +113,7 @@ class OutputSpec extends FinchSpec {
     check { f: Output.Failure =>
       Try(f.value) match {
         case Failure(ex) => ex.getMessage === f.cause.getMessage
-        case _ => false
+        case _           => false
       }
     }
   }

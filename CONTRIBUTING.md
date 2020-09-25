@@ -17,12 +17,12 @@ _contributing process_ looks as follows:
 Finch follows the [Effective Scala][1] code style guide. When in doubt, look around the codebase and see how it's done
 elsewhere.
 
-* Code and comments should be formatted to a width no greater than 120 columns
+* Code and comments should be formatted to a width no greater than 160 columns
 * Files should be exempt of trailing spaces
 * Each abstraction with corresponding implementations should live in its own Scala file, i.e `Endpoint.scala`
 * Each implicit conversion (if possible) should be defined in the corresponding companion object
 
-That said, the Scala style checker `sbt scalastyle` should pass on the code.
+That said, the Scala source code shall be formatted with `sbt fmt`
 
 ## Write Tests
 Finch uses both [ScalaTest][2] and [ScalaCheck][3] with the following settings:

@@ -1,14 +1,15 @@
 package io.finch
 
+import java.nio.charset.Charset
+
 import com.twitter.io.Buf
 import io.circe.{Json, Printer}
-import java.nio.charset.Charset
 
 package object circe extends Encoders with Decoders {
 
   /**
-   * Provides a [[Printer]] that drops null keys.
-   */
+    * Provides a [[Printer]] that drops null keys.
+    */
   object dropNullValues extends Encoders with Decoders {
     private[this] val printer: Printer = Printer.noSpaces.copy(dropNullValues = true)
     override protected def print(json: Json, cs: Charset): Buf =
@@ -16,9 +17,9 @@ package object circe extends Encoders with Decoders {
   }
 
   /**
-   * Provides a [[Printer]] that uses a simple form of feedback-controller to predict the
-   * size of the printed message.
-   */
+    * Provides a [[Printer]] that uses a simple form of feedback-controller to predict the
+    * size of the printed message.
+    */
   object predictSize extends Encoders with Decoders {
     private[this] val printer: Printer = Printer.noSpaces.copy(predictSize = true)
     override protected def print(json: Json, cs: Charset): Buf =

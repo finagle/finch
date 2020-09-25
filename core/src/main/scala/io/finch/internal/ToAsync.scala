@@ -1,10 +1,11 @@
 package io.finch.internal
 
+import scala.concurrent.{Future => ScalaFuture}
+import scala.util.{Failure, Success}
+
 import cats.effect.Async
 import cats.~>
 import com.twitter.util.{Future => TwitterFuture, Return, Throw}
-import scala.concurrent.{Future => ScalaFuture}
-import scala.util.{Failure, Success}
 
 trait ToAsync[A[_], B[_]] extends ~>[A, B]
 
@@ -19,7 +20,7 @@ object ToAsync {
       Async[E].async { cb =>
         a.respond {
           case Return(r) => cb(Right(r))
-          case Throw(t) => cb(Left(t))
+          case Throw(t)  => cb(Left(t))
         }
       }
   }

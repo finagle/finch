@@ -1,20 +1,21 @@
 package io.finch
 
+import java.io.{ByteArrayInputStream, InputStream}
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+
+import scala.concurrent.duration.Duration
 
 import cats.data.{NonEmptyList, WriterT}
 import cats.effect.{IO, Resource}
 import cats.laws._
-import cats.laws.discipline._
 import cats.laws.discipline.AlternativeTests
 import cats.laws.discipline.SemigroupalTests.Isomorphisms
+import cats.laws.discipline._
 import cats.~>
 import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.io.Buf
 import io.finch.data.Foo
-import java.io.{ByteArrayInputStream, InputStream}
-import scala.concurrent.duration.Duration
 import shapeless._
 
 class EndpointSpec extends FinchSpec {
@@ -22,7 +23,7 @@ class EndpointSpec extends FinchSpec {
   type EndpointIO[A] = Endpoint[IO, A]
 
   implicit val isomorphisms: Isomorphisms[EndpointIO] =
-    Isomorphisms.invariant[EndpointIO](Endpoint.endpointInstances)
+    Isomorphisms.invariant[EndpointIO](Endpoint.endpointAlternative)
 
   checkAll("Endpoint[String]", AlternativeTests[EndpointIO].applicative[String, String, String])
 
@@ -73,9 +74,7 @@ class EndpointSpec extends FinchSpec {
 
   it should "propagate the output through mapOutputAsync and /" in {
     def expected(i: Int): Output[Int] =
-      Created(i)
-        .withHeader("A" -> "B")
-        .withCookie(new Cookie("C", "D"))
+      Created(i).withHeader("A" -> "B").withCookie(new Cookie("C", "D"))
 
     check { i: Input =>
       path[String].mapOutputAsync(s => IO.pure(expected(s.length))).apply(i).awaitOutputUnsafe() ===
@@ -83,9 +82,7 @@ class EndpointSpec extends FinchSpec {
     }
 
     check { i: Input =>
-      val e = i.route.dropRight(1)
-        .map(s => path(s))
-        .foldLeft[Endpoint[IO, HNil]](zero)((acc, ee) => acc :: ee)
+      val e = i.route.dropRight(1).map(s => path(s)).foldLeft[Endpoint[IO, HNil]](zero)((acc, ee) => acc :: ee)
 
       val v = (e :: path[String]).mapOutputAsync(s => IO.pure(expected(s.length))).apply(i)
       v.awaitOutputUnsafe() === i.route.lastOption.map(s => expected(s.length))
@@ -94,10 +91,9 @@ class EndpointSpec extends FinchSpec {
 
   it should "match one patch segment" in {
     check { i: Input =>
-      val v = i.route.headOption
-        .flatMap(s => path(s).apply(i).remainder)
+      val v = i.route.headOption.flatMap(s => path(s).apply(i).remainder)
 
-      v.isEmpty|| v === Some(i.withRoute(i.route.tail))
+      v.isEmpty || v === Some(i.withRoute(i.route.tail))
     }
   }
 
@@ -115,10 +111,7 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "match the HTTP method" in {
-    def matchMethod(
-        m: Method,
-        f: Endpoint[IO, HNil] => Endpoint[IO, HNil]): Input => Boolean = { i: Input =>
-
+    def matchMethod(m: Method, f: Endpoint[IO, HNil] => Endpoint[IO, HNil]): Input => Boolean = { i: Input =>
       val v = f(zero)(i)
       (i.request.method === m && v.remainder === Some(i)) ||
       (i.request.method != m && v.remainder === None)
@@ -175,7 +168,7 @@ class EndpointSpec extends FinchSpec {
     def methodMatcher(
         m: Method,
         f: Endpoint[IO, HNil] => Endpoint[IO, HNil]
-      ): String => Boolean = { s: String => f(s).toString === m.toString.toUpperCase + " /" + s }
+    ): String => Boolean = { s: String => f(s).toString === m.toString.toUpperCase + " /" + s }
 
     check(methodMatcher(Method.Get, get))
     check(methodMatcher(Method.Post, post))
@@ -186,11 +179,11 @@ class EndpointSpec extends FinchSpec {
     check(methodMatcher(Method.Options, options))
     check(methodMatcher(Method.Delete, delete))
 
-    check { (s: String, i: Int) => path(s).map(_ => i).toString === s }
-    check { (s: String, t: String) => (path(s) :+: path(t)).toString === s"($s :+: $t)" }
-    check { (s: String, t: String) => (path(s) :: path(t)).toString === s"$s :: $t" }
+    check((s: String, i: Int) => path(s).map(_ => i).toString === s)
+    check((s: String, t: String) => (path(s) :+: path(t)).toString === s"($s :+: $t)")
+    check((s: String, t: String) => (path(s) :: path(t)).toString === s"$s :: $t")
     check { s: String => path(s).product[String](pathAny.map(_ => "foo")).toString === s }
-    check { (s: String, t: String) => path(s).mapAsync(_ => IO.pure(t)).toString === s }
+    check((s: String, t: String) => path(s).mapAsync(_ => IO.pure(t)).toString === s)
 
     pathEmpty.toString shouldBe ""
     pathAny.toString shouldBe "*"
@@ -236,9 +229,12 @@ class EndpointSpec extends FinchSpec {
 
   it should "rescue the exception occurred in it" in {
     check { (i: Input, s: String, e: Exception) =>
-      val result = liftAsync[String](IO.raiseError(e)).handle {
-        case _ => Created(s)
-      }.apply(i).awaitOutput()
+      val result = liftAsync[String](IO.raiseError(e))
+        .handle { case _ =>
+          Created(s)
+        }
+        .apply(i)
+        .awaitOutput()
       result === Some(Right(Created(s)))
     }
   }
@@ -247,9 +243,12 @@ class EndpointSpec extends FinchSpec {
     case object CustomException extends Exception
 
     check { (i: Input, s: String, e: Exception) =>
-      val result = liftAsync[String](IO.raiseError(e)).handle {
-        case CustomException  => Created(s)
-      }.apply(i).awaitOutput()
+      val result = liftAsync[String](IO.raiseError(e))
+        .handle { case CustomException =>
+          Created(s)
+        }
+        .apply(i)
+        .awaitOutput()
       result === Some(Left(e))
     }
   }
@@ -264,10 +263,15 @@ class EndpointSpec extends FinchSpec {
     val i = Input.get("/")
 
     Seq(
-      param("foo"), header("foo"), cookie("foo").map(_.value),
-      multipartFileUpload("foo").map(_.fileName), paramsNel("foo").map(_.toList.mkString),
-      paramsNel("foor").map(_.toList.mkString), binaryBody.map(new String(_)), stringBody
-    ).foreach { ii => ii(i).awaitValue() shouldBe Some(Left(Error.NotPresent(ii.item))) }
+      param("foo"),
+      header("foo"),
+      cookie("foo").map(_.value),
+      multipartFileUpload("foo").map(_.fileName),
+      paramsNel("foo").map(_.toList.mkString),
+      paramsNel("foor").map(_.toList.mkString),
+      binaryBody.map(new String(_)),
+      stringBody
+    ).foreach(ii => ii(i).awaitValue() shouldBe Some(Left(Error.NotPresent(ii.item))))
   }
 
   it should "maps lazily to values" in {
@@ -331,7 +335,7 @@ class EndpointSpec extends FinchSpec {
 
       val all =
         a.fold[Set[Error]](e => Set(e), es => es.errors.toList.toSet) ++
-        b.fold[Set[Error]](e => Set(e), es => es.errors.toList.toSet)
+          b.fold[Set[Error]](e => Set(e), es => es.errors.toList.toSet)
 
       val Some(Left(first)) = lr(Input.get("/")).awaitValue()
       val Some(Left(second)) = rl(Input.get("/")).awaitValue()
@@ -382,7 +386,7 @@ class EndpointSpec extends FinchSpec {
 
   it should "collect errors on Endpoint[Seq[String]] failure" in {
     val endpoint = params[UUID]("testEndpoint")
-    an[Errors] shouldBe thrownBy (
+    an[Errors] shouldBe thrownBy(
       endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe()
     )
   }
@@ -395,7 +399,7 @@ class EndpointSpec extends FinchSpec {
 
   it should "collect errors on Endpoint[NonEmptyList[String]] failure" in {
     val endpoint = paramsNel[UUID]("testEndpoint")
-    an[Errors] shouldBe thrownBy (
+    an[Errors] shouldBe thrownBy(
       endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe(Duration(10, TimeUnit.SECONDS))
     )
   }
@@ -418,24 +422,23 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "wrap up an exception thrown inside mapOutputs function" in {
-    check { (ep: EndpointIO[Int], p: Output.Payload[Int], e: Exception) => {
+    check { (ep: EndpointIO[Int], p: Output.Payload[Int], e: Exception) =>
       val mappedEndpoint = ep.mapOutput[Int](_ => throw e)
       val asFunction = mappedEndpoint.asInstanceOf[Output[Int] => IO[Output[Int]]]
 
       asFunction.apply(p).attempt.unsafeRunSync() === Left(e)
-    }}
+    }
   }
 
   it should "transform F[_] to G[_] effect" in {
     type W[A] = WriterT[IO, List[String], A]
 
-    check { (ep: Endpoint[IO, Int], input: Input) => {
+    check { (ep: Endpoint[IO, Int], input: Input) =>
       val nat = new (IO ~> W) {
         def apply[A](fa: IO[A]): WriterT[IO, List[String], A] = WriterT.liftF(fa)
       }
 
       ep.mapK(nat)(input).awaitOutput() === ep(input).awaitOutput()
-    }
     }
   }
 }

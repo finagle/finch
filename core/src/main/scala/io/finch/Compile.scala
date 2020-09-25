@@ -1,26 +1,27 @@
 package io.finch
 
-import cats.{Applicative, MonadError}
+import scala.annotation.implicitNotFound
+
 import cats.syntax.all._
+import cats.{Applicative, MonadError}
 import com.twitter.finagle.http.{Method, Request, Response, Status, Version}
 import io.finch.internal.currentTime
-import scala.annotation.implicitNotFound
 import shapeless._
 
 /**
- * Compiles a given list of [[Endpoint]]s and their content-types into single [[Endpoint.Compiled]].
- *
- * Guarantees to:
- *
- * - handle Finch's own errors (i.e., [[Error]] and [[Error]]) as 400s
- * - copy requests's HTTP version onto a response
- * - respond with 404 when an endpoint is not matched
- * - respond with 405 when an endpoint is not matched because method wasn't allowed (serve back an `Allow` header)
- * - include the date header on each response (unless disabled)
- * - include the server header on each response (unless disabled)
- */
+  * Compiles a given list of [[Endpoint]]s and their content-types into single [[Endpoint.Compiled]].
+  *
+  * Guarantees to:
+  *
+  * - handle Finch's own errors (i.e., [[Error]] and [[Error]]) as 400s
+  * - copy requests's HTTP version onto a response
+  * - respond with 404 when an endpoint is not matched
+  * - respond with 405 when an endpoint is not matched because method wasn't allowed (serve back an `Allow` header)
+  * - include the date header on each response (unless disabled)
+  * - include the server header on each response (unless disabled)
+  */
 @implicitNotFound(
-"""An Endpoint you're trying to compile is missing one or more encoders.
+  """An Endpoint you're trying to compile is missing one or more encoders.
 
   Make sure each endpoint in ${ES}, ${CTS} is one of the following:
 
@@ -38,24 +39,24 @@ trait Compile[F[_], ES <: HList, CTS <: HList] {
 object Compile {
 
   /**
-   * HTTP options propagated from [[Bootstrap]].
-   */
+    * HTTP options propagated from [[Bootstrap]].
+    */
   final case class Options(
-    includeDateHeader: Boolean,
-    includeServerHeader: Boolean,
-    enableMethodNotAllowed: Boolean,
-    enableUnsupportedMediaType: Boolean
+      includeDateHeader: Boolean,
+      includeServerHeader: Boolean,
+      enableMethodNotAllowed: Boolean,
+      enableUnsupportedMediaType: Boolean
   )
 
   /**
-   * HTTP context propagated between endpoints.
-   *
-   * - `wouldAllow`: when non-empty, indicates that the incoming method wasn't allowed/matched
-   */
+    * HTTP context propagated between endpoints.
+    *
+    * - `wouldAllow`: when non-empty, indicates that the incoming method wasn't allowed/matched
+    */
   final case class Context(wouldAllow: List[Method] = Nil)
 
   private val respond400: PartialFunction[Throwable, Output[Nothing]] = {
-    case e: io.finch.Error => Output.failure(e, Status.BadRequest)
+    case e: io.finch.Error   => Output.failure(e, Status.BadRequest)
     case es: io.finch.Errors => Output.failure(es, Status.BadRequest)
   }
 
@@ -97,11 +98,11 @@ object Compile {
   type IsNegotiable[C] = OrElse[C <:< Coproduct, DummyImplicit]
 
   implicit def hlistTS[F[_], A, EH <: Endpoint[F, A], ET <: HList, CTH, CTT <: HList](implicit
-    ntrA: ToResponse.Negotiable[F, A, CTH],
-    ntrE: ToResponse.Negotiable[F, Exception, CTH],
-    F: MonadError[F, Throwable],
-    tsT: Compile[F, ET, CTT],
-    isNegotiable: IsNegotiable[CTH]
+      ntrA: ToResponse.Negotiable[F, A, CTH],
+      ntrE: ToResponse.Negotiable[F, Exception, CTH],
+      F: MonadError[F, Throwable],
+      tsT: Compile[F, ET, CTT],
+      isNegotiable: IsNegotiable[CTH]
   ): Compile[F, Endpoint[F, A] :: ET, CTH :: CTT] = new Compile[F, Endpoint[F, A] :: ET, CTH :: CTT] {
     def apply(es: Endpoint[F, A] :: ET, opts: Options, ctx: Context): Endpoint.Compiled[F] = {
       val handler = if (opts.enableUnsupportedMediaType) respond415.orElse(respond400) else respond400
@@ -111,14 +112,9 @@ object Compile {
       Endpoint.Compiled[F] { req: Request =>
         underlying(Input.fromRequest(req)) match {
           case EndpointResult.Matched(rem, trc, out) if rem.route.isEmpty =>
-
             val accept = if (negotiateContent) req.accept.map(a => Accept.fromString(a)).toList else Nil
 
-            F
-              .flatMap(out)(oa => oa.toResponse(F, ntrA(accept), ntrE(accept))
-                .map(r => conformHttp(r, req.version, opts)))
-              .attempt
-              .map(e => trc -> e)
+            F.flatMap(out)(oa => oa.toResponse(F, ntrA(accept), ntrE(accept)).map(r => conformHttp(r, req.version, opts))).attempt.map(e => trc -> e)
 
           case EndpointResult.NotMatched.MethodNotAllowed(allowed) =>
             tsT(es.tail, opts, ctx.copy(wouldAllow = ctx.wouldAllow ++ allowed))(req)

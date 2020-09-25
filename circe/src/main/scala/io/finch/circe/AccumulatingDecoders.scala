@@ -7,8 +7,8 @@ import cats.data.Validated
 import io.circe._
 import io.circe.iteratee._
 import io.circe.jawn.{decodeAccumulating, decodeByteBufferAccumulating}
-import io.finch.{Application, Decode, DecodeStream}
 import io.finch.internal.HttpContent
+import io.finch.{Application, Decode, DecodeStream}
 import io.iteratee.{Enumeratee, Enumerator}
 
 trait AccumulatingDecoders {
@@ -26,25 +26,25 @@ trait AccumulatingDecoders {
     attemptJson.fold[Either[Throwable, A]](nel => Left(Errors(nel)), Right.apply)
   }
 
-  implicit def iterateeCirceDecoder[F[_], A : Decoder](implicit
-    monadError: MonadError[F, Throwable]
-  ): DecodeStream.Json[Enumerator, F, A] = DecodeStream.instance[Enumerator, F, A, Application.Json]((enum, cs) => {
-      val parsed = cs match {
-        case StandardCharsets.UTF_8 =>
-          enum.map(_.asByteArray).through(byteStreamParser[F])
-        case _ =>
-          enum.map(_.asString(cs)).through(stringStreamParser[F])
-      }
-      parsed.through(decoderAccumulating[F, A])
-    })
+  implicit def iterateeCirceDecoder[F[_], A: Decoder](implicit
+      monadError: MonadError[F, Throwable]
+  ): DecodeStream.Json[Enumerator, F, A] = DecodeStream.instance[Enumerator, F, A, Application.Json] { (enum, cs) =>
+    val parsed = cs match {
+      case StandardCharsets.UTF_8 =>
+        enum.map(_.asByteArray).through(byteStreamParser[F])
+      case _ =>
+        enum.map(_.asString(cs)).through(stringStreamParser[F])
+    }
+    parsed.through(decoderAccumulating[F, A])
+  }
 
   private def decoderAccumulating[F[_], A](implicit
-    F: MonadError[F, Throwable],
+      F: MonadError[F, Throwable],
       decode: Decoder[A]
   ): Enumeratee[F, Json, A] = Enumeratee.flatMap(json =>
     decode.decodeAccumulating(json.hcursor) match {
       case Validated.Invalid(errors) => Enumerator.liftM(F.raiseError(Errors(errors)))
-      case Validated.Valid(a) => Enumerator.enumOne(a)
+      case Validated.Valid(a)        => Enumerator.enumOne(a)
     }
   )
 

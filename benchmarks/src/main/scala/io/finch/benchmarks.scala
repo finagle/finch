@@ -1,5 +1,8 @@
 package io.finch
 
+import java.nio.charset.{Charset, StandardCharsets}
+import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
+
 import cats.effect.IO
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
@@ -8,8 +11,6 @@ import com.twitter.util.Await
 import io.circe.generic.auto._
 import io.finch.circe._
 import io.finch.data.Foo
-import java.nio.charset.{Charset, StandardCharsets}
-import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
 import org.openjdk.jmh.annotations._
 import shapeless._
 
@@ -184,14 +185,13 @@ class JsonBenchmark extends FinchBenchmark {
 @BenchmarkMode(Array(Mode.Throughput))
 @OutputTimeUnit(TimeUnit.SECONDS)
 abstract class BootstrapBenchmark[CT](init: Bootstrap[Id, HNil, HNil])(implicit
-  tsf: Compile[IO, Endpoint[IO, List[Foo]] :: HNil, CT :: HNil]
+    tsf: Compile[IO, Endpoint[IO, List[Foo]] :: HNil, CT :: HNil]
 ) extends FinchBenchmark {
 
   protected def issueRequest(): Request = Request()
 
-  private val foo: Service[Request, Response] = init
-    .serve[CT](Endpoint[IO].const(List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString))))
-    .toService
+  private val foo: Service[Request, Response] =
+    init.serve[CT](Endpoint[IO].const(List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString)))).toService
 
   @Benchmark
   def foos: Response = Await.result(foo.apply(issueRequest()))
@@ -201,8 +201,7 @@ class JsonBootstrapBenchmark extends BootstrapBenchmark[Application.Json](Bootst
 
 class TextBootstrapBenchmark extends BootstrapBenchmark[Text.Plain](Bootstrap)
 
-class JsonAndTextNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Application.Json :+: Text.Plain :+: CNil](
-  Bootstrap) {
+class JsonAndTextNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Application.Json :+: Text.Plain :+: CNil](Bootstrap) {
 
   private val acceptValues: Array[String] = Array("application/json", "text/plain")
 
@@ -243,6 +242,6 @@ class HttpMessageBenchmark extends FinchBenchmark {
   @Benchmark
   def slowCharset: Charset = req.charset match {
     case Some(cs) => Charset.forName(cs)
-    case None => StandardCharsets.UTF_8
+    case None     => StandardCharsets.UTF_8
   }
 }

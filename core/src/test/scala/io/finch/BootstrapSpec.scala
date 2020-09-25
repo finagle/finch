@@ -1,11 +1,12 @@
 package io.finch
 
+import java.time.format.DateTimeFormatter
+import java.time.{ZoneOffset, ZonedDateTime}
+
 import cats.effect.IO
 import com.twitter.finagle.http.{Method, Request, Response, Status}
 import io.finch.data.Foo
 import io.finch.internal.currentTime
-import java.time.{ZonedDateTime, ZoneOffset}
-import java.time.format.DateTimeFormatter
 import shapeless.HNil
 
 class BootstrapSpec extends FinchSpec {
@@ -39,15 +40,11 @@ class BootstrapSpec extends FinchSpec {
   }
 
   it should "respond 405 if method not allowed" in {
-    val a = get("foo") { Ok("get foo") }
-    val b = put("foo") { Ok("put foo") }
-    val c = post("foo") { Ok("post foo") }
+    val a = get("foo")(Ok("get foo"))
+    val b = put("foo")(Ok("put foo"))
+    val c = post("foo")(Ok("post foo"))
 
-    val s = Bootstrap
-      .configure(enableMethodNotAllowed = true)
-      .serve[Text.Plain](a :+: b)
-      .serve[Text.Plain](c)
-      .compile
+    val s = Bootstrap.configure(enableMethodNotAllowed = true).serve[Text.Plain](a :+: b).serve[Text.Plain](c).compile
 
     val aa = Request(Method.Get, "/foo")
     val bb = Request(Method.Put, "/foo")
@@ -71,9 +68,7 @@ class BootstrapSpec extends FinchSpec {
 
   it should "respond 415 if media type is not supported" in {
     val b = body[Foo, Text.Plain]
-    val s = Bootstrap.configure(enableUnsupportedMediaType = true)
-      .serve[Text.Plain](b)
-      .compile
+    val s = Bootstrap.configure(enableUnsupportedMediaType = true).serve[Text.Plain](b).compile
 
     val i = Input.post("/").withBody[Application.Csv](Foo("bar"))
 
@@ -95,9 +90,7 @@ class BootstrapSpec extends FinchSpec {
     def parseDate(s: String): Long = ZonedDateTime.parse(s, formatter).toEpochSecond
 
     check { (req: Request, include: Boolean) =>
-      val s = Bootstrap.configure(includeDateHeader = include)
-        .serve[Text.Plain](Endpoint[IO].const(()))
-        .compile
+      val s = Bootstrap.configure(includeDateHeader = include).serve[Text.Plain](Endpoint[IO].const(())).compile
 
       val (_, Right(rep)) = s(req).unsafeRunSync()
       val now = parseDate(currentTime())
@@ -108,9 +101,7 @@ class BootstrapSpec extends FinchSpec {
 
   it should "include Server header" in {
     check { (req: Request, include: Boolean) =>
-      val s = Bootstrap.configure(includeServerHeader = include)
-        .serve[Text.Plain](Endpoint[IO].const(()))
-        .compile
+      val s = Bootstrap.configure(includeServerHeader = include).serve[Text.Plain](Endpoint[IO].const(())).compile
 
       val (_, Right(rep)) = s(req).unsafeRunSync()
 
@@ -122,9 +113,7 @@ class BootstrapSpec extends FinchSpec {
     check { req: Request =>
       val p = req.path.split("/").drop(1)
 
-      val endpoint = p
-        .map(s => path(s))
-        .foldLeft(Endpoint[IO].const(HNil : HNil))((p, e) => p :: e)
+      val endpoint = p.map(s => path(s)).foldLeft(Endpoint[IO].const(HNil: HNil))((p, e) => p :: e)
 
       val succ = endpoint.mapAsync(_ => IO.pure("foo"))
       val fail = endpoint.mapAsync(_ => IO.raiseError[String](new IllegalStateException))

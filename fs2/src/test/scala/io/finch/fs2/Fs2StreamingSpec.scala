@@ -12,14 +12,20 @@ class Fs2StreamingSpec extends FinchSpec with ScalaCheckDrivenPropertyChecks {
   checkConcurrentEffect[IO]
 
   def checkEffect[F[_]](implicit F: Effect[F]): Unit =
-    checkAll("fs2.streamBody[F[_]: Effect]", StreamingLaws[Stream, F](
-      list => Stream(list:_*),
-      stream => F.toIO(stream.map(array => Buf.ByteArray.Owned(array)).compile.toList).unsafeRunSync()
-    ).all)
+    checkAll(
+      "fs2.streamBody[F[_]: Effect]",
+      StreamingLaws[Stream, F](
+        list => Stream(list: _*),
+        stream => F.toIO(stream.map(array => Buf.ByteArray.Owned(array)).compile.toList).unsafeRunSync()
+      ).all
+    )
 
   def checkConcurrentEffect[F[_]](implicit F: ConcurrentEffect[F]): Unit =
-    checkAll("fs2.streamBody[F[_]: ConcurrentEffect]", StreamingLaws[Stream, F](
-      list => Stream(list:_*),
-      stream => F.toIO(stream.map(array => Buf.ByteArray.Owned(array)).compile.toList).unsafeRunSync()
-    ).all)
+    checkAll(
+      "fs2.streamBody[F[_]: ConcurrentEffect]",
+      StreamingLaws[Stream, F](
+        list => Stream(list: _*),
+        stream => F.toIO(stream.map(array => Buf.ByteArray.Owned(array)).compile.toList).unsafeRunSync()
+      ).all
+    )
 }
