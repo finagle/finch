@@ -8,12 +8,13 @@ import io.circe.Decoder
 import io.finch.{Decode, DecodeStream, Encode}
 import io.finch.test.data._
 import org.scalacheck.{Arbitrary, Gen}
-import org.scalatest.{FlatSpec, Matchers}
 import org.scalatestplus.scalacheck.Checkers
 import org.typelevel.discipline.Laws
 import scala.util.Try
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-abstract class AbstractJsonSpec extends FlatSpec with Matchers with Checkers with AllInstances {
+abstract class AbstractJsonSpec extends AnyFlatSpec with Matchers with Checkers with AllInstances {
 
   implicit val comonadEither: Comonad[Try] = new Comonad[Try] {
     def extract[A](x: Try[A]): A = x.get //never do it in production, kids

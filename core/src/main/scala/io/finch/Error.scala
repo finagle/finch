@@ -2,7 +2,6 @@ package io.finch
 
 import cats.{Eq, Show}
 import cats.data.NonEmptyList
-import cats.instances.string._
 import cats.syntax.eq._
 import io.finch.items.RequestItem
 import scala.compat.Platform.EOL
