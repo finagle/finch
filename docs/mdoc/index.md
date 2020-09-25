@@ -2,10 +2,7 @@
 layout: home
 title:  "Home"
 section: "home"
-technologies:
- - first: ["Scala", "sbt-microsites plugin is completely written in Scala"]
- - second: ["SBT", "sbt-microsites plugin uses SBT and other sbt plugins to generate microsites easily"]
- - third: ["Jekyll", "Jekyll allows for the transformation of plain text into static websites and blogs."]
+position: 0
 ---
 
 Finch provides a combinator API over the [Finagle][finagle] HTTP services. An `Endpoint[A]`, main
@@ -22,21 +19,21 @@ build.sbt:
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.finagle" %% "finch-core" % "0.31.0",
-  "com.github.finagle" %% "finch-circe" % "0.31.0",
-  "io.circe" %% "circe-generic" % "0.9.3"
+  "com.github.finagle" %% "finch-core" % "0.32.1",
+  "com.github.finagle" %% "finch-circe" % "0.32.1",
+  "io.circe" %% "circe-generic" % "0.13.1"
 )
 ```
 
 Main.scala:
 
-```tut:silent
+```scala mdoc:silent
 import com.twitter.finagle.Http
 import com.twitter.util.Await
-
+import cats.effect.IO
 import io.finch._
 import io.finch.circe._
-import io.finch.syntax._
+import io.finch.catsEffect._
 import io.circe.generic.auto._
 
 object Main extends App {
@@ -47,7 +44,7 @@ object Main extends App {
   def currentTime(l: java.util.Locale): String =
     java.util.Calendar.getInstance(l).getTime.toString
 
-  val time: Endpoint[Time] =
+  val time: Endpoint[IO, Time] =
     post("time" :: jsonBody[Locale]) { l: Locale =>
       Ok(Time(l, currentTime(new java.util.Locale(l.language, l.country))))
     }

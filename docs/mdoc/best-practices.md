@@ -52,20 +52,20 @@ class patchers are usually represented as `Endpoint[A => A]`, which
 2. represents that partial JSON object as a function `A => A` that takes a case class and updates
    it with all the values from a JSON object
 
-```tut:silent
+```scala mdoc:silent
 import java.util.UUID
+import cats.effect.IO
 import io.finch._
 import io.finch.circe._
-import io.finch.syntax._
+import io.finch.catsEffect._
 import io.circe.generic.auto._
-
 
 case class Todo(id: UUID, title: String, completed: Boolean, order: Int)
 object Todo {
   def list():List[Todo] = ???
 }
-val patchedTodo: Endpoint[Todo => Todo] = jsonBody[Todo => Todo]
-val patchTodo: Endpoint[Todo] = patch("todos" :: path[UUID] :: patchedTodo) { (id: UUID, pt: Todo => Todo) =>
+val patchedTodo: Endpoint[IO, Todo => Todo] = jsonBody[Todo => Todo]
+val patchTodo: Endpoint[IO, Todo] = patch("todos" :: path[UUID] :: patchedTodo) { (id: UUID, pt: Todo => Todo) =>
   val oldTodo = ??? // get by id
   val newTodo = pt(oldTodo)
   // store newTodo in the DB
@@ -82,13 +82,13 @@ final type (a complete JSON object), gives us a function, to which we'd need to 
 bits to get the final instance.
 
 
-```tut:silent
+```scala mdoc:silent
 import io.finch._
 import io.finch.circe._
 import io.circe.generic.auto._
 
-val postedTodo: Endpoint[Todo] = jsonBody[UUID => Todo].map(_(UUID.randomUUID()))
-val postTodo: Endpoint[Todo] = post("todos" :: postedTodo) { t: Todo =>
+val postedTodo: Endpoint[IO, Todo] = jsonBody[UUID => Todo].map(_(UUID.randomUUID()))
+val postTodo: Endpoint[IO, Todo] = post("todos" :: postedTodo) { t: Todo =>
   // store t in the DB
   Ok(t)
 }
@@ -108,12 +108,12 @@ Finagle is very sensitive to whether or not its worker threads are blocked. In o
 your HTTP server always makes progress (accepts new connections/requests), do not block Finch
 endpoints. Use `FuturePool`s to wrap expensive computations.
 
-```tut:silent
+```scala mdoc:silent
 import io.finch._
-import io.finch.syntax._
+import io.finch.catsEffect._
 import com.twitter.util.FuturePool
 
-val expensive: Endpoint[BigInt] = get(path[Int]) { i: Int =>
+val expensive: Endpoint[IO, BigInt] = get(path[Int]) { i: Int =>
   FuturePool.unboundedPool {
     Ok(BigInt(i).pow(i))
   }
@@ -135,7 +135,7 @@ memory, CPU usage, request success rate, request latency and many more) exported
 
 Use the following template to empower your Finch application with TwitterServer.
 
-```tut:silent
+```scala mdoc:silent
 import io.finch._
 
 import com.twitter.finagle.param.Stats
@@ -169,7 +169,8 @@ better understand your application under different circumstances.
 One of the easiest things to export is a _counter_ that captures the number of times some event
 occurred.
 
-```tut:silent
+```scala mdoc:nest
+import cats.effect.IO
 import io.finch._
 import io.finch.circe._
 import io.circe.generic.auto._
@@ -179,7 +180,7 @@ import com.twitter.finagle.stats.Counter
 
 object Main extends TwitterServer {
   val todos: Counter = statsReceiver.counter("todos")
-  val postTodo: Endpoint[Todo] = post("todos" :: postedTodo) { t: Todo =>
+  val postTodo: Endpoint[IO, Todo] = post("todos" :: postedTodo) { t: Todo =>
     todos.incr()
     // add todo into the DB
     Ok(t)
@@ -190,7 +191,7 @@ object Main extends TwitterServer {
 It's also possible to export histograms over random values (latencies, number of active users,
 etc).
 
-```tut:silent
+```scala mdoc:nest
 import io.finch._
 import io.finch.circe._
 import io.circe.generic.auto._
@@ -200,7 +201,7 @@ import com.twitter.finagle.stats.Stat
 
 object Main extends TwitterServer {
   val getTodosLatency: Stat = statsReceiver.stat("get_todos_latency")
-  val getTodos: Endpoint[List[Todo]] = get("todos") {
+  val getTodos: Endpoint[IO, List[Todo]] = get("todos") {
     Stat.time(getTodosLatency) { Ok(Todo.list()) }
   }
 }
@@ -244,13 +245,13 @@ useful server-side features that might be useful for most of the use cases.
  concurrent requests allowed) on it (disabled by default).
 
 
-```tut:silent
+```scala mdoc:nest
  import com.twitter.finagle.Http
  import com.twitter.finagle.http.{Request, Response}
  
  object Main extends TwitterServer {
    
-   val ping: Endpoint[String] = get("ping") { Ok("Pong") }
+   val ping: Endpoint[IO, String] = get("ping") { Ok("Pong") }
    val service: Service[Request, Response] = ping.toServiceAs[Text.Plain]
 
    def main(): Unit = {

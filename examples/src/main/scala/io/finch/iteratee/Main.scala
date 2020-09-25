@@ -1,7 +1,6 @@
 package io.finch.iteratee
 
 import cats.effect.{ExitCode, IO, IOApp, Resource}
-import cats.implicits._
 import com.twitter.finagle.{Http, ListeningServer}
 import com.twitter.util.Future
 import io.circe.generic.auto._

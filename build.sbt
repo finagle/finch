@@ -3,23 +3,23 @@ import microsites.ExtraMdFileConfig
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  scalaVersion := "2.12.7",
-  crossScalaVersions := Seq("2.11.12", "2.12.7")
+  scalaVersion := "2.12.12",
+  crossScalaVersions := Seq("2.12.12", "2.13.3")
 )
 
-lazy val twitterVersion = "19.10.0"
-lazy val circeVersion = "0.11.2"
-lazy val circeIterateeVersion = "0.12.0"
-lazy val circeFs2Version = "0.11.0"
+lazy val twitterVersion = "20.9.0"
+lazy val circeVersion = "0.13.0"
+lazy val circeIterateeVersion = "0.13.0-M2"
+lazy val circeFs2Version = "0.13.0"
 lazy val shapelessVersion = "2.3.3"
-lazy val catsVersion = "2.0.0"
-lazy val argonautVersion = "6.2.4"
-lazy val iterateeVersion = "0.18.0"
-lazy val refinedVersion = "0.9.12"
-lazy val catsEffectVersion = "2.0.0"
-lazy val fs2Version =  "2.1.0"
+lazy val catsVersion = "2.2.0"
+lazy val argonautVersion = "6.3.1"
+lazy val iterateeVersion = "0.19.0"
+lazy val refinedVersion = "0.9.16"
+lazy val catsEffectVersion = "2.2.0"
+lazy val fs2Version =  "2.4.4"
 
-lazy val compilerOptions = Seq(
+def compilerOptions(scalaVersion: String) = Seq(
   "-deprecation",
   "-encoding", "UTF-8",
   "-feature",
@@ -27,18 +27,29 @@ lazy val compilerOptions = Seq(
   "-language:higherKinds",
   "-language:implicitConversions",
   "-unchecked",
-  "-Yno-adapted-args",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
-  "-Xfuture",
   "-Xlint"
+) ++ (CrossVersion.partialVersion(scalaVersion) match {
+  case Some((2, scalaMajor)) if scalaMajor == 12 => scala212CompilerOptions
+  case Some((2, scalaMajor)) if scalaMajor == 13 => scala213CompilerOptions
+})
+
+lazy val scala212CompilerOptions = Seq(
+  "-Yno-adapted-args", 
+  "-Ywarn-unused-import",
+  "-Xfuture"
+)
+
+lazy val scala213CompilerOptions = Seq(
+  "-Wunused:imports"
 )
 
 val testDependencies = Seq(
-  "org.scalacheck" %% "scalacheck" % "1.14.2",
-  "org.scalatest" %% "scalatest" % "3.0.7",
+  "org.scalacheck" %% "scalacheck" % "1.14.3",
+  "org.scalatest" %% "scalatest" % "3.2.2",
   "org.typelevel" %% "cats-laws" % catsVersion,
-  "org.typelevel" %% "discipline" % "0.11.1"
+  "org.typelevel" %% "discipline-scalatest" % "2.0.1"
 )
 
 val baseSettings = Seq(
@@ -53,12 +64,7 @@ val baseSettings = Seq(
     Resolver.sonatypeRepo("releases"),
     Resolver.sonatypeRepo("snapshots")
   ),
-  scalacOptions ++= compilerOptions ++ (
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, p)) if p >= 11 => Seq("-Ywarn-unused-import")
-      case _ => Nil
-    }
-  ),
+  scalacOptions ++= compilerOptions(scalaVersion.value),
   scalacOptions in (Compile, console) ~= {
     _.filterNot(Set("-Ywarn-unused-import"))
   },
@@ -76,7 +82,7 @@ def updateVersionInFile(selectVersion: sbtrelease.Versions => String): ReleaseSt
 
     // files containing version to update upon release
     val filesToUpdate = Seq(
-      "docs/src/main/tut/index.md"
+      "docs/mdoc/index.md"
     )
     val pattern = """"com.github.finagle" %% "finch-.*" % "(.*)"""".r
 
@@ -175,6 +181,8 @@ lazy val docSettings = allSettings ++ Seq(
   micrositeName := "Finch",
   micrositeDescription := "Scala combinator library for building Finagle HTTP services",
   micrositeAuthor := "Vladimir Kostyukov",
+  micrositeCompilingDocsTool := WithMdoc,
+  mdocIn := baseDirectory.value / "mdoc",
   micrositeHighlightTheme := "atom-one-light",
   micrositeHomepage := "https://finagle.github.io/finch/",
   micrositeDocumentationUrl := "api",
@@ -336,7 +344,7 @@ lazy val docs = project
     )
   )
   .enablePlugins(MicrositesPlugin, ScalaUnidocPlugin)
-  .dependsOn(core, circe, argonaut, iteratee, refined)
+  .dependsOn(core, circe, argonaut, iteratee, refined, fs2)
 
 lazy val examples = project
   .settings(moduleName := "finchx-examples")
@@ -388,8 +396,6 @@ lazy val benchmarks = project
 
 val validateCommands = List(
   "clean",
-  "scalastyle",
-  "test:scalastyle",
   "compile",
   "test:compile",
   "coverage",

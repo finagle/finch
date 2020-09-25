@@ -2,9 +2,10 @@ package io.finch.div
 
 import com.twitter.finagle.http.Status
 import io.finch.Input
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class DivSpec extends FlatSpec with Matchers {
+class DivSpec extends AnyFlatSpec with Matchers {
   behavior of "the div endpoint"
 
   import Main.div

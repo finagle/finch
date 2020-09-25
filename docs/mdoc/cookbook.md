@@ -51,7 +51,7 @@ free (preferred).
 For example, to bring the [Circe][circe] support and benefit from its auto-derivation of codecs
 you'd only need to add two extra imports to the scope (file) where you call the `.toService` method.
 
-```tut:silent
+```scala mdoc:silent
 import io.circe.generic.auto._
 import io.finch.circe._
 ```
@@ -67,16 +67,17 @@ cornerstone idea is to return a `Buf` instance from the endpoint so we could use
 `Encode[Buf]`, thereby lifting the encoding part onto the endpoint itself
 (where it's quite legal to return a `Future[Buf]`).
 
-```tut:silent
+```scala mdoc:silent:nest
+import cats.effect._
 import io.finch._
-import io.finch.syntax._
-import com.twitter.io.{Reader, Buf}
+import io.finch.catsEffect._
+import com.twitter.io.{Buf, BufReader, Reader}
 import java.io.File
 
-val reader: Reader = Reader.fromFile(new File("/dev/urandom"))
+val reader: Reader[Buf] = Reader.fromFile(new File("/dev/urandom"))
 
-val file: Endpoint[Buf] = get("file") {
-  Reader.readAll(reader).map(Ok)
+val file: Endpoint[IO, Buf] = get("file") {
+  BufReader.readAll(reader).map(Ok)
 }
 ```
 
@@ -86,20 +87,21 @@ the perfect fit.
 
 It's also possible to _stream_ the file content to the client using [`AsyncStream`][as].
 
-```tut:silent
+```scala mdoc:silent:nest
 import io.finch._
-import io.finch.syntax._
-import com.twitter.conversions.storage._
+import io.finch.catsEffect._
+import com.twitter.conversions.StorageUnitOps._
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.Http
-import com.twitter.io.{Reader, Buf}
+import com.twitter.io.{Buf, BufReader, Reader}
 
 import java.io.File
 
-val reader: Reader = Reader.fromFile(new File("/dev/urandom"))
+val reader: Reader[Buf] = Reader.fromFile(new File("/dev/urandom"))
 
-val file: Endpoint[AsyncStream[Buf]] = get("stream-of-file") {
-  Ok(AsyncStream.fromReader(reader, chunkSize = 512.kilobytes.inBytes.toInt))
+val file: Endpoint[IO, AsyncStream[Buf]] = get("stream-of-file") {
+  val chunkedReader = BufReader.chunked(reader, chunkSize = 512.kilobytes.inBytes.toInt)
+  Ok(Reader.toAsyncStream(chunkedReader))
 }
 ```
 
@@ -112,7 +114,7 @@ trivial thing to do.
 
 With [Circe][circe] the complete implementation might look like the following.
 
-```tut:silent
+```scala mdoc:silent:nest
 import io.circe.{Encoder, Json}
 import io.finch._
 import io.finch.circe._
@@ -138,10 +140,10 @@ Just like in any Scala program you can define a function returning an empty resu
 value), in Finch, you can define an endpoint returning an empty response (an empty/unit output).
 An `Endpoint[Unit]` represents an endpoint that doesn't return any payload in the response.
 
-```tut:silent
+```scala mdoc:silent:nest
 import io.finch._
 
-val empty: Endpoint[Unit] = get("empty" :: path[String]) { s: String =>
+val empty: Endpoint[IO, Unit] = get("empty" :: path[String]) { s: String =>
   NoContent[Unit].withHeader("X-String" -> s)
 }
 ```
@@ -150,21 +152,21 @@ There are also cases when an endpoint returns either a payload or an empty respo
 probably a better idea to use failures in order to explain to the remote client why there is no
 payload in the response, it's totally possible to send empty ones instead.
 
-```tut:silent
+```scala mdoc:silent:nest
 import io.finch._
 import com.twitter.finagle.http.Status
 
-case class Foo(s: String)
+case class SomeResponse(s: String)
 
 // This is possible
-val fooOrEmpty: Endpoint[Foo] = get("foo" :: path[String]) { s: String =>
-  if (s != "") Ok(Foo(s))
+val fooOrEmpty: Endpoint[IO, SomeResponse] = get("foo" :: path[String]) { s: String =>
+  if (s != "") Ok(SomeResponse(s))
   else NoContent
 }
 
 // This is recommended
-val fooOrFailure: Endpoint[Foo] = get("foo" :: path[String]) { s: String =>
-  if (s != "") Ok(Foo(s))
+val fooOrFailure: Endpoint[IO, SomeResponse] = get("foo" :: path[String]) { s: String =>
+  if (s != "") Ok(SomeResponse(s))
   else BadRequest(new IllegalArgumentException("empty string"))
 }
 ```
@@ -175,11 +177,11 @@ Redirects are still weird in Finch. Until [reversed routes/endpoints][issue191] 
 reasonable way of defining redirecting endpoints is to represent them as `Endpoint[Unit]` (empty
 output) indicating that there is no payload returned.
 
-```tut:silent
+```scala mdoc:silent:nest
 import io.finch._
 import com.twitter.finagle.http.Status
 
-val redirect: Endpoint[Unit] = get("redirect" :: "from") {
+val redirect: Endpoint[IO, Unit] = get("redirect" :: "from") {
   Output.unit(Status.SeeOther).withHeader("Location" -> "/redirect/to")
 }
 ```
@@ -204,14 +206,14 @@ behavior) wasn't touched at all.
 In the following example, we define a new endpoint `foo` that reads an instance of the case class
 `Foo` from the request during the _evaluation_ stage. So it won't affect matching.
 
-```tut:silent
+```scala mdoc:silent:nest
 import io.finch._
 
 case class Foo(i: Int, s: String)
 
-val foo: Endpoint[Foo] = (param[Int]("i") :: param("s")).as[Foo]
+val foo: Endpoint[IO, Foo] = (param[Int]("i") :: param("s")).as[Foo]
 
-val getFoo: Endpoint[Foo] = get("foo" :: foo) { f: Foo =>
+val getFoo: Endpoint[IO, Foo] = get("foo" :: foo) { f: Foo =>
   println(s"Got foo: $f")
   Ok(f) // echo it back
 }
@@ -232,12 +234,12 @@ In this example, we define an evaluating endpoint `auth` that takes a request an
 authenticate it by the user name passed in the `User` header. If the header is missing, the request
 is considered unauthorized.
 
-```tut:silent
+```scala mdoc:silent:nest
 import io.finch._
 
 case class User(id: Int)
 
-val auth: Endpoint[User] = header("User").mapOutput(u =>
+val auth: Endpoint[IO, User] = header("User").mapOutput(u =>
   if (u == "secret user") Ok(User(10))
   else Unauthorized(new Exception(s"User $u is unknown."))
 ).handle {
@@ -245,7 +247,7 @@ val auth: Endpoint[User] = header("User").mapOutput(u =>
   case e: Error.NotPresent => Unauthorized(e)
 }
 
-val getCurrentUser: Endpoint[User] = get("user" :: auth) { u: User =>
+val getCurrentUser: Endpoint[IO, User] = get("user" :: auth) { u: User =>
   println(s"Got user: $u")
   Ok(u) // echo it back
 }
@@ -269,13 +271,13 @@ that takes a function of type `(A) => Future[Output[B]]`.
 
 The previous example's `auth` endpoint can be updated as follows:
 
-```tut:silent
+```scala mdoc:silent:nest
 import com.twitter.util.Future
 
-def fetchUserForToken(token: String): Future[Option[User]] = ???
+def fetchUserForToken(token: String): IO[Option[User]] = ???
 
-val auth: Endpoint[User] = header("User").mapOutputAsync(u =>
-  if (u == "secret user") Future.value(Ok(User(10)))
+val auth: Endpoint[IO, User] = header("User").mapOutputAsync(u =>
+  if (u == "secret user") IO.pure(Ok(User(10)))
   else fetchUserForToken(u).map {
     case Some(user) => Ok(user)
     case None => Unauthorized(new Exception(s"Invalid token: $u"))
@@ -294,7 +296,7 @@ The `getCurrentUser` endpoint doesn't need to change at all, since `auth` is sti
 Let's say you want to write a custom _matching_ endpoint that only matches requests whose current
 path segment might be extracted as (converted to) Java 8's `LocalDateTime`.
 
-```tut:silent
+```scala mdoc:silent:nest
 import io.finch._
 import com.twitter.util.Try
 import java.time.LocalDateTime
@@ -302,7 +304,7 @@ import java.time.LocalDateTime
 implicit val e: DecodePath[LocalDateTime] =
   DecodePath.instance(s => Try(LocalDateTime.parse(s)).toOption)
 
-val dateTime: Endpoint[LocalDateTime] = get("time" :: path[LocalDateTime]) { t: LocalDateTime =>
+val dateTime: Endpoint[IO, LocalDateTime] = get("time" :: path[LocalDateTime]) { t: LocalDateTime =>
   println(s"Got time: $t")
   Ok(t) // echo it back
 }
@@ -317,7 +319,7 @@ In case if you want to operate with a whole request, you could use `root` endpoi
 need to get only query parameters or headers, it's easy to reuse this endpoint to get something like
 following:
 
-```tut
+```scala mdoc:nest
 import io.finch._
 
 val headersAll = root.map(_.headerMap.toMap)
@@ -335,13 +337,15 @@ There is a [Finagle filter][cors-filter] which, when applied, enriches a given H
 [CORS][cors] behavior. The following example builds a CORS filter that allows `GET` and `POST`
 requests with an `Accept` header from any origin.
 
-```tut:silent
+```scala mdoc:silent:nest
 import com.twitter.finagle.http.filter.Cors
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.Service
 import io.finch._
+import io.finch.catsEffect._
 
-val service: Service[Request, Response] = Endpoint.liftOutput(Ok("Hello, world!")).toServiceAs[Text.Plain]
+val service: Service[Request, Response] = 
+  Endpoint.liftOutput[IO, String](Ok("Hello, world!")).toServiceAs[Text.Plain]
 
 val policy: Cors.Policy = Cors.Policy(
   allowsOrigin = _ => Some("*"),
@@ -357,7 +361,7 @@ val corsService: Service[Request, Response] = new Cors.HttpFilter(policy).andThe
 Since Finch is built on top of Finagle, it shares its utilities like the stateless [client][client]. Do read the Finagle's
 documentation to get a full understanding of the configuration options for the client e.g. [loadbalancing][loadbalancing] abilities. A simple example is given below.
 
-```tut:silent
+```scala mdoc:silent:nest
 import com.twitter.finagle.Http
 import com.twitter.finagle.http._
 import com.twitter.util.{Await, Future}
@@ -382,7 +386,7 @@ there is already an official tool for performing conversions between Scala futur
 futures (i.e., [Twitter Bijection][bijection]), it usually makes sense to avoid an extra dependency
 because of a couple of functions which are fairly easy to implement.
 
-```tut:silent
+```scala mdoc:silent:nest
 import com.twitter.util.{Future => TFuture, Promise => TPromise, Return, Throw}
 import scala.concurrent.{Future => SFuture, Promise => SPromise, ExecutionContext}
 import scala.util.{Success, Failure}
@@ -415,8 +419,8 @@ implicit class RichSFuture[A](f: SFuture[A]) {
 Also note that as of [Finch 0.16-M3](https://github.com/finagle/finch/releases/tag/0.16.0-M3) there
 is a Scala Futures syntax support for endpoints.
 
-```tut:silent
-import io.finch._, io.finch.syntax.scalaFutures._
+```scala mdoc:silent:nest
+import io.finch._, io.finch.catsEffect._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -438,32 +442,24 @@ the `time` endpoint.
 
 NOTE: SSE requires `Cache-Control` to be disabled.
 
-```tut:silent
+```scala mdoc:silent:nest
 import cats.Show
-import com.twitter.concurrent.AsyncStream
-import com.twitter.conversions.time._
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
-import com.twitter.finagle.util.DefaultTimer
-import com.twitter.util.{ Await, Future, Timer}
 import io.finch._
-import io.finch.sse._
+import io.finch.fs2._
+import _root_.fs2.Stream
 import java.util.Date
+import scala.concurrent.duration._
 
 implicit val showDate: Show[Date] = Show.fromToString[Date]
 
-implicit val timer: Timer = DefaultTimer
+implicit val timer: Timer[IO] = IO.timer(scala.concurrent.ExecutionContext.global)
+def streamTime(): Stream[IO, ServerSentEvent[Date]] =
+  Stream.awakeEvery[IO](1.second).map(_ => new Date()).map(ServerSentEvent(_))
 
-def streamTime(): AsyncStream[ServerSentEvent[Date]] =
-  AsyncStream.fromFuture(
-    Future.sleep(1.seconds)
-          .map(_ => new Date())
-          .map(ServerSentEvent(_))
-  ) ++ streamTime()
-
-val time: Endpoint[AsyncStream[ServerSentEvent[Date]]] = get("time") {
-  Ok(streamTime())
-    .withHeader("Cache-Control" -> "no-cache")
+val time: Endpoint[IO, Stream[IO, ServerSentEvent[Date]]] = get("time") {
+  Ok(streamTime()).withHeader("Cache-Control" -> "no-cache")
 }
 
 val service: Service[Request, Response] = time.toServiceAs[Text.EventStream]
@@ -476,7 +472,7 @@ filter `JsonpFilter` that can be applied to an HTTP service returning JSON to "u
 
 Here is a small example on how to wire this filter with Finch's endpoint.
 
-```tut:silent
+```scala mdoc:silent:nest
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.http.filter.JsonpFilter
@@ -484,7 +480,7 @@ import io.finch._
 import io.finch.circe._
 import io.circe.generic.auto._
 
-val endpoint: Endpoint[Map[String, String]] = get("jsonp") {
+val endpoint: Endpoint[IO, Map[String, String]] = get("jsonp") {
   Ok(Map("foo" -> "bar"))
 }
 

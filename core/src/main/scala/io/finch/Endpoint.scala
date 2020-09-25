@@ -361,7 +361,7 @@ trait Endpoint[F[_], A] { self =>
     */
   final def handle(pf: PartialFunction[Throwable, Output[A]])(implicit
     F: ApplicativeError[F, Throwable]
-  ): Endpoint[F, A] = rescue(pf.andThen(F.pure))
+  ): Endpoint[F, A] = rescue(pf.andThen(F.pure(_)))
 
   /**
     * Validates the result of this endpoint using a `predicate`. The rule is used for error
