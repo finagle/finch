@@ -17,9 +17,9 @@ lazy val argonautVersion = "6.3.1"
 lazy val iterateeVersion = "0.19.0"
 lazy val refinedVersion = "0.9.16"
 lazy val catsEffectVersion = "2.2.0"
-lazy val fs2Version =  "2.4.4"
+lazy val fs2Version = "2.4.4"
 
-def compilerOptions(scalaVersion: String) = Seq(
+def compilerOptions(scalaVersion: String): Seq[String] = Seq(
   "-deprecation",
   "-encoding", "UTF-8",
   "-feature",
@@ -36,7 +36,7 @@ def compilerOptions(scalaVersion: String) = Seq(
 })
 
 lazy val scala212CompilerOptions = Seq(
-  "-Yno-adapted-args", 
+  "-Yno-adapted-args",
   "-Ywarn-unused-import",
   "-Xfuture"
 )
@@ -65,13 +65,14 @@ val baseSettings = Seq(
     Resolver.sonatypeRepo("snapshots")
   ),
   scalacOptions ++= compilerOptions(scalaVersion.value),
-  scalacOptions in (Compile, console) ~= {
+  scalacOptions in(Compile, console) ~= {
     _.filterNot(Set("-Ywarn-unused-import"))
   },
-  scalacOptions in (Compile, console) += "-Yrepl-class-based",
+  scalacOptions in(Compile, console) += "-Yrepl-class-based",
   fork in Test := true,
   javaOptions in ThisBuild ++= Seq("-Xss2048K"),
-  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary)
+  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary),
+  wartremoverErrors in (Compile, compile) += Wart.NonUnitStatements,
 )
 
 def updateVersionInFile(selectVersion: sbtrelease.Versions => String): ReleaseStep =
@@ -92,7 +93,8 @@ def updateVersionInFile(selectVersion: sbtrelease.Versions => String): ReleaseSt
         pattern.replaceAllIn(content,
           m => m.matched.replaceAllLiterally(m.subgroups.head, newVersion))
       new PrintWriter(fileName) {
-        write(newContent); close()
+        write(newContent);
+        close()
       }
       val vcs = Project.extract(st).get(releaseVcs).get
       vcs.add(fileName).!
@@ -109,7 +111,7 @@ lazy val publishSettings = Seq(
     if (isSnapshot.value)
       Some("snapshots" at nexus + "content/repositories/snapshots")
     else
-      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+      Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
   publishArtifact in Test := false,
   pgpSecretRing := file("local.secring.gpg"),
@@ -198,9 +200,9 @@ lazy val docSettings = allSettings ++ Seq(
     "gray-light" -> "#E5E6E5",
     "gray-lighter" -> "#F4F3F4",
     "white-color" -> "#FFFFFF"),
-  addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), micrositeDocumentationUrl),
+  addMappingsToSiteDir(mappings in(ScalaUnidoc, packageDoc), micrositeDocumentationUrl),
   ghpagesNoJekyll := false,
-  scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
+  scalacOptions in(ScalaUnidoc, unidoc) ++= Seq(
     "-groups",
     "-implicits",
     "-skip-packages", "scalaz",
@@ -212,7 +214,7 @@ lazy val docSettings = allSettings ++ Seq(
     _.filterNot(Set("-Yno-predef", "-Xlint", "-Ywarn-unused-import"))
   },
   git.remoteRepo := "git@github.com:finagle/finch.git",
-  unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(benchmarks, jsonTest),
+  unidocProjectFilter in(ScalaUnidoc, unidoc) := inAnyProject -- inProjects(benchmarks, jsonTest),
   includeFilter in makeSite := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.svg" | "*.js" | "*.swf" | "*.yml" | "*.md",
   siteSubdirName in ScalaUnidoc := "docs"
 )
@@ -396,6 +398,7 @@ lazy val benchmarks = project
 val validateCommands = List(
   "clean",
   "compile",
+  "scalafmtCheckAll",
   "test:compile",
   "coverage",
   "test",
