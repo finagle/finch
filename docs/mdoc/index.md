@@ -27,7 +27,7 @@ libraryDependencies ++= Seq(
 
 Main.scala:
 
-```tut:silent
+```scala mdoc:silent
 import com.twitter.finagle.Http
 import com.twitter.util.Await
 import cats.effect.IO

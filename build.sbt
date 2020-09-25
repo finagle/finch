@@ -82,7 +82,7 @@ def updateVersionInFile(selectVersion: sbtrelease.Versions => String): ReleaseSt
 
     // files containing version to update upon release
     val filesToUpdate = Seq(
-      "docs/src/main/tut/index.md"
+      "docs/mdoc/index.md"
     )
     val pattern = """"com.github.finagle" %% "finch-.*" % "(.*)"""".r
 
@@ -181,7 +181,8 @@ lazy val docSettings = allSettings ++ Seq(
   micrositeName := "Finch",
   micrositeDescription := "Scala combinator library for building Finagle HTTP services",
   micrositeAuthor := "Vladimir Kostyukov",
-  micrositeCompilingDocsTool := WithTut,
+  micrositeCompilingDocsTool := WithMdoc,
+  mdocIn := baseDirectory.value / "mdoc",
   micrositeHighlightTheme := "atom-one-light",
   micrositeHomepage := "https://finagle.github.io/finch/",
   micrositeDocumentationUrl := "api",
