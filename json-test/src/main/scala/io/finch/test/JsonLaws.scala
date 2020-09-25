@@ -2,16 +2,16 @@ package io.finch.test
 
 import java.nio.charset.Charset
 
-import cats.{Eq, Functor}
 import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
+import cats.{Eq, Functor}
 import com.twitter.io.Buf
 import com.twitter.util._
-import io.circe.{Decoder, Encoder}
 import io.circe.jawn
-import io.finch.{DecodeStream, _}
+import io.circe.{Decoder, Encoder}
 import io.finch.internal.HttpContent
+import io.finch.{DecodeStream, _}
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 

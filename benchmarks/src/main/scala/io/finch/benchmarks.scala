@@ -1,5 +1,8 @@
 package io.finch
 
+import java.nio.charset.{Charset, StandardCharsets}
+import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
+
 import cats.effect.IO
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
@@ -8,8 +11,6 @@ import com.twitter.util.Await
 import io.circe.generic.auto._
 import io.finch.circe._
 import io.finch.data.Foo
-import java.nio.charset.{Charset, StandardCharsets}
-import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
 import org.openjdk.jmh.annotations._
 import shapeless._
 

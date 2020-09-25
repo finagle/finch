@@ -1,9 +1,10 @@
 package io.finch
 
-import com.twitter.finagle.http.{Fields, Message}
-import com.twitter.io.Buf
 import java.nio.ByteBuffer
 import java.nio.charset.{Charset, StandardCharsets}
+
+import com.twitter.finagle.http.{Fields, Message}
+import com.twitter.io.Buf
 
 /**
   * This package contains an internal-use only type-classes and utilities that power Finch's API.

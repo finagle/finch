@@ -1,7 +1,7 @@
 package io.finch.internal
 
-import shapeless.{::, DepFn2, HNil}
 import shapeless.ops.adjoin.Adjoin
+import shapeless.{::, DepFn2, HNil}
 
 /**
   * We need a version of [[shapeless.ops.adjoin.Adjoin]] that provides slightly different behavior in

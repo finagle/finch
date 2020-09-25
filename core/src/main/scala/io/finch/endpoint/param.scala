@@ -1,10 +1,11 @@
 package io.finch.endpoint
 
+import scala.reflect.ClassTag
+
 import cats.Id
 import cats.data.NonEmptyList
 import cats.effect.Sync
 import io.finch._
-import scala.reflect.ClassTag
 
 abstract private[finch] class Param[F[_], G[_], A](name: String)(implicit
     d: DecodeEntity[A],

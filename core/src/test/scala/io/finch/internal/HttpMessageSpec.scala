@@ -1,8 +1,9 @@
 package io.finch.internal
 
+import java.nio.charset.{Charset, StandardCharsets}
+
 import com.twitter.finagle.http.Request
 import io.finch.FinchSpec
-import java.nio.charset.{Charset, StandardCharsets}
 
 class HttpMessageSpec extends FinchSpec {
 

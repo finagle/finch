@@ -1,5 +1,7 @@
 package io.finch.iteratee
 
+import scala.util.Random
+
 import cats.effect.{ExitCode, IO, IOApp, Resource}
 import com.twitter.finagle.{Http, ListeningServer}
 import com.twitter.util.Future
@@ -8,7 +10,6 @@ import io.finch._
 import io.finch.catsEffect._
 import io.finch.circe._
 import io.iteratee.{Enumerator, Iteratee}
-import scala.util.Random
 
 /**
   * A Finch application featuring iteratee-based streaming support.

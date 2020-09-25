@@ -1,9 +1,10 @@
 package io.finch
 
+import scala.concurrent.ExecutionContext
+
 import cats.Eq
 import cats.effect.{ContextShift, IO}
 import com.twitter.io.Buf
-import scala.concurrent.ExecutionContext
 
 /**
   * Type class instances for non-Finch types.

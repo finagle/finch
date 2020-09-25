@@ -1,9 +1,10 @@
 package io.finch.circe
 
+import java.nio.charset.Charset
+
 import com.twitter.io.Buf
 import io.circe._
 import io.finch.Encode
-import java.nio.charset.Charset
 
 trait Encoders {
 

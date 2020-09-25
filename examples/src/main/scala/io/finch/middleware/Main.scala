@@ -1,7 +1,6 @@
 package io.finch.middleware
 
 import cats.effect.IO
-import cats.syntax.apply._
 import com.twitter.finagle.Http
 import com.twitter.finagle.http.{Response, Status}
 import com.twitter.util.{Await, Time}

@@ -2,8 +2,8 @@ package io.finch.data
 
 import cats.{Eq, Show}
 import com.twitter.io.Buf
-import io.finch.{Application, Decode, Encode}
 import io.finch.internal.HttpContent
+import io.finch.{Application, Decode, Encode}
 import org.scalacheck.{Arbitrary, Gen}
 
 case class Foo(s: String)

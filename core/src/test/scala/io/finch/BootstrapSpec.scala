@@ -1,11 +1,12 @@
 package io.finch
 
+import java.time.format.DateTimeFormatter
+import java.time.{ZoneOffset, ZonedDateTime}
+
 import cats.effect.IO
 import com.twitter.finagle.http.{Method, Request, Response, Status}
 import io.finch.data.Foo
 import io.finch.internal.currentTime
-import java.time.{ZonedDateTime, ZoneOffset}
-import java.time.format.DateTimeFormatter
 import shapeless.HNil
 
 class BootstrapSpec extends FinchSpec {

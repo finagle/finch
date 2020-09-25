@@ -1,8 +1,9 @@
 package io.finch
 
-import com.twitter.util.Local
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
+
+import com.twitter.util.Local
 
 /**
   * Models a trace of a matched [[Endpoint]]. For example, `/hello/:name`.

@@ -1,7 +1,7 @@
 package io.finch.argonaut
 
-import argonaut._
 import argonaut.DecodeJson
+import argonaut._
 import cats.syntax.either._
 import io.finch._
 import io.finch.internal.HttpContent

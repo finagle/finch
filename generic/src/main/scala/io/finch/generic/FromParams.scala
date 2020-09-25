@@ -1,9 +1,10 @@
 package io.finch.generic
 
+import scala.reflect.ClassTag
+
 import cats.data.NonEmptyList
 import cats.effect.Effect
 import io.finch._
-import scala.reflect.ClassTag
 import shapeless._
 import shapeless.labelled._
 import shapeless.poly._

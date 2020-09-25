@@ -1,7 +1,7 @@
 package io.finch.internal
 
-import java.time.{Instant, ZoneId}
 import java.time.format.DateTimeFormatter
+import java.time.{Instant, ZoneId}
 import java.util.Locale
 
 object currentTime {

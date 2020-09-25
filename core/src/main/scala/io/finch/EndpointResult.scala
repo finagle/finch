@@ -1,10 +1,11 @@
 package io.finch
 
+import scala.concurrent.duration.Duration
+
 import cats.Id
 import cats.effect.Effect
 import com.twitter.finagle.http.Method
 import com.twitter.util._
-import scala.concurrent.duration.Duration
 
 /**
   * A result returned from an [[Endpoint]]. This models `Option[(Input, Future[Output])]` and

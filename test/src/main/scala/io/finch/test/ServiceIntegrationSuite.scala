@@ -1,7 +1,7 @@
 package io.finch.test
 
-import com.twitter.finagle.{Http, ListeningServer, Service}
 import com.twitter.finagle.http.{Request, Response}
+import com.twitter.finagle.{Http, ListeningServer, Service}
 import com.twitter.util.Await
 import org.scalatest.{FixtureTestSuite, Outcome}
 

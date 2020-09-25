@@ -1,12 +1,13 @@
 package io.finch
 
-import cats.{Eq, Show}
-import cats.data.NonEmptyList
-import cats.syntax.eq._
-import io.finch.items.RequestItem
 import scala.compat.Platform.EOL
 import scala.reflect.ClassTag
 import scala.util.control.NoStackTrace
+
+import cats.data.NonEmptyList
+import cats.syntax.eq._
+import cats.{Eq, Show}
+import io.finch.items.RequestItem
 
 /**
   * A single error from an [[Endpoint]].

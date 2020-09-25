@@ -1,11 +1,12 @@
 package io.finch
 
+import java.nio.charset.Charset
+
 import _root_.fs2.Stream
 import cats.effect._
 import com.twitter.io.{Buf, Pipe, Reader}
 import com.twitter.util.Future
 import io.finch.internal._
-import java.nio.charset.Charset
 
 package object fs2 extends StreamConcurrentInstances {
 

@@ -2,11 +2,12 @@ package io.finch
 
 import java.nio.charset.{Charset, StandardCharsets}
 
+import scala.collection.mutable.ListBuffer
+
 import cats.Eq
 import cats.effect.Effect
 import com.twitter.finagle.http.{Method, Request, RequestBuilder}
 import com.twitter.io.{Buf, Reader}
-import scala.collection.mutable.ListBuffer
 import shapeless.Witness
 
 /**

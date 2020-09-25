@@ -1,8 +1,9 @@
 package io.finch
 
+import java.nio.charset.Charset
+
 import cats.Show
 import com.twitter.io.Buf
-import java.nio.charset.Charset
 
 case class ServerSentEvent[A](
     data: A,

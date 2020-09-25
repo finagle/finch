@@ -1,7 +1,8 @@
 package io.finch.internal
 
-import com.twitter.io.Buf
 import java.nio.charset.{Charset, StandardCharsets}
+
+import com.twitter.io.Buf
 
 object newLine {
 

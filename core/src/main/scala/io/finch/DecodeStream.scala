@@ -1,6 +1,7 @@
 package io.finch
 
 import java.nio.charset.Charset
+
 import scala.annotation.implicitNotFound
 
 import com.twitter.io.Buf

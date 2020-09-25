@@ -7,8 +7,8 @@ import cats.data.Validated
 import io.circe._
 import io.circe.iteratee._
 import io.circe.jawn.{decodeAccumulating, decodeByteBufferAccumulating}
-import io.finch.{Application, Decode, DecodeStream}
 import io.finch.internal.HttpContent
+import io.finch.{Application, Decode, DecodeStream}
 import io.iteratee.{Enumeratee, Enumerator}
 
 trait AccumulatingDecoders {

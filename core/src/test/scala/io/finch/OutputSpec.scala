@@ -1,10 +1,12 @@
 package io.finch
 
+import java.nio.charset.{Charset, StandardCharsets}
+
+import scala.util.{Failure, Success, Try}
+
 import cats.Id
 import com.twitter.finagle.http.Status
 import com.twitter.io.Buf
-import java.nio.charset.{Charset, StandardCharsets}
-import scala.util.{Failure, Success, Try}
 
 class OutputSpec extends FinchSpec {
 

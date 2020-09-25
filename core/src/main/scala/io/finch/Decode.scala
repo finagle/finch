@@ -1,8 +1,10 @@
 package io.finch
 
-import com.twitter.io.Buf
 import java.nio.charset.Charset
+
 import scala.util.control.NoStackTrace
+
+import com.twitter.io.Buf
 import shapeless.{:+:, CNil, Coproduct, Witness}
 
 /**

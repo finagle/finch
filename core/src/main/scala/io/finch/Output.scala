@@ -1,8 +1,9 @@
 package io.finch
 
+import java.nio.charset.{Charset, StandardCharsets}
+
 import cats.{Applicative, Eq}
 import com.twitter.finagle.http.{Cookie, Response, Status}
-import java.nio.charset.{Charset, StandardCharsets}
 
 /**
   * An output of [[Endpoint]].

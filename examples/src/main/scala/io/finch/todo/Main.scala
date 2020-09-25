@@ -1,12 +1,13 @@
 package io.finch.todo
 
+import scala.concurrent.ExecutionContext
+
 import cats.effect.IO
 import cats.effect.concurrent.Ref
 import com.twitter.app.Flag
 import com.twitter.finagle.Http
 import com.twitter.server.TwitterServer
 import com.twitter.util.Await
-import scala.concurrent.ExecutionContext
 
 /**
   * A simple Finch server serving a TODO application.

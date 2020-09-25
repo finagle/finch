@@ -1,12 +1,14 @@
 package io.finch.endpoint
 
+import java.nio.charset.{Charset, StandardCharsets}
+
+import scala.reflect.ClassTag
+
 import cats.effect.Sync
 import com.twitter.io.{Buf, Reader}
 import io.finch._
 import io.finch.internal._
 import io.finch.items._
-import java.nio.charset.{Charset, StandardCharsets}
-import scala.reflect.ClassTag
 
 abstract private[finch] class FullBody[F[_], A] extends Endpoint[F, A] {
 

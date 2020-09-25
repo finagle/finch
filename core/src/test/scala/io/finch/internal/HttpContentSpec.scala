@@ -1,8 +1,9 @@
 package io.finch.internal
 
+import java.nio.charset.Charset
+
 import com.twitter.io.Buf
 import io.finch.FinchSpec
-import java.nio.charset.Charset
 
 class HttpContentSpec extends FinchSpec {
 

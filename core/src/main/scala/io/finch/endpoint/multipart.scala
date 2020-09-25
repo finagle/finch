@@ -1,15 +1,16 @@
 package io.finch.endpoint
 
+import scala.reflect.ClassTag
+import scala.util.control.NonFatal
+
 import cats.Id
 import cats.data.NonEmptyList
 import cats.effect.Sync
 import com.twitter.finagle.http.Request
-import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart, MultipartDecoder}
 import com.twitter.finagle.http.exp.Multipart.{FileUpload => FinagleFileUpload}
+import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart, MultipartDecoder}
 import io.finch._
 import io.finch.items._
-import scala.reflect.ClassTag
-import scala.util.control.NonFatal
 
 abstract private[finch] class Attribute[F[_]: Sync, G[_], A](val name: String)(implicit
     d: DecodeEntity[A],

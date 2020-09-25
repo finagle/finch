@@ -2,17 +2,18 @@ package io.finch.test
 
 import java.nio.charset.{Charset, StandardCharsets}
 
-import cats.{Comonad, Eq, Functor}
-import cats.instances.AllInstances
-import io.circe.Decoder
-import io.finch.{Decode, DecodeStream, Encode}
-import io.finch.test.data._
-import org.scalacheck.{Arbitrary, Gen}
-import org.scalatestplus.scalacheck.Checkers
-import org.typelevel.discipline.Laws
 import scala.util.Try
+
+import cats.instances.AllInstances
+import cats.{Comonad, Eq, Functor}
+import io.circe.Decoder
+import io.finch.test.data._
+import io.finch.{Decode, DecodeStream, Encode}
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.scalacheck.Checkers
+import org.typelevel.discipline.Laws
 
 abstract class AbstractJsonSpec extends AnyFlatSpec with Matchers with Checkers with AllInstances {
 

@@ -2,8 +2,8 @@ package io.finch
 
 import java.util.UUID
 
-import cats.{Eq, Show}
 import cats.effect.IO
+import cats.{Eq, Show}
 import io.finch.data.Foo
 import org.scalacheck.Arbitrary
 

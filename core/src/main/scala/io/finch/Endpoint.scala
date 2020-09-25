@@ -2,21 +2,21 @@ package io.finch
 
 import java.io.{File, FileInputStream, InputStream}
 
+import scala.reflect.ClassTag
+
 import cats.data._
 import cats.effect._
 import cats.syntax.all._
 import cats.{Alternative, Applicative, ApplicativeError, Apply, Functor, Id, Monad, MonadError, MonoidK, SemigroupK, ~>}
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart}
-import com.twitter.finagle.http.{Request, Response, Cookie => FinagleCookie, Method => FinagleMethod}
+import com.twitter.finagle.http.{Cookie => FinagleCookie, Method => FinagleMethod, Request, Response}
 import com.twitter.io.Buf
 import io.finch.endpoint._
 import io.finch.internal._
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.hlist.Tupler
-
-import scala.reflect.ClassTag
 
 /**
   * An `Endpoint` represents the HTTP endpoint.

@@ -1,9 +1,9 @@
 package io.finch.wrk
 
-import com.twitter.finagle.{Http, Service}
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.stats.NullStatsReceiver
 import com.twitter.finagle.tracing.NullTracer
+import com.twitter.finagle.{Http, Service}
 import com.twitter.util.Await
 
 abstract class Wrk extends App {

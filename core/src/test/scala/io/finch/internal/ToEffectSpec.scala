@@ -1,11 +1,12 @@
 package io.finch.internal
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Future => ScalaFuture}
+
 import cats.Applicative
 import cats.effect.IO
 import com.twitter.util.{Future => TwitterFuture}
 import io.finch.FinchSpec
-import scala.concurrent.{Future => ScalaFuture}
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class ToEffectSpec extends FinchSpec {
 

@@ -1,9 +1,9 @@
 package io.finch.internal
 
-import cats.{Applicative, Eq}
 import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
+import cats.{Applicative, Eq}
 import io.finch.MissingInstances
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws

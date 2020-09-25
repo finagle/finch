@@ -1,20 +1,21 @@
 package io.finch
 
+import java.io.{ByteArrayInputStream, InputStream}
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+
+import scala.concurrent.duration.Duration
 
 import cats.data.{NonEmptyList, WriterT}
 import cats.effect.{IO, Resource}
 import cats.laws._
-import cats.laws.discipline._
 import cats.laws.discipline.AlternativeTests
 import cats.laws.discipline.SemigroupalTests.Isomorphisms
+import cats.laws.discipline._
 import cats.~>
 import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.io.Buf
 import io.finch.data.Foo
-import java.io.{ByteArrayInputStream, InputStream}
-import scala.concurrent.duration.Duration
 import shapeless._
 
 class EndpointSpec extends FinchSpec {

@@ -1,13 +1,15 @@
 package io.finch
 
+import java.io.{File, InputStream}
+
+import scala.reflect.ClassTag
+
 import cats.Applicative
 import cats.data.NonEmptyList
 import cats.effect.{ContextShift, Resource, Sync}
-import com.twitter.finagle.http.{Cookie, Request}
 import com.twitter.finagle.http.exp.Multipart
+import com.twitter.finagle.http.{Cookie, Request}
 import com.twitter.io.Buf
-import java.io.{File, InputStream}
-import scala.reflect.ClassTag
 import shapeless.HNil
 
 /**

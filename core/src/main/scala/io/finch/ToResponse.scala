@@ -1,9 +1,11 @@
 package io.finch
 
+import java.nio.charset.Charset
+
+import scala.annotation.implicitNotFound
+
 import cats.{Applicative, Functor}
 import com.twitter.finagle.http.{Response, Status, Version}
-import java.nio.charset.Charset
-import scala.annotation.implicitNotFound
 import shapeless._
 
 /**

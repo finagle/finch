@@ -1,11 +1,12 @@
 package io.finch
 
+import java.nio.charset.Charset
+
 import cats.effect.{Async, Effect, IO}
 import com.twitter.io._
 import com.twitter.util.Future
 import io.finch.internal._
 import io.iteratee.{Enumerator, Iteratee}
-import java.nio.charset.Charset
 
 package object iteratee extends IterateeInstances {
 

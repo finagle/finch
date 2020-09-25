@@ -1,7 +1,7 @@
 package io.finch.todo
 
-import cats.effect.{ContextShift, IO}
 import cats.effect.concurrent.Ref
+import cats.effect.{ContextShift, IO}
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response, Status}
 import io.circe.generic.auto._
