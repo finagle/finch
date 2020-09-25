@@ -52,7 +52,7 @@ class patchers are usually represented as `Endpoint[A => A]`, which
 2. represents that partial JSON object as a function `A => A` that takes a case class and updates
    it with all the values from a JSON object
 
-```tut:silent
+```scala mdoc:silent
 import java.util.UUID
 import cats.effect.IO
 import io.finch._
@@ -82,7 +82,7 @@ final type (a complete JSON object), gives us a function, to which we'd need to 
 bits to get the final instance.
 
 
-```tut:silent
+```scala mdoc:silent
 import io.finch._
 import io.finch.circe._
 import io.circe.generic.auto._
@@ -108,7 +108,7 @@ Finagle is very sensitive to whether or not its worker threads are blocked. In o
 your HTTP server always makes progress (accepts new connections/requests), do not block Finch
 endpoints. Use `FuturePool`s to wrap expensive computations.
 
-```tut:silent
+```scala mdoc:silent
 import io.finch._
 import io.finch.catsEffect._
 import com.twitter.util.FuturePool
@@ -135,7 +135,7 @@ memory, CPU usage, request success rate, request latency and many more) exported
 
 Use the following template to empower your Finch application with TwitterServer.
 
-```tut:silent
+```scala mdoc:silent
 import io.finch._
 
 import com.twitter.finagle.param.Stats
@@ -169,7 +169,7 @@ better understand your application under different circumstances.
 One of the easiest things to export is a _counter_ that captures the number of times some event
 occurred.
 
-```tut:silent
+```scala mdoc:nest
 import cats.effect.IO
 import io.finch._
 import io.finch.circe._
@@ -191,7 +191,7 @@ object Main extends TwitterServer {
 It's also possible to export histograms over random values (latencies, number of active users,
 etc).
 
-```tut:silent
+```scala mdoc:nest
 import io.finch._
 import io.finch.circe._
 import io.circe.generic.auto._
@@ -245,7 +245,7 @@ useful server-side features that might be useful for most of the use cases.
  concurrent requests allowed) on it (disabled by default).
 
 
-```tut:silent
+```scala mdoc:nest
  import com.twitter.finagle.Http
  import com.twitter.finagle.http.{Request, Response}
  
