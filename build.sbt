@@ -400,6 +400,7 @@ lazy val benchmarks = project
 val validateCommands = List(
   "clean",
   "compile",
+  "scalafix --check",
   "scalafmtCheckAll",
   "test:compile",
   "coverage",
@@ -408,3 +409,5 @@ val validateCommands = List(
   "coverageAggregate"
 )
 addCommandAlias("validate", validateCommands.mkString(";", ";", ""))
+addCommandAlias("fmt", "all compile:scalafix; all test:scalafix; scalafmtAll")
+
