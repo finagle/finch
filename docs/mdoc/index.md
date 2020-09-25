@@ -11,9 +11,9 @@ returns a value of type `A`.
 
 ### Look and Feel
 
-The following example creates an HTTP server (powered by Finagle) that serves the only endpoint
-`POST /time`. This endpoint takes a `Locale` instance represented as JSON in request _body_ and
-returns a current `Time` for this locale.
+The following example creates an HTTP server (powered by Finagle) that serves two endpoints
+`POST /greet` and `GET /greet`. `POST` endpoint takes a `Person` instance represented as JSON in request _body_ and saves
+it in memory. Next `GET /greet` request would greet that person.
 
 build.sbt:
 
@@ -28,28 +28,42 @@ libraryDependencies ++= Seq(
 Main.scala:
 
 ```scala mdoc:silent
+import cats.effect._
+import cats.effect.concurrent.Ref
 import com.twitter.finagle.Http
 import com.twitter.util.Await
-import cats.effect.IO
+import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
 import io.finch.catsEffect._
-import io.circe.generic.auto._
 
-object Main extends App {
+object Main extends IOApp {
 
-  case class Locale(language: String, country: String)
-  case class Time(locale: Locale, time: String)
+  case class Person(name: String, lastName: String)
 
-  def currentTime(l: java.util.Locale): String =
-    java.util.Calendar.getInstance(l).getTime.toString
-
-  val time: Endpoint[IO, Time] =
-    post("time" :: jsonBody[Locale]) { l: Locale =>
-      Ok(Time(l, currentTime(new java.util.Locale(l.language, l.country))))
+  def setPerson(ref: Ref[IO, Person]): Endpoint[IO, Person] =
+    post("greet" :: jsonBody[Person]) { p: Person =>
+      ref.updateAndGet(_ => p).map(updated => Ok(updated))
     }
 
-  Await.ready(Http.server.serve(":8081", time.toService))
+  def greeting(ref: Ref[IO, Person]): Endpoint[IO, String] =
+    get("greet") {
+      ref.get.map { p: Person =>
+        Ok(s"Hello, ${p.name} ${p.lastName}")
+      }
+    }
+
+  def run(args:  List[String]): IO[ExitCode] = {
+    for {
+      ref <- Ref.of[IO, Person](Person("John", "Doe"))
+      endpoints = setPerson(ref) :+: greeting(ref)
+      _ <- IO {
+        Await.ready(Http.server.serve(":8081", endpoints.toService))
+      }
+    } yield {
+      ExitCode.Success
+    }
+  }
 }
 ```
 
