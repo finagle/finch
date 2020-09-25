@@ -7,8 +7,8 @@ import scala.annotation.implicitNotFound
 import shapeless._
 
 /**
- * Represents a conversion from `A` to [[Response]].
- */
+  * Represents a conversion from `A` to [[Response]].
+  */
 trait ToResponse[F[_], A] {
   type ContentType
 
@@ -37,13 +37,13 @@ trait ToResponseInstances {
   }
 
   implicit def responseToResponse[F[_], CT <: String](implicit
-    F: Applicative[F]
+      F: Applicative[F]
   ): Aux[F, Response, CT] = instance((r, _) => F.pure(r))
 
   implicit def valueToResponse[F[_], A, CT <: String](implicit
-    F: Applicative[F],
-    A: Encode.Aux[A, CT],
-    CT: Witness.Aux[CT]
+      F: Applicative[F],
+      A: Encode.Aux[A, CT],
+      CT: Witness.Aux[CT]
   ): Aux[F, A, CT] = instance { (a, cs) =>
     val buf = A(a, cs)
     val rep = Response(Version.Http11, Status.Ok)
@@ -57,9 +57,9 @@ trait ToResponseInstances {
   }
 
   implicit def streamToResponse[F[_], S[_[_], _], A, CT <: String](implicit
-    F: Functor[F],
-    S: EncodeStream.Aux[F, S, A, CT],
-    CT: Witness.Aux[CT]
+      F: Functor[F],
+      S: EncodeStream.Aux[F, S, A, CT],
+      CT: Witness.Aux[CT]
   ): Aux[F, S[F, A], CT] = instance { (a, cs) =>
     F.map(S(a, cs)) { stream =>
       val rep = Response(Version.Http11, Status.Ok, stream)
@@ -74,10 +74,10 @@ trait ToResponseInstances {
 object ToResponse extends ToResponseInstances {
 
   /**
-   * Enables server-driven content negotiation with client.
-   *
-   * Picks corresponding instance of `ToResponse` according to `Accept` header of a request
-   */
+    * Enables server-driven content negotiation with client.
+    *
+    * Picks corresponding instance of `ToResponse` according to `Accept` header of a request
+    */
   trait Negotiable[F[_], A, CT] {
     def apply(accept: List[Accept]): ToResponse.Aux[F, A, CT]
   }
@@ -85,9 +85,9 @@ object ToResponse extends ToResponseInstances {
   object Negotiable {
 
     implicit def coproductToNegotiable[F[_], A, CTH <: String, CTT <: Coproduct](implicit
-      h: ToResponse.Aux[F, A, CTH],
-      t: Negotiable[F, A, CTT],
-      a: Accept.Matcher[CTH]
+        h: ToResponse.Aux[F, A, CTH],
+        t: Negotiable[F, A, CTT],
+        a: Accept.Matcher[CTH]
     ): Negotiable[F, A, CTH :+: CTT] = new Negotiable[F, A, CTH :+: CTT] {
       def apply(accept: List[Accept]): ToResponse.Aux[F, A, CTH :+: CTT] =
         if (accept.exists(_.matches[CTH])) h.asInstanceOf[ToResponse.Aux[F, A, CTH :+: CTT]]
@@ -95,14 +95,14 @@ object ToResponse extends ToResponseInstances {
     }
 
     implicit def cnilToNegotiable[F[_], A, CTH <: String](implicit
-      tr: ToResponse.Aux[F, A, CTH]
+        tr: ToResponse.Aux[F, A, CTH]
     ): Negotiable[F, A, CTH :+: CNil] = new Negotiable[F, A, CTH :+: CNil] {
       def apply(accept: List[Accept]): ToResponse.Aux[F, A, CTH :+: CNil] =
         tr.asInstanceOf[ToResponse.Aux[F, A, CTH :+: CNil]]
     }
 
     implicit def singleToNegotiable[F[_], A, CT <: String](implicit
-      tr: ToResponse.Aux[F, A, CT]
+        tr: ToResponse.Aux[F, A, CT]
     ): Negotiable[F, A, CT] = new Negotiable[F, A, CT] {
       def apply(accept: List[Accept]): ToResponse.Aux[F, A, CT] = tr
     }
@@ -120,18 +120,19 @@ object ToResponse extends ToResponseInstances {
       }
 
     implicit def cnilToResponse[F[_], CT <: String](implicit
-      F: Applicative[F]
+        F: Applicative[F]
     ): Aux[F, CNil, CT] = instance((_, _) => F.pure(Response(Version.Http10, Status.NotFound)))
 
-    implicit def cconsToResponse[F[_], L, R <: Coproduct, CT <: String](
-      implicit trL: ToResponse.Aux[F, L, CT], fcR: Aux[F, R, CT]
+    implicit def cconsToResponse[F[_], L, R <: Coproduct, CT <: String](implicit
+        trL: ToResponse.Aux[F, L, CT],
+        fcR: Aux[F, R, CT]
     ): Aux[F, L :+: R, CT] = instance {
       case (Inl(h), cs) => trL(h, cs)
       case (Inr(t), cs) => fcR(t, cs)
     }
   }
 
-  implicit def coproductToResponse[F[_], C <: Coproduct, CT <: String](
-    implicit fc: FromCoproduct.Aux[F, C, CT]
+  implicit def coproductToResponse[F[_], C <: Coproduct, CT <: String](implicit
+      fc: FromCoproduct.Aux[F, C, CT]
   ): Aux[F, C, CT] = fc
 }

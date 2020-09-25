@@ -16,15 +16,15 @@ class InputSpec extends FinchSpec {
   it should "properly construct Inputs using factories with params for the different methods" in {
 
     def validateInput(
-      input: Input,
-      method: Method,
-      segments: Seq[String],
-      params: Map[String, String]
+        input: Input,
+        method: Method,
+        segments: Seq[String],
+        params: Map[String, String]
     ): Boolean =
       input.request.method === method &&
-      input.request.path === "/" + segments.mkString("/") &&
-      input.request.params === params &&
-      input.route === segments
+        input.request.path === "/" + segments.mkString("/") &&
+        input.request.params === params &&
+        input.route === segments
 
     check { (ps: Params, p: Path) =>
       val segments = p.p.split("/").toList.drop(1)
@@ -53,7 +53,7 @@ class InputSpec extends FinchSpec {
 
           def loop(from: List[Buf]): Future[Unit] = from match {
             case h :: t => p.write(h).before(loop(t))
-            case _ => p.close()
+            case _      => p.close()
           }
 
           loop(s)
@@ -79,7 +79,7 @@ class InputSpec extends FinchSpec {
   it should "add headers through withHeaders" in {
     check { (i: Input, hs: Headers) =>
       val hm = i.withHeaders(hs.m.toSeq: _*).request.headerMap
-      hs.m.forall { case (k, v) => hm.contains(k) && hm(k) === v}
+      hs.m.forall { case (k, v) => hm.contains(k) && hm(k) === v }
     }
   }
 

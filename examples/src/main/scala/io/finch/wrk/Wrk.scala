@@ -11,10 +11,6 @@ abstract class Wrk extends App {
   case class Payload(message: String)
 
   protected def serve(s: Service[Request, Response]): Unit = Await.ready(
-    Http.server
-      .withCompressionLevel(0)
-      .withStatsReceiver(NullStatsReceiver)
-      .withTracer(NullTracer)
-      .serve(":8081", s)
-    )
+    Http.server.withCompressionLevel(0).withStatsReceiver(NullStatsReceiver).withTracer(NullTracer).serve(":8081", s)
+  )
 }

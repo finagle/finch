@@ -6,10 +6,10 @@ import io.finch._
 import io.finch.items._
 import scala.reflect.ClassTag
 
-private[finch] abstract class Header[F[_], G[_], A](name: String)(implicit
-  d: DecodeEntity[A],
-  tag: ClassTag[A],
-  protected val F: Sync[F]
+abstract private[finch] class Header[F[_], G[_], A](name: String)(implicit
+    d: DecodeEntity[A],
+    tag: ClassTag[A],
+    protected val F: Sync[F]
 ) extends Endpoint[F, G[A]] { self =>
 
   protected def missing(name: String): F[Output[G[A]]]
@@ -19,10 +19,11 @@ private[finch] abstract class Header[F[_], G[_], A](name: String)(implicit
     val output: F[Output[G[A]]] = F.suspend {
       input.request.headerMap.getOrNull(name) match {
         case null => missing(name)
-        case value => d(value) match {
-          case Right(s) => F.pure(Output.payload(present(s)))
-          case Left(e) => F.raiseError(Error.NotParsed(items.HeaderItem(name), tag, e))
-        }
+        case value =>
+          d(value) match {
+            case Right(s) => F.pure(Output.payload(present(s)))
+            case Left(e)  => F.raiseError(Error.NotParsed(items.HeaderItem(name), tag, e))
+          }
       }
     }
 
@@ -35,7 +36,7 @@ private[finch] abstract class Header[F[_], G[_], A](name: String)(implicit
 
 private[finch] object Header {
 
-  trait Required[F[_], A] {_: Header[F, Id, A] =>
+  trait Required[F[_], A] { _: Header[F, Id, A] =>
     protected def missing(name: String): F[Output[A]] =
       F.raiseError(Error.NotPresent(items.HeaderItem(name)))
     protected def present(value: A): Id[A] = value

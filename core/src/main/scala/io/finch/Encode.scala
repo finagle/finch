@@ -5,8 +5,8 @@ import com.twitter.io.Buf
 import java.nio.charset.Charset
 
 /**
- * Encodes an HTTP payload (represented as an arbitrary type `A`) with a given [[Charset]].
- */
+  * Encodes an HTTP payload (represented as an arbitrary type `A`) with a given [[Charset]].
+  */
 trait Encode[A] {
   type ContentType <: String
 
@@ -38,10 +38,10 @@ trait LowPriorityEncodeInstances {
 
 trait HighPriorityEncodeInstances extends LowPriorityEncodeInstances {
 
-  private[this] final val anyToEmptyBuf: Aux[Any, Nothing] =
+  final private[this] val anyToEmptyBuf: Aux[Any, Nothing] =
     instance[Any, Nothing]((_, _) => Buf.Empty)
 
-  private[this] final val bufToBuf: Aux[Buf, Nothing] =
+  final private[this] val bufToBuf: Aux[Buf, Nothing] =
     instance[Buf, Nothing]((buf, _) => buf)
 
   implicit def encodeUnit[CT <: String]: Aux[Unit, CT] =
@@ -57,8 +57,8 @@ trait HighPriorityEncodeInstances extends LowPriorityEncodeInstances {
 object Encode extends HighPriorityEncodeInstances {
 
   /**
-   * Returns a [[Encode]] instance for a given type (with required content type).
-   */
+    * Returns a [[Encode]] instance for a given type (with required content type).
+    */
   @inline final def apply[A, CT <: String](implicit e: Aux[A, CT]): Aux[A, CT] = e
 
   implicit val encodeExceptionAsTextPlain: Text[Exception] =

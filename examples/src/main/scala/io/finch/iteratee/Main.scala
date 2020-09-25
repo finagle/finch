@@ -50,9 +50,8 @@ object Main extends IOApp {
 
   private def stream: Stream[Int] = Stream.continually(Random.nextInt())
 
-  val sumJson: Endpoint[IO, Result] = post("sumJson" :: jsonBodyStream[Enumerator, Number]) {
-    enum: Enumerator[IO, Number] =>
-      enum.into(Iteratee.fold[IO, Number, Result](Result(0))(_ add _)).map(Ok)
+  val sumJson: Endpoint[IO, Result] = post("sumJson" :: jsonBodyStream[Enumerator, Number]) { enum: Enumerator[IO, Number] =>
+    enum.into(Iteratee.fold[IO, Number, Result](Result(0))(_ add _)).map(Ok)
   }
 
   val streamJson: Endpoint[IO, Enumerator[IO, Number]] = get("streamJson") {
@@ -65,15 +64,11 @@ object Main extends IOApp {
     }
 
   def serve: IO[ListeningServer] = IO(
-    Http.server
-      .withStreaming(enabled = true)
-      .serve(":8081", (sumJson :+: streamJson :+: isPrime).toServiceAs[Application.Json])
+    Http.server.withStreaming(enabled = true).serve(":8081", (sumJson :+: streamJson :+: isPrime).toServiceAs[Application.Json])
   )
 
   def run(args: List[String]): IO[ExitCode] = {
-    val server = Resource.make(serve)(s =>
-      IO.suspend(implicitly[ToAsync[Future, IO]].apply(s.close()))
-    )
+    val server = Resource.make(serve)(s => IO.suspend(implicitly[ToAsync[Future, IO]].apply(s.close())))
 
     server.use(_ => IO.never).as(ExitCode.Success)
   }

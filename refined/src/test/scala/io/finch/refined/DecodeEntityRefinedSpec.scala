@@ -12,5 +12,4 @@ class DecodeEntityRefinedSpec extends FinchSpec {
   checkAll("DecodeEntity[Int Refined Positive]", DecodeEntityLaws[Int Refined Positive].all)
   checkAll("DecodeEntity[String Refined NonEmpty]", DecodeEntityLaws[String Refined NonEmpty].all)
 
-
 }

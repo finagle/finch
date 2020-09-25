@@ -71,8 +71,7 @@ val baseSettings = Seq(
   scalacOptions in(Compile, console) += "-Yrepl-class-based",
   fork in Test := true,
   javaOptions in ThisBuild ++= Seq("-Xss2048K"),
-  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary),
-  wartremoverErrors in (Compile, compile) += Wart.NonUnitStatements,
+  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary)
 )
 
 def updateVersionInFile(selectVersion: sbtrelease.Versions => String): ReleaseStep =

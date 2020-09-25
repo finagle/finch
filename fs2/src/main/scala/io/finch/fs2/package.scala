@@ -10,17 +10,12 @@ import java.nio.charset.Charset
 package object fs2 extends StreamConcurrentInstances {
 
   implicit def streamLiftReader[F[_]](implicit
-    F: Sync[F],
-    TA: ToAsync[Future, F]
+      F: Sync[F],
+      TA: ToAsync[Future, F]
   ): LiftReader[Stream, F] =
     new LiftReader[Stream, F] {
-      final def apply[A](reader: Reader[Buf], process: Buf => A): Stream[F, A] = {
-        Stream
-          .repeatEval(F.suspend(TA(reader.read())))
-          .unNoneTerminate
-          .map(process)
-          .onFinalize(F.delay(reader.discard()))
-      }
+      final def apply[A](reader: Reader[Buf], process: Buf => A): Stream[F, A] =
+        Stream.repeatEval(F.suspend(TA(reader.read()))).unNoneTerminate.map(process).onFinalize(F.delay(reader.discard()))
     }
 
   implicit def encodeBufConcurrentFs2[F[_]: ConcurrentEffect, CT <: String]: EncodeStream.Aux[F, Stream, Buf, CT] =
@@ -32,17 +27,17 @@ package object fs2 extends StreamConcurrentInstances {
 trait StreamConcurrentInstances extends StreamEffectInstances {
 
   implicit def encodeJsonConcurrentFs2Stream[F[_]: ConcurrentEffect, A](implicit
-    A: Encode.Json[A]
+      A: Encode.Json[A]
   ): EncodeStream.Json[F, Stream, A] =
     new EncodeNewLineDelimitedConcurrentFs2Stream[F, A, Application.Json]
 
   implicit def encodeSseConcurrentFs2Stream[F[_]: ConcurrentEffect, A](implicit
-    A: Encode.Aux[A, Text.EventStream]
+      A: Encode.Aux[A, Text.EventStream]
   ): EncodeStream.Aux[F, Stream, A, Text.EventStream] =
     new EncodeNewLineDelimitedConcurrentFs2Stream[F, A, Text.EventStream]
 
   implicit def encodeTextConcurrentFs2Stream[F[_]: ConcurrentEffect, A](implicit
-    A: Encode.Text[A]
+      A: Encode.Text[A]
   ): EncodeStream.Text[F, Stream, A] =
     new EncodeConcurrentFs2Stream[F, A, Text.Plain] {
       override protected def encodeChunk(chunk: A, cs: Charset): Buf = A(chunk, cs)
@@ -57,17 +52,17 @@ trait StreamConcurrentInstances extends StreamEffectInstances {
 trait StreamEffectInstances extends StreamInstances {
 
   implicit def encodeJsonEffectFs2Stream[F[_]: Effect, A](implicit
-    A: Encode.Json[A]
+      A: Encode.Json[A]
   ): EncodeStream.Json[F, Stream, A] =
     new EncodeNewLineDelimitedEffectFs2Stream[F, A, Application.Json]
 
   implicit def encodeSseEffectFs2Stream[F[_]: Effect, A](implicit
-    A: Encode.Aux[A, Text.EventStream]
+      A: Encode.Aux[A, Text.EventStream]
   ): EncodeStream.Aux[F, Stream, A, Text.EventStream] =
     new EncodeNewLineDelimitedEffectFs2Stream[F, A, Text.EventStream]
 
   implicit def encodeTextEffectFs2Stream[F[_]: Effect, A](implicit
-    A: Encode.Text[A]
+      A: Encode.Text[A]
   ): EncodeStream.Text[F, Stream, A] =
     new EncodeEffectFs2Stream[F, A, Text.Plain] {
       override protected def encodeChunk(chunk: A, cs: Charset): Buf = A(chunk, cs)
@@ -76,36 +71,37 @@ trait StreamEffectInstances extends StreamInstances {
 
 trait StreamInstances {
 
-  protected final class EncodeNewLineDelimitedConcurrentFs2Stream[F[_]: ConcurrentEffect, A, CT <: String](implicit
-    A: Encode.Aux[A, CT]
+  final protected class EncodeNewLineDelimitedConcurrentFs2Stream[F[_]: ConcurrentEffect, A, CT <: String](implicit
+      A: Encode.Aux[A, CT]
   ) extends EncodeConcurrentFs2Stream[F, A, CT] {
     protected def encodeChunk(chunk: A, cs: Charset): Buf =
       A(chunk, cs).concat(newLine(cs))
   }
 
-  protected final class EncodeNewLineDelimitedEffectFs2Stream[F[_]: Effect, A, CT <: String](implicit
-    A: Encode.Aux[A, CT]
+  final protected class EncodeNewLineDelimitedEffectFs2Stream[F[_]: Effect, A, CT <: String](implicit
+      A: Encode.Aux[A, CT]
   ) extends EncodeEffectFs2Stream[F, A, CT] {
     protected def encodeChunk(chunk: A, cs: Charset): Buf =
       A(chunk, cs).concat(newLine(cs))
   }
 
-  protected abstract class EncodeConcurrentFs2Stream[F[_], A, CT <: String](implicit
-    F: Concurrent[F],
-    TA: ToAsync[Future, F]
+  abstract protected class EncodeConcurrentFs2Stream[F[_], A, CT <: String](implicit
+      F: Concurrent[F],
+      TA: ToAsync[Future, F]
   ) extends EncodeFs2Stream[F, A, CT] {
 
     protected def dispatch(reader: Reader[Buf], run: F[Unit]): F[Reader[Buf]] =
       F.bracketCase(F.start(run))(_ => F.pure(reader)) {
         case (f, ExitCase.Canceled) => f.cancel
-        case _ => F.unit
+        case _                      => F.unit
       }
   }
 
-  protected abstract class EncodeEffectFs2Stream[F[_], A, CT <: String](implicit
-    F: Effect[F],
-    TA: ToAsync[Future, F]
-  ) extends EncodeFs2Stream[F, A, CT] with (Either[Throwable, Unit] => IO[Unit]) {
+  abstract protected class EncodeEffectFs2Stream[F[_], A, CT <: String](implicit
+      F: Effect[F],
+      TA: ToAsync[Future, F]
+  ) extends EncodeFs2Stream[F, A, CT]
+      with (Either[Throwable, Unit] => IO[Unit]) {
 
     def apply(cb: Either[Throwable, Unit]): IO[Unit] = IO.unit
 
@@ -113,9 +109,9 @@ trait StreamInstances {
       F.productR(F.runAsync(run)(this).to[F])(F.pure(reader))
   }
 
-  protected abstract class EncodeFs2Stream[F[_], A, CT <: String](implicit
-    F: Sync[F],
-    TA: ToAsync[Future, F]
+  abstract protected class EncodeFs2Stream[F[_], A, CT <: String](implicit
+      F: Sync[F],
+      TA: ToAsync[Future, F]
   ) extends EncodeStream[F, Stream, A] {
 
     type ContentType = CT
@@ -126,12 +122,7 @@ trait StreamInstances {
 
     def apply(s: Stream[F, A], cs: Charset): F[Reader[Buf]] = F.suspend {
       val p = new Pipe[Buf]
-      val run = s
-        .map(chunk => encodeChunk(chunk, cs))
-        .evalMap(chunk => TA(p.write(chunk)))
-        .onFinalize(F.suspend(TA(p.close())))
-        .compile
-        .drain
+      val run = s.map(chunk => encodeChunk(chunk, cs)).evalMap(chunk => TA(p.write(chunk))).onFinalize(F.suspend(TA(p.close()))).compile.drain
 
       dispatch(p, run)
     }

@@ -6,45 +6,45 @@ import java.nio.ByteBuffer
 import java.nio.charset.{Charset, StandardCharsets}
 
 /**
- * This package contains an internal-use only type-classes and utilities that power Finch's API.
- *
- * It's not recommended to use any of the internal API directly, since it might change without any
- * deprecation cycles.
- */
+  * This package contains an internal-use only type-classes and utilities that power Finch's API.
+  *
+  * It's not recommended to use any of the internal API directly, since it might change without any
+  * deprecation cycles.
+  */
 package object internal {
 
-  @inline private[this] final val someTrue: Option[Boolean] = Some(true)
-  @inline private[this] final val someFalse: Option[Boolean] = Some(false)
+  @inline final private[this] val someTrue: Option[Boolean] = Some(true)
+  @inline final private[this] val someFalse: Option[Boolean] = Some(false)
 
   // Missing in StandardCharsets.
   val Utf32: Charset = Charset.forName("UTF-32")
 
   /**
-   * Enriches any string with fast `tooX` conversions.
-   */
+    * Enriches any string with fast `tooX` conversions.
+    */
   implicit class TooFastString(val s: String) extends AnyVal {
 
     /**
-     * Converts this string to the optional boolean value.
-     */
+      * Converts this string to the optional boolean value.
+      */
     final def tooBoolean: Option[Boolean] = s match {
-      case "true" => someTrue
+      case "true"  => someTrue
       case "false" => someFalse
-      case _ => None
+      case _       => None
     }
 
     /**
-     * Converts this string to the optional integer value. The maximum allowed length for a number
-     * string is 32.
-     */
+      * Converts this string to the optional integer value. The maximum allowed length for a number
+      * string is 32.
+      */
     final def tooInt: Option[Int] =
       if (s.length == 0 || s.length > 32) None
       else parseInt(s)
 
     /**
-     * Converts this string to the optional long value. The maximum allowed length for a number
-     * string is 32.
-     */
+      * Converts this string to the optional long value. The maximum allowed length for a number
+      * string is 32.
+      */
     final def tooLong: Option[Long] =
       if (s.length == 0 || s.length > 32) None
       else parseLong(s)

@@ -20,7 +20,7 @@ trait DecodeStream[S[_[_], _], F[_], A] {
 object DecodeStream {
 
   @implicitNotFound(
-"""A stream* endpoint requires implicit DecodeStream instance in scope, probably streaming decoder for ${A} is missing.
+    """A stream* endpoint requires implicit DecodeStream instance in scope, probably streaming decoder for ${A} is missing.
 
   Make sure ${A} is one of the following:
 
@@ -30,18 +30,16 @@ object DecodeStream {
   Help: If you're looking for JSON stream decoding, consider to use decoder from finch-circe library
 """
   )
-  type Aux[S[_[_], _], F[_], A, CT <: String] = DecodeStream[S, F, A] {type ContentType = CT}
+  type Aux[S[_[_], _], F[_], A, CT <: String] = DecodeStream[S, F, A] { type ContentType = CT }
 
   type Json[S[_[_], _], F[_], A] = Aux[S, F, A, Application.Json]
 
-  def instance[S[_[_], _], F[_], A, CT <: String]
-  (f: (S[F, Buf], Charset) => S[F, A]): DecodeStream.Aux[S, F, A, CT] = {
+  def instance[S[_[_], _], F[_], A, CT <: String](f: (S[F, Buf], Charset) => S[F, A]): DecodeStream.Aux[S, F, A, CT] =
     new DecodeStream[S, F, A] {
       type ContentType = CT
 
       def apply(stream: S[F, Buf], cs: Charset): S[F, A] = f(stream, cs)
 
     }
-  }
 
 }

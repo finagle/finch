@@ -32,14 +32,14 @@ object Main extends App with Endpoint.Module[IO] {
   val auth: Endpoint.Compiled[IO] => Endpoint.Compiled[IO] = compiled => {
     Endpoint.Compiled[IO] {
       case req if req.authorization.contains("secret") => compiled(req)
-      case _ => IO.pure(Trace.empty -> Right(Response(Status.Unauthorized)))
+      case _                                           => IO.pure(Trace.empty -> Right(Response(Status.Unauthorized)))
     }
   }
 
   val logging: Endpoint.Compiled[IO] => Endpoint.Compiled[IO] = compiled => {
-    compiled.tapWithF((req, res) => {
+    compiled.tapWithF { (req, res) =>
       IO(print(s"Request: $req\n")) *> IO(print(s"Response: $res\n")) *> IO.pure(res)
-    })
+    }
   }
 
   val stats: Endpoint.Compiled[IO] => Endpoint.Compiled[IO] = compiled => {
@@ -51,9 +51,7 @@ object Main extends App with Endpoint.Module[IO] {
         (trace, response) = traceAndResponse
         stop <- now
         _ <- IO(print(s"Response time: ${stop.diff(start)}. Trace: $trace\n"))
-      } yield {
-        (trace, response)
-      }
+      } yield (trace, response)
     }
   }
 

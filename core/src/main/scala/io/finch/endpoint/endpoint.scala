@@ -10,8 +10,9 @@ import shapeless.HNil
 
 package object endpoint {
 
-  private[finch] class FromInputStream[F[_]](stream: Resource[F, InputStream])(
-    implicit F: Sync[F], S: ContextShift[F]
+  private[finch] class FromInputStream[F[_]](stream: Resource[F, InputStream])(implicit
+      F: Sync[F],
+      S: ContextShift[F]
   ) extends Endpoint[F, Buf] {
 
     private def readLoop(left: Buf, stream: InputStream): F[Buf] = F.suspend {
@@ -25,9 +26,7 @@ package object endpoint {
       EndpointResult.Matched(
         input,
         Trace.empty,
-        stream.use(s =>
-          S.shift.flatMap(_ => readLoop(Buf.Empty, s)).map(buf => Output.payload(buf))
-        )
+        stream.use(s => S.shift.flatMap(_ => readLoop(Buf.Empty, s)).map(buf => Output.payload(buf)))
       )
   }
 

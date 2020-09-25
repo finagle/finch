@@ -4,21 +4,21 @@ import shapeless.{::, DepFn2, HNil}
 import shapeless.ops.adjoin.Adjoin
 
 /**
- * We need a version of [[shapeless.ops.adjoin.Adjoin]] that provides slightly different behavior in
- * the case of singleton results (we simply return the value, not a singleton `HList`).
- * @groupname LowPriorityPair Low priority `PairAdjoin`
- * @groupprio LowPriorityPair 0
- */
+  * We need a version of [[shapeless.ops.adjoin.Adjoin]] that provides slightly different behavior in
+  * the case of singleton results (we simply return the value, not a singleton `HList`).
+  * @groupname LowPriorityPair Low priority `PairAdjoin`
+  * @groupprio LowPriorityPair 0
+  */
 trait PairAdjoin[A, B] extends DepFn2[A, B]
 
 private[finch] trait LowPriorityPairAdjoin {
   type Aux[A, B, Out0] = PairAdjoin[A, B] { type Out = Out0 }
 
   /**
-   * @group LowPriorityPair
-   */
+    * @group LowPriorityPair
+    */
   implicit def pairAdjoin[A, B, Out0](implicit
-    adjoin: Adjoin.Aux[A :: B :: HNil, Out0]
+      adjoin: Adjoin.Aux[A :: B :: HNil, Out0]
   ): Aux[A, B, Out0] =
     new PairAdjoin[A, B] {
       type Out = Out0
@@ -29,7 +29,7 @@ private[finch] trait LowPriorityPairAdjoin {
 
 object PairAdjoin extends LowPriorityPairAdjoin {
   implicit def singletonPairAdjoin[A, B, C](implicit
-    adjoin: Adjoin.Aux[A :: B :: HNil, C :: HNil]
+      adjoin: Adjoin.Aux[A :: B :: HNil, C :: HNil]
   ): Aux[A, B, C] = new PairAdjoin[A, B] {
     type Out = C
 

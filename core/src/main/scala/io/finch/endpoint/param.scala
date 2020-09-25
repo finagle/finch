@@ -6,10 +6,10 @@ import cats.effect.Sync
 import io.finch._
 import scala.reflect.ClassTag
 
-private[finch] abstract class Param[F[_], G[_], A](name: String)(implicit
-  d: DecodeEntity[A],
-  tag: ClassTag[A],
-  protected val F: Sync[F]
+abstract private[finch] class Param[F[_], G[_], A](name: String)(implicit
+    d: DecodeEntity[A],
+    tag: ClassTag[A],
+    protected val F: Sync[F]
 ) extends Endpoint[F, G[A]] { self =>
 
   protected def missing(name: String): F[Output[G[A]]]
@@ -19,10 +19,11 @@ private[finch] abstract class Param[F[_], G[_], A](name: String)(implicit
     val output: F[Output[G[A]]] = F.suspend {
       input.request.params.get(name) match {
         case None => missing(name)
-        case Some(value) => d(value) match {
-          case Right(s) => F.pure(Output.payload(present(s)))
-          case Left(e) => F.raiseError(Error.NotParsed(items.ParamItem(name), tag, e))
-        }
+        case Some(value) =>
+          d(value) match {
+            case Right(s) => F.pure(Output.payload(present(s)))
+            case Left(e)  => F.raiseError(Error.NotParsed(items.ParamItem(name), tag, e))
+          }
       }
     }
 
@@ -47,10 +48,10 @@ private[finch] object Param {
   }
 }
 
-private[finch] abstract class Params[F[_], G[_], A](name: String)(implicit
-  d: DecodeEntity[A],
-  tag: ClassTag[A],
-  protected val F: Sync[F]
+abstract private[finch] class Params[F[_], G[_], A](name: String)(implicit
+    d: DecodeEntity[A],
+    tag: ClassTag[A],
+    protected val F: Sync[F]
 ) extends Endpoint[F, G[A]] {
 
   protected def missing(name: String): F[Output[G[A]]]

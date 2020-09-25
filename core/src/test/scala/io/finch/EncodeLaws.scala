@@ -20,7 +20,7 @@ trait EncodeLaws[A, CT <: String] extends Laws with MissingInstances with AllIns
     new DefaultRuleSet(
       name = "all",
       parent = None,
-      "roundTrip" -> Prop.forAll { (a: A, cs: Charset) => roundTrip(a, cs) }
+      "roundTrip" -> Prop.forAll((a: A, cs: Charset) => roundTrip(a, cs))
     )
 }
 

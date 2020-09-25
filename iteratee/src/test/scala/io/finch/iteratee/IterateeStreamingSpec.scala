@@ -8,9 +8,12 @@ import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 class IterateeStreamingSpec extends FinchSpec with ScalaCheckDrivenPropertyChecks {
 
-  checkAll("Iteratee.streamBody", StreamingLaws[Enumerator, IO](
-    Enumerator.enumList,
-    _.map(array => Buf.ByteArray.Owned(array)).toVector.unsafeRunSync().toList
-  ).all)
+  checkAll(
+    "Iteratee.streamBody",
+    StreamingLaws[Enumerator, IO](
+      Enumerator.enumList,
+      _.map(array => Buf.ByteArray.Owned(array)).toVector.unsafeRunSync().toList
+    ).all
+  )
 
 }

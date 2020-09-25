@@ -102,7 +102,7 @@ class OutputSpec extends FinchSpec {
     check { e: Output.Empty =>
       Try(e.value) match {
         case Failure(f) => f.getMessage === "empty output"
-        case _ => false
+        case _          => false
       }
     }
   }
@@ -111,7 +111,7 @@ class OutputSpec extends FinchSpec {
     check { f: Output.Failure =>
       Try(f.value) match {
         case Failure(ex) => ex.getMessage === f.cause.getMessage
-        case _ => false
+        case _           => false
       }
     }
   }

@@ -19,7 +19,7 @@ object ToAsync {
       Async[E].async { cb =>
         a.respond {
           case Return(r) => cb(Right(r))
-          case Throw(t) => cb(Left(t))
+          case Throw(t)  => cb(Left(t))
         }
       }
   }
