@@ -3,21 +3,21 @@ import microsites.ExtraMdFileConfig
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  scalaVersion := "2.12.7",
-  crossScalaVersions := Seq("2.12.7", "2.13.1")
+  scalaVersion := "2.12.12",
+  crossScalaVersions := Seq("2.12.12", "2.13.3")
 )
 
-lazy val twitterVersion = "20.7.0"
+lazy val twitterVersion = "20.9.0"
 lazy val circeVersion = "0.13.0"
 lazy val circeIterateeVersion = "0.13.0-M2"
 lazy val circeFs2Version = "0.13.0"
 lazy val shapelessVersion = "2.3.3"
-lazy val catsVersion = "2.1.1"
-lazy val argonautVersion = "6.2.4"
+lazy val catsVersion = "2.2.0"
+lazy val argonautVersion = "6.3.1"
 lazy val iterateeVersion = "0.19.0"
-lazy val refinedVersion = "0.9.15"
-lazy val catsEffectVersion = "2.1.4"
-lazy val fs2Version =  "2.4.2"
+lazy val refinedVersion = "0.9.16"
+lazy val catsEffectVersion = "2.2.0"
+lazy val fs2Version =  "2.4.4"
 
 def compilerOptions(scalaVersion: String) = Seq(
   "-deprecation",
@@ -46,10 +46,10 @@ lazy val scala213CompilerOptions = Seq(
 )
 
 val testDependencies = Seq(
-  "org.scalacheck" %% "scalacheck" % "1.14.2",
-  "org.scalatest" %% "scalatest" % "3.1.2",
+  "org.scalacheck" %% "scalacheck" % "1.14.3",
+  "org.scalatest" %% "scalatest" % "3.2.2",
   "org.typelevel" %% "cats-laws" % catsVersion,
-  "org.typelevel" %% "discipline-scalatest" % "1.0.0"
+  "org.typelevel" %% "discipline-scalatest" % "2.0.1"
 )
 
 val baseSettings = Seq(
@@ -395,8 +395,6 @@ lazy val benchmarks = project
 
 val validateCommands = List(
   "clean",
-  "scalastyle",
-  "test:scalastyle",
   "compile",
   "test:compile",
   "coverage",

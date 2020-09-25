@@ -8,10 +8,11 @@ import java.nio.charset.{Charset, StandardCharsets}
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Gen.Choose
 import org.scalacheck.Prop.propBoolean
-import org.scalatest.{FlatSpec, Matchers}
 import org.scalatestplus.scalacheck.Checkers
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class ServerSentEventSpec extends FlatSpec with Matchers with Checkers {
+class ServerSentEventSpec extends AnyFlatSpec with Matchers with Checkers {
 
   behavior of "ServerSentEvent"
 
