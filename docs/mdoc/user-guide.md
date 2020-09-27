@@ -162,9 +162,18 @@ requested type:
 - `path[Boolean]: Endpoint[Boolean]`
 - `path[UUID]: Endpoint[java.lang.UUID]`
 
-Each extracting endpoint has a corresponding _tail extracting_ endpoints.
+For example,
+```scala mdoc
+import io.finch._, io.finch.catsEffect._
 
-There are also tail extracting endpoints available out of the box. For example, the `strings`
+val intEndpoint = path[Int]
+
+intEndpoint(Input.get("/foo")).isMatched
+
+intEndpoint(Input.get("/123")).isMatched
+```
+
+Each extracting endpoint has a corresponding _tail extracting_ endpoints available out of the box. For example, the `paths[String]`
 endpoint has type `Endpoint[Seq[String]]` and extracts the rest of the path in the input.
 
 By default, extractors are named after their types, i.e., `"path[String]"`, `"path[Boolean]"`, etc.
@@ -207,8 +216,19 @@ Finch provides the following instances for reading HTTP params (evaluating endpo
 - `param("foo")` - required param "foo"
 - `paramOption("foo")` - optional param "foo"
 - `params("foos")` - multi-value param "foos" that might return an empty sequence
-- `paramsNel("foos")` - multi-value param "foos" that return `cats.data.NonEmptyList` or a failed
-  `Future`
+- `paramsNel("foos")` - required multi-value param "foos" as `cats.data.NonEmptyList`
+
+Note that an endpoint with a required parameter still matches an input without it. For example:
+
+```scala mdoc
+import io.finch._, io.finch.catsEffect._
+
+val paramEndpoint = param[String]("foo")
+
+paramEndpoint(Input.get("/")).isMatched
+
+paramEndpoint(Input.get("/")).awaitValueUnsafe()
+```
 
 #### Headers
 
@@ -319,10 +339,10 @@ a corresponding implicit instance of `EncodeResponse` in the scope.
 ### Mapping Endpoints
 
 A business logic in Finch is represented as an endpoint _transformation_ in a form of either
-`A => Future[Output[B]]` or `A => Output[B]`. An endpoint is enriched with lightweight syntax
+`A => F[Output[B]]` or `A => Output[B]`. An endpoint is enriched with lightweight syntax
 allowing us to use the same method for both transformations: the `Endpoint.apply` method takes
 care of applying the given function to the underlying `HList` with appropriate arity as well as
-wrapping the right hand side `Output[B]` into a `Future`.
+wrapping the right hand side `Output[B]` into an `F` (or for example, `Future`).
 
 In the following example, an `Endpoint[Int :: Int :: HNil]` is mapped to a function
 `(Int, Int) => Output[Int]`.
@@ -346,12 +366,12 @@ case class Bar(i: Int, s: String)
 val bar = (path[Int] :: path[String]).as[Bar]
 ```
 
-It's also possible to be explicit and use one of the `map*` methods defined on `Endpoint[A]`:
+It's also possible to be explicit and use one of the `map*` methods defined on `Endpoint[F[_], A]`:
 
-- `map[B](fn: A => B): Endpoint[B]`
-- `mapAsync[B](fn: A => Future[B]): Endpoint[B]`
-- `mapOutput[B](fn: A => Output[B]): Endpoint[B]`
-- `mapOutputAsync[B](fn: A => Future[Output[B]]): Endpoint[B]`
+- `map[B](fn: A => B): Endpoint[F, B]`
+- `mapAsync[B](fn: A => F[B]): Endpoint[F, B]`
+- `mapOutput[B](fn: A => Output[B]): Endpoint[F, B]`
+- `mapOutputAsync[B](fn: A => F[Output[B]]): Endpoint[F, B]`
 
 ### Outputs
 
@@ -404,7 +424,7 @@ any other of JSON library supported).
 
 Finch brings HTTP `Content-Type` to the type-level as a singleton string (i.e., `CT <: String`) to
 make it affect implicit resolution and make sure that the right encoder/decoder will be picked by a
-compiler. This is done lift the following kind of errors at compile time:
+compiler. This is done by lifting the following kind of errors at compile time:
 
  - a `Text.Plain` service won't compile when only Circe's JSON encoders are available in the scope
  - an `Application.Json` body endpoint won't compile when no JSON library support is imported
@@ -756,7 +776,7 @@ or `beShorterThan(n: Int)`.
 
 ### Errors
 
-An endpoint may fail (it may evaluate into a `Future.exception`) by a number of reasons: it was
+An endpoint may fail (it may evaluate into a `F[Throwable]`) by a number of reasons: it was
 transformed/mapped to one that fails; it's an evaluating endpoint that fails if the incoming request
 doesn't satisfy some condition (e.g., should have a query string param `foo`).
 
@@ -787,11 +807,10 @@ accumulate.
 
 #### Error Handling
 
-By analogy with `com.twitter.util.Future` API it's possible to _handle_ the failed future in the
-endpoint using the similarly named methods:
+It's possible to _handle_ the error from the endpoint using these methods:
 
-- `Endpoint[A].handle[B >: A](Throwable => Output[B]): Endpoint[B]`
-- `Endpoint[A].rescue[B >: A](Throwable => Future[Output[B]]): Endpoint[B]`
+- `Endpoint[F[_], A].handle[B >: A](Throwable => Output[B]): Endpoint[F, B]`
+- `Endpoint[F[_], A].rescue[B >: A](Throwable => F[Output[B]]): Endpoint[F, B]`
 
 The following example handles the `ArithmeticException` propagated from `a / b`.
 
