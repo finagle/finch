@@ -263,11 +263,6 @@ bodies in a single step.
 - `jsonBody(Option)[A]` - an alias for `body[A, Application.Json]`.
 - `textBody(Option)[A]` - an alias for `body[A, Text.Plain]`
 
-Chunked bodies:
-
-- `asyncBody` - chunked/streamed (only matches chunked requests) body represented as an
-  `AsyncStream[Buf]`.
-
 #### Multipart
 
 Finch supports reading file uploads and attributes from the `multipart/form-data` HTTP bodies with
