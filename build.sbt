@@ -7,7 +7,7 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.12.12", "2.13.3")
 )
 
-lazy val twitterVersion = "20.9.0"
+lazy val twitterVersion = "20.10.0"
 lazy val circeVersion = "0.13.0"
 lazy val circeIterateeVersion = "0.13.0-M2"
 lazy val circeFs2Version = "0.13.0"
