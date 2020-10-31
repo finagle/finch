@@ -46,7 +46,7 @@ lazy val scala213CompilerOptions = Seq(
 )
 
 val testDependencies = Seq(
-  "org.scalacheck" %% "scalacheck" % "1.14.3",
+  "org.scalacheck" %% "scalacheck" % "1.15.0",
   "org.scalatest" %% "scalatest" % "3.2.2",
   "org.typelevel" %% "cats-laws" % catsVersion,
   "org.typelevel" %% "discipline-scalatest" % "2.0.1"
