@@ -3,61 +3,53 @@ import microsites.ExtraMdFileConfig
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  scalaVersion := "2.12.12",
-  crossScalaVersions := Seq("2.12.12", "2.13.3")
+  scalaVersion := "3.0.2",
+  crossScalaVersions := Seq("3.0.2", "2.13.3")
 )
 
-lazy val twitterVersion = "20.9.0"
-lazy val circeVersion = "0.13.0"
-lazy val circeIterateeVersion = "0.13.0-M2"
-lazy val circeFs2Version = "0.13.0"
-lazy val shapelessVersion = "2.3.3"
-lazy val catsVersion = "2.2.0"
-lazy val argonautVersion = "6.3.1"
-lazy val iterateeVersion = "0.19.0"
-lazy val refinedVersion = "0.9.17"
-lazy val catsEffectVersion = "2.2.0"
-lazy val fs2Version = "2.4.4"
+lazy val twitterVersion = "21.6.0"
+lazy val circeVersion = "0.14.1"
+lazy val circeFs2Version = "0.14.0"
+lazy val shapelessVersion = "2.3.7"
+lazy val catsVersion = "2.6.1"
+lazy val argonautVersion = "6.3.6"
+lazy val refinedVersion = "0.9.27"
+lazy val catsEffectVersion = "2.5.3"
+lazy val fs2Version = "2.5.9"
 
-def compilerOptions(scalaVersion: String): Seq[String] = Seq(
-  "-deprecation",
-  "-encoding", "UTF-8",
-  "-feature",
-  "-language:existentials",
-  "-language:higherKinds",
-  "-language:implicitConversions",
-  "-unchecked",
-  "-Ywarn-dead-code",
-  "-Ywarn-numeric-widen",
-  "-Xlint"
-) ++ (CrossVersion.partialVersion(scalaVersion) match {
-  case Some((2, scalaMajor)) if scalaMajor == 12 => scala212CompilerOptions
-  case Some((2, scalaMajor)) if scalaMajor == 13 => scala213CompilerOptions
-})
-
-lazy val scala212CompilerOptions = Seq(
-  "-Yno-adapted-args",
-  "-Ywarn-unused-import",
-  "-Xfuture"
-)
-
-lazy val scala213CompilerOptions = Seq(
-  "-Wunused:imports"
-)
+def compilerOptions(scalaVersion: String): Seq[String] = CrossVersion.partialVersion(scalaVersion) match {
+  case Some((2, _)) =>
+    Seq(
+      "-deprecation",
+      "-encoding", "UTF-8",
+      "-feature",
+      "-language:existentials",
+      "-language:higherKinds",
+      "-language:implicitConversions",
+      "-unchecked",
+      "-Ywarn-dead-code",
+      "-Ywarn-numeric-widen",
+      "-Xlint",
+      "-Wunused:imports"
+    )
+  case Some((3, _)) =>
+    Seq("-Ykind-projector:underscores")
+  case _ => Seq()
+}
 
 val testDependencies = Seq(
-  "org.scalacheck" %% "scalacheck" % "1.14.3",
-  "org.scalatest" %% "scalatest" % "3.2.2",
+  "org.scalacheck" %% "scalacheck" % "1.15.4",
+  "org.scalatest" %% "scalatest" % "3.2.9",
+  "org.scalatestplus" %% "scalacheck-1-15" % "3.2.9.0",
   "org.typelevel" %% "cats-laws" % catsVersion,
-  "org.typelevel" %% "discipline-scalatest" % "2.0.1"
+  //"org.typelevel" %% "discipline-scalatest" % "2.0.1"
 )
 
 val baseSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.chuusai" %% "shapeless" % shapelessVersion,
+    "com.chuusai" %% "shapeless" % shapelessVersion cross CrossVersion.for3Use2_13,
     "org.typelevel" %% "cats-core" % catsVersion,
-    "com.twitter" %% "finagle-http" % twitterVersion,
-    scalaOrganization.value % "scala-reflect" % scalaVersion.value,
+    "com.twitter" %% "finagle-http" % twitterVersion cross CrossVersion.for3Use2_13,
     "org.typelevel" %% "cats-effect" % catsEffectVersion
   ) ++ testDependencies.map(_ % "test"),
   resolvers ++= Seq(
@@ -65,14 +57,14 @@ val baseSettings = Seq(
     Resolver.sonatypeRepo("snapshots")
   ),
   scalacOptions ++= compilerOptions(scalaVersion.value),
-  scalacOptions in(Compile, console) ~= {
+  /*scalacOptions in(Compile, console) ~= {
     _.filterNot(Set("-Ywarn-unused-import"))
   },
-  scalacOptions in(Compile, console) += "-Yrepl-class-based",
-  fork in Test := true,
-  javaOptions in ThisBuild ++= Seq("-Xss2048K"),
-  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary),
-  ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.2",
+  scalacOptions in(Compile, console) += "-Yrepl-class-based",*/
+  Test / fork := true,
+  ThisBuild / javaOptions ++= Seq("-Xss2048K"),
+  //addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary),
+  ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0",
   semanticdbEnabled := true,
   semanticdbVersion := scalafixSemanticdb.revision
 )
@@ -115,7 +107,7 @@ lazy val publishSettings = Seq(
     else
       Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
-  publishArtifact in Test := false,
+  Test / publishArtifact := false,
   pgpSecretRing := file("local.secring.gpg"),
   pgpPublicRing := file("local.pubring.gpg"),
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
@@ -181,53 +173,12 @@ lazy val noPublish = Seq(
 
 lazy val allSettings = baseSettings ++ buildSettings ++ publishSettings
 
-lazy val docSettings = allSettings ++ Seq(
-  micrositeName := "Finch",
-  micrositeDescription := "Scala combinator library for building Finagle HTTP services",
-  micrositeAuthor := "Vladimir Kostyukov",
-  micrositeCompilingDocsTool := WithMdoc,
-  mdocIn := baseDirectory.value / "mdoc",
-  micrositeHighlightTheme := "atom-one-light",
-  micrositeHomepage := "https://finagle.github.io/finch/",
-  micrositeDocumentationUrl := "api",
-  micrositeGithubOwner := "finagle",
-  micrositeGithubRepo := "finch",
-  micrositeBaseUrl := "finch",
-  micrositeExtraMdFiles := Map(file("CONTRIBUTING.md") -> ExtraMdFileConfig("contributing.md", "docs")),
-  micrositePalette := Map(
-    "brand-primary" -> "#3b3c3b",
-    "brand-secondary" -> "#4c4d4c",
-    "brand-tertiary" -> "#5d5e5d",
-    "gray-dark" -> "#48494B",
-    "gray" -> "#7D7E7D",
-    "gray-light" -> "#E5E6E5",
-    "gray-lighter" -> "#F4F3F4",
-    "white-color" -> "#FFFFFF"),
-  addMappingsToSiteDir(mappings in(ScalaUnidoc, packageDoc), micrositeDocumentationUrl),
-  ghpagesNoJekyll := false,
-  scalacOptions in(ScalaUnidoc, unidoc) ++= Seq(
-    "-groups",
-    "-implicits",
-    "-skip-packages", "scalaz",
-    "-doc-source-url", scmInfo.value.get.browseUrl + "/tree/master€{FILE_PATH}.scala",
-    "-sourcepath", baseDirectory.in(LocalRootProject).value.getAbsolutePath,
-    "-doc-root-content", (resourceDirectory.in(Compile).value / "rootdoc.txt").getAbsolutePath
-  ),
-  scalacOptions ~= {
-    _.filterNot(Set("-Yno-predef", "-Xlint", "-Ywarn-unused-import"))
-  },
-  git.remoteRepo := "git@github.com:finagle/finch.git",
-  unidocProjectFilter in(ScalaUnidoc, unidoc) := inAnyProject -- inProjects(benchmarks, jsonTest),
-  includeFilter in makeSite := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.svg" | "*.js" | "*.swf" | "*.yml" | "*.md",
-  siteSubdirName in ScalaUnidoc := "docs"
-)
-
 lazy val finch = project.in(file("."))
   .settings(moduleName := "finch")
   .settings(allSettings)
   .settings(noPublish)
   .settings(
-    initialCommands in console :=
+    initialCommands / console :=
       """
         |import io.finch._
         |import io.finch.circe._
@@ -248,23 +199,13 @@ lazy val finch = project.in(file("."))
     "io.circe" %% "circe-generic" % circeVersion
   ))
   .aggregate(
-    core, fs2, iteratee, generic, argonaut, circe, benchmarks, test, jsonTest, examples, refined
+    core, fs2, generic, argonaut, circe, benchmarks, test, jsonTest, examples, refined
   )
-  .dependsOn(core, iteratee, generic, circe)
+  .dependsOn(core, generic, circe)
 
 lazy val core = project
   .settings(moduleName := "finchx-core")
   .settings(allSettings)
-
-lazy val iteratee = project
-  .settings(moduleName := "finchx-iteratee")
-  .settings(allSettings)
-  .settings(
-    libraryDependencies ++= Seq(
-      "io.iteratee" %% "iteratee-core" % iterateeVersion
-    )
-  )
-  .dependsOn(core % "compile->compile;test->test")
 
 lazy val fs2 = project
   .settings(moduleName := "finchx-fs2")
@@ -295,11 +236,10 @@ lazy val jsonTest = project.in(file("json-test"))
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % circeVersion,
-      "io.circe" %% "circe-jawn" % circeVersion,
-      "io.circe" %% "circe-iteratee" % circeIterateeVersion
+      "io.circe" %% "circe-jawn" % circeVersion
     ) ++ testDependencies
   )
-  .dependsOn(core, iteratee)
+  .dependsOn(core)
 
 lazy val argonaut = project
   .settings(moduleName := "finchx-argonaut")
@@ -315,8 +255,7 @@ lazy val circe = project
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % circeVersion,
-      "io.circe" %% "circe-iteratee" % circeIterateeVersion,
-      "io.circe" %% "circe-fs2" % circeFs2Version,
+      //"io.circe" %% "circe-fs2" % circeFs2Version,
       "io.circe" %% "circe-jawn" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion % "test"
     )
@@ -328,27 +267,10 @@ lazy val refined = project
   .settings(allSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "eu.timepit" %% "refined" % refinedVersion,
-      "eu.timepit" %% "refined-cats" % refinedVersion % "test",
-      "eu.timepit" %% "refined-scalacheck" % refinedVersion % "test"
+      "eu.timepit" %% "refined" % refinedVersion
     )
   )
   .dependsOn(core % "test->test;compile->compile")
-
-lazy val docs = project
-  .settings(moduleName := "finchx-docs")
-  .settings(docSettings)
-  .settings(noPublish)
-  .settings(
-    libraryDependencies ++= Seq(
-      "io.circe" %% "circe-generic" % circeVersion,
-      "com.twitter" %% "twitter-server" % twitterVersion,
-      "joda-time" % "joda-time" % "2.9.9",
-      "org.mockito" % "mockito-all" % "1.10.19"
-    )
-  )
-  .enablePlugins(MicrositesPlugin, ScalaUnidocPlugin)
-  .dependsOn(core, circe, argonaut, iteratee, refined, fs2)
 
 lazy val examples = project
   .settings(moduleName := "finchx-examples")
@@ -365,11 +287,11 @@ lazy val examples = project
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-generic" % circeVersion,
-      "com.twitter" %% "finagle-stats" % twitterVersion,
-      "com.twitter" %% "twitter-server" % twitterVersion
+      "com.twitter" %% "finagle-stats" % twitterVersion cross CrossVersion.for3Use2_13,
+      "com.twitter" %% "twitter-server" % twitterVersion cross CrossVersion.for3Use2_13
     )
   )
-  .dependsOn(core, circe, iteratee)
+  .dependsOn(core, circe)
 
 lazy val benchmarks = project
   .settings(moduleName := "finchx-benchmarks")
@@ -379,7 +301,7 @@ lazy val benchmarks = project
   .settings(libraryDependencies += "io.circe" %% "circe-generic" % circeVersion)
   .settings(coverageExcludedPackages := "io\\.finch\\..*;")
   .settings(
-    javaOptions in run ++= Seq(
+    run / javaOptions ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
       "-XX:+AggressiveOpts",
       "-XX:+UseParNewGC",

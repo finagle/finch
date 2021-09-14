@@ -16,7 +16,7 @@ class EndToEndSpec extends FinchSpec {
     Application.Javascript :+: Application.OctetStream :+: Application.RssXml :+:
     Application.WwwFormUrlencoded :+: Application.Xml :+: Text.Plain :+: Text.Html :+: Text.EventStream :+: CNil
 
-  implicit private def encodeHNil[CT <: String]: Encode.Aux[HNil, CT] = Encode.instance((_, _) => Buf.Utf8("hnil"))
+  implicit private def encodeEmptyTuple[CT <: String]: Encode.Aux[EmptyTuple, CT] = Encode.instance((_, _) => Buf.Utf8("hnil"))
 
   private val allContentTypes = Seq(
     "application/json",
@@ -37,10 +37,10 @@ class EndToEndSpec extends FinchSpec {
       Encode.text((_, cs) => Buf.ByteArray.Owned("ERR!".getBytes(cs.name)))
 
     val service: Service[Request, Response] = (
-      get("foo" :: path[String]) { s: String => Ok(Foo(s)) } :+:
+      get("foo" :: path[String])((s: String) => Ok(Foo(s))) :+:
         get("bar")(Created("bar")) :+:
         get("baz")(BadRequest(new IllegalArgumentException("foo")): Output[Unit]) :+:
-        get("qux" :: param[Foo]("foo")) { f: Foo => Created(f) }
+        get("qux" :: param[Foo]("foo"))((f: Foo) => Created(f))
     ).toServiceAs[Text.Plain]
 
     val rep1 = Await.result(service(Request("/foo/bar")))
@@ -70,7 +70,7 @@ class EndToEndSpec extends FinchSpec {
   }
 
   it should "ignore Accept header when single type is used for serve" in {
-    check { req: Request =>
+    check { (req: Request) =>
       val s = Bootstrap.serve[Text.Plain](pathAny).toService
       val rep = Await.result(s(req))
 
@@ -79,7 +79,7 @@ class EndToEndSpec extends FinchSpec {
   }
 
   it should "respect Accept header when coproduct type is used for serve" in {
-    check { req: Request =>
+    check { (req: Request) =>
       val s = Bootstrap.serve[AllContentTypes](pathAny).toService
       val rep = Await.result(s(req))
 
@@ -104,7 +104,7 @@ class EndToEndSpec extends FinchSpec {
   }
 
   it should "select last encoder when Accept header is missing/empty" in {
-    check { req: Request =>
+    check { (req: Request) =>
       req.headerMap.remove(Fields.Accept)
       val s = Bootstrap.serve[AllContentTypes](pathAny).toService
       val rep = Await.result(s(req))

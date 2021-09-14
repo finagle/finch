@@ -5,12 +5,11 @@ import java.nio.charset.Charset
 import scala.util.control.NoStackTrace
 
 import com.twitter.io.Buf
-import shapeless.{:+:, CNil, Coproduct, Witness}
+import shapeless.{:+:, CNil, Coproduct}
 
 /**
-  * Decodes an HTTP payload represented as [[Buf]] (encoded with [[Charset]]) into
-  * an arbitrary type `A`.
-  */
+ * Decodes an HTTP payload represented as [[Buf]] (encoded with [[Charset]]) into an arbitrary type `A`.
+ */
 trait Decode[A] {
   type ContentType <: String
 
@@ -20,9 +19,8 @@ trait Decode[A] {
 object Decode {
 
   /**
-    * Indicates that a payload can not be decoded with a given [[Decode]] instance (or a coproduct
-    * of instances).
-    */
+   * Indicates that a payload can not be decoded with a given [[Decode]] instance (or a coproduct of instances).
+   */
   object UnsupportedMediaTypeException extends Exception with NoStackTrace
 
   type Aux[A, CT <: String] = Decode[A] { type ContentType = CT }
@@ -31,8 +29,8 @@ object Decode {
   type Text[A] = Aux[A, Text.Plain]
 
   /**
-    * Creates an instance for a given type.
-    */
+   * Creates an instance for a given type.
+   */
   def instance[A, CT <: String](fn: (Buf, Charset) => Either[Throwable, A]): Aux[A, CT] = new Decode[A] {
     type ContentType = CT
     def apply(b: Buf, cs: Charset): Either[Throwable, A] = fn(b, cs)
@@ -45,14 +43,13 @@ object Decode {
     instance[A, Text.Plain](fn)
 
   /**
-    * Returns a [[Decode]] instance for a given type (with required content type).
-    */
+   * Returns a [[Decode]] instance for a given type (with required content type).
+   */
   @inline def apply[A, CT <: String](implicit d: Aux[A, CT]): Aux[A, CT] = d
 
   /**
-    * Abstracting over [[Decode]] to select a correct decoder according to the `Content-Type` header
-    * value.
-    */
+   * Abstracting over [[Decode]] to select a correct decoder according to the `Content-Type` header value.
+   */
   trait Dispatchable[A, CT] {
     def apply(ct: String, b: Buf, cs: Charset): Either[Throwable, A]
   }
@@ -66,17 +63,17 @@ object Decode {
 
     implicit def coproductToDispatchable[A, CTH <: String, CTT <: Coproduct](implicit
         decode: Decode.Aux[A, CTH],
-        witness: Witness.Aux[CTH],
+        witness: ValueOf[CTH],
         tail: Dispatchable[A, CTT]
     ): Dispatchable[A, CTH :+: CTT] = new Dispatchable[A, CTH :+: CTT] {
       def apply(ct: String, b: Buf, cs: Charset): Either[Throwable, A] =
-        if (ct.equalsIgnoreCase(witness.value)) decode(b, cs)
+        if ct.equalsIgnoreCase(witness.value) then decode(b, cs)
         else tail(ct, b, cs)
     }
 
     implicit def singleToDispatchable[A, CT <: String](implicit
         decode: Decode.Aux[A, CT],
-        witness: Witness.Aux[CT]
+        witness: ValueOf[CT]
     ): Dispatchable[A, CT] = coproductToDispatchable[A, CT, CNil].asInstanceOf[Dispatchable[A, CT]]
   }
 }

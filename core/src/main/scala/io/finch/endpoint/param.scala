@@ -17,7 +17,7 @@ abstract private[finch] class Param[F[_], G[_], A](name: String)(implicit
   protected def present(value: A): G[A]
 
   final def apply(input: Input): EndpointResult[F, G[A]] = {
-    val output: F[Output[G[A]]] = F.suspend {
+    val output: F[Output[G[A]]] = F.defer {
       input.request.params.get(name) match {
         case None => missing(name)
         case Some(value) =>
@@ -37,13 +37,13 @@ abstract private[finch] class Param[F[_], G[_], A](name: String)(implicit
 
 private[finch] object Param {
 
-  trait Required[F[_], A] { _: Param[F, Id, A] =>
+  trait Required[F[_], A] { self: Param[F, Id, A] =>
     protected def missing(name: String): F[Output[A]] =
       F.raiseError(Error.NotPresent(items.ParamItem(name)))
     protected def present(a: A): Id[A] = a
   }
 
-  trait Optional[F[_], A] { _: Param[F, Option, A] =>
+  trait Optional[F[_], A] { self: Param[F, Option, A] =>
     protected def missing(name: String): F[Output[Option[A]]] = F.pure(Output.None)
     protected def present(a: A): Option[A] = Some(a)
   }
@@ -59,7 +59,7 @@ abstract private[finch] class Params[F[_], G[_], A](name: String)(implicit
   protected def present(value: Iterable[A]): G[A]
 
   final def apply(input: Input): EndpointResult[F, G[A]] = {
-    val output: F[Output[G[A]]] = F.suspend {
+    val output: F[Output[G[A]]] = F.defer {
       input.request.params.getAll(name) match {
         case value if value.isEmpty => missing(name)
         case value =>
@@ -84,12 +84,12 @@ abstract private[finch] class Params[F[_], G[_], A](name: String)(implicit
 
 private[finch] object Params {
 
-  trait AllowEmpty[F[_], A] { _: Params[F, List, A] =>
+  trait AllowEmpty[F[_], A] { self: Params[F, List, A] =>
     protected def missing(name: String): F[Output[List[A]]] = F.pure(Output.payload(Nil))
     protected def present(value: Iterable[A]): List[A] = value.toList
   }
 
-  trait NonEmpty[F[_], A] { _: Params[F, NonEmptyList, A] =>
+  trait NonEmpty[F[_], A] { self: Params[F, NonEmptyList, A] =>
     protected def missing(name: String): F[Output[NonEmptyList[A]]] =
       F.raiseError(Error.NotPresent(items.ParamItem(name)))
     protected def present(value: Iterable[A]): NonEmptyList[A] =

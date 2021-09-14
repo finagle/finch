@@ -14,7 +14,7 @@ class BootstrapSpec extends FinchSpec {
   behavior of "Bootstrap"
 
   it should "handle both Error and Errors" in {
-    check { e: Either[Error, Errors] =>
+    check { (e: Either[Error, Errors]) =>
       val exception = e.fold[Exception](identity, identity)
 
       val ee = Endpoint[IO].liftAsync[Unit](IO.raiseError(exception))
@@ -31,7 +31,7 @@ class BootstrapSpec extends FinchSpec {
   }
 
   it should "respond 404 if endpoint is not matched" in {
-    check { req: Request =>
+    check { (req: Request) =>
       val s = Endpoint[IO].empty[Unit].compileAs[Text.Plain]
       val (_, Right(rep)) = s(req).unsafeRunSync()
 
@@ -77,7 +77,7 @@ class BootstrapSpec extends FinchSpec {
   }
 
   it should "match the request version" in {
-    check { req: Request =>
+    check { (req: Request) =>
       val s = Endpoint[IO].const(()).compileAs[Text.Plain]
       val (_, Right(rep)) = s(req).unsafeRunSync()
 
@@ -110,7 +110,7 @@ class BootstrapSpec extends FinchSpec {
   }
 
   it should "capture Trace for failures and successes" in {
-    check { req: Request =>
+    check { (req: Request) =>
       val p = req.path.split("/").drop(1)
 
       val endpoint = p.map(s => path(s)).foldLeft(Endpoint[IO].const(HNil: HNil))((p, e) => p :: e)

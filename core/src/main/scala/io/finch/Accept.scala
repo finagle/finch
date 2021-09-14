@@ -2,15 +2,15 @@ package io.finch
 
 import java.util.Locale
 
-import shapeless.Witness
-
 /**
-  * Models an HTTP Accept header (see RFC2616, 14.1).
-  *
-  * @note This API doesn't validate the input primary/sub types.
-  *
-  * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
-  */
+ * Models an HTTP Accept header (see RFC2616, 14.1).
+ *
+ * @note
+ *   This API doesn't validate the input primary/sub types.
+ *
+ * @see
+ *   https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
+ */
 abstract class Accept {
   def primary: String
   def sub: String
@@ -37,14 +37,14 @@ object Accept {
       def apply(a: Accept): Boolean = false
     }
 
-    implicit val json: Matcher[Application.Json] = fromWitness[Application.Json]
-    implicit val xml: Matcher[Application.Xml] = fromWitness[Application.Xml]
-    implicit val text: Matcher[Text.Plain] = fromWitness[Text.Plain]
-    implicit val html: Matcher[Text.Html] = fromWitness[Text.Html]
+    implicit val json: Matcher[Application.Json] = fromLiteral[Application.Json]
+    implicit val xml: Matcher[Application.Xml] = fromLiteral[Application.Xml]
+    implicit val text: Matcher[Text.Plain] = fromLiteral[Text.Plain]
+    implicit val html: Matcher[Text.Html] = fromLiteral[Text.Html]
 
-    implicit def fromWitness[CT <: String](implicit w: Witness.Aux[CT]): Matcher[CT] = {
+    implicit def fromLiteral[CT <: String](implicit w: ValueOf[CT]): Matcher[CT] = {
       val slashIndex = w.value.indexOf(47)
-      if (slashIndex == 0 || slashIndex == w.value.length) Empty.asInstanceOf[Matcher[CT]]
+      if slashIndex == 0 || slashIndex == w.value.length then Empty.asInstanceOf[Matcher[CT]]
       else
         new Matcher[CT] {
           private val primary: String = w.value.substring(0, slashIndex).trim.toLowerCase(Locale.ENGLISH)
@@ -56,15 +56,15 @@ object Accept {
   }
 
   /**
-    * Parses an [[Accept]] instance from a given string. Returns `null` when not able to parse.
-    */
+   * Parses an [[Accept]] instance from a given string. Returns `null` when not able to parse.
+   */
   def fromString(s: String): Accept = {
     // Adopted from Java's MimeType's API.
     val slashIndex = s.indexOf(47)
     val semIndex = s.indexOf(59)
-    val length = if (semIndex < 0) s.length else semIndex
+    val length = if semIndex < 0 then s.length else semIndex
 
-    if (slashIndex < 0 || slashIndex >= length) Empty
+    if slashIndex < 0 || slashIndex >= length then Empty
     else
       new Accept {
         val primary: String = s.substring(0, slashIndex).trim.toLowerCase(Locale.ENGLISH)

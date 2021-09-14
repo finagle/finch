@@ -9,6 +9,7 @@ target/
 .classpath
 local.*
 
+.bsp
 .bloop
 .metals
 .vscode

@@ -7,7 +7,6 @@ import cats.effect.{ContextShift, Resource, Sync}
 import cats.syntax.all._
 import com.twitter.finagle.http.{Method => FinagleMethod}
 import com.twitter.io.Buf
-import shapeless.HNil
 
 package object endpoint {
 
@@ -16,10 +15,10 @@ package object endpoint {
       S: ContextShift[F]
   ) extends Endpoint[F, Buf] {
 
-    private def readLoop(left: Buf, stream: InputStream): F[Buf] = F.suspend {
+    private def readLoop(left: Buf, stream: InputStream): F[Buf] = F.defer {
       val buffer = new Array[Byte](1024)
       val n = stream.read(buffer)
-      if (n == -1) F.pure(left)
+      if n == -1 then F.pure(left)
       else readLoop(left.concat(Buf.ByteArray.Owned(buffer, 0, n)), stream)
     }
 
@@ -31,15 +30,15 @@ package object endpoint {
       )
   }
 
-  private[finch] class Asset[F[_]](path: String)(implicit F: Applicative[F]) extends Endpoint[F, HNil] {
-    final def apply(input: Input): Endpoint.Result[F, HNil] = {
+  private[finch] class Asset[F[_]](path: String)(implicit F: Applicative[F]) extends Endpoint[F, EmptyTuple] {
+    final def apply(input: Input): Endpoint.Result[F, EmptyTuple] = {
       val req = input.request
-      if (req.method != FinagleMethod.Get || req.path != path) EndpointResult.NotMatched[F]
+      if req.method != FinagleMethod.Get || req.path != path then EndpointResult.NotMatched[F]
       else
         EndpointResult.Matched(
           input.withRoute(Nil),
           Trace.fromRoute(input.route),
-          F.pure(Output.HNil)
+          F.pure(Output.EmptyTuple)
         )
     }
 

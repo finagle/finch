@@ -14,7 +14,7 @@ class EncodeSpec extends FinchSpec {
   checkAll("Encode.Text[Either[UUID, Float]]", EncodeLaws.text[Either[UUID, Float]].all)
 
   it should "round trip Unit" in {
-    check { cs: Charset =>
+    check { (cs: Charset) =>
       implicitly[Encode[Unit]].apply((), cs) === Buf.Empty
     }
   }

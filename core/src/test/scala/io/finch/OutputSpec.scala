@@ -5,6 +5,7 @@ import java.nio.charset.{Charset, StandardCharsets}
 import scala.util.{Failure, Success, Try}
 
 import cats.Id
+import cats.catsInstancesForId
 import com.twitter.finagle.http.Status
 import com.twitter.io.Buf
 
@@ -13,7 +14,7 @@ class OutputSpec extends FinchSpec {
   behavior of "Output"
 
   it should "propagate status to response" in {
-    check { o: Output[String] => o.toResponse[Id, Text.Plain].status == o.status }
+    check((o: Output[String]) => o.toResponse[Id, Text.Plain].status == o.status)
   }
 
   it should "propagate overridden status to response" in {
@@ -75,33 +76,33 @@ class OutputSpec extends FinchSpec {
   }
 
   it should "propagate cause to response" in {
-    check { of: Output.Failure =>
+    check { (of: Output.Failure) =>
       (of: Output[Unit]).toResponse[Id, Text.Plain].content ===
         Encode[Exception, Text.Plain].apply(of.cause, of.charset.getOrElse(StandardCharsets.UTF_8))
     }
   }
 
   it should "propagate empytiness to response" in {
-    check { of: Output.Empty =>
+    check { (of: Output.Empty) =>
       (of: Output[Unit]).toResponse[Id, Text.Plain].content === Buf.Empty
     }
   }
 
   it should "propagate payload to response" in {
-    check { op: Output.Payload[String] =>
+    check { (op: Output.Payload[String]) =>
       op.toResponse[Id, Text.Plain].content ===
         Encode[String, Text.Plain].apply(op.value, op.charset.getOrElse(StandardCharsets.UTF_8))
     }
   }
 
   it should "create an empty endpoint with given status when calling unit" in {
-    check { s: Status =>
+    check { (s: Status) =>
       Output.unit(s).toResponse[Id, Text.Plain].status === s
     }
   }
 
   it should "throw an exception on calling value on an Empty output" in {
-    check { e: Output.Empty =>
+    check { (e: Output.Empty) =>
       Try(e.value) match {
         case Failure(f) => f.getMessage === "empty output"
         case _          => false
@@ -110,7 +111,7 @@ class OutputSpec extends FinchSpec {
   }
 
   it should "throw an exception on calling value on a Failure output" in {
-    check { f: Output.Failure =>
+    check { (f: Output.Failure) =>
       Try(f.value) match {
         case Failure(ex) => ex.getMessage === f.cause.getMessage
         case _           => false
@@ -137,7 +138,7 @@ class OutputSpec extends FinchSpec {
   }
 
   it should "traverse arbitrary outputs" in {
-    check { oa: Output[String] =>
+    check { (oa: Output[String]) =>
       oa.traverse[Try, String](_ => Success(oa.value)) === Success(oa)
     }
   }

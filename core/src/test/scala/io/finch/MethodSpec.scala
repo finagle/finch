@@ -1,12 +1,9 @@
 package io.finch
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Future => ScalaFuture}
-
 import cats.Id
+import cats.catsInstancesForId
 import cats.effect.IO
 import com.twitter.finagle.http.Response
-import com.twitter.util.{Future => TwitterFuture}
 import org.scalacheck.Arbitrary
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
@@ -29,57 +26,24 @@ class MethodSpec extends FinchSpec with ScalaCheckDrivenPropertyChecks {
     checkValue((i: String) => get(zero)(IO.pure(Ok(i))))
   }
 
-  it should "map TwitterFuture[Output[A]] value to endpoint" in {
-
-    checkValue((i: String) => get(zero)(TwitterFuture.value(Ok(i))))
-  }
-
-  it should "map ScalaFuture[Output[A]] value to endpoint" in {
-    checkValue((i: String) => get(zero)(ScalaFuture.successful(Ok(i))))
-  }
-
   it should "map F[Response] value to endpoint" in {
     checkValue((i: Response) => get(zero)(IO.pure(Ok(i).toResponse[Id, Text.Plain])))
   }
 
-  it should "map TwitterFuture[Response] value to endpoint" in {
-    checkValue((i: Response) => get(zero)(TwitterFuture.value(Ok(i).toResponse[Id, Text.Plain])))
-  }
-
-  it should "map ScalaFuture[Response] value to endpoint" in {
-    checkValue((i: Response) => get(zero)(ScalaFuture.successful(Ok(i).toResponse[Id, Text.Plain])))
-  }
-
   it should "map A => Output function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => Ok(i) })
+    checkFunction(get(path[Int])((i: Int) => Ok(i)))
   }
 
   it should "map A => Response function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => Ok(i).toResponse[Id, Text.Plain] })
+    checkFunction(get(path[Int])((i: Int) => Ok(i).toResponse[Id, Text.Plain]))
   }
 
   it should "map A => F[Output[A]] function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => IO.pure(i).map(Ok) })
-  }
-
-  it should "map A => TwitterFuture[Output[A]] function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => TwitterFuture.value(i).map(Ok) })
-  }
-
-  it should "map A => ScalaFuture[Output[A]] function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => ScalaFuture.successful(i).map(Ok) })
+    checkFunction(get(path[Int])((i: Int) => IO.pure(i).map(Ok)))
   }
 
   it should "map A => F[Response] function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => IO.pure(i).map(Ok(_).toResponse[Id, Text.Plain]) })
-  }
-
-  it should "map A => TwitterFuture[Response] function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => TwitterFuture.value(i).map(Ok(_).toResponse[Id, Text.Plain]) })
-  }
-
-  it should "map A => ScalaFuture[Response] function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => ScalaFuture.successful(i).map(Ok(_).toResponse[Id, Text.Plain]) })
+    checkFunction(get(path[Int])((i: Int) => IO.pure(i).map(Ok(_).toResponse[Id, Text.Plain])))
   }
 
   it should "map (A, B) => Output function to endpoint" in {
@@ -94,65 +58,9 @@ class MethodSpec extends FinchSpec with ScalaCheckDrivenPropertyChecks {
     checkFunction2(get(path[Int] :: path[Int])((x: Int, y: Int) => IO.pure(Ok(s"$x$y"))))
   }
 
-  it should "map (A, B) => TwitterFuture[Output[String]] function to endpoint" in {
-    checkFunction2(get(path[Int] :: path[Int])((x: Int, y: Int) => TwitterFuture.value(Ok(s"$x$y"))))
-  }
-
-  it should "map (A, B) => ScalaFuture[Output[String]] function to endpoint" in {
-    checkFunction2(get(path[Int] :: path[Int])((x: Int, y: Int) => ScalaFuture.successful(Ok(s"$x$y"))))
-  }
-
   it should "map (A, B) => F[Response] function to endpoint" in {
     checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
       IO.pure(Ok(s"$x$y").toResponse[Id, Text.Plain])
-    })
-  }
-
-  it should "map (A, B) => TwitterFuture[Response] function to endpoint" in {
-    checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
-      TwitterFuture.value(Ok(s"$x$y").toResponse[Id, Text.Plain])
-    })
-  }
-
-  it should "map (A, B) => ScalaFuture[Response] function to endpoint" in {
-    checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
-      ScalaFuture.successful(Ok(s"$x$y").toResponse[Id, Text.Plain])
-    })
-  }
-
-  behavior of "Custom Type Program[_]"
-
-  case class Program[A](value: A)
-
-  implicit val conv = new ToAsync[Program, IO] {
-    def apply[A](a: Program[A]): IO[A] = IO(a.value)
-  }
-
-  it should "map Program[Output[_]] value to endpoint" in {
-    checkValue((i: String) => get(zero)(Program(Ok(i))))
-  }
-
-  it should "map A => Program[Output[_]] function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => Program(Ok(i)) })
-  }
-
-  it should "map (A, B) => Program[Output[_]] function to endpoint" in {
-    checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
-      Program(Ok(s"$x$y"))
-    })
-  }
-
-  it should "map Program[Response] value to endpoint" in {
-    checkValue((i: Response) => get(zero)(Program(i)))
-  }
-
-  it should "map A => Program[Response] function to endpoint" in {
-    checkFunction(get(path[Int]) { i: Int => Program(Ok(i).toResponse[Id, Text.Plain]) })
-  }
-
-  it should "map (A, B) => Program[Response] function to endpoint" in {
-    checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
-      Program(Ok(s"$x$y").toResponse[Id, Text.Plain])
     })
   }
 
@@ -162,7 +70,7 @@ class MethodSpec extends FinchSpec with ScalaCheckDrivenPropertyChecks {
       e(Input.get("/")).awaitValueUnsafe() shouldBe Some(input)
     }
 
-  private def checkFunction(e: Endpoint[IO, _]): Unit =
+  private def checkFunction(e: Endpoint[IO, ?]): Unit =
     forAll { (input: Int) =>
       e(Input.get(s"/$input")).awaitValueUnsafe() match {
         case Some(r: Response) => r.contentString shouldBe input.toString
@@ -171,7 +79,7 @@ class MethodSpec extends FinchSpec with ScalaCheckDrivenPropertyChecks {
       }
     }
 
-  private def checkFunction2(e: Endpoint[IO, _]): Unit =
+  private def checkFunction2(e: Endpoint[IO, ?]): Unit =
     forAll { (x: Int, y: Int) =>
       e(Input.get(s"/$x/$y")).awaitValueUnsafe() match {
         case Some(r: Response) => r.contentString shouldBe s"$x$y"

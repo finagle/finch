@@ -40,14 +40,14 @@ class BodySpec extends FinchSpec {
   }
 
   it should "respond with a value when present and required" in {
-    check { f: Foo =>
+    check { (f: Foo) =>
       val i = Input.post("/").withBody[Text.Plain](f)
       body[Foo, Text.Plain].apply(i).awaitValueUnsafe() === Some(f)
     }
   }
 
   it should "respond with Some(value) when it'ss present and optional" in {
-    check { f: Foo =>
+    check { (f: Foo) =>
       val i = Input.post("/").withBody[Text.Plain](f)
       bodyOption[Foo, Text.Plain].apply(i).awaitValueUnsafe().flatten === Some(f)
     }
@@ -62,17 +62,17 @@ class BodySpec extends FinchSpec {
   }
 
   it should "never evaluate until run" in {
-    check { f: Foo =>
+    check { (f: Foo) =>
       val i = Input.post("/").withBody[Text.Plain](f)
 
-      implicit val ed = new EvalDecode[Foo](Decode[Foo, Text.Plain])
+      implicit val ed = new EvalDecode[Foo](Foo.decodeTextFoo)
       textBody[Foo].apply(i)
       !ed.evaluated
     }
   }
 
   it should "respect Content-Type header and pick corresponding decoder for coproduct" in {
-    check { f: Foo =>
+    check { (f: Foo) =>
       val plain = Input.post("/").withBody[Text.Plain](f)
       val csv = Input.post("/").withBody[Application.Csv](f)
       val endpoint = body[Foo, Text.Plain :+: Application.Csv :+: CNil]

@@ -15,7 +15,7 @@ class HttpMessageSpec extends FinchSpec {
   behavior of "HttpMessage"
 
   it should "charsetOrUtf8" in {
-    check { cs: Charset =>
+    check { (cs: Charset) =>
       val req = Request()
       req.contentType = "application/json"
       req.charset = cs.displayName()
@@ -23,7 +23,7 @@ class HttpMessageSpec extends FinchSpec {
       req.charsetOrUtf8 === slowCharset(req)
     }
 
-    check { cs: Charset =>
+    check { (cs: Charset) =>
       val req = Request()
       req.contentType = "application/json;   charset=" + cs.displayName()
 
@@ -34,7 +34,7 @@ class HttpMessageSpec extends FinchSpec {
   }
 
   it should "mediaTypeOrEmpty" in {
-    check { cs: Option[Charset] =>
+    check { (cs: Option[Charset]) =>
       val req = Request()
       req.contentType = "application/json"
       cs.foreach(c => req.charset = c.displayName())

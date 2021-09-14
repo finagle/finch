@@ -6,8 +6,8 @@ import cats.Show
 import com.twitter.io.Buf
 
 /**
-  * Encodes an HTTP payload (represented as an arbitrary type `A`) with a given [[Charset]].
-  */
+ * Encodes an HTTP payload (represented as an arbitrary type `A`) with a given [[Charset]].
+ */
 trait Encode[A] {
   type ContentType <: String
 
@@ -58,8 +58,8 @@ trait HighPriorityEncodeInstances extends LowPriorityEncodeInstances {
 object Encode extends HighPriorityEncodeInstances {
 
   /**
-    * Returns a [[Encode]] instance for a given type (with required content type).
-    */
+   * Returns a [[Encode]] instance for a given type (with required content type).
+   */
   @inline final def apply[A, CT <: String](implicit e: Aux[A, CT]): Aux[A, CT] = e
 
   implicit val encodeExceptionAsTextPlain: Text[Exception] =

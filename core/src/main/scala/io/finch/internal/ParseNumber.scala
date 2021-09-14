@@ -14,31 +14,31 @@ abstract class ParseNumber[@specialized(Int, Long) A] {
     var result = 0L
 
     var i = 0
-    if (s.length > 0) {
+    if s.length > 0 then {
       val firstChar = s.charAt(0)
-      if (firstChar < '0') {
-        if (firstChar == '-') {
+      if firstChar < '0' then {
+        if firstChar == '-' then {
           negative = true
           limit = min
-        } else if (firstChar != '+') return None
+        } else if firstChar != '+' then return None
 
-        if (s.length == 1) return None
+        if s.length == 1 then return None
 
         i += 1
       }
 
       // skip zeros
-      while (i < s.length && s.charAt(i) == '0') i += 1
+      while i < s.length && s.charAt(i) == '0' do i += 1
 
       val mulMin = limit / 10L
 
-      while (i < s.length) {
+      while i < s.length do {
         val c = s.charAt(i)
-        if ('0' <= c && c <= '9') {
-          if (result < mulMin) return None
+        if '0' <= c && c <= '9' then {
+          if result < mulMin then return None
           result = result * 10L
           val digit = c - '0'
-          if (result < limit + digit) return None
+          if result < limit + digit then return None
           result = result - digit
         } else return None
 
@@ -46,7 +46,7 @@ abstract class ParseNumber[@specialized(Int, Long) A] {
       }
     } else return None
 
-    Some(prepare(if (negative) result else -result))
+    Some(prepare(if negative then result else -result))
   }
   // scalastyle:on return
 }

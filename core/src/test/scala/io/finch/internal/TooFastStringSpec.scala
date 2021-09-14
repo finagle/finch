@@ -10,7 +10,7 @@ import org.scalatestplus.scalacheck.Checkers
 class TooFastStringSpec extends AnyFlatSpec with Matchers with Checkers {
 
   "TooFastString" should "parse boolean correctly" in {
-    check { b: Boolean =>
+    check { (b: Boolean) =>
       b.toString.tooBoolean === Some(b)
     }
 
@@ -19,7 +19,7 @@ class TooFastStringSpec extends AnyFlatSpec with Matchers with Checkers {
   }
 
   it should "parse int correctly" in {
-    check { i: Int =>
+    check { (i: Int) =>
       i.toString.tooInt === Some(i)
     }
 
@@ -36,7 +36,7 @@ class TooFastStringSpec extends AnyFlatSpec with Matchers with Checkers {
   }
 
   it should "parse long correctly" in {
-    check { l: Long =>
+    check { (l: Long) =>
       l.toString.tooLong === Some(l)
     }
 

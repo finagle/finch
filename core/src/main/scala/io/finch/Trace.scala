@@ -6,15 +6,16 @@ import scala.collection.mutable.ListBuffer
 import com.twitter.util.Local
 
 /**
-  * Models a trace of a matched [[Endpoint]]. For example, `/hello/:name`.
-  *
-  * @note represented as a linked-list-like structure for efficiency.
-  */
+ * Models a trace of a matched [[Endpoint]]. For example, `/hello/:name`.
+ *
+ * @note
+ *   represented as a linked-list-like structure for efficiency.
+ */
 sealed trait Trace {
 
   /**
-    * Concatenates this and `that` [[Trace]]s.
-    */
+   * Concatenates this and `that` [[Trace]] s.
+   */
   final def concat(that: Trace): Trace = {
     @tailrec
     def loop(from: Trace, last: Trace.Segment): Unit = from match {
@@ -40,8 +41,8 @@ sealed trait Trace {
   }
 
   /**
-    * Converts this [[Trace]] into a linked list of path segments.
-    */
+   * Converts this [[Trace]] into a linked list of path segments.
+   */
   final def toList: List[String] = {
     @tailrec
     def loop(from: Trace, to: ListBuffer[String]): List[String] = from match {
@@ -70,7 +71,7 @@ object Trace {
     var current: Segment = null
 
     def prepend(segment: Segment): Unit =
-      if (result == empty) {
+      if result == empty then {
         result = segment
         current = segment
       } else {
@@ -79,7 +80,7 @@ object Trace {
       }
 
     var rs = r
-    while (rs.nonEmpty) {
+    while rs.nonEmpty do {
       prepend(Segment(rs.head, empty))
       rs = rs.tail
     }
@@ -88,22 +89,20 @@ object Trace {
   }
 
   /**
-    * Within a given context `fn`, capture the [[Trace]] instance under `Trace.captured` for each
-    * matched endpoint.
-    *
-    * Example:
-    *
-    * {{{
-    *   val foo = Endpoint.lift("foo").toService[Text.Plain]
-    *   Trace.capture { foo(Request()).map(_ => Trace.captured) }
-    * }}}
-    */
+   * Within a given context `fn`, capture the [[Trace]] instance under `Trace.captured` for each matched endpoint.
+   *
+   * Example:
+   *
+   * {{{
+   *   val foo = Endpoint.lift("foo").toService[Text.Plain]
+   *   Trace.capture { foo(Request()).map(_ => Trace.captured) }
+   * }}}
+   */
   def capture[A](fn: => A): A = captureLocal.let(new Capture(empty))(fn)
 
   /**
-    * Retrieve the captured [[Trace]] instance or [[empty]] when run outside of [[Trace.capture]]
-    * context.
-    */
+   * Retrieve the captured [[Trace]] instance or [[empty]] when run outside of [[Trace.capture]] context.
+   */
   def captured: Trace = captureLocal() match {
     case Some(c) => c.trace
     case None    => empty

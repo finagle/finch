@@ -7,8 +7,8 @@ import cats.effect.{ContextShift, IO}
 import com.twitter.io.Buf
 
 /**
-  * Type class instances for non-Finch types.
-  */
+ * Type class instances for non-Finch types.
+ */
 trait MissingInstances {
   implicit def eqEither[A](implicit A: Eq[A]): Eq[Either[Throwable, A]] = Eq.instance {
     case (Right(a), Right(b)) => A.eqv(a, b)

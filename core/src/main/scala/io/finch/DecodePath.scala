@@ -5,9 +5,8 @@ import java.util.UUID
 import io.finch.internal.TooFastString
 
 /**
-  * Decodes an HTTP path (eg: /foo/bar/baz) represented as UTF-8 `String` into
-  * an arbitrary type `A`.
-  */
+ * Decodes an HTTP path (eg: /foo/bar/baz) represented as UTF-8 `String` into an arbitrary type `A`.
+ */
 trait DecodePath[A] {
   def apply(s: String): Option[A]
 }
@@ -25,7 +24,7 @@ object DecodePath {
   implicit val decodeLong: DecodePath[Long] = instance(_.tooLong)
   implicit val decodeBoolean: DecodePath[Boolean] = instance(_.tooBoolean)
   implicit val decodeUUID: DecodePath[UUID] = instance { s =>
-    if (s.length != 36) None
+    if s.length != 36 then None
     else
       try Some(UUID.fromString(s))
       catch { case _: Exception => None }

@@ -27,11 +27,11 @@ trait ServiceIntegrationSuite extends ServiceSuite { self: FixtureTestSuite =>
 
     try self.withFixture(test.toNoArgTest(FixtureParam(client)))
     finally Await.ready(
-      for {
+      for
         _ <- server.close()
         _ <- client.close()
         _ <- service.close()
-      } yield ()
+      yield ()
     )
   }
 }

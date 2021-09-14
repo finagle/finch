@@ -38,33 +38,33 @@ class EndpointSpec extends FinchSpec {
   private[this] val emptyRequest = Request()
 
   it should "support very basic map" in {
-    check { i: Input =>
+    check { (i: Input) =>
       path[String].map(_ * 2).apply(i).awaitValueUnsafe() === i.route.headOption.map(_ * 2)
     }
   }
 
   it should "correctly run mapF" in {
-    check { e: Endpoint[IO, String] =>
+    check { (e: Endpoint[IO, String]) =>
       val fn: String => Int = _.length
       e.transformF(_.map(fn)) <-> e.map(fn)
     }
   }
 
   it should "support transformOutput" in {
-    check { i: Input =>
+    check { (i: Input) =>
       val fn = (fs: IO[Output[String]]) => fs.map(_.map(_ * 2))
       path[String].transformOutput(fn).apply(i).awaitValueUnsafe() === i.route.headOption.map(_ * 2)
     }
   }
 
   it should "propagate the default (Ok) output" in {
-    check { i: Input =>
+    check { (i: Input) =>
       path[String].apply(i).awaitOutputUnsafe() === i.route.headOption.map(s => Ok(s))
     }
   }
 
   it should "propagate the default (Ok) output through its map'd/mapAsync'd version" in {
-    check { i: Input =>
+    check { (i: Input) =>
       val expected = i.route.headOption.map(s => Ok(s.length))
 
       path[String].map(s => s.length).apply(i).awaitOutputUnsafe() === expected &&
@@ -76,13 +76,13 @@ class EndpointSpec extends FinchSpec {
     def expected(i: Int): Output[Int] =
       Created(i).withHeader("A" -> "B").withCookie(new Cookie("C", "D"))
 
-    check { i: Input =>
+    check { (i: Input) =>
       path[String].mapOutputAsync(s => IO.pure(expected(s.length))).apply(i).awaitOutputUnsafe() ===
         i.route.headOption.map(s => expected(s.length))
     }
 
-    check { i: Input =>
-      val e = i.route.dropRight(1).map(s => path(s)).foldLeft[Endpoint[IO, HNil]](zero)((acc, ee) => acc :: ee)
+    check { (i: Input) =>
+      val e = i.route.dropRight(1).map(s => path(s)).foldLeft[Endpoint[IO, EmptyTuple]](zero)((acc, ee) => acc :: ee)
 
       val v = (e :: path[String]).mapOutputAsync(s => IO.pure(expected(s.length))).apply(i)
       v.awaitOutputUnsafe() === i.route.lastOption.map(s => expected(s.length))
@@ -90,7 +90,7 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "match one patch segment" in {
-    check { i: Input =>
+    check { (i: Input) =>
       val v = i.route.headOption.flatMap(s => path(s).apply(i).remainder)
 
       v.isEmpty || v === Some(i.withRoute(i.route.tail))
@@ -98,20 +98,20 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "always match the entire input with *" in {
-    check { i: Input =>
+    check { (i: Input) =>
       pathAny.apply(i).remainder === Some(i.copy(route = Nil))
     }
   }
 
   it should "match empty path" in {
-    check { i: Input =>
+    check { (i: Input) =>
       (i.route.isEmpty && pathEmpty.apply(i).isMatched) ||
       (!i.route.isEmpty && !pathEmpty.apply(i).isMatched)
     }
   }
 
   it should "match the HTTP method" in {
-    def matchMethod(m: Method, f: Endpoint[IO, HNil] => Endpoint[IO, HNil]): Input => Boolean = { i: Input =>
+    def matchMethod(m: Method, f: Endpoint[IO, EmptyTuple] => Endpoint[IO, EmptyTuple]): Input => Boolean = { (i: Input) =>
       val v = f(zero)(i)
       (i.request.method === m && v.remainder === Some(i)) ||
       (i.request.method != m && v.remainder === None)
@@ -128,14 +128,14 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "always match the identity instance" in {
-    check { i: Input =>
+    check { (i: Input) =>
       zero.apply(i).remainder === Some(i)
     }
   }
 
   it should "match the entire input" in {
-    check { i: Input =>
-      val e = i.route.map(s => path(s)).foldLeft[Endpoint[IO, HNil]](zero)((acc, e) => acc :: e)
+    check { (i: Input) =>
+      val e = i.route.map(s => path(s)).foldLeft[Endpoint[IO, EmptyTuple]](zero)((acc, e) => acc :: e)
       e(i).remainder === Some(i.copy(route = Nil))
     }
   }
@@ -147,7 +147,7 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "match the input if one of the endpoints succeed" in {
-    def matchOneOfTwo(f: String => Endpoint[IO, HNil]): Input => Boolean = { i: Input =>
+    def matchOneOfTwo(f: String => Endpoint[IO, EmptyTuple]): Input => Boolean = { (i: Input) =>
       val v = i.route.headOption.map(f).flatMap(e => e(i).remainder)
       v.isEmpty || v === Some(i.withRoute(i.route.tail))
     }
@@ -157,7 +157,7 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "have the correct string representation" in {
-    def standaloneMatcher[A]: A => Boolean = { a: A =>
+    def standaloneMatcher[A]: A => Boolean = { (a: A) =>
       path(a.toString).toString == a.toString
     }
 
@@ -167,8 +167,8 @@ class EndpointSpec extends FinchSpec {
 
     def methodMatcher(
         m: Method,
-        f: Endpoint[IO, HNil] => Endpoint[IO, HNil]
-    ): String => Boolean = { s: String => f(s).toString === m.toString.toUpperCase + " /" + s }
+        f: Endpoint[IO, EmptyTuple] => Endpoint[IO, EmptyTuple]
+    ): String => Boolean = { (s: String) => f(s).toString === m.toString.toUpperCase + " /" + s }
 
     check(methodMatcher(Method.Get, get))
     check(methodMatcher(Method.Post, post))
@@ -182,7 +182,7 @@ class EndpointSpec extends FinchSpec {
     check((s: String, i: Int) => path(s).map(_ => i).toString === s)
     check((s: String, t: String) => (path(s) :+: path(t)).toString === s"($s :+: $t)")
     check((s: String, t: String) => (path(s) :: path(t)).toString === s"$s :: $t")
-    check { s: String => path(s).product[String](pathAny.map(_ => "foo")).toString === s }
+    check((s: String) => path(s).product[String](pathAny.map(_ => "foo")).toString === s)
     check((s: String, t: String) => path(s).mapAsync(_ => IO.pure(t)).toString === s)
 
     pathEmpty.toString shouldBe ""
@@ -204,13 +204,13 @@ class EndpointSpec extends FinchSpec {
   }
 
   it should "always respond with the same output if it's a constant Endpoint" in {
-    check { s: String =>
+    check { (s: String) =>
       const(s).apply(Input.get("/")).awaitValueUnsafe() === Some(s) &&
       lift(s).apply(Input.get("/")).awaitValueUnsafe() === Some(s) &&
       liftAsync(IO.pure(s)).apply(Input.get("/")).awaitValueUnsafe() === Some(s)
     }
 
-    check { o: Output[String] =>
+    check { (o: Output[String]) =>
       liftOutput(o).apply(Input.get("/")).awaitOutputUnsafe() === Some(o) &&
       liftOutputAsync(IO.pure(o)).apply(Input.get("/")).awaitOutputUnsafe() === Some(o)
     }
