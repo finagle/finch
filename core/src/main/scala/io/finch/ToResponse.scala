@@ -9,8 +9,8 @@ import com.twitter.finagle.http.{Response, Status, Version}
 import shapeless._
 
 /**
-  * Represents a conversion from `A` to [[Response]].
-  */
+ * Represents a conversion from `A` to [[Response]].
+ */
 trait ToResponse[F[_], A] {
   type ContentType
 
@@ -45,12 +45,12 @@ trait ToResponseInstances {
   implicit def valueToResponse[F[_], A, CT <: String](implicit
       F: Applicative[F],
       A: Encode.Aux[A, CT],
-      CT: Witness.Aux[CT]
+      CT: ValueOf[CT]
   ): Aux[F, A, CT] = instance { (a, cs) =>
     val buf = A(a, cs)
     val rep = Response(Version.Http11, Status.Ok)
 
-    if (!buf.isEmpty) {
+    if !buf.isEmpty then {
       rep.content = buf
       rep.headerMap.setUnsafe("Content-Type", CT.value)
     }
@@ -61,7 +61,7 @@ trait ToResponseInstances {
   implicit def streamToResponse[F[_], S[_[_], _], A, CT <: String](implicit
       F: Functor[F],
       S: EncodeStream.Aux[F, S, A, CT],
-      CT: Witness.Aux[CT]
+      CT: ValueOf[CT]
   ): Aux[F, S[F, A], CT] = instance { (a, cs) =>
     F.map(S(a, cs)) { stream =>
       val rep = Response(Version.Http11, Status.Ok, stream)
@@ -76,10 +76,10 @@ trait ToResponseInstances {
 object ToResponse extends ToResponseInstances {
 
   /**
-    * Enables server-driven content negotiation with client.
-    *
-    * Picks corresponding instance of `ToResponse` according to `Accept` header of a request
-    */
+   * Enables server-driven content negotiation with client.
+   *
+   * Picks corresponding instance of `ToResponse` according to `Accept` header of a request
+   */
   trait Negotiable[F[_], A, CT] {
     def apply(accept: List[Accept]): ToResponse.Aux[F, A, CT]
   }
@@ -92,7 +92,7 @@ object ToResponse extends ToResponseInstances {
         a: Accept.Matcher[CTH]
     ): Negotiable[F, A, CTH :+: CTT] = new Negotiable[F, A, CTH :+: CTT] {
       def apply(accept: List[Accept]): ToResponse.Aux[F, A, CTH :+: CTT] =
-        if (accept.exists(_.matches[CTH])) h.asInstanceOf[ToResponse.Aux[F, A, CTH :+: CTT]]
+        if accept.exists(_.matches[CTH]) then h.asInstanceOf[ToResponse.Aux[F, A, CTH :+: CTT]]
         else t(accept).asInstanceOf[ToResponse.Aux[F, A, CTH :+: CTT]]
     }
 

@@ -6,36 +6,36 @@ import com.twitter.finagle.http.{Request, Response}
 import shapeless._
 
 /**
-  * Bootstraps a Finagle HTTP service out of the collection of Finch endpoints.
-  *
-  * {{{
-  * val api: Service[Request, Response] = Bootstrap
-  *  .configure(negotiateContentType = true, enableMethodNotAllowed = true)
-  *  .serve[Application.Json](getUser :+: postUser)
-  *  .serve[Text.Plain](healthcheck)
-  *  .toService
-  * }}}
-  *
-  * == Supported Configuration Options ==
-  *
-  * - `includeDateHeader` (default: `true`): whether or not to include the Date header into
-  *   each response (see RFC2616, section 14.18)
-  *
-  * - `includeServerHeader` (default: `true`): whether or not to include the Server header into
-  *   each response (see RFC2616, section 14.38)
-  *
-  * - `enableMethodNotAllowed` (default: `false`): whether or not to enable 405 MethodNotAllowed HTTP
-  *   response (see RFC2616, section 10.4.6)
-  *
-  * - `enableUnsupportedMediaType` (default: `false`) whether or not to enable 415
-  *   UnsupportedMediaType HTTP response (see RFC7231, section 6.5.13)
-  *
-  * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
-  * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec12.html
-  * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-  * @see https://tools.ietf.org/html/rfc7231#section-6.5.13
-  */
-class Bootstrap[F[_], ES <: HList, CTS <: HList](
+ * Bootstraps a Finagle HTTP service out of the collection of Finch endpoints.
+ *
+ * {{{
+ * val api: Service[Request, Response] = Bootstrap
+ *   .configure(negotiateContentType = true, enableMethodNotAllowed = true)
+ *   .serve[Application.Json](getUser :+: postUser)
+ *   .serve[Text.Plain](healthcheck)
+ *   .toService
+ * }}}
+ *
+ * ==Supported Configuration Options==
+ *
+ *   - `includeDateHeader` (default: `true`): whether or not to include the Date header into each response (see RFC2616, section 14.18)
+ *
+ *   - `includeServerHeader` (default: `true`): whether or not to include the Server header into each response (see RFC2616, section 14.38)
+ *
+ *   - `enableMethodNotAllowed` (default: `false`): whether or not to enable 405 MethodNotAllowed HTTP response (see RFC2616, section 10.4.6)
+ *
+ *   - `enableUnsupportedMediaType` (default: `false`) whether or not to enable 415 UnsupportedMediaType HTTP response (see RFC7231, section 6.5.13)
+ *
+ * @see
+ *   https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
+ * @see
+ *   https://www.w3.org/Protocols/rfc2616/rfc2616-sec12.html
+ * @see
+ *   https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+ * @see
+ *   https://tools.ietf.org/html/rfc7231#section-6.5.13
+ */
+class Bootstrap[F[_], ES <: Tuple, CTS <: Tuple](
     val endpoints: ES,
     val includeDateHeader: Boolean = true,
     val includeServerHeader: Boolean = true,
@@ -44,9 +44,9 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
 ) { self =>
 
   class Serve[CT] {
-    def apply[FF[_], E](e: Endpoint[FF, E]): Bootstrap[FF, Endpoint[FF, E] :: ES, CT :: CTS] =
-      new Bootstrap[FF, Endpoint[FF, E] :: ES, CT :: CTS](
-        e :: self.endpoints,
+    def apply[FF[_], E](e: Endpoint[FF, E]): Bootstrap[FF, Endpoint[FF, E] *: ES, CT *: CTS] =
+      new Bootstrap[FF, Endpoint[FF, E] *: ES, CT *: CTS](
+        e *: self.endpoints,
         includeDateHeader,
         includeServerHeader,
         enableMethodNotAllowed,
@@ -89,8 +89,8 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
 }
 
 object Bootstrap
-    extends Bootstrap[Id, HNil, HNil](
-      endpoints = HNil,
+    extends Bootstrap[Id, EmptyTuple, EmptyTuple](
+      endpoints = EmptyTuple,
       includeDateHeader = true,
       includeServerHeader = true,
       enableMethodNotAllowed = false,

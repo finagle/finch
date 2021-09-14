@@ -16,7 +16,7 @@ abstract class ExtractPathLaws[F[_]: Effect, A] extends Laws with MissingInstanc
   def all(implicit A: Arbitrary[Input]): RuleSet = new DefaultRuleSet(
     name = "all",
     parent = None,
-    "extractOne" -> Prop.forAll { input: Input =>
+    "extractOne" -> Prop.forAll { (input: Input) =>
       val i = input.withRoute(input.route.map(s => new QueryStringEncoder(s).toString))
       val o = one(i)
       val v = i.route.headOption.flatMap(s => decode(s))
@@ -24,7 +24,7 @@ abstract class ExtractPathLaws[F[_]: Effect, A] extends Laws with MissingInstanc
       o.awaitValueUnsafe() == v &&
       (v.isEmpty || o.remainder.contains(i.withRoute(i.route.tail)))
     },
-    "extractTail" -> Prop.forAll { input: Input =>
+    "extractTail" -> Prop.forAll { (input: Input) =>
       val i = input.withRoute(input.route.map(s => new QueryStringEncoder(s).toString))
       val o = tail(i)
 

@@ -18,7 +18,7 @@ object currentTime {
     val local = last.get()
     val time = System.currentTimeMillis()
 
-    if (time - local.millis > 1000) {
+    if time - local.millis > 1000 then {
       local.millis = time
       local.header = formatter.format(Instant.ofEpochMilli(time))
     }

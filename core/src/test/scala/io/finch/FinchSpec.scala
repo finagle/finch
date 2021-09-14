@@ -192,7 +192,7 @@ trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with AllInstance
   )
 
   def genAccept: Gen[Accept] = {
-    def witness[T <: String](implicit w: Witness.Aux[T]): String = w.value
+    def witness[T <: String](using w: ValueOf[T]): String = w.value
     Gen
       .oneOf(
         witness[Application.Json],
@@ -291,10 +291,8 @@ trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with AllInstance
       A.arbitrary.map(a => Endpoint[F].const(a)),
       Arbitrary.arbitrary[Throwable].map(e => Endpoint[F].liftOutputAsync(Effect[F].raiseError[Output[A]](e))),
       /**
-        * Note that we don't provide instances of arbitrary endpoints wrapping
-        * `Input => Output[A]` since `Endpoint` isn't actually lawful in this
-        * respect.
-        */
+       * Note that we don't provide instances of arbitrary endpoints wrapping `Input => Output[A]` since `Endpoint` isn't actually lawful in this respect.
+       */
       Arbitrary.arbitrary[Input => A].map { f =>
         new Endpoint[F, A] {
           final def apply(input: Input): Endpoint.Result[F, A] =
@@ -305,11 +303,10 @@ trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with AllInstance
   )
 
   /**
-    * Equality instance for [[io.finch.Endpoint]].
-    *
-    * We attempt to verify that two endpoints are the same by applying them to a
-    * fixed number of randomly generated inputs.
-    */
+   * Equality instance for [[io.finch.Endpoint]].
+   *
+   * We attempt to verify that two endpoints are the same by applying them to a fixed number of randomly generated inputs.
+   */
   implicit def eqEndpoint[F[_]: Effect, A: Eq]: Eq[Endpoint[F, A]] = new Eq[Endpoint[F, A]] {
     private[this] def count: Int = 16
 

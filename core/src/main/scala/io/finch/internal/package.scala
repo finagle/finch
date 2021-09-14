@@ -7,11 +7,10 @@ import com.twitter.finagle.http.{Fields, Message}
 import com.twitter.io.Buf
 
 /**
-  * This package contains an internal-use only type-classes and utilities that power Finch's API.
-  *
-  * It's not recommended to use any of the internal API directly, since it might change without any
-  * deprecation cycles.
-  */
+ * This package contains an internal-use only type-classes and utilities that power Finch's API.
+ *
+ * It's not recommended to use any of the internal API directly, since it might change without any deprecation cycles.
+ */
 package object internal {
 
   @inline final private[this] val someTrue: Option[Boolean] = Some(true)
@@ -21,13 +20,13 @@ package object internal {
   val Utf32: Charset = Charset.forName("UTF-32")
 
   /**
-    * Enriches any string with fast `tooX` conversions.
-    */
+   * Enriches any string with fast `tooX` conversions.
+   */
   implicit class TooFastString(val s: String) extends AnyVal {
 
     /**
-      * Converts this string to the optional boolean value.
-      */
+     * Converts this string to the optional boolean value.
+     */
     final def tooBoolean: Option[Boolean] = s match {
       case "true"  => someTrue
       case "false" => someFalse
@@ -35,19 +34,17 @@ package object internal {
     }
 
     /**
-      * Converts this string to the optional integer value. The maximum allowed length for a number
-      * string is 32.
-      */
+     * Converts this string to the optional integer value. The maximum allowed length for a number string is 32.
+     */
     final def tooInt: Option[Int] =
-      if (s.length == 0 || s.length > 32) None
+      if s.length == 0 || s.length > 32 then None
       else parseInt(s)
 
     /**
-      * Converts this string to the optional long value. The maximum allowed length for a number
-      * string is 32.
-      */
+     * Converts this string to the optional long value. The maximum allowed length for a number string is 32.
+     */
     final def tooLong: Option[Long] =
-      if (s.length == 0 || s.length > 32) None
+      if s.length == 0 || s.length > 32 then None
       else parseLong(s)
   }
 
@@ -59,10 +56,10 @@ package object internal {
     // Returns message's media type or empty string.
     def mediaTypeOrEmpty: String = {
       val ct = self.headerMap.getOrNull(Fields.ContentType)
-      if (ct == null) ""
+      if ct == null then ""
       else {
         val semi = ct.indexOf(';')
-        if (semi == -1) ct
+        if semi == -1 then ct
         else ct.substring(0, semi)
       }
     }
@@ -71,14 +68,14 @@ package object internal {
     def charsetOrUtf8: Charset = {
       val contentType = self.headerMap.getOrNull(Fields.ContentType)
 
-      if (contentType == null) StandardCharsets.UTF_8
+      if contentType == null then StandardCharsets.UTF_8
       else {
         val charsetEq = contentType.indexOf("charset=")
-        if (charsetEq == -1) StandardCharsets.UTF_8
+        if charsetEq == -1 then StandardCharsets.UTF_8
         else {
           val from = charsetEq + "charset=".length
           val semi = contentType.indexOf(';', from)
-          val to = if (semi == -1) contentType.length else semi
+          val to = if semi == -1 then contentType.length else semi
           Charset.forName(contentType.substring(from, to))
         }
       }

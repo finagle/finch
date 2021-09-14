@@ -23,16 +23,16 @@ abstract private[finch] class Attribute[F[_]: Sync, G[_], A](val name: String)(i
   protected def unparsed(errors: NonEmptyList[Throwable], tag: ClassTag[A]): F[Output[G[A]]]
 
   private def all(input: Input): Option[NonEmptyList[String]] =
-    for {
+    for
       m <- Multipart.decodeIfNeeded(input.request)
       attrs <- m.attributes.get(name)
       nel <- NonEmptyList.fromList(attrs.toList)
-    } yield nel
+    yield nel
 
   final def apply(input: Input): EndpointResult[F, G[A]] =
-    if (input.request.isChunked) EndpointResult.NotMatched[F]
+    if input.request.isChunked then EndpointResult.NotMatched[F]
     else {
-      val output = F.suspend {
+      val output = F.defer {
         all(input) match {
           case None => missing(name)
           case Some(values) =>
@@ -54,42 +54,42 @@ abstract private[finch] class Attribute[F[_]: Sync, G[_], A](val name: String)(i
 
 private[finch] object Attribute {
 
-  trait SingleError[F[_], G[_], A] { _: Attribute[F, G, A] =>
+  trait SingleError[F[_], G[_], A] { self: Attribute[F, G, A] =>
     protected def unparsed(errors: NonEmptyList[Throwable], tag: ClassTag[A]): F[Output[G[A]]] =
       F.raiseError(Error.NotParsed(items.ParamItem(name), tag, errors.head))
 
     final override def toString: String = s"attribute($name)"
   }
 
-  trait MultipleErrors[F[_], G[_], A] { _: Attribute[F, G, A] =>
+  trait MultipleErrors[F[_], G[_], A] { self: Attribute[F, G, A] =>
     protected def unparsed(errors: NonEmptyList[Throwable], tag: ClassTag[A]): F[Output[G[A]]] =
       F.raiseError(Errors(errors.map(t => Error.NotParsed(items.ParamItem(name), tag, t))))
 
     final override def toString: String = s"attributes($name)"
   }
 
-  trait Required[F[_], A] { _: Attribute[F, Id, A] =>
+  trait Required[F[_], A] { self: Attribute[F, Id, A] =>
     protected def missing(name: String): F[Output[A]] =
       F.raiseError(Error.NotPresent(items.ParamItem(name)))
     protected def present(value: NonEmptyList[A]): F[Output[A]] =
       F.pure(Output.payload(value.head))
   }
 
-  trait Optional[F[_], A] { _: Attribute[F, Option, A] =>
+  trait Optional[F[_], A] { self: Attribute[F, Option, A] =>
     protected def missing(name: String): F[Output[Option[A]]] =
       F.pure(Output.None)
     protected def present(value: NonEmptyList[A]): F[Output[Option[A]]] =
       F.pure(Output.payload(Some(value.head)))
   }
 
-  trait AllowEmpty[F[_], A] { _: Attribute[F, List, A] =>
+  trait AllowEmpty[F[_], A] { self: Attribute[F, List, A] =>
     protected def missing(name: String): F[Output[List[A]]] =
       F.pure(Output.payload(Nil))
     protected def present(value: NonEmptyList[A]): F[Output[List[A]]] =
       F.pure(Output.payload(value.toList))
   }
 
-  trait NonEmpty[F[_], A] { _: Attribute[F, NonEmptyList, A] =>
+  trait NonEmpty[F[_], A] { self: Attribute[F, NonEmptyList, A] =>
     protected def missing(name: String): F[Output[NonEmptyList[A]]] =
       F.raiseError(Error.NotPresent(items.ParamItem(name)))
     protected def present(value: NonEmptyList[A]): F[Output[NonEmptyList[A]]] =
@@ -104,14 +104,14 @@ abstract private[finch] class FileUpload[F[_]: Sync, G[_]](name: String) extends
   protected def present(a: NonEmptyList[FinagleFileUpload]): F[Output[G[FinagleFileUpload]]]
 
   final private def all(input: Input): Option[NonEmptyList[FinagleFileUpload]] =
-    for {
+    for
       mp <- Multipart.decodeIfNeeded(input.request)
       all <- mp.files.get(name)
       nel <- NonEmptyList.fromList(all.toList)
-    } yield nel
+    yield nel
 
   final def apply(input: Input): EndpointResult[F, G[FinagleFileUpload]] =
-    if (input.request.isChunked) EndpointResult.NotMatched[F]
+    if input.request.isChunked then EndpointResult.NotMatched[F]
     else {
       val output = Sync[F].suspend {
         all(input) match {
@@ -129,28 +129,28 @@ abstract private[finch] class FileUpload[F[_]: Sync, G[_]](name: String) extends
 
 private[finch] object FileUpload {
 
-  trait Required[F[_]] { _: FileUpload[F, Id] =>
+  trait Required[F[_]] { self: FileUpload[F, Id] =>
     protected def missing(name: String): F[Output[FinagleFileUpload]] =
       F.raiseError(Error.NotPresent(items.ParamItem(name)))
     protected def present(a: NonEmptyList[FinagleFileUpload]): F[Output[FinagleFileUpload]] =
       F.pure(Output.payload(a.head))
   }
 
-  trait Optional[F[_]] { _: FileUpload[F, Option] =>
+  trait Optional[F[_]] { self: FileUpload[F, Option] =>
     protected def missing(name: String): F[Output[Option[FinagleFileUpload]]] =
       F.pure(Output.payload(None))
     protected def present(a: NonEmptyList[FinagleFileUpload]): F[Output[Option[FinagleFileUpload]]] =
       F.pure(Output.payload(Some(a.head)))
   }
 
-  trait AllowEmpty[F[_]] { _: FileUpload[F, List] =>
+  trait AllowEmpty[F[_]] { self: FileUpload[F, List] =>
     protected def missing(name: String): F[Output[List[FinagleFileUpload]]] =
       F.pure(Output.payload(Nil))
     protected def present(fa: NonEmptyList[FinagleFileUpload]): F[Output[List[FinagleFileUpload]]] =
       F.pure(Output.payload(fa.toList))
   }
 
-  trait NonEmpty[F[_]] { _: FileUpload[F, NonEmptyList] =>
+  trait NonEmpty[F[_]] { self: FileUpload[F, NonEmptyList] =>
     protected def missing(name: String): F[Output[NonEmptyList[FinagleFileUpload]]] =
       F.raiseError(Error.NotPresent(items.ParamItem(name)))
     protected def present(fa: NonEmptyList[FinagleFileUpload]): F[Output[NonEmptyList[FinagleFileUpload]]] =

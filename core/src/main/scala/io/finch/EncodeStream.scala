@@ -5,8 +5,8 @@ import java.nio.charset.Charset
 import com.twitter.io.{Buf, Reader}
 
 /**
-  * A type-class that defines encoding of a stream in a shape of `S[F[_], A]` to Finagle's [[Reader]].
-  */
+ * A type-class that defines encoding of a stream in a shape of `S[F[_], A]` to Finagle's [[Reader]].
+ */
 trait EncodeStream[F[_], S[_[_], _], A] {
 
   type ContentType <: String

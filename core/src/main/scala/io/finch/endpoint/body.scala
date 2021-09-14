@@ -17,11 +17,11 @@ abstract private[finch] class FullBody[F[_], A] extends Endpoint[F, A] {
   protected def present(contentType: String, content: Buf, cs: Charset): F[Output[A]]
 
   final def apply(input: Input): EndpointResult[F, A] =
-    if (input.request.isChunked) EndpointResult.NotMatched[F]
+    if input.request.isChunked then EndpointResult.NotMatched[F]
     else {
-      val output = F.suspend {
+      val output = F.defer {
         val contentLength = input.request.contentLengthOrNull
-        if (contentLength == null || contentLength == "0") missing
+        if contentLength == null || contentLength == "0" then missing
         else
           present(
             input.request.mediaTypeOrEmpty,
@@ -38,16 +38,16 @@ abstract private[finch] class FullBody[F[_], A] extends Endpoint[F, A] {
 
 private[finch] object FullBody {
 
-  trait PreparedBody[F[_], A, B] { _: FullBody[F, B] =>
+  trait PreparedBody[F[_], A, B] { self: FullBody[F, B] =>
     protected def prepare(a: A): B
   }
 
-  trait Required[F[_], A] extends PreparedBody[F, A, A] { _: FullBody[F, A] =>
+  trait Required[F[_], A] extends PreparedBody[F, A, A] { self: FullBody[F, A] =>
     protected def prepare(a: A): A = a
     protected def missing: F[Output[A]] = F.raiseError(Error.NotPresent(items.BodyItem))
   }
 
-  trait Optional[F[_], A] extends PreparedBody[F, A, Option[A]] { _: FullBody[F, Option[A]] =>
+  trait Optional[F[_], A] extends PreparedBody[F, A, Option[A]] { self: FullBody[F, Option[A]] =>
     protected def prepare(a: A): Option[A] = Some(a)
     protected def missing: F[Output[Option[A]]] = F.pure(Output.None)
   }
@@ -91,7 +91,7 @@ abstract private[finch] class ChunkedBody[F[_], S[_[_], _], A] extends Endpoint[
   protected def prepare(r: Reader[Buf], cs: Charset): Output[S[F, A]]
 
   final def apply(input: Input): EndpointResult[F, S[F, A]] =
-    if (!input.request.isChunked) EndpointResult.NotMatched[F]
+    if !input.request.isChunked then EndpointResult.NotMatched[F]
     else
       EndpointResult.Matched(
         input,

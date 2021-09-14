@@ -5,17 +5,16 @@ import scala.reflect.ClassTag
 import cats.Applicative
 import io.finch._
 import io.netty.handler.codec.http.QueryStringDecoder
-import shapeless.HNil
 
 private[finch] class MatchPath[F[_]](s: String)(implicit
     F: Applicative[F]
-) extends Endpoint[F, HNil] {
-  final def apply(input: Input): EndpointResult[F, HNil] = input.route match {
+) extends Endpoint[F, EmptyTuple] {
+  final def apply(input: Input): EndpointResult[F, EmptyTuple] = input.route match {
     case `s` :: rest =>
       EndpointResult.Matched(
         input.withRoute(rest),
         Trace.segment(s),
-        F.pure(Output.HNil)
+        F.pure(Output.EmptyTuple)
       )
     case _ => EndpointResult.NotMatched[F]
   }
