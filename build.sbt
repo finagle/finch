@@ -185,7 +185,6 @@ lazy val docSettings = allSettings ++ Seq(
   micrositeName := "Finch",
   micrositeDescription := "Scala combinator library for building Finagle HTTP services",
   micrositeAuthor := "Vladimir Kostyukov",
-  micrositeCompilingDocsTool := WithMdoc,
   mdocIn := baseDirectory.value / "mdoc",
   micrositeHighlightTheme := "atom-one-light",
   micrositeHomepage := "https://finagle.github.io/finch/",
