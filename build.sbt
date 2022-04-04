@@ -212,7 +212,7 @@ lazy val docSettings = allSettings ++ Seq(
     "-skip-packages",
     "scalaz",
     "-doc-source-url",
-    scmInfo.value.get.browseUrl + "/tree/master€{FILE_PATH}.scala",
+    scmInfo.value.get.browseUrl + "/tree/master${FILE_PATH}.scala",
     "-sourcepath",
     baseDirectory.in(LocalRootProject).value.getAbsolutePath,
     "-doc-root-content",
@@ -378,7 +378,7 @@ lazy val examples = project
         |io\.finch\.todo\..*;
         |io\.finch\.wrk\..*;
         |io\.finch\.iteratee\..*;
-    """.stripMargin
+      """.stripMargin
   )
   .settings(
     libraryDependencies ++= Seq(
