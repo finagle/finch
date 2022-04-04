@@ -66,12 +66,12 @@ val baseSettings = Seq(
     Resolver.sonatypeRepo("snapshots")
   ),
   scalacOptions ++= compilerOptions(scalaVersion.value),
-  scalacOptions in (Compile, console) ~= {
+  (Compile / console / scalacOptions) ~= {
     _.filterNot(Set("-Ywarn-unused-import"))
   },
-  scalacOptions in (Compile, console) += "-Yrepl-class-based",
-  fork in Test := true,
-  javaOptions in ThisBuild ++= Seq("-Xss2048K"),
+  (Compile / console / scalacOptions) += "-Yrepl-class-based",
+  (Test / fork) := true,
+  (ThisBuild / javaOptions) ++= Seq("-Xss2048K"),
   addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary),
   ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.2",
   semanticdbEnabled := true,
@@ -115,7 +115,7 @@ lazy val publishSettings = Seq(
     else
       Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
-  publishArtifact in Test := false,
+  (Test / publishArtifact) := false,
   pgpSecretRing := file("local.secring.gpg"),
   pgpPublicRing := file("local.pubring.gpg"),
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
@@ -203,9 +203,9 @@ lazy val docSettings = allSettings ++ Seq(
     "gray-lighter" -> "#F4F3F4",
     "white-color" -> "#FFFFFF"
   ),
-  addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), micrositeDocumentationUrl),
+  addMappingsToSiteDir((ScalaUnidoc / packageDoc / mappings), micrositeDocumentationUrl),
   ghpagesNoJekyll := false,
-  scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
+  (ScalaUnidoc / unidoc / scalacOptions) ++= Seq(
     "-groups",
     "-implicits",
     "-skip-packages",
@@ -213,17 +213,17 @@ lazy val docSettings = allSettings ++ Seq(
     "-doc-source-url",
     scmInfo.value.get.browseUrl + "/tree/master${FILE_PATH}.scala",
     "-sourcepath",
-    baseDirectory.in(LocalRootProject).value.getAbsolutePath,
+    (LocalRootProject / baseDirectory).value.getAbsolutePath,
     "-doc-root-content",
-    (resourceDirectory.in(Compile).value / "rootdoc.txt").getAbsolutePath
+    ((Compile / resourceDirectory).value / "rootdoc.txt").getAbsolutePath
   ),
   scalacOptions ~= {
     _.filterNot(Set("-Yno-predef", "-Xlint", "-Ywarn-unused-import"))
   },
   git.remoteRepo := "git@github.com:finagle/finch.git",
-  unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(benchmarks, jsonTest),
-  includeFilter in makeSite := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.svg" | "*.js" | "*.swf" | "*.yml" | "*.md",
-  siteSubdirName in ScalaUnidoc := "docs"
+  (ScalaUnidoc / unidoc / unidocProjectFilter) := inAnyProject -- inProjects(benchmarks, jsonTest),
+  (makeSite / includeFilter) := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.svg" | "*.js" | "*.swf" | "*.yml" | "*.md",
+  (ScalaUnidoc / siteSubdirName) := "docs"
 )
 
 lazy val finch = project
@@ -232,7 +232,7 @@ lazy val finch = project
   .settings(allSettings)
   .settings(noPublish)
   .settings(
-    initialCommands in console :=
+    (console / initialCommands) :=
       """
         |import io.finch._
         |import io.finch.circe._
@@ -396,7 +396,7 @@ lazy val benchmarks = project
   .settings(libraryDependencies += "io.circe" %% "circe-generic" % circeVersion)
   .settings(coverageExcludedPackages := "io\\.finch\\..*;")
   .settings(
-    javaOptions in run ++= Seq(
+    (run / javaOptions) ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
       "-XX:+AggressiveOpts",
       "-XX:+UseParNewGC",
