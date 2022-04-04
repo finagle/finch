@@ -12,17 +12,16 @@ lazy val circeVersion = "0.13.0"
 lazy val circeIterateeVersion = "0.13.0-M2"
 lazy val circeFs2Version = "0.13.0"
 lazy val shapelessVersion = "2.3.3"
-lazy val catsVersion = "2.7.0"
+lazy val catsVersion = "2.2.0"
 lazy val argonautVersion = "6.3.1"
 lazy val iterateeVersion = "0.19.0"
 lazy val refinedVersion = "0.9.17"
-lazy val catsEffectVersion = "2.7.0"
+lazy val catsEffectVersion = "2.2.0"
 lazy val fs2Version = "2.4.4"
 
 def compilerOptions(scalaVersion: String): Seq[String] = Seq(
   "-deprecation",
-  "-encoding",
-  "UTF-8",
+  "-encoding", "UTF-8",
   "-feature",
   "-language:existentials",
   "-language:higherKinds",
@@ -66,10 +65,10 @@ val baseSettings = Seq(
     Resolver.sonatypeRepo("snapshots")
   ),
   scalacOptions ++= compilerOptions(scalaVersion.value),
-  scalacOptions in (Compile, console) ~= {
+  scalacOptions in(Compile, console) ~= {
     _.filterNot(Set("-Ywarn-unused-import"))
   },
-  scalacOptions in (Compile, console) += "-Yrepl-class-based",
+  scalacOptions in(Compile, console) += "-Yrepl-class-based",
   fork in Test := true,
   javaOptions in ThisBuild ++= Seq("-Xss2048K"),
   addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary),
@@ -93,7 +92,8 @@ def updateVersionInFile(selectVersion: sbtrelease.Versions => String): ReleaseSt
     filesToUpdate.foreach { fileName =>
       val content = Source.fromFile(fileName).getLines.mkString("\n")
       val newContent =
-        pattern.replaceAllIn(content, m => m.matched.replaceAllLiterally(m.subgroups.head, newVersion))
+        pattern.replaceAllIn(content,
+          m => m.matched.replaceAllLiterally(m.subgroups.head, newVersion))
       new PrintWriter(fileName) {
         write(newContent);
         close()
@@ -202,33 +202,27 @@ lazy val docSettings = allSettings ++ Seq(
     "gray" -> "#7D7E7D",
     "gray-light" -> "#E5E6E5",
     "gray-lighter" -> "#F4F3F4",
-    "white-color" -> "#FFFFFF"
-  ),
-  addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), micrositeDocumentationUrl),
+    "white-color" -> "#FFFFFF"),
+  addMappingsToSiteDir(mappings in(ScalaUnidoc, packageDoc), micrositeDocumentationUrl),
   ghpagesNoJekyll := false,
-  scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
+  scalacOptions in(ScalaUnidoc, unidoc) ++= Seq(
     "-groups",
     "-implicits",
-    "-skip-packages",
-    "scalaz",
-    "-doc-source-url",
-    scmInfo.value.get.browseUrl + "/tree/master€{FILE_PATH}.scala",
-    "-sourcepath",
-    baseDirectory.in(LocalRootProject).value.getAbsolutePath,
-    "-doc-root-content",
-    (resourceDirectory.in(Compile).value / "rootdoc.txt").getAbsolutePath
+    "-skip-packages", "scalaz",
+    "-doc-source-url", scmInfo.value.get.browseUrl + "/tree/master€{FILE_PATH}.scala",
+    "-sourcepath", baseDirectory.in(LocalRootProject).value.getAbsolutePath,
+    "-doc-root-content", (resourceDirectory.in(Compile).value / "rootdoc.txt").getAbsolutePath
   ),
   scalacOptions ~= {
     _.filterNot(Set("-Yno-predef", "-Xlint", "-Ywarn-unused-import"))
   },
   git.remoteRepo := "git@github.com:finagle/finch.git",
-  unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(benchmarks, jsonTest),
+  unidocProjectFilter in(ScalaUnidoc, unidoc) := inAnyProject -- inProjects(benchmarks, jsonTest),
   includeFilter in makeSite := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.svg" | "*.js" | "*.swf" | "*.yml" | "*.md",
   siteSubdirName in ScalaUnidoc := "docs"
 )
 
-lazy val finch = project
-  .in(file("."))
+lazy val finch = project.in(file("."))
   .settings(moduleName := "finch")
   .settings(allSettings)
   .settings(noPublish)
@@ -250,27 +244,17 @@ lazy val finch = project
         |import shapeless._
       """.stripMargin
   )
-  .settings(
-    libraryDependencies ++= Seq(
-      "io.circe" %% "circe-generic" % circeVersion
-    )
-  )
+  .settings(libraryDependencies ++= Seq(
+    "io.circe" %% "circe-generic" % circeVersion
+  ))
   .aggregate(
-    core,
-    fs2,
-    iteratee,
-    generic,
-    argonaut,
-    circe,
-    benchmarks,
-    test,
-    jsonTest,
-    examples,
-    refined
+    core, fs2, iteratee, generic, argonaut, circe, benchmarks, test, jsonTest, examples, refined
   )
   .dependsOn(core, iteratee, generic, circe)
 
-lazy val core = project.settings(moduleName := "finchx-core").settings(allSettings)
+lazy val core = project
+  .settings(moduleName := "finchx-core")
+  .settings(allSettings)
 
 lazy val iteratee = project
   .settings(moduleName := "finchx-iteratee")
@@ -292,7 +276,10 @@ lazy val fs2 = project
   )
   .dependsOn(core % "compile->compile;test->test")
 
-lazy val generic = project.settings(moduleName := "finchx-generic").settings(allSettings).dependsOn(core % "compile->compile;test->test")
+lazy val generic = project
+  .settings(moduleName := "finchx-generic")
+  .settings(allSettings)
+  .dependsOn(core % "compile->compile;test->test")
 
 lazy val test = project
   .settings(moduleName := "finchx-test")
@@ -301,8 +288,7 @@ lazy val test = project
   .settings(libraryDependencies ++= testDependencies)
   .dependsOn(core)
 
-lazy val jsonTest = project
-  .in(file("json-test"))
+lazy val jsonTest = project.in(file("json-test"))
   .settings(moduleName := "finchx-json-test")
   .settings(allSettings)
   .settings(coverageExcludedPackages := "io\\.finch\\.test\\..*")
@@ -318,11 +304,9 @@ lazy val jsonTest = project
 lazy val argonaut = project
   .settings(moduleName := "finchx-argonaut")
   .settings(allSettings)
-  .settings(
-    libraryDependencies ++= Seq(
-      "io.argonaut" %% "argonaut" % argonautVersion
-    )
-  )
+  .settings(libraryDependencies ++= Seq(
+    "io.argonaut" %% "argonaut" % argonautVersion
+  ))
   .dependsOn(core, jsonTest % "test")
 
 lazy val circe = project
@@ -371,15 +355,13 @@ lazy val examples = project
   .settings(allSettings)
   .settings(noPublish)
   .settings(resolvers += "TM" at "https://maven.twttr.com")
-  .settings(
-    coverageExcludedPackages :=
-      """
-        |io\.finch\.div\..*;
-        |io\.finch\.todo\..*;
-        |io\.finch\.wrk\..*;
-        |io\.finch\.iteratee\..*;
-    """.stripMargin
-  )
+  .settings(coverageExcludedPackages :=
+    """
+      |io\.finch\.div\..*;
+      |io\.finch\.todo\..*;
+      |io\.finch\.wrk\..*;
+      |io\.finch\.iteratee\..*;
+    """.stripMargin)
   .settings(
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-generic" % circeVersion,
@@ -429,3 +411,4 @@ val validateCommands = List(
 )
 addCommandAlias("validate", validateCommands.mkString(";", ";", ""))
 addCommandAlias("fmt", "all compile:scalafix; all test:scalafix; scalafmtAll")
+
