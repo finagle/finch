@@ -3,8 +3,8 @@ import microsites.ExtraMdFileConfig
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  scalaVersion := "2.12.12",
-  crossScalaVersions := Seq("2.12.12", "2.13.3")
+  scalaVersion := "2.12.15",
+  crossScalaVersions := Seq("2.12.15", "2.13.8")
 )
 
 lazy val twitterVersion = "20.9.0"
@@ -13,9 +13,9 @@ lazy val circeIterateeVersion = "0.13.0-M2"
 lazy val circeFs2Version = "0.13.0"
 lazy val shapelessVersion = "2.3.9"
 lazy val catsVersion = "2.2.0"
-lazy val argonautVersion = "6.3.1"
+lazy val argonautVersion = "6.3.8"
 lazy val iterateeVersion = "0.19.0"
-lazy val refinedVersion = "0.9.17"
+lazy val refinedVersion = "0.9.28"
 lazy val catsEffectVersion = "2.2.0"
 lazy val fs2Version = "2.4.4"
 
@@ -47,8 +47,8 @@ lazy val scala213CompilerOptions = Seq(
 )
 
 val testDependencies = Seq(
-  "org.scalacheck" %% "scalacheck" % "1.14.3",
-  "org.scalatest" %% "scalatest" % "3.2.2",
+  "org.scalacheck" %% "scalacheck" % "1.15.4",
+  "org.scalatest" %% "scalatest" % "3.2.11",
   "org.typelevel" %% "cats-laws" % catsVersion,
   "org.typelevel" %% "discipline-scalatest" % "2.0.1"
 )
@@ -66,12 +66,12 @@ val baseSettings = Seq(
     Resolver.sonatypeRepo("snapshots")
   ),
   scalacOptions ++= compilerOptions(scalaVersion.value),
-  scalacOptions in (Compile, console) ~= {
+  (Compile / console / scalacOptions) ~= {
     _.filterNot(Set("-Ywarn-unused-import"))
   },
-  scalacOptions in (Compile, console) += "-Yrepl-class-based",
-  fork in Test := true,
-  javaOptions in ThisBuild ++= Seq("-Xss2048K"),
+  (Compile / console / scalacOptions) += "-Yrepl-class-based",
+  (Test / fork) := true,
+  (ThisBuild / javaOptions) ++= Seq("-Xss2048K"),
   addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary),
   ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.2",
   semanticdbEnabled := true,
@@ -115,7 +115,7 @@ lazy val publishSettings = Seq(
     else
       Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
-  publishArtifact in Test := false,
+  (Test / publishArtifact) := false,
   pgpSecretRing := file("local.secring.gpg"),
   pgpPublicRing := file("local.pubring.gpg"),
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
@@ -203,9 +203,9 @@ lazy val docSettings = allSettings ++ Seq(
     "gray-lighter" -> "#F4F3F4",
     "white-color" -> "#FFFFFF"
   ),
-  addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), micrositeDocumentationUrl),
+  addMappingsToSiteDir((ScalaUnidoc / packageDoc / mappings), micrositeDocumentationUrl),
   ghpagesNoJekyll := false,
-  scalacOptions in (ScalaUnidoc, unidoc) ++= Seq(
+  (ScalaUnidoc / unidoc / scalacOptions) ++= Seq(
     "-groups",
     "-implicits",
     "-skip-packages",
@@ -213,17 +213,17 @@ lazy val docSettings = allSettings ++ Seq(
     "-doc-source-url",
     scmInfo.value.get.browseUrl + "/tree/master${FILE_PATH}.scala",
     "-sourcepath",
-    baseDirectory.in(LocalRootProject).value.getAbsolutePath,
+    (LocalRootProject / baseDirectory).value.getAbsolutePath,
     "-doc-root-content",
-    (resourceDirectory.in(Compile).value / "rootdoc.txt").getAbsolutePath
+    ((Compile / resourceDirectory).value / "rootdoc.txt").getAbsolutePath
   ),
   scalacOptions ~= {
     _.filterNot(Set("-Yno-predef", "-Xlint", "-Ywarn-unused-import"))
   },
   git.remoteRepo := "git@github.com:finagle/finch.git",
-  unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(benchmarks, jsonTest),
-  includeFilter in makeSite := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.svg" | "*.js" | "*.swf" | "*.yml" | "*.md",
-  siteSubdirName in ScalaUnidoc := "docs"
+  (ScalaUnidoc / unidoc / unidocProjectFilter) := inAnyProject -- inProjects(benchmarks, jsonTest),
+  (makeSite / includeFilter) := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.svg" | "*.js" | "*.swf" | "*.yml" | "*.md",
+  (ScalaUnidoc / siteSubdirName) := "docs"
 )
 
 lazy val finch = project
@@ -232,7 +232,7 @@ lazy val finch = project
   .settings(allSettings)
   .settings(noPublish)
   .settings(
-    initialCommands in console :=
+    (console / initialCommands) :=
       """
         |import io.finch._
         |import io.finch.circe._
@@ -396,7 +396,7 @@ lazy val benchmarks = project
   .settings(libraryDependencies += "io.circe" %% "circe-generic" % circeVersion)
   .settings(coverageExcludedPackages := "io\\.finch\\..*;")
   .settings(
-    javaOptions in run ++= Seq(
+    (run / javaOptions) ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
       "-XX:+AggressiveOpts",
       "-XX:+UseParNewGC",
