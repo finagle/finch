@@ -17,7 +17,7 @@ lazy val argonautVersion = "6.3.8"
 lazy val iterateeVersion = "0.19.0"
 lazy val refinedVersion = "0.9.28"
 lazy val catsEffectVersion = "2.5.4"
-lazy val fs2Version = "2.4.4"
+lazy val fs2Version = "2.4.6"
 
 def compilerOptions(scalaVersion: String): Seq[String] = Seq(
   "-deprecation",
