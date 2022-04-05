@@ -17,7 +17,7 @@ abstract private[finch] class Header[F[_], G[_], A](name: String)(implicit
   protected def present(value: A): G[A]
 
   final def apply(input: Input): EndpointResult[F, G[A]] = {
-    val output: F[Output[G[A]]] = F.suspend {
+    val output: F[Output[G[A]]] = F.defer {
       input.request.headerMap.getOrNull(name) match {
         case null => missing(name)
         case value =>

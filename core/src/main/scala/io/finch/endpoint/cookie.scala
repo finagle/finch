@@ -12,7 +12,7 @@ abstract private[finch] class Cookie[F[_], A](name: String)(implicit
   protected def present(value: FinagleCookie): F[Output[A]]
 
   def apply(input: Input): EndpointResult[F, A] = {
-    val output = F.suspend {
+    val output = F.defer {
       input.request.cookies.get(name) match {
         case None        => missing(name)
         case Some(value) => present(value)

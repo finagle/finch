@@ -665,7 +665,7 @@ object Endpoint {
   def liftAsync[F[_], A](fa: => F[A])(implicit F: Sync[F]): Endpoint[F, A] =
     new Endpoint[F, A] {
       final def apply(input: Input): Result[F, A] =
-        EndpointResult.Matched(input, Trace.empty, F.suspend(fa).map(a => Output.payload(a)))
+        EndpointResult.Matched(input, Trace.empty, F.defer(fa).map(a => Output.payload(a)))
     }
 
   /**
@@ -684,7 +684,7 @@ object Endpoint {
   def liftOutputAsync[F[_], A](foa: => F[Output[A]])(implicit F: Sync[F]): Endpoint[F, A] =
     new Endpoint[F, A] {
       final def apply(input: Input): Result[F, A] =
-        EndpointResult.Matched(input, Trace.empty, F.suspend(foa))
+        EndpointResult.Matched(input, Trace.empty, F.defer(foa))
     }
 
   /**
