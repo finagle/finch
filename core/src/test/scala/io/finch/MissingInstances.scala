@@ -3,7 +3,7 @@ package io.finch
 import scala.concurrent.ExecutionContext
 
 import cats.Eq
-import cats.effect.IO
+import cats.effect.{ContextShift, IO}
 import com.twitter.io.Buf
 
 /**

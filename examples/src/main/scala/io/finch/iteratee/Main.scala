@@ -69,7 +69,7 @@ object Main extends IOApp {
   )
 
   def run(args: List[String]): IO[ExitCode] = {
-    val server = Resource.make(serve)(s => IO.defer(implicitly[ToAsync[Future, IO]].apply(s.close())))
+    val server = Resource.make(serve)(s => IO.suspend(implicitly[ToAsync[Future, IO]].apply(s.close())))
 
     server.use(_ => IO.never).as(ExitCode.Success)
   }
