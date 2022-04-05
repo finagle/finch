@@ -73,7 +73,7 @@ val baseSettings = Seq(
   (Test / fork) := true,
   (ThisBuild / javaOptions) ++= Seq("-Xss2048K"),
   addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary),
-  ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.2",
+  ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.4",
   semanticdbEnabled := true,
   semanticdbVersion := scalafixSemanticdb.revision
 )
