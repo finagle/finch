@@ -3,8 +3,8 @@ import microsites.ExtraMdFileConfig
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  scalaVersion := "2.12.12",
-  crossScalaVersions := Seq("2.12.12", "2.13.8")
+  scalaVersion := "2.12.15",
+  crossScalaVersions := Seq("2.12.15", "2.13.8")
 )
 
 lazy val twitterVersion = "20.9.0"
@@ -15,7 +15,7 @@ lazy val shapelessVersion = "2.3.9"
 lazy val catsVersion = "2.2.0"
 lazy val argonautVersion = "6.3.1"
 lazy val iterateeVersion = "0.19.0"
-lazy val refinedVersion = "0.9.17"
+lazy val refinedVersion = "0.9.28"
 lazy val catsEffectVersion = "2.2.0"
 lazy val fs2Version = "2.4.4"
 
@@ -47,7 +47,7 @@ lazy val scala213CompilerOptions = Seq(
 )
 
 val testDependencies = Seq(
-  "org.scalacheck" %% "scalacheck" % "1.14.3",
+  "org.scalacheck" %% "scalacheck" % "1.15.4",
   "org.scalatest" %% "scalatest" % "3.2.11",
   "org.typelevel" %% "cats-laws" % catsVersion,
   "org.typelevel" %% "discipline-scalatest" % "2.0.1"
