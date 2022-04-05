@@ -17,7 +17,7 @@ package object iteratee extends IterateeInstances {
     new LiftReader[Enumerator, F] {
       final def apply[A](reader: Reader[Buf], process: Buf => A): Enumerator[F, A] = {
         def loop(): Enumerator[F, A] =
-          Enumerator.liftM[F, Option[Buf]](F.suspend(TE(reader.read()))).flatMap {
+          Enumerator.liftM[F, Option[Buf]](F.defer(TE(reader.read()))).flatMap {
             case None      => Enumerator.empty[F, A]
             case Some(buf) => Enumerator.enumOne[F, A](process(buf)).append(loop())
           }
@@ -75,7 +75,7 @@ trait IterateeInstances {
 
     def apply(s: Enumerator[F, A], cs: Charset): F[Reader[Buf]] = {
       val p = new Pipe[Buf]
-      val run = s.ensure(F.suspend(TE(p.close()))).map(chunk => encodeChunk(chunk, cs)).into(writeIteratee(p))
+      val run = s.ensure(F.defer(TE(p.close()))).map(chunk => encodeChunk(chunk, cs)).into(writeIteratee(p))
 
       F.productR(F.runAsync(run)(this).to[F])(F.pure(p))
     }

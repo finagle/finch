@@ -32,7 +32,7 @@ abstract private[finch] class Attribute[F[_]: Sync, G[_], A](val name: String)(i
   final def apply(input: Input): EndpointResult[F, G[A]] =
     if (input.request.isChunked) EndpointResult.NotMatched[F]
     else {
-      val output = F.suspend {
+      val output = F.defer {
         all(input) match {
           case None => missing(name)
           case Some(values) =>
@@ -113,7 +113,7 @@ abstract private[finch] class FileUpload[F[_]: Sync, G[_]](name: String) extends
   final def apply(input: Input): EndpointResult[F, G[FinagleFileUpload]] =
     if (input.request.isChunked) EndpointResult.NotMatched[F]
     else {
-      val output = Sync[F].suspend {
+      val output = Sync[F].defer {
         all(input) match {
           case Some(nel) => present(nel)
           case None      => missing(name)

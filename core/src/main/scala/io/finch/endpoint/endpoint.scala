@@ -16,7 +16,7 @@ package object endpoint {
       S: ContextShift[F]
   ) extends Endpoint[F, Buf] {
 
-    private def readLoop(left: Buf, stream: InputStream): F[Buf] = F.suspend {
+    private def readLoop(left: Buf, stream: InputStream): F[Buf] = F.defer {
       val buffer = new Array[Byte](1024)
       val n = stream.read(buffer)
       if (n == -1) F.pure(left)
