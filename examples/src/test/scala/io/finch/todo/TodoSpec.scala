@@ -1,7 +1,6 @@
 package io.finch.todo
 
 import cats.effect.IO
-import cats.effect.concurrent.Ref
 import com.twitter.finagle.http.Status
 import io.circe.generic.auto._
 import io.finch._
@@ -11,6 +10,7 @@ import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
+import cats.effect.Ref
 
 class TodoSpec extends AnyFlatSpec with Matchers with Checkers {
 
