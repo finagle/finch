@@ -694,9 +694,7 @@ object Endpoint {
     * @see [[fromFile]]
     */
   def fromInputStream[F[_]](stream: Resource[F, InputStream])(implicit
-      F: Sync[F],
-      S: ContextShift[F]
-  ): Endpoint[F, Buf] = new FromInputStream[F](stream)
+      F: Sync[F]): Endpoint[F, Buf] = new FromInputStream[F](stream)
 
   /**
     * Creates an [[Endpoint]] from a given [[File]]. Uses [[Resource]] for safer resource
@@ -705,9 +703,7 @@ object Endpoint {
     * @see [[fromInputStream]]
     */
   def fromFile[F[_]](file: File)(implicit
-      F: Sync[F],
-      S: ContextShift[F]
-  ): Endpoint[F, Buf] =
+      F: Sync[F]): Endpoint[F, Buf] =
     fromInputStream[F](
       Resource.fromAutoCloseable(F.delay(new FileInputStream(file)))
     )
@@ -744,9 +740,7 @@ object Endpoint {
     * @see https://docs.oracle.com/javase/8/docs/technotes/guides/lang/resources.html
     */
   def classpathAsset[F[_]](path: String)(implicit
-      F: Sync[F],
-      S: ContextShift[F]
-  ): Endpoint[F, Buf] = {
+      F: Sync[F]): Endpoint[F, Buf] = {
     val asset = new Asset[F](path)
     val stream =
       fromInputStream[F](Resource.fromAutoCloseable(F.delay(getClass.getResourceAsStream(path))))
@@ -770,9 +764,7 @@ object Endpoint {
     * }}}
     */
   def filesystemAsset[F[_]](path: String)(implicit
-      F: Sync[F],
-      S: ContextShift[F]
-  ): Endpoint[F, Buf] = {
+      F: Sync[F]): Endpoint[F, Buf] = {
     val asset = new Asset[F](path)
     val file = fromFile[F](new File(path))
 
