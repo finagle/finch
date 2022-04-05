@@ -19,7 +19,7 @@ abstract private[finch] class FullBody[F[_], A] extends Endpoint[F, A] {
   final def apply(input: Input): EndpointResult[F, A] =
     if (input.request.isChunked) EndpointResult.NotMatched[F]
     else {
-      val output = F.suspend {
+      val output = F.defer {
         val contentLength = input.request.contentLengthOrNull
         if (contentLength == null || contentLength == "0") missing
         else

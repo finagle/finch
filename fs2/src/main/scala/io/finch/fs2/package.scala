@@ -16,7 +16,7 @@ package object fs2 extends StreamConcurrentInstances {
   ): LiftReader[Stream, F] =
     new LiftReader[Stream, F] {
       final def apply[A](reader: Reader[Buf], process: Buf => A): Stream[F, A] =
-        Stream.repeatEval(F.suspend(TA(reader.read()))).unNoneTerminate.map(process).onFinalize(F.delay(reader.discard()))
+        Stream.repeatEval(F.defer(TA(reader.read()))).unNoneTerminate.map(process).onFinalize(F.delay(reader.discard()))
     }
 
   implicit def encodeBufConcurrentFs2[F[_]: ConcurrentEffect, CT <: String]: EncodeStream.Aux[F, Stream, Buf, CT] =
@@ -121,9 +121,9 @@ trait StreamInstances {
 
     protected def dispatch(reader: Reader[Buf], run: F[Unit]): F[Reader[Buf]]
 
-    def apply(s: Stream[F, A], cs: Charset): F[Reader[Buf]] = F.suspend {
+    def apply(s: Stream[F, A], cs: Charset): F[Reader[Buf]] = F.defer {
       val p = new Pipe[Buf]
-      val run = s.map(chunk => encodeChunk(chunk, cs)).evalMap(chunk => TA(p.write(chunk))).onFinalize(F.suspend(TA(p.close()))).compile.drain
+      val run = s.map(chunk => encodeChunk(chunk, cs)).evalMap(chunk => TA(p.write(chunk))).onFinalize(F.defer(TA(p.close()))).compile.drain
 
       dispatch(p, run)
     }

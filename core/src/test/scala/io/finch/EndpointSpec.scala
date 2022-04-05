@@ -1,15 +1,8 @@
 package io.finch
 
-import java.io.{ByteArrayInputStream, InputStream}
-import java.util.UUID
-import java.util.concurrent.TimeUnit
-
-import scala.concurrent.duration.Duration
-
 import cats.data.{NonEmptyList, WriterT}
 import cats.effect.{IO, Resource}
 import cats.laws._
-import cats.laws.discipline.AlternativeTests
 import cats.laws.discipline.SemigroupalTests.Isomorphisms
 import cats.laws.discipline._
 import cats.~>
@@ -17,6 +10,12 @@ import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.io.Buf
 import io.finch.data.Foo
 import shapeless._
+
+import java.io.{ByteArrayInputStream, InputStream}
+import java.net.URLEncoder
+import java.util.UUID
+import java.util.concurrent.TimeUnit
+import scala.concurrent.duration.Duration
 
 class EndpointSpec extends FinchSpec {
 
@@ -106,7 +105,7 @@ class EndpointSpec extends FinchSpec {
   it should "match empty path" in {
     check { i: Input =>
       (i.route.isEmpty && pathEmpty.apply(i).isMatched) ||
-      (!i.route.isEmpty && !pathEmpty.apply(i).isMatched)
+      (i.route.nonEmpty && !pathEmpty.apply(i).isMatched)
     }
   }
 
@@ -222,7 +221,8 @@ class EndpointSpec extends FinchSpec {
     val foo = (path[String] :: path[Int] :: path[Boolean]).as[Foo]
 
     check { (s: String, i: Int, b: Boolean) =>
-      foo(Input(emptyRequest, List(s, i.toString, b.toString))).awaitValueUnsafe() ===
+      val sEncoded = URLEncoder.encode(s, "UTF-8")
+      foo(Input(emptyRequest, List(sEncoded, i.toString, b.toString))).awaitValueUnsafe() ===
         Some(Foo(s, i, b))
     }
   }
