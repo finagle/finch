@@ -29,5 +29,5 @@ jobs:
         shell: bash
         env:
           ENCRYPTION_PASSWORD: ${{secrets.ENCRYPTION_PASSWORD}}
-        run: |
-          JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8 ./build/build.sh
+          JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF8
+        run: ./build/build.sh
