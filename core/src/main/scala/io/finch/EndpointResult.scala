@@ -1,11 +1,11 @@
 package io.finch
 
 import scala.concurrent.duration.Duration
-
 import cats.Id
-import cats.effect.Effect
+import cats.effect.std.Dispatcher
 import com.twitter.finagle.http.Method
-import com.twitter.util._
+
+import scala.concurrent.TimeoutException
 
 /**
   * A result returned from an [[Endpoint]]. This models `Option[(Input, Future[Output])]` and
@@ -45,30 +45,30 @@ sealed abstract class EndpointResult[F[_], +A] {
     case _                                 => None
   }
 
-  def awaitOutput(d: Duration = Duration.Inf)(implicit F: Effect[F]): Option[Either[Throwable, Output[A]]] = this match {
+  def awaitOutput(d: Duration = Duration.Inf)(implicit dispatcher: Dispatcher[F]): Option[Either[Throwable, Output[A]]] = this match {
     case EndpointResult.Matched(_, _, out) =>
-      try F.toIO(out).unsafeRunTimed(d) match {
-        case Some(a) => Some(Right(a))
-        case _       => Some(Left(new TimeoutException(s"Output wasn't returned in time: $d")))
+      try dispatcher.unsafeRunTimed(out, d) match {
+        case a => Some(Right(a))
       } catch {
+        case _: TimeoutException => Some(Left(new TimeoutException(s"Output wasn't returned in time: $d")))
         case e: Throwable => Some(Left(e))
       }
     case _ => None
   }
 
-  def awaitOutputUnsafe(d: Duration = Duration.Inf)(implicit F: Effect[F]): Option[Output[A]] =
+  def awaitOutputUnsafe(d: Duration = Duration.Inf)(implicit dispatcher: Dispatcher[F]): Option[Output[A]] =
     awaitOutput(d).map {
       case Right(r) => r
       case Left(ex) => throw ex
     }
 
-  def awaitValue(d: Duration = Duration.Inf)(implicit F: Effect[F]): Option[Either[Throwable, A]] =
+  def awaitValue(d: Duration = Duration.Inf)(implicit dispatcher: Dispatcher[F]): Option[Either[Throwable, A]] =
     awaitOutput(d).map {
       case Right(oa) => Right(oa.value)
       case Left(ob)  => Left(ob)
     }
 
-  def awaitValueUnsafe(d: Duration = Duration.Inf)(implicit F: Effect[F]): Option[A] =
+  def awaitValueUnsafe(d: Duration = Duration.Inf)(implicit dispatcher: Dispatcher[F]): Option[A] =
     awaitOutputUnsafe(d).map(oa => oa.value)
 }
 

@@ -7,7 +7,7 @@ import scala.reflect.ClassTag
 
 import cats.Eq
 import cats.data.NonEmptyList
-import cats.effect.{Effect, IO}
+import cats.effect.IO
 import cats.instances.AllInstances
 import com.twitter.concurrent.AsyncStream
 import com.twitter.finagle.http._

@@ -1,22 +1,23 @@
 package io.finch
 
 import java.io.{File, FileInputStream, InputStream}
-
 import scala.reflect.ClassTag
-
 import cats.data._
 import cats.effect._
+import cats.effect.std.Dispatcher
 import cats.syntax.all._
 import cats.{Alternative, Applicative, ApplicativeError, Apply, Functor, Id, Monad, MonadError, MonoidK, SemigroupK, ~>}
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart}
-import com.twitter.finagle.http.{Cookie => FinagleCookie, Method => FinagleMethod, Request, Response}
+import com.twitter.finagle.http.{Request, Response, Cookie => FinagleCookie, Method => FinagleMethod}
 import com.twitter.io.Buf
 import io.finch.endpoint._
 import io.finch.internal._
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.hlist.Tupler
+
+import scala.concurrent.ExecutionContext
 
 /**
   * An `Endpoint` represents the HTTP endpoint.
@@ -324,7 +325,8 @@ trait Endpoint[F[_], A] {
     * Consider using [[io.finch.Bootstrap]] instead.
     */
   final def toService(implicit
-      F: Effect[F],
+      F: Async[F],
+      dispatcher: Dispatcher[F],
       tr: ToResponse.Aux[F, A, Application.Json],
       tre: ToResponse.Aux[F, Exception, Application.Json]
   ): Service[Request, Response] = toServiceAs[Application.Json]
@@ -336,7 +338,8 @@ trait Endpoint[F[_], A] {
     * Consider using [[io.finch.Bootstrap]] instead.
     */
   final def toServiceAs[CT <: String](implicit
-      F: Effect[F],
+      F: Async[F],
+      dispatcher: Dispatcher[F],
       tr: ToResponse.Aux[F, A, CT],
       tre: ToResponse.Aux[F, Exception, CT]
   ): Service[Request, Response] = Bootstrap.serve[CT](this).toService
@@ -613,7 +616,7 @@ object Endpoint {
   /**
     * Convert [[Endpoint.Compiled]] into Finagle Service
     */
-  def toService[F[_]: Effect](compiled: Endpoint.Compiled[F]): Service[Request, Response] = ToService(compiled)
+  def toService[F[_]: Async: Dispatcher](compiled: Endpoint.Compiled[F]): Service[Request, Response] = ToService(compiled)
 
   /**
     * Creates an empty [[Endpoint]] (an endpoint that never matches) for a given type.
@@ -689,23 +692,23 @@ object Endpoint {
 
   /**
     * Creates an [[Endpoint]] from a given [[InputStream]]. Uses [[Resource]] for safer resource
-    * management and [[ContextShift]] for offloading blocking work from a worker pool.
+    * management and [[ExecutionContext]] for offloading blocking work from a worker pool.
     *
     * @see [[fromFile]]
     */
-  def fromInputStream[F[_]](stream: Resource[F, InputStream])(implicit
-      F: Sync[F]): Endpoint[F, Buf] = new FromInputStream[F](stream)
+  def fromInputStream[F[_]](stream: Resource[F, InputStream], blockingEc: ExecutionContext)(implicit
+      F: Async[F]): Endpoint[F, Buf] = new FromInputStream[F](stream, blockingEc)
 
   /**
     * Creates an [[Endpoint]] from a given [[File]]. Uses [[Resource]] for safer resource
-    * management and [[ContextShift]] for offloading blocking work from a worker pool.
+    * management and [[ExecutionContext]] for offloading blocking work from a worker pool.
     *
     * @see [[fromInputStream]]
     */
-  def fromFile[F[_]](file: File)(implicit
-      F: Sync[F]): Endpoint[F, Buf] =
+  def fromFile[F[_]](file: File, blockingEc: ExecutionContext)(implicit F: Async[F]): Endpoint[F, Buf] =
     fromInputStream[F](
-      Resource.fromAutoCloseable(F.delay(new FileInputStream(file)))
+      Resource.fromAutoCloseable(F.delay(new FileInputStream(file))),
+      blockingEc
     )
 
   /**
@@ -739,11 +742,11 @@ object Endpoint {
     *
     * @see https://docs.oracle.com/javase/8/docs/technotes/guides/lang/resources.html
     */
-  def classpathAsset[F[_]](path: String)(implicit
-      F: Sync[F]): Endpoint[F, Buf] = {
+  def classpathAsset[F[_]](path: String, blockingEc: ExecutionContext)(implicit
+      F: Async[F]): Endpoint[F, Buf] = {
     val asset = new Asset[F](path)
     val stream =
-      fromInputStream[F](Resource.fromAutoCloseable(F.delay(getClass.getResourceAsStream(path))))
+      fromInputStream[F](Resource.fromAutoCloseable(F.delay(getClass.getResourceAsStream(path))), blockingEc)
 
     asset :: stream
   }
@@ -763,10 +766,10 @@ object Endpoint {
     *     ...
     * }}}
     */
-  def filesystemAsset[F[_]](path: String)(implicit
-      F: Sync[F]): Endpoint[F, Buf] = {
+  def filesystemAsset[F[_]](path: String, blockingEc: ExecutionContext)(implicit
+      F: Async[F]): Endpoint[F, Buf] = {
     val asset = new Asset[F](path)
-    val file = fromFile[F](new File(path))
+    val file = fromFile[F](new File(path), blockingEc)
 
     asset :: file
   }

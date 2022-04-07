@@ -2,8 +2,9 @@ package io.finch
 
 import java.nio.charset.{Charset, StandardCharsets}
 import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
-
 import cats.effect.IO
+import cats.effect.std.Dispatcher
+import cats.effect.unsafe.IORuntime
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.io.Buf
@@ -20,6 +21,9 @@ import shapeless._
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(2)
 abstract class FinchBenchmark extends Endpoint.Module[IO] {
+  implicit val ioRuntime: IORuntime = IORuntime.global
+  implicit val dispatcher: Dispatcher[IO] = Dispatcher[IO].use(IO(_)).unsafeRunSync()
+
   val postPayload: Input = Input.post("/").withBody[Text.Plain](Buf.Utf8("x" * 1024))
   val getRoot: Input = Input.get("/")
   val getFooBarBaz: Input = Input.get("/foo/bar/baz")

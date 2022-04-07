@@ -7,13 +7,15 @@ import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
 import cats.effect.Ref
+import cats.effect.std.Dispatcher
+
+import scala.concurrent.ExecutionContext
 
 class App(
     idRef: Ref[IO, Int],
-    storeRef: Ref[IO, Map[Int, Todo]]
-)(implicit
-    S: ContextShift[IO]
-) extends Endpoint.Module[IO] {
+    storeRef: Ref[IO, Map[Int, Todo]],
+    blockerEc: ExecutionContext
+)(implicit dispatcher: Dispatcher[IO] ) extends Endpoint.Module[IO] {
 
   final val postedTodo: Endpoint[IO, Todo] =
     jsonBody[(Int, Boolean) => Todo].mapAsync(pt => idRef.modify(id => (id + 1, pt(id, false))))
@@ -61,7 +63,7 @@ class App(
 
   final def toService: Service[Request, Response] = Bootstrap
     .serve[Application.Json](getTodos :+: postTodo :+: deleteTodo :+: deleteTodos :+: patchTodo)
-    .serve[Text.Html](classpathAsset("/todo/index.html"))
-    .serve[Application.Javascript](classpathAsset("/todo/main.js"))
+    .serve[Text.Html](classpathAsset("/todo/index.html", blockerEc))
+    .serve[Application.Javascript](classpathAsset("/todo/main.js", blockerEc))
     .toService
 }
