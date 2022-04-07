@@ -17,7 +17,7 @@ import scala.util.Try
 abstract class AbstractJsonSpec extends AnyFlatSpec with Matchers with Checkers with AllInstances {
 
   implicit val comonadEither: Comonad[Try] = new Comonad[Try] {
-    def extract[A](x: Try[A]): A = x.get // never do it in production, kids
+    def extract[A](x: Try[A]): A = x.get //never do it in production, kids
 
     def coflatMap[A, B](fa: Try[A])(f: Try[A] => B): Try[B] = Try(f(fa))
 

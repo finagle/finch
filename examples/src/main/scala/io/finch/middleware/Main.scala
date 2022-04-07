@@ -6,7 +6,9 @@ import com.twitter.finagle.http.{Response, Status}
 import com.twitter.util.{Await, Time}
 import io.finch._
 
-/** Small Finch hello world application serving endpoint protected by serious authentication where each request & response are also logged and measured.
+/**
+  * Small Finch hello world application serving endpoint protected by serious authentication
+  * where each request & response are also logged and measured.
   *
   * This is achieved using Kleisli-based middleware together with [[Bootstrap.compile]]
   *
@@ -17,7 +19,8 @@ import io.finch._
   *   curl -V -H "Authorization: wrong" http://localhost:8081/hello
   * }}}
   *
-  * !Disclaimer: most likely you would need to use proper libraries for logging, auth, and metrics instead but their use will be quite similar.
+  * !Disclaimer: most likely you would need to use proper libraries for logging, auth, and metrics
+  * instead but their use will be quite similar.
   */
 object Main extends App with Endpoint.Module[IO] {
 
@@ -25,16 +28,18 @@ object Main extends App with Endpoint.Module[IO] {
     Ok("Hello world")
   }
 
-  val auth: Endpoint.Compiled[IO] => Endpoint.Compiled[IO] = compiled =>
+  val auth: Endpoint.Compiled[IO] => Endpoint.Compiled[IO] = compiled => {
     Endpoint.Compiled[IO] {
       case req if req.authorization.contains("secret") => compiled(req)
       case _                                           => IO.pure(Trace.empty -> Right(Response(Status.Unauthorized)))
     }
+  }
 
-  val logging: Endpoint.Compiled[IO] => Endpoint.Compiled[IO] = compiled =>
+  val logging: Endpoint.Compiled[IO] => Endpoint.Compiled[IO] = compiled => {
     compiled.tapWithF { (req, res) =>
       IO(print(s"Request: $req\n")) *> IO(print(s"Response: $res\n")) *> IO.pure(res)
     }
+  }
 
   val stats: Endpoint.Compiled[IO] => Endpoint.Compiled[IO] = compiled => {
     val now = IO(Time.now)

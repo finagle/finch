@@ -5,7 +5,9 @@ import com.twitter.io.Buf
 import java.nio.charset.Charset
 import scala.annotation.implicitNotFound
 
-/** Stream HTTP streamed payload represented as S[F, Buf] into a S[F, A] of arbitrary type `A`.
+/**
+  * Stream HTTP streamed payload represented as S[F, Buf] into
+  * a S[F, A] of arbitrary type `A`.
   */
 trait DecodeStream[S[_[_], _], F[_], A] {
 

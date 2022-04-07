@@ -6,7 +6,8 @@ import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.util.{Future, Promise}
 
-/** Representation of `Endpoint.Compiled` as Finagle Service
+/**
+  * Representation of `Endpoint.Compiled` as Finagle Service
   */
 case class ToService[F[_]](compiled: Endpoint.Compiled[F])(implicit F: Effect[F]) extends Service[Request, Response] {
   def apply(request: Request): Future[Response] = {

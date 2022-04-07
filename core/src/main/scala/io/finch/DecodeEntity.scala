@@ -4,7 +4,9 @@ import shapeless._
 
 import java.util.UUID
 
-/** Decodes an HTTP entity (eg: header, query-string param) represented as UTF-8 `String` into an arbitrary type `A`.
+/**
+  * Decodes an HTTP entity (eg: header, query-string param) represented as UTF-8 `String` into
+  * an arbitrary type `A`.
   */
 trait DecodeEntity[A] {
   def apply(s: String): Either[Throwable, A]
@@ -12,7 +14,8 @@ trait DecodeEntity[A] {
 
 object DecodeEntity extends HighPriorityDecode {
 
-  /** Returns a [[DecodeEntity]] instance for a given type.
+  /**
+    * Returns a [[DecodeEntity]] instance for a given type.
     */
   @inline def apply[A](implicit d: DecodeEntity[A]): DecodeEntity[A] = d
 
@@ -58,13 +61,15 @@ trait HighPriorityDecode extends LowPriorityDecode {
 
 trait LowPriorityDecode {
 
-  /** Creates an [[DecodeEntity]] instance from a given function `String => Either[Throwable, A]`.
+  /**
+    * Creates an [[DecodeEntity]] instance from a given function `String => Either[Throwable, A]`.
     */
   def instance[A](fn: String => Either[Throwable, A]): DecodeEntity[A] = new DecodeEntity[A] {
     def apply(s: String): Either[Throwable, A] = fn(s)
   }
 
-  /** Creates a [[Decode]] from [[shapeless.Generic]] for single value case classes.
+  /**
+    * Creates a [[Decode]] from [[shapeless.Generic]] for single value case classes.
     */
   implicit def decodeFromGeneric[A, H <: HList, E](implicit
       gen: Generic.Aux[A, H],

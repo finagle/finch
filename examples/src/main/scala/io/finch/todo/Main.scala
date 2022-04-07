@@ -9,7 +9,8 @@ import com.twitter.util.Await
 
 import scala.concurrent.ExecutionContext
 
-/** A simple Finch server serving a TODO application.
+/**
+  * A simple Finch server serving a TODO application.
   *
   * Use the following sbt command to run the application.
   *
@@ -17,7 +18,8 @@ import scala.concurrent.ExecutionContext
   *   $ sbt 'examples/runMain io.finch.todo.Main'
   * }}}
   *
-  * Open your browser at `http://localhost:8081/todo/index.html` or use the following HTTPie commands to test endpoints.
+  * Open your browser at `http://localhost:8081/todo/index.html` or use the following HTTPie
+  * commands to test endpoints.
   *
   * {{{
   *   $ http POST :8081/todos title=foo
@@ -32,7 +34,7 @@ object Main extends TwitterServer {
   private val port: Flag[Int] = flag("port", 8081, "TCP port for HTTP server")
 
   def main(): Unit = {
-    println(s"Open your browser at http://localhost:${port()}/todo/index.html") // scalastyle:ignore
+    println(s"Open your browser at http://localhost:${port()}/todo/index.html") //scalastyle:ignore
 
     val server = for {
       id <- Ref[IO].of(0)

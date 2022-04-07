@@ -9,18 +9,22 @@ import shapeless.Witness
 import java.nio.charset.{Charset, StandardCharsets}
 import scala.collection.mutable.ListBuffer
 
-/** An input for [[Endpoint]] that glues two individual pieces together:
+/**
+  * An input for [[Endpoint]] that glues two individual pieces together:
   *
-  *   - Finagle's [[Request]] needed for evaluating (e.g., `body`, `param`)
-  *   - Finch's route (represented as `Seq[String]`) needed for matching (e.g., `path`)
+  * - Finagle's [[Request]] needed for evaluating (e.g., `body`, `param`)
+  * - Finch's route (represented as `Seq[String]`) needed for matching (e.g., `path`)
   */
 final case class Input(request: Request, route: List[String]) {
 
-  /** Returns the new `Input` wrapping a given `route`.
+  /**
+    * Returns the new `Input` wrapping a given `route`.
     */
   def withRoute(route: List[String]): Input = Input(request, route)
 
-  /** Returns the new `Input` wrapping a given payload. This requires the content-type as a first type parameter (won't be inferred).
+  /**
+    * Returns the new `Input` wrapping a given payload. This requires the content-type as a first
+    * type parameter (won't be inferred).
     *
     * ```
     *  import io.finch._, io.circe._
@@ -44,7 +48,8 @@ final case class Input(request: Request, route: List[String]) {
     */
   def withBody[CT <: String]: Input.Body[CT] = new Input.Body[CT](this)
 
-  /** Returns the new `Input` with `headers` amended.
+  /**
+    * Returns the new `Input` with `headers` amended.
     */
   def withHeaders(headers: (String, String)*): Input = {
     val copied = Input.copyRequest(request)
@@ -53,10 +58,10 @@ final case class Input(request: Request, route: List[String]) {
     Input(copied, route)
   }
 
-  /** Returns the new `Input` wrapping a given `application/x-www-form-urlencoded` payload.
+  /**
+    * Returns the new `Input` wrapping a given `application/x-www-form-urlencoded` payload.
     *
-    * @note
-    *   In addition to media type, this will also set charset to UTF-8.
+    * @note In addition to media type, this will also set charset to UTF-8.
     */
   def withForm(params: (String, String)*): Input = {
     val postRequest: Request = RequestBuilder().addFormElement(params: _*).url("http://localhost").buildFormPost()
@@ -65,7 +70,8 @@ final case class Input(request: Request, route: List[String]) {
   }
 }
 
-/** Creates an input for [[Endpoint]] from [[Request]].
+/**
+  * Creates an input for [[Endpoint]] from [[Request]].
   */
 object Input {
 
@@ -81,7 +87,8 @@ object Input {
     to
   }
 
-  /** A helper class that captures the `Content-Type` of the payload.
+  /**
+    * A helper class that captures the `Content-Type` of the payload.
     */
   class Body[CT <: String](i: Input) {
     def apply[A](body: A)(implicit e: Encode.Aux[A, CT], w: Witness.Aux[CT]): Input =
@@ -127,7 +134,8 @@ object Input {
 
   implicit val inputEq: Eq[Input] = Eq.fromUniversalEquals
 
-  /** Creates an [[Input]] from a given [[Request]].
+  /**
+    * Creates an [[Input]] from a given [[Request]].
     */
   def fromRequest(req: Request): Input = {
     val p = req.path
@@ -154,27 +162,32 @@ object Input {
     }
   }
 
-  /** Creates a `GET` input with a given query string (represented as `params`).
+  /**
+    * Creates a `GET` input with a given query string (represented as `params`).
     */
   def get(path: String, params: (String, String)*): Input =
     fromRequest(Request(Method.Get, Request.queryString(path, params: _*)))
 
-  /** Creates a `PUT` input with a given query string (represented as `params`).
+  /**
+    * Creates a `PUT` input with a given query string (represented as `params`).
     */
   def put(path: String, params: (String, String)*): Input =
     fromRequest(Request(Method.Put, Request.queryString(path, params: _*)))
 
-  /** Creates a `PATCH` input with a given query string (represented as `params`).
+  /**
+    * Creates a `PATCH` input with a given query string (represented as `params`).
     */
   def patch(path: String, params: (String, String)*): Input =
     fromRequest(Request(Method.Patch, Request.queryString(path, params: _*)))
 
-  /** Creates a `DELETE` input with a given query string (represented as `params`).
+  /**
+    * Creates a `DELETE` input with a given query string (represented as `params`).
     */
   def delete(path: String, params: (String, String)*): Input =
     fromRequest(Request(Method.Delete, Request.queryString(path, params: _*)))
 
-  /** Creates a `POST` input with empty payload.
+  /**
+    * Creates a `POST` input with empty payload.
     */
   def post(path: String): Input = fromRequest(Request(Method.Post, path))
 }
