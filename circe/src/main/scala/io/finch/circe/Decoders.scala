@@ -1,7 +1,5 @@
 package io.finch.circe
 
-import java.nio.charset.StandardCharsets
-
 import cats.MonadError
 import cats.effect.Sync
 import fs2.{Chunk, Stream}
@@ -12,6 +10,8 @@ import io.circe.jawn._
 import io.finch.internal.HttpContent
 import io.finch.{Application, Decode, DecodeStream}
 import io.iteratee.Enumerator
+
+import java.nio.charset.StandardCharsets
 
 trait Decoders {
 

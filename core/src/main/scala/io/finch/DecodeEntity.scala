@@ -1,8 +1,8 @@
 package io.finch
 
-import java.util.UUID
-
 import shapeless._
+
+import java.util.UUID
 
 /**
   * Decodes an HTTP entity (eg: header, query-string param) represented as UTF-8 `String` into

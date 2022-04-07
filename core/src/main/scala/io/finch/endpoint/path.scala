@@ -1,11 +1,11 @@
 package io.finch.endpoint
 
-import scala.reflect.ClassTag
-
 import cats.Applicative
 import io.finch._
 import io.netty.handler.codec.http.QueryStringDecoder
 import shapeless.HNil
+
+import scala.reflect.ClassTag
 
 private[finch] class MatchPath[F[_]](s: String)(implicit
     F: Applicative[F]

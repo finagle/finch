@@ -1,10 +1,5 @@
 package io.finch
 
-import java.nio.charset.{Charset, StandardCharsets}
-import java.util.UUID
-
-import scala.reflect.ClassTag
-
 import cats.Eq
 import cats.data.NonEmptyList
 import cats.effect.{Effect, IO}
@@ -19,6 +14,10 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
 import org.typelevel.discipline.Laws
 import shapeless.Witness
+
+import java.nio.charset.{Charset, StandardCharsets}
+import java.util.UUID
+import scala.reflect.ClassTag
 
 trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with AllInstances with MissingInstances with Endpoint.Module[IO] {
 

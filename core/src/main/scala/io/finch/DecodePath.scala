@@ -1,8 +1,8 @@
 package io.finch
 
-import java.util.UUID
-
 import io.finch.internal.TooFastString
+
+import java.util.UUID
 
 /**
   * Decodes an HTTP path (eg: /foo/bar/baz) represented as UTF-8 `String` into

@@ -1,13 +1,13 @@
 package io.finch
 
-import java.nio.charset.Charset
-
 import cats.effect.IO
 import com.twitter.finagle.http.Method
 import com.twitter.io.{Buf, Pipe, Reader}
 import com.twitter.util.{Await, Future}
 import io.finch.data.Foo
 import io.finch.internal.HttpContent
+
+import java.nio.charset.Charset
 
 class InputSpec extends FinchSpec {
 
