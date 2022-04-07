@@ -3,14 +3,14 @@ set -e
 
 SBT_CMD="sbt +validate"
 
-if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]]; then
+if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
     SBT_CMD+=" +coverageOff +publish"
     openssl aes-256-cbc -pass env:ENCRYPTION_PASSWORD -in ./build/secring.gpg.enc -out local.secring.gpg -d
     openssl aes-256-cbc -pass env:ENCRYPTION_PASSWORD -in ./build/pubring.gpg.enc -out local.pubring.gpg -d
     openssl aes-256-cbc -pass env:ENCRYPTION_PASSWORD -in ./build/credentials.sbt.enc -out local.credentials.sbt -d
     openssl aes-256-cbc -pass env:ENCRYPTION_PASSWORD -in ./build/deploy_key.pem.enc -out local.deploy_key.pem -d
 
-    if [[ "${TRAVIS_BRANCH}" == "master" && $(cat version.sbt) != *"SNAPSHOT"* ]]; then
+    if [[ "${GITHUB_REF_NAME}" == "master" && $(cat version.sbt) != *"SNAPSHOT"* ]]; then
         eval "$(ssh-agent -s)"
         chmod 600 local.deploy_key.pem
         ssh-add local.deploy_key.pem
@@ -22,15 +22,15 @@ if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]]; then
 
         echo 'Performing a release'
         sbt 'release cross with-defaults'
-    elif [[ "${TRAVIS_BRANCH}" == "master" ]]; then
+    elif [[ "${GITHUB_REF_NAME}" == "master" ]]; then
         echo 'Master build'
         ${SBT_CMD}
     else
         echo 'Branch build'
-        printf 'version in ThisBuild := "%s-SNAPSHOT"' "${TRAVIS_BRANCH}" > version.sbt
+        printf 'version in ThisBuild := "%s-SNAPSHOT"' "${GITHUB_REF_NAME}" > version.sbt
         ${SBT_CMD}
     fi
 else
-    echo 'PR build'
+    echo "${GITHUB_EVENT_NAME} build"
     ${SBT_CMD}
 fi
