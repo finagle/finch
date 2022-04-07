@@ -1,6 +1,6 @@
 package io.finch
 
-import cats.syntax.all._
+import cats.implicits._
 import cats.{Applicative, MonadError}
 import com.twitter.finagle.http.{Method, Request, Response, Status, Version}
 import io.finch.internal.currentTime

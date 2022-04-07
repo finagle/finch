@@ -1,6 +1,8 @@
 package io.finch.div
 
-import cats.effect.IO
+import cats.effect.std.Dispatcher
+import cats.effect.{ExitCode, IO, IOApp}
+import cats.implicits._
 import com.twitter.finagle.Http
 import com.twitter.util.Await
 import io.finch._
@@ -20,7 +22,7 @@ import io.finch._
   *   $ http POST :8081/10/0
   * }}}
   */
-object Main extends App with Endpoint.Module[IO] {
+object Main extends IOApp with Endpoint.Module[IO] {
 
   // We can serve Ints as plain/text responses since there is cats.Show[Int]
   // available via the cats.instances.int._ import.
@@ -30,5 +32,10 @@ object Main extends App with Endpoint.Module[IO] {
     BadRequest(e)
   }
 
-  Await.ready(Http.server.serve(":8081", div.toServiceAs[Text.Plain]))
+  override def run(args: List[String]): IO[ExitCode] = Dispatcher[IO]
+    .use { implicit dispatcher =>
+      IO(Await.ready(Http.server.serve(":8081", div.toServiceAs[Text.Plain])))
+    }
+    .as(ExitCode.Success)
+
 }

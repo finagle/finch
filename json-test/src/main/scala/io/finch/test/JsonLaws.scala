@@ -51,7 +51,7 @@ abstract class StreamJsonLaws[S[_[_], _], F[_], A](implicit
 
   def toList: S[F, A] => List[A]
 
-  def success(a: List[A], cs: Charset)(implicit e: Encoder[A], eq: Eq[A]): IsEq[List[A]] = {
+  def success(a: List[A], cs: Charset)(implicit e: Encoder[A]): IsEq[List[A]] = {
     val json = F.map(fromList(a))(a => e(a).noSpaces + "\n")
     val enum = F.map(json)(str => Buf.ByteArray.Owned(str.getBytes(cs.name)))
     toList(streamDecoder(enum, cs)) <-> a

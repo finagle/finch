@@ -1,6 +1,8 @@
 package io.finch
 
 import cats.effect.IO
+import cats.effect.std.Dispatcher
+import cats.effect.unsafe.implicits.global
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.io.Buf
@@ -13,6 +15,7 @@ import shapeless._
 
 import java.nio.charset.{Charset, StandardCharsets}
 import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
+import scala.concurrent.Future
 
 @BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -20,6 +23,10 @@ import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(2)
 abstract class FinchBenchmark extends Endpoint.Module[IO] {
+  implicit val dispatcher: Dispatcher[IO] = new Dispatcher[IO] {
+    override def unsafeToFutureCancelable[A](fa: IO[A]): (Future[A], () => Future[Unit]) = fa.unsafeToFutureCancelable()
+  }
+
   val postPayload: Input = Input.post("/").withBody[Text.Plain](Buf.Utf8("x" * 1024))
   val getRoot: Input = Input.get("/")
   val getFooBarBaz: Input = Input.get("/foo/bar/baz")

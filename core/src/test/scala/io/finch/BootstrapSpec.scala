@@ -1,6 +1,7 @@
 package io.finch
 
 import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import com.twitter.finagle.http.{Method, Request, Response, Status}
 import io.finch.data.Foo
 import io.finch.internal.currentTime

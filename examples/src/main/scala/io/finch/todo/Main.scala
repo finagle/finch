@@ -1,7 +1,9 @@
 package io.finch.todo
 
 import cats.effect.IO
-import cats.effect.concurrent.Ref
+import cats.effect.Ref
+import cats.effect.std.Dispatcher
+import cats.effect.unsafe.IORuntime
 import com.twitter.app.Flag
 import com.twitter.finagle.Http
 import com.twitter.server.TwitterServer
@@ -37,14 +39,13 @@ object Main extends TwitterServer {
     val server = for {
       id <- Ref[IO].of(0)
       store <- Ref[IO].of(Map.empty[Int, Todo])
-    } yield {
-      val app = new App(id, store)(IO.contextShift(ExecutionContext.global))
-      val srv = Http.server.withStatsReceiver(statsReceiver)
-
-      srv.serve(s":${port()}", app.toService)
-    }
-
-    val handle = server.unsafeRunSync()
+      server <- Dispatcher[IO].use { implicit dispatcher =>
+        val app = new App(id, store, ExecutionContext.global)
+        val srv = Http.server.withStatsReceiver(statsReceiver)
+        IO(srv.serve(s":${port()}", app.toService))
+      }
+    } yield server
+    val handle = server.unsafeRunSync()(IORuntime.global)
     onExit(handle.close())
     Await.ready(adminHttpServer)
   }

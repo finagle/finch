@@ -17,7 +17,7 @@ object ToAsync {
 
   implicit def twFutureToAsync[E[_]: Async]: ToAsync[TwitterFuture, E] = new ToAsync[TwitterFuture, E] {
     def apply[A](a: TwitterFuture[A]): E[A] =
-      Async[E].async { cb =>
+      Async[E].async_ { cb =>
         a.respond {
           case Return(r) => cb(Right(r))
           case Throw(t)  => cb(Left(t))
@@ -27,7 +27,7 @@ object ToAsync {
 
   implicit def scFutureToAsync[E[_]: Async]: ToAsync[ScalaFuture, E] = new ToAsync[ScalaFuture, E] {
     def apply[A](a: ScalaFuture[A]): E[A] =
-      Async[E].async { cb =>
+      Async[E].async_ { cb =>
         a.onComplete {
           case Success(s) => cb(Right(s))
           case Failure(t) => cb(Left(t))

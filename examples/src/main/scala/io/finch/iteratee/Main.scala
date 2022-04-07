@@ -1,5 +1,6 @@
 package io.finch.iteratee
 
+import cats.effect.std.Dispatcher
 import cats.effect.{ExitCode, IO, IOApp, Resource}
 import com.twitter.finagle.{Http, ListeningServer}
 import com.twitter.util.Future
@@ -63,13 +64,13 @@ object Main extends IOApp {
       Ok(enum.map(_.isPrime))
     }
 
-  def serve: IO[ListeningServer] = IO(
+  def serve(implicit dispatcher: Dispatcher[IO]): IO[ListeningServer] = IO(
     Http.server.withStreaming(enabled = true).serve(":8081", (sumJson :+: streamJson :+: isPrime).toServiceAs[Application.Json])
   )
 
-  def run(args: List[String]): IO[ExitCode] = {
-    val server = Resource.make(serve)(s => IO.suspend(implicitly[ToAsync[Future, IO]].apply(s.close())))
-
-    server.use(_ => IO.never).as(ExitCode.Success)
-  }
+  def run(args: List[String]): IO[ExitCode] =
+    (for {
+      dispatcher <- Dispatcher[IO]
+      _ <- Resource.make(serve(dispatcher))(s => IO.defer(implicitly[ToAsync[Future, IO]].apply(s.close())))
+    } yield ()).use(_ => IO.never).as(ExitCode.Success)
 }

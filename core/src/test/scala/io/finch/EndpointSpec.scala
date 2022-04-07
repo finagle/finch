@@ -1,6 +1,8 @@
 package io.finch
 
 import cats.data.{NonEmptyList, WriterT}
+import cats.effect.std.Dispatcher
+import cats.effect.unsafe.implicits.global
 import cats.effect.{IO, Resource}
 import cats.laws._
 import cats.laws.discipline.SemigroupalTests.Isomorphisms
@@ -9,15 +11,23 @@ import cats.~>
 import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.io.Buf
 import io.finch.data.Foo
+import org.scalatest.BeforeAndAfterAll
 import shapeless._
 
 import java.io.{ByteArrayInputStream, InputStream}
 import java.net.URLEncoder
 import java.util.UUID
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{ExecutorService, Executors, TimeUnit}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future}
 
-class EndpointSpec extends FinchSpec {
+class EndpointSpec extends FinchSpec with BeforeAndAfterAll with MissingInstances {
+
+  private val executor: ExecutorService = Executors.newSingleThreadExecutor()
+  private val blockingEc: ExecutionContextExecutorService = ExecutionContext.fromExecutorService(executor)
+
+  override def afterAll(): Unit =
+    executor.shutdown()
 
   type EndpointIO[A] = Endpoint[IO, A]
 
@@ -45,7 +55,7 @@ class EndpointSpec extends FinchSpec {
   it should "correctly run mapF" in {
     check { e: Endpoint[IO, String] =>
       val fn: String => Int = _.length
-      e.transformF(_.map(fn)) <-> e.map(fn)
+      e.transform(_.map(fn)) <-> e.map(fn)
     }
   }
 
@@ -408,13 +418,13 @@ class EndpointSpec extends FinchSpec {
     val bytes = Array[Byte](1, 2, 3, 4, 5)
     val bis = Resource.fromAutoCloseable[IO, InputStream](IO.delay(new ByteArrayInputStream(bytes)))
 
-    val is = fromInputStream(bis)
+    val is = fromInputStream(bis, blockingEc)
 
     is(Input.get("/")).awaitValueUnsafe() shouldBe Some(Buf.ByteArray.Owned(bytes))
   }
 
   it should "classpathAsset" in {
-    val r = classpathAsset("/test.txt")
+    val r = classpathAsset("/test.txt", blockingEc)
 
     r(Input.get("/foo")).awaitOutputUnsafe() shouldBe None
     r(Input.post("/")).awaitOutputUnsafe() shouldBe None
@@ -436,6 +446,11 @@ class EndpointSpec extends FinchSpec {
     check { (ep: Endpoint[IO, Int], input: Input) =>
       val nat = new (IO ~> W) {
         def apply[A](fa: IO[A]): WriterT[IO, List[String], A] = WriterT.liftF(fa)
+      }
+
+      implicit val dispatcherW: Dispatcher[W] = new Dispatcher[W] {
+        override def unsafeToFutureCancelable[A](fa: W[A]): (Future[A], () => Future[Unit]) =
+          dispatcherIO.unsafeToFutureCancelable(fa.value)
       }
 
       ep.mapK(nat)(input).awaitOutput() === ep(input).awaitOutput()

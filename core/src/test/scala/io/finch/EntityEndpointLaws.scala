@@ -1,7 +1,7 @@
 package io.finch
 
 import cats.Eq
-import cats.effect.Effect
+import cats.effect.std.Dispatcher
 import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
@@ -10,7 +10,7 @@ import org.typelevel.discipline.Laws
 
 import scala.reflect.ClassTag
 
-abstract class EntityEndpointLaws[F[_]: Effect, A] extends Laws with MissingInstances with AllInstances {
+abstract class EntityEndpointLaws[F[_]: Dispatcher, A] extends Laws with MissingInstances with AllInstances {
 
   def decoder: DecodeEntity[A]
   def classTag: ClassTag[A]
@@ -32,7 +32,7 @@ abstract class EntityEndpointLaws[F[_]: Effect, A] extends Laws with MissingInst
 }
 
 object EntityEndpointLaws {
-  def apply[F[_]: Effect, A: DecodeEntity: ClassTag](
+  def apply[F[_]: Dispatcher, A: DecodeEntity: ClassTag](
       e: Endpoint[F, Option[A]]
   )(f: A => Input): EntityEndpointLaws[F, A] = new EntityEndpointLaws[F, A] {
     val decoder: DecodeEntity[A] = DecodeEntity[A]

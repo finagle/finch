@@ -1,7 +1,7 @@
 package io.finch.generic
 
 import cats.Eq
-import cats.effect.Effect
+import cats.effect.std.Dispatcher
 import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
@@ -9,7 +9,7 @@ import io.finch._
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
-abstract class DerivedEndpointLaws[F[_]: Effect, A] extends Laws with MissingInstances with AllInstances {
+abstract class DerivedEndpointLaws[F[_]: Dispatcher, A] extends Laws with MissingInstances with AllInstances {
 
   def endpoint: Endpoint[F, A]
   def toParams: A => Seq[(String, String)]
@@ -28,7 +28,7 @@ abstract class DerivedEndpointLaws[F[_]: Effect, A] extends Laws with MissingIns
 }
 
 object DerivedEndpointLaws {
-  def apply[F[_]: Effect, A](
+  def apply[F[_]: Dispatcher, A](
       e: Endpoint[F, A],
       tp: A => Seq[(String, String)]
   ): DerivedEndpointLaws[F, A] = new DerivedEndpointLaws[F, A] {

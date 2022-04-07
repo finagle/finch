@@ -1,6 +1,7 @@
 package io.finch.middleware
 
-import cats.effect.IO
+import cats.effect.std.Dispatcher
+import cats.effect.{ExitCode, IO, IOApp}
 import com.twitter.finagle.Http
 import com.twitter.finagle.http.{Response, Status}
 import com.twitter.util.{Await, Time}
@@ -19,7 +20,7 @@ import io.finch._
   *
   * !Disclaimer: most likely you would need to use proper libraries for logging, auth, and metrics instead but their use will be quite similar.
   */
-object Main extends App with Endpoint.Module[IO] {
+object Main extends IOApp with Endpoint.Module[IO] {
 
   val helloWorld: Endpoint[IO, String] = get("hello") {
     Ok("Hello world")
@@ -52,6 +53,9 @@ object Main extends App with Endpoint.Module[IO] {
   val filters = Function.chain(Seq(stats, logging, auth))
   val compiled = filters(Bootstrap.serve[Text.Plain](helloWorld).compile)
 
-  Await.ready(Http.server.serve(":8081", Endpoint.toService(compiled)))
-
+  override def run(args: List[String]): IO[ExitCode] = Dispatcher[IO]
+    .use { implicit dispatcher =>
+      IO(Await.ready(Http.server.serve(":8081", Endpoint.toService(compiled)))) >> IO.never
+    }
+    .as(ExitCode.Success)
 }
