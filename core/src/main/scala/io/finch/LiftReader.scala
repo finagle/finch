@@ -2,8 +2,7 @@ package io.finch
 
 import com.twitter.io.{Buf, Reader}
 
-/**
-  * Create stream `S[F, A]` from [[Reader]].
+/** Create stream `S[F, A]` from [[Reader]].
   */
 trait LiftReader[S[_[_], _], F[_]] {
 

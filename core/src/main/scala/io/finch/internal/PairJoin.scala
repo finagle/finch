@@ -3,9 +3,8 @@ package io.finch.internal
 import shapeless.ops.adjoin.Adjoin
 import shapeless.{::, DepFn2, HNil}
 
-/**
-  * We need a version of [[shapeless.ops.adjoin.Adjoin]] that provides slightly different behavior in
-  * the case of singleton results (we simply return the value, not a singleton `HList`).
+/** We need a version of [[shapeless.ops.adjoin.Adjoin]] that provides slightly different behavior in the case of singleton results (we simply return the value,
+  * not a singleton `HList`).
   * @groupname LowPriorityPair Low priority `PairAdjoin`
   * @groupprio LowPriorityPair 0
   */
@@ -14,8 +13,7 @@ trait PairAdjoin[A, B] extends DepFn2[A, B]
 private[finch] trait LowPriorityPairAdjoin {
   type Aux[A, B, Out0] = PairAdjoin[A, B] { type Out = Out0 }
 
-  /**
-    * @group LowPriorityPair
+  /** @group LowPriorityPair
     */
   implicit def pairAdjoin[A, B, Out0](implicit
       adjoin: Adjoin.Aux[A :: B :: HNil, Out0]

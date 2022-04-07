@@ -8,8 +8,7 @@ import io.finch.internal.HttpContent
 
 trait Decoders {
 
-  /**
-    * Maps Argonaut's [[DecodeJson]] to Finch's [[Decode]].
+  /** Maps Argonaut's [[DecodeJson]] to Finch's [[Decode]].
     */
   implicit def decodeArgonaut[A](implicit d: DecodeJson[A]): Decode.Json[A] =
     Decode.json { (b, cs) =>

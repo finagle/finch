@@ -4,12 +4,13 @@ import shapeless.Witness
 
 import java.util.Locale
 
-/**
-  * Models an HTTP Accept header (see RFC2616, 14.1).
+/** Models an HTTP Accept header (see RFC2616, 14.1).
   *
-  * @note This API doesn't validate the input primary/sub types.
+  * @note
+  *   This API doesn't validate the input primary/sub types.
   *
-  * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
+  * @see
+  *   https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
   */
 abstract class Accept {
   def primary: String
@@ -55,8 +56,7 @@ object Accept {
     }
   }
 
-  /**
-    * Parses an [[Accept]] instance from a given string. Returns `null` when not able to parse.
+  /** Parses an [[Accept]] instance from a given string. Returns `null` when not able to parse.
     */
   def fromString(s: String): Accept = {
     // Adopted from Java's MimeType's API.

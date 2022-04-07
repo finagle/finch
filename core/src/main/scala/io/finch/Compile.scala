@@ -8,17 +8,16 @@ import shapeless._
 
 import scala.annotation.implicitNotFound
 
-/**
-  * Compiles a given list of [[Endpoint]]s and their content-types into single [[Endpoint.Compiled]].
+/** Compiles a given list of [[Endpoint]]s and their content-types into single [[Endpoint.Compiled]].
   *
   * Guarantees to:
   *
-  * - handle Finch's own errors (i.e., [[Error]] and [[Error]]) as 400s
-  * - copy requests's HTTP version onto a response
-  * - respond with 404 when an endpoint is not matched
-  * - respond with 405 when an endpoint is not matched because method wasn't allowed (serve back an `Allow` header)
-  * - include the date header on each response (unless disabled)
-  * - include the server header on each response (unless disabled)
+  *   - handle Finch's own errors (i.e., [[Error]] and [[Error]]) as 400s
+  *   - copy requests's HTTP version onto a response
+  *   - respond with 404 when an endpoint is not matched
+  *   - respond with 405 when an endpoint is not matched because method wasn't allowed (serve back an `Allow` header)
+  *   - include the date header on each response (unless disabled)
+  *   - include the server header on each response (unless disabled)
   */
 @implicitNotFound(
   """An Endpoint you're trying to compile is missing one or more encoders.
@@ -38,8 +37,7 @@ trait Compile[F[_], ES <: HList, CTS <: HList] {
 
 object Compile {
 
-  /**
-    * HTTP options propagated from [[Bootstrap]].
+  /** HTTP options propagated from [[Bootstrap]].
     */
   final case class Options(
       includeDateHeader: Boolean,
@@ -48,10 +46,9 @@ object Compile {
       enableUnsupportedMediaType: Boolean
   )
 
-  /**
-    * HTTP context propagated between endpoints.
+  /** HTTP context propagated between endpoints.
     *
-    * - `wouldAllow`: when non-empty, indicates that the incoming method wasn't allowed/matched
+    *   - `wouldAllow`: when non-empty, indicates that the incoming method wasn't allowed/matched
     */
   final case class Context(wouldAllow: List[Method] = Nil)
 
