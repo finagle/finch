@@ -1,5 +1,8 @@
 package io.finch
 
+import java.nio.charset.{Charset, StandardCharsets}
+import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
+
 import cats.effect.IO
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
@@ -10,9 +13,6 @@ import io.finch.circe._
 import io.finch.data.Foo
 import org.openjdk.jmh.annotations._
 import shapeless._
-
-import java.nio.charset.{Charset, StandardCharsets}
-import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
 
 @BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.NANOSECONDS)

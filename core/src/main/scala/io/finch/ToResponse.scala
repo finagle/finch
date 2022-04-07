@@ -1,11 +1,12 @@
 package io.finch
 
+import java.nio.charset.Charset
+
+import scala.annotation.implicitNotFound
+
 import cats.{Applicative, Functor}
 import com.twitter.finagle.http.{Response, Status, Version}
 import shapeless._
-
-import java.nio.charset.Charset
-import scala.annotation.implicitNotFound
 
 /**
   * Represents a conversion from `A` to [[Response]].

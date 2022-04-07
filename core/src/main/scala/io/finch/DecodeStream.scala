@@ -1,9 +1,10 @@
 package io.finch
 
-import com.twitter.io.Buf
-
 import java.nio.charset.Charset
+
 import scala.annotation.implicitNotFound
+
+import com.twitter.io.Buf
 
 /**
   * Stream HTTP streamed payload represented as S[F, Buf] into

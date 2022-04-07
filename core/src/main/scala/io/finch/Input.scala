@@ -1,13 +1,14 @@
 package io.finch
 
+import java.nio.charset.{Charset, StandardCharsets}
+
+import scala.collection.mutable.ListBuffer
+
 import cats.Eq
 import cats.effect.Effect
 import com.twitter.finagle.http.{Method, Request, RequestBuilder}
 import com.twitter.io.{Buf, Reader}
 import shapeless.Witness
-
-import java.nio.charset.{Charset, StandardCharsets}
-import scala.collection.mutable.ListBuffer
 
 /**
   * An input for [[Endpoint]] that glues two individual pieces together:

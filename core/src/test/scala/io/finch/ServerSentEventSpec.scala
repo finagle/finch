@@ -1,5 +1,7 @@
 package io.finch
 
+import java.nio.charset.{Charset, StandardCharsets}
+
 import cats.Show
 import com.twitter.concurrent.AsyncStream
 import com.twitter.io.Buf
@@ -10,8 +12,6 @@ import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
-
-import java.nio.charset.{Charset, StandardCharsets}
 
 class ServerSentEventSpec extends AnyFlatSpec with Matchers with Checkers {
 

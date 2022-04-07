@@ -1,13 +1,13 @@
 package io.finch
 
+import java.io.InputStream
+
 import cats.Applicative
 import cats.effect.{ContextShift, Resource, Sync}
 import cats.syntax.all._
 import com.twitter.finagle.http.{Method => FinagleMethod}
 import com.twitter.io.Buf
 import shapeless.HNil
-
-import java.io.InputStream
 
 package object endpoint {
 

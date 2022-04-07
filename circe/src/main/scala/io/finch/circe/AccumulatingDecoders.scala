@@ -1,5 +1,7 @@
 package io.finch.circe
 
+import java.nio.charset.StandardCharsets
+
 import cats.MonadError
 import cats.data.Validated
 import io.circe._
@@ -8,8 +10,6 @@ import io.circe.jawn.{decodeAccumulating, decodeByteBufferAccumulating}
 import io.finch.internal.HttpContent
 import io.finch.{Application, Decode, DecodeStream}
 import io.iteratee.{Enumeratee, Enumerator}
-
-import java.nio.charset.StandardCharsets
 
 trait AccumulatingDecoders {
 

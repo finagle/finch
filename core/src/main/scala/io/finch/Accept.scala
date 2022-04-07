@@ -1,8 +1,8 @@
 package io.finch
 
-import shapeless.Witness
-
 import java.util.Locale
+
+import shapeless.Witness
 
 /**
   * Models an HTTP Accept header (see RFC2616, 14.1).

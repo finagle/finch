@@ -1,10 +1,11 @@
 package io.finch
 
+import java.nio.charset.Charset
+
+import scala.util.control.NoStackTrace
+
 import com.twitter.io.Buf
 import shapeless.{:+:, CNil, Coproduct, Witness}
-
-import java.nio.charset.Charset
-import scala.util.control.NoStackTrace
 
 /**
   * Decodes an HTTP payload represented as [[Buf]] (encoded with [[Charset]]) into

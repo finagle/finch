@@ -1,5 +1,7 @@
 package io.finch.test
 
+import java.nio.charset.Charset
+
 import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
@@ -12,8 +14,6 @@ import io.finch.internal.HttpContent
 import io.finch.{DecodeStream, _}
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
-
-import java.nio.charset.Charset
 
 trait DecodeJsonLaws[A] extends Laws with AllInstances {
   def decode: Decode.Json[A]

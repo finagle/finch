@@ -1,12 +1,12 @@
 package io.finch
 
+import scala.annotation.implicitNotFound
+
 import cats.syntax.all._
 import cats.{Applicative, MonadError}
 import com.twitter.finagle.http.{Method, Request, Response, Status, Version}
 import io.finch.internal.currentTime
 import shapeless._
-
-import scala.annotation.implicitNotFound
 
 /**
   * Compiles a given list of [[Endpoint]]s and their content-types into single [[Endpoint.Compiled]].
