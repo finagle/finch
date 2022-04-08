@@ -21,7 +21,12 @@ if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
     if [[ "${GITHUB_REF_NAME}" == "master" && $(cat version.sbt) != *"SNAPSHOT"* ]]; then
         eval "$(ssh-agent -s)"
         chmod 600 local.deploy_key.pem
-        ssh-add local.deploy_key.pem
+        ssh-add local.deploy_key.pem        
+        chmod 600 secring.gpg
+        chmod 600 pubring.gpg       
+        mkdir -p ~/.gnupg 
+        mv secring.gpg ~/.gnupg/secring.gpg
+        mv pubring.gpg ~/.gnupg/pubring.gpg
         git config --global user.name "Finch CI"
         git config --global user.email "ci@kostyukov.net"
         git remote set-url origin git@github.com:finagle/finch.git
