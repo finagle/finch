@@ -1,9 +1,9 @@
 package io.finch
 
+import com.twitter.io.Buf
+
 import java.nio.charset.Charset
 import java.util.UUID
-
-import com.twitter.io.Buf
 
 class EncodeSpec extends FinchSpec {
 

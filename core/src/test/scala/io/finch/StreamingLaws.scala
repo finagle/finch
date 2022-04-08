@@ -1,7 +1,5 @@
 package io.finch
 
-import java.nio.charset.Charset
-
 import cats.effect.Effect
 import cats.instances.AllInstances
 import cats.laws._
@@ -10,6 +8,8 @@ import com.twitter.finagle.http.Request
 import com.twitter.io.{Buf, Pipe}
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
+
+import java.nio.charset.Charset
 
 abstract class StreamingLaws[S[_[_], _], F[_]] extends Laws with AllInstances with MissingInstances {
 

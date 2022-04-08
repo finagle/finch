@@ -1,14 +1,14 @@
 package io.finch
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Future => ScalaFuture}
-
 import cats.Id
 import cats.effect.IO
 import com.twitter.finagle.http.Response
 import com.twitter.util.{Future => TwitterFuture}
 import org.scalacheck.Arbitrary
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Future => ScalaFuture}
 
 class MethodSpec extends FinchSpec with ScalaCheckDrivenPropertyChecks {
 

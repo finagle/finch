@@ -1,9 +1,5 @@
 package io.finch
 
-import java.io.{File, FileInputStream, InputStream}
-
-import scala.reflect.ClassTag
-
 import cats.data._
 import cats.effect._
 import cats.syntax.all._
@@ -17,6 +13,9 @@ import io.finch.internal._
 import shapeless._
 import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.hlist.Tupler
+
+import java.io.{File, FileInputStream, InputStream}
+import scala.reflect.ClassTag
 
 /**
   * An `Endpoint` represents the HTTP endpoint.
