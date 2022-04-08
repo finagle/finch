@@ -5,10 +5,21 @@ SBT_CMD="sbt +validate"
 
 if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
     SBT_CMD+=" +coverageOff +publish"
-    openssl aes-256-cbc -pass env:ENCRYPTION_PASSWORD -in ./build/secring.gpg.enc -out local.secring.gpg -d
-    openssl aes-256-cbc -pass env:ENCRYPTION_PASSWORD -in ./build/pubring.gpg.enc -out local.pubring.gpg -d
-    openssl aes-256-cbc -pass env:ENCRYPTION_PASSWORD -in ./build/credentials.sbt.enc -out local.credentials.sbt -d
-    openssl aes-256-cbc -pass env:ENCRYPTION_PASSWORD -in ./build/deploy_key.pem.enc -out local.deploy_key.pem -d
+
+    for FILE in \
+        secring.gpg \
+        pubring.gpg \
+        credentials.sbt \
+        deploy_key.pem \
+        ; do
+        openssl aes-256-cbc -salt -pbkdf2 -d \
+            -in "./build/${FILE}.enc" \
+            -out "local.${FILE}" \
+            -pass env:ENCRYPTION_PASSWORD
+    done
+
+    # exit early to test openssl bits
+    exit 0
 
     if [[ "${GITHUB_REF_NAME}" == "master" && $(cat version.sbt) != *"SNAPSHOT"* ]]; then
         eval "$(ssh-agent -s)"
