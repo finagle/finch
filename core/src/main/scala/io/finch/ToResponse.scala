@@ -7,8 +7,7 @@ import shapeless._
 import java.nio.charset.Charset
 import scala.annotation.implicitNotFound
 
-/**
-  * Represents a conversion from `A` to [[Response]].
+/** Represents a conversion from `A` to [[Response]].
   */
 trait ToResponse[F[_], A] {
   type ContentType
@@ -74,8 +73,7 @@ trait ToResponseInstances {
 
 object ToResponse extends ToResponseInstances {
 
-  /**
-    * Enables server-driven content negotiation with client.
+  /** Enables server-driven content negotiation with client.
     *
     * Picks corresponding instance of `ToResponse` according to `Accept` header of a request
     */

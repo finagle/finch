@@ -8,8 +8,7 @@ import io.finch.{Endpoint, Output}
 import shapeless.HNil
 import shapeless.ops.function.FnToProduct
 
-/**
-  * A type class that allows the [[Endpoint]] to be mapped to either `A => B` or `A => Future[B]`.
+/** A type class that allows the [[Endpoint]] to be mapped to either `A => B` or `A => Future[B]`.
   * @groupname LowPriorityMapper Low Priority Mapper Conversions
   * @groupprio LowPriorityMapper 0
   * @groupname HighPriorityMapper High priority mapper conversions
@@ -18,10 +17,12 @@ import shapeless.ops.function.FnToProduct
 trait Mapper[F[_], A] {
   type Out
 
-  /**
-    * @param e The endpoint to map
-    * @tparam X Hack to stop the compiler from converting this to a SAM
-    * @return An endpoint that returns an `Out`
+  /** @param e
+    *   The endpoint to map
+    * @tparam X
+    *   Hack to stop the compiler from converting this to a SAM
+    * @return
+    *   An endpoint that returns an `Out`
     */
   def apply[X](e: Endpoint[F, A]): Endpoint[F, Out]
 }
@@ -35,15 +36,13 @@ private[finch] trait LowPriorityMapperConversions {
     def apply[X](e: Endpoint[F, A]): Endpoint[F, B] = f(e)
   }
 
-  /**
-    * @group LowPriorityMapper
+  /** @group LowPriorityMapper
     */
   implicit def mapperFromOutputFunction[F[_], A, B](f: A => Output[B])(implicit
       F: MonadError[F, Throwable]
   ): Mapper.Aux[F, A, B] = instance(_.mapOutput(f))
 
-  /**
-    * @group LowPriorityMapper
+  /** @group LowPriorityMapper
     */
   implicit def mapperFromResponseFunction[F[_], A](f: A => Response)(implicit
       F: MonadError[F, Throwable]
@@ -52,8 +51,7 @@ private[finch] trait LowPriorityMapperConversions {
 
 private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConversions {
 
-  /**
-    * @group HighPriorityMapper
+  /** @group HighPriorityMapper
     */
   implicit def mapperFromOutputHFunction[F[_], A, B, FN, OB](f: FN)(implicit
       F: MonadError[F, Throwable],
@@ -61,8 +59,7 @@ private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConv
       ev: OB <:< Output[B]
   ): Mapper.Aux[F, A, B] = instance(_.mapOutput(value => ev(ftp(f)(value))))
 
-  /**
-    * @group HighPriorityMapper
+  /** @group HighPriorityMapper
     */
   implicit def mapperFromResponseHFunction[F[_], A, FN, R](f: FN)(implicit
       F: MonadError[F, Throwable],
@@ -73,15 +70,13 @@ private[finch] trait HighPriorityMapperConversions extends LowPriorityMapperConv
     Output.payload(r, r.status)
   })
 
-  /**
-    * @group HighPriorityMapper
+  /** @group HighPriorityMapper
     */
   implicit def mapperFromOutputValue[F[_], A](o: => Output[A])(implicit
       F: MonadError[F, Throwable]
   ): Mapper.Aux[F, HNil, A] = instance(_.mapOutput(_ => o))
 
-  /**
-    * @group HighPriorityMapper
+  /** @group HighPriorityMapper
     */
   implicit def mapperFromResponseValue[F[_]](r: => Response)(implicit
       F: MonadError[F, Throwable]

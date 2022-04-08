@@ -2,8 +2,8 @@ package io.finch
 
 import shapeless.Witness
 
-/**
-  * @see [[https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types]]
+/** @see
+  *   [[https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types]]
   */
 object Application {
   type Json = Witness.`"application/json"`.T
@@ -17,8 +17,8 @@ object Application {
   type Ogg = Witness.`"application/ogg"`.T
 }
 
-/**
-  * @see [[https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types]]
+/** @see
+  *   [[https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types]]
   */
 object Text {
   type Plain = Witness.`"text/plain"`.T
@@ -27,8 +27,8 @@ object Text {
   type EventStream = Witness.`"text/event-stream"`.T
 }
 
-/**
-  * @see [[https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types]]
+/** @see
+  *   [[https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types]]
   */
 object Image {
   type Gif = Witness.`"image/gif"`.T
@@ -37,8 +37,8 @@ object Image {
   type Svg = Witness.`"image/svg+xml"`.T
 }
 
-/**
-  * @see [[https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types]]
+/** @see
+  *   [[https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types]]
   */
 object Audio {
   type Wave = Witness.`"audio/wave"`.T
