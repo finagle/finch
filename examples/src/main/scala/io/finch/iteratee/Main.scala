@@ -16,7 +16,9 @@ import scala.util.Random
   *
   * There are three endpoints in this example:
   *
-  *   1. `sumJson` - streaming request 2. `streamJson` - streaming response 3. `isPrime` - end-to-end (request - response) streaming
+  *   1. `sumJson` - streaming request
+  *   1. `streamJson` - streaming response
+  *   1. `isPrime` - end-to-end (request - response) streaming
   *
   * Use the following sbt command to run the application.
   *
