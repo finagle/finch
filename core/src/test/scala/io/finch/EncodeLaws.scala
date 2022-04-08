@@ -1,13 +1,13 @@
 package io.finch
 
-import java.nio.charset.Charset
-
 import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
 import com.twitter.io.Buf
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
+
+import java.nio.charset.Charset
 
 trait EncodeLaws[A, CT <: String] extends Laws with MissingInstances with AllInstances {
 

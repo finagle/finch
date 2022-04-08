@@ -1,11 +1,11 @@
 package io.finch
 
-import java.nio.charset.Charset
-
 import com.twitter.finagle.http.Request
 import com.twitter.io.Buf
 import io.finch.data.Foo
 import shapeless.{:+:, CNil}
+
+import java.nio.charset.Charset
 
 class BodySpec extends FinchSpec {
 

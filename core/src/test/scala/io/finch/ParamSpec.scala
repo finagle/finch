@@ -1,10 +1,10 @@
 package io.finch
 
-import java.util.UUID
-
 import cats.Show
 import cats.effect.IO
 import io.finch.data.Foo
+
+import java.util.UUID
 
 class ParamSpec extends FinchSpec {
 

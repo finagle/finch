@@ -1,13 +1,13 @@
 package io.finch
 
-import java.util.UUID
-
 import cats.Show
 import cats.effect.IO
 import com.twitter.finagle.http.exp.Multipart
 import com.twitter.finagle.http.{FileElement, RequestBuilder, SimpleElement}
 import com.twitter.io.Buf
 import io.finch.data.Foo
+
+import java.util.UUID
 
 class MultipartSpec extends FinchSpec {
 

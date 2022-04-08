@@ -1,9 +1,5 @@
 package io.finch
 
-import java.io.{File, InputStream}
-
-import scala.reflect.ClassTag
-
 import cats.Applicative
 import cats.data.NonEmptyList
 import cats.effect.{ContextShift, Resource, Sync}
@@ -11,6 +7,9 @@ import com.twitter.finagle.http.exp.Multipart
 import com.twitter.finagle.http.{Cookie, Request}
 import com.twitter.io.Buf
 import shapeless.HNil
+
+import java.io.{File, InputStream}
+import scala.reflect.ClassTag
 
 /**
   * Enables users to construct [[Endpoint]] instances without specifying the effect type `F[_]` every
