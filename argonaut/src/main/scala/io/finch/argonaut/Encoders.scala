@@ -8,8 +8,7 @@ trait Encoders {
 
   protected def printer: PrettyParams
 
-  /**
-    * Maps Argonaut's [[EncodeJson]] to Finch's [[Encode]].
+  /** Maps Argonaut's [[EncodeJson]] to Finch's [[Encode]].
     */
   implicit def encodeArgonaut[A](implicit e: EncodeJson[A]): Encode.Json[A] =
     Encode.json((a, cs) => Buf.ByteArray.Owned(printer.pretty(e.encode(a)).getBytes(cs.name)))

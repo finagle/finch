@@ -1,9 +1,7 @@
 package io.finch
 
-/**
-  * A `ValidationRule` enables a reusable way of defining a validation rules in the application
-  * domain. It might be composed with [[Endpoint]]s using either should` or `shouldNot` methods and
-  * with other `ValidationRule`s using logical methods `and` and `or`.
+/** A `ValidationRule` enables a reusable way of defining a validation rules in the application domain. It might be composed with [[Endpoint]]s using either
+  * should` or `shouldNot` methods and with other `ValidationRule`s using logical methods `and` and `or`.
   *
   * {{{
   *   case class User(name: String, age: Int)
@@ -15,36 +13,35 @@ package io.finch
   */
 trait ValidationRule[A] { self =>
 
-  /**
-    * Text description of this validation rule.
+  /** Text description of this validation rule.
     */
   def description: String
 
-  /**
-    * Applies the rule to the specified value.
+  /** Applies the rule to the specified value.
     *
-    * @return true if the predicate of this rule holds for the specified value
+    * @return
+    *   true if the predicate of this rule holds for the specified value
     */
   def apply(value: A): Boolean
 
-  /**
-    * Combines this rule with another rule such that the new rule only validates if both the combined
-    * rules validate.
+  /** Combines this rule with another rule such that the new rule only validates if both the combined rules validate.
     *
-    * @param that the rule to combine with this rule
+    * @param that
+    *   the rule to combine with this rule
     *
-    * @return a new rule that only validates if both the combined rules validate
+    * @return
+    *   a new rule that only validates if both the combined rules validate
     */
   def and(that: ValidationRule[A]): ValidationRule[A] =
     ValidationRule(s"${self.description} and ${that.description}")(value => self(value) && that(value))
 
-  /**
-    * Combines this rule with another rule such that the new rule validates if any one of the
-    * combined rules validates.
+  /** Combines this rule with another rule such that the new rule validates if any one of the combined rules validates.
     *
-    * @param that the rule to combine with this rule
+    * @param that
+    *   the rule to combine with this rule
     *
-    * @return a new rule that validates if any of the combined rules validates
+    * @return
+    *   a new rule that validates if any of the combined rules validates
     */
   def or(that: ValidationRule[A]): ValidationRule[A] =
     ValidationRule(s"${self.description} or ${that.description}") { value =>
@@ -52,20 +49,18 @@ trait ValidationRule[A] { self =>
     }
 }
 
-/**
-  * Allows the creation of reusable validation rules for [[Endpoint]]s.
+/** Allows the creation of reusable validation rules for [[Endpoint]]s.
   */
 object ValidationRule {
 
-  /**
-    * Implicit conversion that allows the same [[ValidationRule]] to be used for required
-    * and optional values. If the optional value is non-empty, it gets validated (and validation may
-    * fail, producing an error), but if it is empty, it is always treated as valid.
+  /** Implicit conversion that allows the same [[ValidationRule]] to be used for required and optional values. If the optional value is non-empty, it gets
+    * validated (and validation may fail, producing an error), but if it is empty, it is always treated as valid.
     *
-    * @param rule the validation rule to adapt for optional values
+    * @param rule
+    *   the validation rule to adapt for optional values
     *
-    * @return a new validation rule that applies the specified rule to an optional value in case it
-    *         is not empty
+    * @return
+    *   a new validation rule that applies the specified rule to an optional value in case it is not empty
     */
   implicit def toOptionalRule[A](rule: ValidationRule[A]): ValidationRule[Option[A]] =
     ValidationRule(rule.description) {
@@ -73,13 +68,15 @@ object ValidationRule {
       case None        => true
     }
 
-  /**
-    * Creates a new reusable [[ValidationRule]] based on the specified predicate.
+  /** Creates a new reusable [[ValidationRule]] based on the specified predicate.
     *
-    * @param desc text describing the rule being validated
-    * @param p returns true if the data is valid
+    * @param desc
+    *   text describing the rule being validated
+    * @param p
+    *   returns true if the data is valid
     *
-    * @return a new reusable validation rule.
+    * @return
+    *   a new reusable validation rule.
     */
   def apply[A](desc: String)(p: A => Boolean): ValidationRule[A] = new ValidationRule[A] {
     def description: String = desc

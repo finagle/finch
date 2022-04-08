@@ -5,15 +5,14 @@ import com.twitter.util.Local
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 
-/**
-  * Models a trace of a matched [[Endpoint]]. For example, `/hello/:name`.
+/** Models a trace of a matched [[Endpoint]]. For example, `/hello/:name`.
   *
-  * @note represented as a linked-list-like structure for efficiency.
+  * @note
+  *   represented as a linked-list-like structure for efficiency.
   */
 sealed trait Trace {
 
-  /**
-    * Concatenates this and `that` [[Trace]]s.
+  /** Concatenates this and `that` [[Trace]]s.
     */
   final def concat(that: Trace): Trace = {
     @tailrec
@@ -39,8 +38,7 @@ sealed trait Trace {
     }
   }
 
-  /**
-    * Converts this [[Trace]] into a linked list of path segments.
+  /** Converts this [[Trace]] into a linked list of path segments.
     */
   final def toList: List[String] = {
     @tailrec
@@ -87,9 +85,7 @@ object Trace {
     result
   }
 
-  /**
-    * Within a given context `fn`, capture the [[Trace]] instance under `Trace.captured` for each
-    * matched endpoint.
+  /** Within a given context `fn`, capture the [[Trace]] instance under `Trace.captured` for each matched endpoint.
     *
     * Example:
     *
@@ -100,9 +96,7 @@ object Trace {
     */
   def capture[A](fn: => A): A = captureLocal.let(new Capture(empty))(fn)
 
-  /**
-    * Retrieve the captured [[Trace]] instance or [[empty]] when run outside of [[Trace.capture]]
-    * context.
+  /** Retrieve the captured [[Trace]] instance or [[empty]] when run outside of [[Trace.capture]] context.
     */
   def captured: Trace = captureLocal() match {
     case Some(c) => c.trace

@@ -5,8 +5,7 @@ import com.twitter.finagle.Http
 import com.twitter.util.Await
 import io.finch._
 
-/**
-  * A tiny Finch application that serves a single endpoint `POST /:a/b:` that divides `a` by `b`.
+/** A tiny Finch application that serves a single endpoint `POST /:a/b:` that divides `a` by `b`.
   *
   * Use the following sbt command to run the application.
   *
