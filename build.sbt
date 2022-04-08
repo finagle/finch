@@ -52,6 +52,8 @@ val testDependencies = Seq(
   "org.typelevel" %% "discipline-scalatest" % "2.1.5"
 )
 
+val formatOnCompile = System.getenv("CI") != "true"
+
 val baseSettings = Seq(
   libraryDependencies ++= Seq(
     "com.chuusai" %% "shapeless" % shapelessVersion,
@@ -74,7 +76,9 @@ val baseSettings = Seq(
   addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary),
   ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0",
   semanticdbEnabled := true,
-  semanticdbVersion := scalafixSemanticdb.revision
+  semanticdbVersion := scalafixSemanticdb.revision,
+  scalafixOnCompile := formatOnCompile,
+  scalafmtOnCompile := formatOnCompile,
 )
 
 def updateVersionInFile(selectVersion: sbtrelease.Versions => String): ReleaseStep =
@@ -416,9 +420,9 @@ lazy val benchmarks = project
 
 val validateCommands = List(
   "clean",
-  "compile",
   "scalafix --check",
   "scalafmtCheckAll",
+  "compile",
   "test:compile",
   "coverage",
   "test",
