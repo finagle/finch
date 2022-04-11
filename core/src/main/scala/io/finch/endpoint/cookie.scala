@@ -6,7 +6,7 @@ import io.finch._
 
 abstract private[finch] class Cookie[F[_], A](name: String)(implicit
     protected val F: Sync[F]
-) extends Endpoint[F, A] {
+) extends Endpoint.Validatable[F, A] {
 
   protected def missing(name: String): F[Output[A]]
   protected def present(value: FinagleCookie): F[Output[A]]
@@ -22,7 +22,8 @@ abstract private[finch] class Cookie[F[_], A](name: String)(implicit
     EndpointResult.Matched(input, Trace.empty, output)
   }
 
-  final override def item: items.RequestItem = items.CookieItem(name)
+  override protected def whenNotValid(why: String): Error.NotValid = Error.CookieNotValid(name, why)
+
   final override def toString: String = s"cookie($name)"
 }
 
@@ -36,7 +37,7 @@ private[finch] object Cookie {
 
   trait Required[F[_]] { _: Cookie[F, FinagleCookie] =>
     protected def missing(name: String): F[Output[FinagleCookie]] =
-      F.raiseError(Error.NotPresent(items.CookieItem(name)))
+      F.raiseError(Error.CookieNotPresent(name))
     protected def present(value: FinagleCookie): F[Output[FinagleCookie]] =
       F.pure(Output.payload(value))
   }

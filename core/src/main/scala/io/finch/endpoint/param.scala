@@ -11,7 +11,7 @@ abstract private[finch] class Param[F[_], G[_], A](name: String)(implicit
     d: DecodeEntity[A],
     tag: ClassTag[A],
     protected val F: Sync[F]
-) extends Endpoint[F, G[A]] { self =>
+) extends Endpoint.Validatable[F, G[A]] { self =>
 
   protected def missing(name: String): F[Output[G[A]]]
   protected def present(value: A): G[A]
@@ -23,7 +23,7 @@ abstract private[finch] class Param[F[_], G[_], A](name: String)(implicit
         case Some(value) =>
           d(value) match {
             case Right(s) => F.pure(Output.payload(present(s)))
-            case Left(e)  => F.raiseError(Error.NotParsed(items.ParamItem(name), tag, e))
+            case Left(e)  => F.raiseError(Error.ParamNotParsed(name, tag).initCause(e))
           }
       }
     }
@@ -31,7 +31,8 @@ abstract private[finch] class Param[F[_], G[_], A](name: String)(implicit
     EndpointResult.Matched(input, Trace.empty, output)
   }
 
-  final override def item: items.RequestItem = items.ParamItem(name)
+  override protected def whenNotValid(why: String): Error.NotValid = Error.ParamNotValid(name, why)
+
   final override def toString: String = s"param($name)"
 }
 
@@ -39,7 +40,7 @@ private[finch] object Param {
 
   trait Required[F[_], A] { _: Param[F, Id, A] =>
     protected def missing(name: String): F[Output[A]] =
-      F.raiseError(Error.NotPresent(items.ParamItem(name)))
+      F.raiseError(Error.ParamNotPresent(name))
     protected def present(a: A): Id[A] = a
   }
 
@@ -53,7 +54,7 @@ abstract private[finch] class Params[F[_], G[_], A](name: String)(implicit
     d: DecodeEntity[A],
     tag: ClassTag[A],
     protected val F: Sync[F]
-) extends Endpoint[F, G[A]] {
+) extends Endpoint.Validatable[F, G[A]] {
 
   protected def missing(name: String): F[Output[G[A]]]
   protected def present(value: Iterable[A]): G[A]
@@ -70,7 +71,7 @@ abstract private[finch] class Params[F[_], G[_], A](name: String)(implicit
             case None =>
               F.pure(Output.payload(present(decoded.map(_.right.get))))
             case Some(es) =>
-              F.raiseError(Errors(es.map(t => Error.NotParsed(items.ParamItem(name), tag, t))))
+              F.raiseError(Errors(es.map(t => Error.ParamNotParsed(name, tag).initCause(t).asInstanceOf[Error])))
           }
       }
     }
@@ -78,7 +79,8 @@ abstract private[finch] class Params[F[_], G[_], A](name: String)(implicit
     EndpointResult.Matched(input, Trace.empty, output)
   }
 
-  final override def item: items.RequestItem = items.ParamItem(name)
+  override protected def whenNotValid(why: String): Error.NotValid = Error.ParamNotValid(name, why)
+
   final override def toString: String = s"params($name)"
 }
 
@@ -91,7 +93,7 @@ private[finch] object Params {
 
   trait NonEmpty[F[_], A] { _: Params[F, NonEmptyList, A] =>
     protected def missing(name: String): F[Output[NonEmptyList[A]]] =
-      F.raiseError(Error.NotPresent(items.ParamItem(name)))
+      F.raiseError(Error.ParamNotPresent(name))
     protected def present(value: Iterable[A]): NonEmptyList[A] =
       NonEmptyList.fromListUnsafe(value.toList)
   }

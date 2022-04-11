@@ -3,7 +3,6 @@ package io.finch.endpoint
 import cats.Id
 import cats.effect.Sync
 import io.finch._
-import io.finch.items._
 
 import scala.reflect.ClassTag
 
@@ -11,7 +10,7 @@ abstract private[finch] class Header[F[_], G[_], A](name: String)(implicit
     d: DecodeEntity[A],
     tag: ClassTag[A],
     protected val F: Sync[F]
-) extends Endpoint[F, G[A]] { self =>
+) extends Endpoint.Validatable[F, G[A]] { self =>
 
   protected def missing(name: String): F[Output[G[A]]]
   protected def present(value: A): G[A]
@@ -23,7 +22,7 @@ abstract private[finch] class Header[F[_], G[_], A](name: String)(implicit
         case value =>
           d(value) match {
             case Right(s) => F.pure(Output.payload(present(s)))
-            case Left(e)  => F.raiseError(Error.NotParsed(items.HeaderItem(name), tag, e))
+            case Left(e)  => F.raiseError(Error.HeaderNotParsed(name, tag).initCause(e))
           }
       }
     }
@@ -31,7 +30,8 @@ abstract private[finch] class Header[F[_], G[_], A](name: String)(implicit
     EndpointResult.Matched(input, Trace.empty, output)
   }
 
-  final override def item: RequestItem = items.HeaderItem(name)
+  override protected def whenNotValid(why: String): Error.NotValid = Error.HeaderNotValid(name, why)
+
   final override def toString: String = s"header($name)"
 }
 
@@ -39,7 +39,7 @@ private[finch] object Header {
 
   trait Required[F[_], A] { _: Header[F, Id, A] =>
     protected def missing(name: String): F[Output[A]] =
-      F.raiseError(Error.NotPresent(items.HeaderItem(name)))
+      F.raiseError(Error.HeaderNotPresent(name))
     protected def present(value: A): Id[A] = value
   }
 

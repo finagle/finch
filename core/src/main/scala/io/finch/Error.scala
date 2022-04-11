@@ -3,7 +3,6 @@ package io.finch
 import cats.data.NonEmptyList
 import cats.syntax.eq._
 import cats.{Eq, Show}
-import io.finch.items.RequestItem
 
 import scala.compat.Platform.EOL
 import scala.reflect.ClassTag
@@ -41,45 +40,34 @@ object Error {
     error.getMessage
   }
 
-  /** An exception that indicates a required request item (''header'', ''param'', ''cookie'', ''body'') was missing in the request.
-    *
-    * @param item
-    *   the missing request item
-    */
-  final case class NotPresent(item: RequestItem) extends Error {
-    override def getMessage: String = s"Required ${item.description} not present in the request."
+  abstract class NotPresent(what: String) extends Error {
+    override def getMessage: String = s"Request is missing a $what."
   }
+  final case object BodyNotPresent extends NotPresent("body")
+  final case class ParamNotPresent(name: String) extends NotPresent(s"param '$name'")
+  final case class HeaderNotPresent(name: String) extends NotPresent(s"header '$name'")
+  final case class CookieNotPresent(name: String) extends NotPresent(s"cookie '$name''")
 
-  /** An exception that indicates a broken [[ValidationRule]] on the request item.
-    *
-    * @param item
-    *   the invalid request item
-    * @param rule
-    *   the rule description
-    */
-  final case class NotValid(item: RequestItem, rule: String) extends Error {
-    override def getMessage: String = s"Validation failed: ${item.description} $rule."
+  abstract class NotValid(what: String, why: String) extends Error {
+    override def getMessage: String = s"Validation failed on request $what: $why"
   }
+  final case class BodyNotValid(why: String) extends NotValid("body", why)
+  final case class ParamNotValid(name: String, why: String) extends NotValid(s"param '$name'", why)
+  final case class HeaderNotValid(name: String, why: String) extends NotValid(s"header '$name'", why)
+  final case class CookieNotValid(name: String, why: String) extends NotValid(s"cookie '$name'", why)
 
-  /** An exception that indicates that a request item could be parsed.
-    *
-    * @param item
-    *   the invalid request item
-    * @param targetType
-    *   the type the item should be converted into
-    * @param cause
-    *   the cause of the parsing error
-    */
-  final case class NotParsed(item: RequestItem, targetType: ClassTag[_], cause: Throwable) extends Error {
-
+  abstract class NotParsed(what: String, targetType: ClassTag[_]) extends Error {
     override def getMessage: String = {
       // Note: https://issues.scala-lang.org/browse/SI-2034
       val className = targetType.runtimeClass.getName
       val simpleName = className.substring(className.lastIndexOf(".") + 1)
+      val cause = if (getCause == null) "unknown cause" else getCause.getMessage
 
-      s"${item.description} cannot be converted to ${simpleName}: ${cause.getMessage}."
+      s"Request $what cannot be converted to ${simpleName}: $cause."
     }
-
-    override def getCause: Throwable = cause
   }
+  final case class BodyNotParsed(targetType: ClassTag[_]) extends NotParsed("body", targetType)
+  final case class ParamNotParsed(name: String, targetType: ClassTag[_]) extends NotParsed(s"param '$name'", targetType)
+  final case class HeaderNotParsed(name: String, targetType: ClassTag[_]) extends NotParsed(s"header '$name'", targetType)
+  final case class CookieNotParsed(name: String, targetType: ClassTag[_]) extends NotParsed(s"cookie '$name'", targetType)
 }
