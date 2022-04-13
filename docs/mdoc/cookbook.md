@@ -85,26 +85,6 @@ val file: Endpoint[IO, Buf] = get("file") {
 content given their _dynamic_ nature. Instead, a static HTTP server (i.e., [Nginx][nginx]) would be
 the perfect fit.
 
-It's also possible to _stream_ the file content to the client using [`AsyncStream`][as].
-
-```scala mdoc:silent:nest
-import io.finch._
-import io.finch.catsEffect._
-import com.twitter.conversions.StorageUnitOps._
-import com.twitter.concurrent.AsyncStream
-import com.twitter.finagle.Http
-import com.twitter.io.{Buf, BufReader, Reader}
-
-import java.io.File
-
-val reader: Reader[Buf] = Reader.fromFile(new File("/dev/urandom"))
-
-val file: Endpoint[IO, AsyncStream[Buf]] = get("stream-of-file") {
-  val chunkedReader = BufReader.chunked(reader, chunkSize = 512.kilobytes.inBytes.toInt)
-  Ok(Reader.toAsyncStream(chunkedReader))
-}
-```
-
 ### Converting `Errors` into JSON
 
 Finch's own errors are often accumulated in the product `Endpoint` and represented as
@@ -432,7 +412,7 @@ e(Input.get("/foo")).awaitValueUnsafe()
 ### Server Sent Events
 
 Finch offers support for [Server Sent Events][server-sent-events] through the `finch-sse` sub-project.
-Server Sent Events are represented as `AsyncStream`s and streamed over the chunked HTTP transport.
+Server Sent Events are represented as `Stream`s and streamed over the chunked HTTP transport.
 
 The `ServerSentEvent` case class carries an arbitrary `data` field and it's possible to encode any
 `ServerSentEvent[A]` for which `cats.Show[A]` is defined.
@@ -531,7 +511,6 @@ call. See finagle-http-auth's README for more usage details.
 [loadbalancing]: http://twitter.github.io/finagle/guide/Clients.html#load-balancing
 [futures]: http://twitter.github.io/finagle/guide/Futures.html
 [bijection]: https://github.com/twitter/bijection
-[as]: https://github.com/twitter/util/blob/develop/util-core/src/main/scala/com/twitter/concurrent/AsyncStream.scala
 [cors-filter]: https://github.com/twitter/finagle/blob/develop/finagle-http/src/main/scala/com/twitter/finagle/http/filter/Cors.scala
 [cors]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS
 [server-sent-events]: https://en.wikipedia.org/wiki/Server-sent_events

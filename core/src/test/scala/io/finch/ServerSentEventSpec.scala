@@ -1,7 +1,6 @@
 package io.finch
 
 import cats.Show
-import com.twitter.concurrent.AsyncStream
 import com.twitter.io.Buf
 import io.finch.internal.HttpContent
 import org.scalacheck.Gen.Choose
@@ -50,13 +49,6 @@ class ServerSentEventSpec extends AnyFlatSpec with Matchers with Checkers {
     sse <- dataOnlySse
     retry <- Choose.chooseLong.choose(-1000, 1000)
   } yield sse.copy(retry = Some(retry))
-
-  def streamDataOnlyGenerator: Gen[AsyncStream[ServerSentEvent[String]]] = for {
-    strs <- Gen.nonEmptyListOf(dataOnlySse)
-  } yield AsyncStream.fromSeq(strs)
-
-  implicit def arbitrarySse: Arbitrary[AsyncStream[ServerSentEvent[String]]] =
-    Arbitrary(streamDataOnlyGenerator)
 
   val encoder = encodeEventStream[String](Show.fromToString)
 
