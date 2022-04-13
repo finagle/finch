@@ -139,12 +139,6 @@ trait Endpoint[F[_], A] {
 
   /** Transform this endpoint to the given function `F[A] => F[B]`
     */
-  @deprecated("Use .transform instead", "0.29")
-  final def transformF[B](fn: F[A] => F[B])(implicit F: Monad[F]): Endpoint[F, B] =
-    transform(fn)
-
-  /** Transform this endpoint to the given function `F[A] => F[B]`
-    */
   final def transform[B](fn: F[A] => F[B])(implicit F: Monad[F]): Endpoint[F, B] =
     new Endpoint[F, B] {
       def apply(input: Input): Endpoint.Result[F, B] =
