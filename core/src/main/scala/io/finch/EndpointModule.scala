@@ -9,7 +9,6 @@ import com.twitter.io.Buf
 import shapeless.HNil
 
 import java.io.{File, InputStream}
-import scala.concurrent.ExecutionContext
 import scala.reflect.ClassTag
 
 /** Enables users to construct [[Endpoint]] instances without specifying the effect type `F[_]` every time.
@@ -89,23 +88,23 @@ trait EndpointModule[F[_]] {
 
   /** An alias for [[Endpoint.fromInputStream]].
     */
-  def fromInputStream(stream: Resource[F, InputStream], blockingEc: ExecutionContext)(implicit F: Async[F]): Endpoint[F, Buf] =
-    Endpoint.fromInputStream[F](stream, blockingEc)
+  def fromInputStream(stream: Resource[F, InputStream])(implicit F: Async[F]): Endpoint[F, Buf] =
+    Endpoint.fromInputStream[F](stream)
 
   /** An alias for [[Endpoint.fromFile]].
     */
-  def fromFile(file: File, blockingEc: ExecutionContext)(implicit F: Async[F]): Endpoint[F, Buf] =
-    Endpoint.fromFile[F](file, blockingEc)
+  def fromFile(file: File)(implicit F: Async[F]): Endpoint[F, Buf] =
+    Endpoint.fromFile[F](file)
 
   /** An alias for [[Endpoint.classpathAsset]].
     */
-  def classpathAsset(path: String, blockingEc: ExecutionContext)(implicit F: Async[F]): Endpoint[F, Buf] =
-    Endpoint.classpathAsset[F](path, blockingEc)
+  def classpathAsset(path: String)(implicit F: Async[F]): Endpoint[F, Buf] =
+    Endpoint.classpathAsset[F](path)
 
   /** An alias for [[Endpoint.classpathAsset]].
     */
-  def filesystemAsset(path: String, blockingEc: ExecutionContext)(implicit F: Async[F]): Endpoint[F, Buf] =
-    Endpoint.filesystemAsset[F](path, blockingEc)
+  def filesystemAsset(path: String)(implicit F: Async[F]): Endpoint[F, Buf] =
+    Endpoint.filesystemAsset[F](path)
 
   /** An alias for [[Endpoint.root]].
     */

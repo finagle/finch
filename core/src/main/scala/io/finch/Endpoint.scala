@@ -16,7 +16,6 @@ import shapeless.ops.adjoin.Adjoin
 import shapeless.ops.hlist.Tupler
 
 import java.io.{File, FileInputStream, InputStream}
-import scala.concurrent.ExecutionContext
 import scala.reflect.ClassTag
 
 /** An `Endpoint` represents the HTTP endpoint.
@@ -622,26 +621,21 @@ object Endpoint {
         EndpointResult.Matched(input, Trace.empty, F.defer(foa))
     }
 
-  /** Creates an [[Endpoint]] from a given [[InputStream]]. Uses [[Resource]] for safer resource management and [[ExecutionContext]] for offloading blocking
-    * work from a worker pool.
+  /** Creates an [[Endpoint]] from a given [[InputStream]]. Uses [[Resource]] for safer resource management
     *
     * @see
     *   [[fromFile]]
     */
-  def fromInputStream[F[_]](stream: Resource[F, InputStream], blockingEc: ExecutionContext)(implicit F: Async[F]): Endpoint[F, Buf] =
-    new FromInputStream[F](stream, blockingEc)
+  def fromInputStream[F[_]](stream: Resource[F, InputStream])(implicit F: Async[F]): Endpoint[F, Buf] =
+    new FromInputStream[F](stream)
 
-  /** Creates an [[Endpoint]] from a given [[File]]. Uses [[Resource]] for safer resource management and [[ExecutionContext]] for offloading blocking work from
-    * a worker pool.
+  /** Creates an [[Endpoint]] from a given [[File]]. Uses [[Resource]] for safer resource management
     *
     * @see
     *   [[fromInputStream]]
     */
-  def fromFile[F[_]](file: File, blockingEc: ExecutionContext)(implicit F: Async[F]): Endpoint[F, Buf] =
-    fromInputStream[F](
-      Resource.fromAutoCloseable(F.delay(new FileInputStream(file))),
-      blockingEc
-    )
+  def fromFile[F[_]](file: File)(implicit F: Async[F]): Endpoint[F, Buf] =
+    fromInputStream[F](Resource.fromAutoCloseable(F.delay(new FileInputStream(file))))
 
   /** Creates an [[Endpoint]] that serves an asset (static content) from a Java classpath resource, located at `path`, as a static content. The returned
     * endpoint will only match `GET` requests with path identical to asset's.
@@ -672,10 +666,10 @@ object Endpoint {
     * @see
     *   https://docs.oracle.com/javase/8/docs/technotes/guides/lang/resources.html
     */
-  def classpathAsset[F[_]](path: String, blockingEc: ExecutionContext)(implicit F: Async[F]): Endpoint[F, Buf] = {
+  def classpathAsset[F[_]](path: String)(implicit F: Async[F]): Endpoint[F, Buf] = {
     val asset = new Asset[F](path)
     val stream =
-      fromInputStream[F](Resource.fromAutoCloseable(F.delay(getClass.getResourceAsStream(path))), blockingEc)
+      fromInputStream[F](Resource.fromAutoCloseable(F.delay(getClass.getResourceAsStream(path))))
 
     asset :: stream
   }
@@ -693,9 +687,9 @@ object Endpoint {
     *     ...
     * }}}
     */
-  def filesystemAsset[F[_]](path: String, blockingEc: ExecutionContext)(implicit F: Async[F]): Endpoint[F, Buf] = {
+  def filesystemAsset[F[_]](path: String)(implicit F: Async[F]): Endpoint[F, Buf] = {
     val asset = new Asset[F](path)
-    val file = fromFile[F](new File(path), blockingEc)
+    val file = fromFile[F](new File(path))
 
     asset :: file
   }

@@ -9,8 +9,6 @@ import com.twitter.finagle.Http
 import com.twitter.server.TwitterServer
 import com.twitter.util.Await
 
-import scala.concurrent.ExecutionContext
-
 /** A simple Finch server serving a TODO application.
   *
   * Use the following sbt command to run the application.
@@ -40,7 +38,7 @@ object Main extends TwitterServer {
       id <- Ref[IO].of(0)
       store <- Ref[IO].of(Map.empty[Int, Todo])
       server <- Dispatcher[IO].use { implicit dispatcher =>
-        val app = new App(id, store, ExecutionContext.global)
+        val app = new App(id, store)
         val srv = Http.server.withStatsReceiver(statsReceiver)
         IO(srv.serve(s":${port()}", app.toService))
       }

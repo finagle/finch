@@ -17,17 +17,11 @@ import shapeless._
 import java.io.{ByteArrayInputStream, InputStream}
 import java.net.URLEncoder
 import java.util.UUID
-import java.util.concurrent.{ExecutorService, Executors, TimeUnit}
+import java.util.concurrent.TimeUnit
+import scala.concurrent.Future
 import scala.concurrent.duration.Duration
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future}
 
 class EndpointSpec extends FinchSpec with BeforeAndAfterAll with MissingInstances {
-
-  private val executor: ExecutorService = Executors.newSingleThreadExecutor()
-  private val blockingEc: ExecutionContextExecutorService = ExecutionContext.fromExecutorService(executor)
-
-  override def afterAll(): Unit =
-    executor.shutdown()
 
   type EndpointIO[A] = Endpoint[IO, A]
 
@@ -418,13 +412,13 @@ class EndpointSpec extends FinchSpec with BeforeAndAfterAll with MissingInstance
     val bytes = Array[Byte](1, 2, 3, 4, 5)
     val bis = Resource.fromAutoCloseable[IO, InputStream](IO.delay(new ByteArrayInputStream(bytes)))
 
-    val is = fromInputStream(bis, blockingEc)
+    val is = fromInputStream(bis)
 
     is(Input.get("/")).awaitValueUnsafe() shouldBe Some(Buf.ByteArray.Owned(bytes))
   }
 
   it should "classpathAsset" in {
-    val r = classpathAsset("/test.txt", blockingEc)
+    val r = classpathAsset("/test.txt")
 
     r(Input.get("/foo")).awaitOutputUnsafe() shouldBe None
     r(Input.post("/")).awaitOutputUnsafe() shouldBe None
