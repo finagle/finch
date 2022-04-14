@@ -299,10 +299,9 @@ trait Endpoint[F[_], A] {
     */
   final def toService(implicit
       F: Async[F],
-      dispatcher: Dispatcher[F],
       tr: ToResponse.Aux[F, A, Application.Json],
       tre: ToResponse.Aux[F, Exception, Application.Json]
-  ): Service[Request, Response] = toServiceAs[Application.Json]
+  ): Resource[F, Service[Request, Response]] = toServiceAs[Application.Json]
 
   /** Converts this endpoint to a Finagle service `Request => Future[Response]` that serves custom content-type `CT`.
     *
@@ -310,10 +309,9 @@ trait Endpoint[F[_], A] {
     */
   final def toServiceAs[CT <: String](implicit
       F: Async[F],
-      dispatcher: Dispatcher[F],
       tr: ToResponse.Aux[F, A, CT],
       tre: ToResponse.Aux[F, Exception, CT]
-  ): Service[Request, Response] = Bootstrap.serve[CT](this).toService
+  ): Resource[F, Service[Request, Response]] = Bootstrap.serve[CT](this).toService
 
   /** Converts this endpoint to Endpoint.Compiled[F] what is efficiently is Kleisli[F, Request, Response] where responses are encoded with JSON encoder.
     *
@@ -556,7 +554,8 @@ object Endpoint {
 
   /** Convert [[Endpoint.Compiled]] into Finagle Service
     */
-  def toService[F[_]: Async: Dispatcher](compiled: Endpoint.Compiled[F]): Service[Request, Response] = ToService(compiled)
+  def toService[F[_]: Async](compiled: Endpoint.Compiled[F]): Resource[F, Service[Request, Response]] =
+    Dispatcher[F].map(ToService(compiled, _))
 
   /** Creates an empty [[Endpoint]] (an endpoint that never matches) for a given type.
     */

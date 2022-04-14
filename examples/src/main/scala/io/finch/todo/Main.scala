@@ -1,13 +1,14 @@
 package io.finch.todo
 
-import cats.effect.IO
-import cats.effect.Ref
+import cats.effect._
 import cats.effect.std.Dispatcher
-import cats.effect.unsafe.IORuntime
+import cats.effect.unsafe.implicits.global
 import com.twitter.app.Flag
-import com.twitter.finagle.Http
+import com.twitter.finagle.http.{Request, Response}
+import com.twitter.finagle.{Http, ListeningServer, Service}
 import com.twitter.server.TwitterServer
-import com.twitter.util.Await
+import com.twitter.util.{Await, Future}
+import io.finch.internal.ToAsync
 
 /** A simple Finch server serving a TODO application.
   *
@@ -31,20 +32,28 @@ object Main extends TwitterServer {
 
   private val port: Flag[Int] = flag("port", 8081, "TCP port for HTTP server")
 
-  def main(): Unit = {
-    println(s"Open your browser at http://localhost:${port()}/todo/index.html") // scalastyle:ignore
+  private def serve(service: Service[Request, Response]): Resource[IO, ListeningServer] =
+    Resource.make(for {
+      srv <- IO(Http.server.withStatsReceiver(statsReceiver))
+      server <- IO(srv.serve(s":${port()}", service))
+    } yield server) { server =>
+      IO.defer(implicitly[ToAsync[Future, IO]].apply(server.close()))
+    }
 
-    val server = for {
-      id <- Ref[IO].of(0)
-      store <- Ref[IO].of(Map.empty[Int, Todo])
-      server <- Dispatcher[IO].use { implicit dispatcher =>
-        val app = new App(id, store)
-        val srv = Http.server.withStatsReceiver(statsReceiver)
-        IO(srv.serve(s":${port()}", app.toService))
-      }
-    } yield server
-    val handle = server.unsafeRunSync()(IORuntime.global)
-    onExit(handle.close())
-    Await.ready(adminHttpServer)
+  val run: IO[Unit] =
+    (for {
+      _ <- Resource.eval(IO.println(s"Open your browser at http://localhost:${port()}/todo/index.html")) // scalastyle:ignore
+      id <- Resource.eval(Ref[IO].of(0))
+      store <- Resource.eval(Ref[IO].of(Map.empty[Int, Todo]))
+      app = new App(id, store)
+      service <- app.toService
+      server <- serve(service)
+    } yield server).use(_ => IO(Await.ready(adminHttpServer)) >> IO.never)
+
+  def main(): Unit = {
+    val dispatcher = new Dispatcher[IO] {
+      override def unsafeToFutureCancelable[A](fa: IO[A]): (concurrent.Future[A], () => concurrent.Future[Unit]) = fa.unsafeToFutureCancelable()
+    }
+    dispatcher.unsafeRunSync(run)
   }
 }

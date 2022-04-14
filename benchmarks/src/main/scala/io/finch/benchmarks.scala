@@ -1,8 +1,8 @@
 package io.finch
 
-import cats.effect.IO
 import cats.effect.std.Dispatcher
 import cats.effect.unsafe.implicits.global
+import cats.effect.{IO, Resource}
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.io.Buf
@@ -171,8 +171,8 @@ class MapBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class JsonBenchmark extends FinchBenchmark {
-  import io.circe.syntax._
   import io.circe.generic.auto._
+  import io.circe.syntax._
   import io.finch.circe._
 
   val decodeFoo: Decode.Json[Foo] = Decode[Foo, Application.Json]
@@ -197,11 +197,13 @@ abstract class BootstrapBenchmark[CT](init: Bootstrap[Id, HNil, HNil])(implicit
 
   protected def issueRequest(): Request = Request()
 
-  private val foo: Service[Request, Response] =
+  private val foo: Resource[IO, Service[Request, Response]] =
     init.serve[CT](Endpoint[IO].const(List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString)))).toService
 
   @Benchmark
-  def foos: Response = Await.result(foo.apply(issueRequest()))
+  def foos: Response = Await.result(dispatcher.unsafeRunSync(foo.use { service =>
+    IO(service.apply(issueRequest()))
+  }))
 }
 
 class JsonBootstrapBenchmark extends BootstrapBenchmark[Application.Json](Bootstrap)

@@ -1,10 +1,10 @@
 package io.finch.div
 
-import cats.effect.std.Dispatcher
-import cats.effect.{ExitCode, IO, IOApp}
+import cats.effect.{ExitCode, IO, IOApp, Resource}
 import cats.implicits._
-import com.twitter.finagle.Http
-import com.twitter.util.Await
+import com.twitter.finagle.http.{Request, Response}
+import com.twitter.finagle.{Http, ListeningServer, Service}
+import com.twitter.util.Future
 import io.finch._
 
 /** A tiny Finch application that serves a single endpoint `POST /:a/b:` that divides `a` by `b`.
@@ -32,10 +32,14 @@ object Main extends IOApp with Endpoint.Module[IO] {
     BadRequest(e)
   }
 
-  override def run(args: List[String]): IO[ExitCode] = Dispatcher[IO]
-    .use { implicit dispatcher =>
-      IO(Await.ready(Http.server.serve(":8081", div.toServiceAs[Text.Plain])))
+  def serve(service: Service[Request, Response]): Resource[IO, ListeningServer] =
+    Resource.make(IO(Http.server.serve(":8081", service))) { server =>
+      IO.defer(implicitly[ToAsync[Future, IO]].apply(server.close()))
     }
-    .as(ExitCode.Success)
 
+  override def run(args: List[String]): IO[ExitCode] =
+    (for {
+      service <- div.toServiceAs[Text.Plain]
+      server <- serve(service)
+    } yield server).use(_ => IO.never[ExitCode])
 }

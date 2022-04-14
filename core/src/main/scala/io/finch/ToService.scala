@@ -9,7 +9,7 @@ import com.twitter.util.{Future, Promise}
 
 /** Representation of `Endpoint.Compiled` as Finagle Service
   */
-case class ToService[F[_]](compiled: Endpoint.Compiled[F])(implicit F: Async[F], dispatcher: Dispatcher[F]) extends Service[Request, Response] {
+case class ToService[F[_]](compiled: Endpoint.Compiled[F], dispatcher: Dispatcher[F])(implicit F: Async[F]) extends Service[Request, Response] {
   def apply(request: Request): Future[Response] = {
     val repF = compiled(request).flatMap { case (trc, either) =>
       Trace.captureIfNeeded(trc)
