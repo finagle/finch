@@ -42,7 +42,7 @@ class EndpointSpec extends FinchSpec with BeforeAndAfterAll with MissingInstance
 
   it should "support very basic map" in {
     check { i: Input =>
-      path[String].map(_ * 2).apply(i).awaitValueUnsafe() === i.route.headOption.map(_ * 2)
+      path[String].map(_ * 2).apply(i).awaitValueUnsafe(dispatcherIO) === i.route.headOption.map(_ * 2)
     }
   }
 
@@ -56,13 +56,13 @@ class EndpointSpec extends FinchSpec with BeforeAndAfterAll with MissingInstance
   it should "support transformOutput" in {
     check { i: Input =>
       val fn = (fs: IO[Output[String]]) => fs.map(_.map(_ * 2))
-      path[String].transformOutput(fn).apply(i).awaitValueUnsafe() === i.route.headOption.map(_ * 2)
+      path[String].transformOutput(fn).apply(i).awaitValueUnsafe(dispatcherIO) === i.route.headOption.map(_ * 2)
     }
   }
 
   it should "propagate the default (Ok) output" in {
     check { i: Input =>
-      path[String].apply(i).awaitOutputUnsafe() === i.route.headOption.map(s => Ok(s))
+      path[String].apply(i).awaitOutputUnsafe(dispatcherIO) === i.route.headOption.map(s => Ok(s))
     }
   }
 
@@ -70,8 +70,8 @@ class EndpointSpec extends FinchSpec with BeforeAndAfterAll with MissingInstance
     check { i: Input =>
       val expected = i.route.headOption.map(s => Ok(s.length))
 
-      path[String].map(s => s.length).apply(i).awaitOutputUnsafe() === expected &&
-      path[String].mapAsync(s => IO.pure(s.length)).apply(i).awaitOutputUnsafe() === expected
+      path[String].map(s => s.length).apply(i).awaitOutputUnsafe(dispatcherIO) === expected &&
+      path[String].mapAsync(s => IO.pure(s.length)).apply(i).awaitOutputUnsafe(dispatcherIO) === expected
     }
   }
 
@@ -80,7 +80,7 @@ class EndpointSpec extends FinchSpec with BeforeAndAfterAll with MissingInstance
       Created(i).withHeader("A" -> "B").withCookie(new Cookie("C", "D"))
 
     check { i: Input =>
-      path[String].mapOutputAsync(s => IO.pure(expected(s.length))).apply(i).awaitOutputUnsafe() ===
+      path[String].mapOutputAsync(s => IO.pure(expected(s.length))).apply(i).awaitOutputUnsafe(dispatcherIO) ===
         i.route.headOption.map(s => expected(s.length))
     }
 
@@ -88,7 +88,7 @@ class EndpointSpec extends FinchSpec with BeforeAndAfterAll with MissingInstance
       val e = i.route.dropRight(1).map(s => path(s)).foldLeft[Endpoint[IO, HNil]](zero)((acc, ee) => acc :: ee)
 
       val v = (e :: path[String]).mapOutputAsync(s => IO.pure(expected(s.length))).apply(i)
-      v.awaitOutputUnsafe() === i.route.lastOption.map(s => expected(s.length))
+      v.awaitOutputUnsafe(dispatcherIO) === i.route.lastOption.map(s => expected(s.length))
     }
   }
 
@@ -208,14 +208,14 @@ class EndpointSpec extends FinchSpec with BeforeAndAfterAll with MissingInstance
 
   it should "always respond with the same output if it's a constant Endpoint" in {
     check { s: String =>
-      const(s).apply(Input.get("/")).awaitValueUnsafe() === Some(s) &&
-      lift(s).apply(Input.get("/")).awaitValueUnsafe() === Some(s) &&
-      liftAsync(IO.pure(s)).apply(Input.get("/")).awaitValueUnsafe() === Some(s)
+      const(s).apply(Input.get("/")).awaitValueUnsafe(dispatcherIO) === Some(s) &&
+      lift(s).apply(Input.get("/")).awaitValueUnsafe(dispatcherIO) === Some(s) &&
+      liftAsync(IO.pure(s)).apply(Input.get("/")).awaitValueUnsafe(dispatcherIO) === Some(s)
     }
 
     check { o: Output[String] =>
-      liftOutput(o).apply(Input.get("/")).awaitOutputUnsafe() === Some(o) &&
-      liftOutputAsync(IO.pure(o)).apply(Input.get("/")).awaitOutputUnsafe() === Some(o)
+      liftOutput(o).apply(Input.get("/")).awaitOutputUnsafe(dispatcherIO) === Some(o) &&
+      liftOutputAsync(IO.pure(o)).apply(Input.get("/")).awaitOutputUnsafe(dispatcherIO) === Some(o)
     }
   }
 
@@ -226,7 +226,7 @@ class EndpointSpec extends FinchSpec with BeforeAndAfterAll with MissingInstance
 
     check { (s: String, i: Int, b: Boolean) =>
       val sEncoded = URLEncoder.encode(s, "UTF-8")
-      foo(Input(emptyRequest, List(sEncoded, i.toString, b.toString))).awaitValueUnsafe() ===
+      foo(Input(emptyRequest, List(sEncoded, i.toString, b.toString))).awaitValueUnsafe(dispatcherIO) ===
         Some(Foo(s, i, b))
     }
   }
@@ -238,7 +238,7 @@ class EndpointSpec extends FinchSpec with BeforeAndAfterAll with MissingInstance
           Created(s)
         }
         .apply(i)
-        .awaitOutput()
+        .awaitOutput(dispatcherIO)
       result === Some(Right(Created(s)))
     }
   }
@@ -252,7 +252,7 @@ class EndpointSpec extends FinchSpec with BeforeAndAfterAll with MissingInstance
           Created(s)
         }
         .apply(i)
-        .awaitOutput()
+        .awaitOutput(dispatcherIO)
       result === Some(Left(e))
     }
   }
@@ -260,7 +260,7 @@ class EndpointSpec extends FinchSpec with BeforeAndAfterAll with MissingInstance
   it should "not split comma separated param values" in {
     val i = Input.get("/index", "foo" -> "a,b")
     val e = params("foo")
-    e(i).awaitValueUnsafe() shouldBe Some(Seq("a,b"))
+    e(i).awaitValueUnsafe(dispatcherIO) shouldBe Some(Seq("a,b"))
   }
 
   it should "throw NotPresent if an item is not found" in {
@@ -283,8 +283,8 @@ class EndpointSpec extends FinchSpec with BeforeAndAfterAll with MissingInstance
     var c = 0
     val e = get(pathAny) { c = c + 1; Ok(c) }
 
-    e(i).awaitValueUnsafe() shouldBe Some(1)
-    e(i).awaitValueUnsafe() shouldBe Some(2)
+    e(i).awaitValueUnsafe(dispatcherIO) shouldBe Some(1)
+    e(i).awaitValueUnsafe(dispatcherIO) shouldBe Some(2)
   }
 
   it should "not evaluate Futures until matched" in {
@@ -385,26 +385,26 @@ class EndpointSpec extends FinchSpec with BeforeAndAfterAll with MissingInstance
 
   it should "support the as[A] method on Endpoint[Seq[String]]" in {
     val foos = params[Foo]("testEndpoint")
-    foos(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe() shouldBe Some(Seq(Foo("a")))
+    foos(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe(dispatcherIO) shouldBe Some(Seq(Foo("a")))
   }
 
   it should "collect errors on Endpoint[Seq[String]] failure" in {
     val endpoint = params[UUID]("testEndpoint")
     an[Errors] shouldBe thrownBy(
-      endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe()
+      endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe(dispatcherIO)
     )
   }
 
   it should "support the as[A] method on Endpoint[NonEmptyList[A]]" in {
     val foos = paramsNel[Foo]("testEndpoint")
-    foos(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe() shouldBe
+    foos(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe(dispatcherIO) shouldBe
       Some(NonEmptyList.of(Foo("a")))
   }
 
   it should "collect errors on Endpoint[NonEmptyList[String]] failure" in {
     val endpoint = paramsNel[UUID]("testEndpoint")
     an[Errors] shouldBe thrownBy(
-      endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe(Duration(10, TimeUnit.SECONDS))
+      endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe(dispatcherIO, Duration(10, TimeUnit.SECONDS))
     )
   }
 
@@ -414,15 +414,15 @@ class EndpointSpec extends FinchSpec with BeforeAndAfterAll with MissingInstance
 
     val is = fromInputStream(bis)
 
-    is(Input.get("/")).awaitValueUnsafe() shouldBe Some(Buf.ByteArray.Owned(bytes))
+    is(Input.get("/")).awaitValueUnsafe(dispatcherIO) shouldBe Some(Buf.ByteArray.Owned(bytes))
   }
 
   it should "classpathAsset" in {
     val r = classpathAsset("/test.txt")
 
-    r(Input.get("/foo")).awaitOutputUnsafe() shouldBe None
-    r(Input.post("/")).awaitOutputUnsafe() shouldBe None
-    r(Input.get("/test.txt")).awaitValueUnsafe() shouldBe Some(Buf.Utf8("foo bar baz\n"))
+    r(Input.get("/foo")).awaitOutputUnsafe(dispatcherIO) shouldBe None
+    r(Input.post("/")).awaitOutputUnsafe(dispatcherIO) shouldBe None
+    r(Input.get("/test.txt")).awaitValueUnsafe(dispatcherIO) shouldBe Some(Buf.Utf8("foo bar baz\n"))
   }
 
   it should "wrap up an exception thrown inside mapOutputs function" in {
@@ -442,12 +442,12 @@ class EndpointSpec extends FinchSpec with BeforeAndAfterAll with MissingInstance
         def apply[A](fa: IO[A]): WriterT[IO, List[String], A] = WriterT.liftF(fa)
       }
 
-      implicit val dispatcherW: Dispatcher[W] = new Dispatcher[W] {
+      val dispatcherW: Dispatcher[W] = new Dispatcher[W] {
         override def unsafeToFutureCancelable[A](fa: W[A]): (Future[A], () => Future[Unit]) =
           dispatcherIO.unsafeToFutureCancelable(fa.value)
       }
 
-      ep.mapK(nat)(input).awaitOutput() === ep(input).awaitOutput()
+      ep.mapK(nat)(input).awaitOutput(dispatcherW) === ep(input).awaitOutput(dispatcherIO)
     }
   }
 }

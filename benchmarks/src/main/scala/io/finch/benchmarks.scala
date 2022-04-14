@@ -23,7 +23,7 @@ import scala.concurrent.Future
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(2)
 abstract class FinchBenchmark extends Endpoint.Module[IO] {
-  implicit val dispatcher: Dispatcher[IO] = new Dispatcher[IO] {
+  val dispatcher: Dispatcher[IO] = new Dispatcher[IO] {
     override def unsafeToFutureCancelable[A](fa: IO[A]): (Future[A], () => Future[Unit]) = fa.unsafeToFutureCancelable()
   }
 
@@ -53,22 +53,22 @@ class BodyBenchmark extends FinchBenchmark {
   val fooAsText: Endpoint[IO, Foo] = body[Foo, Text.Plain]
 
   @Benchmark
-  def fooOption: Option[Option[Foo]] = fooOptionAsText(postPayload).awaitValueUnsafe()
+  def fooOption: Option[Option[Foo]] = fooOptionAsText(postPayload).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def foo: Option[Foo] = fooAsText(postPayload).awaitValueUnsafe()
+  def foo: Option[Foo] = fooAsText(postPayload).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def stringOption: Option[Option[String]] = stringBodyOption.apply(postPayload).awaitValueUnsafe()
+  def stringOption: Option[Option[String]] = stringBodyOption.apply(postPayload).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def string: Option[String] = stringBody.apply(postPayload).awaitValueUnsafe()
+  def string: Option[String] = stringBody.apply(postPayload).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def byteArrayOption: Option[Option[Array[Byte]]] = binaryBodyOption.apply(postPayload).awaitValueUnsafe()
+  def byteArrayOption: Option[Option[Array[Byte]]] = binaryBodyOption.apply(postPayload).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def byteArray: Option[Array[Byte]] = binaryBody.apply(postPayload).awaitValueUnsafe()
+  def byteArray: Option[Array[Byte]] = binaryBody.apply(postPayload).awaitValueUnsafe(dispatcher)
 }
 
 @State(Scope.Benchmark)
@@ -77,37 +77,37 @@ class MatchPathBenchmark extends FinchBenchmark {
   val foo: Endpoint[IO, HNil] = "foo"
 
   @Benchmark
-  def stringSome: Option[HNil] = foo(getFooBarBaz).awaitValueUnsafe()
+  def stringSome: Option[HNil] = foo(getFooBarBaz).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def stringNone: Option[HNil] = foo(getRoot).awaitValueUnsafe()
+  def stringNone: Option[HNil] = foo(getRoot).awaitValueUnsafe(dispatcher)
 }
 
 @State(Scope.Benchmark)
 class ExtractPathBenchmark extends FinchBenchmark {
   @Benchmark
-  def stringSome: Option[String] = path[String].apply(getFooBarBaz).awaitValueUnsafe()
+  def stringSome: Option[String] = path[String].apply(getFooBarBaz).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def stringNone: Option[String] = path[String].apply(getRoot).awaitValueUnsafe()
+  def stringNone: Option[String] = path[String].apply(getRoot).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def longSome: Option[Long] = path[Long].apply(getTenTwenty).awaitValueUnsafe()
+  def longSome: Option[Long] = path[Long].apply(getTenTwenty).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def longNone: Option[Long] = path[Long].apply(getFooBarBaz).awaitValueUnsafe()
+  def longNone: Option[Long] = path[Long].apply(getFooBarBaz).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def intSome: Option[Int] = path[Int].apply(getTenTwenty).awaitValueUnsafe()
+  def intSome: Option[Int] = path[Int].apply(getTenTwenty).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def intNone: Option[Int] = path[Int].apply(getFooBarBaz).awaitValueUnsafe()
+  def intNone: Option[Int] = path[Int].apply(getFooBarBaz).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def booleanSome: Option[Boolean] = path[Boolean].apply(getTrueFalse).awaitValueUnsafe()
+  def booleanSome: Option[Boolean] = path[Boolean].apply(getTrueFalse).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def booleanNone: Option[Boolean] = path[Boolean].apply(getTenTwenty).awaitValueUnsafe()
+  def booleanNone: Option[Boolean] = path[Boolean].apply(getTenTwenty).awaitValueUnsafe(dispatcher)
 }
 
 @State(Scope.Benchmark)
@@ -120,13 +120,13 @@ class ProductBenchmark extends FinchBenchmark {
     Endpoint[IO].empty[Int].product(Endpoint[IO].const("foo"))
 
   @Benchmark
-  def bothMatched: Option[(Int, String)] = both(getRoot).awaitValueUnsafe()
+  def bothMatched: Option[(Int, String)] = both(getRoot).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def leftMatched: Option[(Int, String)] = left(getRoot).awaitValueUnsafe()
+  def leftMatched: Option[(Int, String)] = left(getRoot).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def rightMatched: Option[(Int, String)] = right(getRoot).awaitValueUnsafe()
+  def rightMatched: Option[(Int, String)] = right(getRoot).awaitValueUnsafe(dispatcher)
 }
 
 @State(Scope.Benchmark)
@@ -139,13 +139,13 @@ class CoproductBenchmark extends FinchBenchmark {
     Endpoint[IO].empty.coproduct(Endpoint[IO].const("bar"))
 
   @Benchmark
-  def bothMatched: Option[String] = both(getRoot).awaitValueUnsafe()
+  def bothMatched: Option[String] = both(getRoot).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def leftMatched: Option[String] = left(getRoot).awaitValueUnsafe()
+  def leftMatched: Option[String] = left(getRoot).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def rightMatched: Option[String] = right(getRoot).awaitValueUnsafe()
+  def rightMatched: Option[String] = right(getRoot).awaitValueUnsafe(dispatcher)
 }
 
 @State(Scope.Benchmark)
@@ -157,16 +157,16 @@ class MapBenchmark extends FinchBenchmark {
   val mapTenOutputAsync: Endpoint[IO, Int] = ten.mapOutputAsync(a => IO.pure(Ok(a + 10)))
 
   @Benchmark
-  def map: Option[Int] = mapTen(getRoot).awaitValueUnsafe()
+  def map: Option[Int] = mapTen(getRoot).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def mapAsync: Option[Int] = mapTenAsync(getRoot).awaitValueUnsafe()
+  def mapAsync: Option[Int] = mapTenAsync(getRoot).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def mapOutput: Option[Int] = mapTenOutput(getRoot).awaitValueUnsafe()
+  def mapOutput: Option[Int] = mapTenOutput(getRoot).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def mapOutputAsync: Option[Int] = mapTenOutputAsync(getRoot).awaitValueUnsafe()
+  def mapOutputAsync: Option[Int] = mapTenOutputAsync(getRoot).awaitValueUnsafe(dispatcher)
 }
 
 @State(Scope.Benchmark)

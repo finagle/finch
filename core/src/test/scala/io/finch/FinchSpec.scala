@@ -306,12 +306,12 @@ trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with AllInstance
     *
     * We attempt to verify that two endpoints are the same by applying them to a fixed number of randomly generated inputs.
     */
-  implicit def eqEndpoint[F[_]: Sync: Dispatcher, A: Eq]: Eq[Endpoint[F, A]] = new Eq[Endpoint[F, A]] {
+  implicit def eqEndpoint[F[_]: Sync, A: Eq](implicit dispatcher: Dispatcher[F]): Eq[Endpoint[F, A]] = new Eq[Endpoint[F, A]] {
     private[this] def count: Int = 16
 
     private[this] def await(result: Endpoint.Result[F, A]): Option[(Input, Either[Throwable, Output[A]])] = for {
       r <- result.remainder
-      o <- result.awaitOutput()
+      o <- result.awaitOutput(dispatcher)
     } yield (r, o)
 
     private[this] def inputs: Stream[Input] = Stream
@@ -331,10 +331,10 @@ trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with AllInstance
   implicit def arbitraryEndpointResult[F[_]: Sync, A](implicit A: Arbitrary[A]): Arbitrary[EndpointResult[F, A]] =
     Arbitrary(genEndpointResult[F, A])
 
-  implicit def eqEndpointResult[F[_]: Sync: Dispatcher, A: Eq]: Eq[EndpointResult[F, A]] = new Eq[EndpointResult[F, A]] {
+  implicit def eqEndpointResult[F[_]: Sync, A: Eq](implicit dispatcher: Dispatcher[F]): Eq[EndpointResult[F, A]] = new Eq[EndpointResult[F, A]] {
     private[this] def await(result: Endpoint.Result[F, A]): Option[(Input, Either[Throwable, Output[A]])] = for {
       r <- result.remainder
-      o <- result.awaitOutput()
+      o <- result.awaitOutput(dispatcher)
     } yield (r, o)
 
     def eqv(x: EndpointResult[F, A], y: EndpointResult[F, A]): Boolean =

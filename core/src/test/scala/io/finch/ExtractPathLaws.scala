@@ -9,7 +9,7 @@ import org.typelevel.discipline.Laws
 
 import scala.reflect.ClassTag
 
-abstract class ExtractPathLaws[F[_]: Dispatcher, A] extends Laws with MissingInstances with AllInstances {
+abstract class ExtractPathLaws[F[_], A](dispatcher: Dispatcher[F]) extends Laws with MissingInstances with AllInstances {
   def decode: DecodePath[A]
   def one: Endpoint[F, A]
   def tail: Endpoint[F, List[A]]
@@ -22,22 +22,22 @@ abstract class ExtractPathLaws[F[_]: Dispatcher, A] extends Laws with MissingIns
       val o = one(i)
       val v = i.route.headOption.flatMap(s => decode(s))
 
-      o.awaitValueUnsafe() == v &&
+      o.awaitValueUnsafe(dispatcher) == v &&
       (v.isEmpty || o.remainder.contains(i.withRoute(i.route.tail)))
     },
     "extractTail" -> Prop.forAll { input: Input =>
       val i = input.withRoute(input.route.map(s => new QueryStringEncoder(s).toString))
       val o = tail(i)
 
-      o.awaitValueUnsafe().contains(i.route.flatMap(decode.apply)) &&
+      o.awaitValueUnsafe(dispatcher).contains(i.route.flatMap(decode.apply)) &&
       o.remainder.contains(i.copy(route = Nil))
     }
   )
 }
 
 object ExtractPathLaws {
-  def apply[F[_]: Sync: Dispatcher, A: DecodePath: ClassTag]: ExtractPathLaws[F, A] =
-    new ExtractPathLaws[F, A] {
+  def apply[F[_]: Sync, A: DecodePath: ClassTag](implicit dispatcher: Dispatcher[F]): ExtractPathLaws[F, A] =
+    new ExtractPathLaws[F, A](dispatcher) {
       def tail: Endpoint[F, List[A]] = Endpoint[F].paths[A]
       def one: Endpoint[F, A] = Endpoint[F].path[A]
       def decode: DecodePath[A] = DecodePath[A]

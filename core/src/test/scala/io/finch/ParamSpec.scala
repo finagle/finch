@@ -29,28 +29,28 @@ class ParamSpec extends FinchSpec {
   it should "throw an error if required param is missing" in {
     val endpoint = param[UUID]("testEndpoint")
     an[Error.NotPresent] shouldBe thrownBy {
-      endpoint(Input.get("/index")).awaitValueUnsafe()
+      endpoint(Input.get("/index")).awaitValueUnsafe(dispatcherIO)
     }
   }
 
   it should "throw an error if parameter is malformed" in {
     val endpoint = param[UUID]("testEndpoint")
     an[Error.NotParsed] shouldBe thrownBy {
-      endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe()
+      endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe(dispatcherIO)
     }
   }
 
   it should "collect errors on Endpoint[Seq[String]] failure" in {
     val endpoint = params[UUID]("testEndpoint")
     an[Errors] shouldBe thrownBy(
-      endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe()
+      endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe(dispatcherIO)
     )
   }
 
   it should "collect errors on Endpoint[NonEmptyList[String]] failure" in {
     val endpoint = paramsNel[UUID]("testEndpoint")
     an[Errors] shouldBe thrownBy(
-      endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe()
+      endpoint(Input.get("/index", "testEndpoint" -> "a")).awaitValueUnsafe(dispatcherIO)
     )
   }
 }

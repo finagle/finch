@@ -40,7 +40,7 @@ sealed abstract class EndpointResult[F[_], +A] {
     case _                                 => None
   }
 
-  def awaitOutput(d: Duration = Duration.Inf)(implicit dispatcher: Dispatcher[F]): Option[Either[Throwable, Output[A]]] = this match {
+  def awaitOutput(dispatcher: Dispatcher[F], d: Duration = Duration.Inf): Option[Either[Throwable, Output[A]]] = this match {
     case EndpointResult.Matched(_, _, out) =>
       try Some(Right(dispatcher.unsafeRunTimed(out, d)))
       catch {
@@ -50,20 +50,20 @@ sealed abstract class EndpointResult[F[_], +A] {
     case _ => None
   }
 
-  def awaitOutputUnsafe(d: Duration = Duration.Inf)(implicit dispatcher: Dispatcher[F]): Option[Output[A]] =
-    awaitOutput(d).map {
+  def awaitOutputUnsafe(dispatcher: Dispatcher[F], d: Duration = Duration.Inf): Option[Output[A]] =
+    awaitOutput(dispatcher, d).map {
       case Right(r) => r
       case Left(ex) => throw ex
     }
 
   def awaitValue(d: Duration = Duration.Inf)(implicit dispatcher: Dispatcher[F]): Option[Either[Throwable, A]] =
-    awaitOutput(d).map {
+    awaitOutput(dispatcher, d).map {
       case Right(oa) => Right(oa.value)
       case Left(ob)  => Left(ob)
     }
 
-  def awaitValueUnsafe(d: Duration = Duration.Inf)(implicit dispatcher: Dispatcher[F]): Option[A] =
-    awaitOutputUnsafe(d).map(oa => oa.value)
+  def awaitValueUnsafe(dispatcher: Dispatcher[F], d: Duration = Duration.Inf): Option[A] =
+    awaitOutputUnsafe(dispatcher, d).map(oa => oa.value)
 }
 
 object EndpointResult {

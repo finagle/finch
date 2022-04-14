@@ -12,7 +12,7 @@ import org.typelevel.discipline.Laws
 
 import java.nio.charset.Charset
 
-abstract class StreamingLaws[S[_[_], _], F[_]: Sync](implicit dispatcher: Dispatcher[F]) extends Laws with AllInstances with MissingInstances {
+abstract class StreamingLaws[S[_[_], _], F[_]: Sync](dispatcher: Dispatcher[F]) extends Laws with AllInstances with MissingInstances {
 
   implicit def LR: LiftReader[S, F]
 
@@ -28,7 +28,7 @@ abstract class StreamingLaws[S[_[_], _], F[_]: Sync](implicit dispatcher: Dispat
 
     Pipe.copy(rep.reader, req.writer).ensure(req.writer.close())
 
-    Endpoint.binaryBodyStream[F, S].apply(Input.fromRequest(req)).awaitValueUnsafe().map(toList).get <-> a
+    Endpoint.binaryBodyStream[F, S].apply(Input.fromRequest(req)).awaitValueUnsafe(dispatcher).map(toList).get <-> a
   }
 
   def onlyChunked: EndpointResult[F, S[F, Array[Byte]]] =
@@ -56,7 +56,7 @@ object StreamingLaws {
       dispatcher: Dispatcher[F],
       lr: LiftReader[S, F],
       tr: ToResponse.Aux[F, S[F, Buf], Text.Plain]
-  ): StreamingLaws[S, F] = new StreamingLaws[S, F] {
+  ): StreamingLaws[S, F] = new StreamingLaws[S, F](dispatcher) {
     implicit val LR: LiftReader[S, F] = lr
 
     val toResponse: ToResponse.Aux[F, S[F, Buf], Text.Plain] = tr

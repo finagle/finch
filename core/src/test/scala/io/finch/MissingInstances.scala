@@ -12,6 +12,7 @@ import scala.concurrent.Future
   */
 trait MissingInstances {
 
+  // Implicit to ease laws definitions
   implicit val dispatcherIO: Dispatcher[IO] = new Dispatcher[IO] {
     override def unsafeToFutureCancelable[A](fa: IO[A]): (Future[A], () => Future[Unit]) =
       fa.unsafeToFutureCancelable()

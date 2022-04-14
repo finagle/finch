@@ -9,14 +9,14 @@ import io.finch._
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
-abstract class DerivedEndpointLaws[F[_]: Dispatcher, A] extends Laws with MissingInstances with AllInstances {
+abstract class DerivedEndpointLaws[F[_], A](dispatcher: Dispatcher[F]) extends Laws with MissingInstances with AllInstances {
 
   def endpoint: Endpoint[F, A]
   def toParams: A => Seq[(String, String)]
 
   def roundTrip(a: A): IsEq[A] = {
     val i = Input.get("/", toParams(a): _*)
-    endpoint(i).awaitValueUnsafe().get <-> a
+    endpoint(i).awaitValueUnsafe(dispatcher).get <-> a
   }
 
   def evaluating(implicit A: Arbitrary[A], eq: Eq[A]): RuleSet =
@@ -28,10 +28,10 @@ abstract class DerivedEndpointLaws[F[_]: Dispatcher, A] extends Laws with Missin
 }
 
 object DerivedEndpointLaws {
-  def apply[F[_]: Dispatcher, A](
+  def apply[F[_], A](
       e: Endpoint[F, A],
       tp: A => Seq[(String, String)]
-  ): DerivedEndpointLaws[F, A] = new DerivedEndpointLaws[F, A] {
+  )(implicit dispatcher: Dispatcher[F]): DerivedEndpointLaws[F, A] = new DerivedEndpointLaws[F, A](dispatcher) {
     val endpoint: Endpoint[F, A] = e
     val toParams = tp
   }

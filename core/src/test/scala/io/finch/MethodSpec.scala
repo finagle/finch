@@ -159,12 +159,12 @@ class MethodSpec extends FinchSpec with ScalaCheckDrivenPropertyChecks {
   private def checkValue[A: Arbitrary](f: A => Endpoint[IO, A]): Unit =
     forAll { (input: A) =>
       val e = f(input)
-      e(Input.get("/")).awaitValueUnsafe() shouldBe Some(input)
+      e(Input.get("/")).awaitValueUnsafe(dispatcherIO) shouldBe Some(input)
     }
 
   private def checkFunction(e: Endpoint[IO, _]): Unit =
     forAll { (input: Int) =>
-      e(Input.get(s"/$input")).awaitValueUnsafe() match {
+      e(Input.get(s"/$input")).awaitValueUnsafe(dispatcherIO) match {
         case Some(r: Response) => r.contentString shouldBe input.toString
         case Some(a: Int)      => a shouldBe input
         case _                 => ()
@@ -173,7 +173,7 @@ class MethodSpec extends FinchSpec with ScalaCheckDrivenPropertyChecks {
 
   private def checkFunction2(e: Endpoint[IO, _]): Unit =
     forAll { (x: Int, y: Int) =>
-      e(Input.get(s"/$x/$y")).awaitValueUnsafe() match {
+      e(Input.get(s"/$x/$y")).awaitValueUnsafe(dispatcherIO) match {
         case Some(r: Response) => r.contentString shouldBe s"$x$y"
         case Some(a: String)   => a shouldBe s"$x$y"
         case _                 => ()

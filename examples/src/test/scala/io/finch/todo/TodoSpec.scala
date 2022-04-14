@@ -19,7 +19,7 @@ class TodoSpec extends AnyFlatSpec with Matchers with Checkers {
 
   behavior of "Todo App"
 
-  implicit val dispatcher: Dispatcher[IO] = new Dispatcher[IO] {
+  val dispatcher: Dispatcher[IO] = new Dispatcher[IO] {
     override def unsafeToFutureCancelable[A](fa: IO[A]): (Future[A], () => Future[Unit]) = fa.unsafeToFutureCancelable()
   }
 
