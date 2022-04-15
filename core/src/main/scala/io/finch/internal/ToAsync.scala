@@ -11,6 +11,8 @@ trait ToAsync[A[_], B[_]] extends ~>[A, B]
 
 object ToAsync {
 
+  def apply[A[_], B[_]](implicit F: ToAsync[A, B]): F.type = F
+
   implicit def idAsync[E[_]: Async]: ToAsync[E, E] = new ToAsync[E, E] {
     def apply[A](a: E[A]): E[A] = a
   }

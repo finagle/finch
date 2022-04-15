@@ -36,7 +36,7 @@ object Main extends TwitterServer {
       srv <- IO(Http.server.withStatsReceiver(statsReceiver))
       server <- IO(srv.serve(s":${port()}", service))
     } yield server) { server =>
-      IO.defer(implicitly[ToAsync[Future, IO]].apply(server.close()))
+      IO.defer(ToAsync[Future, IO].apply(server.close()))
     }
 
   val run: IO[Unit] =

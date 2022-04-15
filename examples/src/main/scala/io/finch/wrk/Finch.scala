@@ -23,7 +23,7 @@ object Finch extends IOApp with Wrk {
 
   def serveR(service: Service[Request, Response]): Resource[IO, ListeningServer] =
     Resource.make(IO(serve(service))) { server =>
-      IO.defer(implicitly[ToAsync[Future, IO]].apply(server.close()))
+      IO.defer(ToAsync[Future, IO].apply(server.close()))
     }
 
   override def run(args: List[String]): IO[ExitCode] =

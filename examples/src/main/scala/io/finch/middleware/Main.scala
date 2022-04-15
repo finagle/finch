@@ -55,7 +55,7 @@ object Main extends IOApp with Endpoint.Module[IO] {
 
   def serve(service: Service[Request, Response]): Resource[IO, ListeningServer] =
     Resource.make(IO(Http.server.serve(":8081", service))) { server =>
-      IO.defer(implicitly[ToAsync[Future, IO]].apply(server.close()))
+      IO.defer(ToAsync[Future, IO].apply(server.close()))
     }
 
   override def run(args: List[String]): IO[ExitCode] =
