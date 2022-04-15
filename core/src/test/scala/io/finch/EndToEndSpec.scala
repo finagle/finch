@@ -32,14 +32,14 @@ class EndToEndSpec extends FinchSpec {
     "text/event-stream"
   )
 
-  private def serviceAssertions[E](service: Resource[IO, Service[Request, Response]])(assertions: Service[Request, Response] => E): E =
+  private def testService[E](service: Resource[IO, Service[Request, Response]])(assertions: Service[Request, Response] => E): E =
     dispatcherIO.unsafeRunSync(service.use(s => IO(assertions(s))))
 
   it should "convert coproduct Endpoints into Services" in {
     implicit val encodeException: Encode.Text[Exception] =
       Encode.text((_, cs) => Buf.ByteArray.Owned("ERR!".getBytes(cs.name)))
 
-    serviceAssertions(
+    testService(
       (
         get("foo" :: path[String]) { s: String => Ok(Foo(s)) } :+:
           get("bar")(Created("bar")) :+:
@@ -66,7 +66,7 @@ class EndToEndSpec extends FinchSpec {
   }
 
   it should "convert value Endpoints into Services" in {
-    serviceAssertions(get("foo")(Created("bar")).toServiceAs[Text.Plain]) { s =>
+    testService(get("foo")(Created("bar")).toServiceAs[Text.Plain]) { s =>
       val rep = Await.result(s(Request("/foo")))
       rep.contentString shouldBe "bar"
       rep.status shouldBe Status.Created
@@ -74,7 +74,7 @@ class EndToEndSpec extends FinchSpec {
   }
 
   it should "ignore Accept header when single type is used for serve" in {
-    serviceAssertions(Bootstrap.serve[Text.Plain](pathAny).toService) { service =>
+    testService(Bootstrap.serve[Text.Plain](pathAny).toService) { service =>
       check { req: Request =>
         val rep = Await.result(service(req))
         rep.contentType === Some("text/plain")
@@ -84,7 +84,7 @@ class EndToEndSpec extends FinchSpec {
 
   it should "respect Accept header when coproduct type is used for serve" in {
     check { req: Request =>
-      serviceAssertions(Bootstrap.serve[AllContentTypes](pathAny).toService) { s =>
+      testService(Bootstrap.serve[AllContentTypes](pathAny).toService) { s =>
         val rep = Await.result(s(req))
         rep.contentType === req.accept.headOption
       }
@@ -96,7 +96,7 @@ class EndToEndSpec extends FinchSpec {
       val a = s"${accept.primary}/${accept.sub}"
       req.accept = a +: req.accept
 
-      serviceAssertions(Bootstrap.serve[AllContentTypes](pathAny).toService) { s =>
+      testService(Bootstrap.serve[AllContentTypes](pathAny).toService) { s =>
         val rep = Await.result(s(req))
 
         val first = allContentTypes.collectFirst {
@@ -111,7 +111,7 @@ class EndToEndSpec extends FinchSpec {
   it should "select last encoder when Accept header is missing/empty" in {
     check { req: Request =>
       req.headerMap.remove(Fields.Accept)
-      serviceAssertions(Bootstrap.serve[AllContentTypes](pathAny).toService) { s =>
+      testService(Bootstrap.serve[AllContentTypes](pathAny).toService) { s =>
         val rep = Await.result(s(req))
         rep.contentType === Some("text/event-stream")
       }
@@ -121,7 +121,7 @@ class EndToEndSpec extends FinchSpec {
   it should "select last encoder when Accept header value doesn't match any existing encoder" in {
     check { (req: Request, accept: Accept) =>
       req.accept = s"${accept.primary}/foo"
-      serviceAssertions(Bootstrap.serve[AllContentTypes](pathAny).toService) { s =>
+      testService(Bootstrap.serve[AllContentTypes](pathAny).toService) { s =>
         val rep = Await.result(s(req))
         rep.contentType === Some("text/event-stream")
       }
@@ -132,7 +132,7 @@ class EndToEndSpec extends FinchSpec {
     val endpoint = pathAny.mapAsync { _ =>
       IO.raiseError[String](new IllegalStateException)
     }
-    serviceAssertions(Bootstrap.serve[Text.Plain](endpoint).toService) { s =>
+    testService(Bootstrap.serve[Text.Plain](endpoint).toService) { s =>
       val rep = s(Request())
       assertThrows[IllegalStateException](Await.result(rep))
     }
