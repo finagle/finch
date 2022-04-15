@@ -56,7 +56,7 @@ sealed abstract class EndpointResult[F[_], +A] {
       case Left(ex) => throw ex
     }
 
-  def awaitValue(d: Duration = Duration.Inf)(implicit dispatcher: Dispatcher[F]): Option[Either[Throwable, A]] =
+  def awaitValue(dispatcher: Dispatcher[F], d: Duration = Duration.Inf): Option[Either[Throwable, A]] =
     awaitOutput(dispatcher, d).map {
       case Right(oa) => Right(oa.value)
       case Left(ob)  => Left(ob)

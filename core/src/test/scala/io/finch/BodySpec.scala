@@ -25,12 +25,12 @@ class BodySpec extends FinchSpec {
   behavior of "body*"
 
   it should "respond with NotFound when it's required" in {
-    body[Foo, Text.Plain].apply(Input.get("/")).awaitValue() shouldBe
+    body[Foo, Text.Plain].apply(Input.get("/")).awaitValue(dispatcherIO) shouldBe
       Some(Left(Error.NotPresent(items.BodyItem)))
   }
 
   it should "respond with None when it's optional" in {
-    bodyOption[Foo, Text.Plain].apply(Input.get("/")).awaitValue() shouldBe Some(Right(None))
+    bodyOption[Foo, Text.Plain].apply(Input.get("/")).awaitValue(dispatcherIO) shouldBe Some(Right(None))
   }
 
   it should "not match on streaming requests" in {

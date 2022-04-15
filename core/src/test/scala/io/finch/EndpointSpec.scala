@@ -274,7 +274,7 @@ class EndpointSpec extends FinchSpec {
       paramsNel("foor").map(_.toList.mkString),
       binaryBody.map(new String(_)),
       stringBody
-    ).foreach(ii => ii(i).awaitValue() shouldBe Some(Left(Error.NotPresent(ii.item))))
+    ).foreach(ii => ii(i).awaitValue(dispatcherIO) shouldBe Some(Left(Error.NotPresent(ii.item))))
   }
 
   it should "maps lazily to values" in {
@@ -340,8 +340,8 @@ class EndpointSpec extends FinchSpec {
         a.fold[Set[Error]](e => Set(e), es => es.errors.toList.toSet) ++
           b.fold[Set[Error]](e => Set(e), es => es.errors.toList.toSet)
 
-      val Some(Left(first)) = lr(Input.get("/")).awaitValue()
-      val Some(Left(second)) = rl(Input.get("/")).awaitValue()
+      val Some(Left(first)) = lr(Input.get("/")).awaitValue(dispatcherIO)
+      val Some(Left(second)) = rl(Input.get("/")).awaitValue(dispatcherIO)
 
       first.asInstanceOf[Errors].errors.toList.toSet === all &&
       second.asInstanceOf[Errors].errors.toList.toSet === all
@@ -360,10 +360,10 @@ class EndpointSpec extends FinchSpec {
       val bbee = bb.product(ee)
       val eebb = ee.product(bb)
 
-      aaee(Input.get("/")).awaitValue() === Some(Left(e)) &&
-      eeaa(Input.get("/")).awaitValue() === Some(Left(e)) &&
-      bbee(Input.get("/")).awaitValue() === Some(Left(e)) &&
-      eebb(Input.get("/")).awaitValue() === Some(Left(e))
+      aaee(Input.get("/")).awaitValue(dispatcherIO) === Some(Left(e)) &&
+      eeaa(Input.get("/")).awaitValue(dispatcherIO) === Some(Left(e)) &&
+      bbee(Input.get("/")).awaitValue(dispatcherIO) === Some(Left(e)) &&
+      eebb(Input.get("/")).awaitValue(dispatcherIO) === Some(Left(e))
     }
   }
 

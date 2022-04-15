@@ -13,7 +13,7 @@ class PredicateFailedSpec extends FinchSpec {
       Ok(i.value)
     }
 
-    val Some(Left(result)) = endpoint(Input.get("/?int=-1")).awaitValue()
+    val Some(Left(result)) = endpoint(Input.get("/?int=-1")).awaitValue(dispatcherIO)
 
     result.getCause shouldBe a[PredicateFailed]
   }
