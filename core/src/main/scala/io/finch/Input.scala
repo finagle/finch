@@ -103,17 +103,16 @@ object Input {
       Input(copied, i.route)
     }
 
-    def apply[F[_]: Dispatcher, S[_[_], _], A](s: S[F, A])(implicit
+    def apply[F[_], S[_[_], _], A](s: S[F, A], dispatcher: Dispatcher[F])(implicit
         S: EncodeStream.Aux[F, S, A, CT],
         W: Witness.Aux[CT]
-    ): Input = apply[F, S, A](s, StandardCharsets.UTF_8)
+    ): Input = apply[F, S, A](s, StandardCharsets.UTF_8, dispatcher)
 
-    def apply[F[_], S[_[_], _], A](s: S[F, A], charset: Charset)(implicit
-        F: Dispatcher[F],
+    def apply[F[_], S[_[_], _], A](s: S[F, A], charset: Charset, dispatcher: Dispatcher[F])(implicit
         S: EncodeStream.Aux[F, S, A, CT],
         W: Witness.Aux[CT]
     ): Input = {
-      val content = F.unsafeRunSync(S(s, charset))
+      val content = dispatcher.unsafeRunSync(S(s, charset))
       val copied = copyRequestWithReader(i.request, content)
 
       copied.setChunked(true)
