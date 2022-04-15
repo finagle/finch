@@ -12,7 +12,6 @@ import io.finch.internal.ToAsync
 
 /** How to benchmark this:
   *
-  *   1. Run the server: sbt 'examples/runMain io.finch.wrk.Finch' 2. Run wrk: wrk -t4 -c24 -d30s http://localhost:8081/
   *   1. Run the server: sbt 'examples/runMain io.finch.wrk.Finch'
   *   1. Run wrk: wrk -t4 -c24 -d30s http://localhost:8081/
   *
