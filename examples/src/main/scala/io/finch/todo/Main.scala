@@ -1,7 +1,6 @@
 package io.finch.todo
 
 import cats.effect._
-import cats.effect.std.Dispatcher
 import cats.effect.unsafe.implicits.global
 import com.twitter.app.Flag
 import com.twitter.finagle.http.{Request, Response}
@@ -50,10 +49,5 @@ object Main extends TwitterServer {
       server <- serve(service)
     } yield server).use(_ => IO(Await.ready(adminHttpServer)) >> IO.never)
 
-  def main(): Unit = {
-    val dispatcher = new Dispatcher[IO] {
-      override def unsafeToFutureCancelable[A](fa: IO[A]): (concurrent.Future[A], () => concurrent.Future[Unit]) = fa.unsafeToFutureCancelable()
-    }
-    dispatcher.unsafeRunSync(run)
-  }
+  def main(): Unit = run.unsafeRunSync()
 }
