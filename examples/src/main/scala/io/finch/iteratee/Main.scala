@@ -74,5 +74,5 @@ object Main extends IOApp {
     (for {
       service <- (sumJson :+: streamJson :+: isPrime).toServiceAs[Application.Json]
       server <- serve(service)
-    } yield server).use(_ => IO.never[ExitCode])
+    } yield server).useForever
 }

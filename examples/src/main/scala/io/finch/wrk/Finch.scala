@@ -34,5 +34,5 @@ object Finch extends IOApp with Wrk {
     (for {
       service <- Endpoint[IO].lift(Payload("Hello, World!")).toServiceAs[Application.Json]
       server <- serveR(service)
-    } yield server).use(_ => IO.never[ExitCode])
+    } yield server).useForever
 }

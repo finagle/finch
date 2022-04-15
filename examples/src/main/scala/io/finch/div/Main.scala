@@ -41,5 +41,5 @@ object Main extends IOApp with Endpoint.Module[IO] {
     (for {
       service <- div.toServiceAs[Text.Plain]
       server <- serve(service)
-    } yield server).use(_ => IO.never[ExitCode])
+    } yield server).useForever
 }
