@@ -11,7 +11,6 @@ import cats.~>
 import com.twitter.finagle.http.{Cookie, Method, Request}
 import com.twitter.io.Buf
 import io.finch.data.Foo
-import org.scalatest.BeforeAndAfterAll
 import shapeless._
 
 import java.io.{ByteArrayInputStream, InputStream}
@@ -21,7 +20,7 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
-class EndpointSpec extends FinchSpec with BeforeAndAfterAll with MissingInstances {
+class EndpointSpec extends FinchSpec {
 
   type EndpointIO[A] = Endpoint[IO, A]
 

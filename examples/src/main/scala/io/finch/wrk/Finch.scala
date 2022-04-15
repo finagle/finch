@@ -1,6 +1,5 @@
 package io.finch.wrk
 
-import cats.effect.unsafe.IORuntime
 import cats.effect.{ExitCode, IO, IOApp, Resource}
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.{ListeningServer, Service}
@@ -21,8 +20,6 @@ import io.finch.internal.ToAsync
   *   - c = t * n * 1.5
   */
 object Finch extends IOApp with Wrk {
-
-  implicit val ioRunTime: IORuntime = IORuntime.global
 
   def serveR(service: Service[Request, Response]): Resource[IO, ListeningServer] =
     Resource.make(IO(serve(service))) { server =>
