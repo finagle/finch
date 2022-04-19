@@ -47,7 +47,7 @@ object Main extends TwitterServer {
       app = new App(id, store)
       service <- app.toService
       server <- serve(service)
-    } yield server).use(_ => IO(Await.ready(adminHttpServer)) >> IO.never)
+    } yield server).use(_ => IO(Await.ready(adminHttpServer)))
 
   def main(): Unit = run.unsafeRunSync()
 }
