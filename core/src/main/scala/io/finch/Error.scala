@@ -39,9 +39,8 @@ object Error {
     error.getMessage
   }
 
-  /**
-   * A request entity {{what}} was missing.
-   */
+  /** A request entity {{what}} was missing.
+    */
   abstract class NotPresent(what: String) extends Error {
     override def getMessage: String = s"Request is missing a $what."
   }
@@ -51,9 +50,8 @@ object Error {
   final case class HeaderNotPresent(name: String) extends NotPresent(s"header '$name'")
   final case class CookieNotPresent(name: String) extends NotPresent(s"cookie '$name''")
 
-  /**
-   * A request entity {{what}} can't be parsed into a given {{targetType}}.
-   */
+  /** A request entity {{what}} can't be parsed into a given {{targetType}}.
+    */
   abstract class NotParsed(what: String, targetType: ClassTag[_]) extends Error {
     override def getMessage: String = {
       // Note: https://issues.scala-lang.org/browse/SI-2034
