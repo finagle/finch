@@ -14,7 +14,7 @@ import scala.util.control.NonFatal
 abstract private[finch] class Attribute[F[_]: Sync, G[_], A](val name: String)(implicit
     d: DecodeEntity[A],
     tag: ClassTag[A]
-) extends Endpoint.Validatable[F, G[A]] {
+) extends Endpoint[F, G[A]] {
 
   protected def F: Sync[F] = Sync[F]
   protected def missing(name: String): F[Output[G[A]]]
@@ -47,8 +47,6 @@ abstract private[finch] class Attribute[F[_]: Sync, G[_], A](val name: String)(i
 
       EndpointResult.Matched(input, Trace.empty, output)
     }
-
-  override protected def whenNotValid(why: String): Error.NotValid = Error.ParamNotValid(name, why)
 }
 
 private[finch] object Attribute {

@@ -48,14 +48,6 @@ object Error {
   final case class HeaderNotPresent(name: String) extends NotPresent(s"header '$name'")
   final case class CookieNotPresent(name: String) extends NotPresent(s"cookie '$name''")
 
-  abstract class NotValid(what: String, why: String) extends Error {
-    override def getMessage: String = s"Validation failed on request $what: $why"
-  }
-  final case class BodyNotValid(why: String) extends NotValid("body", why)
-  final case class ParamNotValid(name: String, why: String) extends NotValid(s"param '$name'", why)
-  final case class HeaderNotValid(name: String, why: String) extends NotValid(s"header '$name'", why)
-  final case class CookieNotValid(name: String, why: String) extends NotValid(s"cookie '$name'", why)
-
   abstract class NotParsed(what: String, targetType: ClassTag[_]) extends Error {
     override def getMessage: String = {
       // Note: https://issues.scala-lang.org/browse/SI-2034

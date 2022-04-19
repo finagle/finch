@@ -181,62 +181,62 @@ trait EndpointModule[F[_]] {
 
   /** An alias for [[Endpoint.header]].
     */
-  def header[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint.Validatable[F, A] =
+  def header[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, A] =
     Endpoint.header[F, A](name)
 
   /** An alias for [[Endpoint.headerOption]].
     */
-  def headerOption[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint.Validatable[F, Option[A]] =
+  def headerOption[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, Option[A]] =
     Endpoint.headerOption[F, A](name)
 
   /** An alias for [[Endpoint.binaryBodyOption]].
     */
-  def binaryBodyOption(implicit F: Sync[F]): Endpoint.Validatable[F, Option[Array[Byte]]] =
+  def binaryBodyOption(implicit F: Sync[F]): Endpoint[F, Option[Array[Byte]]] =
     Endpoint.binaryBodyOption[F]
 
   /** An alias for [[Endpoint.binaryBody]].
     */
-  def binaryBody(implicit F: Sync[F]): Endpoint.Validatable[F, Array[Byte]] =
+  def binaryBody(implicit F: Sync[F]): Endpoint[F, Array[Byte]] =
     Endpoint.binaryBody[F]
 
   /** An alias for [[Endpoint.stringBodyOption]].
     */
-  def stringBodyOption(implicit F: Sync[F]): Endpoint.Validatable[F, Option[String]] =
+  def stringBodyOption(implicit F: Sync[F]): Endpoint[F, Option[String]] =
     Endpoint.stringBodyOption[F]
 
   /** An alias for [[Endpoint.stringBody]].
     */
-  def stringBody(implicit F: Sync[F]): Endpoint.Validatable[F, String] =
+  def stringBody(implicit F: Sync[F]): Endpoint[F, String] =
     Endpoint.stringBody[F]
 
   /** An alias for [[Endpoint.bodyOption]].
     */
-  def bodyOption[A: ClassTag, CT](implicit F: Sync[F], D: Decode.Dispatchable[A, CT]): Endpoint.Validatable[F, Option[A]] =
+  def bodyOption[A: ClassTag, CT](implicit F: Sync[F], D: Decode.Dispatchable[A, CT]): Endpoint[F, Option[A]] =
     Endpoint.bodyOption[F, A, CT]
 
   /** An alias for [[Endpoint.body]].
     */
-  def body[A: ClassTag, CT](implicit D: Decode.Dispatchable[A, CT], F: Sync[F]): Endpoint.Validatable[F, A] =
+  def body[A: ClassTag, CT](implicit D: Decode.Dispatchable[A, CT], F: Sync[F]): Endpoint[F, A] =
     Endpoint.body[F, A, CT]
 
   /** An alias for [[Endpoint.jsonBody]].
     */
-  def jsonBody[A: Decode.Json: ClassTag](implicit F: Sync[F]): Endpoint.Validatable[F, A] =
+  def jsonBody[A: Decode.Json: ClassTag](implicit F: Sync[F]): Endpoint[F, A] =
     Endpoint.jsonBody[F, A]
 
   /** An alias for [[Endpoint.jsonBodyOption]].
     */
-  def jsonBodyOption[A: Decode.Json: ClassTag](implicit F: Sync[F]): Endpoint.Validatable[F, Option[A]] =
+  def jsonBodyOption[A: Decode.Json: ClassTag](implicit F: Sync[F]): Endpoint[F, Option[A]] =
     Endpoint.jsonBodyOption[F, A]
 
   /** An alias for [[Endpoint.textBody]].
     */
-  def textBody[A: Decode.Text: ClassTag](implicit F: Sync[F]): Endpoint.Validatable[F, A] =
+  def textBody[A: Decode.Text: ClassTag](implicit F: Sync[F]): Endpoint[F, A] =
     Endpoint.textBody[F, A]
 
   /** An alias for [[Endpoint.textBodyOption]].
     */
-  def textBodyOption[A: Decode.Text: ClassTag](implicit F: Sync[F]): Endpoint.Validatable[F, Option[A]] =
+  def textBodyOption[A: Decode.Text: ClassTag](implicit F: Sync[F]): Endpoint[F, Option[A]] =
     Endpoint.textBodyOption[F, A]
 
   /** An alias for [[Endpoint.binaryBodyStream]].
@@ -279,32 +279,32 @@ trait EndpointModule[F[_]] {
 
   /** An alias for [[Endpoint.cookieOption]].
     */
-  def cookieOption(name: String)(implicit F: Sync[F]): Endpoint.Validatable[F, Option[Cookie]] =
+  def cookieOption(name: String)(implicit F: Sync[F]): Endpoint[F, Option[Cookie]] =
     Endpoint.cookieOption[F](name)
 
   /** An alias for [[Endpoint.cookie]].
     */
-  def cookie(name: String)(implicit F: Sync[F]): Endpoint.Validatable[F, Cookie] =
+  def cookie(name: String)(implicit F: Sync[F]): Endpoint[F, Cookie] =
     Endpoint.cookie[F](name)
 
   /** An alias for [[Endpoint.paramOption]].
     */
-  def paramOption[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint.Validatable[F, Option[A]] =
+  def paramOption[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, Option[A]] =
     Endpoint.paramOption[F, A](name)
 
   /** An alias for [[Endpoint.param]].
     */
-  def param[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint.Validatable[F, A] =
+  def param[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, A] =
     Endpoint.param[F, A](name)
 
   /** An alias for [[Endpoint.params]].
     */
-  def params[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint.Validatable[F, List[A]] =
+  def params[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, List[A]] =
     Endpoint.params[F, A](name)
 
   /** An alias for [[Endpoint.paramsNel]].
     */
-  def paramsNel[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint.Validatable[F, NonEmptyList[A]] =
+  def paramsNel[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, NonEmptyList[A]] =
     Endpoint.paramsNel[F, A](name)
 
   /** An alias for [[Endpoint.multipartFileUploadOption]].
@@ -329,22 +329,22 @@ trait EndpointModule[F[_]] {
 
   /** An alias for [[Endpoint.multipartAttribute]].
     */
-  def multipartAttribute[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint.Validatable[F, A] =
+  def multipartAttribute[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, A] =
     Endpoint.multipartAttribute[F, A](name)
 
   /** An alias for [[Endpoint.multipartAttributeOption]].
     */
-  def multipartAttributeOption[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint.Validatable[F, Option[A]] =
+  def multipartAttributeOption[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, Option[A]] =
     Endpoint.multipartAttributeOption[F, A](name)
 
   /** An alias for [[Endpoint.multipartAttributes]].
     */
-  def multipartAttributes[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint.Validatable[F, List[A]] =
+  def multipartAttributes[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, List[A]] =
     Endpoint.multipartAttributes[F, A](name)
 
   /** An alias for [[Endpoint.multipartAttributesNel]].
     */
-  def multipartAttributesNel[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint.Validatable[F, NonEmptyList[A]] =
+  def multipartAttributesNel[A: DecodeEntity: ClassTag](name: String)(implicit F: Sync[F]): Endpoint[F, NonEmptyList[A]] =
     Endpoint.multipartAttributesNel[F, A](name)
 }
 

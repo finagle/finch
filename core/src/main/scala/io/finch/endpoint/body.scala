@@ -8,7 +8,7 @@ import io.finch.internal._
 import java.nio.charset.{Charset, StandardCharsets}
 import scala.reflect.ClassTag
 
-abstract private[finch] class FullBody[F[_], A] extends Endpoint.Validatable[F, A] {
+abstract private[finch] class FullBody[F[_], A] extends Endpoint[F, A] {
 
   protected def F: Sync[F]
   protected def missing: F[Output[A]]
@@ -30,8 +30,6 @@ abstract private[finch] class FullBody[F[_], A] extends Endpoint.Validatable[F, 
 
       EndpointResult.Matched(input, Trace.empty, output)
     }
-
-  protected def whenNotValid(why: String): Error.NotValid = Error.BodyNotValid(why)
 }
 
 private[finch] object FullBody {

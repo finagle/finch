@@ -10,7 +10,7 @@ abstract private[finch] class Header[F[_], G[_], A](name: String)(implicit
     d: DecodeEntity[A],
     tag: ClassTag[A],
     protected val F: Sync[F]
-) extends Endpoint.Validatable[F, G[A]] { self =>
+) extends Endpoint[F, G[A]] { self =>
 
   protected def missing(name: String): F[Output[G[A]]]
   protected def present(value: A): G[A]
@@ -29,8 +29,6 @@ abstract private[finch] class Header[F[_], G[_], A](name: String)(implicit
 
     EndpointResult.Matched(input, Trace.empty, output)
   }
-
-  override protected def whenNotValid(why: String): Error.NotValid = Error.HeaderNotValid(name, why)
 
   final override def toString: String = s"header($name)"
 }

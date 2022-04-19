@@ -11,7 +11,7 @@ abstract private[finch] class Param[F[_], G[_], A](name: String)(implicit
     d: DecodeEntity[A],
     tag: ClassTag[A],
     protected val F: Sync[F]
-) extends Endpoint.Validatable[F, G[A]] { self =>
+) extends Endpoint[F, G[A]] { self =>
 
   protected def missing(name: String): F[Output[G[A]]]
   protected def present(value: A): G[A]
@@ -30,8 +30,6 @@ abstract private[finch] class Param[F[_], G[_], A](name: String)(implicit
 
     EndpointResult.Matched(input, Trace.empty, output)
   }
-
-  override protected def whenNotValid(why: String): Error.NotValid = Error.ParamNotValid(name, why)
 
   final override def toString: String = s"param($name)"
 }
@@ -54,7 +52,7 @@ abstract private[finch] class Params[F[_], G[_], A](name: String)(implicit
     d: DecodeEntity[A],
     tag: ClassTag[A],
     protected val F: Sync[F]
-) extends Endpoint.Validatable[F, G[A]] {
+) extends Endpoint[F, G[A]] {
 
   protected def missing(name: String): F[Output[G[A]]]
   protected def present(value: Iterable[A]): G[A]
@@ -78,8 +76,6 @@ abstract private[finch] class Params[F[_], G[_], A](name: String)(implicit
 
     EndpointResult.Matched(input, Trace.empty, output)
   }
-
-  override protected def whenNotValid(why: String): Error.NotValid = Error.ParamNotValid(name, why)
 
   final override def toString: String = s"params($name)"
 }

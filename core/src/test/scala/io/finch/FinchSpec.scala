@@ -61,8 +61,7 @@ trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with AllInstance
       Error.BodyNotParsed(implicitly[ClassTag[Int]]),
       Error.ParamNotParsed(s, implicitly[ClassTag[Int]]),
       Error.HeaderNotParsed(s, implicitly[ClassTag[err1.err2.Foo]]),
-      Error.CookieNotParsed(s, implicitly[ClassTag[err1.err2.Foo]]),
-      Error.BodyNotValid(s)
+      Error.CookieNotParsed(s, implicitly[ClassTag[err1.err2.Foo]])
     )
   } yield e
 
