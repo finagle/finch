@@ -14,7 +14,6 @@ import scala.util.control.NoStackTrace
   *
   *   - reading a required param, body, header, etc.
   *   - parsing a string-based endpoint with `.as[T]` combinator
-  *   - validating an endpoint with `.should` or `shouldNot` combinators
   */
 sealed abstract class Error extends Exception with NoStackTrace
 
@@ -40,14 +39,21 @@ object Error {
     error.getMessage
   }
 
+  /**
+   * A request entity {{what}} was missing.
+   */
   abstract class NotPresent(what: String) extends Error {
     override def getMessage: String = s"Request is missing a $what."
   }
+
   final case object BodyNotPresent extends NotPresent("body")
   final case class ParamNotPresent(name: String) extends NotPresent(s"param '$name'")
   final case class HeaderNotPresent(name: String) extends NotPresent(s"header '$name'")
   final case class CookieNotPresent(name: String) extends NotPresent(s"cookie '$name''")
 
+  /**
+   * A request entity {{what}} can't be parsed into a given {{targetType}}.
+   */
   abstract class NotParsed(what: String, targetType: ClassTag[_]) extends Error {
     override def getMessage: String = {
       // Note: https://issues.scala-lang.org/browse/SI-2034
