@@ -79,7 +79,7 @@ val baseSettings = Seq(
   semanticdbEnabled := true,
   semanticdbVersion := scalafixSemanticdb.revision,
   scalafixOnCompile := formatOnCompile,
-  scalafmtOnCompile := formatOnCompile,
+  scalafmtOnCompile := formatOnCompile
 )
 
 def updateVersionInFile(selectVersion: sbtrelease.Versions => String): ReleaseStep =
