@@ -2,6 +2,7 @@ package io.finch
 
 import cats.Eq
 import cats.data.NonEmptyList
+import cats.effect.SyncIO
 import cats.effect.std.Dispatcher
 import cats.effect.{IO, Sync}
 import cats.syntax.all._
@@ -14,12 +15,11 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
 import org.typelevel.discipline.Laws
 import shapeless.Witness
-
 import java.nio.charset.{Charset, StandardCharsets}
 import java.util.UUID
 import scala.reflect.classTag
 
-trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with Inside with MissingInstances with Endpoint.Module[IO] {
+trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with Inside with MissingInstances with Endpoint.Module[SyncIO] {
 
   def checkAll(name: String, ruleSet: Laws#RuleSet): Unit =
     for ((id, prop) <- ruleSet.all.properties)
