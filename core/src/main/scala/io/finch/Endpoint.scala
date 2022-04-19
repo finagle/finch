@@ -1,7 +1,8 @@
 package io.finch
 
 import cats.data._
-import cats.effect._
+import cats.effect.std.Dispatcher
+import cats.effect.{Async, Resource, Sync}
 import cats.syntax.all._
 import cats.{Alternative, Applicative, ApplicativeError, Apply, Functor, Id, Monad, MonadError, MonoidK, SemigroupK, ~>}
 import com.twitter.finagle.Service
@@ -291,20 +292,20 @@ trait Endpoint[F[_], A] {
     * Consider using [[io.finch.Bootstrap]] instead.
     */
   final def toService(implicit
-      F: Effect[F],
+      F: Async[F],
       tr: ToResponse.Aux[F, A, Application.Json],
       tre: ToResponse.Aux[F, Exception, Application.Json]
-  ): Service[Request, Response] = toServiceAs[Application.Json]
+  ): Resource[F, Service[Request, Response]] = toServiceAs[Application.Json]
 
   /** Converts this endpoint to a Finagle service `Request => Future[Response]` that serves custom content-type `CT`.
     *
     * Consider using [[io.finch.Bootstrap]] instead.
     */
   final def toServiceAs[CT <: String](implicit
-      F: Effect[F],
+      F: Async[F],
       tr: ToResponse.Aux[F, A, CT],
       tre: ToResponse.Aux[F, Exception, CT]
-  ): Service[Request, Response] = Bootstrap.serve[CT](this).toService
+  ): Resource[F, Service[Request, Response]] = Bootstrap.serve[CT](this).toService
 
   /** Converts this endpoint to Endpoint.Compiled[F] what is efficiently is Kleisli[F, Request, Response] where responses are encoded with JSON encoder.
     *
@@ -547,7 +548,8 @@ object Endpoint {
 
   /** Convert [[Endpoint.Compiled]] into Finagle Service
     */
-  def toService[F[_]: Effect](compiled: Endpoint.Compiled[F]): Service[Request, Response] = ToService(compiled)
+  def toService[F[_]: Async](compiled: Endpoint.Compiled[F]): Resource[F, Service[Request, Response]] =
+    Dispatcher[F].map(ToService(compiled, _))
 
   /** Creates an empty [[Endpoint]] (an endpoint that never matches) for a given type.
     */
@@ -612,30 +614,21 @@ object Endpoint {
         EndpointResult.Matched(input, Trace.empty, F.defer(foa))
     }
 
-  /** Creates an [[Endpoint]] from a given [[InputStream]]. Uses [[Resource]] for safer resource management and [[ContextShift]] for offloading blocking work
-    * from a worker pool.
+  /** Creates an [[Endpoint]] from a given [[InputStream]]. Uses [[Resource]] for safer resource management
     *
     * @see
     *   [[fromFile]]
     */
-  def fromInputStream[F[_]](stream: Resource[F, InputStream])(implicit
-      F: Sync[F],
-      S: ContextShift[F]
-  ): Endpoint[F, Buf] = new FromInputStream[F](stream)
+  def fromInputStream[F[_]](stream: Resource[F, InputStream])(implicit F: Async[F]): Endpoint[F, Buf] =
+    new FromInputStream[F](stream)
 
-  /** Creates an [[Endpoint]] from a given [[File]]. Uses [[Resource]] for safer resource management and [[ContextShift]] for offloading blocking work from a
-    * worker pool.
+  /** Creates an [[Endpoint]] from a given [[File]]. Uses [[Resource]] for safer resource management
     *
     * @see
     *   [[fromInputStream]]
     */
-  def fromFile[F[_]](file: File)(implicit
-      F: Sync[F],
-      S: ContextShift[F]
-  ): Endpoint[F, Buf] =
-    fromInputStream[F](
-      Resource.fromAutoCloseable(F.delay(new FileInputStream(file)))
-    )
+  def fromFile[F[_]](file: File)(implicit F: Async[F]): Endpoint[F, Buf] =
+    fromInputStream[F](Resource.fromAutoCloseable(F.delay(new FileInputStream(file))))
 
   /** Creates an [[Endpoint]] that serves an asset (static content) from a Java classpath resource, located at `path`, as a static content. The returned
     * endpoint will only match `GET` requests with path identical to asset's.
@@ -666,10 +659,7 @@ object Endpoint {
     * @see
     *   https://docs.oracle.com/javase/8/docs/technotes/guides/lang/resources.html
     */
-  def classpathAsset[F[_]](path: String)(implicit
-      F: Sync[F],
-      S: ContextShift[F]
-  ): Endpoint[F, Buf] = {
+  def classpathAsset[F[_]](path: String)(implicit F: Async[F]): Endpoint[F, Buf] = {
     val asset = new Asset[F](path)
     val stream =
       fromInputStream[F](Resource.fromAutoCloseable(F.delay(getClass.getResourceAsStream(path))))
@@ -690,10 +680,7 @@ object Endpoint {
     *     ...
     * }}}
     */
-  def filesystemAsset[F[_]](path: String)(implicit
-      F: Sync[F],
-      S: ContextShift[F]
-  ): Endpoint[F, Buf] = {
+  def filesystemAsset[F[_]](path: String)(implicit F: Async[F]): Endpoint[F, Buf] = {
     val asset = new Asset[F](path)
     val file = fromFile[F](new File(path))
 

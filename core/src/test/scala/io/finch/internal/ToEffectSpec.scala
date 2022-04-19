@@ -2,6 +2,7 @@ package io.finch.internal
 
 import cats.Applicative
 import cats.effect.IO
+import cats.effect.unsafe.IORuntime
 import com.twitter.util.{Future => TwitterFuture}
 import io.finch.FinchSpec
 
@@ -9,6 +10,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future => ScalaFuture}
 
 class ToEffectSpec extends FinchSpec {
+
+  implicit val ioRuntime: IORuntime = IORuntime.global
 
   implicit val twitterFutureApplicative: Applicative[TwitterFuture] = new Applicative[TwitterFuture] {
     def pure[A](x: A): TwitterFuture[A] = TwitterFuture.value(x)

@@ -1,6 +1,6 @@
 package io.finch
 
-import cats.effect.Effect
+import cats.effect.{Async, Resource}
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
 import shapeless._
@@ -81,7 +81,7 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
     ts.apply(endpoints, opts, ctx)
   }
 
-  def toService(implicit F: Effect[F], ts: Compile[F, ES, CTS]): Service[Request, Response] =
+  def toService(implicit F: Async[F], ts: Compile[F, ES, CTS]): Resource[F, Service[Request, Response]] =
     Endpoint.toService(compile)
 
   final override def toString: String = s"Bootstrap($endpoints)"

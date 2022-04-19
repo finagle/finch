@@ -1,10 +1,11 @@
 package io.finch.middleware
 
-import cats.effect.IO
-import com.twitter.finagle.Http
-import com.twitter.finagle.http.{Response, Status}
-import com.twitter.util.{Await, Time}
+import cats.effect.{ExitCode, IO, IOApp, Resource}
+import com.twitter.finagle.http.{Request, Response, Status}
+import com.twitter.finagle.{Http, ListeningServer, Service}
+import com.twitter.util.{Future, Time}
 import io.finch._
+import io.finch.internal.ToAsync
 
 /** Small Finch hello world application serving endpoint protected by serious authentication where each request & response are also logged and measured.
   *
@@ -19,7 +20,7 @@ import io.finch._
   *
   * !Disclaimer: most likely you would need to use proper libraries for logging, auth, and metrics instead but their use will be quite similar.
   */
-object Main extends App with Endpoint.Module[IO] {
+object Main extends IOApp with Endpoint.Module[IO] {
 
   val helloWorld: Endpoint[IO, String] = get("hello") {
     Ok("Hello world")
@@ -52,6 +53,14 @@ object Main extends App with Endpoint.Module[IO] {
   val filters = Function.chain(Seq(stats, logging, auth))
   val compiled = filters(Bootstrap.serve[Text.Plain](helloWorld).compile)
 
-  Await.ready(Http.server.serve(":8081", Endpoint.toService(compiled)))
+  def serve(service: Service[Request, Response]): Resource[IO, ListeningServer] =
+    Resource.make(IO(Http.server.serve(":8081", service))) { server =>
+      IO.defer(ToAsync[Future, IO].apply(server.close()))
+    }
 
+  override def run(args: List[String]): IO[ExitCode] =
+    (for {
+      service <- Endpoint.toService(compiled)
+      server <- serve(service)
+    } yield server).useForever
 }

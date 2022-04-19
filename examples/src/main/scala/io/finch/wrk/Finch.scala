@@ -1,9 +1,13 @@
 package io.finch.wrk
 
-import cats.effect.IO
+import cats.effect.{ExitCode, IO, IOApp, Resource}
+import com.twitter.finagle.http.{Request, Response}
+import com.twitter.finagle.{ListeningServer, Service}
+import com.twitter.util.Future
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
+import io.finch.internal.ToAsync
 
 /** How to benchmark this:
   *
@@ -15,6 +19,16 @@ import io.finch.circe._
   *   - t = n
   *   - c = t * n * 1.5
   */
-object Finch extends Wrk {
-  serve(Endpoint[IO].lift(Payload("Hello, World!")).toServiceAs[Application.Json])
+object Finch extends IOApp with Wrk {
+
+  def serveR(service: Service[Request, Response]): Resource[IO, ListeningServer] =
+    Resource.make(IO(serve(service))) { server =>
+      IO.defer(ToAsync[Future, IO].apply(server.close()))
+    }
+
+  override def run(args: List[String]): IO[ExitCode] =
+    (for {
+      service <- Endpoint[IO].lift(Payload("Hello, World!")).toServiceAs[Application.Json]
+      server <- serveR(service)
+    } yield server).useForever
 }

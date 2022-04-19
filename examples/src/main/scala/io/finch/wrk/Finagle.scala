@@ -5,11 +5,12 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response, Status}
 import com.twitter.io.Buf
-import com.twitter.util.Future
+import com.twitter.util.{Await, Future}
 import io.finch.internal._
 
 /** How to benchmark this:
   *
+  *   1. Run the server: sbt 'examples/runMain io.finch.wrk.Finagle' 2. Run wrk: wrk -t4 -c24 -d30s http://localhost:8081/
   *   1. Run the server: sbt 'examples/runMain io.finch.wrk.Finagle'
   *   1. Run wrk: wrk -t4 -c24 -d30s http://localhost:8081/
   *
@@ -18,11 +19,11 @@ import io.finch.internal._
   *   - t = n
   *   - c = t * n * 1.5
   */
-object Finagle extends Wrk {
+object Finagle extends App with Wrk {
 
   val mapper: ObjectMapper = new ObjectMapper().registerModule(DefaultScalaModule)
 
-  serve(new Service[Request, Response] {
+  Await.ready(serve(new Service[Request, Response] {
     def apply(req: Request): Future[Response] = {
       val payload = mapper.writeValueAsBytes(Payload("Hello, World!"))
 
@@ -34,5 +35,5 @@ object Finagle extends Wrk {
 
       Future.value(rep)
     }
-  })
+  }))
 }

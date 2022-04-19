@@ -1,20 +1,27 @@
 package io.finch.todo
 
 import cats.effect.IO
-import cats.effect.concurrent.Ref
+import cats.effect.Ref
+import cats.effect.std.Dispatcher
+import cats.effect.unsafe.implicits.global
 import com.twitter.finagle.http.Status
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
-import io.finch.internal.DummyExecutionContext
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
 
+import scala.concurrent.Future
+
 class TodoSpec extends AnyFlatSpec with Matchers with Checkers {
 
   behavior of "Todo App"
+
+  val dispatcher: Dispatcher[IO] = new Dispatcher[IO] {
+    override def unsafeToFutureCancelable[A](fa: IO[A]): (Future[A], () => Future[Unit]) = fa.unsafeToFutureCancelable()
+  }
 
   case class TodoCompleted(completed: Boolean)
 
@@ -27,7 +34,7 @@ class TodoSpec extends AnyFlatSpec with Matchers with Checkers {
   case class TestApp(
       id: Ref[IO, Int],
       store: Ref[IO, Map[Int, Todo]]
-  ) extends App(id, store)(IO.contextShift(DummyExecutionContext)) {
+  ) extends App(id, store) {
     def state: IO[AppState] = for {
       i <- id.get
       s <- store.get

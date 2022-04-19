@@ -62,7 +62,7 @@ class InputSpec extends FinchSpec {
       }
 
     check { (i: Input, s: List[Buf]) =>
-      val out = i.withBody[Application.OctetStream].apply[IO, ListStream, Buf](s).request.reader
+      val out = i.withBody[Application.OctetStream].apply[IO, ListStream, Buf](s, dispatcherIO).request.reader
       s.forall(buf => buf == Await.result(out.read()).get)
     }
   }

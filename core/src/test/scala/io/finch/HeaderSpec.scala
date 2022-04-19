@@ -30,14 +30,14 @@ class HeaderSpec extends FinchSpec {
   it should "throw an error if required header is missing" in {
     val endpoint = header[UUID]("header")
     an[Error.NotPresent] shouldBe thrownBy {
-      endpoint(Input.get("/index")).awaitValueUnsafe()
+      endpoint(Input.get("/index")).awaitValueUnsafe(dispatcherIO)
     }
   }
 
   it should "throw an error if header is malformed" in {
     val endpoint = header[UUID]("header")
     an[Error.NotParsed] shouldBe thrownBy {
-      endpoint(Input.get("/index").withHeaders("header" -> "a")).awaitValueUnsafe()
+      endpoint(Input.get("/index").withHeaders("header" -> "a")).awaitValueUnsafe(dispatcherIO)
     }
   }
 }

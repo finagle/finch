@@ -1,7 +1,7 @@
 package io.finch
 
 import cats.Eq
-import cats.effect.Effect
+import cats.effect.std.Dispatcher
 import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
@@ -10,7 +10,7 @@ import org.typelevel.discipline.Laws
 
 import scala.reflect.ClassTag
 
-abstract class EntityEndpointLaws[F[_]: Effect, A] extends Laws with MissingInstances with AllInstances {
+abstract class EntityEndpointLaws[F[_], A](dispatcher: Dispatcher[F]) extends Laws with MissingInstances with AllInstances {
 
   def decoder: DecodeEntity[A]
   def classTag: ClassTag[A]
@@ -20,7 +20,7 @@ abstract class EntityEndpointLaws[F[_]: Effect, A] extends Laws with MissingInst
   def roundTrip(a: A): IsEq[Option[A]] = {
     val i = serialize(a)
     val e = endpoint
-    e(i).awaitValueUnsafe().flatten <-> Some(a)
+    e(i).awaitValueUnsafe(dispatcher).flatten <-> Some(a)
   }
 
   def evaluating(implicit A: Arbitrary[A], eq: Eq[A]): RuleSet =
@@ -32,12 +32,11 @@ abstract class EntityEndpointLaws[F[_]: Effect, A] extends Laws with MissingInst
 }
 
 object EntityEndpointLaws {
-  def apply[F[_]: Effect, A: DecodeEntity: ClassTag](
-      e: Endpoint[F, Option[A]]
-  )(f: A => Input): EntityEndpointLaws[F, A] = new EntityEndpointLaws[F, A] {
-    val decoder: DecodeEntity[A] = DecodeEntity[A]
-    val classTag: ClassTag[A] = implicitly[ClassTag[A]]
-    val endpoint: Endpoint[F, Option[A]] = e
-    val serialize: A => Input = f
-  }
+  def apply[F[_], A: DecodeEntity: ClassTag](e: Endpoint[F, Option[A]])(f: A => Input)(implicit dispatcher: Dispatcher[F]): EntityEndpointLaws[F, A] =
+    new EntityEndpointLaws[F, A](dispatcher) {
+      val decoder: DecodeEntity[A] = DecodeEntity[A]
+      val classTag: ClassTag[A] = implicitly[ClassTag[A]]
+      val endpoint: Endpoint[F, Option[A]] = e
+      val serialize: A => Input = f
+    }
 }

@@ -43,8 +43,8 @@ class MultipartSpec extends FinchSpec {
   it should "file upload (single)" in {
     check { b: Buf =>
       val i = withFileUpload("foo", b)
-      val fu = multipartFileUpload("foo").apply(i).awaitValueUnsafe()
-      val fuo = multipartFileUploadOption("foo").apply(i).awaitValueUnsafe().flatten
+      val fu = multipartFileUpload("foo").apply(i).awaitValueUnsafe(dispatcherIO)
+      val fuo = multipartFileUploadOption("foo").apply(i).awaitValueUnsafe(dispatcherIO).flatten
 
       fu.map(_.asInstanceOf[Multipart.InMemoryFileUpload].content) === Some(b) &&
       fuo.map(_.asInstanceOf[Multipart.InMemoryFileUpload].content) === Some(b)
@@ -53,27 +53,27 @@ class MultipartSpec extends FinchSpec {
 
   it should "fail when attribute is missing" in {
     an[Error.NotPresent] should be thrownBy {
-      multipartAttribute("foo").apply(Input.get("/")).awaitValueUnsafe()
+      multipartAttribute("foo").apply(Input.get("/")).awaitValueUnsafe(dispatcherIO)
     }
   }
 
   it should "return None for when attribute is missing for optional endpoint" in {
-    multipartAttributeOption("foo").apply(Input.get("/")).awaitValueUnsafe().flatten shouldBe None
+    multipartAttributeOption("foo").apply(Input.get("/")).awaitValueUnsafe(dispatcherIO).flatten shouldBe None
   }
 
   it should "fail when attributes are missing" in {
     an[Error.NotPresent] should be thrownBy {
-      multipartAttributesNel("foo").apply(Input.get("/")).awaitValueUnsafe()
+      multipartAttributesNel("foo").apply(Input.get("/")).awaitValueUnsafe(dispatcherIO)
     }
   }
 
   it should "return empty sequence when attributes are missing for seq endpoint" in {
-    multipartAttributes("foo").apply(Input.get("/")).awaitValueUnsafe() === Some(Seq())
+    multipartAttributes("foo").apply(Input.get("/")).awaitValueUnsafe(dispatcherIO) === Some(Seq())
   }
 
   it should "fail when attribute is malformed" in {
     an[Error.NotParsed] should be thrownBy {
-      multipartAttribute[Int]("foo").apply(withAttribute("foo" -> "bar")).awaitValueUnsafe()
+      multipartAttribute[Int]("foo").apply(withAttribute("foo" -> "bar")).awaitValueUnsafe(dispatcherIO)
     }
   }
 }
