@@ -3,14 +3,15 @@ package io.finch
 import cats.Eq
 import cats.effect.IO
 import cats.effect.std.Dispatcher
-import cats.effect.unsafe.implicits.global
+import cats.effect.unsafe.IORuntime
 import com.twitter.io.Buf
-
 import scala.concurrent.Future
 
 /** Type class instances for non-Finch types.
   */
 trait MissingInstances {
+
+  implicit val ioRuntime: IORuntime = IORuntime.global
 
   // Implicit to ease laws definitions
   implicit val dispatcherIO: Dispatcher[IO] = new Dispatcher[IO] {

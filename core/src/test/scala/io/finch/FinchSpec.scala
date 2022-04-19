@@ -2,24 +2,23 @@ package io.finch
 
 import cats.Eq
 import cats.data.NonEmptyList
+import cats.effect.SyncIO
 import cats.effect.std.Dispatcher
 import cats.effect.{IO, Sync}
 import cats.instances.AllInstances
 import com.twitter.finagle.http._
 import com.twitter.io.Buf
-import com.twitter.util._
 import org.scalacheck.{Arbitrary, Cogen, Gen}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
 import org.typelevel.discipline.Laws
 import shapeless.Witness
-
 import java.nio.charset.{Charset, StandardCharsets}
 import java.util.UUID
 import scala.reflect.ClassTag
 
-trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with AllInstances with MissingInstances with Endpoint.Module[IO] {
+trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with AllInstances with MissingInstances with Endpoint.Module[SyncIO] {
 
   def checkAll(name: String, ruleSet: Laws#RuleSet): Unit =
     for ((id, prop) <- ruleSet.all.properties)

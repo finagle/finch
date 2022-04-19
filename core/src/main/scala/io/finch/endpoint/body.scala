@@ -5,7 +5,6 @@ import com.twitter.io.{Buf, Reader}
 import io.finch._
 import io.finch.internal._
 import io.finch.items._
-
 import java.nio.charset.{Charset, StandardCharsets}
 import scala.reflect.ClassTag
 

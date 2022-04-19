@@ -1,11 +1,9 @@
 package io.finch
 
+import cats.ApplicativeError
+import cats.Functor
 import cats.Id
-import cats.effect.std.Dispatcher
 import com.twitter.finagle.http.Method
-
-import scala.concurrent.TimeoutException
-import scala.concurrent.duration.Duration
 
 /** A result returned from an [[Endpoint]]. This models `Option[(Input, Future[Output])]` and represents two cases:
   *
@@ -39,31 +37,6 @@ sealed abstract class EndpointResult[F[_], +A] {
     case EndpointResult.Matched(_, trc, _) => Some(trc)
     case _                                 => None
   }
-
-  def awaitOutput(dispatcher: Dispatcher[F], d: Duration = Duration.Inf): Option[Either[Throwable, Output[A]]] = this match {
-    case EndpointResult.Matched(_, _, out) =>
-      try Some(Right(dispatcher.unsafeRunTimed(out, d)))
-      catch {
-        case _: TimeoutException => Some(Left(new TimeoutException(s"Output wasn't returned in time: $d")))
-        case e: Throwable        => Some(Left(e))
-      }
-    case _ => None
-  }
-
-  def awaitOutputUnsafe(dispatcher: Dispatcher[F], d: Duration = Duration.Inf): Option[Output[A]] =
-    awaitOutput(dispatcher, d).map {
-      case Right(r) => r
-      case Left(ex) => throw ex
-    }
-
-  def awaitValue(dispatcher: Dispatcher[F], d: Duration = Duration.Inf): Option[Either[Throwable, A]] =
-    awaitOutput(dispatcher, d).map {
-      case Right(oa) => Right(oa.value)
-      case Left(ob)  => Left(ob)
-    }
-
-  def awaitValueUnsafe(dispatcher: Dispatcher[F], d: Duration = Duration.Inf): Option[A] =
-    awaitOutputUnsafe(dispatcher, d).map(oa => oa.value)
 }
 
 object EndpointResult {
@@ -86,9 +59,19 @@ object EndpointResult {
 
     /** Returns the [[Output]] if an [[Endpoint]] is matched.
       */
-    final def output: Option[F[Output[A]]] = self match {
-      case EndpointResult.Matched(_, _, out) => Some(out)
-      case _                                 => None
+    final def outputAttempt(implicit F: ApplicativeError[F, Throwable]): F[Either[Throwable, Output[A]]] =
+      F.attempt(output)
+
+    final def output: F[Output[A]] = self match {
+      case EndpointResult.Matched(_, _, out) => out
+      case _                                 =>
+        throw new IllegalStateException("Endpoint didn't match")
     }
+
+    final def valueAttempt(implicit F: ApplicativeError[F, Throwable]): F[Either[Throwable, A]] =
+      F.attempt(value)
+
+    final def value(implicit F: Functor[F]): F[A] =
+      F.map(output)(_.value)
   }
 }
