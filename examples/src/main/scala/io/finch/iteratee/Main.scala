@@ -3,12 +3,11 @@ package io.finch.iteratee
 import cats.effect.{ExitCode, IO, IOApp, Resource}
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.{Http, ListeningServer, Service}
-import com.twitter.util.Future
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.catsEffect._
 import io.finch.circe._
-import io.finch.internal.ToAsync
+import io.finch.internal._
 import io.iteratee.{Enumerator, Iteratee}
 
 import scala.util.Random
@@ -67,7 +66,7 @@ object Main extends IOApp {
 
   def serve(service: Service[Request, Response]): Resource[IO, ListeningServer] =
     Resource.make(IO(Http.server.withStreaming(enabled = true).serve(":8081", service))) { server =>
-      IO.defer(ToAsync[Future, IO].apply(server.close()))
+      IO.defer(server.close().toAsync[IO])
     }
 
   def run(args: List[String]): IO[ExitCode] =

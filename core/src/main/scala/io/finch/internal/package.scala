@@ -1,7 +1,11 @@
 package io.finch
 
+import cats.effect.Async
 import com.twitter.finagle.http.{Fields, Message}
 import com.twitter.io.Buf
+import com.twitter.util.Future
+import com.twitter.util.Return
+import com.twitter.util.Throw
 
 import java.nio.ByteBuffer
 import java.nio.charset.{Charset, StandardCharsets}
@@ -110,4 +114,13 @@ package object internal {
     }
   }
 
+  implicit class TwitterFutureConverter[A](val f: Future[A]) extends AnyVal {
+    def toAsync[F[_]](implicit F: Async[F]): F[A] =
+      F.async_ { cb =>
+        f.respond {
+          case Return(r) => cb(Right(r))
+          case Throw(t)  => cb(Left(t))
+        }
+      }
+  }
 }

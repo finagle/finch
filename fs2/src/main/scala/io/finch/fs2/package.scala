@@ -4,7 +4,6 @@ import _root_.fs2.Stream
 import cats.effect._
 import cats.effect.kernel.Outcome.Canceled
 import com.twitter.io.{Buf, Pipe, Reader}
-import com.twitter.util.Future
 import io.finch.internal._
 
 import java.nio.charset.Charset
@@ -12,12 +11,11 @@ import java.nio.charset.Charset
 package object fs2 extends StreamAsyncInstances {
 
   implicit def streamLiftReader[F[_]](implicit
-      F: Sync[F],
-      TA: ToAsync[Future, F]
+      F: Async[F]
   ): LiftReader[Stream, F] =
     new LiftReader[Stream, F] {
       final def apply[A](reader: Reader[Buf], process: Buf => A): Stream[F, A] =
-        Stream.repeatEval(F.defer(TA(reader.read()))).unNoneTerminate.map(process).onFinalize(F.delay(reader.discard()))
+        Stream.repeatEval(F.defer(reader.read().toAsync[F])).unNoneTerminate.map(process).onFinalize(F.delay(reader.discard()))
     }
 
   implicit def encodeBufAsyncFs2[F[_]: Async, CT <: String]: EncodeStream.Aux[F, Stream, Buf, CT] =
@@ -56,8 +54,7 @@ trait StreamInstances {
   }
 
   abstract protected class EncodeAsyncFs2Stream[F[_], A, CT <: String](implicit
-      F: Async[F],
-      TA: ToAsync[Future, F]
+      F: Async[F]
   ) extends EncodeFs2Stream[F, A, CT] {
 
     protected def dispatch(reader: Reader[Buf], run: F[Unit]): F[Reader[Buf]] =
@@ -68,8 +65,7 @@ trait StreamInstances {
   }
 
   abstract protected class EncodeFs2Stream[F[_], A, CT <: String](implicit
-      F: Sync[F],
-      TA: ToAsync[Future, F]
+      F: Async[F]
   ) extends EncodeStream[F, Stream, A] {
 
     type ContentType = CT
@@ -80,7 +76,7 @@ trait StreamInstances {
 
     def apply(s: Stream[F, A], cs: Charset): F[Reader[Buf]] = F.defer {
       val p = new Pipe[Buf]
-      val run = s.map(chunk => encodeChunk(chunk, cs)).evalMap(chunk => TA(p.write(chunk))).onFinalize(F.defer(TA(p.close()))).compile.drain
+      val run = s.map(chunk => encodeChunk(chunk, cs)).evalMap(chunk => p.write(chunk).toAsync[F]).onFinalize(F.defer(p.close().toAsync[F])).compile.drain
 
       dispatch(p, run)
     }
