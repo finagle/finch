@@ -23,7 +23,7 @@ object Finagle extends App with Wrk {
 
   val mapper: ObjectMapper = new ObjectMapper().registerModule(DefaultScalaModule)
 
-  Await.ready(serve(new Service[Request, Response] {
+  Await.ready(server.serve(":8081", new Service[Request, Response] {
     def apply(req: Request): Future[Response] = {
       val payload = mapper.writeValueAsBytes(Payload("Hello, World!"))
 

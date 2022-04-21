@@ -287,46 +287,46 @@ trait Endpoint[F[_], A] {
     left.coproduct(right)
   }
 
-  /** Converts this endpoint to a Finagle service `Request => Future[Response]` that serves JSON.
-    *
-    * Consider using [[io.finch.Bootstrap]] instead.
-    */
-  final def toService(implicit
-      F: Async[F],
-      tr: ToResponse.Aux[F, A, Application.Json],
-      tre: ToResponse.Aux[F, Exception, Application.Json]
-  ): Resource[F, Service[Request, Response]] = toServiceAs[Application.Json]
-
-  /** Converts this endpoint to a Finagle service `Request => Future[Response]` that serves custom content-type `CT`.
-    *
-    * Consider using [[io.finch.Bootstrap]] instead.
-    */
-  final def toServiceAs[CT <: String](implicit
-      F: Async[F],
-      tr: ToResponse.Aux[F, A, CT],
-      tre: ToResponse.Aux[F, Exception, CT]
-  ): Resource[F, Service[Request, Response]] = Bootstrap.serve[CT](this).toService
-
-  /** Converts this endpoint to Endpoint.Compiled[F] what is efficiently is Kleisli[F, Request, Response] where responses are encoded with JSON encoder.
-    *
-    * Consider using [[io.finch.Bootstrap]] instead
-    */
-  final def compile(implicit
-      F: MonadError[F, Throwable],
-      tr: ToResponse.Aux[F, A, Application.Json],
-      tre: ToResponse.Aux[F, Exception, Application.Json]
-  ): Endpoint.Compiled[F] = compileAs[Application.Json]
-
-  /** Converts this endpoint to Endpoint.Compiled[F] what is efficiently is Kleisli[F, Request, Response] where responses are encoded with encoder corresponding
-    * to `CT` Content-Type.
-    *
-    * Consider using [[io.finch.Bootstrap]] instead
-    */
-  final def compileAs[CT <: String](implicit
-      F: MonadError[F, Throwable],
-      tr: ToResponse.Aux[F, A, CT],
-      tre: ToResponse.Aux[F, Exception, CT]
-  ): Endpoint.Compiled[F] = Bootstrap.serve[CT](this).compile
+//  /** Converts this endpoint to a Finagle service `Request => Future[Response]` that serves JSON.
+//    *
+//    * Consider using [[io.finch.Bootstrap]] instead.
+//    */
+//  final def toService(implicit
+//      F: Async[F],
+//      tr: ToResponse.Aux[F, A, Application.Json],
+//      tre: ToResponse.Aux[F, Exception, Application.Json]
+//  ): Resource[F, Service[Request, Response]] = toServiceAs[Application.Json]
+//
+//  /** Converts this endpoint to a Finagle service `Request => Future[Response]` that serves custom content-type `CT`.
+//    *
+//    * Consider using [[io.finch.Bootstrap]] instead.
+//    */
+//  final def toServiceAs[CT <: String](implicit
+//      F: Async[F],
+//      tr: ToResponse.Aux[F, A, CT],
+//      tre: ToResponse.Aux[F, Exception, CT]
+//  ): Resource[F, Service[Request, Response]] = Bootstrap.serve[CT](this).toService
+//
+//  /** Converts this endpoint to Endpoint.Compiled[F] what is efficiently is Kleisli[F, Request, Response] where responses are encoded with JSON encoder.
+//    *
+//    * Consider using [[io.finch.Bootstrap]] instead
+//    */
+//  final def compile(implicit
+//      F: MonadError[F, Throwable],
+//      tr: ToResponse.Aux[F, A, Application.Json],
+//      tre: ToResponse.Aux[F, Exception, Application.Json]
+//  ): Endpoint.Compiled[F] = compileAs[Application.Json]
+//
+//  /** Converts this endpoint to Endpoint.Compiled[F] what is efficiently is Kleisli[F, Request, Response] where responses are encoded with encoder corresponding
+//    * to `CT` Content-Type.
+//    *
+//    * Consider using [[io.finch.Bootstrap]] instead
+//    */
+//  final def compileAs[CT <: String](implicit
+//      F: MonadError[F, Throwable],
+//      tr: ToResponse.Aux[F, A, CT],
+//      tre: ToResponse.Aux[F, Exception, CT]
+//  ): Endpoint.Compiled[F] = Bootstrap.serve[CT](this).compile
 
   /** Recovers from any exception occurred in this endpoint by creating a new endpoint that will handle any matching throwable from the underlying future.
     */
@@ -546,10 +546,14 @@ object Endpoint {
     */
   def apply[F[_]]: EndpointModule[F] = EndpointModule[F]
 
-  /** Convert [[Endpoint.Compiled]] into Finagle Service
-    */
-  def toService[F[_]: Async](compiled: Endpoint.Compiled[F]): Resource[F, Service[Request, Response]] =
-    Dispatcher[F].map(ToService(compiled, _))
+//  /** Convert [[Endpoint.Compiled]] into Finagle Service
+//    */
+//  def toService[F[_]](compiled: Endpoint.Compiled[F])(implicit F: Async[F]): Resource[F, Service[Request, Response]] =
+//    Dispatcher[F].flatMap { dispatcher =>
+//      Resource.make(F.pure(ToService(compiled, dispatcher))) { service =>
+//        F.defer(service.close().toAsync[F])
+//      }
+//    }
 
   /** Creates an empty [[Endpoint]] (an endpoint that never matches) for a given type.
     */

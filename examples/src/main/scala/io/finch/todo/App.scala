@@ -53,9 +53,13 @@ class App(idRef: Ref[IO, Int], storeRef: Ref[IO, Map[Int, Todo]]) extends Endpoi
     }
   }
 
-  final def toService: Resource[IO, Service[Request, Response]] = Bootstrap
-    .serve[Application.Json](getTodos :+: postTodo :+: deleteTodo :+: deleteTodos :+: patchTodo)
-    .serve[Text.Html](classpathAsset("/todo/index.html"))
-    .serve[Application.Javascript](classpathAsset("/todo/main.js"))
-    .toService
-}
+  val doo = getTodos :+: postTodo :+: deleteTodo :+: deleteTodos :+: patchTodo
+
+
+
+//  final def toService: Resource[IO, Service[Request, Response]] = Bootstrap
+//    .serve[Application.Json](getTodos :+: postTodo :+: deleteTodo :+: deleteTodos :+: patchTodo)
+//    .serve[Text.Html](classpathAsset("/todo/index.html"))
+//    .serve[Application.Javascript](classpathAsset("/todo/main.js"))
+//    .toService
+//}

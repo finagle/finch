@@ -1,8 +1,12 @@
 package io.finch
 
+import cats.effect.std.Dispatcher
 import cats.effect.{Async, Resource}
-import com.twitter.finagle.Service
+import com.twitter.finagle.Filter
+import com.twitter.finagle.Http
+import com.twitter.finagle.ListeningServer
 import com.twitter.finagle.http.{Request, Response}
+import io.finch.internal.TwitterFutureConverter
 import shapeless._
 
 /** Bootstraps a Finagle HTTP service out of the collection of Finch endpoints.
@@ -36,6 +40,9 @@ import shapeless._
   */
 class Bootstrap[F[_], ES <: HList, CTS <: HList](
     val endpoints: ES,
+    val server: Http.Server = Http.server,
+    val filter: Filter[Request, Response, Request, Response] = Filter.identity[Request, Response],
+    val middleware: Endpoint.Compiled[F] => Endpoint.Compiled[F] = identity _,
     val includeDateHeader: Boolean = true,
     val includeServerHeader: Boolean = true,
     val enableMethodNotAllowed: Boolean = false,
@@ -43,9 +50,12 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
 ) { self =>
 
   class Serve[CT] {
-    def apply[FF[_], E](e: Endpoint[FF, E]): Bootstrap[FF, Endpoint[FF, E] :: ES, CT :: CTS] =
-      new Bootstrap[FF, Endpoint[FF, E] :: ES, CT :: CTS](
+    def apply[E](e: Endpoint[F, E]): Bootstrap[F, Endpoint[F, E] :: ES, CT :: CTS] =
+      new Bootstrap[F, Endpoint[F, E] :: ES, CT :: CTS](
         e :: self.endpoints,
+        server,
+        filter,
+        middleware,
         includeDateHeader,
         includeServerHeader,
         enableMethodNotAllowed,
@@ -60,6 +70,9 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
       enableUnsupportedMediaType: Boolean = self.enableUnsupportedMediaType
   ): Bootstrap[F, ES, CTS] = new Bootstrap[F, ES, CTS](
     endpoints,
+    server,
+    filter,
+    middleware,
     includeDateHeader,
     includeServerHeader,
     enableMethodNotAllowed,
@@ -68,7 +81,31 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
 
   def serve[CT]: Serve[CT] = new Serve[CT]
 
-  def compile(implicit ts: Compile[F, ES, CTS]): Endpoint.Compiled[F] = {
+  def filter(f: Filter[Request, Response, Request, Response]): Bootstrap[F, ES, CTS] =
+    new Bootstrap[F, ES, CTS](
+      endpoints,
+      server,
+      f.andThen(filter),
+      middleware,
+      includeDateHeader,
+      includeServerHeader,
+      enableMethodNotAllowed,
+      enableUnsupportedMediaType
+    )
+
+  def filter(f: Endpoint.Compiled[F] => Endpoint.Compiled[F]): Bootstrap[F, ES, CTS] =
+    new Bootstrap[F, ES, CTS](
+      endpoints,
+      server,
+      filter,
+      middleware.compose(f),
+      includeDateHeader,
+      includeServerHeader,
+      enableMethodNotAllowed,
+      enableUnsupportedMediaType
+    )
+
+  private def compile(implicit ts: Compile[F, ES, CTS]): Endpoint.Compiled[F] = {
     val opts = Compile.Options(
       includeDateHeader,
       includeServerHeader,
@@ -81,17 +118,27 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
     ts.apply(endpoints, opts, ctx)
   }
 
-  def toService(implicit F: Async[F], ts: Compile[F, ES, CTS]): Resource[F, Service[Request, Response]] =
-    Endpoint.toService(compile)
+  def listen(address: String)(implicit F: Async[F], ts: Compile[F, ES, CTS]): Resource[F, ListeningServer] = {
+    val compiled = middleware(compile)
+
+    val serviced = Dispatcher[F].flatMap { dispatcher =>
+      Resource.make(F.pure(ToService(compiled, dispatcher))) { service =>
+        F.defer(service.close().toAsync[F])
+      }
+    }
+
+    serviced.flatMap { service =>
+      val filtered = filter.andThen(service)
+      Resource.make(F.pure(server.serve(address, filtered))) { listening =>
+        F.defer(listening.close().toAsync[F])
+      }
+    }
+  }
 
   final override def toString: String = s"Bootstrap($endpoints)"
 }
 
-object Bootstrap
-    extends Bootstrap[Id, HNil, HNil](
-      endpoints = HNil,
-      includeDateHeader = true,
-      includeServerHeader = true,
-      enableMethodNotAllowed = false,
-      enableUnsupportedMediaType = false
-    )
+object Bootstrap {
+  def apply[F[_]]: Bootstrap[F, HNil, HNil] = apply[F](Http.server)
+  def apply[F[_]](server: Http.Server): Bootstrap[F, HNil, HNil] = new Bootstrap(HNil, server)
+}
