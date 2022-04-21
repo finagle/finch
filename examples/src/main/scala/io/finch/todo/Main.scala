@@ -6,8 +6,8 @@ import com.twitter.app.Flag
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.{Http, ListeningServer, Service}
 import com.twitter.server.TwitterServer
-import com.twitter.util.{Await, Future}
-import io.finch.internal.ToAsync
+import com.twitter.util.Await
+import io.finch.internal._
 
 /** A simple Finch server serving a TODO application.
   *
@@ -36,7 +36,8 @@ object Main extends TwitterServer {
       srv <- IO(Http.server.withStatsReceiver(statsReceiver))
       server <- IO(srv.serve(s":${port()}", service))
     } yield server) { server =>
-      IO.defer(ToAsync[Future, IO].apply(server.close()))
+      // TODO: We should abstract this out.
+      IO.defer(server.close().toAsync[IO])
     }
 
   val run: IO[Unit] =
