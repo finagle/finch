@@ -54,7 +54,7 @@ abstract class AbstractJsonSpec extends AnyFlatSpec with Matchers with Checkers 
   def checkStreamJson[S[_[_], _], F[_]](library: String)(
       fromList: List[ExampleNestedCaseClass] => S[F, ExampleNestedCaseClass],
       toList: S[F, ExampleNestedCaseClass] => List[ExampleNestedCaseClass]
-  )(implicit en: DecodeStream.Json[S, F, ExampleNestedCaseClass], functor: Functor[S[F, ?]]): Unit =
+  )(implicit en: DecodeStream.Json[S, F, ExampleNestedCaseClass], functor: Functor[S[F, *]]): Unit =
     loop(
       "ExampleNestedCaseClass",
       JsonLaws.streaming[S, F, ExampleNestedCaseClass](fromList, toList).all,
