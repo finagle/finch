@@ -41,7 +41,7 @@ trait DecodeJsonLaws[A] extends Laws with AllInstances {
 }
 
 abstract class StreamJsonLaws[S[_[_], _], F[_], A](implicit
-    F: Functor[S[F, ?]]
+    F: Functor[S[F, *]]
 ) extends Laws
     with AllInstances {
 
@@ -108,7 +108,7 @@ object JsonLaws {
       streamToList: S[F, A] => List[A]
   )(implicit
       decoder: DecodeStream.Json[S, F, A],
-      functor: Functor[S[F, ?]]
+      functor: Functor[S[F, *]]
   ): StreamJsonLaws[S, F, A] =
     new StreamJsonLaws[S, F, A] {
       val toList: S[F, A] => List[A] = streamToList

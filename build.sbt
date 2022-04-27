@@ -74,7 +74,7 @@ val baseSettings = Seq(
   (Compile / console / scalacOptions) += "-Yrepl-class-based",
   (Test / fork) := true,
   (ThisBuild / javaOptions) ++= Seq("-Xss2048K"),
-  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary),
+  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full),
   ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0",
   semanticdbEnabled := true,
   semanticdbVersion := scalafixSemanticdb.revision,
