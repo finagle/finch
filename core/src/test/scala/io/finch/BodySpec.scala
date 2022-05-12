@@ -26,7 +26,7 @@ class BodySpec extends FinchSpec {
 
   it should "respond with NotFound when it's required" in {
     body[Foo, Text.Plain].apply(Input.get("/")).awaitValue(dispatcherIO) shouldBe
-      Some(Left(Error.NotPresent(items.BodyItem)))
+      Some(Left(Error.BodyNotPresent))
   }
 
   it should "respond with None when it's optional" in {

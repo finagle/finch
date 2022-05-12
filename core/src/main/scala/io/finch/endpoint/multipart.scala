@@ -7,7 +7,6 @@ import com.twitter.finagle.http.Request
 import com.twitter.finagle.http.exp.Multipart.{FileUpload => FinagleFileUpload}
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart, MultipartDecoder}
 import io.finch._
-import io.finch.items._
 
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
@@ -48,29 +47,27 @@ abstract private[finch] class Attribute[F[_]: Sync, G[_], A](val name: String)(i
 
       EndpointResult.Matched(input, Trace.empty, output)
     }
-
-  final override def item: items.RequestItem = items.ParamItem(name)
 }
 
 private[finch] object Attribute {
 
   trait SingleError[F[_], G[_], A] { _: Attribute[F, G, A] =>
     protected def unparsed(errors: NonEmptyList[Throwable], tag: ClassTag[A]): F[Output[G[A]]] =
-      F.raiseError(Error.NotParsed(items.ParamItem(name), tag, errors.head))
+      F.raiseError(Error.ParamNotParsed(name, tag).initCause(errors.head))
 
     final override def toString: String = s"attribute($name)"
   }
 
   trait MultipleErrors[F[_], G[_], A] { _: Attribute[F, G, A] =>
     protected def unparsed(errors: NonEmptyList[Throwable], tag: ClassTag[A]): F[Output[G[A]]] =
-      F.raiseError(Errors(errors.map(t => Error.NotParsed(items.ParamItem(name), tag, t))))
+      F.raiseError(Errors(errors.map(t => Error.ParamNotParsed(name, tag).initCause(t).asInstanceOf[Error])))
 
     final override def toString: String = s"attributes($name)"
   }
 
   trait Required[F[_], A] { _: Attribute[F, Id, A] =>
     protected def missing(name: String): F[Output[A]] =
-      F.raiseError(Error.NotPresent(items.ParamItem(name)))
+      F.raiseError(Error.ParamNotPresent(name))
     protected def present(value: NonEmptyList[A]): F[Output[A]] =
       F.pure(Output.payload(value.head))
   }
@@ -91,7 +88,7 @@ private[finch] object Attribute {
 
   trait NonEmpty[F[_], A] { _: Attribute[F, NonEmptyList, A] =>
     protected def missing(name: String): F[Output[NonEmptyList[A]]] =
-      F.raiseError(Error.NotPresent(items.ParamItem(name)))
+      F.raiseError(Error.ParamNotPresent(name))
     protected def present(value: NonEmptyList[A]): F[Output[NonEmptyList[A]]] =
       F.pure(Output.payload(value))
   }
@@ -123,7 +120,6 @@ abstract private[finch] class FileUpload[F[_]: Sync, G[_]](name: String) extends
       EndpointResult.Matched(input, Trace.empty, output)
     }
 
-  final override def item: RequestItem = ParamItem(name)
   final override def toString: String = s"fileUpload($name)"
 }
 
@@ -131,7 +127,7 @@ private[finch] object FileUpload {
 
   trait Required[F[_]] { _: FileUpload[F, Id] =>
     protected def missing(name: String): F[Output[FinagleFileUpload]] =
-      F.raiseError(Error.NotPresent(items.ParamItem(name)))
+      F.raiseError(Error.ParamNotPresent(name))
     protected def present(a: NonEmptyList[FinagleFileUpload]): F[Output[FinagleFileUpload]] =
       F.pure(Output.payload(a.head))
   }
@@ -152,7 +148,7 @@ private[finch] object FileUpload {
 
   trait NonEmpty[F[_]] { _: FileUpload[F, NonEmptyList] =>
     protected def missing(name: String): F[Output[NonEmptyList[FinagleFileUpload]]] =
-      F.raiseError(Error.NotPresent(items.ParamItem(name)))
+      F.raiseError(Error.ParamNotPresent(name))
     protected def present(fa: NonEmptyList[FinagleFileUpload]): F[Output[NonEmptyList[FinagleFileUpload]]] =
       F.pure(Output.payload(fa))
   }

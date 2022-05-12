@@ -4,7 +4,6 @@ import cats.effect.Sync
 import com.twitter.io.{Buf, Reader}
 import io.finch._
 import io.finch.internal._
-import io.finch.items._
 
 import java.nio.charset.{Charset, StandardCharsets}
 import scala.reflect.ClassTag
@@ -31,8 +30,6 @@ abstract private[finch] class FullBody[F[_], A] extends Endpoint[F, A] {
 
       EndpointResult.Matched(input, Trace.empty, output)
     }
-
-  final override def item: RequestItem = items.BodyItem
 }
 
 private[finch] object FullBody {
@@ -43,7 +40,7 @@ private[finch] object FullBody {
 
   trait Required[F[_], A] extends PreparedBody[F, A, A] { _: FullBody[F, A] =>
     protected def prepare(a: A): A = a
-    protected def missing: F[Output[A]] = F.raiseError(Error.NotPresent(items.BodyItem))
+    protected def missing: F[Output[A]] = F.raiseError(Error.BodyNotPresent)
   }
 
   trait Optional[F[_], A] extends PreparedBody[F, A, Option[A]] { _: FullBody[F, Option[A]] =>
@@ -62,7 +59,7 @@ abstract private[finch] class Body[F[_], A, B, CT](implicit
   protected def present(contentType: String, content: Buf, cs: Charset): F[Output[B]] =
     dd(contentType, content, cs) match {
       case Right(s) => F.pure(Output.payload(prepare(s)))
-      case Left(e)  => F.raiseError(Error.NotParsed(items.BodyItem, ct, e))
+      case Left(e)  => F.raiseError(Error.BodyNotParsed(ct).initCause(e))
     }
 
   final override def toString: String = "body"
@@ -97,8 +94,6 @@ abstract private[finch] class ChunkedBody[F[_], S[_[_], _], A] extends Endpoint[
         Trace.empty,
         F.delay(prepare(input.request.reader, input.request.charsetOrUtf8))
       )
-
-  final override def item: RequestItem = items.BodyItem
 }
 
 final private[finch] class BinaryBodyStream[F[_], S[_[_], _]](implicit
