@@ -7,7 +7,6 @@ import cats.effect.{IO, Sync}
 import cats.instances.AllInstances
 import com.twitter.finagle.http._
 import com.twitter.io.Buf
-import com.twitter.util._
 import org.scalacheck.{Arbitrary, Cogen, Gen}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -17,7 +16,7 @@ import shapeless.Witness
 
 import java.nio.charset.{Charset, StandardCharsets}
 import java.util.UUID
-import scala.reflect.ClassTag
+import scala.reflect.classTag
 
 trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with AllInstances with MissingInstances with Endpoint.Module[IO] {
 
@@ -58,10 +57,10 @@ trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with AllInstance
       Error.ParamNotPresent(s),
       Error.HeaderNotPresent(s),
       Error.CookieNotPresent(s),
-      Error.BodyNotParsed(implicitly[ClassTag[Int]]),
-      Error.ParamNotParsed(s, implicitly[ClassTag[Int]]),
-      Error.HeaderNotParsed(s, implicitly[ClassTag[err1.err2.Foo]]),
-      Error.CookieNotParsed(s, implicitly[ClassTag[err1.err2.Foo]])
+      Error.BodyNotParsed(classTag[Int]),
+      Error.ParamNotParsed(s, classTag[Int]),
+      Error.HeaderNotParsed(s, classTag[err1.err2.Foo]),
+      Error.CookieNotParsed(s, classTag[err1.err2.Foo])
     )
   } yield e
 
