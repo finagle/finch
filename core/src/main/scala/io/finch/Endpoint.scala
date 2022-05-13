@@ -72,7 +72,7 @@ trait Endpoint[F[_], A] {
   /** Maps this endpoint to the given function `A => Future[B]`.
     */
   final def mapAsync[B](fn: A => F[B])(implicit F: Monad[F]): Endpoint[F, B] =
-    new Endpoint[F, B] with (Output[A] => F[Output[B]]) {
+    new Endpoint[F, B] with Output[A] => F[Output[B]] {
 
       final def apply(oa: Output[A]): F[Output[B]] = oa.traverse(fn)
 
@@ -93,7 +93,7 @@ trait Endpoint[F[_], A] {
   /** Maps this endpoint to the given function `A => Future[Output[B]]`.
     */
   final def mapOutputAsync[B](fn: A => F[Output[B]])(implicit F: Monad[F]): Endpoint[F, B] =
-    new Endpoint[F, B] with (Output[A] => F[Output[B]]) {
+    new Endpoint[F, B] with Output[A] => F[Output[B]] {
       final def apply(oa: Output[A]): F[Output[B]] = oa.traverseFlatten(fn)
 
       final def apply(input: Input): Endpoint.Result[F, B] = self(input) match {
@@ -174,7 +174,7 @@ trait Endpoint[F[_], A] {
   final def productWith[B, O](other: Endpoint[F, B])(p: (A, B) => O)(implicit
       F: MonadError[F, Throwable]
   ): Endpoint[F, O] =
-    new Endpoint[F, O] with (((Either[Throwable, Output[A]], Either[Throwable, Output[B]])) => F[Output[O]]) {
+    new Endpoint[F, O] with ((Either[Throwable, Output[A]], Either[Throwable, Output[B]])) => F[Output[O]] {
       final private[this] def collect(a: Throwable, b: Throwable): Throwable = (a, b) match {
         case (aa: Error, bb: Error)   => Errors(NonEmptyList.of(aa, bb))
         case (aa: Error, Errors(bs))  => Errors(aa :: bs)
@@ -214,7 +214,7 @@ trait Endpoint[F[_], A] {
   final def ::[B](other: Endpoint[F, B])(implicit
       pa: PairAdjoin[B, A],
       F: MonadError[F, Throwable]
-  ): Endpoint[F, pa.Out] = new Endpoint[F, pa.Out] with ((B, A) => pa.Out) {
+  ): Endpoint[F, pa.Out] = new Endpoint[F, pa.Out] with (B, A) => pa.Out {
     private[this] val inner = other.productWith(self)(this)
 
     final def apply(b: B, a: A): pa.Out = pa(b, a)
@@ -323,7 +323,7 @@ trait Endpoint[F[_], A] {
   /** Lifts this endpoint into one that always succeeds, with [[Either[Throwable, A]] representing both success and failure cases.
     */
   final def attempt(implicit F: MonadError[F, Throwable]): Endpoint[F, Either[Throwable, A]] =
-    new Endpoint[F, Either[Throwable, A]] with (Either[Throwable, Output[A]] => Output[Either[Throwable, A]]) {
+    new Endpoint[F, Either[Throwable, A]] with Either[Throwable, Output[A]] => Output[Either[Throwable, A]] {
       final def apply(toa: Either[Throwable, Output[A]]): Output[Either[Throwable, A]] = toa match {
         case Right(oo) => oo.map(Right.apply)
         case Left(t)   => Output.payload(Left(t))

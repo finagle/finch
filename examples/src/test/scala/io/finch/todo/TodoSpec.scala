@@ -81,12 +81,10 @@ class TodoSpec extends AnyFlatSpec with Matchers with Checkers {
         prev <- app.state
         patched <- app.patchTodo(input(prev.id - 1)).output.get
         next <- app.state
-      } yield (prev.id == 0 && patched.status == Status.NotFound && prev == next) ||
-        (
-          next.id == prev.id && patched.value.id == prev.id - 1 &&
-            patched.value.completed == todo.completed &&
-            prev.store + ((prev.id - 1) -> patched.value) == next.store
-        )
+      } yield prev.id == 0 && patched.status == Status.NotFound && prev == next ||
+        next.id == prev.id && patched.value.id == prev.id - 1 &&
+        patched.value.completed == todo.completed &&
+        prev.store + (prev.id - 1 -> patched.value) == next.store
 
       shouldBeTrue.unsafeRunSync()
     }

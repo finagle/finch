@@ -107,16 +107,16 @@ class EndpointSpec extends FinchSpec {
 
   it should "match empty path" in {
     check { i: Input =>
-      (i.route.isEmpty && pathEmpty.apply(i).isMatched) ||
-      (i.route.nonEmpty && !pathEmpty.apply(i).isMatched)
+      i.route.isEmpty && pathEmpty.apply(i).isMatched ||
+      i.route.nonEmpty && !pathEmpty.apply(i).isMatched
     }
   }
 
   it should "match the HTTP method" in {
     def matchMethod(m: Method, f: Endpoint[IO, HNil] => Endpoint[IO, HNil]): Input => Boolean = { i: Input =>
       val v = f(zero)(i)
-      (i.request.method === m && v.remainder === Some(i)) ||
-      (i.request.method != m && v.remainder === None)
+      i.request.method === m && v.remainder === Some(i) ||
+      i.request.method != m && v.remainder === None
     }
 
     check(matchMethod(Method.Get, get))
@@ -437,7 +437,7 @@ class EndpointSpec extends FinchSpec {
     type W[A] = WriterT[IO, List[String], A]
 
     check { (ep: Endpoint[IO, Int], input: Input) =>
-      val nat = new (IO ~> W) {
+      val nat = new IO ~> W {
         def apply[A](fa: IO[A]): WriterT[IO, List[String], A] = WriterT.liftF(fa)
       }
 

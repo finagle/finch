@@ -51,7 +51,7 @@ object Accept {
           private val primary: String = w.value.substring(0, slashIndex).trim.toLowerCase(Locale.ENGLISH)
           private val sub: String = w.value.substring(slashIndex + 1, w.value.length).trim.toLowerCase(Locale.ENGLISH)
           def apply(a: Accept): Boolean =
-            (a.primary == "*" && a.sub == "*") || (a.primary == primary && (a.sub == sub || a.sub == "*"))
+            a.primary == "*" && a.sub == "*" || a.primary == primary && (a.sub == sub || a.sub == "*")
         }
     }
   }

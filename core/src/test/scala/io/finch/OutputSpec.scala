@@ -24,7 +24,7 @@ class OutputSpec extends FinchSpec {
   it should "propagate charset to response" in {
     check { (o: Output[String], cs: Charset) =>
       val rep = o.withCharset(cs).toResponse[Id, Text.Plain]
-      (rep.content.isEmpty && !rep.isChunked) || Some(cs.displayName.toLowerCase) === rep.charset
+      rep.content.isEmpty && !rep.isChunked || Some(cs.displayName.toLowerCase) === rep.charset
     }
   }
 

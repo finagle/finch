@@ -22,7 +22,7 @@ trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with AllInstance
 
   def checkAll(name: String, ruleSet: Laws#RuleSet): Unit =
     for ((id, prop) <- ruleSet.all.properties)
-      it should (name + "." + id) in {
+      it should name + "." + id in {
         check(prop)
       }
 

@@ -32,8 +32,8 @@ def compilerOptions(scalaVersion: String): Seq[String] = Seq(
   "-Ywarn-numeric-widen",
   "-Xlint"
 ) ++ (CrossVersion.partialVersion(scalaVersion) match {
-  case Some((2, scalaMajor)) if scalaMajor == 12 => scala212CompilerOptions
-  case Some((2, scalaMajor)) if scalaMajor == 13 => scala213CompilerOptions
+  case Some(2, scalaMajor) if scalaMajor == 12 => scala212CompilerOptions
+  case Some(2, scalaMajor) if scalaMajor == 13 => scala213CompilerOptions
 })
 
 lazy val scala212CompilerOptions = Seq(
@@ -68,12 +68,12 @@ val baseSettings = Seq(
     Resolver.sonatypeRepo("snapshots")
   ),
   scalacOptions ++= compilerOptions(scalaVersion.value),
-  (Compile / console / scalacOptions) ~= {
+  Compile / console / scalacOptions ~= {
     _.filterNot(Set("-Ywarn-unused-import"))
   },
-  (Compile / console / scalacOptions) += "-Yrepl-class-based",
-  (Test / fork) := true,
-  (ThisBuild / javaOptions) ++= Seq("-Xss2048K"),
+  Compile / console / scalacOptions += "-Yrepl-class-based",
+  Test / fork := true,
+  ThisBuild / javaOptions ++= Seq("-Xss2048K"),
   addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full),
   ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0",
   semanticdbEnabled := true,
@@ -119,7 +119,7 @@ lazy val publishSettings = Seq(
     else
       Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
-  (Test / publishArtifact) := false,
+  Test / publishArtifact := false,
   pgpSecretRing := file("local.secring.gpg"),
   pgpPublicRing := file("local.pubring.gpg"),
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
@@ -209,7 +209,7 @@ lazy val docSettings = allSettings ++ Seq(
   ),
   addMappingsToSiteDir((ScalaUnidoc / packageDoc / mappings), micrositeDocumentationUrl),
   ghpagesNoJekyll := false,
-  (ScalaUnidoc / unidoc / scalacOptions) ++= Seq(
+  ScalaUnidoc / unidoc / scalacOptions ++= Seq(
     "-groups",
     "-implicits",
     "-skip-packages",
@@ -225,9 +225,9 @@ lazy val docSettings = allSettings ++ Seq(
     _.filterNot(Set("-Yno-predef", "-Xlint", "-Ywarn-unused-import"))
   },
   git.remoteRepo := "git@github.com:finagle/finch.git",
-  (ScalaUnidoc / unidoc / unidocProjectFilter) := inAnyProject -- inProjects(benchmarks, jsonTest),
-  (makeSite / includeFilter) := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.svg" | "*.js" | "*.swf" | "*.yml" | "*.md",
-  (ScalaUnidoc / siteSubdirName) := "docs"
+  ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(benchmarks, jsonTest),
+  makeSite / includeFilter := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.svg" | "*.js" | "*.swf" | "*.yml" | "*.md",
+  ScalaUnidoc / siteSubdirName := "docs"
 )
 
 lazy val finch = project
@@ -236,7 +236,7 @@ lazy val finch = project
   .settings(allSettings)
   .settings(noPublish)
   .settings(
-    (console / initialCommands) :=
+    console / initialCommands :=
       """
         |import io.finch._
         |import io.finch.circe._
@@ -400,7 +400,7 @@ lazy val benchmarks = project
   .settings(libraryDependencies += "io.circe" %% "circe-generic" % circeVersion)
   .settings(coverageExcludedPackages := "io\\.finch\\..*;")
   .settings(
-    (run / javaOptions) ++= Seq(
+    run / javaOptions ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
       "-XX:+AggressiveOpts",
       "-XX:+UseParNewGC",

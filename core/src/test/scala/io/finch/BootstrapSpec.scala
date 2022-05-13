@@ -96,7 +96,7 @@ class BootstrapSpec extends FinchSpec {
       val (_, Right(rep)) = s(req).unsafeRunSync()
       val now = parseDate(currentTime())
 
-      (include && (parseDate(rep.date.get) - now).abs <= 1) || (!include && rep.date.isEmpty)
+      include && (parseDate(rep.date.get) - now).abs <= 1 || !include && rep.date.isEmpty
     }
   }
 
@@ -106,7 +106,7 @@ class BootstrapSpec extends FinchSpec {
 
       val (_, Right(rep)) = s(req).unsafeRunSync()
 
-      (include && rep.server === Some("Finch")) || (!include && rep.server.isEmpty)
+      include && rep.server === Some("Finch") || !include && rep.server.isEmpty
     }
   }
 

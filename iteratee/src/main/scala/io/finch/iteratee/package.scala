@@ -55,7 +55,7 @@ trait IterateeInstances {
   abstract protected class EncodeEnumerator[F[_], A, CT <: String](implicit
       F: Async[F]
   ) extends EncodeStream[F, Enumerator, A]
-      with (Either[Throwable, Unit] => IO[Unit]) {
+      with Either[Throwable, Unit] => IO[Unit] {
 
     type ContentType = CT
 

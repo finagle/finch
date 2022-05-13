@@ -100,7 +100,7 @@ final private[finch] class BinaryBodyStream[F[_], S[_[_], _]](implicit
     LR: LiftReader[S, F],
     protected val F: Sync[F]
 ) extends ChunkedBody[F, S, Array[Byte]]
-    with (Buf => Array[Byte]) {
+    with Buf => Array[Byte] {
 
   def apply(buf: Buf): Array[Byte] = buf.asByteArray
 
@@ -114,7 +114,7 @@ final private[finch] class StringBodyStream[F[_], S[_[_], _]](implicit
     LR: LiftReader[S, F],
     protected val F: Sync[F]
 ) extends ChunkedBody[F, S, String]
-    with (Buf => String) {
+    with Buf => String {
 
   def apply(buf: Buf): String = buf.asString(StandardCharsets.UTF_8)
 

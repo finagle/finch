@@ -21,7 +21,7 @@ import io.finch.internal._
   */
 object Finagle extends App with Wrk {
 
-  val mapper: ObjectMapper = new ObjectMapper().registerModule(DefaultScalaModule)
+  val mapper: ObjectMapper = new ObjectMapper.registerModule(DefaultScalaModule)
 
   Await.ready(serve(new Service[Request, Response] {
     def apply(req: Request): Future[Response] = {

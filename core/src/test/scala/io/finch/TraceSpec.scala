@@ -13,7 +13,7 @@ class TraceSpec extends FinchSpec {
 
   it should "concat two non-empty segments correctly" in {
     check { (a: Trace, b: Trace) =>
-      a.concat(b).toList === (a.toList ++ b.toList)
+      a.concat(b).toList === a.toList ++ b.toList
     }
   }
 
