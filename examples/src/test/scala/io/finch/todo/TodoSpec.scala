@@ -1,9 +1,8 @@
 package io.finch.todo
 
-import cats.effect.IO
-import cats.effect.Ref
 import cats.effect.std.Dispatcher
 import cats.effect.unsafe.implicits.global
+import cats.effect.{IO, Ref}
 import com.twitter.finagle.http.Status
 import io.circe.generic.auto._
 import io.finch._
@@ -63,7 +62,7 @@ class TodoSpec extends AnyFlatSpec with Matchers with Checkers {
 
       val shouldBeTrue = for {
         prev <- app.state
-        posted <- app.postTodo(input).output.get
+        posted <- app.postTodo(input).output
         next <- app.state
       } yield prev.id + 1 == next.id &&
         prev.store + (prev.id -> posted.value) == next.store &&
@@ -79,7 +78,7 @@ class TodoSpec extends AnyFlatSpec with Matchers with Checkers {
 
       val shouldBeTrue = for {
         prev <- app.state
-        patched <- app.patchTodo(input(prev.id - 1)).output.get
+        patched <- app.patchTodo(input(prev.id - 1)).output
         next <- app.state
       } yield (prev.id == 0 && patched.status == Status.NotFound && prev == next) ||
         (

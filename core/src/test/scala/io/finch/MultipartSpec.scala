@@ -1,13 +1,10 @@
 package io.finch
 
 import cats.Show
-import cats.effect.IO
+import cats.effect.SyncIO
 import com.twitter.finagle.http.exp.Multipart
 import com.twitter.finagle.http.{FileElement, RequestBuilder, SimpleElement}
 import com.twitter.io.Buf
-import io.finch.data.Foo
-
-import java.util.UUID
 
 class MultipartSpec extends FinchSpec {
 
@@ -26,25 +23,25 @@ class MultipartSpec extends FinchSpec {
     )
   }
 
-  checkAll("Attribute[String]", EntityEndpointLaws[IO, String](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[Int]", EntityEndpointLaws[IO, Int](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[Long]", EntityEndpointLaws[IO, Long](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[Boolean]", EntityEndpointLaws[IO, Boolean](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[Float]", EntityEndpointLaws[IO, Float](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[Double]", EntityEndpointLaws[IO, Double](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[UUID]", EntityEndpointLaws[IO, UUID](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[Foo]", EntityEndpointLaws[IO, Foo](multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+  checkAll("Attribute[String]", EntityEndpointLaws(multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+  checkAll("Attribute[Int]", EntityEndpointLaws(multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+  checkAll("Attribute[Long]", EntityEndpointLaws(multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+  checkAll("Attribute[Boolean]", EntityEndpointLaws(multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+  checkAll("Attribute[Float]", EntityEndpointLaws(multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+  checkAll("Attribute[Double]", EntityEndpointLaws(multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+  checkAll("Attribute[UUID]", EntityEndpointLaws(multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+  checkAll("Attribute[Foo]", EntityEndpointLaws(multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
 
   checkAll(
     "EvaluatingAttribute[String]",
-    EvaluatingEndpointLaws[IO, String](implicit de => multipartAttribute("foo")).all
+    EvaluatingEndpointLaws[SyncIO, String](implicit de => multipartAttribute("foo")).all
   )
 
   it should "file upload (single)" in {
     check { b: Buf =>
       val i = withFileUpload("foo", b)
-      val fu = multipartFileUpload("foo").apply(i).awaitValueUnsafe(dispatcherIO)
-      val fuo = multipartFileUploadOption("foo").apply(i).awaitValueUnsafe(dispatcherIO).flatten
+      val fu = multipartFileUpload("foo").apply(i).valueOption.unsafeRunSync()
+      val fuo = multipartFileUploadOption("foo").apply(i).valueOption.unsafeRunSync().flatten
 
       fu.map(_.asInstanceOf[Multipart.InMemoryFileUpload].content) === Some(b) &&
       fuo.map(_.asInstanceOf[Multipart.InMemoryFileUpload].content) === Some(b)
@@ -53,27 +50,27 @@ class MultipartSpec extends FinchSpec {
 
   it should "fail when attribute is missing" in {
     an[Error.NotPresent] should be thrownBy {
-      multipartAttribute("foo").apply(Input.get("/")).awaitValueUnsafe(dispatcherIO)
+      multipartAttribute("foo").apply(Input.get("/")).valueOption.unsafeRunSync()
     }
   }
 
   it should "return None for when attribute is missing for optional endpoint" in {
-    multipartAttributeOption("foo").apply(Input.get("/")).awaitValueUnsafe(dispatcherIO).flatten shouldBe None
+    multipartAttributeOption("foo").apply(Input.get("/")).valueOption.unsafeRunSync().flatten shouldBe None
   }
 
   it should "fail when attributes are missing" in {
     an[Error.NotPresent] should be thrownBy {
-      multipartAttributesNel("foo").apply(Input.get("/")).awaitValueUnsafe(dispatcherIO)
+      multipartAttributesNel("foo").apply(Input.get("/")).valueOption.unsafeRunSync()
     }
   }
 
   it should "return empty sequence when attributes are missing for seq endpoint" in {
-    multipartAttributes("foo").apply(Input.get("/")).awaitValueUnsafe(dispatcherIO) === Some(Seq())
+    multipartAttributes("foo").apply(Input.get("/")).valueOption.unsafeRunSync() === Some(Seq())
   }
 
   it should "fail when attribute is malformed" in {
     an[Error.NotParsed] should be thrownBy {
-      multipartAttribute[Int]("foo").apply(withAttribute("foo" -> "bar")).awaitValueUnsafe(dispatcherIO)
+      multipartAttribute[Int]("foo").apply(withAttribute("foo" -> "bar")).valueOption.unsafeRunSync()
     }
   }
 }

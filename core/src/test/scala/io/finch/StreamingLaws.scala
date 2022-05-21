@@ -1,7 +1,6 @@
 package io.finch
 
-import cats.effect.Sync
-import cats.effect.std.Dispatcher
+import cats.effect.SyncIO
 import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
@@ -12,27 +11,23 @@ import org.typelevel.discipline.Laws
 
 import java.nio.charset.Charset
 
-abstract class StreamingLaws[S[_[_], _], F[_]: Sync](dispatcher: Dispatcher[F]) extends Laws with AllInstances with MissingInstances {
+abstract class StreamingLaws[S[_[_], _]] extends Laws with AllInstances with MissingInstances {
+  implicit def LR: LiftReader[S, SyncIO]
 
-  implicit def LR: LiftReader[S, F]
-
-  def toResponse: ToResponse.Aux[F, S[F, Buf], Text.Plain]
-  def fromList: List[Buf] => S[F, Buf]
-  def toList: S[F, Array[Byte]] => List[Buf]
+  def toResponse: ToResponse.Aux[SyncIO, S[SyncIO, Buf], Text.Plain]
+  def fromList: List[Buf] => S[SyncIO, Buf]
+  def toList: S[SyncIO, Array[Byte]] => List[Buf]
 
   def roundTrip(a: List[Buf], cs: Charset): IsEq[List[Buf]] = {
     val req = Request()
     req.setChunked(true)
-
-    val rep = dispatcher.unsafeRunSync(toResponse(fromList(a), cs))
-
+    val rep = toResponse(fromList(a), cs).unsafeRunSync()
     Pipe.copy(rep.reader, req.writer).ensure(req.writer.close())
-
-    Endpoint.binaryBodyStream[F, S].apply(Input.fromRequest(req)).awaitValueUnsafe(dispatcher).map(toList).get <-> a
+    toList(Endpoint.binaryBodyStream[SyncIO, S].apply(Input.fromRequest(req)).value.unsafeRunSync()) <-> a
   }
 
-  def onlyChunked: EndpointResult[F, S[F, Array[Byte]]] =
-    Endpoint.binaryBodyStream[F, S].apply(Input.fromRequest(Request()))
+  def onlyChunked: EndpointResult[SyncIO, S[SyncIO, Array[Byte]]] =
+    Endpoint.binaryBodyStream[SyncIO, S].apply(Input.fromRequest(Request()))
 
   def all(implicit
       arb: Arbitrary[Buf],
@@ -42,26 +37,22 @@ abstract class StreamingLaws[S[_[_], _], F[_]: Sync](dispatcher: Dispatcher[F]) 
       name = "all",
       parent = None,
       "roundTrip" -> Prop.forAll((a: List[Buf], cs: Charset) => roundTrip(a, cs)),
-      "onlyChunked" -> Prop.=?(EndpointResult.NotMatched[F], onlyChunked)
+      "onlyChunked" -> Prop.=?(EndpointResult.NotMatched[SyncIO], onlyChunked)
     )
 }
 
 object StreamingLaws {
 
-  def apply[S[_[_], _], F[_]](
-      streamFromList: List[Buf] => S[F, Buf],
-      listFromStream: S[F, Array[Byte]] => List[Buf]
+  def apply[S[_[_], _]](
+      streamFromList: List[Buf] => S[SyncIO, Buf],
+      listFromStream: S[SyncIO, Array[Byte]] => List[Buf]
   )(implicit
-      f: Sync[F],
-      dispatcher: Dispatcher[F],
-      lr: LiftReader[S, F],
-      tr: ToResponse.Aux[F, S[F, Buf], Text.Plain]
-  ): StreamingLaws[S, F] = new StreamingLaws[S, F](dispatcher) {
-    implicit val LR: LiftReader[S, F] = lr
-
-    val toResponse: ToResponse.Aux[F, S[F, Buf], Text.Plain] = tr
-    val fromList: List[Buf] => S[F, Buf] = streamFromList
-    val toList: S[F, Array[Byte]] => List[Buf] = listFromStream
-
+      lr: LiftReader[S, SyncIO],
+      tr: ToResponse.Aux[SyncIO, S[SyncIO, Buf], Text.Plain]
+  ): StreamingLaws[S] = new StreamingLaws[S] {
+    implicit val LR: LiftReader[S, SyncIO] = lr
+    val toResponse: ToResponse.Aux[SyncIO, S[SyncIO, Buf], Text.Plain] = tr
+    val fromList: List[Buf] => S[SyncIO, Buf] = streamFromList
+    val toList: S[SyncIO, Array[Byte]] => List[Buf] = listFromStream
   }
 }

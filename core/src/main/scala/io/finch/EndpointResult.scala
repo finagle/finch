@@ -53,19 +53,24 @@ object EndpointResult {
   implicit class EndpointResultOps[F[_], A](val self: EndpointResult[F, A]) extends AnyVal {
 
     /** Returns the [[Output]] if an [[Endpoint]] is matched. */
-    final def outputAttempt(implicit F: ApplicativeThrow[F]): F[Either[Throwable, Output[A]]] =
+    def outputAttempt(implicit F: ApplicativeThrow[F]): F[Either[Throwable, Output[A]]] =
       F.attempt(output)
 
-    final def output(implicit F: ApplicativeThrow[F]): F[Output[A]] = self match {
+    def outputOption(implicit F: ApplicativeThrow[F]): F[Option[Output[A]]] =
+      F.map(outputAttempt)(_.toOption)
+
+    def output(implicit F: ApplicativeThrow[F]): F[Output[A]] = self match {
       case EndpointResult.Matched(_, _, out) => out
-      case _ =>
-        F.raiseError(new IllegalStateException("Endpoint didn't match"))
+      case _                                 => F.raiseError(new IllegalStateException("Endpoint didn't match"))
     }
 
-    final def valueAttempt(implicit F: ApplicativeThrow[F]): F[Either[Throwable, A]] =
+    def valueAttempt(implicit F: ApplicativeThrow[F]): F[Either[Throwable, A]] =
       F.attempt(value)
 
-    final def value(implicit F: ApplicativeThrow[F]): F[A] =
+    def valueOption(implicit F: ApplicativeThrow[F]): F[Option[A]] =
+      F.map(valueAttempt)(_.toOption)
+
+    def value(implicit F: ApplicativeThrow[F]): F[A] =
       F.map(output)(_.value)
   }
 }
