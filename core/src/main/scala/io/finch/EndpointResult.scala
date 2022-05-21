@@ -1,8 +1,6 @@
 package io.finch
 
-import cats.ApplicativeError
-import cats.Functor
-import cats.Id
+import cats.{ApplicativeThrow, Id}
 import com.twitter.finagle.http.Method
 
 /** A result returned from an [[Endpoint]]. This models `Option[(Input, Future[Output])]` and represents two cases:
@@ -17,22 +15,19 @@ import com.twitter.finagle.http.Method
   */
 sealed abstract class EndpointResult[F[_], +A] {
 
-  /** Whether the [[Endpoint]] is matched on a given [[Input]].
-    */
+  /** Whether the [[Endpoint]] is matched on a given [[Input]]. */
   final def isMatched: Boolean = this match {
     case EndpointResult.Matched(_, _, _) => true
     case _                               => false
   }
 
-  /** Returns the remainder of the [[Input]] after an [[Endpoint]] is matched.
-    */
+  /** Returns the remainder of the [[Input]] after an [[Endpoint]] is matched. */
   final def remainder: Option[Input] = this match {
     case EndpointResult.Matched(rem, _, _) => Some(rem)
     case _                                 => None
   }
 
-  /** Returns the [[Trace]] if an [[Endpoint]] is matched.
-    */
+  /** Returns the [[Trace]] if an [[Endpoint]] is matched. */
   final def trace: Option[Trace] = this match {
     case EndpointResult.Matched(_, trc, _) => Some(trc)
     case _                                 => None
@@ -57,21 +52,20 @@ object EndpointResult {
 
   implicit class EndpointResultOps[F[_], A](val self: EndpointResult[F, A]) extends AnyVal {
 
-    /** Returns the [[Output]] if an [[Endpoint]] is matched.
-      */
-    final def outputAttempt(implicit F: ApplicativeError[F, Throwable]): F[Either[Throwable, Output[A]]] =
+    /** Returns the [[Output]] if an [[Endpoint]] is matched. */
+    final def outputAttempt(implicit F: ApplicativeThrow[F]): F[Either[Throwable, Output[A]]] =
       F.attempt(output)
 
-    final def output: F[Output[A]] = self match {
+    final def output(implicit F: ApplicativeThrow[F]): F[Output[A]] = self match {
       case EndpointResult.Matched(_, _, out) => out
       case _ =>
-        throw new IllegalStateException("Endpoint didn't match")
+        F.raiseError(new IllegalStateException("Endpoint didn't match"))
     }
 
-    final def valueAttempt(implicit F: ApplicativeError[F, Throwable]): F[Either[Throwable, A]] =
+    final def valueAttempt(implicit F: ApplicativeThrow[F]): F[Either[Throwable, A]] =
       F.attempt(value)
 
-    final def value(implicit F: Functor[F]): F[A] =
+    final def value(implicit F: ApplicativeThrow[F]): F[A] =
       F.map(output)(_.value)
   }
 }
