@@ -60,10 +60,6 @@ import scala.reflect.ClassTag
 trait Endpoint[F[_], A] {
   self =>
 
-  /** Request item (part) that's this endpoint work with.
-    */
-  def item: items.RequestItem = items.MultipleItems
-
   /** Runs this endpoint.
     */
   def apply(input: Input): Endpoint.Result[F, A]
@@ -86,8 +82,6 @@ trait Endpoint[F[_], A] {
         case skipped: EndpointResult.NotMatched[F] => skipped
       }
 
-      final override def item = self.item
-
       final override def toString: String = self.toString
     }
 
@@ -107,8 +101,6 @@ trait Endpoint[F[_], A] {
           EndpointResult.Matched(rem, trc, out.flatMap(this))
         case skipped: EndpointResult.NotMatched[F] => skipped
       }
-
-      override def item = self.item
 
       final override def toString: String = self.toString
     }
@@ -133,8 +125,6 @@ trait Endpoint[F[_], A] {
         case skipped: EndpointResult.NotMatched[F] => skipped
       }
 
-      override def item = self.item
-
       final override def toString: String = self.toString
     }
 
@@ -155,8 +145,6 @@ trait Endpoint[F[_], A] {
           case skipped: EndpointResult.NotMatched[F] => skipped
         }
 
-      final override def item = self.item
-
       final override def toString: String = self.toString
     }
 
@@ -169,8 +157,6 @@ trait Endpoint[F[_], A] {
           case EndpointResult.Matched(rem, trc, out) => EndpointResult.Matched(rem, trc, nat(out))
           case skipped: EndpointResult.NotMatched[F] => skipped.asInstanceOf[EndpointResult[G, A]]
         }
-
-      final override def item = self.item
 
       final override def toString: String = self.toString
     }
@@ -220,8 +206,6 @@ trait Endpoint[F[_], A] {
         case skipped: EndpointResult.NotMatched[F] => skipped
       }
 
-      override def item = self.item
-
       final override def toString: String = self.toString
     }
 
@@ -236,8 +220,6 @@ trait Endpoint[F[_], A] {
     final def apply(b: B, a: A): pa.Out = pa(b, a)
 
     final def apply(input: Input): Endpoint.Result[F, pa.Out] = inner(input)
-
-    override def item = items.MultipleItems
 
     final override def toString: String = s"${other.toString} :: ${self.toString}"
   }
@@ -269,8 +251,6 @@ trait Endpoint[F[_], A] {
           case b                               => b
         }
     }
-
-    override def item = items.MultipleItems
 
     final override def toString: String = s"(${self.toString} :+: ${other.toString})"
   }
@@ -340,53 +320,6 @@ trait Endpoint[F[_], A] {
       F: ApplicativeError[F, Throwable]
   ): Endpoint[F, A] = rescue(pf.andThen(F.pure(_)))
 
-  /** Validates the result of this endpoint using a `predicate`. The rule is used for error reporting.
-    *
-    * @param rule
-    *   text describing the rule being validated
-    * @param predicate
-    *   returns true if the data is valid
-    * @return
-    *   an endpoint that will return the value of this reader if it is valid. Otherwise the future fails with an [[Error.NotValid]] error.
-    */
-  final def should(rule: String)(predicate: A => Boolean)(implicit F: MonadError[F, Throwable]): Endpoint[F, A] =
-    mapAsync(a =>
-      if (predicate(a)) F.pure(a)
-      else F.raiseError(Error.NotValid(self.item, "should " + rule))
-    )
-
-  /** Validates the result of this endpoint using a `predicate`. The rule is used for error reporting.
-    *
-    * @param rule
-    *   text describing the rule being validated
-    * @param predicate
-    *   returns false if the data is valid
-    * @return
-    *   an endpoint that will return the value of this reader if it is valid. Otherwise the future fails with a [[Error.NotValid]] error.
-    */
-  final def shouldNot(rule: String)(predicate: A => Boolean)(implicit F: MonadError[F, Throwable]): Endpoint[F, A] =
-    should(s"not $rule.")(x => !predicate(x))
-
-  /** Validates the result of this endpoint using a predefined `rule`. This method allows for rules to be reused across multiple endpoints.
-    *
-    * @param rule
-    *   the predefined [[ValidationRule]] that will return true if the data is valid
-    * @return
-    *   an endpoint that will return the value of this reader if it is valid. Otherwise the future fails with an [[Error.NotValid]] error.
-    */
-  final def should(rule: ValidationRule[A])(implicit F: MonadError[F, Throwable]): Endpoint[F, A] =
-    should(rule.description)(rule.apply)
-
-  /** Validates the result of this endpoint using a predefined `rule`. This method allows for rules to be reused across multiple endpoints.
-    *
-    * @param rule
-    *   the predefined [[ValidationRule]] that will return false if the data is valid
-    * @return
-    *   an endpoint that will return the value of this reader if it is valid. Otherwise the future fails with a [[Error.NotValid]] error.
-    */
-  final def shouldNot(rule: ValidationRule[A])(implicit F: MonadError[F, Throwable]): Endpoint[F, A] =
-    shouldNot(rule.description)(rule.apply)
-
   /** Lifts this endpoint into one that always succeeds, with [[Either[Throwable, A]] representing both success and failure cases.
     */
   final def attempt(implicit F: MonadError[F, Throwable]): Endpoint[F, Either[Throwable, A]] =
@@ -401,8 +334,6 @@ trait Endpoint[F[_], A] {
           EndpointResult.Matched(rem, trc, out.attempt.map(this))
         case skipped: EndpointResult.NotMatched[F] => skipped
       }
-
-      override def item = self.item
 
       final override def toString: String = self.toString
     }

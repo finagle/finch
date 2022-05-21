@@ -16,7 +16,7 @@ import org.typelevel.discipline.Laws
 import shapeless.Witness
 import java.nio.charset.{Charset, StandardCharsets}
 import java.util.UUID
-import scala.reflect.ClassTag
+import scala.reflect.classTag
 
 trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with AllInstances with MissingInstances with Endpoint.Module[SyncIO] {
 
@@ -42,17 +42,6 @@ trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with AllInstance
 
   def genNonEmptyString: Gen[String] = Gen.nonEmptyListOf(Gen.alphaChar).map(_.mkString)
 
-  def genRequestItem: Gen[items.RequestItem] = for {
-    s <- genNonEmptyString
-    i <- Gen.oneOf(
-      items.BodyItem,
-      items.ParamItem(s),
-      items.HeaderItem(s),
-      items.MultipleItems,
-      items.CookieItem(s)
-    )
-  } yield i
-
   // Structure for testing bug:
   // https://issues.scala-lang.org/browse/SI-2034
   object err1 {
@@ -62,13 +51,16 @@ trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with AllInstance
   }
 
   def genError: Gen[Error] = for {
-    i <- genRequestItem
     s <- genNonEmptyString
     e <- Gen.oneOf(
-      Error.NotPresent(i),
-      Error.NotParsed(i, implicitly[ClassTag[Int]], new Exception(s)),
-      Error.NotParsed(i, implicitly[ClassTag[err1.err2.Foo]], new Exception(s)),
-      Error.NotValid(i, s)
+      Error.BodyNotPresent,
+      Error.ParamNotPresent(s),
+      Error.HeaderNotPresent(s),
+      Error.CookieNotPresent(s),
+      Error.BodyNotParsed(classTag[Int]),
+      Error.ParamNotParsed(s, classTag[Int]),
+      Error.HeaderNotParsed(s, classTag[err1.err2.Foo]),
+      Error.CookieNotParsed(s, classTag[err1.err2.Foo])
     )
   } yield e
 
@@ -366,9 +358,6 @@ trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with AllInstance
     Arbitrary(genPayloadOutput[A])
 
   implicit def arbitraryOutput[A: Arbitrary]: Arbitrary[Output[A]] = Arbitrary(genOutput[A])
-
-  implicit def arbitraryRequestItem: Arbitrary[items.RequestItem] =
-    Arbitrary(genRequestItem)
 
   implicit def arbitraryError: Arbitrary[Error] =
     Arbitrary(genError)

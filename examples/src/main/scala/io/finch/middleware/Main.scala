@@ -3,9 +3,9 @@ package io.finch.middleware
 import cats.effect.{ExitCode, IO, IOApp, Resource}
 import com.twitter.finagle.http.{Request, Response, Status}
 import com.twitter.finagle.{Http, ListeningServer, Service}
-import com.twitter.util.{Future, Time}
+import com.twitter.util.Time
 import io.finch._
-import io.finch.internal.ToAsync
+import io.finch.internal._
 
 /** Small Finch hello world application serving endpoint protected by serious authentication where each request & response are also logged and measured.
   *
@@ -55,7 +55,7 @@ object Main extends IOApp with Endpoint.Module[IO] {
 
   def serve(service: Service[Request, Response]): Resource[IO, ListeningServer] =
     Resource.make(IO(Http.server.serve(":8081", service))) { server =>
-      IO.defer(ToAsync[Future, IO].apply(server.close()))
+      IO.defer(server.close().toAsync[IO])
     }
 
   override def run(args: List[String]): IO[ExitCode] =

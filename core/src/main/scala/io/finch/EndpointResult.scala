@@ -64,7 +64,7 @@ object EndpointResult {
 
     final def output: F[Output[A]] = self match {
       case EndpointResult.Matched(_, _, out) => out
-      case _                                 =>
+      case _ =>
         throw new IllegalStateException("Endpoint didn't match")
     }
 

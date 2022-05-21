@@ -22,7 +22,6 @@ abstract private[finch] class Cookie[F[_], A](name: String)(implicit
     EndpointResult.Matched(input, Trace.empty, output)
   }
 
-  final override def item: items.RequestItem = items.CookieItem(name)
   final override def toString: String = s"cookie($name)"
 }
 
@@ -36,7 +35,7 @@ private[finch] object Cookie {
 
   trait Required[F[_]] { _: Cookie[F, FinagleCookie] =>
     protected def missing(name: String): F[Output[FinagleCookie]] =
-      F.raiseError(Error.NotPresent(items.CookieItem(name)))
+      F.raiseError(Error.CookieNotPresent(name))
     protected def present(value: FinagleCookie): F[Output[FinagleCookie]] =
       F.pure(Output.payload(value))
   }

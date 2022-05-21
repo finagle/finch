@@ -4,9 +4,8 @@ import cats.effect.{ExitCode, IO, IOApp, Resource}
 import cats.implicits._
 import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finagle.{Http, ListeningServer, Service}
-import com.twitter.util.Future
 import io.finch._
-import io.finch.internal.ToAsync
+import io.finch.internal._
 
 /** A tiny Finch application that serves a single endpoint `POST /:a/b:` that divides `a` by `b`.
   *
@@ -35,7 +34,7 @@ object Main extends IOApp with Endpoint.Module[IO] {
 
   def serve(service: Service[Request, Response]): Resource[IO, ListeningServer] =
     Resource.make(IO(Http.server.serve(":8081", service))) { server =>
-      IO.defer(ToAsync[Future, IO].apply(server.close()))
+      IO.defer(server.close().toAsync[IO])
     }
 
   override def run(args: List[String]): IO[ExitCode] =

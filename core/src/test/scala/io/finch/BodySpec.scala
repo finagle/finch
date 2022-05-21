@@ -10,8 +10,6 @@ import java.nio.charset.Charset
 class BodySpec extends FinchSpec {
 
   private class EvalDecode[A](d: Decode.Text[A]) extends Decode[A] {
-    type ContentType = Text.Plain
-
     @volatile private var e = false
 
     def apply(b: Buf, cs: Charset): Either[Throwable, A] = {
@@ -26,7 +24,7 @@ class BodySpec extends FinchSpec {
 
   it should "respond with NotFound when it's required" in {
     val b = body[Foo, Text.Plain].apply(Input.get("/"))
-    b.valueAttempt.unsafeRunSync() shouldBe Left(Error.NotPresent(items.BodyItem))
+    b.valueAttempt.unsafeRunSync() shouldBe Left(Error.BodyNotPresent)
   }
 
   it should "respond with None when it's optional" in {
@@ -64,8 +62,7 @@ class BodySpec extends FinchSpec {
   it should "never evaluate until run" in {
     check { f: Foo =>
       val i = Input.post("/").withBody[Text.Plain](f)
-
-      implicit val ed = new EvalDecode[Foo](Decode[Foo, Text.Plain])
+      implicit val ed: EvalDecode[Foo] = new EvalDecode[Foo](Decode[Foo, Text.Plain])
       textBody[Foo].apply(i)
       !ed.evaluated
     }

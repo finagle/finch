@@ -274,7 +274,7 @@ class EndpointSpec extends FinchSpec {
       paramsNel("foor").map(_.toList.mkString),
       binaryBody.map(new String(_)),
       stringBody
-    ).foreach(ii => ii(i).awaitValue(dispatcherIO) shouldBe Some(Left(Error.NotPresent(ii.item))))
+    ).foreach(ii => ii(i).awaitValue(dispatcherIO).get.left.get shouldBe an[Error.NotPresent])
   }
 
   it should "maps lazily to values" in {

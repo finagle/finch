@@ -7,16 +7,16 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.12.15", "2.13.8")
 )
 
-lazy val twitterVersion = "22.3.0"
-lazy val circeVersion = "0.14.1"
+lazy val twitterVersion = "22.4.0"
+lazy val circeVersion = "0.14.2"
 lazy val circeFs2Version = "0.14.0"
 lazy val circeIterateeVersion = "0.13.0-M2"
 lazy val shapelessVersion = "2.3.9"
 lazy val catsVersion = "2.7.0"
 lazy val argonautVersion = "6.3.8"
 lazy val iterateeVersion = "0.20.0"
-lazy val refinedVersion = "0.9.28"
-lazy val catsEffectVersion = "3.3.11"
+lazy val refinedVersion = "0.9.29"
+lazy val catsEffectVersion = "3.3.12"
 lazy val fs2Version = "3.2.7"
 
 def compilerOptions(scalaVersion: String): Seq[String] = Seq(
@@ -48,7 +48,7 @@ lazy val scala213CompilerOptions = Seq(
 
 val testDependencies = Seq(
   "org.scalacheck" %% "scalacheck" % "1.16.0",
-  "org.scalatest" %% "scalatest" % "3.2.11",
+  "org.scalatest" %% "scalatest" % "3.2.12",
   "org.typelevel" %% "cats-laws" % catsVersion,
   "org.typelevel" %% "discipline-scalatest" % "2.1.5"
 )
@@ -74,7 +74,7 @@ val baseSettings = Seq(
   (Compile / console / scalacOptions) += "-Yrepl-class-based",
   (Test / fork) := true,
   (ThisBuild / javaOptions) ++= Seq("-Xss2048K"),
-  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.10.3" cross CrossVersion.binary),
+  addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full),
   ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0",
   semanticdbEnabled := true,
   semanticdbVersion := scalafixSemanticdb.revision,
