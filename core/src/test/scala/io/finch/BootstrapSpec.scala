@@ -14,12 +14,14 @@ class BootstrapSpec extends FinchSpec {
 
   behavior of "Bootstrap"
 
+  private val bootstrap = Bootstrap[IO]
+
   it should "handle both Error and Errors" in {
     check { e: Either[Error, Errors] =>
       val exception = e.fold[Exception](identity, identity)
 
       val ee = Endpoint[IO].liftAsync[Unit](IO.raiseError(exception))
-      val (_, Right(rep)) = ee.compileAs[Text.Plain].apply(Request()).unsafeRunSync()
+      val (_, Right(rep)) = bootstrap.serve[Text.Plain](ee).compile.apply(Request()).unsafeRunSync()
       rep.status === Status.BadRequest
     }
   }
@@ -27,13 +29,13 @@ class BootstrapSpec extends FinchSpec {
   it should "catch custom exceptions in attempt" in {
     val exception = new IllegalStateException
     val endpoint = Endpoint[IO].liftAsync[Unit](IO.raiseError(exception))
-    val (_, Left(e)) = endpoint.compileAs[Text.Plain].apply(Request()).unsafeRunSync()
+    val (_, Left(e)) = bootstrap.serve[Text.Plain](endpoint).compile.apply(Request()).unsafeRunSync()
     e shouldBe exception
   }
 
   it should "respond 404 if endpoint is not matched" in {
     check { req: Request =>
-      val s = Endpoint[IO].empty[Unit].compileAs[Text.Plain]
+      val s = bootstrap.serve[Text.Plain](Endpoint[IO].empty[Unit]).compile
       val (_, Right(rep)) = s(req).unsafeRunSync()
 
       rep.status === Status.NotFound
@@ -45,7 +47,7 @@ class BootstrapSpec extends FinchSpec {
     val b = put("foo")(Ok("put foo"))
     val c = post("foo")(Ok("post foo"))
 
-    val s = Bootstrap.configure(enableMethodNotAllowed = true).serve[Text.Plain](a :+: b).serve[Text.Plain](c).compile
+    val s = bootstrap.configure(enableMethodNotAllowed = true).serve[Text.Plain](a :+: b).serve[Text.Plain](c).compile
 
     val aa = Request(Method.Get, "/foo")
     val bb = Request(Method.Put, "/foo")
@@ -69,7 +71,7 @@ class BootstrapSpec extends FinchSpec {
 
   it should "respond 415 if media type is not supported" in {
     val b = body[Foo, Text.Plain]
-    val s = Bootstrap.configure(enableUnsupportedMediaType = true).serve[Text.Plain](b).compile
+    val s = bootstrap.configure(enableUnsupportedMediaType = true).serve[Text.Plain](b).compile
 
     val i = Input.post("/").withBody[Application.Csv](Foo("bar"))
 
@@ -79,7 +81,7 @@ class BootstrapSpec extends FinchSpec {
 
   it should "match the request version" in {
     check { req: Request =>
-      val s = Endpoint[IO].const(()).compileAs[Text.Plain]
+      val s = bootstrap.serve[Text.Plain](Endpoint[IO].const(())).compile
       val (_, Right(rep)) = s(req).unsafeRunSync()
 
       rep.version === req.version
@@ -91,7 +93,7 @@ class BootstrapSpec extends FinchSpec {
     def parseDate(s: String): Long = ZonedDateTime.parse(s, formatter).toEpochSecond
 
     check { (req: Request, include: Boolean) =>
-      val s = Bootstrap.configure(includeDateHeader = include).serve[Text.Plain](Endpoint[IO].const(())).compile
+      val s = bootstrap.configure(includeDateHeader = include).serve[Text.Plain](Endpoint[IO].const(())).compile
 
       val (_, Right(rep)) = s(req).unsafeRunSync()
       val now = parseDate(currentTime())
@@ -102,7 +104,7 @@ class BootstrapSpec extends FinchSpec {
 
   it should "include Server header" in {
     check { (req: Request, include: Boolean) =>
-      val s = Bootstrap.configure(includeServerHeader = include).serve[Text.Plain](Endpoint[IO].const(())).compile
+      val s = bootstrap.configure(includeServerHeader = include).serve[Text.Plain](Endpoint[IO].const(())).compile
 
       val (_, Right(rep)) = s(req).unsafeRunSync()
 
@@ -119,8 +121,8 @@ class BootstrapSpec extends FinchSpec {
       val succ = endpoint.mapAsync(_ => IO.pure("foo"))
       val fail = endpoint.mapAsync(_ => IO.raiseError[String](new IllegalStateException))
 
-      val (successCapture, _) = succ.compileAs[Text.Plain].apply(req).unsafeRunSync()
-      val (failureCapture, _) = fail.compileAs[Text.Plain].apply(req).unsafeRunSync()
+      val (successCapture, _) = bootstrap.serve[Text.Plain](succ).compile.apply(req).unsafeRunSync()
+      val (failureCapture, _) = bootstrap.serve[Text.Plain](fail).compile.apply(req).unsafeRunSync()
 
       successCapture.toList === p.toList && failureCapture.toList === p.toList
     }

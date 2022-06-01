@@ -29,11 +29,6 @@ object Main extends IOApp with Endpoint.Module[IO] {
     BadRequest(e)
   }
 
-
-  override def run(args: List[String]): IO[ExitCode] = {
-    Bootstrap[IO]
-      .serve[Text.Plain](div)
-      .listen(":8081")
-      .useForever
-  }
+  override def run(args: List[String]): IO[ExitCode] =
+    Bootstrap[IO].serve[Text.Plain](div).listen(":8081").useForever
 }

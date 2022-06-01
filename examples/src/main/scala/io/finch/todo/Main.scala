@@ -1,13 +1,14 @@
 package io.finch.todo
 
-import io.finch._
-import io.finch.circe._
-import io.circe.generic.auto._
 import cats.effect._
 import cats.effect.unsafe.implicits.global
 import com.twitter.app.Flag
 import com.twitter.finagle.ListeningServer
 import com.twitter.server.TwitterServer
+import io.circe.generic.auto._
+import io.finch._
+import io.finch.circe._
+
 import java.util.concurrent.CountDownLatch
 
 /** A simple Finch server serving a TODO application.
@@ -45,19 +46,14 @@ object Main extends TwitterServer with EndpointModule[IO] {
       .serve[Application.Javascript](classpathAsset("/todo/main.js"))
       .listen(s":${port()}")
 
-  def run(): IO[Unit] = {
-    Resource.eval(app)
-      .flatMap(serve)
-      .useForever
-  }
+  def run(): IO[Unit] =
+    Resource.eval(app).flatMap(serve).useForever
 
   def main(): Unit = {
     println(s"Open your browser at http://localhost:${port()}/todo/index.html") // scalastyle:ignore
 
     val latch = new CountDownLatch(1)
-    val cancel = run()
-      .onError(e => IO(exitOnError(e)))
-      .unsafeRunCancelable()
+    val cancel = run().onError(e => IO(exitOnError(e))).unsafeRunCancelable()
 
     onExit {
       cancel()

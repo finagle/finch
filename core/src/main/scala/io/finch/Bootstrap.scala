@@ -2,21 +2,19 @@ package io.finch
 
 import cats.effect.std.Dispatcher
 import cats.effect.{Async, Resource}
-import com.twitter.finagle.Filter
-import com.twitter.finagle.Http
-import com.twitter.finagle.ListeningServer
 import com.twitter.finagle.http.{Request, Response}
+import com.twitter.finagle.{Filter, Http, ListeningServer, Service}
 import io.finch.internal.TwitterFutureConverter
 import shapeless._
 
-/** Bootstraps a Finagle HTTP service out of the collection of Finch endpoints.
+/** Bootstraps a Finagle HTTP listening server out of the collection of Finch endpoints.
   *
   * {{{
-  * val api: Service[Request, Response] = Bootstrap
-  *  .configure(negotiateContentType = true, enableMethodNotAllowed = true)
+  * val api: Service[Request, Response] = Bootstrap[F]
+  *  .configure(includeServerHeader = false, enableMethodNotAllowed = true)
   *  .serve[Application.Json](getUser :+: postUser)
   *  .serve[Text.Plain](healthcheck)
-  *  .toService
+  *  .listen(":80")
   * }}}
   *
   * ==Supported Configuration Options==
@@ -39,14 +37,14 @@ import shapeless._
   *   https://tools.ietf.org/html/rfc7231#section-6.5.13
   */
 class Bootstrap[F[_], ES <: HList, CTS <: HList](
-    val endpoints: ES,
-    val server: Http.Server = Http.server,
-    val filter: Filter[Request, Response, Request, Response] = Filter.identity[Request, Response],
-    val middleware: Endpoint.Compiled[F] => Endpoint.Compiled[F] = identity _,
-    val includeDateHeader: Boolean = true,
-    val includeServerHeader: Boolean = true,
-    val enableMethodNotAllowed: Boolean = false,
-    val enableUnsupportedMediaType: Boolean = false
+    endpoints: ES,
+    server: => Http.Server = Http.server,
+    filter: Filter[Request, Response, Request, Response] = Filter.identity[Request, Response],
+    middleware: Endpoint.Compiled[F] => Endpoint.Compiled[F] = identity[Endpoint.Compiled[F]] _,
+    includeDateHeader: Boolean = true,
+    includeServerHeader: Boolean = true,
+    enableMethodNotAllowed: Boolean = false,
+    enableUnsupportedMediaType: Boolean = false
 ) { self =>
 
   class Serve[CT] {
@@ -105,7 +103,7 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
       enableUnsupportedMediaType
     )
 
-  private def compile(implicit ts: Compile[F, ES, CTS]): Endpoint.Compiled[F] = {
+  private[finch] def compile(implicit ts: Compile[F, ES, CTS]): Endpoint.Compiled[F] = {
     val opts = Compile.Options(
       includeDateHeader,
       includeServerHeader,
@@ -115,25 +113,31 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
 
     val ctx = Compile.Context()
 
-    ts.apply(endpoints, opts, ctx)
+    middleware(ts.apply(endpoints, opts, ctx))
   }
 
-  def listen(address: String)(implicit F: Async[F], ts: Compile[F, ES, CTS]): Resource[F, ListeningServer] = {
-    val compiled = middleware(compile)
-
-    val serviced = Dispatcher[F].flatMap { dispatcher =>
+  private def service(compiled: Endpoint.Compiled[F])(implicit F: Async[F]): Resource[F, Service[Request, Response]] =
+    Dispatcher[F].flatMap { dispatcher =>
       Resource.make(F.pure(ToService(compiled, dispatcher))) { service =>
         F.defer(service.close().toAsync[F])
       }
     }
 
-    serviced.flatMap { service =>
-      val filtered = filter.andThen(service)
-      Resource.make(F.pure(server.serve(address, filtered))) { listening =>
-        F.defer(listening.close().toAsync[F])
-      }
+  def toService(implicit F: Async[F], ts: Compile[F, ES, CTS]): Resource[F, Service[Request, Response]] =
+    service(compile)
+
+  private def listen(service: Service[Request, Response], address: String)(implicit F: Async[F]): Resource[F, ListeningServer] = {
+    val filtered = filter.andThen(service)
+    Resource.make(F.delay(server.serve(address, filtered))) { listening =>
+      F.defer(listening.close().toAsync[F])
     }
   }
+
+  def listen(address: String)(implicit F: Async[F], ts: Compile[F, ES, CTS]): Resource[F, ListeningServer] =
+    for {
+      service <- toService
+      server <- listen(service, address)
+    } yield server
 
   final override def toString: String = s"Bootstrap($endpoints)"
 }

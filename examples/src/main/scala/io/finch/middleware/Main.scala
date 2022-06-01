@@ -48,11 +48,6 @@ object Main extends IOApp with Endpoint.Module[IO] {
     }
   }
 
-  override def run(args: List[String]): IO[ExitCode] = {
-    Bootstrap[IO]
-      .serve[Text.Plain](helloWorld)
-      .filter(Function.chain(Seq(stats, logging, auth)))
-      .listen(":8081")
-      .useForever
-  }
+  override def run(args: List[String]): IO[ExitCode] =
+    Bootstrap[IO].serve[Text.Plain](helloWorld).filter(Function.chain(Seq(stats, logging, auth))).listen(":8081").useForever
 }

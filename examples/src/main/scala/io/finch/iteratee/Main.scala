@@ -63,8 +63,5 @@ object Main extends IOApp {
     }
 
   def run(args: List[String]): IO[ExitCode] =
-    Bootstrap[IO](Http.server.withStreaming(enabled = true))
-      .serve[Application.Json](sumJson :+: streamJson :+: isPrime)
-      .listen(":8081")
-      .useForever
+    Bootstrap[IO](Http.server.withStreaming(enabled = true)).serve[Application.Json](sumJson :+: streamJson :+: isPrime).listen(":8081").useForever
 }

@@ -17,10 +17,6 @@ import io.finch.circe._
   */
 object Finch extends IOApp with Wrk {
 
-  override def run(args: List[String]): IO[ExitCode] = {
-    Bootstrap[IO](server)
-      .serve[Application.Json](Endpoint[IO].lift(Payload("Hello, World!")))
-      .listen(":8081")
-      .useForever
-  }
+  override def run(args: List[String]): IO[ExitCode] =
+    Bootstrap[IO](server).serve[Application.Json](Endpoint[IO].lift(Payload("Hello, World!"))).listen(":8081").useForever
 }
