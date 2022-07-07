@@ -207,7 +207,7 @@ lazy val docSettings = allSettings ++ Seq(
     "gray-lighter" -> "#F4F3F4",
     "white-color" -> "#FFFFFF"
   ),
-  addMappingsToSiteDir((ScalaUnidoc / packageDoc / mappings), micrositeDocumentationUrl),
+  addMappingsToSiteDir(ScalaUnidoc / packageDoc / mappings, micrositeDocumentationUrl),
   ghpagesNoJekyll := false,
   (ScalaUnidoc / unidoc / scalacOptions) ++= Seq(
     "-groups",
