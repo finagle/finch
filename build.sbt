@@ -50,7 +50,7 @@ val testDependencies = Seq(
   "org.scalacheck" %% "scalacheck" % "1.16.0",
   "org.scalatest" %% "scalatest" % "3.2.12",
   "org.typelevel" %% "cats-laws" % catsVersion,
-  "org.typelevel" %% "discipline-scalatest" % "2.1.5"
+  "org.typelevel" %% "discipline-scalatest" % "2.2.0"
 )
 
 val formatOnCompile = System.getenv("CI") != "true"
