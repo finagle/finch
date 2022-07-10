@@ -22,8 +22,8 @@ class GenericSpec extends FinchSpec {
 
   val f: Foo => Seq[(String, String)] = foo =>
     Seq(
-      ("a" -> foo.a),
-      ("b" -> foo.b.toString)
+      "a" -> foo.a,
+      "b" -> foo.b.toString
     )
 
   checkAll("DerivedEndpoint[Foo]", DerivedEndpointLaws[IO, Foo](e, f).evaluating)

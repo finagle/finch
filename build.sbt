@@ -12,12 +12,12 @@ lazy val circeVersion = "0.14.2"
 lazy val circeFs2Version = "0.14.0"
 lazy val circeIterateeVersion = "0.13.0-M2"
 lazy val shapelessVersion = "2.3.9"
-lazy val catsVersion = "2.7.0"
+lazy val catsVersion = "2.8.0"
 lazy val argonautVersion = "6.3.8"
 lazy val iterateeVersion = "0.20.0"
-lazy val refinedVersion = "0.10.0"
-lazy val catsEffectVersion = "3.3.12"
-lazy val fs2Version = "3.2.9"
+lazy val refinedVersion = "0.10.1"
+lazy val catsEffectVersion = "3.3.13"
+lazy val fs2Version = "3.2.10"
 
 def compilerOptions(scalaVersion: String): Seq[String] = Seq(
   "-deprecation",
@@ -50,7 +50,7 @@ val testDependencies = Seq(
   "org.scalacheck" %% "scalacheck" % "1.16.0",
   "org.scalatest" %% "scalatest" % "3.2.12",
   "org.typelevel" %% "cats-laws" % catsVersion,
-  "org.typelevel" %% "discipline-scalatest" % "2.1.5"
+  "org.typelevel" %% "discipline-scalatest" % "2.2.0"
 )
 
 val formatOnCompile = System.getenv("CI") != "true"
@@ -207,7 +207,7 @@ lazy val docSettings = allSettings ++ Seq(
     "gray-lighter" -> "#F4F3F4",
     "white-color" -> "#FFFFFF"
   ),
-  addMappingsToSiteDir((ScalaUnidoc / packageDoc / mappings), micrositeDocumentationUrl),
+  addMappingsToSiteDir(ScalaUnidoc / packageDoc / mappings, micrositeDocumentationUrl),
   ghpagesNoJekyll := false,
   (ScalaUnidoc / unidoc / scalacOptions) ++= Seq(
     "-groups",
