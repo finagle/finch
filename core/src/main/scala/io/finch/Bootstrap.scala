@@ -45,12 +45,12 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
     includeServerHeader: Boolean = true,
     enableMethodNotAllowed: Boolean = false,
     enableUnsupportedMediaType: Boolean = false
-) { self =>
+) {
 
   class Serve[CT] {
     def apply[E](e: Endpoint[F, E]): Bootstrap[F, Endpoint[F, E] :: ES, CT :: CTS] =
-      new Bootstrap[F, Endpoint[F, E] :: ES, CT :: CTS](
-        e :: self.endpoints,
+      new Bootstrap(
+        e :: endpoints,
         server,
         filter,
         middleware,
@@ -62,11 +62,11 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
   }
 
   def configure(
-      includeDateHeader: Boolean = self.includeDateHeader,
-      includeServerHeader: Boolean = self.includeServerHeader,
-      enableMethodNotAllowed: Boolean = self.enableMethodNotAllowed,
-      enableUnsupportedMediaType: Boolean = self.enableUnsupportedMediaType
-  ): Bootstrap[F, ES, CTS] = new Bootstrap[F, ES, CTS](
+      includeDateHeader: Boolean = includeDateHeader,
+      includeServerHeader: Boolean = includeServerHeader,
+      enableMethodNotAllowed: Boolean = enableMethodNotAllowed,
+      enableUnsupportedMediaType: Boolean = enableUnsupportedMediaType
+  ): Bootstrap[F, ES, CTS] = new Bootstrap(
     endpoints,
     server,
     filter,
@@ -80,7 +80,7 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
   def serve[CT]: Serve[CT] = new Serve[CT]
 
   def filter(f: Filter[Request, Response, Request, Response]): Bootstrap[F, ES, CTS] =
-    new Bootstrap[F, ES, CTS](
+    new Bootstrap(
       endpoints,
       server,
       f.andThen(filter),
@@ -91,12 +91,12 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
       enableUnsupportedMediaType
     )
 
-  def filter(f: Endpoint.Compiled[F] => Endpoint.Compiled[F]): Bootstrap[F, ES, CTS] =
-    new Bootstrap[F, ES, CTS](
+  def middleware(f: Endpoint.Compiled[F] => Endpoint.Compiled[F]): Bootstrap[F, ES, CTS] =
+    new Bootstrap(
       endpoints,
       server,
       filter,
-      middleware.compose(f),
+      f.andThen(middleware),
       includeDateHeader,
       includeServerHeader,
       enableMethodNotAllowed,
@@ -104,45 +104,38 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
     )
 
   private[finch] def compile(implicit ts: Compile[F, ES, CTS]): Endpoint.Compiled[F] = {
-    val opts = Compile.Options(
+    val options = Compile.Options(
       includeDateHeader,
       includeServerHeader,
       enableMethodNotAllowed,
       enableUnsupportedMediaType
     )
 
-    val ctx = Compile.Context()
-
-    middleware(ts.apply(endpoints, opts, ctx))
+    middleware(ts(endpoints, options, Compile.Context()))
   }
 
-  private def service(compiled: Endpoint.Compiled[F])(implicit F: Async[F]): Resource[F, Service[Request, Response]] =
+  def toService(implicit F: Async[F], ts: Compile[F, ES, CTS]): Resource[F, Service[Request, Response]] = {
+    val compiled = compile
     Dispatcher[F].flatMap { dispatcher =>
       Resource.make(F.pure(ToService(compiled, dispatcher))) { service =>
-        F.defer(service.close().toAsync[F])
+        F.defer(service.close().toAsync)
       }
-    }
-
-  def toService(implicit F: Async[F], ts: Compile[F, ES, CTS]): Resource[F, Service[Request, Response]] =
-    service(compile)
-
-  private def listen(service: Service[Request, Response], address: String)(implicit F: Async[F]): Resource[F, ListeningServer] = {
-    val filtered = filter.andThen(service)
-    Resource.make(F.delay(server.serve(address, filtered))) { listening =>
-      F.defer(listening.close().toAsync[F])
     }
   }
 
   def listen(address: String)(implicit F: Async[F], ts: Compile[F, ES, CTS]): Resource[F, ListeningServer] =
-    for {
-      service <- toService
-      server <- listen(service, address)
-    } yield server
+    toService.flatMap { service =>
+      val filtered = filter.andThen(service)
+      Resource.make(F.delay(server.serve(address, filtered))) { listening =>
+        F.defer(listening.close().toAsync)
+      }
+    }
 
-  final override def toString: String = s"Bootstrap($endpoints)"
+  final override def toString: String =
+    s"Bootstrap($endpoints)"
 }
 
 object Bootstrap {
-  def apply[F[_]]: Bootstrap[F, HNil, HNil] = apply[F](Http.server)
+  def apply[F[_]]: Bootstrap[F, HNil, HNil] = Bootstrap(Http.server)
   def apply[F[_]](server: Http.Server): Bootstrap[F, HNil, HNil] = new Bootstrap(HNil, server)
 }
