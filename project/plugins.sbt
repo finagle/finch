@@ -1,8 +1,8 @@
+resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 resolvers ++= Seq(
   Classpaths.typesafeReleases,
   Classpaths.sbtPluginReleases,
-  "jgit-repo" at "https://download.eclipse.org/jgit/maven",
-  Resolver.sonatypeRepo("snapshots")
+  "jgit-repo" at "https://download.eclipse.org/jgit/maven"
 )
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.9.3")
