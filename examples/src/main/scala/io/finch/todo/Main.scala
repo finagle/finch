@@ -2,12 +2,8 @@ package io.finch.todo
 
 import cats.effect._
 import cats.effect.unsafe.implicits.global
-import com.twitter.app.Flag
-import com.twitter.finagle.ListeningServer
 import com.twitter.server.TwitterServer
-import io.circe.generic.auto._
 import io.finch._
-import io.finch.circe._
 
 import java.util.concurrent.CountDownLatch
 
@@ -30,30 +26,20 @@ import java.util.concurrent.CountDownLatch
   * }}}
   */
 object Main extends TwitterServer with EndpointModule[IO] {
+  private val port = flag("port", 8081, "TCP port for HTTP server")
 
-  private val port: Flag[Int] = flag("port", 8081, "TCP port for HTTP server")
+  val app: IO[App] = for {
+    id <- Ref[IO].of(0)
+    store <- Ref[IO].of(Map.empty[Int, Todo])
+  } yield new App(id, store)
 
-  def app: IO[App] =
-    for {
-      id <- Ref[IO].of(0)
-      store <- Ref[IO].of(Map.empty[Int, Todo])
-    } yield new App(id, store)
+  val run: IO[Unit] =
+    Resource.eval(app).flatMap(_.listen(s":${port()}")).useForever
 
-  def serve(a: App): Resource[IO, ListeningServer] =
-    Bootstrap[IO]
-      .serve[Application.Json](a.getTodos :+: a.postTodo :+: a.deleteTodo :+: a.deleteTodos :+: a.patchTodo)
-      .serve[Text.Html](classpathAsset("/todo/index.html"))
-      .serve[Application.Javascript](classpathAsset("/todo/main.js"))
-      .listen(s":${port()}")
-
-  def run(): IO[Unit] =
-    Resource.eval(app).flatMap(serve).useForever
-
-  def main(): Unit = {
+  locally {
     println(s"Open your browser at http://localhost:${port()}/todo/index.html") // scalastyle:ignore
-
     val latch = new CountDownLatch(1)
-    val cancel = run().onError(e => IO(exitOnError(e))).unsafeRunCancelable()
+    val cancel = run.onError(e => IO(exitOnError(e))).unsafeRunCancelable()
 
     onExit {
       cancel()
