@@ -36,8 +36,8 @@ abstract class FinchBenchmark extends Endpoint.Module[IO] {
 
 @State(Scope.Benchmark)
 class InputBenchmark extends FinchBenchmark {
-  val foo = Request()
-  val bar = Request("/foo/bar/baz/que/quz")
+  private val foo = Request()
+  private val bar = Request("/foo/bar/baz/que/quz")
 
   @Benchmark
   def fromEmptyPath: Input = Input.fromRequest(foo)
@@ -191,7 +191,7 @@ class JsonBenchmark extends FinchBenchmark {
 @State(Scope.Benchmark)
 @BenchmarkMode(Array(Mode.Throughput))
 @OutputTimeUnit(TimeUnit.SECONDS)
-abstract class BootstrapBenchmark[CT](init: Bootstrap[Id, HNil, HNil])(implicit
+abstract class BootstrapBenchmark[CT](init: Bootstrap[IO, HNil, HNil])(implicit
     tsf: Compile[IO, Endpoint[IO, List[Foo]] :: HNil, CT :: HNil]
 ) extends FinchBenchmark {
 
@@ -206,11 +206,11 @@ abstract class BootstrapBenchmark[CT](init: Bootstrap[Id, HNil, HNil])(implicit
   }))
 }
 
-class JsonBootstrapBenchmark extends BootstrapBenchmark[Application.Json](Bootstrap)
+class JsonBootstrapBenchmark extends BootstrapBenchmark[Application.Json](Bootstrap[IO])
 
-class TextBootstrapBenchmark extends BootstrapBenchmark[Text.Plain](Bootstrap)
+class TextBootstrapBenchmark extends BootstrapBenchmark[Text.Plain](Bootstrap[IO])
 
-class JsonAndTextNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Application.Json :+: Text.Plain :+: CNil](Bootstrap) {
+class JsonAndTextNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Application.Json :+: Text.Plain :+: CNil](Bootstrap[IO]) {
 
   private val acceptValues: Array[String] = Array("application/json", "text/plain")
 
@@ -242,7 +242,7 @@ class HttpMessageBenchmark extends FinchBenchmark {
 
   import io.finch.internal.HttpMessage
 
-  val req = Request()
+  private val req = Request()
   req.contentType = "application/json;charset=utf-8"
 
   @Benchmark

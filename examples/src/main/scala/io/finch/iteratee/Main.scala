@@ -1,13 +1,11 @@
 package io.finch.iteratee
 
-import cats.effect.{ExitCode, IO, IOApp, Resource}
-import com.twitter.finagle.http.{Request, Response}
-import com.twitter.finagle.{Http, ListeningServer, Service}
+import cats.effect.{ExitCode, IO, IOApp}
+import com.twitter.finagle.Http
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.catsEffect._
 import io.finch.circe._
-import io.finch.internal._
 import io.iteratee.{Enumerator, Iteratee}
 
 import scala.util.Random
@@ -64,14 +62,6 @@ object Main extends IOApp {
       Ok(enum.map(_.isPrime))
     }
 
-  def serve(service: Service[Request, Response]): Resource[IO, ListeningServer] =
-    Resource.make(IO(Http.server.withStreaming(enabled = true).serve(":8081", service))) { server =>
-      IO.defer(server.close().toAsync[IO])
-    }
-
   def run(args: List[String]): IO[ExitCode] =
-    (for {
-      service <- (sumJson :+: streamJson :+: isPrime).toServiceAs[Application.Json]
-      server <- serve(service)
-    } yield server).useForever
+    Bootstrap[IO](Http.server.withStreaming(enabled = true)).serve[Application.Json](sumJson :+: streamJson :+: isPrime).listen(":8081").useForever
 }

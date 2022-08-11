@@ -1,18 +1,20 @@
 package io.finch
 
+import cats.effect.std.Dispatcher
 import cats.effect.{Async, Resource}
-import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Request, Response}
+import com.twitter.finagle.{Filter, Http, ListeningServer, Service}
+import io.finch.internal.TwitterFutureConverter
 import shapeless._
 
-/** Bootstraps a Finagle HTTP service out of the collection of Finch endpoints.
+/** Bootstraps a Finagle HTTP listening server out of the collection of Finch endpoints.
   *
   * {{{
-  * val api: Service[Request, Response] = Bootstrap
-  *  .configure(negotiateContentType = true, enableMethodNotAllowed = true)
+  * val api: Service[Request, Response] = Bootstrap[F]
+  *  .configure(includeServerHeader = false, enableMethodNotAllowed = true)
   *  .serve[Application.Json](getUser :+: postUser)
   *  .serve[Text.Plain](healthcheck)
-  *  .toService
+  *  .listen(":80")
   * }}}
   *
   * ==Supported Configuration Options==
@@ -35,17 +37,23 @@ import shapeless._
   *   https://tools.ietf.org/html/rfc7231#section-6.5.13
   */
 class Bootstrap[F[_], ES <: HList, CTS <: HList](
-    val endpoints: ES,
-    val includeDateHeader: Boolean = true,
-    val includeServerHeader: Boolean = true,
-    val enableMethodNotAllowed: Boolean = false,
-    val enableUnsupportedMediaType: Boolean = false
-) { self =>
+    endpoints: ES,
+    server: => Http.Server = Http.server,
+    filter: Filter[Request, Response, Request, Response] = Filter.identity[Request, Response],
+    middleware: Endpoint.Compiled[F] => Endpoint.Compiled[F] = identity[Endpoint.Compiled[F]] _,
+    includeDateHeader: Boolean = true,
+    includeServerHeader: Boolean = true,
+    enableMethodNotAllowed: Boolean = false,
+    enableUnsupportedMediaType: Boolean = false
+) {
 
   class Serve[CT] {
-    def apply[FF[_], E](e: Endpoint[FF, E]): Bootstrap[FF, Endpoint[FF, E] :: ES, CT :: CTS] =
-      new Bootstrap[FF, Endpoint[FF, E] :: ES, CT :: CTS](
-        e :: self.endpoints,
+    def apply[E](e: Endpoint[F, E]): Bootstrap[F, Endpoint[F, E] :: ES, CT :: CTS] =
+      new Bootstrap(
+        e :: endpoints,
+        server,
+        filter,
+        middleware,
         includeDateHeader,
         includeServerHeader,
         enableMethodNotAllowed,
@@ -54,12 +62,15 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
   }
 
   def configure(
-      includeDateHeader: Boolean = self.includeDateHeader,
-      includeServerHeader: Boolean = self.includeServerHeader,
-      enableMethodNotAllowed: Boolean = self.enableMethodNotAllowed,
-      enableUnsupportedMediaType: Boolean = self.enableUnsupportedMediaType
-  ): Bootstrap[F, ES, CTS] = new Bootstrap[F, ES, CTS](
+      includeDateHeader: Boolean = includeDateHeader,
+      includeServerHeader: Boolean = includeServerHeader,
+      enableMethodNotAllowed: Boolean = enableMethodNotAllowed,
+      enableUnsupportedMediaType: Boolean = enableUnsupportedMediaType
+  ): Bootstrap[F, ES, CTS] = new Bootstrap(
     endpoints,
+    server,
+    filter,
+    middleware,
     includeDateHeader,
     includeServerHeader,
     enableMethodNotAllowed,
@@ -68,30 +79,63 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
 
   def serve[CT]: Serve[CT] = new Serve[CT]
 
-  def compile(implicit ts: Compile[F, ES, CTS]): Endpoint.Compiled[F] = {
-    val opts = Compile.Options(
+  def filter(f: Filter[Request, Response, Request, Response]): Bootstrap[F, ES, CTS] =
+    new Bootstrap(
+      endpoints,
+      server,
+      f.andThen(filter),
+      middleware,
       includeDateHeader,
       includeServerHeader,
       enableMethodNotAllowed,
       enableUnsupportedMediaType
     )
 
-    val ctx = Compile.Context()
+  def middleware(f: Endpoint.Compiled[F] => Endpoint.Compiled[F]): Bootstrap[F, ES, CTS] =
+    new Bootstrap(
+      endpoints,
+      server,
+      filter,
+      f.andThen(middleware),
+      includeDateHeader,
+      includeServerHeader,
+      enableMethodNotAllowed,
+      enableUnsupportedMediaType
+    )
 
-    ts.apply(endpoints, opts, ctx)
+  private[finch] def compile(implicit ts: Compile[F, ES, CTS]): Endpoint.Compiled[F] = {
+    val options = Compile.Options(
+      includeDateHeader,
+      includeServerHeader,
+      enableMethodNotAllowed,
+      enableUnsupportedMediaType
+    )
+
+    middleware(ts(endpoints, options, Compile.Context()))
   }
 
-  def toService(implicit F: Async[F], ts: Compile[F, ES, CTS]): Resource[F, Service[Request, Response]] =
-    Endpoint.toService(compile)
+  def toService(implicit F: Async[F], ts: Compile[F, ES, CTS]): Resource[F, Service[Request, Response]] = {
+    val compiled = compile
+    Dispatcher[F].flatMap { dispatcher =>
+      Resource.make(F.pure(ToService(compiled, dispatcher))) { service =>
+        F.defer(service.close().toAsync)
+      }
+    }
+  }
 
-  final override def toString: String = s"Bootstrap($endpoints)"
+  def listen(address: String)(implicit F: Async[F], ts: Compile[F, ES, CTS]): Resource[F, ListeningServer] =
+    toService.flatMap { service =>
+      val filtered = filter.andThen(service)
+      Resource.make(F.delay(server.serve(address, filtered))) { listening =>
+        F.defer(listening.close().toAsync)
+      }
+    }
+
+  final override def toString: String =
+    s"Bootstrap($endpoints)"
 }
 
-object Bootstrap
-    extends Bootstrap[Id, HNil, HNil](
-      endpoints = HNil,
-      includeDateHeader = true,
-      includeServerHeader = true,
-      enableMethodNotAllowed = false,
-      enableUnsupportedMediaType = false
-    )
+object Bootstrap {
+  def apply[F[_]]: Bootstrap[F, HNil, HNil] = Bootstrap(Http.server)
+  def apply[F[_]](server: Http.Server): Bootstrap[F, HNil, HNil] = new Bootstrap(HNil, server)
+}

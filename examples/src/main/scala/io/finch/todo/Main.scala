@@ -2,12 +2,10 @@ package io.finch.todo
 
 import cats.effect._
 import cats.effect.unsafe.implicits.global
-import com.twitter.app.Flag
-import com.twitter.finagle.http.{Request, Response}
-import com.twitter.finagle.{Http, ListeningServer, Service}
 import com.twitter.server.TwitterServer
-import com.twitter.util.Await
-import io.finch.internal._
+import io.finch._
+
+import java.util.concurrent.CountDownLatch
 
 /** A simple Finch server serving a TODO application.
   *
@@ -27,28 +25,27 @@ import io.finch.internal._
   *   $ http DELETE :8081/todos
   * }}}
   */
-object Main extends TwitterServer {
+object Main extends TwitterServer with EndpointModule[IO] {
+  private val port = flag("port", 8081, "TCP port for HTTP server")
 
-  private val port: Flag[Int] = flag("port", 8081, "TCP port for HTTP server")
-
-  private def serve(service: Service[Request, Response]): Resource[IO, ListeningServer] =
-    Resource.make(for {
-      srv <- IO(Http.server.withStatsReceiver(statsReceiver))
-      server <- IO(srv.serve(s":${port()}", service))
-    } yield server) { server =>
-      // TODO: We should abstract this out.
-      IO.defer(server.close().toAsync[IO])
-    }
+  val app: IO[App] = for {
+    id <- Ref[IO].of(0)
+    store <- Ref[IO].of(Map.empty[Int, Todo])
+  } yield new App(id, store)
 
   val run: IO[Unit] =
-    (for {
-      _ <- Resource.eval(IO.println(s"Open your browser at http://localhost:${port()}/todo/index.html")) // scalastyle:ignore
-      id <- Resource.eval(Ref[IO].of(0))
-      store <- Resource.eval(Ref[IO].of(Map.empty[Int, Todo]))
-      app = new App(id, store)
-      service <- app.toService
-      server <- serve(service)
-    } yield server).use(_ => IO(Await.ready(adminHttpServer)))
+    Resource.eval(app).flatMap(_.listen(s":${port()}")).useForever
 
-  def main(): Unit = run.unsafeRunSync()
+  locally {
+    println(s"Open your browser at http://localhost:${port()}/todo/index.html") // scalastyle:ignore
+    val latch = new CountDownLatch(1)
+    val cancel = run.onError(e => IO(exitOnError(e))).unsafeRunCancelable()
+
+    onExit {
+      cancel()
+      latch.countDown()
+    }
+
+    latch.await()
+  }
 }

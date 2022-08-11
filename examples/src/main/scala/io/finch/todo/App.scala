@@ -1,8 +1,8 @@
 package io.finch.todo
 
 import cats.effect.{IO, Ref, Resource}
-import com.twitter.finagle.Service
-import com.twitter.finagle.http.{Request, Response, Status}
+import com.twitter.finagle.ListeningServer
+import com.twitter.finagle.http.Status
 import io.circe.generic.auto._
 import io.finch._
 import io.finch.circe._
@@ -15,10 +15,8 @@ class App(idRef: Ref[IO, Int], storeRef: Ref[IO, Map[Int, Todo]]) extends Endpoi
   final val patchedTodo: Endpoint[IO, Todo => Todo] =
     jsonBody[Todo => Todo]
 
-  final val postTodo: Endpoint[IO, Todo] = post("todos" :: postedTodo) { t: Todo =>
-    storeRef.modify { store =>
-      (store + (t.id -> t), Created(t))
-    }
+  final val postTodo: Endpoint[IO, Todo] = post("todos" :: postedTodo) { todo: Todo =>
+    storeRef.modify(store => (store + (todo.id -> todo), Created(todo)))
   }
 
   final val patchTodo: Endpoint[IO, Todo] =
@@ -35,7 +33,7 @@ class App(idRef: Ref[IO, Int], storeRef: Ref[IO, Map[Int, Todo]]) extends Endpoi
     }
 
   final val getTodos: Endpoint[IO, List[Todo]] = get("todos") {
-    storeRef.get.map(m => Ok(m.values.toList.sortBy(-_.id)))
+    storeRef.get.map(todos => Ok(todos.values.toList.sortBy(-_.id)))
   }
 
   final val deleteTodo: Endpoint[IO, Todo] = delete("todos" :: path[Int]) { id: Int =>
@@ -48,14 +46,12 @@ class App(idRef: Ref[IO, Int], storeRef: Ref[IO, Map[Int, Todo]]) extends Endpoi
   }
 
   final val deleteTodos: Endpoint[IO, List[Todo]] = delete("todos") {
-    storeRef.modify { store =>
-      (Map.empty, Ok(store.values.toList.sortBy(-_.id)))
-    }
+    storeRef.modify(store => (Map.empty, Ok(store.values.toList.sortBy(-_.id))))
   }
 
-  final def toService: Resource[IO, Service[Request, Response]] = Bootstrap
+  final def listen(address: String): Resource[IO, ListeningServer] = Bootstrap[IO]
     .serve[Application.Json](getTodos :+: postTodo :+: deleteTodo :+: deleteTodos :+: patchTodo)
     .serve[Text.Html](classpathAsset("/todo/index.html"))
     .serve[Application.Javascript](classpathAsset("/todo/main.js"))
-    .toService
+    .listen(address)
 }
