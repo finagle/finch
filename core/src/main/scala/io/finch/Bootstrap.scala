@@ -44,7 +44,8 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
     includeDateHeader: Boolean = true,
     includeServerHeader: Boolean = true,
     enableMethodNotAllowed: Boolean = false,
-    enableUnsupportedMediaType: Boolean = false
+    enableUnsupportedMediaType: Boolean = false,
+    enableNotAcceptable: Boolean = false
 ) {
 
   class Serve[CT] {
@@ -57,7 +58,8 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
         includeDateHeader,
         includeServerHeader,
         enableMethodNotAllowed,
-        enableUnsupportedMediaType
+        enableUnsupportedMediaType,
+        enableNotAcceptable
       )
   }
 
@@ -65,7 +67,8 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
       includeDateHeader: Boolean = includeDateHeader,
       includeServerHeader: Boolean = includeServerHeader,
       enableMethodNotAllowed: Boolean = enableMethodNotAllowed,
-      enableUnsupportedMediaType: Boolean = enableUnsupportedMediaType
+      enableUnsupportedMediaType: Boolean = enableUnsupportedMediaType,
+      enableNotAcceptable: Boolean = enableNotAcceptable
   ): Bootstrap[F, ES, CTS] = new Bootstrap(
     endpoints,
     server,
@@ -74,7 +77,8 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
     includeDateHeader,
     includeServerHeader,
     enableMethodNotAllowed,
-    enableUnsupportedMediaType
+    enableUnsupportedMediaType,
+    enableNotAcceptable
   )
 
   def serve[CT]: Serve[CT] = new Serve[CT]
@@ -88,7 +92,8 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
       includeDateHeader,
       includeServerHeader,
       enableMethodNotAllowed,
-      enableUnsupportedMediaType
+      enableUnsupportedMediaType,
+      enableNotAcceptable
     )
 
   def middleware(f: Endpoint.Compiled[F] => Endpoint.Compiled[F]): Bootstrap[F, ES, CTS] =
@@ -100,7 +105,8 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
       includeDateHeader,
       includeServerHeader,
       enableMethodNotAllowed,
-      enableUnsupportedMediaType
+      enableUnsupportedMediaType,
+      enableNotAcceptable
     )
 
   private[finch] def compile(implicit ts: Compile[F, ES, CTS]): Endpoint.Compiled[F] = {
@@ -108,7 +114,8 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
       includeDateHeader,
       includeServerHeader,
       enableMethodNotAllowed,
-      enableUnsupportedMediaType
+      enableUnsupportedMediaType,
+      enableNotAcceptable
     )
 
     middleware(ts(endpoints, options, Compile.Context()))
