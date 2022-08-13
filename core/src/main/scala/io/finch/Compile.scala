@@ -1,8 +1,8 @@
 package io.finch
 
 import cats.syntax.all._
-import cats.{Applicative, MonadError}
-import com.twitter.finagle.http.{Method, Request, Response, Status, Version}
+import cats.{Applicative, MonadThrow}
+import com.twitter.finagle.http._
 import io.finch.internal.currentTime
 import shapeless._
 
@@ -76,49 +76,41 @@ object Compile {
     rep
   }
 
-  implicit def hnilTS[F[_]](implicit F: Applicative[F]): Compile[F, HNil, HNil] = new Compile[F, HNil, HNil] {
-    def apply(es: HNil, opts: Options, ctx: Context): Endpoint.Compiled[F] =
-      Endpoint.Compiled[F] { req: Request =>
-        val rep = Response()
-
-        if (ctx.wouldAllow.nonEmpty && opts.enableMethodNotAllowed) {
-          rep.status = Status.MethodNotAllowed
-          rep.allow = ctx.wouldAllow
-        } else {
-          rep.status = Status.NotFound
-        }
-
-        F.pure(Trace.empty -> Right(conformHttp(rep, req.version, opts)))
+  implicit def hnilTS[F[_]](implicit F: Applicative[F]): Compile[F, HNil, HNil] = (_, opts, ctx) =>
+    Endpoint.Compiled[F] { req: Request =>
+      val rep = Response()
+      if (ctx.wouldAllow.nonEmpty && opts.enableMethodNotAllowed) {
+        rep.status = Status.MethodNotAllowed
+        rep.allow = ctx.wouldAllow
+      } else {
+        rep.status = Status.NotFound
       }
-  }
+
+      F.pure(Trace.empty -> Right(conformHttp(rep, req.version, opts)))
+    }
 
   type IsNegotiable[C] = OrElse[C <:< Coproduct, DummyImplicit]
 
-  implicit def hlistTS[F[_], A, EH <: Endpoint[F, A], ET <: HList, CTH, CTT <: HList](implicit
+  implicit def hlistTS[F[_]: MonadThrow, A, EH <: Endpoint[F, A], ET <: HList, CTH, CTT <: HList](implicit
       ntrA: ToResponse.Negotiable[F, A, CTH],
       ntrE: ToResponse.Negotiable[F, Exception, CTH],
-      F: MonadError[F, Throwable],
       tsT: Compile[F, ET, CTT],
       isNegotiable: IsNegotiable[CTH]
-  ): Compile[F, Endpoint[F, A] :: ET, CTH :: CTT] = new Compile[F, Endpoint[F, A] :: ET, CTH :: CTT] {
-    def apply(es: Endpoint[F, A] :: ET, opts: Options, ctx: Context): Endpoint.Compiled[F] = {
-      val handler = if (opts.enableUnsupportedMediaType) respond415.orElse(respond400) else respond400
-      val negotiateContent = isNegotiable.fold(_ => true, _ => false)
-      val underlying = es.head.handle(handler)
-
-      Endpoint.Compiled[F] { req: Request =>
-        underlying(Input.fromRequest(req)) match {
-          case EndpointResult.Matched(rem, trc, out) if rem.route.isEmpty =>
-            val accept = if (negotiateContent) req.accept.map(a => Accept.fromString(a)).toList else Nil
-
-            F.flatMap(out)(oa => oa.toResponse(F, ntrA(accept), ntrE(accept)).map(r => conformHttp(r, req.version, opts))).attempt.map(e => trc -> e)
-
-          case EndpointResult.NotMatched.MethodNotAllowed(allowed) =>
-            tsT(es.tail, opts, ctx.copy(wouldAllow = ctx.wouldAllow ++ allowed))(req)
-
-          case _ =>
-            tsT(es.tail, opts, ctx)(req)
-        }
+  ): Compile[F, Endpoint[F, A] :: ET, CTH :: CTT] = { case (e :: es, opts, ctx) =>
+    val handler = if (opts.enableUnsupportedMediaType) respond415.orElse(respond400) else respond400
+    val negotiateContent = isNegotiable.fold(_ => true, _ => false)
+    val underlying = e.handle(handler)
+    Endpoint.Compiled[F] { req: Request =>
+      underlying(Input.fromRequest(req)) match {
+        case EndpointResult.Matched(rem, trc, out) if rem.route.isEmpty =>
+          val accept = if (negotiateContent) req.accept.map(a => Accept.fromString(a)).toList else Nil
+          implicit val trA = ntrA(accept)
+          implicit val trE = ntrE(accept)
+          out.flatMap(oa => oa.toResponse.map(r => conformHttp(r, req.version, opts))).attempt.map(e => trc -> e)
+        case EndpointResult.NotMatched.MethodNotAllowed(allowed) =>
+          tsT(es, opts, ctx.copy(wouldAllow = ctx.wouldAllow ++ allowed))(req)
+        case _ =>
+          tsT(es, opts, ctx)(req)
       }
     }
   }
