@@ -3,7 +3,6 @@ package io.finch
 import cats.data.{NonEmptyChain, NonEmptyList}
 import cats.{Eq, Semigroup, Show}
 
-import scala.compat.Platform.EOL
 import scala.reflect.ClassTag
 import scala.util.control.NoStackTrace
 
@@ -25,7 +24,7 @@ sealed abstract class Error extends Exception with NoStackTrace
 final case class Errors(errors: NonEmptyChain[Error]) extends Exception with NoStackTrace {
   override def getMessage: String =
     "One or more errors reading request:" +
-      errors.iterator.map(_.getMessage).mkString(EOL + "  ", EOL + "  ", "")
+      errors.iterator.map(_.getMessage).mkString(System.lineSeparator + "  ", System.lineSeparator + "  ", "")
 }
 
 object Errors {

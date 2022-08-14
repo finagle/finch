@@ -3,6 +3,7 @@ package io.finch.endpoint
 import cats.Id
 import cats.data.NonEmptyList
 import cats.effect.Sync
+import cats.syntax.all._
 import io.finch._
 
 import scala.reflect.ClassTag
@@ -62,14 +63,10 @@ abstract private[finch] class Params[F[_], G[_], A](name: String)(implicit
       input.request.params.getAll(name) match {
         case value if value.isEmpty => missing(name)
         case value =>
-          val decoded = value.map(d.apply).toList
-          val errors = decoded.collect { case Left(t) => t }
-
+          val (errors, decoded) = value.toList.map(d.apply).separate
           NonEmptyList.fromList(errors) match {
-            case None =>
-              F.pure(Output.payload(present(decoded.map(_.right.get))))
-            case Some(es) =>
-              F.raiseError(Errors(es.map(t => Error.ParamNotParsed(name, tag).initCause(t).asInstanceOf[Error])))
+            case None     => F.pure(Output.payload(present(decoded)))
+            case Some(es) => F.raiseError(Errors(es.map(Error.ParamNotParsed(name, tag).initCause(_).asInstanceOf[Error])))
           }
       }
     }

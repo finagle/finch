@@ -3,6 +3,7 @@ package io.finch.endpoint
 import cats.Id
 import cats.data.NonEmptyList
 import cats.effect.Sync
+import cats.syntax.all._
 import com.twitter.finagle.http.Request
 import com.twitter.finagle.http.exp.Multipart.{FileUpload => FinagleFileUpload}
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart, MultipartDecoder}
@@ -35,11 +36,9 @@ abstract private[finch] class Attribute[F[_]: Sync, G[_], A](val name: String)(i
         all(input) match {
           case None => missing(name)
           case Some(values) =>
-            val decoded = values.map(d.apply)
-            val errors = decoded.collect { case Left(t) => t }
-
+            val (errors, decoded) = values.toList.map(d.apply).separate
             NonEmptyList.fromList(errors) match {
-              case None     => present(decoded.map(_.right.get))
+              case None     => present(NonEmptyList.fromListUnsafe(decoded))
               case Some(es) => unparsed(es, tag)
             }
         }

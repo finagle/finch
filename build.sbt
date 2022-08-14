@@ -3,7 +3,7 @@ import microsites.ExtraMdFileConfig
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  scalaVersion := "2.12.15",
+  scalaVersion := "2.13.8",
   crossScalaVersions := Seq("2.12.15", "2.13.8")
 )
 
@@ -30,7 +30,8 @@ def compilerOptions(scalaVersion: String): Seq[String] = Seq(
   "-unchecked",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
-  "-Xlint"
+  "-Xlint",
+  "-Xfatal-warnings"
 ) ++ (CrossVersion.partialVersion(scalaVersion) match {
   case Some((2, scalaMajor)) if scalaMajor == 12 => scala212CompilerOptions
   case Some((2, scalaMajor)) if scalaMajor == 13 => scala213CompilerOptions
@@ -43,7 +44,8 @@ lazy val scala212CompilerOptions = Seq(
 )
 
 lazy val scala213CompilerOptions = Seq(
-  "-Wunused:imports"
+  "-Wunused:imports",
+  "-Xlint:-byname-implicit"
 )
 
 val testDependencies = Seq(
@@ -66,9 +68,7 @@ val baseSettings = Seq(
   resolvers ++= Resolver.sonatypeOssRepos("releases"),
   resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
   scalacOptions ++= compilerOptions(scalaVersion.value),
-  (Compile / console / scalacOptions) ~= {
-    _.filterNot(Set("-Ywarn-unused-import"))
-  },
+  (Compile / console / scalacOptions) ~= (_.filterNot(Set("-Ywarn-unused-import"))),
   (Compile / console / scalacOptions) += "-Yrepl-class-based",
   (Test / fork) := true,
   (ThisBuild / javaOptions) ++= Seq("-Xss2048K"),
@@ -219,9 +219,7 @@ lazy val docSettings = allSettings ++ Seq(
     "-doc-root-content",
     ((Compile / resourceDirectory).value / "rootdoc.txt").getAbsolutePath
   ),
-  scalacOptions ~= {
-    _.filterNot(Set("-Yno-predef", "-Xlint", "-Ywarn-unused-import"))
-  },
+  scalacOptions ~= (_.filterNot(Set("-Yno-predef", "-Xlint", "-Ywarn-unused-import"))),
   git.remoteRepo := "git@github.com:finagle/finch.git",
   (ScalaUnidoc / unidoc / unidocProjectFilter) := inAnyProject -- inProjects(benchmarks, jsonTest),
   (makeSite / includeFilter) := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.svg" | "*.js" | "*.swf" | "*.yml" | "*.md",

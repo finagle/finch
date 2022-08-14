@@ -58,17 +58,13 @@ trait HighPriorityDecode extends LowPriorityDecode {
 
 trait LowPriorityDecode {
 
-  /** Creates an [[DecodeEntity]] instance from a given function `String => Either[Throwable, A]`.
-    */
-  def instance[A](fn: String => Either[Throwable, A]): DecodeEntity[A] = new DecodeEntity[A] {
-    def apply(s: String): Either[Throwable, A] = fn(s)
-  }
+  /** Creates an [[DecodeEntity]] instance from a given function `String => Either[Throwable, A]`. */
+  def instance[A](fn: String => Either[Throwable, A]): DecodeEntity[A] = fn(_)
 
-  /** Creates a [[Decode]] from [[shapeless.Generic]] for single value case classes.
-    */
+  /** Creates a [[Decode]] from [[shapeless.Generic]] for single value case classes. */
   implicit def decodeFromGeneric[A, H <: HList, E](implicit
       gen: Generic.Aux[A, H],
       ev: (E :: HNil) =:= H,
       de: DecodeEntity[E]
-  ): DecodeEntity[A] = instance(s => de(s).right.map(b => gen.from(b :: HNil)))
+  ): DecodeEntity[A] = instance(de(_).map(b => gen.from(b :: HNil)))
 }

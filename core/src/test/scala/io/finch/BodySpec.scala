@@ -76,7 +76,6 @@ class BodySpec extends FinchSpec {
       val plain = Input.post("/").withBody[Text.Plain](f)
       val csv = Input.post("/").withBody[Application.Csv](f)
       val endpoint = body[Foo, Text.Plain :+: Application.Csv :+: CNil]
-
       endpoint(plain).awaitValueUnsafe(dispatcherIO) === Some(f) && endpoint(csv).awaitValueUnsafe(dispatcherIO) === Some(f)
     }
   }
@@ -84,10 +83,9 @@ class BodySpec extends FinchSpec {
   it should "resolve into NotParsed(Decode.UMTE) if Content-Type does not match" in {
     val i = Input.post("/").withBody[Application.Xml](Buf.Utf8("foo"))
     val b = body[Foo, Text.Plain :+: Application.Csv :+: CNil]
-    val Some(Left(error)) = b(i).awaitOutput(dispatcherIO)
-
-    error shouldBe a[Error.NotParsed]
-    error.getCause shouldBe Decode.UnsupportedMediaTypeException
-
+    inside(b(i).awaitOutput(dispatcherIO)) { case Some(Left(error)) =>
+      error shouldBe a[Error.NotParsed]
+      error.getCause shouldBe Decode.UnsupportedMediaTypeException
+    }
   }
 }

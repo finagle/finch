@@ -11,7 +11,7 @@ class CirceSpec extends AbstractJsonSpec {
   checkJson("circe")
   checkStreamJson[Enumerator, IO]("circe-iteratee")(Enumerator.enumList, _.toVector.unsafeRunSync().toList)
   checkStreamJson[Stream, IO]("circe-fs2")(
-    list => Stream.fromIterator[IO](list.toIterator, 1024),
+    list => Stream.fromIterator[IO](list.iterator, 1024),
     _.compile.toList.unsafeRunSync()
   )
 }

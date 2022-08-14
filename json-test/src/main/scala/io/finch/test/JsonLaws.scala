@@ -20,7 +20,7 @@ trait DecodeJsonLaws[A] extends Laws with AllInstances {
 
   def success(a: A, cs: Charset)(implicit e: Encoder[A], d: Decoder[A]): IsEq[A] = {
     val json = e(a).noSpaces
-    decode(Buf.ByteArray.Owned(json.getBytes(cs.name)), cs).right.get <-> jawn.decode(json).right.get
+    decode(Buf.ByteArray.Owned(json.getBytes(cs.name)), cs).toTry.get <-> jawn.decode(json).toTry.get
   }
 
   def failure(s: String, cs: Charset): Boolean =
@@ -53,16 +53,14 @@ abstract class StreamJsonLaws[S[_[_], _], F[_], A](implicit
 
   def success(a: List[A], cs: Charset)(implicit e: Encoder[A]): IsEq[List[A]] = {
     val json = F.map(fromList(a))(a => e(a).noSpaces + "\n")
-    val enum = F.map(json)(str => Buf.ByteArray.Owned(str.getBytes(cs.name)))
-    toList(streamDecoder(enum, cs)) <-> a
+    val stream = F.map(json)(str => Buf.ByteArray.Owned(str.getBytes(cs.name)))
+    toList(streamDecoder(stream, cs)) <-> a
   }
 
   def failure(a: A, cs: Charset)(implicit e: Encoder[A]): Boolean = {
     val json = F.map(fromList(a :: Nil))(a => e(a).noSpaces + "INVALID_JSON")
-    val enum = F.map(json)(str => Buf.ByteArray.Owned(str.getBytes(cs.name)))
-    Try(
-      toList(streamDecoder(enum, cs))
-    ).isThrow
+    val stream = F.map(json)(str => Buf.ByteArray.Owned(str.getBytes(cs.name)))
+    Try(toList(streamDecoder(stream, cs))).isThrow
   }
 
   def all(implicit
@@ -87,7 +85,7 @@ trait EncodeJsonLaws[A] extends Laws with AllInstances {
       name = "encode",
       parent = None,
       "*" -> Prop.forAll { (a: A, cs: Charset) =>
-        jawn.decode(encode(a, cs).asString(cs)).right.get <-> a
+        jawn.decode(encode(a, cs).asString(cs)).toTry.get <-> a
       }
     )
 }
