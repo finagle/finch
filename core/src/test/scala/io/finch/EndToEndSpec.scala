@@ -134,13 +134,43 @@ class EndToEndSpec extends FinchSpec {
       assertThrows[IllegalStateException](Await.result(rep))
     }
   }
+
+  it should "fail with 406 Not Acceptable on Content-Type negotiation failure when enabled" in {
+    testService[AllContentTypes](pathAny, _.configure(enableNotAcceptable = true)) { s =>
+      check { (req: Request, accept: List[Accept]) =>
+        req.accept = accept.map(_.primary + "/foo")
+        val rep = Await.result(s(req))
+        rep.status === Status.NotAcceptable
+      }
+    }
+  }
+
+  it should "fail with 406 Not Acceptable on Content-Type mismatch when enabled" in {
+    testService[Text.Plain](pathAny, _.configure(enableNotAcceptable = true)) { s =>
+      check { (req: Request, accept: Accept) =>
+        req.accept = accept.primary + "/foo"
+        val rep = Await.result(s(req))
+        rep.status === Status.NotAcceptable
+      }
+    }
+  }
+
+  it should "succeed when there is no Accept header even though Not Acceptable is enabled" in {
+    testService[Text.Plain](pathAny, _.configure(enableNotAcceptable = true)) { s =>
+      check { req: Request =>
+        req.accept = Nil
+        val rep = Await.result(s(req))
+        rep.status === Status.Ok
+      }
+    }
+  }
 }
 
 object EndToEndSpec {
   private class ServiceTest[CTS](private val dispatcher: Dispatcher[IO]) extends AnyVal {
-    def apply[E](endpoint: Endpoint[IO, E])(
+    def apply[E](endpoint: Endpoint[IO, E], cfg: Bootstrap[IO, HNil, HNil] => Bootstrap[IO, HNil, HNil] = identity)(
         assertions: Service[Request, Response] => Assertion
     )(implicit ts: Compile[IO, Endpoint[IO, E] :: HNil, CTS :: HNil]): Assertion =
-      dispatcher.unsafeRunSync(Bootstrap[IO].serve[CTS](endpoint).toService.use(s => IO(assertions(s))))
+      dispatcher.unsafeRunSync(cfg(Bootstrap[IO]).serve[CTS](endpoint).toService.use(s => IO(assertions(s))))
   }
 }

@@ -55,20 +55,16 @@ import scala.reflect.ClassTag
   *   Http.server.serve(foobar.toService)
   * }}}
   */
-trait Endpoint[F[_], A] {
-  self =>
+trait Endpoint[F[_], A] { self =>
 
-  /** Runs this endpoint.
-    */
+  /** Runs this endpoint. */
   def apply(input: Input): Endpoint.Result[F, A]
 
-  /** Maps this endpoint to the given function `A => B`.
-    */
+  /** Maps this endpoint to the given function `A => B`. */
   final def map[B](fn: A => B)(implicit F: Monad[F]): Endpoint[F, B] =
-    mapAsync(fn.andThen(F.pure))
+    mapAsync(fn.andThen(F.pure[B]))
 
-  /** Maps this endpoint to the given function `A => Future[B]`.
-    */
+  /** Maps this endpoint to the given function `A => Future[B]`. */
   final def mapAsync[B](fn: A => F[B])(implicit F: Monad[F]): Endpoint[F, B] =
     new Endpoint[F, B] with (Output[A] => F[Output[B]]) {
 
@@ -172,10 +168,10 @@ trait Endpoint[F[_], A] {
   final def productWith[B, O](other: Endpoint[F, B])(p: (A, B) => O)(implicit F: MonadThrow[F]): Endpoint[F, O] =
     new Endpoint[F, O] with (((Either[Throwable, Output[A]], Either[Throwable, Output[B]])) => F[Output[O]]) {
       final private[this] def collect(a: Throwable, b: Throwable): Throwable = (a, b) match {
-        case (aa: Error, bb: Error)   => Errors(NonEmptyList.of(aa, bb))
-        case (aa: Error, Errors(bs))  => Errors(aa :: bs)
-        case (Errors(as), bb: Error)  => Errors(bb :: as)
-        case (Errors(as), Errors(bs)) => Errors(as.concatNel(bs))
+        case (aa: Error, bb: Error)   => Errors.of(aa, bb)
+        case (aa: Error, Errors(bs))  => Errors(aa +: bs)
+        case (Errors(as), bb: Error)  => Errors(as :+ bb)
+        case (Errors(as), Errors(bs)) => Errors(as ++ bs)
         case (_: Error, _)            => b // we fail-fast with first non-Error observed
         case (_: Errors, _)           => b // we fail-fast with first non-Error observed
         case _                        => a
@@ -246,11 +242,8 @@ trait Endpoint[F[_], A] {
   }
 
   /** Composes this endpoint with another in such a way that coproducts are flattened. */
-  final def :+:[B](that: Endpoint[F, B])(implicit a: Adjoin[B :+: A :+: CNil], F: MonadThrow[F]): Endpoint[F, a.Out] = {
-    val left = that.map(x => a(Inl[B, A :+: CNil](x)))
-    val right = self.map(x => a(Inr[B, A :+: CNil](Inl[A, CNil](x))))
-    left.coproduct(right)
-  }
+  final def :+:[B](that: Endpoint[F, B])(implicit a: Adjoin[B :+: A :+: CNil], F: MonadThrow[F]): Endpoint[F, a.Out] =
+    that.map(x => a(Inl(x))) coproduct self.map(x => a(Inr(Inl(x))))
 
   /** Recovers from any exception occurred in this endpoint by creating a new endpoint that will handle any matching throwable from the underlying future. */
   final def rescue(pf: PartialFunction[Throwable, F[Output[A]]])(implicit F: ApplicativeThrow[F]): Endpoint[F, A] =
@@ -770,7 +763,7 @@ object Endpoint {
     new Param[F, Option, A](name) with Param.Optional[F, A]
 
   /** An evaluating [[Endpoint]] that reads a required query-string param `name` from the request or raises an [[Error.NotPresent]] exception when the param is
-    * missing; an [[Error.NotValid]] exception is the param is empty.
+    * missing; an [[Error.ParamNotParsed]] exception when the param cannot be decoded.
     */
   def param[F[_]: Sync, A: DecodeEntity: ClassTag](name: String): Endpoint[F, A] =
     new Param[F, Id, A](name) with Param.Required[F, A]
