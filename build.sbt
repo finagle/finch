@@ -63,10 +63,8 @@ val baseSettings = Seq(
     scalaOrganization.value % "scala-reflect" % scalaVersion.value,
     "org.typelevel" %% "cats-effect" % catsEffectVersion
   ) ++ testDependencies.map(_ % "test"),
-  resolvers ++= Seq(
-    Resolver.sonatypeRepo("releases"),
-    Resolver.sonatypeRepo("snapshots")
-  ),
+  resolvers ++= Resolver.sonatypeOssRepos("releases"),
+  resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
   scalacOptions ++= compilerOptions(scalaVersion.value),
   (Compile / console / scalacOptions) ~= {
     _.filterNot(Set("-Ywarn-unused-import"))
@@ -84,24 +82,24 @@ val baseSettings = Seq(
 
 def updateVersionInFile(selectVersion: sbtrelease.Versions => String): ReleaseStep =
   ReleaseStep(action = st => {
-    val newVersion = selectVersion(st.get(ReleaseKeys.versions).get)
     import scala.io.Source
     import java.io.PrintWriter
 
+    val newVersion = selectVersion(st.get(ReleaseKeys.versions).get)
     // files containing version to update upon release
-    val filesToUpdate = Seq(
-      "docs/mdoc/index.md"
-    )
+    val filesToUpdate = Seq("docs/mdoc/index.md")
     val pattern = """"com.github.finagle" %% "finch-.*" % "(.*)"""".r
 
     filesToUpdate.foreach { fileName =>
-      val content = Source.fromFile(fileName).getLines.mkString("\n")
+      val source = Source.fromFile(fileName)
+      val content =
+        try source.mkString
+        finally source.close()
       val newContent =
         pattern.replaceAllIn(content, m => m.matched.replaceAllLiterally(m.subgroups.head, newVersion))
-      new PrintWriter(fileName) {
-        write(newContent);
-        close()
-      }
+      val writer = new PrintWriter(fileName)
+      try writer.write(newContent)
+      finally writer.close()
       val vcs = Project.extract(st).get(releaseVcs).get
       vcs.add(fileName).!
     }
@@ -227,7 +225,8 @@ lazy val docSettings = allSettings ++ Seq(
   git.remoteRepo := "git@github.com:finagle/finch.git",
   (ScalaUnidoc / unidoc / unidocProjectFilter) := inAnyProject -- inProjects(benchmarks, jsonTest),
   (makeSite / includeFilter) := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.svg" | "*.js" | "*.swf" | "*.yml" | "*.md",
-  (ScalaUnidoc / siteSubdirName) := "docs"
+  (ScalaUnidoc / siteSubdirName) := "docs",
+  (Global / excludeLintKeys) += siteSubdirName
 )
 
 lazy val finch = project
@@ -362,7 +361,7 @@ lazy val docs = project
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-generic" % circeVersion,
       "com.twitter" %% "twitter-server" % twitterVersion,
-      "joda-time" % "joda-time" % "2.9.9",
+      "joda-time" % "joda-time" % "2.10.14",
       "org.mockito" % "mockito-all" % "1.10.19"
     )
   )
