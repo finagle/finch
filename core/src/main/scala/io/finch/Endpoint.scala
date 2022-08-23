@@ -3,7 +3,7 @@ package io.finch
 import cats.data._
 import cats.effect.{Async, Resource, Sync}
 import cats.syntax.all._
-import cats.{Alternative, Applicative, ApplicativeError, Apply, Functor, Id, Monad, MonadError, MonoidK, SemigroupK, ~>}
+import cats.{Alternative, Applicative, ApplicativeThrow, Apply, Functor, Id, Monad, MonadThrow, MonoidK, SemigroupK, ~>}
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart}
 import com.twitter.finagle.http.{Cookie => FinagleCookie, Method => FinagleMethod, Request, Response}
 import com.twitter.io.Buf
@@ -81,7 +81,7 @@ trait Endpoint[F[_], A] { self =>
 
   /** Maps this endpoint to the given function `A => Output[B]`.
     */
-  final def mapOutput[B](fn: A => Output[B])(implicit F: MonadError[F, Throwable]): Endpoint[F, B] =
+  final def mapOutput[B](fn: A => Output[B])(implicit F: MonadThrow[F]): Endpoint[F, B] =
     mapOutputAsync(a => F.catchNonFatal(fn(a)))
 
   /** Maps this endpoint to the given function `A => Future[Output[B]]`.
@@ -160,14 +160,12 @@ trait Endpoint[F[_], A] { self =>
     * This combinator is an important piece for Finch's error accumulation. In its current form, `product` will accumulate Finch's own errors (i.e.,
     * [[io.finch.Error]]s) into [[io.finch.Errors]]) and will fail-fast with the first non-Finch error (just ordinary `Exception`) observed.
     */
-  final def product[B](other: Endpoint[F, B])(implicit F: MonadError[F, Throwable]): Endpoint[F, (A, B)] =
+  final def product[B](other: Endpoint[F, B])(implicit F: MonadThrow[F]): Endpoint[F, (A, B)] =
     productWith(other)(Tuple2.apply)
 
   /** Returns a product of this and `other` endpoint. The resulting endpoint returns a value of resulting type for product function.
     */
-  final def productWith[B, O](other: Endpoint[F, B])(p: (A, B) => O)(implicit
-      F: MonadError[F, Throwable]
-  ): Endpoint[F, O] =
+  final def productWith[B, O](other: Endpoint[F, B])(p: (A, B) => O)(implicit F: MonadThrow[F]): Endpoint[F, O] =
     new Endpoint[F, O] with (((Either[Throwable, Output[A]], Either[Throwable, Output[B]])) => F[Output[O]]) {
       final private[this] def collect(a: Throwable, b: Throwable): Throwable = (a, b) match {
         case (aa: Error, bb: Error)   => Errors.of(aa, bb)
@@ -203,20 +201,14 @@ trait Endpoint[F[_], A] { self =>
       final override def toString: String = self.toString
     }
 
-  /** Composes this endpoint with the given [[Endpoint]].
-    */
-  final def ::[B](other: Endpoint[F, B])(implicit
-      pa: PairAdjoin[B, A],
-      F: MonadError[F, Throwable]
-  ): Endpoint[F, pa.Out] = new Endpoint[F, pa.Out] with ((B, A) => pa.Out) {
-    private[this] val inner = other.productWith(self)(this)
-
-    final def apply(b: B, a: A): pa.Out = pa(b, a)
-
-    final def apply(input: Input): Endpoint.Result[F, pa.Out] = inner(input)
-
-    final override def toString: String = s"${other.toString} :: ${self.toString}"
-  }
+  /** Composes this endpoint with the given [[Endpoint]]. */
+  final def ::[B](other: Endpoint[F, B])(implicit pa: PairAdjoin[B, A], F: MonadThrow[F]): Endpoint[F, pa.Out] =
+    new Endpoint[F, pa.Out] with ((B, A) => pa.Out) {
+      private[this] val inner = other.productWith(self)(this)
+      final def apply(b: B, a: A) = pa(b, a)
+      final def apply(input: Input) = inner(input)
+      final override def toString = s"${other.toString} :: ${self.toString}"
+    }
 
   /** Sequentially composes this endpoint with the given `other` endpoint. The resulting endpoint will succeed if either this or `that` endpoints are succeed.
     *
@@ -250,24 +242,19 @@ trait Endpoint[F[_], A] { self =>
   }
 
   /** Composes this endpoint with another in such a way that coproducts are flattened. */
-  final def :+:[B](that: Endpoint[F, B])(implicit
-      a: Adjoin[B :+: A :+: CNil],
-      F: MonadError[F, Throwable]
-  ): Endpoint[F, a.Out] =
+  final def :+:[B](that: Endpoint[F, B])(implicit a: Adjoin[B :+: A :+: CNil], F: MonadThrow[F]): Endpoint[F, a.Out] =
     that.map(x => a(Inl(x))) coproduct self.map(x => a(Inr(Inl(x))))
 
   /** Recovers from any exception occurred in this endpoint by creating a new endpoint that will handle any matching throwable from the underlying future. */
-  final def rescue(pf: PartialFunction[Throwable, F[Output[A]]])(implicit
-      F: ApplicativeError[F, Throwable]
-  ): Endpoint[F, A] = transformOutput(_.recoverWith(pf))
+  final def rescue(pf: PartialFunction[Throwable, F[Output[A]]])(implicit F: ApplicativeThrow[F]): Endpoint[F, A] =
+    transformOutput(_.recoverWith(pf))
 
   /** Recovers from any exception occurred in this endpoint by creating a new endpoint that will handle any matching throwable from the underlying future. */
-  final def handle(pf: PartialFunction[Throwable, Output[A]])(implicit
-      F: ApplicativeError[F, Throwable]
-  ): Endpoint[F, A] = transformOutput(_.recover(pf))
+  final def handle(pf: PartialFunction[Throwable, Output[A]])(implicit F: ApplicativeThrow[F]): Endpoint[F, A] =
+    transformOutput(_.recover(pf))
 
   /** Lifts this endpoint into one that always succeeds, with [[Either[Throwable, A]] representing both success and failure cases. */
-  final def attempt(implicit F: MonadError[F, Throwable]): Endpoint[F, Either[Throwable, A]] =
+  final def attempt(implicit F: ApplicativeThrow[F]): Endpoint[F, Either[Throwable, A]] =
     new Endpoint[F, Either[Throwable, A]] with (Either[Throwable, Output[A]] => Output[Either[Throwable, A]]) {
       final def apply(toa: Either[Throwable, Output[A]]): Output[Either[Throwable, A]] = toa match {
         case Right(oo) => oo.map(Right.apply)
@@ -377,32 +364,27 @@ object Endpoint {
   }
 
   private trait EndpointMonoidK[F[_]] extends EndpointSemigroupK[F] with MonoidK[Endpoint[F, *]] {
-    def empty[A]: Endpoint[F, A] = Endpoint.empty[F, A]
+    def empty[A]: Endpoint[F, A] = Endpoint.empty
   }
 
   private class EndpointFunctor[F[_]: Monad] extends Functor[Endpoint[F, *]] {
     def map[A, B](fa: Endpoint[F, A])(f: A => B): Endpoint[F, B] = fa.map(f)
   }
 
-  private class EndpointApply[F[_]](implicit F: MonadError[F, Throwable]) extends EndpointFunctor[F] with Apply[Endpoint[F, *]] {
-    def ap[A, B](ff: Endpoint[F, A => B])(fa: Endpoint[F, A]): Endpoint[F, B] =
-      ff.productWith(fa)((f, a) => f(a))
+  private class EndpointApply[F[_]: MonadThrow] extends EndpointFunctor[F] with Apply[Endpoint[F, *]] {
+    def ap[A, B](ff: Endpoint[F, A => B])(fa: Endpoint[F, A]): Endpoint[F, B] = ff.productWith(fa)(_ apply _)
   }
 
-  private class EndpointApplicative[F[_]](implicit F: MonadError[F, Throwable]) extends EndpointApply[F] with Applicative[Endpoint[F, *]] {
-    def pure[A](x: A): Endpoint[F, A] =
-      Endpoint.const[F, A](x)
+  private class EndpointApplicative[F[_]: MonadThrow] extends EndpointApply[F] with Applicative[Endpoint[F, *]] {
+    def pure[A](x: A): Endpoint[F, A] = Endpoint.const(x)
   }
 
-  private class EndpointAlternative[F[_]](implicit F: MonadError[F, Throwable])
-      extends EndpointApplicative[F]
-      with EndpointMonoidK[F]
-      with Alternative[Endpoint[F, *]]
+  private class EndpointAlternative[F[_]: MonadThrow] extends EndpointApplicative[F] with EndpointMonoidK[F] with Alternative[Endpoint[F, *]]
 
-  implicit def endpointAlternative[F[_]](implicit F: MonadError[F, Throwable]): Alternative[Endpoint[F, *]] =
+  implicit def endpointAlternative[F[_]: MonadThrow]: Alternative[Endpoint[F, *]] =
     new EndpointAlternative[F]
 
-  implicit def endpointApplicative[F[_]](implicit F: MonadError[F, Throwable]): Applicative[Endpoint[F, *]] =
+  implicit def endpointApplicative[F[_]: MonadThrow]: Applicative[Endpoint[F, *]] =
     new EndpointApplicative[F]
 
   implicit def endpointFunctor[F[_]: Monad]: Functor[Endpoint[F, *]] =
@@ -422,28 +404,21 @@ object Endpoint {
     */
   def apply[F[_]]: EndpointModule[F] = EndpointModule[F]
 
-  /** Creates an empty [[Endpoint]] (an endpoint that never matches) for a given type.
-    */
+  /** Creates an empty [[Endpoint]] (an endpoint that never matches) for a given type. */
   def empty[F[_], A]: Endpoint[F, A] =
-    new Endpoint[F, A] {
-      final def apply(input: Input): Result[F, A] = EndpointResult.NotMatched[F]
-    }
+    _ => EndpointResult.NotMatched[F]
 
-  /** An [[Endpoint]] that, when composed with other endpoints, doesn't change anything.
-    */
+  /** Creates an [[Endpoint]] that returns an output regardless of the input. */
+  def output[F[_], A](o: F[Output[A]]): Endpoint[F, A] =
+    EndpointResult.Matched(_, Trace.empty, o)
+
+  /** Creates an [[Endpoint]] that, when composed with other endpoints, doesn't change anything. */
   def zero[F[_]](implicit F: Applicative[F]): Endpoint[F, HNil] =
-    new Endpoint[F, HNil] {
-      final def apply(input: Input): Result[F, HNil] =
-        EndpointResult.Matched(input, Trace.empty, F.pure(Output.HNil))
-    }
+    output(F.pure(Output.HNil))
 
-  /** Creates an [[Endpoint]] that always matches and returns a given value (evaluated eagerly).
-    */
+  /** Creates an [[Endpoint]] that always matches and returns a given value (evaluated eagerly). */
   def const[F[_], A](a: A)(implicit F: Applicative[F]): Endpoint[F, A] =
-    new Endpoint[F, A] {
-      final def apply(input: Input): Result[F, A] =
-        EndpointResult.Matched(input, Trace.empty, F.pure(Output.payload(a)))
-    }
+    output(F.pure(Output.payload(a)))
 
   /** Creates an [[Endpoint]] that always matches and returns a given value (evaluated lazily).
     *
@@ -456,34 +431,19 @@ object Endpoint {
     * }}}
     */
   def lift[F[_], A](a: => A)(implicit F: Sync[F]): Endpoint[F, A] =
-    new Endpoint[F, A] {
-      final def apply(input: Input): Result[F, A] =
-        EndpointResult.Matched(input, Trace.empty, F.delay(Output.payload(a)))
-    }
+    output(F.delay(Output.payload(a)))
 
-  /** Creates an [[Endpoint]] that always matches and returns a given `F` (evaluated lazily).
-    */
+  /** Creates an [[Endpoint]] that always matches and returns a given `F` (evaluated lazily). */
   def liftAsync[F[_], A](fa: => F[A])(implicit F: Sync[F]): Endpoint[F, A] =
-    new Endpoint[F, A] {
-      final def apply(input: Input): Result[F, A] =
-        EndpointResult.Matched(input, Trace.empty, F.defer(fa).map(a => Output.payload(a)))
-    }
+    output(F.defer(fa).map(Output.payload(_)))
 
-  /** Creates an [[Endpoint]] that always matches and returns a given `Output` (evaluated lazily).
-    */
+  /** Creates an [[Endpoint]] that always matches and returns a given `Output` (evaluated lazily). */
   def liftOutput[F[_], A](oa: => Output[A])(implicit F: Sync[F]): Endpoint[F, A] =
-    new Endpoint[F, A] {
-      final def apply(input: Input): Result[F, A] =
-        EndpointResult.Matched(input, Trace.empty, F.delay(oa))
-    }
+    output(F.delay(oa))
 
-  /** Creates an [[Endpoint]] that always matches and returns a given `F[Output]` (evaluated lazily).
-    */
+  /** Creates an [[Endpoint]] that always matches and returns a given `F[Output]` (evaluated lazily). */
   def liftOutputAsync[F[_], A](foa: => F[Output[A]])(implicit F: Sync[F]): Endpoint[F, A] =
-    new Endpoint[F, A] {
-      final def apply(input: Input): Result[F, A] =
-        EndpointResult.Matched(input, Trace.empty, F.defer(foa))
-    }
+    output(F.defer(foa))
 
   /** Creates an [[Endpoint]] from a given [[InputStream]]. Uses [[Resource]] for safer resource management
     *
