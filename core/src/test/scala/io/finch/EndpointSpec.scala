@@ -4,6 +4,7 @@ import cats.data.{NonEmptyList, WriterT}
 import cats.effect.std.Dispatcher
 import cats.effect.unsafe.implicits.global
 import cats.effect.{IO, Resource}
+import cats.kernel.laws.discipline.SemigroupTests
 import cats.laws._
 import cats.laws.discipline.SemigroupalTests.Isomorphisms
 import cats.laws.discipline._
@@ -21,13 +22,13 @@ import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
 class EndpointSpec extends FinchSpec {
-
   type EndpointIO[A] = Endpoint[IO, A]
 
   implicit val isomorphisms: Isomorphisms[EndpointIO] =
     Isomorphisms.invariant[EndpointIO](Endpoint.endpointAlternative)
 
-  checkAll("Endpoint[String]", AlternativeTests[EndpointIO].applicative[String, String, String])
+  checkAll("Alternative[Endpoint]", AlternativeTests[EndpointIO].alternative[String, String, String])
+  checkAll("Semigroup[Errors]", SemigroupTests[Errors].semigroup)
 
   checkAll("ExtractPath[String]", ExtractPathLaws[IO, String].all)
   checkAll("ExtractPath[Int]", ExtractPathLaws[IO, Int].all)
@@ -336,15 +337,12 @@ class EndpointSpec extends FinchSpec {
       val lr = left.product(right)
       val rl = right.product(left)
 
-      val all =
-        a.fold[Set[Error]](e => Set(e), es => es.errors.toList.toSet) ++
-          b.fold[Set[Error]](e => Set(e), es => es.errors.toList.toSet)
-
+      val all = a.fold(Set(_), _.errors.iterator.toSet) | b.fold(Set(_), _.errors.iterator.toSet)
       val Some(Left(first)) = lr(Input.get("/")).awaitValue(dispatcherIO)
       val Some(Left(second)) = rl(Input.get("/")).awaitValue(dispatcherIO)
 
-      first.asInstanceOf[Errors].errors.toList.toSet === all &&
-      second.asInstanceOf[Errors].errors.toList.toSet === all
+      first.asInstanceOf[Errors].errors.iterator.toSet === all &&
+      second.asInstanceOf[Errors].errors.iterator.toSet === all
     }
   }
 
