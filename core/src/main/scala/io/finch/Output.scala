@@ -169,27 +169,27 @@ object Output {
 
   implicit def outputEq[A]: Eq[Output[A]] = Eq.fromUniversalEquals
 
-  implicit class OutputOps[A](val o: Output[A]) extends AnyVal {
+  implicit class OutputOps[A](private val output: Output[A]) extends AnyVal {
 
-    /** Converts this [[Output]] to the HTTP response of the given `version`.
-      */
-    def toResponse[F[_], CT](implicit
-        F: Applicative[F],
-        tr: ToResponse.Aux[F, A, CT],
-        tre: ToResponse.Aux[F, Exception, CT]
-    ): F[Response] = {
-      val rep0 = o match {
-        case p: Output.Payload[A] => tr(p.value, p.charset.getOrElse(StandardCharsets.UTF_8))
-        case f: Output.Failure    => tre(f.cause, f.charset.getOrElse(StandardCharsets.UTF_8))
+    /** Converts this [[Output]] to the HTTP response of the given `version`. */
+    def toResponse[F[_]: Applicative, CT](implicit
+        value: ToResponse.Aux[F, A, CT],
+        error: ToResponse.Aux[F, Exception, CT]
+    ): F[Response] = toResponse(ToResponse.Negotiated(value, error))
+
+    /** Converts this [[Output]] to the HTTP response of the given `version`. */
+    def toResponse[F[_]](negotiated: ToResponse.Negotiated[F, A])(implicit F: Applicative[F]): F[Response] = {
+      val response = output match {
+        case p: Output.Payload[A] => negotiated.value(p.value, p.charset.getOrElse(StandardCharsets.UTF_8))
+        case f: Output.Failure    => negotiated.error(f.cause, f.charset.getOrElse(StandardCharsets.UTF_8))
         case _: Output.Empty      => F.pure(Response())
       }
 
-      F.map(rep0) { rep =>
-        rep.status = o.status
-
-        o.headers.foreach { case (k, v) => rep.headerMap.set(k, v) }
-        o.cookies.foreach(rep.cookies.add)
-        o.charset.foreach { c =>
+      F.map(response) { rep =>
+        rep.status = output.status
+        output.headers.foreach { case (k, v) => rep.headerMap.set(k, v) }
+        output.cookies.foreach(rep.cookies.add)
+        output.charset.foreach { c =>
           if (!rep.content.isEmpty || rep.isChunked) {
             rep.charset = c.displayName.toLowerCase
           }

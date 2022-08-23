@@ -30,6 +30,7 @@ object Accept {
 
   abstract class Matcher[CT <: String] {
     def apply(a: Accept): Boolean
+    def apply(as: List[Accept]): Boolean = as.exists(apply)
   }
 
   object Matcher {
