@@ -2,7 +2,7 @@ package io.finch
 package endpoint
 
 import cats.Applicative
-import cats.effect.{Async, Resource}
+import cats.effect.{Resource, Sync}
 import cats.syntax.all._
 import com.twitter.finagle.http.{Method => FinagleMethod}
 import com.twitter.io.Buf
@@ -10,7 +10,7 @@ import shapeless.HNil
 
 import java.io.InputStream
 
-private[finch] class FromInputStream[F[_]](stream: Resource[F, InputStream])(implicit F: Async[F]) extends Endpoint[F, Buf] {
+private[finch] class FromInputStream[F[_]](stream: Resource[F, InputStream])(implicit F: Sync[F]) extends Endpoint[F, Buf] {
   private def readLoop(left: Buf, stream: InputStream): F[Buf] = F.defer {
     for {
       buffer <- F.delay(new Array[Byte](1024))
