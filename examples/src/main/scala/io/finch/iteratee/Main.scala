@@ -47,14 +47,12 @@ object Main extends IOApp {
 
   final case class IsPrime(isPrime: Boolean)
 
-  private def stream: Stream[Int] = Stream.continually(Random.nextInt())
-
   val sumJson: Endpoint[IO, Result] = post("sumJson" :: jsonBodyStream[Enumerator, Number]) { enum: Enumerator[IO, Number] =>
     enum.into(Iteratee.fold[IO, Number, Result](Result(0))(_ add _)).map(Ok)
   }
 
   val streamJson: Endpoint[IO, Enumerator[IO, Number]] = get("streamJson") {
-    Ok(Enumerator.enumStream[IO, Int](stream).map(Number.apply))
+    Ok(Enumerator.iterate[IO, Int](Random.nextInt())(_ => Random.nextInt()).map(Number.apply))
   }
 
   val isPrime: Endpoint[IO, Enumerator[IO, IsPrime]] =

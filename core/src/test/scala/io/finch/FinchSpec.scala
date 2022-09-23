@@ -4,10 +4,11 @@ import cats.Eq
 import cats.data.NonEmptyList
 import cats.effect.std.Dispatcher
 import cats.effect.{IO, Sync}
-import cats.instances.AllInstances
+import cats.syntax.all._
 import com.twitter.finagle.http._
 import com.twitter.io.Buf
 import org.scalacheck.{Arbitrary, Cogen, Gen}
+import org.scalatest.Inside
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
@@ -18,7 +19,7 @@ import java.nio.charset.{Charset, StandardCharsets}
 import java.util.UUID
 import scala.reflect.classTag
 
-trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with AllInstances with MissingInstances with Endpoint.Module[IO] {
+trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with Inside with MissingInstances with Endpoint.Module[IO] {
 
   def checkAll(name: String, ruleSet: Laws#RuleSet): Unit =
     for ((id, prop) <- ruleSet.all.properties)
@@ -291,36 +292,29 @@ trait FinchSpec extends AnyFlatSpec with Matchers with Checkers with AllInstance
   implicit def eqEndpoint[F[_]: Sync, A: Eq](implicit dispatcher: Dispatcher[F]): Eq[Endpoint[F, A]] = new Eq[Endpoint[F, A]] {
     private[this] def count: Int = 16
 
-    private[this] def await(result: Endpoint.Result[F, A]): Option[(Input, Either[Throwable, Output[A]])] = for {
+    private[this] def await(result: Endpoint.Result[F, A]) = for {
       r <- result.remainder
       o <- result.awaitOutput(dispatcher)
     } yield (r, o)
 
-    private[this] def inputs: Stream[Input] = Stream
-      .continually(
-        Arbitrary.arbitrary[Input].sample
-      )
-      .flatten
+    private[this] def inputs =
+      Iterator.continually(Arbitrary.arbitrary[Input].sample).flatten
 
-    override def eqv(x: Endpoint[F, A], y: Endpoint[F, A]): Boolean = inputs.take(count).forall { input =>
-      val resultX = await(x(input))
-      val resultY = await(y(input))
-
-      Eq[Option[(Input, Either[Throwable, Output[A]])]].eqv(resultX, resultY)
-    }
+    override def eqv(x: Endpoint[F, A], y: Endpoint[F, A]): Boolean =
+      inputs.take(count).forall(input => await(x(input)) eqv await(y(input)))
   }
 
   implicit def arbitraryEndpointResult[F[_]: Sync, A](implicit A: Arbitrary[A]): Arbitrary[EndpointResult[F, A]] =
     Arbitrary(genEndpointResult[F, A])
 
   implicit def eqEndpointResult[F[_]: Sync, A: Eq](implicit dispatcher: Dispatcher[F]): Eq[EndpointResult[F, A]] = new Eq[EndpointResult[F, A]] {
-    private[this] def await(result: Endpoint.Result[F, A]): Option[(Input, Either[Throwable, Output[A]])] = for {
+    private[this] def await(result: Endpoint.Result[F, A]) = for {
       r <- result.remainder
       o <- result.awaitOutput(dispatcher)
     } yield (r, o)
 
     def eqv(x: EndpointResult[F, A], y: EndpointResult[F, A]): Boolean =
-      Eq[Option[(Input, Either[Throwable, Output[A]])]].eqv(await(x), await(y))
+      await(x) eqv await(y)
   }
 
   implicit def arbitraryInput: Arbitrary[Input] =

@@ -275,7 +275,7 @@ class EndpointSpec extends FinchSpec {
       paramsNel("foor").map(_.toList.mkString),
       binaryBody.map(new String(_)),
       stringBody
-    ).foreach(ii => ii(i).awaitValue(dispatcherIO).get.left.get shouldBe an[Error.NotPresent])
+    ).foreach(_.apply(i).awaitValue(dispatcherIO).flatMap(_.swap.toOption).get shouldBe an[Error.NotPresent])
   }
 
   it should "maps lazily to values" in {
@@ -337,12 +337,16 @@ class EndpointSpec extends FinchSpec {
       val lr = left.product(right)
       val rl = right.product(left)
 
-      val all = a.fold(Set(_), _.errors.iterator.toSet) | b.fold(Set(_), _.errors.iterator.toSet)
-      val Some(Left(first)) = lr(Input.get("/")).awaitValue(dispatcherIO)
-      val Some(Left(second)) = rl(Input.get("/")).awaitValue(dispatcherIO)
+      val all =
+        a.fold[Set[Error]](e => Set(e), es => es.errors.iterator.toSet) ++
+          b.fold[Set[Error]](e => Set(e), es => es.errors.iterator.toSet)
 
-      first.asInstanceOf[Errors].errors.iterator.toSet === all &&
-      second.asInstanceOf[Errors].errors.iterator.toSet === all
+      inside(
+        (lr(Input.get("/")).awaitValue(dispatcherIO), rl(Input.get("/")).awaitValue(dispatcherIO))
+      ) { case (Some(Left(first)), Some(Left(second))) =>
+        first.asInstanceOf[Errors].errors.iterator.toSet === all &&
+        second.asInstanceOf[Errors].errors.iterator.toSet === all
+      }
     }
   }
 

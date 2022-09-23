@@ -19,26 +19,27 @@ class BootstrapSpec extends FinchSpec {
   it should "handle both Error and Errors" in {
     check { e: Either[Error, Errors] =>
       val exception = e.fold[Exception](identity, identity)
-
       val ee = Endpoint[IO].liftAsync[Unit](IO.raiseError(exception))
-      val (_, Right(rep)) = bootstrap.serve[Text.Plain](ee).compile.apply(Request()).unsafeRunSync()
-      rep.status === Status.BadRequest
+      inside(bootstrap.serve[Text.Plain](ee).compile.apply(Request()).unsafeRunSync()) { case (_, Right(rep)) =>
+        rep.status === Status.BadRequest
+      }
     }
   }
 
   it should "catch custom exceptions in attempt" in {
     val exception = new IllegalStateException
     val endpoint = Endpoint[IO].liftAsync[Unit](IO.raiseError(exception))
-    val (_, Left(e)) = bootstrap.serve[Text.Plain](endpoint).compile.apply(Request()).unsafeRunSync()
-    e shouldBe exception
+    inside(bootstrap.serve[Text.Plain](endpoint).compile.apply(Request()).unsafeRunSync()) { case (_, Left(e)) =>
+      e shouldBe exception
+    }
   }
 
   it should "respond 404 if endpoint is not matched" in {
     check { req: Request =>
       val s = bootstrap.serve[Text.Plain](Endpoint[IO].empty[Unit]).compile
-      val (_, Right(rep)) = s(req).unsafeRunSync()
-
-      rep.status === Status.NotFound
+      inside(s(req).unsafeRunSync()) { case (_, Right(rep)) =>
+        rep.status === Status.NotFound
+      }
     }
   }
 
@@ -54,12 +55,10 @@ class BootstrapSpec extends FinchSpec {
     val cc = Request(Method.Post, "/foo")
     val dd = Request(Method.Delete, "/foo")
 
-    def response(req: Request): Response = {
-      val (_, Right(res)) = s(req).unsafeRunSync()
-      res
-    }
-    response(Request(Method.Get, "/bar")).status shouldBe Status.NotFound
+    def response(req: Request): Response =
+      s(req).unsafeRunSync()._2.toTry.get
 
+    response(Request(Method.Get, "/bar")).status shouldBe Status.NotFound
     response(aa).contentString shouldBe "get foo"
     response(bb).contentString shouldBe "put foo"
     response(cc).contentString shouldBe "post foo"
@@ -72,19 +71,18 @@ class BootstrapSpec extends FinchSpec {
   it should "respond 415 if media type is not supported" in {
     val b = body[Foo, Text.Plain]
     val s = bootstrap.configure(enableUnsupportedMediaType = true).serve[Text.Plain](b).compile
-
     val i = Input.post("/").withBody[Application.Csv](Foo("bar"))
-
-    val (_, Right(res)) = s(i.request).unsafeRunSync()
-    res.status shouldBe Status.UnsupportedMediaType
+    inside(s(i.request).unsafeRunSync()) { case (_, Right(res)) =>
+      res.status shouldBe Status.UnsupportedMediaType
+    }
   }
 
   it should "match the request version" in {
     check { req: Request =>
       val s = bootstrap.serve[Text.Plain](Endpoint[IO].const(())).compile
-      val (_, Right(rep)) = s(req).unsafeRunSync()
-
-      rep.version === req.version
+      inside(s(req).unsafeRunSync()) { case (_, Right(rep)) =>
+        rep.version === req.version
+      }
     }
   }
 
@@ -94,21 +92,19 @@ class BootstrapSpec extends FinchSpec {
 
     check { (req: Request, include: Boolean) =>
       val s = bootstrap.configure(includeDateHeader = include).serve[Text.Plain](Endpoint[IO].const(())).compile
-
-      val (_, Right(rep)) = s(req).unsafeRunSync()
-      val now = parseDate(currentTime())
-
-      (include && (parseDate(rep.date.get) - now).abs <= 1) || (!include && rep.date.isEmpty)
+      inside(s(req).unsafeRunSync()) { case (_, Right(rep)) =>
+        val now = parseDate(currentTime())
+        (include && (parseDate(rep.date.get) - now).abs <= 1) || (!include && rep.date.isEmpty)
+      }
     }
   }
 
   it should "include Server header" in {
     check { (req: Request, include: Boolean) =>
       val s = bootstrap.configure(includeServerHeader = include).serve[Text.Plain](Endpoint[IO].const(())).compile
-
-      val (_, Right(rep)) = s(req).unsafeRunSync()
-
-      (include && rep.server === Some("Finch")) || (!include && rep.server.isEmpty)
+      inside(s(req).unsafeRunSync()) { case (_, Right(rep)) =>
+        (include && rep.server === Some("Finch")) || (!include && rep.server.isEmpty)
+      }
     }
   }
 
