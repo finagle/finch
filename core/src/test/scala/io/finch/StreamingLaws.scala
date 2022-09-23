@@ -47,18 +47,16 @@ abstract class StreamingLaws[S[_[_], _], F[_]] extends Laws with TestInstances {
 object StreamingLaws {
 
   def apply[S[_[_], _], F[_]: Sync](
-      dispatch: Dispatcher[F],
-      streamFromList: List[Buf] => S[F, Buf],
-      listFromStream: S[F, Array[Byte]] => F[List[Buf]]
-  )(implicit
-      lr: LiftReader[S, F],
-      tr: ToResponse.Aux[F, S[F, Buf], Text.Plain]
-  ): StreamingLaws[S, F] = new StreamingLaws[S, F] {
-    val LR = lr
-    val F = Sync[F]
-    val dispatcher = dispatch
-    val toResponse = tr
-    val fromList = streamFromList
-    val toList = listFromStream
-  }
+      d: Dispatcher[F],
+      from: List[Buf] => S[F, Buf],
+      to: S[F, Array[Byte]] => F[List[Buf]]
+  )(implicit lr: LiftReader[S, F], tr: ToResponse.Aux[F, S[F, Buf], Text.Plain]): StreamingLaws[S, F] =
+    new StreamingLaws[S, F] {
+      val LR = lr
+      val F = Sync[F]
+      val dispatcher = d
+      val toResponse = tr
+      val fromList = from
+      val toList = to
+    }
 }

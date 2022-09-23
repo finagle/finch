@@ -2,23 +2,27 @@ package io.finch
 
 import cats.Show
 import cats.effect.SyncIO
+import cats.syntax.all._
+import io.finch.data.Foo
 
 import java.util.UUID
+import scala.reflect.ClassTag
 
 class ParamSpec extends FinchSpec[SyncIO] {
 
   behavior of "param*"
 
-  def withParam[A: Show](k: String)(v: A): Input = Input.get("/", k -> Show[A].show(v))
+  def laws[A: DecodeEntity: Show: ClassTag](k: String) =
+    EntityEndpointLaws(paramOption[A](k), Dispatchers.forSyncIO)(v => Input.get("/", k -> v.show))
 
-  checkAll("Param[String]", EntityEndpointLaws(paramOption("x"))(withParam("x")).evaluating)
-  checkAll("Param[Int]", EntityEndpointLaws(paramOption("x"))(withParam("x")).evaluating)
-  checkAll("Param[Long]", EntityEndpointLaws(paramOption("x"))(withParam("x")).evaluating)
-  checkAll("Param[Boolean]", EntityEndpointLaws(paramOption("x"))(withParam("x")).evaluating)
-  checkAll("Param[Float]", EntityEndpointLaws(paramOption("x"))(withParam("x")).evaluating)
-  checkAll("Param[Double]", EntityEndpointLaws(paramOption("x"))(withParam("x")).evaluating)
-  checkAll("Param[UUID]", EntityEndpointLaws(paramOption("x"))(withParam("x")).evaluating)
-  checkAll("Param[Foo]", EntityEndpointLaws(paramOption("x"))(withParam("x")).evaluating)
+  checkAll("Param[String]", laws[String]("nickname").evaluating)
+  checkAll("Param[Int]", laws[Int]("level").evaluating)
+  checkAll("Param[Long]", laws[Long]("gold").evaluating)
+  checkAll("Param[Boolean]", laws[Boolean]("hard-mode").evaluating)
+  checkAll("Param[Float]", laws[Float]("multiplier").evaluating)
+  checkAll("Param[Double]", laws[Double]("score").evaluating)
+  checkAll("Param[UUID]", laws[UUID]("id").evaluating)
+  checkAll("Param[Foo]", laws[Foo]("foo").evaluating)
 
   checkAll(
     "EvaluatingParam[String]",

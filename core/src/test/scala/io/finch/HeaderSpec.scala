@@ -1,25 +1,29 @@
 package io.finch
 
 import cats.effect.SyncIO
+import cats.syntax.all._
 import cats.{Eq, Show}
+import io.finch.data.Foo
 import org.scalacheck.Arbitrary
 
 import java.util.UUID
+import scala.reflect.ClassTag
 
 class HeaderSpec extends FinchSpec[SyncIO] {
 
   behavior of "header*"
 
-  def withHeader[A: Show](k: String)(v: A): Input = Input.get("/").withHeaders(k -> Show[A].show(v))
+  def laws[A: DecodeEntity: Show: ClassTag](k: String) =
+    EntityEndpointLaws(headerOption[A](k), Dispatchers.forSyncIO)(v => Input.get("/").withHeaders(k -> v.show))
 
-  checkAll("Header[String]", EntityEndpointLaws(headerOption("x"))(withHeader("x")).evaluating(Arbitrary(genNonEmptyString), Eq[String]))
-  checkAll("Header[Int]", EntityEndpointLaws(headerOption("x"))(withHeader("x")).evaluating)
-  checkAll("Header[Long]", EntityEndpointLaws(headerOption("x"))(withHeader("x")).evaluating)
-  checkAll("Header[Boolean]", EntityEndpointLaws(headerOption("x"))(withHeader("x")).evaluating)
-  checkAll("Header[Float]", EntityEndpointLaws(headerOption("x"))(withHeader("x")).evaluating)
-  checkAll("Header[Double]", EntityEndpointLaws(headerOption("x"))(withHeader("x")).evaluating)
-  checkAll("Header[UUID]", EntityEndpointLaws(headerOption("x"))(withHeader("x")).evaluating)
-  checkAll("Header[Foo]", EntityEndpointLaws(headerOption("x"))(withHeader("x")).evaluating)
+  checkAll("Header[String]", laws[String]("nickname").evaluating(Arbitrary(genNonEmptyString), Eq[String]))
+  checkAll("Header[Int]", laws[Int]("level").evaluating)
+  checkAll("Header[Long]", laws[Long]("gold").evaluating)
+  checkAll("Header[Boolean]", laws[Boolean]("hard-mode").evaluating)
+  checkAll("Header[Float]", laws[Float]("multiplier").evaluating)
+  checkAll("Header[Double]", laws[Double]("score").evaluating)
+  checkAll("Header[UUID]", laws[UUID]("id").evaluating)
+  checkAll("Header[Foo]", laws[Foo]("foo").evaluating)
 
   checkAll(
     "EvaluatingHeader[String]",

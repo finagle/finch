@@ -5,6 +5,10 @@ import cats.effect.SyncIO
 import com.twitter.finagle.http.exp.Multipart
 import com.twitter.finagle.http.{FileElement, RequestBuilder, SimpleElement}
 import com.twitter.io.Buf
+import io.finch.data.Foo
+
+import java.util.UUID
+import scala.reflect.ClassTag
 
 class MultipartSpec extends FinchSpec[SyncIO] {
 
@@ -17,20 +21,22 @@ class MultipartSpec extends FinchSpec[SyncIO] {
 
   def withAttribute[A: Show](first: (String, A), rest: (String, A)*): Input = {
     val req = RequestBuilder().url("http://example.com").add(SimpleElement(first._1, Show[A].show(first._2)))
-
     Input.fromRequest(
       rest.foldLeft(req)((builder, attr) => builder.add(SimpleElement(attr._1, Show[A].show(attr._2)))).buildFormPost(multipart = true)
     )
   }
 
-  checkAll("Attribute[String]", EntityEndpointLaws(multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[Int]", EntityEndpointLaws(multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[Long]", EntityEndpointLaws(multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[Boolean]", EntityEndpointLaws(multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[Float]", EntityEndpointLaws(multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[Double]", EntityEndpointLaws(multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[UUID]", EntityEndpointLaws(multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
-  checkAll("Attribute[Foo]", EntityEndpointLaws(multipartAttributeOption("x"))(a => withAttribute("x" -> a)).evaluating)
+  def laws[A: DecodeEntity: Show: ClassTag](k: String) =
+    EntityEndpointLaws(multipartAttributeOption[A](k), Dispatchers.forSyncIO)(v => withAttribute(k -> v))
+
+  checkAll("Attribute[String]", laws[String]("nickname").evaluating)
+  checkAll("Attribute[Int]", laws[Int]("level").evaluating)
+  checkAll("Attribute[Long]", laws[Long]("gold").evaluating)
+  checkAll("Attribute[Boolean]", laws[Boolean]("hard-mode").evaluating)
+  checkAll("Attribute[Float]", laws[Float]("multiplier").evaluating)
+  checkAll("Attribute[Double]", laws[Double]("score").evaluating)
+  checkAll("Attribute[UUID]", laws[UUID]("id").evaluating)
+  checkAll("Attribute[Foo]", laws[Foo]("foo").evaluating)
 
   checkAll(
     "EvaluatingAttribute[String]",

@@ -15,7 +15,7 @@ class DivSpec extends AnyFlatSpec with Matchers {
   }
 
   it should "give back bad request if we divide by 0" in {
-    div(Input.post("/20/0")).output.map(_.status).unsafeRunSync() shouldBe Some(Status.BadRequest)
+    div(Input.post("/20/0")).output.map(_.status).unsafeRunSync() shouldBe Status.BadRequest
   }
 
   it should "give back nothing for other verbs" in {
