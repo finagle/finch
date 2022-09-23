@@ -1,7 +1,7 @@
 package io.finch
 
 import cats.data._
-import cats.effect.{Async, Resource, Sync}
+import cats.effect.{Resource, Sync}
 import cats.syntax.all._
 import cats.{Alternative, Applicative, ApplicativeThrow, Apply, Functor, Id, Monad, MonadThrow, MonoidK, SemigroupK, ~>}
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart}
@@ -449,7 +449,7 @@ object Endpoint {
     * @see
     *   [[fromFile]]
     */
-  def fromInputStream[F[_]](stream: Resource[F, InputStream])(implicit F: Async[F]): Endpoint[F, Buf] =
+  def fromInputStream[F[_]](stream: Resource[F, InputStream])(implicit F: Sync[F]): Endpoint[F, Buf] =
     new FromInputStream[F](stream)
 
   /** Creates an [[Endpoint]] from a given [[java.io.File]]. Uses [[cats.effect.Resource]] for safer resource management
@@ -457,7 +457,7 @@ object Endpoint {
     * @see
     *   [[fromInputStream]]
     */
-  def fromFile[F[_]](file: File)(implicit F: Async[F]): Endpoint[F, Buf] =
+  def fromFile[F[_]](file: File)(implicit F: Sync[F]): Endpoint[F, Buf] =
     fromInputStream[F](Resource.fromAutoCloseable(F.delay(new FileInputStream(file))))
 
   /** Creates an [[Endpoint]] that serves an asset (static content) from a Java classpath resource, located at `path`, as a static content. The returned
@@ -489,11 +489,9 @@ object Endpoint {
     * @see
     *   https://docs.oracle.com/javase/8/docs/technotes/guides/lang/resources.html
     */
-  def classpathAsset[F[_]](path: String)(implicit F: Async[F]): Endpoint[F, Buf] = {
+  def classpathAsset[F[_]](path: String)(implicit F: Sync[F]): Endpoint[F, Buf] = {
     val asset = new Asset[F](path)
-    val stream =
-      fromInputStream[F](Resource.fromAutoCloseable(F.delay(getClass.getResourceAsStream(path))))
-
+    val stream = fromInputStream[F](Resource.fromAutoCloseable(F.delay(getClass.getResourceAsStream(path))))
     asset :: stream
   }
 
@@ -510,10 +508,9 @@ object Endpoint {
     *     ...
     * }}}
     */
-  def filesystemAsset[F[_]](path: String)(implicit F: Async[F]): Endpoint[F, Buf] = {
+  def filesystemAsset[F[_]](path: String)(implicit F: Sync[F]): Endpoint[F, Buf] = {
     val asset = new Asset[F](path)
     val file = fromFile[F](new File(path))
-
     asset :: file
   }
 
