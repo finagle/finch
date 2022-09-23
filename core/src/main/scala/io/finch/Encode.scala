@@ -5,8 +5,7 @@ import com.twitter.io.Buf
 
 import java.nio.charset.Charset
 
-/** Encodes an HTTP payload (represented as an arbitrary type `A`) with a given [[Charset]].
-  */
+/** Encodes an HTTP payload (represented as an arbitrary type `A`) with a given [[java.nio.charset.Charset]]. */
 trait Encode[A] {
   type ContentType <: String
 

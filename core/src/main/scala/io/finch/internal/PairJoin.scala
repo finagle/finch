@@ -3,8 +3,8 @@ package io.finch.internal
 import shapeless.ops.adjoin.Adjoin
 import shapeless.{::, DepFn2, HNil}
 
-/** We need a version of [[shapeless.ops.adjoin.Adjoin]] that provides slightly different behavior in the case of singleton results (we simply return the value,
-  * not a singleton `HList`).
+/** We need a version of `Adjoin` that provides slightly different behavior in the case of singleton results (we simply return the value, not a singleton
+  * `HList`).
   * @groupname LowPriorityPair Low priority `PairAdjoin`
   * @groupprio LowPriorityPair 0
   */

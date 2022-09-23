@@ -11,7 +11,7 @@ import scala.collection.mutable.ListBuffer
 
 /** An input for [[Endpoint]] that glues two individual pieces together:
   *
-  *   - Finagle's [[Request]] needed for evaluating (e.g., `body`, `param`)
+  *   - Finagle's [[com.twitter.finagle.http.Request]] needed for evaluating (e.g., `body`, `param`)
   *   - Finch's route (represented as `Seq[String]`) needed for matching (e.g., `path`)
   */
 final case class Input(request: Request, route: List[String]) {
@@ -65,8 +65,7 @@ final case class Input(request: Request, route: List[String]) {
   }
 }
 
-/** Creates an input for [[Endpoint]] from [[Request]].
-  */
+/** Creates an input for [[Endpoint]] from [[com.twitter.finagle.http.Request]]. */
 object Input {
 
   final private def copyRequest(from: Request): Request =
@@ -126,8 +125,7 @@ object Input {
 
   implicit val inputEq: Eq[Input] = Eq.fromUniversalEquals
 
-  /** Creates an [[Input]] from a given [[Request]].
-    */
+  /** Creates an [[Input]] from a given [[com.twitter.finagle.http.Request]]. */
   def fromRequest(req: Request): Input = {
     val p = req.path
 

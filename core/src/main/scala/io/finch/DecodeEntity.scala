@@ -61,7 +61,7 @@ trait LowPriorityDecode {
   /** Creates an [[DecodeEntity]] instance from a given function `String => Either[Throwable, A]`. */
   def instance[A](fn: String => Either[Throwable, A]): DecodeEntity[A] = fn(_)
 
-  /** Creates a [[Decode]] from [[shapeless.Generic]] for single value case classes. */
+  /** Creates a [[Decode]] from `Generic` for single value case classes. */
   implicit def decodeFromGeneric[A, H <: HList, E](implicit
       gen: Generic.Aux[A, H],
       ev: (E :: HNil) =:= H,
