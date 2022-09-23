@@ -6,7 +6,7 @@ import shapeless.{:+:, CNil, Coproduct, Witness}
 import java.nio.charset.Charset
 import scala.util.control.NoStackTrace
 
-/** Decodes an HTTP payload represented as [[com.twitter.io.Buf]] (encoded with [[java.nio.charset.Charset]]) into an arbitrary type `A`. */
+/** Decodes an HTTP payload represented as [[com.twitter.io.Buf]] (encoded with `Charset`) into an arbitrary type `A`. */
 trait Decode[A] {
   type ContentType <: String
 
