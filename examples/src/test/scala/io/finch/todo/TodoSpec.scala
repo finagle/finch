@@ -1,6 +1,5 @@
 package io.finch.todo
 
-import cats.effect.std.Dispatcher
 import cats.effect.unsafe.implicits.global
 import cats.effect.{IO, Ref}
 import com.twitter.finagle.http.Status
@@ -12,15 +11,9 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
 
-import scala.concurrent.Future
-
 class TodoSpec extends AnyFlatSpec with Matchers with Checkers {
 
   behavior of "Todo App"
-
-  val dispatcher: Dispatcher[IO] = new Dispatcher[IO] {
-    override def unsafeToFutureCancelable[A](fa: IO[A]): (Future[A], () => Future[Unit]) = fa.unsafeToFutureCancelable()
-  }
 
   case class TodoCompleted(completed: Boolean)
 

@@ -5,7 +5,7 @@ import cats.effect.SyncIO
 
 import java.util.UUID
 
-class ParamSpec extends FinchSpec {
+class ParamSpec extends FinchSpec[SyncIO] {
 
   behavior of "param*"
 

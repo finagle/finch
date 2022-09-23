@@ -7,7 +7,7 @@ import com.twitter.io.Buf
 import java.nio.charset.{Charset, StandardCharsets}
 import scala.util.{Failure, Success, Try}
 
-class OutputSpec extends FinchSpec {
+class OutputSpec extends FinchSpec[Id] {
 
   behavior of "Output"
 

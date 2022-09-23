@@ -1,11 +1,12 @@
 package io.finch
 
+import cats.Id
 import com.twitter.io.Buf
 
 import java.nio.charset.Charset
 import java.util.UUID
 
-class EncodeSpec extends FinchSpec {
+class EncodeSpec extends FinchSpec[Id] {
 
   checkAll("Encode.Text[String]", EncodeLaws.text[String].all)
   checkAll("Encode.Text[Int]", EncodeLaws.text[Int].all)

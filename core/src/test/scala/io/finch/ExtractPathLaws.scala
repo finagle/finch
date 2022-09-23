@@ -1,14 +1,13 @@
 package io.finch
 
 import cats.effect.SyncIO
-import cats.instances.AllInstances
 import io.netty.handler.codec.http.QueryStringEncoder
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
 import scala.reflect.ClassTag
 
-abstract class ExtractPathLaws[A] extends Laws with MissingInstances with AllInstances {
+abstract class ExtractPathLaws[A] extends Laws with TestInstances {
   def decode: DecodePath[A]
   def one: Endpoint[SyncIO, A]
   def tail: Endpoint[SyncIO, List[A]]

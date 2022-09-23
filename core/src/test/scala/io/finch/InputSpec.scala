@@ -1,6 +1,7 @@
 package io.finch
 
 import cats.effect.IO
+import cats.effect.unsafe.IORuntime
 import com.twitter.finagle.http.Method
 import com.twitter.io.{Buf, Pipe, Reader}
 import com.twitter.util.{Await, Future}
@@ -9,7 +10,7 @@ import io.finch.internal.HttpContent
 
 import java.nio.charset.Charset
 
-class InputSpec extends FinchSpec {
+class InputSpec extends FinchSpec[IO] {
 
   behavior of "Input"
 
@@ -62,8 +63,9 @@ class InputSpec extends FinchSpec {
       }
 
     check { (i: Input, s: List[Buf]) =>
-      val out = i.withBody[Application.OctetStream].apply[IO, ListStream, Buf](s, dispatcherIO).request.reader
-      s.forall(buf => buf == Await.result(out.read()).get)
+      implicit val runtime: IORuntime = IORuntime.global
+      val out = i.withBody[Application.OctetStream].apply[IO, ListStream, Buf](s).unsafeRunSync().request.reader
+      s.forall(_ == Await.result(out.read()).get)
     }
   }
 

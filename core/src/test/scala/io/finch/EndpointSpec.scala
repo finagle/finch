@@ -16,7 +16,7 @@ import java.io.{ByteArrayInputStream, InputStream}
 import java.net.URLEncoder
 import java.util.UUID
 
-class EndpointSpec extends FinchSpec {
+class EndpointSpec extends FinchSpec[SyncIO] {
   type EndpointIO[A] = Endpoint[SyncIO, A]
 
   implicit val isomorphisms: Isomorphisms[EndpointIO] =
@@ -57,7 +57,7 @@ class EndpointSpec extends FinchSpec {
 
   it should "propagate the default (Ok) output" in {
     check { i: Input =>
-      path[String].apply(i).valueOption.unsafeRunSync() === i.route.headOption.map(s => Ok(s))
+      path[String].apply(i).outputOption.unsafeRunSync() === i.route.headOption.map(Ok)
     }
   }
 
@@ -232,7 +232,7 @@ class EndpointSpec extends FinchSpec {
     case object CustomException extends Exception
 
     check { (i: Input, s: String, e: Exception) =>
-      liftAsync[String](SyncIO.raiseError(e)).handle { case CustomException => Created(s) }.apply(i).outputAttempt.unsafeRunSync() === Some(Left(e))
+      liftAsync[String](SyncIO.raiseError(e)).handle { case CustomException => Created(s) }.apply(i).outputAttempt.unsafeRunSync() === Left(e)
     }
   }
 
@@ -406,13 +406,12 @@ class EndpointSpec extends FinchSpec {
 
   it should "transform F[_] to G[_] effect" in {
     type W[A] = WriterT[SyncIO, List[String], A]
+    val nat = new (SyncIO ~> W) {
+      def apply[A](fa: SyncIO[A]) = WriterT.liftF(fa)
+    }
 
     check { (ep: Endpoint[SyncIO, Int], input: Input) =>
-      val nat = new (SyncIO ~> W) {
-        def apply[A](fa: SyncIO[A]): WriterT[SyncIO, List[String], A] = WriterT.liftF(fa)
-      }
-
-      ep.mapK(nat)(input).outputAttempt.run.unsafeRunSync() === ep(input).outputAttempt.unsafeRunSync()
+      ep.mapK(nat)(input).outputAttempt.value.unsafeRunSync() === ep(input).outputAttempt.unsafeRunSync()
     }
   }
 }

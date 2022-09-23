@@ -1,6 +1,8 @@
 package io.finch
 
-class TraceSpec extends FinchSpec {
+import cats.Id
+
+class TraceSpec extends FinchSpec[Id] {
 
   behavior of "Trace"
 

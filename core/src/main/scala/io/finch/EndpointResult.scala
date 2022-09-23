@@ -61,7 +61,7 @@ object EndpointResult {
 
     def output(implicit F: ApplicativeThrow[F]): F[Output[A]] = self match {
       case EndpointResult.Matched(_, _, out) => out
-      case _                                 => F.raiseError(new IllegalStateException("Endpoint didn't match"))
+      case _                                 => F.raiseError(NotMatchedError)
     }
 
     def valueAttempt(implicit F: ApplicativeThrow[F]): F[Either[Throwable, A]] =
@@ -73,4 +73,6 @@ object EndpointResult {
     def value(implicit F: ApplicativeThrow[F]): F[A] =
       F.map(output)(_.value)
   }
+
+  private case object NotMatchedError extends NoSuchElementException("Endpoint didn't match")
 }

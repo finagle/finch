@@ -1,13 +1,12 @@
 package io.finch
 
 import cats.Eq
-import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
-trait DecodePathLaws[A] extends Laws with MissingInstances with AllInstances {
+trait DecodePathLaws[A] extends Laws with TestInstances {
 
   def capture: DecodePath[A]
 

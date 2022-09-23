@@ -1,11 +1,12 @@
 package io.finch.internal
 
+import cats.Id
 import com.twitter.io.Buf
 import io.finch.FinchSpec
 
 import java.nio.charset.Charset
 
-class HttpContentSpec extends FinchSpec {
+class HttpContentSpec extends FinchSpec[Id] {
 
   behavior of "HttpContet"
 

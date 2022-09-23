@@ -4,9 +4,8 @@ import cats.Id
 import cats.effect.SyncIO
 import com.twitter.finagle.http.Response
 import org.scalacheck.Arbitrary
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-class MethodSpec extends FinchSpec with ScalaCheckDrivenPropertyChecks {
+class MethodSpec extends FinchSpec[SyncIO] {
 
   behavior of "method"
 

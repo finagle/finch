@@ -1,5 +1,6 @@
 package io.finch
 
+import cats.effect.SyncIO
 import com.twitter.finagle.http.Request
 import com.twitter.io.Buf
 import io.finch.data.Foo
@@ -7,7 +8,7 @@ import shapeless.{:+:, CNil}
 
 import java.nio.charset.Charset
 
-class BodySpec extends FinchSpec {
+class BodySpec extends FinchSpec[SyncIO] {
 
   private class EvalDecode[A](d: Decode.Text[A]) extends Decode[A] {
     type ContentType = Text.Plain
@@ -64,7 +65,7 @@ class BodySpec extends FinchSpec {
   it should "never evaluate until run" in {
     check { f: Foo =>
       val i = Input.post("/").withBody[Text.Plain](f)
-      implicit val ed: EvalDecode[Foo] = new EvalDecode[Foo](Decode[Foo, Text.Plain])
+      implicit val ed = new EvalDecode[Foo](Decode[Foo, Text.Plain])
       textBody[Foo].apply(i)
       !ed.evaluated
     }

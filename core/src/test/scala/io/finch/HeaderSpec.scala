@@ -6,7 +6,7 @@ import org.scalacheck.Arbitrary
 
 import java.util.UUID
 
-class HeaderSpec extends FinchSpec {
+class HeaderSpec extends FinchSpec[SyncIO] {
 
   behavior of "header*"
 

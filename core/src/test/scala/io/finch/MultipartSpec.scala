@@ -6,7 +6,7 @@ import com.twitter.finagle.http.exp.Multipart
 import com.twitter.finagle.http.{FileElement, RequestBuilder, SimpleElement}
 import com.twitter.io.Buf
 
-class MultipartSpec extends FinchSpec {
+class MultipartSpec extends FinchSpec[SyncIO] {
 
   behavior of "multipart*"
 
@@ -50,7 +50,7 @@ class MultipartSpec extends FinchSpec {
 
   it should "fail when attribute is missing" in {
     an[Error.NotPresent] should be thrownBy {
-      multipartAttribute("foo").apply(Input.get("/")).valueOption.unsafeRunSync()
+      multipartAttribute("foo").apply(Input.get("/")).value.unsafeRunSync()
     }
   }
 
@@ -60,7 +60,7 @@ class MultipartSpec extends FinchSpec {
 
   it should "fail when attributes are missing" in {
     an[Error.NotPresent] should be thrownBy {
-      multipartAttributesNel("foo").apply(Input.get("/")).valueOption.unsafeRunSync()
+      multipartAttributesNel("foo").apply(Input.get("/")).value.unsafeRunSync()
     }
   }
 
@@ -70,7 +70,7 @@ class MultipartSpec extends FinchSpec {
 
   it should "fail when attribute is malformed" in {
     an[Error.NotParsed] should be thrownBy {
-      multipartAttribute[Int]("foo").apply(withAttribute("foo" -> "bar")).valueOption.unsafeRunSync()
+      multipartAttribute[Int]("foo").apply(withAttribute("foo" -> "bar")).value.unsafeRunSync()
     }
   }
 }
