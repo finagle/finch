@@ -7,9 +7,9 @@ import cats.effect.{IO, SyncIO}
 import scala.concurrent.Future
 
 object Dispatchers {
-  val forIO: Dispatcher[IO] = new Dispatcher[IO] {
-    def unsafeToFutureCancelable[A](fa: IO[A]) =
-      fa.unsafeToFutureCancelable()(IORuntime.global)
+  lazy val forIO: Dispatcher[IO] = new Dispatcher[IO] {
+    implicit val runtime: IORuntime = IORuntime.global
+    def unsafeToFutureCancelable[A](fa: IO[A]) = fa.unsafeToFutureCancelable()
   }
 
   val forSyncIO: Dispatcher[SyncIO] = new Dispatcher[SyncIO] {
