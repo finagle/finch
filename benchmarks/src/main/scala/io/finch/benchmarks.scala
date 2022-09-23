@@ -1,6 +1,5 @@
 package io.finch
 
-import cats.effect.std.Dispatcher
 import cats.effect.unsafe.implicits.global
 import cats.effect.{IO, Resource}
 import com.twitter.finagle.Service
@@ -15,7 +14,6 @@ import shapeless._
 
 import java.nio.charset.{Charset, StandardCharsets}
 import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
-import scala.concurrent.Future
 
 @BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -23,10 +21,6 @@ import scala.concurrent.Future
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(2)
 abstract class FinchBenchmark extends Endpoint.Module[IO] {
-  val dispatcher: Dispatcher[IO] = new Dispatcher[IO] {
-    override def unsafeToFutureCancelable[A](fa: IO[A]): (Future[A], () => Future[Unit]) = fa.unsafeToFutureCancelable()
-  }
-
   val postPayload: Input = Input.post("/").withBody[Text.Plain](Buf.Utf8("x" * 1024))
   val getRoot: Input = Input.get("/")
   val getFooBarBaz: Input = Input.get("/foo/bar/baz")
@@ -48,66 +42,65 @@ class InputBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class BodyBenchmark extends FinchBenchmark {
-
   val fooOptionAsText: Endpoint[IO, Option[Foo]] = bodyOption[Foo, Text.Plain]
   val fooAsText: Endpoint[IO, Foo] = body[Foo, Text.Plain]
 
   @Benchmark
-  def fooOption: Option[Option[Foo]] = fooOptionAsText(postPayload).awaitValueUnsafe(dispatcher)
+  def fooOption: Option[Option[Foo]] = fooOptionAsText(postPayload).valueOption.unsafeRunSync()
 
   @Benchmark
-  def foo: Option[Foo] = fooAsText(postPayload).awaitValueUnsafe(dispatcher)
+  def foo: Option[Foo] = fooAsText(postPayload).valueOption.unsafeRunSync()
 
   @Benchmark
-  def stringOption: Option[Option[String]] = stringBodyOption.apply(postPayload).awaitValueUnsafe(dispatcher)
+  def stringOption: Option[Option[String]] = stringBodyOption.apply(postPayload).valueOption.unsafeRunSync()
 
   @Benchmark
-  def string: Option[String] = stringBody.apply(postPayload).awaitValueUnsafe(dispatcher)
+  def string: Option[String] = stringBody.apply(postPayload).valueOption.unsafeRunSync()
 
   @Benchmark
-  def byteArrayOption: Option[Option[Array[Byte]]] = binaryBodyOption.apply(postPayload).awaitValueUnsafe(dispatcher)
+  def byteArrayOption: Option[Option[Array[Byte]]] = binaryBodyOption.apply(postPayload).valueOption.unsafeRunSync()
 
   @Benchmark
-  def byteArray: Option[Array[Byte]] = binaryBody.apply(postPayload).awaitValueUnsafe(dispatcher)
+  def byteArray: Option[Array[Byte]] = binaryBody.apply(postPayload).valueOption.unsafeRunSync()
 }
 
 @State(Scope.Benchmark)
 class MatchPathBenchmark extends FinchBenchmark {
-
   val foo: Endpoint[IO, HNil] = "foo"
 
   @Benchmark
-  def stringSome: Option[HNil] = foo(getFooBarBaz).awaitValueUnsafe(dispatcher)
+  def stringSome: Option[HNil] = foo(getFooBarBaz).valueOption.unsafeRunSync()
 
   @Benchmark
-  def stringNone: Option[HNil] = foo(getRoot).awaitValueUnsafe(dispatcher)
+  def stringNone: Option[HNil] = foo(getRoot).valueOption.unsafeRunSync()
 }
 
 @State(Scope.Benchmark)
 class ExtractPathBenchmark extends FinchBenchmark {
-  @Benchmark
-  def stringSome: Option[String] = path[String].apply(getFooBarBaz).awaitValueUnsafe(dispatcher)
 
   @Benchmark
-  def stringNone: Option[String] = path[String].apply(getRoot).awaitValueUnsafe(dispatcher)
+  def stringSome: Option[String] = path[String].apply(getFooBarBaz).valueOption.unsafeRunSync()
 
   @Benchmark
-  def longSome: Option[Long] = path[Long].apply(getTenTwenty).awaitValueUnsafe(dispatcher)
+  def stringNone: Option[String] = path[String].apply(getRoot).valueOption.unsafeRunSync()
 
   @Benchmark
-  def longNone: Option[Long] = path[Long].apply(getFooBarBaz).awaitValueUnsafe(dispatcher)
+  def longSome: Option[Long] = path[Long].apply(getTenTwenty).valueOption.unsafeRunSync()
 
   @Benchmark
-  def intSome: Option[Int] = path[Int].apply(getTenTwenty).awaitValueUnsafe(dispatcher)
+  def longNone: Option[Long] = path[Long].apply(getFooBarBaz).valueOption.unsafeRunSync()
 
   @Benchmark
-  def intNone: Option[Int] = path[Int].apply(getFooBarBaz).awaitValueUnsafe(dispatcher)
+  def intSome: Option[Int] = path[Int].apply(getTenTwenty).valueOption.unsafeRunSync()
 
   @Benchmark
-  def booleanSome: Option[Boolean] = path[Boolean].apply(getTrueFalse).awaitValueUnsafe(dispatcher)
+  def intNone: Option[Int] = path[Int].apply(getFooBarBaz).valueOption.unsafeRunSync()
 
   @Benchmark
-  def booleanNone: Option[Boolean] = path[Boolean].apply(getTenTwenty).awaitValueUnsafe(dispatcher)
+  def booleanSome: Option[Boolean] = path[Boolean].apply(getTrueFalse).valueOption.unsafeRunSync()
+
+  @Benchmark
+  def booleanNone: Option[Boolean] = path[Boolean].apply(getTenTwenty).valueOption.unsafeRunSync()
 }
 
 @State(Scope.Benchmark)
@@ -120,13 +113,13 @@ class ProductBenchmark extends FinchBenchmark {
     Endpoint[IO].empty[Int].product(Endpoint[IO].const("foo"))
 
   @Benchmark
-  def bothMatched: Option[(Int, String)] = both(getRoot).awaitValueUnsafe(dispatcher)
+  def bothMatched: Option[(Int, String)] = both(getRoot).valueOption.unsafeRunSync()
 
   @Benchmark
-  def leftMatched: Option[(Int, String)] = left(getRoot).awaitValueUnsafe(dispatcher)
+  def leftMatched: Option[(Int, String)] = left(getRoot).valueOption.unsafeRunSync()
 
   @Benchmark
-  def rightMatched: Option[(Int, String)] = right(getRoot).awaitValueUnsafe(dispatcher)
+  def rightMatched: Option[(Int, String)] = right(getRoot).valueOption.unsafeRunSync()
 }
 
 @State(Scope.Benchmark)
@@ -139,13 +132,13 @@ class CoproductBenchmark extends FinchBenchmark {
     Endpoint[IO].empty.coproduct(Endpoint[IO].const("bar"))
 
   @Benchmark
-  def bothMatched: Option[String] = both(getRoot).awaitValueUnsafe(dispatcher)
+  def bothMatched: Option[String] = both(getRoot).valueOption.unsafeRunSync()
 
   @Benchmark
-  def leftMatched: Option[String] = left(getRoot).awaitValueUnsafe(dispatcher)
+  def leftMatched: Option[String] = left(getRoot).valueOption.unsafeRunSync()
 
   @Benchmark
-  def rightMatched: Option[String] = right(getRoot).awaitValueUnsafe(dispatcher)
+  def rightMatched: Option[String] = right(getRoot).valueOption.unsafeRunSync()
 }
 
 @State(Scope.Benchmark)
@@ -157,16 +150,16 @@ class MapBenchmark extends FinchBenchmark {
   val mapTenOutputAsync: Endpoint[IO, Int] = ten.mapOutputAsync(a => IO.pure(Ok(a + 10)))
 
   @Benchmark
-  def map: Option[Int] = mapTen(getRoot).awaitValueUnsafe(dispatcher)
+  def map: Option[Int] = mapTen(getRoot).valueOption.unsafeRunSync()
 
   @Benchmark
-  def mapAsync: Option[Int] = mapTenAsync(getRoot).awaitValueUnsafe(dispatcher)
+  def mapAsync: Option[Int] = mapTenAsync(getRoot).valueOption.unsafeRunSync()
 
   @Benchmark
-  def mapOutput: Option[Int] = mapTenOutput(getRoot).awaitValueUnsafe(dispatcher)
+  def mapOutput: Option[Int] = mapTenOutput(getRoot).valueOption.unsafeRunSync()
 
   @Benchmark
-  def mapOutputAsync: Option[Int] = mapTenOutputAsync(getRoot).awaitValueUnsafe(dispatcher)
+  def mapOutputAsync: Option[Int] = mapTenOutputAsync(getRoot).valueOption.unsafeRunSync()
 }
 
 @State(Scope.Benchmark)
@@ -201,9 +194,7 @@ abstract class BootstrapBenchmark[CT](init: Bootstrap[IO, HNil, HNil])(implicit
     init.serve[CT](Endpoint[IO].const(List.fill(128)(Foo(scala.util.Random.alphanumeric.take(10).mkString)))).toService
 
   @Benchmark
-  def foos: Response = Await.result(dispatcher.unsafeRunSync(foo.use { service =>
-    IO(service.apply(issueRequest()))
-  }))
+  def foos: Response = Await.result(foo.use(service => IO(service(issueRequest()))).unsafeRunSync())
 }
 
 class JsonBootstrapBenchmark extends BootstrapBenchmark[Application.Json](Bootstrap[IO])
@@ -224,7 +215,6 @@ class JsonAndTextNegotiatedBootstrapBenchmark extends BootstrapBenchmark[Applica
 
 @State(Scope.Benchmark)
 class TooFastStringBenchmark extends FinchBenchmark {
-
   import io.finch.internal.TooFastString
 
   @Benchmark
@@ -239,14 +229,13 @@ class TooFastStringBenchmark extends FinchBenchmark {
 
 @State(Scope.Benchmark)
 class HttpMessageBenchmark extends FinchBenchmark {
-
   import io.finch.internal.HttpMessage
 
   private val req = Request()
   req.contentType = "application/json;charset=utf-8"
 
   @Benchmark
-  def fastChartset: Charset = req.charsetOrUtf8
+  def fastCharset: Charset = req.charsetOrUtf8
 
   @Benchmark
   def slowCharset: Charset = req.charset match {

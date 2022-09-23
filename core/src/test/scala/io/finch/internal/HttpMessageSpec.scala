@@ -1,11 +1,12 @@
 package io.finch.internal
 
+import cats.Id
 import com.twitter.finagle.http.Request
 import io.finch.FinchSpec
 
 import java.nio.charset.{Charset, StandardCharsets}
 
-class HttpMessageSpec extends FinchSpec {
+class HttpMessageSpec extends FinchSpec[Id] {
 
   def slowCharset(req: Request): Charset = req.charset match {
     case Some(cs) => Charset.forName(cs)

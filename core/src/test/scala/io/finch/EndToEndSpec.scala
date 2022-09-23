@@ -1,7 +1,7 @@
 package io.finch
 
 import cats.effect.IO
-import cats.effect.std.Dispatcher
+import cats.effect.unsafe.IORuntime
 import com.twitter.finagle.Service
 import com.twitter.finagle.http.{Fields, Request, Response, Status}
 import com.twitter.io.Buf
@@ -10,7 +10,7 @@ import io.finch.data.Foo
 import org.scalatest.Assertion
 import shapeless._
 
-class EndToEndSpec extends FinchSpec {
+class EndToEndSpec extends FinchSpec[IO] {
   behavior of "Finch"
 
   type AllContentTypes = Application.Json :+: Application.AtomXml :+: Application.Csv :+:
@@ -35,7 +35,7 @@ class EndToEndSpec extends FinchSpec {
   )
 
   private def testService[CTS]: EndToEndSpec.ServiceTest[CTS] =
-    new EndToEndSpec.ServiceTest(dispatcherIO)
+    new EndToEndSpec.ServiceTest(IORuntime.global)
 
   it should "convert coproduct Endpoints into Services" in {
     implicit val encodeException: Encode.Text[Exception] =
@@ -167,10 +167,10 @@ class EndToEndSpec extends FinchSpec {
 }
 
 object EndToEndSpec {
-  private class ServiceTest[CTS](private val dispatcher: Dispatcher[IO]) extends AnyVal {
+  private class ServiceTest[CTS](private val runtime: IORuntime) extends AnyVal {
     def apply[E](endpoint: Endpoint[IO, E], cfg: Bootstrap[IO, HNil, HNil] => Bootstrap[IO, HNil, HNil] = identity)(
         assertions: Service[Request, Response] => Assertion
     )(implicit ts: Compile[IO, Endpoint[IO, E] :: HNil, CTS :: HNil]): Assertion =
-      dispatcher.unsafeRunSync(cfg(Bootstrap[IO]).serve[CTS](endpoint).toService.use(s => IO(assertions(s))))
+      cfg(Bootstrap[IO]).serve[CTS](endpoint).toService.use(s => IO(assertions(s))).unsafeRunSync()(runtime)
   }
 }

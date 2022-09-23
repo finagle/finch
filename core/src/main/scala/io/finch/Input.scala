@@ -1,7 +1,7 @@
 package io.finch
 
-import cats.Eq
-import cats.effect.std.Dispatcher
+import cats.syntax.all._
+import cats.{Eq, Functor}
 import com.twitter.finagle.http.{Method, Request, RequestBuilder}
 import com.twitter.io.{Buf, Reader}
 import shapeless.Witness
@@ -102,23 +102,20 @@ object Input {
       Input(copied, i.route)
     }
 
-    def apply[F[_], S[_[_], _], A](s: S[F, A], dispatcher: Dispatcher[F])(implicit
+    def apply[F[_]: Functor, S[_[_], _], A](s: S[F, A])(implicit
         S: EncodeStream.Aux[F, S, A, CT],
         W: Witness.Aux[CT]
-    ): Input = apply[F, S, A](s, StandardCharsets.UTF_8, dispatcher)
+    ): F[Input] = apply[F, S, A](s, StandardCharsets.UTF_8)
 
-    def apply[F[_], S[_[_], _], A](s: S[F, A], charset: Charset, dispatcher: Dispatcher[F])(implicit
+    def apply[F[_]: Functor, S[_[_], _], A](s: S[F, A], charset: Charset)(implicit
         S: EncodeStream.Aux[F, S, A, CT],
         W: Witness.Aux[CT]
-    ): Input = {
-      val content = dispatcher.unsafeRunSync(S(s, charset))
+    ): F[Input] = S(s, charset).map { content =>
       val copied = copyRequestWithReader(i.request, content)
-
       copied.setChunked(true)
       copied.contentType = W.value
       copied.headerMap.setUnsafe("Transfer-Encoding", "chunked")
       copied.charset = charset.displayName().toLowerCase
-
       Input(copied, i.route)
     }
   }

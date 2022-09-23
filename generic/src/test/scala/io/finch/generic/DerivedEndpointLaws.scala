@@ -1,22 +1,23 @@
 package io.finch.generic
 
-import cats.Eq
 import cats.effect.std.Dispatcher
-import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
+import cats.{ApplicativeThrow, Eq}
 import io.finch._
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
-abstract class DerivedEndpointLaws[F[_], A](dispatcher: Dispatcher[F]) extends Laws with MissingInstances with AllInstances {
+abstract class DerivedEndpointLaws[F[_], A] extends Laws with TestInstances {
+  implicit def F: ApplicativeThrow[F]
 
+  def dispatcher: Dispatcher[F]
   def endpoint: Endpoint[F, A]
   def toParams: A => Seq[(String, String)]
 
   def roundTrip(a: A): IsEq[A] = {
     val i = Input.get("/", toParams(a): _*)
-    endpoint(i).awaitValueUnsafe(dispatcher).get <-> a
+    dispatcher.unsafeRunSync(endpoint(i).value) <-> a
   }
 
   def evaluating(implicit A: Arbitrary[A], eq: Eq[A]): RuleSet =
@@ -28,11 +29,14 @@ abstract class DerivedEndpointLaws[F[_], A](dispatcher: Dispatcher[F]) extends L
 }
 
 object DerivedEndpointLaws {
-  def apply[F[_], A](
+  def apply[F[_]: ApplicativeThrow, A](
       e: Endpoint[F, A],
-      tp: A => Seq[(String, String)]
-  )(implicit dispatcher: Dispatcher[F]): DerivedEndpointLaws[F, A] = new DerivedEndpointLaws[F, A](dispatcher) {
-    val endpoint: Endpoint[F, A] = e
-    val toParams = tp
-  }
+      d: Dispatcher[F]
+  )(tp: A => Seq[(String, String)]): DerivedEndpointLaws[F, A] =
+    new DerivedEndpointLaws[F, A] {
+      val F = ApplicativeThrow[F]
+      val dispatcher = d
+      val endpoint = e
+      val toParams = tp
+    }
 }

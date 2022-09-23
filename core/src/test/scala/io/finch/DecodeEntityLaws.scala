@@ -1,13 +1,12 @@
 package io.finch
 
 import cats.Eq
-import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
-trait DecodeEntityLaws[A] extends Laws with MissingInstances with AllInstances {
+trait DecodeEntityLaws[A] extends Laws with TestInstances {
 
   def decode: DecodeEntity[A]
 

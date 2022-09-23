@@ -1,10 +1,9 @@
 package io.finch
 
-import cats.instances.AllInstances
 import org.scalacheck.{Arbitrary, Prop}
 import org.typelevel.discipline.Laws
 
-abstract class EvaluatingEndpointLaws[F[_], A] extends Laws with MissingInstances with AllInstances {
+abstract class EvaluatingEndpointLaws[F[_], A] extends Laws with TestInstances {
 
   def decode: DecodeEntity[A]
   def endpoint(d: DecodeEntity[A]): Endpoint[F, A]

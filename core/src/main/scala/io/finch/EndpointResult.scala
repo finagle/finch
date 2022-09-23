@@ -1,11 +1,7 @@
 package io.finch
 
-import cats.Id
-import cats.effect.std.Dispatcher
+import cats.{ApplicativeThrow, Id}
 import com.twitter.finagle.http.Method
-
-import scala.concurrent.TimeoutException
-import scala.concurrent.duration.Duration
 
 /** A result returned from an [[Endpoint]]. This models `Option[(Input, Future[Output])]` and represents two cases:
   *
@@ -19,51 +15,23 @@ import scala.concurrent.duration.Duration
   */
 sealed abstract class EndpointResult[F[_], +A] {
 
-  /** Whether the [[Endpoint]] is matched on a given [[Input]].
-    */
+  /** Whether the [[Endpoint]] is matched on a given [[Input]]. */
   final def isMatched: Boolean = this match {
     case EndpointResult.Matched(_, _, _) => true
     case _                               => false
   }
 
-  /** Returns the remainder of the [[Input]] after an [[Endpoint]] is matched.
-    */
+  /** Returns the remainder of the [[Input]] after an [[Endpoint]] is matched. */
   final def remainder: Option[Input] = this match {
     case EndpointResult.Matched(rem, _, _) => Some(rem)
     case _                                 => None
   }
 
-  /** Returns the [[Trace]] if an [[Endpoint]] is matched.
-    */
+  /** Returns the [[Trace]] if an [[Endpoint]] is matched. */
   final def trace: Option[Trace] = this match {
     case EndpointResult.Matched(_, trc, _) => Some(trc)
     case _                                 => None
   }
-
-  def awaitOutput(dispatcher: Dispatcher[F], d: Duration = Duration.Inf): Option[Either[Throwable, Output[A]]] = this match {
-    case EndpointResult.Matched(_, _, out) =>
-      try Some(Right(dispatcher.unsafeRunTimed(out, d)))
-      catch {
-        case _: TimeoutException => Some(Left(new TimeoutException(s"Output wasn't returned in time: $d")))
-        case e: Throwable        => Some(Left(e))
-      }
-    case _ => None
-  }
-
-  def awaitOutputUnsafe(dispatcher: Dispatcher[F], d: Duration = Duration.Inf): Option[Output[A]] =
-    awaitOutput(dispatcher, d).map {
-      case Right(r) => r
-      case Left(ex) => throw ex
-    }
-
-  def awaitValue(dispatcher: Dispatcher[F], d: Duration = Duration.Inf): Option[Either[Throwable, A]] =
-    awaitOutput(dispatcher, d).map {
-      case Right(oa) => Right(oa.value)
-      case Left(ob)  => Left(ob)
-    }
-
-  def awaitValueUnsafe(dispatcher: Dispatcher[F], d: Duration = Duration.Inf): Option[A] =
-    awaitOutputUnsafe(dispatcher, d).map(oa => oa.value)
 }
 
 object EndpointResult {
@@ -84,11 +52,27 @@ object EndpointResult {
 
   implicit class EndpointResultOps[F[_], A](val self: EndpointResult[F, A]) extends AnyVal {
 
-    /** Returns the [[Output]] if an [[Endpoint]] is matched.
-      */
-    final def output: Option[F[Output[A]]] = self match {
-      case EndpointResult.Matched(_, _, out) => Some(out)
-      case _                                 => None
+    /** Returns the [[Output]] if an [[Endpoint]] is matched. */
+    def outputAttempt(implicit F: ApplicativeThrow[F]): F[Either[Throwable, Output[A]]] =
+      F.attempt(output)
+
+    def outputOption(implicit F: ApplicativeThrow[F]): F[Option[Output[A]]] =
+      F.map(outputAttempt)(_.toOption)
+
+    def output(implicit F: ApplicativeThrow[F]): F[Output[A]] = self match {
+      case EndpointResult.Matched(_, _, out) => out
+      case _                                 => F.raiseError(NotMatchedError)
     }
+
+    def valueAttempt(implicit F: ApplicativeThrow[F]): F[Either[Throwable, A]] =
+      F.attempt(value)
+
+    def valueOption(implicit F: ApplicativeThrow[F]): F[Option[A]] =
+      F.map(valueAttempt)(_.toOption)
+
+    def value(implicit F: ApplicativeThrow[F]): F[A] =
+      F.map(output)(_.value)
   }
+
+  private case object NotMatchedError extends NoSuchElementException("Endpoint didn't match")
 }

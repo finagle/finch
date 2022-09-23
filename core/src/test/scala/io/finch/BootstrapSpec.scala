@@ -1,7 +1,6 @@
 package io.finch
 
-import cats.effect.IO
-import cats.effect.unsafe.implicits.global
+import cats.effect.SyncIO
 import com.twitter.finagle.http.{Method, Request, Response, Status}
 import io.finch.data.Foo
 import io.finch.internal.currentTime
@@ -10,16 +9,16 @@ import shapeless.HNil
 import java.time.format.DateTimeFormatter
 import java.time.{ZoneOffset, ZonedDateTime}
 
-class BootstrapSpec extends FinchSpec {
+class BootstrapSpec extends FinchSpec[SyncIO] {
 
   behavior of "Bootstrap"
 
-  private val bootstrap = Bootstrap[IO]
+  private val bootstrap = Bootstrap[SyncIO]
 
   it should "handle both Error and Errors" in {
     check { e: Either[Error, Errors] =>
       val exception = e.fold[Exception](identity, identity)
-      val ee = Endpoint[IO].liftAsync[Unit](IO.raiseError(exception))
+      val ee = liftAsync[Unit](SyncIO.raiseError(exception))
       inside(bootstrap.serve[Text.Plain](ee).compile.apply(Request()).unsafeRunSync()) { case (_, Right(rep)) =>
         rep.status === Status.BadRequest
       }
@@ -28,7 +27,7 @@ class BootstrapSpec extends FinchSpec {
 
   it should "catch custom exceptions in attempt" in {
     val exception = new IllegalStateException
-    val endpoint = Endpoint[IO].liftAsync[Unit](IO.raiseError(exception))
+    val endpoint = liftAsync[Unit](SyncIO.raiseError(exception))
     inside(bootstrap.serve[Text.Plain](endpoint).compile.apply(Request()).unsafeRunSync()) { case (_, Left(e)) =>
       e shouldBe exception
     }
@@ -36,7 +35,7 @@ class BootstrapSpec extends FinchSpec {
 
   it should "respond 404 if endpoint is not matched" in {
     check { req: Request =>
-      val s = bootstrap.serve[Text.Plain](Endpoint[IO].empty[Unit]).compile
+      val s = bootstrap.serve[Text.Plain](Endpoint[SyncIO].empty[Unit]).compile
       inside(s(req).unsafeRunSync()) { case (_, Right(rep)) =>
         rep.status === Status.NotFound
       }
@@ -79,7 +78,7 @@ class BootstrapSpec extends FinchSpec {
 
   it should "match the request version" in {
     check { req: Request =>
-      val s = bootstrap.serve[Text.Plain](Endpoint[IO].const(())).compile
+      val s = bootstrap.serve[Text.Plain](const(())).compile
       inside(s(req).unsafeRunSync()) { case (_, Right(rep)) =>
         rep.version === req.version
       }
@@ -91,7 +90,7 @@ class BootstrapSpec extends FinchSpec {
     def parseDate(s: String): Long = ZonedDateTime.parse(s, formatter).toEpochSecond
 
     check { (req: Request, include: Boolean) =>
-      val s = bootstrap.configure(includeDateHeader = include).serve[Text.Plain](Endpoint[IO].const(())).compile
+      val s = bootstrap.configure(includeDateHeader = include).serve[Text.Plain](const(())).compile
       inside(s(req).unsafeRunSync()) { case (_, Right(rep)) =>
         val now = parseDate(currentTime())
         (include && (parseDate(rep.date.get) - now).abs <= 1) || (!include && rep.date.isEmpty)
@@ -101,7 +100,7 @@ class BootstrapSpec extends FinchSpec {
 
   it should "include Server header" in {
     check { (req: Request, include: Boolean) =>
-      val s = bootstrap.configure(includeServerHeader = include).serve[Text.Plain](Endpoint[IO].const(())).compile
+      val s = bootstrap.configure(includeServerHeader = include).serve[Text.Plain](const(())).compile
       inside(s(req).unsafeRunSync()) { case (_, Right(rep)) =>
         (include && rep.server === Some("Finch")) || (!include && rep.server.isEmpty)
       }
@@ -112,10 +111,10 @@ class BootstrapSpec extends FinchSpec {
     check { req: Request =>
       val p = req.path.split("/").drop(1)
 
-      val endpoint = p.map(s => path(s)).foldLeft(Endpoint[IO].const(HNil: HNil))((p, e) => p :: e)
+      val endpoint = p.map(s => path(s)).foldLeft(const(HNil: HNil))((p, e) => p :: e)
 
-      val succ = endpoint.mapAsync(_ => IO.pure("foo"))
-      val fail = endpoint.mapAsync(_ => IO.raiseError[String](new IllegalStateException))
+      val succ = endpoint.mapAsync(_ => SyncIO.pure("foo"))
+      val fail = endpoint.mapAsync(_ => SyncIO.raiseError[String](new IllegalStateException))
 
       val (successCapture, _) = bootstrap.serve[Text.Plain](succ).compile.apply(req).unsafeRunSync()
       val (failureCapture, _) = bootstrap.serve[Text.Plain](fail).compile.apply(req).unsafeRunSync()

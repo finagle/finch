@@ -2,9 +2,9 @@ package io.finch
 
 import cats.effect.Sync
 import cats.effect.std.Dispatcher
-import cats.instances.AllInstances
 import cats.laws._
 import cats.laws.discipline._
+import cats.syntax.all._
 import com.twitter.finagle.http.Request
 import com.twitter.io.{Buf, Pipe}
 import org.scalacheck.{Arbitrary, Prop}
@@ -12,23 +12,21 @@ import org.typelevel.discipline.Laws
 
 import java.nio.charset.Charset
 
-abstract class StreamingLaws[S[_[_], _], F[_]: Sync](dispatcher: Dispatcher[F]) extends Laws with AllInstances with MissingInstances {
-
+abstract class StreamingLaws[S[_[_], _], F[_]] extends Laws with TestInstances {
   implicit def LR: LiftReader[S, F]
+  implicit def F: Sync[F]
 
+  def dispatcher: Dispatcher[F]
   def toResponse: ToResponse.Aux[F, S[F, Buf], Text.Plain]
   def fromList: List[Buf] => S[F, Buf]
-  def toList: S[F, Array[Byte]] => List[Buf]
+  def toList: S[F, Array[Byte]] => F[List[Buf]]
 
   def roundTrip(a: List[Buf], cs: Charset): IsEq[List[Buf]] = {
     val req = Request()
     req.setChunked(true)
-
     val rep = dispatcher.unsafeRunSync(toResponse(fromList(a), cs))
-
     Pipe.copy(rep.reader, req.writer).ensure(req.writer.close())
-
-    Endpoint.binaryBodyStream[F, S].apply(Input.fromRequest(req)).awaitValueUnsafe(dispatcher).map(toList).get <-> a
+    dispatcher.unsafeRunSync(Endpoint.binaryBodyStream[F, S].apply(Input.fromRequest(req)).value.flatMap(toList)) <-> a
   }
 
   def onlyChunked: EndpointResult[F, S[F, Array[Byte]]] =
@@ -48,20 +46,17 @@ abstract class StreamingLaws[S[_[_], _], F[_]: Sync](dispatcher: Dispatcher[F]) 
 
 object StreamingLaws {
 
-  def apply[S[_[_], _], F[_]](
-      streamFromList: List[Buf] => S[F, Buf],
-      listFromStream: S[F, Array[Byte]] => List[Buf]
-  )(implicit
-      f: Sync[F],
-      dispatcher: Dispatcher[F],
-      lr: LiftReader[S, F],
-      tr: ToResponse.Aux[F, S[F, Buf], Text.Plain]
-  ): StreamingLaws[S, F] = new StreamingLaws[S, F](dispatcher) {
-    implicit val LR: LiftReader[S, F] = lr
-
-    val toResponse: ToResponse.Aux[F, S[F, Buf], Text.Plain] = tr
-    val fromList: List[Buf] => S[F, Buf] = streamFromList
-    val toList: S[F, Array[Byte]] => List[Buf] = listFromStream
-
-  }
+  def apply[S[_[_], _], F[_]: Sync](
+      d: Dispatcher[F],
+      from: List[Buf] => S[F, Buf],
+      to: S[F, Array[Byte]] => F[List[Buf]]
+  )(implicit lr: LiftReader[S, F], tr: ToResponse.Aux[F, S[F, Buf], Text.Plain]): StreamingLaws[S, F] =
+    new StreamingLaws[S, F] {
+      val LR = lr
+      val F = Sync[F]
+      val dispatcher = d
+      val toResponse = tr
+      val fromList = from
+      val toList = to
+    }
 }
