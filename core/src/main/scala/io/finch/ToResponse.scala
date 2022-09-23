@@ -7,7 +7,7 @@ import shapeless._
 import java.nio.charset.Charset
 import scala.annotation.implicitNotFound
 
-/** Represents a conversion from `A` to [[Response]]. */
+/** Represents a conversion from `A` to [[com.twitter.finagle.http.Response]]. */
 trait ToResponse[F[_], A] {
   type ContentType
   def apply(a: A, cs: Charset): F[Response]

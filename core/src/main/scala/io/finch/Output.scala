@@ -116,8 +116,7 @@ object Output {
     */
   val None: Output[Option[Nothing]] = Output.payload(Option.empty[Nothing])
 
-  /** An [[Output]] with [[shapeless.HNil]] as a payload.
-    */
+  /** An [[Output]] with `HNil` as a payload. */
   val HNil: Output[shapeless.HNil] = Output.payload(shapeless.HNil)
 
   /** A successful [[Output]] that captures a payload `value`.

@@ -66,8 +66,7 @@ trait EndpointModule[F[_]] {
   def const[A](a: A)(implicit F: Applicative[F]): Endpoint[F, A] =
     Endpoint.const[F, A](a)
 
-  /** An alias for [[Endpoint.lift()]].
-    */
+  /** An alias for [[Endpoint.lift]]. */
   def lift[A](a: => A)(implicit F: Sync[F]): Endpoint[F, A] =
     Endpoint.lift[F, A](a)
 
@@ -121,8 +120,7 @@ trait EndpointModule[F[_]] {
   def pathEmpty(implicit F: Applicative[F]): Endpoint[F, HNil] =
     Endpoint.pathEmpty[F]
 
-  /** An alias for [[Endpoint.path]].
-    */
+  /** An alias for `Endpoint.path`. */
   def path[A: DecodePath: ClassTag](implicit F: Sync[F]): Endpoint[F, A] =
     Endpoint.path[F, A]
 
@@ -131,7 +129,7 @@ trait EndpointModule[F[_]] {
   def paths[A: DecodePath: ClassTag](implicit F: Sync[F]): Endpoint[F, List[A]] =
     Endpoint.paths[F, A]
 
-  /** An alias for [[Endpoint.path]].
+  /** An alias for `Endpoint.path`.
     *
     * @note
     *   This method is implicit such that an implicit conversion `String => Endpoint[F, HNil]` works.

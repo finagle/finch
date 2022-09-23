@@ -6,7 +6,7 @@ import com.twitter.util.{Await, Duration}
 import org.scalatest.{FixtureTestSuite, Outcome}
 
 /** A convenience class that is designed to make it easier to test HTTP services both directly and in integration tests that are served locally. Implementing
-  * classes must extend [[org.scalatest.FixtureTestSuite]] through [[org.scalatest.flatspec.FixtureAnyFlatSpec]] for example.
+  * classes must extend `FixtureTestSuite` through `FixtureAnyFlatSpec` for example.
   */
 trait ServiceSuite { self: FixtureTestSuite =>
 

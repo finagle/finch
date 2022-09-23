@@ -253,7 +253,7 @@ trait Endpoint[F[_], A] { self =>
   final def handle(pf: PartialFunction[Throwable, Output[A]])(implicit F: ApplicativeThrow[F]): Endpoint[F, A] =
     transformOutput(_.recover(pf))
 
-  /** Lifts this endpoint into one that always succeeds, with [[Either[Throwable, A]] representing both success and failure cases. */
+  /** Lifts this endpoint into one that always succeeds, with [[scala.Either]] representing both success and failure cases. */
   final def attempt(implicit F: ApplicativeThrow[F]): Endpoint[F, Either[Throwable, A]] =
     new Endpoint[F, Either[Throwable, A]] with (Either[Throwable, Output[A]] => Output[Either[Throwable, A]]) {
       final def apply(toa: Either[Throwable, Output[A]]): Output[Either[Throwable, A]] = toa match {
@@ -324,13 +324,12 @@ object Endpoint {
 
   implicit final class HListEndpointOps[F[_], L <: HList](val self: Endpoint[F, L]) extends AnyVal {
 
-    /** Converts this endpoint to one that returns any type with this [[shapeless.HList]] as its representation.
-      */
+    /** Converts this endpoint to one that returns any type with this `HList` as its representation. */
     def as[A](implicit gen: Generic.Aux[A, L], F: Monad[F]): Endpoint[F, A] = self.map(gen.from)
 
-    /** Converts this endpoint to one that returns a tuple with the same types as this [[shapeless.HList]].
+    /** Converts this endpoint to one that returns a tuple with the same types as this `HList`.
       *
-      * Note that this will fail at compile time if this this [[shapeless.HList]] contains more than 22 elements.
+      * Note that this will fail at compile time if this this `HList` contains more than 22 elements.
       */
     def asTuple(implicit t: Tupler[L], F: Monad[F]): Endpoint[F, t.Out] = self.map(t(_))
   }
@@ -445,7 +444,7 @@ object Endpoint {
   def liftOutputAsync[F[_], A](foa: => F[Output[A]])(implicit F: Sync[F]): Endpoint[F, A] =
     output(F.defer(foa))
 
-  /** Creates an [[Endpoint]] from a given [[InputStream]]. Uses [[Resource]] for safer resource management
+  /** Creates an [[Endpoint]] from a given [[java.io.InputStream]]. Uses [[cats.effect.Resource]] for safer resource management
     *
     * @see
     *   [[fromFile]]
@@ -453,7 +452,7 @@ object Endpoint {
   def fromInputStream[F[_]](stream: Resource[F, InputStream])(implicit F: Async[F]): Endpoint[F, Buf] =
     new FromInputStream[F](stream)
 
-  /** Creates an [[Endpoint]] from a given [[File]]. Uses [[Resource]] for safer resource management
+  /** Creates an [[Endpoint]] from a given [[java.io.File]]. Uses [[cats.effect.Resource]] for safer resource management
     *
     * @see
     *   [[fromInputStream]]
