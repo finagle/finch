@@ -444,7 +444,7 @@ object Endpoint {
   def liftOutputAsync[F[_], A](foa: => F[Output[A]])(implicit F: Sync[F]): Endpoint[F, A] =
     output(F.defer(foa))
 
-  /** Creates an [[Endpoint]] from a given [[java.io.InputStream]]. Uses [[cats.effect.Resource]] for safer resource management
+  /** Creates an [[Endpoint]] from a given `InputStream`. Uses [[cats.effect.Resource]] for safer resource management
     *
     * @see
     *   [[fromFile]]
@@ -452,7 +452,7 @@ object Endpoint {
   def fromInputStream[F[_]](stream: Resource[F, InputStream])(implicit F: Async[F]): Endpoint[F, Buf] =
     new FromInputStream[F](stream)
 
-  /** Creates an [[Endpoint]] from a given [[java.io.File]]. Uses [[cats.effect.Resource]] for safer resource management
+  /** Creates an [[Endpoint]] from a given `File`. Uses [[cats.effect.Resource]] for safer resource management
     *
     * @see
     *   [[fromInputStream]]
