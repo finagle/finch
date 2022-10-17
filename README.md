@@ -53,13 +53,14 @@ Hello World!
 This "Hello World!" example is built with just `finch-core`:
 
 ```scala
-import io.finch._, cats.effect.IO
-import com.twitter.finagle.Http
-import com.twitter.util.Await
+import cats.effect.{IO, IOApp}
+import io.finch._
 
-object Main extends App with Endpoint.Module[IO] {
-  val api: Endpoint[IO, String] = get("hello") { Ok("Hello, World!") }
-  Await.ready(Http.server.serve(":8080", api.toServiceAs[Text.Plain]))
+object Main extends IOApp.Simple with Endpoint.Module[IO] {
+  override def run: IO[Unit] = {
+    val api: Endpoint[IO, String] = get("hello") { Ok("Hello, World!") }
+    Bootstrap[IO].serve[Text.Plain](api).listen(":8080").useForever
+  }
 }
 ```
 
