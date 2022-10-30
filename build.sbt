@@ -373,12 +373,7 @@ lazy val examples = project
   .settings(resolvers += "TM" at "https://maven.twttr.com")
   .settings(
     coverageExcludedPackages :=
-      """
-        |io\.finch\.div\..*;
-        |io\.finch\.todo\..*;
-        |io\.finch\.wrk\..*;
-        |io\.finch\.iteratee\..*;
-      """.stripMargin
+      "io\\.finch\\.div\\..*;io\\.finch\\.todo\\..*;io\\.finch\\.wrk\\..*;io\\.finch\\.iteratee\\..*;"
   )
   .settings(
     libraryDependencies ++= Seq(
