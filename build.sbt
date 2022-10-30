@@ -65,6 +65,7 @@ val baseSettings = Seq(
     scalaOrganization.value % "scala-reflect" % scalaVersion.value,
     "org.typelevel" %% "cats-effect" % catsEffectVersion
   ) ++ testDependencies.map(_ % "test"),
+  libraryDependencySchemes += "io.circe" %% "circe-jawn" % VersionScheme.Always,
   resolvers ++= Resolver.sonatypeOssRepos("releases"),
   resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
   scalacOptions ++= compilerOptions(scalaVersion.value),
