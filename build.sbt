@@ -360,7 +360,7 @@ lazy val docs = project
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-generic" % circeVersion,
       "com.twitter" %% "twitter-server" % twitterVersion,
-      "joda-time" % "joda-time" % "2.10.14",
+      "joda-time" % "joda-time" % "2.12.0",
       "org.mockito" % "mockito-all" % "1.10.19"
     )
   )
