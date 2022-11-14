@@ -123,7 +123,7 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
 
   def toService(implicit F: Async[F], ts: Compile[F, ES, CTS]): Resource[F, Service[Request, Response]] = {
     val compiled = compile
-    Dispatcher[F].flatMap { dispatcher =>
+    Dispatcher.parallel[F].flatMap { dispatcher =>
       Resource.make(F.pure(ToService(compiled, dispatcher))) { service =>
         F.defer(service.close().toAsync)
       }
