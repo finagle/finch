@@ -121,14 +121,13 @@ class Bootstrap[F[_], ES <: HList, CTS <: HList](
     middleware(ts(endpoints, options, Compile.Context()))
   }
 
-  def toService(implicit F: Async[F], ts: Compile[F, ES, CTS]): Resource[F, Service[Request, Response]] = {
-    val compiled = compile
-    Dispatcher.parallel[F].flatMap { dispatcher =>
-      Resource.make(F.pure(ToService(compiled, dispatcher))) { service =>
-        F.defer(service.close().toAsync)
-      }
+  def toService(implicit F: Async[F], ts: Compile[F, ES, CTS]): Resource[F, Service[Request, Response]] =
+    Dispatcher.parallel[F].flatMap(toService)
+
+  def toService(dispatcher: Dispatcher[F])(implicit F: Async[F], ts: Compile[F, ES, CTS]): Resource[F, Service[Request, Response]] =
+    Resource.make(F.pure(ToService(compile, dispatcher))) { service =>
+      F.defer(service.close().toAsync)
     }
-  }
 
   def listen(address: String)(implicit F: Async[F], ts: Compile[F, ES, CTS]): Resource[F, ListeningServer] =
     toService.flatMap { service =>
