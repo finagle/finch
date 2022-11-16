@@ -12,7 +12,7 @@ addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.9.14")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.4.3")
 addSbtPlugin("com.47deg" % "sbt-microsites" % "1.3.4")
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.6")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.0")
 addSbtPlugin("org.wartremover" % "sbt-wartremover" % "3.0.6")
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.10.4")
 
