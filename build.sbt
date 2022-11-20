@@ -16,7 +16,7 @@ lazy val catsVersion = "2.9.0"
 lazy val argonautVersion = "6.3.8"
 lazy val iterateeVersion = "0.20.0"
 lazy val refinedVersion = "0.10.1"
-lazy val catsEffectVersion = "3.4.0"
+lazy val catsEffectVersion = "3.4.1"
 lazy val fs2Version = "3.3.0"
 
 def compilerOptions(scalaVersion: String): Seq[String] = Seq(
