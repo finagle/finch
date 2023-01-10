@@ -13,7 +13,7 @@ addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.9.15")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.4.3")
 addSbtPlugin("com.47deg" % "sbt-microsites" % "1.4.0")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.0")
-addSbtPlugin("org.wartremover" % "sbt-wartremover" % "3.0.7")
+addSbtPlugin("org.wartremover" % "sbt-wartremover" % "3.0.8")
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.10.4")
 
 ThisBuild / libraryDependencySchemes +=
