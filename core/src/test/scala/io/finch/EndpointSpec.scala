@@ -2,6 +2,7 @@ package io.finch
 
 import cats.data.{NonEmptyList, WriterT}
 import cats.effect.{IO, Resource, SyncIO}
+import cats.implicits.toSemigroupKOps
 import cats.kernel.laws.discipline.SemigroupTests
 import cats.laws._
 import cats.laws.discipline.SemigroupalTests.Isomorphisms
@@ -413,5 +414,14 @@ class EndpointSpec extends FinchSpec[SyncIO] {
     check { (ep: Endpoint[SyncIO, Int], input: Input) =>
       ep.mapK(nat)(input).outputAttempt.value.unsafeRunSync() === ep(input).outputAttempt.unsafeRunSync()
     }
+  }
+
+  it should "allow SemigroupK.combineK" in {
+
+    val a: EndpointIO[String] = param("a")
+    val b: EndpointIO[String] = param("b")
+
+    a <+> b
+
   }
 }
