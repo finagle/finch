@@ -3,7 +3,7 @@ package io.finch
 import cats.data._
 import cats.effect.{Resource, Sync}
 import cats.syntax.all._
-import cats.{Alternative, Applicative, ApplicativeThrow, Apply, Functor, Id, Monad, MonadThrow, MonoidK, SemigroupK, ~>}
+import cats.{Alternative, Applicative, ApplicativeThrow, Apply, Functor, Id, Monad, MonadThrow, ~>}
 import com.twitter.finagle.http.exp.{Multipart => FinagleMultipart}
 import com.twitter.finagle.http.{Cookie => FinagleCookie, Method => FinagleMethod, Request, Response}
 import com.twitter.io.Buf
@@ -281,7 +281,7 @@ trait Endpoint[F[_], A] { self =>
 
 /** Provides extension methods for [[Endpoint]] to support coproduct and path syntax.
   */
-object Endpoint {
+object Endpoint extends LowPriorityEndpointInstances {
 
   /** Enables a very simple syntax allowing to "map" endpoints to arbitrary functions. The types are resolved at compile time and no reflection is used.
     *
@@ -357,15 +357,6 @@ object Endpoint {
       self.map(value => gen.from(value :: HNil))
   }
 
-  private trait EndpointSemigroupK[F[_]] extends SemigroupK[Endpoint[F, *]] {
-    def combineK[A](x: Endpoint[F, A], y: Endpoint[F, A]): Endpoint[F, A] =
-      x.coproduct(y)
-  }
-
-  private trait EndpointMonoidK[F[_]] extends EndpointSemigroupK[F] with MonoidK[Endpoint[F, *]] {
-    def empty[A]: Endpoint[F, A] = Endpoint.empty
-  }
-
   private class EndpointFunctor[F[_]: Monad] extends Functor[Endpoint[F, *]] {
     def map[A, B](fa: Endpoint[F, A])(f: A => B): Endpoint[F, B] = fa.map(f)
   }
@@ -388,9 +379,6 @@ object Endpoint {
 
   implicit def endpointFunctor[F[_]: Monad]: Functor[Endpoint[F, *]] =
     new EndpointFunctor[F]
-
-  implicit def endpointMonoidK[F[_]]: MonoidK[Endpoint[F, *]] =
-    new EndpointMonoidK[F] {}
 
   /** Instantiates an [[EndpointModule]] for a given effect type `F`. This is enables better type inference when constucting endpoint instances.
     *
