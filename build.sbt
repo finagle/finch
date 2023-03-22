@@ -15,7 +15,7 @@ lazy val shapelessVersion = "2.3.10"
 lazy val catsVersion = "2.9.0"
 lazy val argonautVersion = "6.3.8"
 lazy val iterateeVersion = "0.20.0"
-lazy val refinedVersion = "0.10.2"
+lazy val refinedVersion = "0.10.3"
 lazy val catsEffectVersion = "3.4.8"
 lazy val fs2Version = "3.6.1"
 
