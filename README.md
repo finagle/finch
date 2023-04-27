@@ -103,6 +103,7 @@ Documentation
 
 Adopters
 --------
+* [PITS Global Data Recovery Services](https://www.pitsdatarecovery.net/)
 * [Despegar](http://www.despegar.com)
 * [Earnest](http://meetearnest.com)
 * [Globo.com](http://globo.com)
