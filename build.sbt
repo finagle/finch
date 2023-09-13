@@ -3,8 +3,8 @@ import microsites.ExtraMdFileConfig
 
 lazy val buildSettings = Seq(
   organization := "com.github.finagle",
-  scalaVersion := "2.13.11",
-  crossScalaVersions := Seq("2.12.18", "2.13.11")
+  scalaVersion := "2.13.12",
+  crossScalaVersions := Seq("2.12.18", "2.13.12")
 )
 
 lazy val twitterVersion = "22.12.0"
@@ -17,7 +17,7 @@ lazy val argonautVersion = "6.3.8"
 lazy val iterateeVersion = "0.20.0"
 lazy val refinedVersion = "0.11.0"
 lazy val catsEffectVersion = "3.5.1"
-lazy val fs2Version = "3.9.1"
+lazy val fs2Version = "3.9.2"
 
 def compilerOptions(scalaVersion: String): Seq[String] = Seq(
   "-deprecation",
