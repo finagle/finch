@@ -7,17 +7,17 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq("2.12.18", "2.13.12")
 )
 
-lazy val twitterVersion = "22.12.0"
+lazy val twitterVersion = "23.11.0"
 lazy val circeVersion = "0.14.6"
 lazy val circeFs2Version = "0.14.1"
 lazy val circeIterateeVersion = "0.13.0-M2"
 lazy val shapelessVersion = "2.3.10"
 lazy val catsVersion = "2.10.0"
-lazy val argonautVersion = "6.3.8"
+lazy val argonautVersion = "6.3.9"
 lazy val iterateeVersion = "0.20.0"
 lazy val refinedVersion = "0.11.0"
 lazy val catsEffectVersion = "3.5.1"
-lazy val fs2Version = "3.9.2"
+lazy val fs2Version = "3.9.3"
 
 def compilerOptions(scalaVersion: String): Seq[String] = Seq(
   "-deprecation",
