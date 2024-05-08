@@ -14,7 +14,7 @@ addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.4.7")
 addSbtPlugin("com.47deg" % "sbt-microsites" % "1.4.4")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
 addSbtPlugin("org.wartremover" % "sbt-wartremover" % "3.1.6")
-addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.12.0")
+addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.12.1")
 
 ThisBuild / libraryDependencySchemes +=
   "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
