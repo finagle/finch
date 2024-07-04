@@ -8,7 +8,7 @@ lazy val buildSettings = Seq(
 )
 
 lazy val twitterVersion = "24.2.0"
-lazy val circeVersion = "0.14.8"
+lazy val circeVersion = "0.14.9"
 lazy val circeFs2Version = "0.14.1"
 lazy val circeIterateeVersion = "0.13.0-M2"
 lazy val shapelessVersion = "2.3.12"
