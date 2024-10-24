@@ -13,7 +13,7 @@ lazy val circeFs2Version = "0.14.1"
 lazy val circeIterateeVersion = "0.13.0-M2"
 lazy val shapelessVersion = "2.3.12"
 lazy val catsVersion = "2.12.0"
-lazy val argonautVersion = "6.3.10"
+lazy val argonautVersion = "6.3.11"
 lazy val iterateeVersion = "0.20.0"
 lazy val refinedVersion = "0.11.2"
 lazy val catsEffectVersion = "3.5.4"
@@ -320,7 +320,7 @@ lazy val argonaut = project
   .settings(allSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "io.argonaut" %% "argonaut" % argonautVersion
+      "io.github.argonaut-io" %% "argonaut" % argonautVersion
     )
   )
   .dependsOn(core, jsonTest % "test")
