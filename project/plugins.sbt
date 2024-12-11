@@ -7,7 +7,7 @@ resolvers ++= Seq(
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.2.2")
 addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
-addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.3.0")
+addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.3.1")
 addSbtPlugin("com.github.sbt" % "sbt-release" % "1.4.0")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.12.2")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.4.7")
