@@ -56,11 +56,10 @@ class MethodSpec extends FinchSpec[SyncIO] {
     checkFunction2(get(path[Int] :: path[Int])((x: Int, y: Int) => SyncIO.pure(Ok(s"$x$y"))))
   }
 
-  it should "map (A, B) => F[Response] function to endpoint" in {
+  it should "map (A, B) => F[Response] function to endpoint" in
     checkFunction2(get(path[Int] :: path[Int]) { (x: Int, y: Int) =>
       SyncIO.pure(Ok(s"$x$y").toResponse[Id, Text.Plain])
     })
-  }
 
   private def checkValue[A: Arbitrary](f: A => Endpoint[SyncIO, A]): Unit =
     forAll { (input: A) =>

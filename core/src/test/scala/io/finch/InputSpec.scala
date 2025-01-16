@@ -96,9 +96,8 @@ class InputSpec extends FinchSpec[IO] {
     }
   }
 
-  it should "parse route correctly" in {
+  it should "parse route correctly" in
     check { i: Input =>
       i.route === i.request.path.split("/").toList.drop(1)
     }
-  }
 }

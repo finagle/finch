@@ -38,7 +38,7 @@ import scala.reflect.ClassTag
   *   val bar: Endpoint[Bar] = get("bar" :: path[String]) { s: String => Ok(Bar(s)) }
   * }}}
   *
-  * `Endpoint`s are also composable in terms of or-else combinator (known as a "space invader" operator `:+:`) that takes two `Endpoint`s and returns a
+  * `Endpoint` s are also composable in terms of or-else combinator (known as a "space invader" operator `:+:`) that takes two `Endpoint` s and returns a
   * coproduct `Endpoint`.
   *
   * {{{

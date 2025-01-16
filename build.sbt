@@ -133,7 +133,7 @@ lazy val publishSettings = Seq(
     )
   ),
   releaseVersionBump := sbtrelease.Version.Bump.Minor,
-  releaseProcess := {
+  releaseProcess :=
     Seq[ReleaseStep](
       checkSnapshotDependencies,
       inquireVersions,
@@ -148,8 +148,7 @@ lazy val publishSettings = Seq(
       commitNextVersion,
       releaseStepCommand("sonatypeReleaseAll"),
       pushChanges
-    )
-  },
+    ),
   pomExtra :=
     <developers>
       <developer>

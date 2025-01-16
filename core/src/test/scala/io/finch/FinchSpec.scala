@@ -29,9 +29,8 @@ trait FinchSpec[F[_]]
 
   def checkAll(name: String, ruleSet: Laws#RuleSet): Unit =
     for ((id, prop) <- ruleSet.all.properties)
-      it should (name + "." + id) in {
+      it should (name + "." + id) in
         check(prop)
-      }
 
   case class BasicAuthCredentials(user: String, pass: String)
 

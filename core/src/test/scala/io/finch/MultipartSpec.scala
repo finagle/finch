@@ -55,9 +55,8 @@ class MultipartSpec extends FinchSpec[SyncIO] {
   }
 
   it should "fail when attribute is missing" in {
-    an[Error.NotPresent] should be thrownBy {
+    an[Error.NotPresent] should be thrownBy
       multipartAttribute("foo").apply(Input.get("/")).value.unsafeRunSync()
-    }
   }
 
   it should "return None for when attribute is missing for optional endpoint" in {
@@ -65,9 +64,8 @@ class MultipartSpec extends FinchSpec[SyncIO] {
   }
 
   it should "fail when attributes are missing" in {
-    an[Error.NotPresent] should be thrownBy {
+    an[Error.NotPresent] should be thrownBy
       multipartAttributesNel("foo").apply(Input.get("/")).value.unsafeRunSync()
-    }
   }
 
   it should "return empty sequence when attributes are missing for seq endpoint" in {
@@ -75,8 +73,7 @@ class MultipartSpec extends FinchSpec[SyncIO] {
   }
 
   it should "fail when attribute is malformed" in {
-    an[Error.NotParsed] should be thrownBy {
+    an[Error.NotParsed] should be thrownBy
       multipartAttribute[Int]("foo").apply(withAttribute("foo" -> "bar")).value.unsafeRunSync()
-    }
   }
 }
