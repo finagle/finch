@@ -29,9 +29,8 @@ class HttpContentSpec extends FinchSpec[Id] {
     }
   }
 
-  it should "asString" in {
+  it should "asString" in
     check { (b: Buf, cs: Charset) =>
       b.asString(cs) === new String(Buf.ByteArray.Owned.extract(b), cs)
     }
-  }
 }

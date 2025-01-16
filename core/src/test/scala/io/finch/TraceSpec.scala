@@ -19,9 +19,8 @@ class TraceSpec extends FinchSpec[Id] {
     }
   }
 
-  it should "create fromRoute" in {
+  it should "create fromRoute" in
     check { l: List[String] =>
       Trace.fromRoute(l).toList === l
     }
-  }
 }

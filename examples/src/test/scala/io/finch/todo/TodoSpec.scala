@@ -65,7 +65,7 @@ class TodoSpec extends AnyFlatSpec with Matchers with Checkers {
     }
   }
 
-  it should "patch a todo" in {
+  it should "patch a todo" in
     check { (app: TestApp, todo: TodoCompleted) =>
       def input(id: Int): Input = Input.patch(s"/todos/$id").withBody[Application.Json](todo)
 
@@ -82,5 +82,4 @@ class TodoSpec extends AnyFlatSpec with Matchers with Checkers {
 
       shouldBeTrue.unsafeRunSync()
     }
-  }
 }

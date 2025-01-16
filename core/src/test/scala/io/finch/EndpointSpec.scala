@@ -354,9 +354,8 @@ class EndpointSpec extends FinchSpec[SyncIO] {
 
     val put = ab(Input.put("/foo"))
     put.isMatched shouldBe false
-    put.asInstanceOf[EndpointResult.NotMatched.MethodNotAllowed[IO]].allowed.toSet shouldBe {
+    put.asInstanceOf[EndpointResult.NotMatched.MethodNotAllowed[IO]].allowed.toSet shouldBe
       Set(Method.Post, Method.Get)
-    }
   }
 
   it should "support the as[A] method on Endpoint[Seq[String]]" in {

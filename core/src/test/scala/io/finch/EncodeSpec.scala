@@ -26,12 +26,11 @@ class EncodeSpec extends FinchSpec[Id] {
     }
   }
 
-  it should "encode exceptions" in {
+  it should "encode exceptions" in
     check { (s: String, cs: Charset) =>
       val e = new Exception(s)
       val text = Encode[Exception, Text.Plain].apply(e, cs)
 
       text === Buf.ByteArray.Owned(s.getBytes(cs.name))
     }
-  }
 }

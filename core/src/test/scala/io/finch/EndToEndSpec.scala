@@ -155,7 +155,7 @@ class EndToEndSpec extends FinchSpec[IO] {
     }
   }
 
-  it should "succeed when there is no Accept header even though Not Acceptable is enabled" in {
+  it should "succeed when there is no Accept header even though Not Acceptable is enabled" in
     testService[Text.Plain](pathAny, _.configure(enableNotAcceptable = true)) { s =>
       check { req: Request =>
         req.accept = Nil
@@ -163,7 +163,6 @@ class EndToEndSpec extends FinchSpec[IO] {
         rep.status === Status.Ok
       }
     }
-  }
 }
 
 object EndToEndSpec {

@@ -135,9 +135,8 @@ class OutputSpec extends FinchSpec[Id] {
     }
   }
 
-  it should "traverse arbitrary outputs" in {
+  it should "traverse arbitrary outputs" in
     check { oa: Output[String] =>
       oa.traverse[Try, String](_ => Success(oa.value)) === Success(oa)
     }
-  }
 }

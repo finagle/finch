@@ -107,7 +107,7 @@ class BootstrapSpec extends FinchSpec[SyncIO] {
     }
   }
 
-  it should "capture Trace for failures and successes" in {
+  it should "capture Trace for failures and successes" in
     check { req: Request =>
       val p = req.path.split("/").drop(1)
 
@@ -121,5 +121,4 @@ class BootstrapSpec extends FinchSpec[SyncIO] {
 
       successCapture.toList === p.toList && failureCapture.toList === p.toList
     }
-  }
 }
