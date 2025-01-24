@@ -43,7 +43,7 @@ class MultipartSpec extends FinchSpec[SyncIO] {
     EvaluatingEndpointLaws[SyncIO, String](implicit de => multipartAttribute("foo")).all
   )
 
-  it should "file upload (single)" in {
+  it should "file upload (single)" in
     check { b: Buf =>
       val i = withFileUpload("foo", b)
       val fu = multipartFileUpload("foo").apply(i).valueOption.unsafeRunSync()
@@ -52,7 +52,6 @@ class MultipartSpec extends FinchSpec[SyncIO] {
       fu.map(_.asInstanceOf[Multipart.InMemoryFileUpload].content) === Some(b) &&
       fuo.map(_.asInstanceOf[Multipart.InMemoryFileUpload].content) === Some(b)
     }
-  }
 
   it should "fail when attribute is missing" in {
     an[Error.NotPresent] should be thrownBy
@@ -68,9 +67,8 @@ class MultipartSpec extends FinchSpec[SyncIO] {
       multipartAttributesNel("foo").apply(Input.get("/")).value.unsafeRunSync()
   }
 
-  it should "return empty sequence when attributes are missing for seq endpoint" in {
+  it should "return empty sequence when attributes are missing for seq endpoint" in
     multipartAttributes("foo").apply(Input.get("/")).valueOption.unsafeRunSync() === Some(Seq())
-  }
 
   it should "fail when attribute is malformed" in {
     an[Error.NotParsed] should be thrownBy

@@ -15,7 +15,7 @@ class BootstrapSpec extends FinchSpec[SyncIO] {
 
   private val bootstrap = Bootstrap[SyncIO]
 
-  it should "handle both Error and Errors" in {
+  it should "handle both Error and Errors" in
     check { e: Either[Error, Errors] =>
       val exception = e.fold[Exception](identity, identity)
       val ee = liftAsync[Unit](SyncIO.raiseError(exception))
@@ -23,7 +23,6 @@ class BootstrapSpec extends FinchSpec[SyncIO] {
         rep.status === Status.BadRequest
       }
     }
-  }
 
   it should "catch custom exceptions in attempt" in {
     val exception = new IllegalStateException
@@ -33,14 +32,13 @@ class BootstrapSpec extends FinchSpec[SyncIO] {
     }
   }
 
-  it should "respond 404 if endpoint is not matched" in {
+  it should "respond 404 if endpoint is not matched" in
     check { req: Request =>
       val s = bootstrap.serve[Text.Plain](Endpoint[SyncIO].empty[Unit]).compile
       inside(s(req).unsafeRunSync()) { case (_, Right(rep)) =>
         rep.status === Status.NotFound
       }
     }
-  }
 
   it should "respond 405 if method not allowed" in {
     val a = get("foo")(Ok("get foo"))
@@ -76,14 +74,13 @@ class BootstrapSpec extends FinchSpec[SyncIO] {
     }
   }
 
-  it should "match the request version" in {
+  it should "match the request version" in
     check { req: Request =>
       val s = bootstrap.serve[Text.Plain](const(())).compile
       inside(s(req).unsafeRunSync()) { case (_, Right(rep)) =>
         rep.version === req.version
       }
     }
-  }
 
   it should "include Date header" in {
     val formatter = DateTimeFormatter.RFC_1123_DATE_TIME.withZone(ZoneOffset.UTC)
@@ -98,14 +95,13 @@ class BootstrapSpec extends FinchSpec[SyncIO] {
     }
   }
 
-  it should "include Server header" in {
+  it should "include Server header" in
     check { (req: Request, include: Boolean) =>
       val s = bootstrap.configure(includeServerHeader = include).serve[Text.Plain](const(())).compile
       inside(s(req).unsafeRunSync()) { case (_, Right(rep)) =>
         (include && rep.server === Some("Finch")) || (!include && rep.server.isEmpty)
       }
     }
-  }
 
   it should "capture Trace for failures and successes" in
     check { req: Request =>

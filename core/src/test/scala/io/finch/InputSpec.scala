@@ -37,11 +37,10 @@ class InputSpec extends FinchSpec[IO] {
     }
   }
 
-  it should "add fully-buffered content via withBody" in {
+  it should "add fully-buffered content via withBody" in
     check { (i: Input, b: Buf) =>
       i.withBody[Text.Plain](b).request.content === b
     }
-  }
 
   it should "add chunked content via withBody" in {
     type ListStream[F[_], A] = List[A]
@@ -69,23 +68,21 @@ class InputSpec extends FinchSpec[IO] {
     }
   }
 
-  it should "add content corresponding to a class through withBody[JSON]" in {
+  it should "add content corresponding to a class through withBody[JSON]" in
     check { (i: Input, f: Foo, cs: Charset) =>
       val input = i.withBody[Application.Json](f, cs)
 
       input.request.content.asString(cs) === s"""{s:"${f.s}"""" &&
       input.request.contentType === Some(s"application/json;charset=${cs.displayName.toLowerCase}")
     }
-  }
 
-  it should "add headers through withHeaders" in {
+  it should "add headers through withHeaders" in
     check { (i: Input, hs: Headers) =>
       val hm = i.withHeaders(hs.m.toSeq: _*).request.headerMap
       hs.m.forall { case (k, v) => hm.contains(k) && hm(k) === v }
     }
-  }
 
-  it should "add form elements through withForm" in {
+  it should "add form elements through withForm" in
     check { (i: Input, ps: Params) =>
       ps.p.isEmpty || {
         val input = i.withForm(ps.p.toSeq: _*)
@@ -94,7 +91,6 @@ class InputSpec extends FinchSpec[IO] {
         input.request.contentType === Some("application/x-www-form-urlencoded;charset=utf-8")
       }
     }
-  }
 
   it should "parse route correctly" in
     check { i: Input =>

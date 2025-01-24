@@ -40,19 +40,17 @@ class BodySpec extends FinchSpec[SyncIO] {
     body[Foo, Text.Plain].apply(Input.fromRequest(req)).isMatched shouldBe false
   }
 
-  it should "respond with a value when present and required" in {
+  it should "respond with a value when present and required" in
     check { f: Foo =>
       val i = Input.post("/").withBody[Text.Plain](f)
       body[Foo, Text.Plain].apply(i).value.unsafeRunSync() === f
     }
-  }
 
-  it should "respond with Some(value) when it'ss present and optional" in {
+  it should "respond with Some(value) when it'ss present and optional" in
     check { f: Foo =>
       val i = Input.post("/").withBody[Text.Plain](f)
       bodyOption[Foo, Text.Plain].apply(i).value.unsafeRunSync() === Some(f)
     }
-  }
 
   it should "treat 0-length bodies as empty" in {
     val i = Input.post("/").withHeaders("Content-Length" -> "0")
@@ -62,23 +60,21 @@ class BodySpec extends FinchSpec[SyncIO] {
     binaryBodyOption.apply(i).value.unsafeRunSync() shouldBe None
   }
 
-  it should "never evaluate until run" in {
+  it should "never evaluate until run" in
     check { f: Foo =>
       val i = Input.post("/").withBody[Text.Plain](f)
       implicit val ed = new EvalDecode[Foo](Decode[Foo, Text.Plain])
       textBody[Foo].apply(i)
       !ed.evaluated
     }
-  }
 
-  it should "respect Content-Type header and pick corresponding decoder for coproduct" in {
+  it should "respect Content-Type header and pick corresponding decoder for coproduct" in
     check { f: Foo =>
       val plain = Input.post("/").withBody[Text.Plain](f)
       val csv = Input.post("/").withBody[Application.Csv](f)
       val endpoint = body[Foo, Text.Plain :+: Application.Csv :+: CNil]
       endpoint(plain).value.unsafeRunSync() === f && endpoint(csv).value.unsafeRunSync() === f
     }
-  }
 
   it should "resolve into NotParsed(Decode.UMTE) if Content-Type does not match" in {
     val i = Input.post("/").withBody[Application.Xml](Buf.Utf8("foo"))
