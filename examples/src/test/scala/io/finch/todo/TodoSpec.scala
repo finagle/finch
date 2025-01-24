@@ -49,7 +49,7 @@ class TodoSpec extends AnyFlatSpec with Matchers with Checkers {
   implicit def arbitraryTodoCompleted: Arbitrary[TodoCompleted] =
     Arbitrary(Arbitrary.arbBool.arbitrary.map(TodoCompleted))
 
-  it should "post a todo" in {
+  it should "post a todo" in
     check { (app: TestApp, todo: TodoTitle) =>
       val input = Input.post("/todos").withBody[Application.Json](todo)
 
@@ -63,7 +63,6 @@ class TodoSpec extends AnyFlatSpec with Matchers with Checkers {
 
       shouldBeTrue.unsafeRunSync()
     }
-  }
 
   it should "patch a todo" in
     check { (app: TestApp, todo: TodoCompleted) =>

@@ -36,39 +36,34 @@ class EndpointSpec extends FinchSpec[SyncIO] {
 
   private[this] val emptyRequest = Request()
 
-  it should "support very basic map" in {
+  it should "support very basic map" in
     check { i: Input =>
       path[String].map(_ * 2).apply(i).valueOption.unsafeRunSync() === i.route.headOption.map(_ * 2)
     }
-  }
 
-  it should "correctly run transform" in {
+  it should "correctly run transform" in
     check { e: EndpointIO[String] =>
       val fn: String => Int = _.length
       e.transform(_.map(fn)) <-> e.map(fn)
     }
-  }
 
-  it should "support transformOutput" in {
+  it should "support transformOutput" in
     check { i: Input =>
       val fn = (fs: SyncIO[Output[String]]) => fs.map(_.map(_ * 2))
       path[String].transformOutput(fn).apply(i).valueOption.unsafeRunSync() === i.route.headOption.map(_ * 2)
     }
-  }
 
-  it should "propagate the default (Ok) output" in {
+  it should "propagate the default (Ok) output" in
     check { i: Input =>
       path[String].apply(i).outputOption.unsafeRunSync() === i.route.headOption.map(Ok)
     }
-  }
 
-  it should "propagate the default (Ok) output through its map'd/mapAsync'd version" in {
+  it should "propagate the default (Ok) output through its map'd/mapAsync'd version" in
     check { i: Input =>
       val expected = i.route.headOption.map(s => Ok(s.length))
       path[String].map(s => s.length).apply(i).outputOption.unsafeRunSync() === expected &&
       path[String].mapAsync(s => SyncIO.pure(s.length)).apply(i).outputOption.unsafeRunSync() === expected
     }
-  }
 
   it should "propagate the output through mapOutputAsync and /" in {
     def expected(i: Int): Output[Int] =
@@ -86,25 +81,22 @@ class EndpointSpec extends FinchSpec[SyncIO] {
     }
   }
 
-  it should "match one patch segment" in {
+  it should "match one patch segment" in
     check { i: Input =>
       val v = i.route.headOption.flatMap(s => path(s).apply(i).remainder)
       v.isEmpty || v === Some(i.withRoute(i.route.tail))
     }
-  }
 
-  it should "always match the entire input with *" in {
+  it should "always match the entire input with *" in
     check { i: Input =>
       pathAny.apply(i).remainder === Some(i.copy(route = Nil))
     }
-  }
 
-  it should "match empty path" in {
+  it should "match empty path" in
     check { i: Input =>
       (i.route.isEmpty && pathEmpty.apply(i).isMatched) ||
       (i.route.nonEmpty && !pathEmpty.apply(i).isMatched)
     }
-  }
 
   it should "match the HTTP method" in {
     def matchMethod(m: Method, f: EndpointIO[HNil] => EndpointIO[HNil]): Input => Boolean = { i: Input =>
@@ -123,24 +115,21 @@ class EndpointSpec extends FinchSpec[SyncIO] {
     check(matchMethod(Method.Delete, delete))
   }
 
-  it should "always match the identity instance" in {
+  it should "always match the identity instance" in
     check { i: Input =>
       zero.apply(i).remainder === Some(i)
     }
-  }
 
-  it should "match the entire input" in {
+  it should "match the entire input" in
     check { i: Input =>
       val e = i.route.map(s => path(s)).foldLeft[EndpointIO[HNil]](zero)((acc, e) => acc :: e)
       e(i).remainder === Some(i.copy(route = Nil))
     }
-  }
 
-  it should "not match the entire input if one of the underlying endpoints is failed" in {
+  it should "not match the entire input if one of the underlying endpoints is failed" in
     check { (i: Input, s: String) =>
       (pathAny :: s).apply(i).remainder === None
     }
-  }
 
   it should "match the input if one of the endpoints succeed" in {
     def matchOneOfTwo(f: String => EndpointIO[HNil]): Input => Boolean = { i: Input =>
@@ -223,11 +212,10 @@ class EndpointSpec extends FinchSpec[SyncIO] {
     }
   }
 
-  it should "rescue the exception occurred in it" in {
+  it should "rescue the exception occurred in it" in
     check { (i: Input, s: String, e: Exception) =>
       liftAsync[String](SyncIO.raiseError(e)).handle { case _ => Created(s) }.apply(i).outputAttempt.unsafeRunSync() === Right(Created(s))
     }
-  }
 
   it should "re-raise the exception if it wasn't handled" in {
     case object CustomException extends Exception
@@ -301,7 +289,7 @@ class EndpointSpec extends FinchSpec[SyncIO] {
     e2(b).remainder shouldBe Some(b.withRoute(b.route.drop(2)))
   }
 
-  it should "accumulate errors on its product" in {
+  it should "accumulate errors on its product" in
     check { (a: Either[Error, Errors], b: Either[Error, Errors]) =>
       val aa = a.fold[Exception](identity, identity)
       val bb = b.fold[Exception](identity, identity)
@@ -323,9 +311,8 @@ class EndpointSpec extends FinchSpec[SyncIO] {
         second.asInstanceOf[Errors].errors.iterator.toSet === all
       }
     }
-  }
 
-  it should "fail-fast with the first non-error observed" in {
+  it should "fail-fast with the first non-error observed" in
     check { (a: Error, b: Errors, e: Exception) =>
       val aa = liftAsync[Unit](SyncIO.raiseError(a))
       val bb = liftAsync[Unit](SyncIO.raiseError(b))
@@ -342,7 +329,6 @@ class EndpointSpec extends FinchSpec[SyncIO] {
       bbee(Input.get("/")).valueAttempt.unsafeRunSync() === Left(e) &&
       eebb(Input.get("/")).valueAttempt.unsafeRunSync() === Left(e)
     }
-  }
 
   it should "accumulate EndpointResult.NotMatched in its | compositor" in {
     val a = get("foo")
@@ -396,13 +382,12 @@ class EndpointSpec extends FinchSpec[SyncIO] {
     r(Input.get("/test.txt")).value.unsafeRunSync() shouldBe Buf.Utf8("foo bar baz\n")
   }
 
-  it should "wrap up an exception thrown inside mapOutputs function" in {
+  it should "wrap up an exception thrown inside mapOutputs function" in
     check { (ep: EndpointIO[Int], p: Output.Payload[Int], e: Exception) =>
       val mappedEndpoint = ep.mapOutput[Int](_ => throw e)
       val asFunction = mappedEndpoint.asInstanceOf[Output[Int] => SyncIO[Output[Int]]]
       asFunction.apply(p).attempt.unsafeRunSync() === Left(e)
     }
-  }
 
   it should "transform F[_] to G[_] effect" in {
     type W[A] = WriterT[SyncIO, List[String], A]

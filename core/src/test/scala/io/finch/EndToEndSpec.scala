@@ -65,33 +65,30 @@ class EndToEndSpec extends FinchSpec[IO] {
     }
   }
 
-  it should "convert value Endpoints into Services" in {
+  it should "convert value Endpoints into Services" in
     testService[Text.Plain](get("foo")(Created("bar"))) { s =>
       val rep = Await.result(s(Request("/foo")))
       rep.contentString shouldBe "bar"
       rep.status shouldBe Status.Created
     }
-  }
 
-  it should "ignore Accept header when single type is used for serve" in {
+  it should "ignore Accept header when single type is used for serve" in
     testService[Text.Plain](pathAny) { service =>
       check { req: Request =>
         val rep = Await.result(service(req))
         rep.contentType === Some("text/plain")
       }
     }
-  }
 
-  it should "respect Accept header when coproduct type is used for serve" in {
+  it should "respect Accept header when coproduct type is used for serve" in
     testService[AllContentTypes](pathAny) { s =>
       check { req: Request =>
         val rep = Await.result(s(req))
         rep.contentType === req.accept.headOption
       }
     }
-  }
 
-  it should "ignore order of values in Accept header and use first appropriate encoder in coproduct" in {
+  it should "ignore order of values in Accept header and use first appropriate encoder in coproduct" in
     testService[AllContentTypes](pathAny) { s =>
       check { (req: Request, accept: Accept) =>
         val a = s"${accept.primary}/${accept.sub}"
@@ -103,9 +100,8 @@ class EndToEndSpec extends FinchSpec[IO] {
         rep.contentType === first
       }
     }
-  }
 
-  it should "select last encoder when Accept header is missing/empty" in {
+  it should "select last encoder when Accept header is missing/empty" in
     testService[AllContentTypes](pathAny) { s =>
       check { req: Request =>
         req.headerMap.remove(Fields.Accept)
@@ -113,9 +109,8 @@ class EndToEndSpec extends FinchSpec[IO] {
         rep.contentType === Some("text/event-stream")
       }
     }
-  }
 
-  it should "select last encoder when Accept header value doesn't match any existing encoder" in {
+  it should "select last encoder when Accept header value doesn't match any existing encoder" in
     testService[AllContentTypes](pathAny) { s =>
       check { (req: Request, accept: Accept) =>
         req.accept = s"${accept.primary}/foo"
@@ -123,7 +118,6 @@ class EndToEndSpec extends FinchSpec[IO] {
         rep.contentType === Some("text/event-stream")
       }
     }
-  }
 
   it should "return the exception occurred in endpoint's effect" in {
     val endpoint = pathAny.mapAsync { _ =>
@@ -135,7 +129,7 @@ class EndToEndSpec extends FinchSpec[IO] {
     }
   }
 
-  it should "fail with 406 Not Acceptable on Content-Type negotiation failure when enabled" in {
+  it should "fail with 406 Not Acceptable on Content-Type negotiation failure when enabled" in
     testService[AllContentTypes](pathAny, _.configure(enableNotAcceptable = true)) { s =>
       check { (req: Request, accept: List[Accept]) =>
         req.accept = accept.map(_.primary + "/foo")
@@ -143,9 +137,8 @@ class EndToEndSpec extends FinchSpec[IO] {
         rep.status === Status.NotAcceptable
       }
     }
-  }
 
-  it should "fail with 406 Not Acceptable on Content-Type mismatch when enabled" in {
+  it should "fail with 406 Not Acceptable on Content-Type mismatch when enabled" in
     testService[Text.Plain](pathAny, _.configure(enableNotAcceptable = true)) { s =>
       check { (req: Request, accept: Accept) =>
         req.accept = accept.primary + "/foo"
@@ -153,7 +146,6 @@ class EndToEndSpec extends FinchSpec[IO] {
         rep.status === Status.NotAcceptable
       }
     }
-  }
 
   it should "succeed when there is no Accept header even though Not Acceptable is enabled" in
     testService[Text.Plain](pathAny, _.configure(enableNotAcceptable = true)) { s =>

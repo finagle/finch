@@ -14,17 +14,15 @@ class EncodeSpec extends FinchSpec[Id] {
   checkAll("Encode.Text[List[Long]]", EncodeLaws.text[List[Long]].all)
   checkAll("Encode.Text[Either[UUID, Float]]", EncodeLaws.text[Either[UUID, Float]].all)
 
-  it should "round trip Unit" in {
+  it should "round trip Unit" in
     check { cs: Charset =>
       implicitly[Encode[Unit]].apply((), cs) === Buf.Empty
     }
-  }
 
-  it should "round trip Buf" in {
+  it should "round trip Buf" in
     check { (cs: Charset, buf: Buf) =>
       implicitly[Encode[Buf]].apply(buf, cs) === buf
     }
-  }
 
   it should "encode exceptions" in
     check { (s: String, cs: Charset) =>
