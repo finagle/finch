@@ -39,7 +39,8 @@ object Main extends TwitterServer with EndpointModule[IO] {
   locally {
     println(s"Open your browser at http://localhost:${port()}/todo/index.html") // scalastyle:ignore
     val latch = new CountDownLatch(1)
-    val cancel = run.onError(e => IO(exitOnError(e))).unsafeRunCancelable()
+    val handle: PartialFunction[Throwable, IO[Unit]] = { case e => IO(exitOnError(e)) }
+    val cancel = run.onError(handle).unsafeRunCancelable()
 
     onExit {
       cancel()
