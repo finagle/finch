@@ -26,11 +26,11 @@ sealed trait Trace {
     }
 
     this match {
-      case Trace.Empty => that
+      case Trace.Empty             => that
       case a @ Trace.Segment(_, _) =>
         that match {
           case Trace.Empty => a
-          case _ =>
+          case _           =>
             val result = Trace.Segment(a.path, Trace.Empty)
             loop(a.next, result)
             result

@@ -100,7 +100,7 @@ package object internal {
     // Returns content as ByteArray (tries to avoid copying).
     def asByteArray: Array[Byte] = asByteArrayWithBeginAndEnd match {
       case (array, begin, end) if begin == 0 && end == array.length => array
-      case (array, begin, end) =>
+      case (array, begin, end)                                      =>
         val result = new Array[Byte](end - begin)
         System.arraycopy(array, begin, result, 0, end - begin)
 

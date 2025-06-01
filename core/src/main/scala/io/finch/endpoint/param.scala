@@ -20,7 +20,7 @@ abstract private[finch] class Param[F[_], G[_], A](name: String)(implicit
   final def apply(input: Input): EndpointResult[F, G[A]] = {
     val output: F[Output[G[A]]] = F.defer {
       input.request.params.get(name) match {
-        case None => missing(name)
+        case None        => missing(name)
         case Some(value) =>
           d(value) match {
             case Right(s) => F.pure(Output.payload(present(s)))
@@ -62,7 +62,7 @@ abstract private[finch] class Params[F[_], G[_], A](name: String)(implicit
     val output: F[Output[G[A]]] = F.defer {
       input.request.params.getAll(name) match {
         case value if value.isEmpty => missing(name)
-        case value =>
+        case value                  =>
           val (errors, decoded) = value.toList.map(d.apply).separate
           NonEmptyList.fromList(errors) match {
             case None     => F.pure(Output.payload(present(decoded)))

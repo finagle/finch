@@ -18,7 +18,7 @@ abstract private[finch] class Header[F[_], G[_], A](name: String)(implicit
   final def apply(input: Input): EndpointResult[F, G[A]] = {
     val output: F[Output[G[A]]] = F.defer {
       input.request.headerMap.getOrNull(name) match {
-        case null => missing(name)
+        case null  => missing(name)
         case value =>
           d(value) match {
             case Right(s) => F.pure(Output.payload(present(s)))
