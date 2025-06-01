@@ -34,7 +34,7 @@ abstract private[finch] class Attribute[F[_]: Sync, G[_], A](val name: String)(i
     else {
       val output = F.defer {
         all(input) match {
-          case None => missing(name)
+          case None         => missing(name)
           case Some(values) =>
             val (errors, decoded) = values.toList.map(d.apply).separate
             NonEmptyList.fromList(errors) match {
