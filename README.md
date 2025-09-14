@@ -6,6 +6,13 @@ Finch is a thin layer of purely functional basic blocks atop of [Finagle][finagl
 building composable HTTP APIs. Its mission is to provide the developers simple and robust HTTP primitives being as
 close as possible to the bare metal Finagle API.
 
+------------
+
+> [!WARNING]  
+> Finch is no longer maintained because Finagle is no longer maintained: [twitter/finagle#943](https://github.com/twitter/finagle/issues/943).
+>
+> For an alternative purely functional HTTP server in Scala, take a look at [http4s](https://http4s.org/).
+
 Badges
 ------
 [![Scala CI](https://github.com/finagle/finch/actions/workflows/build.yml/badge.svg)](https://github.com/finagle/finch/actions/workflows/build.yml)
